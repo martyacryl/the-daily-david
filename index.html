@@ -32,7 +32,7 @@
         const Wifi = ({ className }) => <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0" /></svg>;
         const WifiOff = ({ className }) => <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M1 1l22 22M16.72 11.06A10.94 10.94 0 0119 12.55M5 12.55a10.94 10.94 0 015.17-2.39M10.71 5.05A16 16 0 0122.58 9M1.42 9a15.91 15.91 0 014.7-2.88M8.53 16.11a6 6 0 016.95 0M12 20h.01" /></svg>;
 
-        const { useState, useEffect, useCallback } = React;
+        const { useState, useEffect, useCallback, useRef } = React;
 
         // Initialize Supabase
         const supabaseUrl = 'https://jrutqdesurnansyfydbf.supabase.co';
@@ -45,6 +45,30 @@
             const [isConnected, setIsConnected] = useState(false);
             const [isLoading, setIsLoading] = useState(true);
             const [lastSaved, setLastSaved] = useState(null);
+            const saveTimeoutRef = useRef(null);
+
+            // Debounced save function - waits 1 second after you stop typing
+            const debouncedSave = useCallback(async (weekKey, data) => {
+                // Clear any existing timeout
+                if (saveTimeoutRef.current) {
+                    clearTimeout(saveTimeoutRef.current);
+                }
+
+                // Set a new timeout
+                saveTimeoutRef.current = setTimeout(async () => {
+                    console.log('Saving after debounce...');
+                    await saveWeekData(weekKey, data);
+                }, 1000); // Wait 1 second after user stops typing
+            }, []);
+
+            // Clean up timeout on unmount
+            useEffect(() => {
+                return () => {
+                    if (saveTimeoutRef.current) {
+                        clearTimeout(saveTimeoutRef.current);
+                    }
+                };
+            }, []);
 
             // Get Monday of current week
             const getMonday = (date) => {
@@ -115,40 +139,25 @@
             const saveWeekData = async (weekKey, data) => {
                 try {
                     console.log('Saving data for week:', weekKey);
+                    console.log('Data to save:', data);
                     
-                    // First try to update existing record
-                    const { data: updateResult, error: updateError } = await supabase
+                    // Use upsert with explicit conflict resolution
+                    const { data: result, error } = await supabase
                         .from('marriage_meetings')
-                        .update({
-                            data: data,
-                            updated_at: new Date().toISOString()
+                        .upsert({
+                            week_key: weekKey,
+                            data: data
+                        }, {
+                            onConflict: 'week_key'
                         })
-                        .eq('week_key', weekKey)
                         .select();
 
-                    if (updateError) {
-                        console.log('Update error:', updateError);
+                    if (error) {
+                        console.log('Upsert error:', error);
                         return false;
                     }
 
-                    // If no rows were updated, the record doesn't exist, so insert it
-                    if (!updateResult || updateResult.length === 0) {
-                        console.log('No existing record found, inserting new one');
-                        const { error: insertError } = await supabase
-                            .from('marriage_meetings')
-                            .insert({
-                                week_key: weekKey,
-                                data: data,
-                                updated_at: new Date().toISOString()
-                            });
-
-                        if (insertError) {
-                            console.log('Insert error:', insertError);
-                            return false;
-                        }
-                    }
-
-                    console.log('Data saved successfully');
+                    console.log('Data saved successfully:', result);
                     setLastSaved(new Date());
                     return true;
                 } catch (error) {
@@ -238,7 +247,7 @@
                 todos: [], prayers: [], goals: [], grocery: [], unconfessedSin: []
             };
 
-            // Update functions with auto-save
+            // Update functions with debounced auto-save
             const updateSchedule = async (day, index, value) => {
                 const weekKey = formatWeekKey(currentWeek);
                 const newData = {
@@ -249,7 +258,7 @@
                     }
                 };
                 setWeekData(prev => ({ ...prev, [weekKey]: newData }));
-                await saveWeekData(weekKey, newData);
+                debouncedSave(weekKey, newData); // Debounced save
             };
 
             const addScheduleLine = async (day) => {
@@ -262,7 +271,7 @@
                     }
                 };
                 setWeekData(prev => ({ ...prev, [weekKey]: newData }));
-                await saveWeekData(weekKey, newData);
+                await saveWeekData(weekKey, newData); // Immediate save for structure changes
             };
 
             const removeScheduleLine = async (day, index) => {
@@ -275,7 +284,7 @@
                     }
                 };
                 setWeekData(prev => ({ ...prev, [weekKey]: newData }));
-                await saveWeekData(weekKey, newData);
+                await saveWeekData(weekKey, newData); // Immediate save for structure changes
             };
 
             const updateList = async (listType, items) => {
@@ -285,7 +294,7 @@
                     [listType]: items
                 };
                 setWeekData(prev => ({ ...prev, [weekKey]: newData }));
-                await saveWeekData(weekKey, newData);
+                debouncedSave(weekKey, newData); // Debounced save
             };
 
             const addListItem = (listType, text = '') => {
