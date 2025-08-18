@@ -47,89 +47,6 @@
             const [lastSaved, setLastSaved] = useState(null);
             const saveTimeoutRef = useRef(null);
 
-            // Load week data from database
-            const loadWeekData = async (weekKey) => {
-                try {
-                    console.log('Loading data for week:', weekKey);
-                    const { data, error } = await supabase
-                        .from('marriage_meetings')
-                        .select('*')
-                        .eq('week_key', weekKey);
-
-                    console.log('Database response:', { data, error });
-
-                    if (error) {
-                        console.log('Error loading:', error);
-                        return null;
-                    }
-
-                    if (data && data.length > 0) {
-                        console.log('Found existing data:', data[0].data);
-                        return data[0].data;
-                    }
-
-                    console.log('No existing data found for this week');
-                    return null;
-                } catch (error) {
-                    console.log('Load error:', error);
-                    return null;
-                }
-            };
-
-            // Save week data to database
-            const saveWeekData = useCallback(async (weekKey, data) => {
-                try {
-                    console.log('Saving data for week:', weekKey);
-                    console.log('Data to save:', data);
-                    
-                    // Use upsert with explicit conflict resolution
-                    const { data: result, error } = await supabase
-                        .from('marriage_meetings')
-                        .upsert({
-                            week_key: weekKey,
-                            data: data
-                        }, {
-                            onConflict: 'week_key'
-                        })
-                        .select();
-
-                    if (error) {
-                        console.log('Upsert error:', error);
-                        return false;
-                    }
-
-                    console.log('Data saved successfully:', result);
-                    setLastSaved(new Date());
-                    return true;
-                } catch (error) {
-                    console.log('Save error:', error);
-                    return false;
-                }
-            }, []);
-
-            // Debounced save function - waits 1 second after you stop typing
-            const debouncedSave = useCallback((weekKey, data) => {
-                // Clear any existing timeout
-                if (saveTimeoutRef.current) {
-                    clearTimeout(saveTimeoutRef.current);
-                }
-
-                // Set a new timeout
-                saveTimeoutRef.current = setTimeout(async () => {
-                    console.log('Saving after debounce...');
-                    await saveWeekData(weekKey, data);
-                }, 1000); // Wait 1 second after user stops typing
-            }, [saveWeekData]);
-
-            // Clean up timeout on unmount
-            useEffect(() => {
-                return () => {
-                    if (saveTimeoutRef.current) {
-                        clearTimeout(saveTimeoutRef.current);
-                    }
-                };
-            }, []);
-
             // Get Monday of current week
             const getMonday = (date) => {
                 const d = new Date(date);
@@ -151,31 +68,13 @@
                 return `${monday.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${sunday.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
             };
 
-            // Initialize database table
-            const initializeDatabase = async () => {
-                try {
-                    // Create table if it doesn't exist
-                    const { error } = await supabase.rpc('create_marriage_meeting_table');
-                    if (error && !error.message.includes('already exists')) {
-                        console.log('Table might already exist, continuing...');
-                    }
-                    setIsConnected(true);
-                } catch (error) {
-                    console.log('Database setup info:', error);
-                    setIsConnected(true); // Continue anyway
-                }
-            };
-
             // Load week data from database
             const loadWeekData = async (weekKey) => {
                 try {
-                    console.log('Loading data for week:', weekKey);
                     const { data, error } = await supabase
                         .from('marriage_meetings')
                         .select('*')
                         .eq('week_key', weekKey);
-
-                    console.log('Database response:', { data, error });
 
                     if (error) {
                         console.log('Error loading:', error);
@@ -183,11 +82,9 @@
                     }
 
                     if (data && data.length > 0) {
-                        console.log('Found existing data:', data[0].data);
                         return data[0].data;
                     }
 
-                    console.log('No existing data found for this week');
                     return null;
                 } catch (error) {
                     console.log('Load error:', error);
@@ -198,26 +95,20 @@
             // Save week data to database
             const saveWeekData = async (weekKey, data) => {
                 try {
-                    console.log('Saving data for week:', weekKey);
-                    console.log('Data to save:', data);
-                    
-                    // Use upsert with explicit conflict resolution
-                    const { data: result, error } = await supabase
+                    const { error } = await supabase
                         .from('marriage_meetings')
                         .upsert({
                             week_key: weekKey,
                             data: data
                         }, {
                             onConflict: 'week_key'
-                        })
-                        .select();
+                        });
 
                     if (error) {
-                        console.log('Upsert error:', error);
+                        console.log('Save error:', error);
                         return false;
                     }
 
-                    console.log('Data saved successfully:', result);
                     setLastSaved(new Date());
                     return true;
                 } catch (error) {
@@ -226,18 +117,31 @@
                 }
             };
 
-            // Initialize week data if it doesn't exist
+            // Debounced save - waits 1 second after typing stops
+            const debouncedSave = useCallback((weekKey, data) => {
+                if (saveTimeoutRef.current) {
+                    clearTimeout(saveTimeoutRef.current);
+                }
+                saveTimeoutRef.current = setTimeout(() => {
+                    saveWeekData(weekKey, data);
+                }, 1000);
+            }, []);
+
+            // Initialize database
+            const initializeDatabase = async () => {
+                setIsConnected(true);
+            };
+
+            // Initialize week data
             const initializeWeekData = useCallback(async () => {
                 const weekKey = formatWeekKey(currentWeek);
                 
-                // Check if we already have this week's data
                 if (weekData[weekKey]) {
                     return weekData[weekKey];
                 }
 
                 setIsLoading(true);
                 
-                // Try to load from database
                 const savedData = await loadWeekData(weekKey);
                 
                 if (savedData) {
@@ -246,22 +150,12 @@
                     return savedData;
                 }
 
-                // Create new week data
                 const newWeekData = {
                     schedule: {
-                        Monday: [''],
-                        Tuesday: [''],
-                        Wednesday: [''],
-                        Thursday: [''],
-                        Friday: [''],
-                        Saturday: [''],
-                        Sunday: ['']
+                        Monday: [''], Tuesday: [''], Wednesday: [''], Thursday: [''],
+                        Friday: [''], Saturday: [''], Sunday: ['']
                     },
-                    todos: [],
-                    prayers: [],
-                    goals: [],
-                    grocery: [],
-                    unconfessedSin: []
+                    todos: [], prayers: [], goals: [], grocery: [], unconfessedSin: []
                 };
 
                 setWeekData(prev => ({ ...prev, [weekKey]: newWeekData }));
@@ -270,32 +164,19 @@
                 return newWeekData;
             }, [currentWeek, weekData]);
 
-            // Initialize on component mount
+            // Initialize on mount
             useEffect(() => {
                 initializeDatabase().then(() => {
                     initializeWeekData();
                 });
             }, [initializeWeekData]);
 
-            // Set up real-time subscription
+            // Clean up timeout
             useEffect(() => {
-                const channel = supabase
-                    .channel('marriage_meetings')
-                    .on('postgres_changes', 
-                        { event: '*', schema: 'public', table: 'marriage_meetings' }, 
-                        (payload) => {
-                            if (payload.new && payload.new.week_key) {
-                                setWeekData(prev => ({
-                                    ...prev,
-                                    [payload.new.week_key]: payload.new.data
-                                }));
-                            }
-                        }
-                    )
-                    .subscribe();
-
                 return () => {
-                    channel.unsubscribe();
+                    if (saveTimeoutRef.current) {
+                        clearTimeout(saveTimeoutRef.current);
+                    }
                 };
             }, []);
 
@@ -307,7 +188,7 @@
                 todos: [], prayers: [], goals: [], grocery: [], unconfessedSin: []
             };
 
-            // Update functions with debounced auto-save
+            // Update functions
             const updateSchedule = (day, index, value) => {
                 const weekKey = formatWeekKey(currentWeek);
                 const newData = {
@@ -318,7 +199,7 @@
                     }
                 };
                 setWeekData(prev => ({ ...prev, [weekKey]: newData }));
-                debouncedSave(weekKey, newData); // Debounced save
+                debouncedSave(weekKey, newData);
             };
 
             const addScheduleLine = (day) => {
@@ -331,7 +212,7 @@
                     }
                 };
                 setWeekData(prev => ({ ...prev, [weekKey]: newData }));
-                saveWeekData(weekKey, newData); // Immediate save for structure changes
+                saveWeekData(weekKey, newData);
             };
 
             const removeScheduleLine = (day, index) => {
@@ -344,21 +225,33 @@
                     }
                 };
                 setWeekData(prev => ({ ...prev, [weekKey]: newData }));
-                saveWeekData(weekKey, newData); // Immediate save for structure changes
+                saveWeekData(weekKey, newData);
             };
 
-            // Remove the old updateList function since we're handling it directly now
-
-            const addListItem = (listType, text = '') => {
+            const addListItem = (listType) => {
                 const weekKey = formatWeekKey(currentWeek);
                 const currentItems = currentWeekData[listType] || [];
-                const newItem = { id: Date.now(), text, completed: false };
+                const newItem = { id: Date.now(), text: '', completed: false };
                 const newData = {
                     ...currentWeekData,
                     [listType]: [...currentItems, newItem]
                 };
                 setWeekData(prev => ({ ...prev, [weekKey]: newData }));
-                saveWeekData(weekKey, newData); // Immediate save for new items
+                saveWeekData(weekKey, newData);
+            };
+
+            const updateListItem = (listType, id, text) => {
+                const weekKey = formatWeekKey(currentWeek);
+                const currentItems = currentWeekData[listType] || [];
+                const updatedItems = currentItems.map(item => 
+                    item.id === id ? { ...item, text } : item
+                );
+                const newData = {
+                    ...currentWeekData,
+                    [listType]: updatedItems
+                };
+                setWeekData(prev => ({ ...prev, [weekKey]: newData }));
+                debouncedSave(weekKey, newData);
             };
 
             const toggleListItem = (listType, id) => {
@@ -372,7 +265,7 @@
                     [listType]: updatedItems
                 };
                 setWeekData(prev => ({ ...prev, [weekKey]: newData }));
-                saveWeekData(weekKey, newData); // Immediate save for toggles
+                saveWeekData(weekKey, newData);
             };
 
             const removeListItem = (listType, id) => {
@@ -384,7 +277,7 @@
                     [listType]: updatedItems
                 };
                 setWeekData(prev => ({ ...prev, [weekKey]: newData }));
-                saveWeekData(weekKey, newData); // Immediate save for deletions
+                saveWeekData(weekKey, newData);
             };
 
             const navigateWeek = (direction) => {
@@ -406,7 +299,6 @@
                             <button
                                 onClick={() => addListItem(listType)}
                                 className="ml-auto p-1 text-blue-600 hover:bg-blue-50 rounded"
-                                disabled={isLoading}
                             >
                                 <Plus className="w-4 h-4" />
                             </button>
@@ -417,7 +309,6 @@
                                     <button
                                         onClick={() => toggleListItem(listType, item.id)}
                                         className={`p-1 rounded ${item.completed ? 'text-green-600' : 'text-gray-400'} hover:bg-gray-50`}
-                                        disabled={isLoading}
                                     >
                                         <Check className="w-4 h-4" />
                                     </button>
@@ -427,12 +318,10 @@
                                         onChange={(e) => updateListItem(listType, item.id, e.target.value)}
                                         placeholder={placeholder}
                                         className={`flex-1 p-2 border rounded ${item.completed ? 'line-through text-gray-500 bg-gray-50' : ''}`}
-                                        disabled={isLoading}
                                     />
                                     <button
                                         onClick={() => removeListItem(listType, item.id)}
                                         className="opacity-0 group-hover:opacity-100 p-1 text-red-500 hover:bg-red-50 rounded"
-                                        disabled={isLoading}
                                     >
                                         <X className="w-4 h-4" />
                                     </button>
@@ -481,7 +370,6 @@
                                     <button
                                         onClick={() => navigateWeek(-1)}
                                         className="p-2 text-gray-600 hover:bg-gray-100 rounded-full"
-                                        disabled={isLoading}
                                     >
                                         <ChevronLeft />
                                     </button>
@@ -491,7 +379,6 @@
                                     <button
                                         onClick={() => navigateWeek(1)}
                                         className="p-2 text-gray-600 hover:bg-gray-100 rounded-full"
-                                        disabled={isLoading}
                                     >
                                         <ChevronRight />
                                     </button>
@@ -530,13 +417,11 @@
                                                         e.target.style.height = 'auto';
                                                         e.target.style.height = e.target.scrollHeight + 'px';
                                                     }}
-                                                    disabled={isLoading}
                                                 />
                                                 {(currentWeekData.schedule?.[day] || []).length > 1 && (
                                                     <button
                                                         onClick={() => removeScheduleLine(day, index)}
                                                         className="p-1 text-red-500 hover:bg-red-50 rounded"
-                                                        disabled={isLoading}
                                                     >
                                                         <X className="w-3 h-3" />
                                                     </button>
@@ -546,7 +431,6 @@
                                         <button
                                             onClick={() => addScheduleLine(day)}
                                             className="w-full p-2 text-blue-600 hover:bg-blue-50 rounded border border-dashed border-blue-300 text-sm"
-                                            disabled={isLoading}
                                         >
                                             <Plus className="w-3 h-3 inline mr-1" />
                                             Add line
