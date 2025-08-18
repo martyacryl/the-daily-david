@@ -263,12 +263,20 @@
                                     <div className="space-y-1">
                                         {(currentWeekData.schedule?.[day] || ['']).map((item, index) => (
                                             <div key={index} className="flex items-center gap-1">
-                                                <input
-                                                    type="text"
+                                                <textarea
                                                     value={item}
                                                     onChange={(e) => updateSchedule(day, index, e.target.value)}
                                                     placeholder="Add commitment or note..."
-                                                    className="flex-1 p-2 text-sm border rounded"
+                                                    className="flex-1 p-2 text-sm border rounded resize-none overflow-hidden"
+                                                    rows={1}
+                                                    style={{
+                                                        minHeight: '36px',
+                                                        height: 'auto'
+                                                    }}
+                                                    onInput={(e) => {
+                                                        e.target.style.height = 'auto';
+                                                        e.target.style.height = e.target.scrollHeight + 'px';
+                                                    }}
                                                 />
                                                 {(currentWeekData.schedule?.[day] || []).length > 1 && (
                                                     <button
