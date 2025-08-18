@@ -46,6 +46,7 @@
             const [isLoading, setIsLoading] = useState(true);
             const [lastSaved, setLastSaved] = useState(null);
             const saveTimeoutRef = useRef(null);
+            const dataRef = useRef({});
 
             // Get Monday of current week
             const getMonday = (date) => {
@@ -123,7 +124,10 @@
                     clearTimeout(saveTimeoutRef.current);
                 }
                 saveTimeoutRef.current = setTimeout(() => {
-                    saveWeekData(weekKey, data);
+                    // Use a separate async function so it doesn't affect the main thread
+                    (async () => {
+                        await saveWeekData(weekKey, data);
+                    })();
                 }, 1000);
             }, []);
 
@@ -198,8 +202,18 @@
                         [day]: currentWeekData.schedule[day].map((item, i) => i === index ? value : item)
                     }
                 };
+                
+                // Update both the state and ref immediately for UI
                 setWeekData(prev => ({ ...prev, [weekKey]: newData }));
-                debouncedSave(weekKey, newData);
+                dataRef.current[weekKey] = newData;
+                
+                // Debounced save using ref data
+                if (saveTimeoutRef.current) {
+                    clearTimeout(saveTimeoutRef.current);
+                }
+                saveTimeoutRef.current = setTimeout(() => {
+                    saveWeekData(weekKey, dataRef.current[weekKey]);
+                }, 1000);
             };
 
             const addScheduleLine = (day) => {
@@ -250,8 +264,18 @@
                     ...currentWeekData,
                     [listType]: updatedItems
                 };
+                
+                // Update both the state and ref immediately for UI
                 setWeekData(prev => ({ ...prev, [weekKey]: newData }));
-                debouncedSave(weekKey, newData);
+                dataRef.current[weekKey] = newData;
+                
+                // Debounced save using ref data to avoid state update issues
+                if (saveTimeoutRef.current) {
+                    clearTimeout(saveTimeoutRef.current);
+                }
+                saveTimeoutRef.current = setTimeout(() => {
+                    saveWeekData(weekKey, dataRef.current[weekKey]);
+                }, 1000);
             };
 
             const toggleListItem = (listType, id) => {
