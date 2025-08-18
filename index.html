@@ -7,6 +7,7 @@
     <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .lucide { width: 1em; height: 1em; display: inline-block; }
@@ -16,7 +17,7 @@
     <div id="root"></div>
 
     <script type="text/babel">
-        // Simple icon components to replace Lucide
+        // Simple icon components
         const ChevronLeft = () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>;
         const ChevronRight = () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>;
         const Calendar = ({ className }) => <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>;
@@ -28,12 +29,22 @@
         const X = ({ className }) => <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>;
         const Check = ({ className }) => <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>;
         const UserX = ({ className }) => <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>;
+        const Wifi = ({ className }) => <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0" /></svg>;
+        const WifiOff = ({ className }) => <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M1 1l22 22M16.72 11.06A10.94 10.94 0 0119 12.55M5 12.55a10.94 10.94 0 015.17-2.39M10.71 5.05A16 16 0 0122.58 9M1.42 9a15.91 15.91 0 014.7-2.88M8.53 16.11a6 6 0 016.95 0M12 20h.01" /></svg>;
 
-        const { useState, useEffect } = React;
+        const { useState, useEffect, useCallback } = React;
+
+        // Initialize Supabase
+        const supabaseUrl = 'https://jrutqdesurnansyfydbf.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpydXRxZGVzdXJuYW5zeWZ5ZGJmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU1NTA4MzgsImV4cCI6MjA3MTEyNjgzOH0.G-sTw0eF-tQEcqvbaz-hSM2h0KVr2NMOYMq4x0iwIIc';
+        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
         const MarriageMeetingTool = () => {
             const [currentWeek, setCurrentWeek] = useState(new Date());
             const [weekData, setWeekData] = useState({});
+            const [isConnected, setIsConnected] = useState(false);
+            const [isLoading, setIsLoading] = useState(true);
+            const [lastSaved, setLastSaved] = useState(null);
 
             // Get Monday of current week
             const getMonday = (date) => {
@@ -56,86 +67,195 @@
                 return `${monday.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${sunday.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
             };
 
-            // Initialize week data if it doesn't exist
-            const initializeWeekData = () => {
-                const weekKey = formatWeekKey(currentWeek);
-                if (!weekData[weekKey]) {
-                    const newWeekData = {
-                        schedule: {
-                            Monday: [''],
-                            Tuesday: [''],
-                            Wednesday: [''],
-                            Thursday: [''],
-                            Friday: [''],
-                            Saturday: [''],
-                            Sunday: ['']
-                        },
-                        todos: [],
-                        prayers: [],
-                        goals: [],
-                        grocery: [],
-                        unconfessedSin: []
-                    };
-                    setWeekData(prev => ({ ...prev, [weekKey]: newWeekData }));
-                    return newWeekData;
+            // Initialize database table
+            const initializeDatabase = async () => {
+                try {
+                    // Create table if it doesn't exist
+                    const { error } = await supabase.rpc('create_marriage_meeting_table');
+                    if (error && !error.message.includes('already exists')) {
+                        console.log('Table might already exist, continuing...');
+                    }
+                    setIsConnected(true);
+                } catch (error) {
+                    console.log('Database setup info:', error);
+                    setIsConnected(true); // Continue anyway
                 }
-                return weekData[formatWeekKey(currentWeek)];
             };
 
-            const currentWeekData = initializeWeekData();
+            // Load week data from database
+            const loadWeekData = async (weekKey) => {
+                try {
+                    const { data, error } = await supabase
+                        .from('marriage_meetings')
+                        .select('*')
+                        .eq('week_key', weekKey)
+                        .single();
 
-            // Update functions
-            const updateSchedule = (day, index, value) => {
+                    if (error && error.code !== 'PGRST116') { // PGRST116 = no rows found
+                        console.log('Error loading:', error);
+                        return null;
+                    }
+
+                    return data ? data.data : null;
+                } catch (error) {
+                    console.log('Load error:', error);
+                    return null;
+                }
+            };
+
+            // Save week data to database
+            const saveWeekData = async (weekKey, data) => {
+                try {
+                    const { error } = await supabase
+                        .from('marriage_meetings')
+                        .upsert({
+                            week_key: weekKey,
+                            data: data,
+                            updated_at: new Date().toISOString()
+                        });
+
+                    if (error) {
+                        console.log('Save error:', error);
+                        return false;
+                    }
+
+                    setLastSaved(new Date());
+                    return true;
+                } catch (error) {
+                    console.log('Save error:', error);
+                    return false;
+                }
+            };
+
+            // Initialize week data if it doesn't exist
+            const initializeWeekData = useCallback(async () => {
                 const weekKey = formatWeekKey(currentWeek);
-                setWeekData(prev => ({
-                    ...prev,
-                    [weekKey]: {
-                        ...prev[weekKey],
-                        schedule: {
-                            ...prev[weekKey].schedule,
-                            [day]: prev[weekKey].schedule[day].map((item, i) => i === index ? value : item)
+                
+                // Check if we already have this week's data
+                if (weekData[weekKey]) {
+                    return weekData[weekKey];
+                }
+
+                setIsLoading(true);
+                
+                // Try to load from database
+                const savedData = await loadWeekData(weekKey);
+                
+                if (savedData) {
+                    setWeekData(prev => ({ ...prev, [weekKey]: savedData }));
+                    setIsLoading(false);
+                    return savedData;
+                }
+
+                // Create new week data
+                const newWeekData = {
+                    schedule: {
+                        Monday: [''],
+                        Tuesday: [''],
+                        Wednesday: [''],
+                        Thursday: [''],
+                        Friday: [''],
+                        Saturday: [''],
+                        Sunday: ['']
+                    },
+                    todos: [],
+                    prayers: [],
+                    goals: [],
+                    grocery: [],
+                    unconfessedSin: []
+                };
+
+                setWeekData(prev => ({ ...prev, [weekKey]: newWeekData }));
+                await saveWeekData(weekKey, newWeekData);
+                setIsLoading(false);
+                return newWeekData;
+            }, [currentWeek, weekData]);
+
+            // Initialize on component mount
+            useEffect(() => {
+                initializeDatabase().then(() => {
+                    initializeWeekData();
+                });
+            }, [initializeWeekData]);
+
+            // Set up real-time subscription
+            useEffect(() => {
+                const channel = supabase
+                    .channel('marriage_meetings')
+                    .on('postgres_changes', 
+                        { event: '*', schema: 'public', table: 'marriage_meetings' }, 
+                        (payload) => {
+                            if (payload.new && payload.new.week_key) {
+                                setWeekData(prev => ({
+                                    ...prev,
+                                    [payload.new.week_key]: payload.new.data
+                                }));
+                            }
                         }
-                    }
-                }));
+                    )
+                    .subscribe();
+
+                return () => {
+                    channel.unsubscribe();
+                };
+            }, []);
+
+            const currentWeekData = weekData[formatWeekKey(currentWeek)] || {
+                schedule: {
+                    Monday: [''], Tuesday: [''], Wednesday: [''], Thursday: [''],
+                    Friday: [''], Saturday: [''], Sunday: ['']
+                },
+                todos: [], prayers: [], goals: [], grocery: [], unconfessedSin: []
             };
 
-            const addScheduleLine = (day) => {
+            // Update functions with auto-save
+            const updateSchedule = async (day, index, value) => {
                 const weekKey = formatWeekKey(currentWeek);
-                setWeekData(prev => ({
-                    ...prev,
-                    [weekKey]: {
-                        ...prev[weekKey],
-                        schedule: {
-                            ...prev[weekKey].schedule,
-                            [day]: [...prev[weekKey].schedule[day], '']
-                        }
+                const newData = {
+                    ...currentWeekData,
+                    schedule: {
+                        ...currentWeekData.schedule,
+                        [day]: currentWeekData.schedule[day].map((item, i) => i === index ? value : item)
                     }
-                }));
+                };
+                setWeekData(prev => ({ ...prev, [weekKey]: newData }));
+                await saveWeekData(weekKey, newData);
             };
 
-            const removeScheduleLine = (day, index) => {
+            const addScheduleLine = async (day) => {
                 const weekKey = formatWeekKey(currentWeek);
-                setWeekData(prev => ({
-                    ...prev,
-                    [weekKey]: {
-                        ...prev[weekKey],
-                        schedule: {
-                            ...prev[weekKey].schedule,
-                            [day]: prev[weekKey].schedule[day].filter((_, i) => i !== index)
-                        }
+                const newData = {
+                    ...currentWeekData,
+                    schedule: {
+                        ...currentWeekData.schedule,
+                        [day]: [...currentWeekData.schedule[day], '']
                     }
-                }));
+                };
+                setWeekData(prev => ({ ...prev, [weekKey]: newData }));
+                await saveWeekData(weekKey, newData);
             };
 
-            const updateList = (listType, items) => {
+            const removeScheduleLine = async (day, index) => {
                 const weekKey = formatWeekKey(currentWeek);
-                setWeekData(prev => ({
-                    ...prev,
-                    [weekKey]: {
-                        ...prev[weekKey],
-                        [listType]: items
+                const newData = {
+                    ...currentWeekData,
+                    schedule: {
+                        ...currentWeekData.schedule,
+                        [day]: currentWeekData.schedule[day].filter((_, i) => i !== index)
                     }
-                }));
+                };
+                setWeekData(prev => ({ ...prev, [weekKey]: newData }));
+                await saveWeekData(weekKey, newData);
+            };
+
+            const updateList = async (listType, items) => {
+                const weekKey = formatWeekKey(currentWeek);
+                const newData = {
+                    ...currentWeekData,
+                    [listType]: items
+                };
+                setWeekData(prev => ({ ...prev, [weekKey]: newData }));
+                await saveWeekData(weekKey, newData);
             };
 
             const addListItem = (listType, text = '') => {
@@ -185,6 +305,7 @@
                             <button
                                 onClick={() => addListItem(listType)}
                                 className="ml-auto p-1 text-blue-600 hover:bg-blue-50 rounded"
+                                disabled={isLoading}
                             >
                                 <Plus className="w-4 h-4" />
                             </button>
@@ -195,6 +316,7 @@
                                     <button
                                         onClick={() => toggleListItem(listType, item.id)}
                                         className={`p-1 rounded ${item.completed ? 'text-green-600' : 'text-gray-400'} hover:bg-gray-50`}
+                                        disabled={isLoading}
                                     >
                                         <Check className="w-4 h-4" />
                                     </button>
@@ -204,10 +326,12 @@
                                         onChange={(e) => updateListItem(listType, item.id, e.target.value)}
                                         placeholder={placeholder}
                                         className={`flex-1 p-2 border rounded ${item.completed ? 'line-through text-gray-500 bg-gray-50' : ''}`}
+                                        disabled={isLoading}
                                     />
                                     <button
                                         onClick={() => removeListItem(listType, item.id)}
                                         className="opacity-0 group-hover:opacity-100 p-1 text-red-500 hover:bg-red-50 rounded"
+                                        disabled={isLoading}
                                     >
                                         <X className="w-4 h-4" />
                                     </button>
@@ -233,25 +357,53 @@
                                     <p className="text-gray-600">Planning and connecting together</p>
                                 </div>
                             </div>
-                            <div className="flex items-center gap-2">
-                                <button
-                                    onClick={() => navigateWeek(-1)}
-                                    className="p-2 text-gray-600 hover:bg-gray-100 rounded-full"
-                                >
-                                    <ChevronLeft />
-                                </button>
-                                <span className="text-lg font-semibold text-gray-800 px-4">
-                                    {formatWeekDisplay(currentWeek)}
-                                </span>
-                                <button
-                                    onClick={() => navigateWeek(1)}
-                                    className="p-2 text-gray-600 hover:bg-gray-100 rounded-full"
-                                >
-                                    <ChevronRight />
-                                </button>
+                            <div className="flex items-center gap-4">
+                                <div className="flex items-center gap-2 text-sm">
+                                    {isConnected ? (
+                                        <div className="flex items-center gap-1 text-green-600">
+                                            <Wifi className="w-4 h-4" />
+                                            <span>Synced</span>
+                                        </div>
+                                    ) : (
+                                        <div className="flex items-center gap-1 text-red-500">
+                                            <WifiOff className="w-4 h-4" />
+                                            <span>Offline</span>
+                                        </div>
+                                    )}
+                                    {lastSaved && (
+                                        <span className="text-gray-500">
+                                            • Saved {lastSaved.toLocaleTimeString()}
+                                        </span>
+                                    )}
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <button
+                                        onClick={() => navigateWeek(-1)}
+                                        className="p-2 text-gray-600 hover:bg-gray-100 rounded-full"
+                                        disabled={isLoading}
+                                    >
+                                        <ChevronLeft />
+                                    </button>
+                                    <span className="text-lg font-semibold text-gray-800 px-4">
+                                        {formatWeekDisplay(currentWeek)}
+                                    </span>
+                                    <button
+                                        onClick={() => navigateWeek(1)}
+                                        className="p-2 text-gray-600 hover:bg-gray-100 rounded-full"
+                                        disabled={isLoading}
+                                    >
+                                        <ChevronRight />
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
+
+                    {isLoading && (
+                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                            <p className="text-blue-800">Loading week data...</p>
+                        </div>
+                    )}
 
                     {/* Schedule Section */}
                     <div className="bg-white rounded-lg border p-6 mb-6">
@@ -277,11 +429,13 @@
                                                         e.target.style.height = 'auto';
                                                         e.target.style.height = e.target.scrollHeight + 'px';
                                                     }}
+                                                    disabled={isLoading}
                                                 />
                                                 {(currentWeekData.schedule?.[day] || []).length > 1 && (
                                                     <button
                                                         onClick={() => removeScheduleLine(day, index)}
                                                         className="p-1 text-red-500 hover:bg-red-50 rounded"
+                                                        disabled={isLoading}
                                                     >
                                                         <X className="w-3 h-3" />
                                                     </button>
@@ -291,6 +445,7 @@
                                         <button
                                             onClick={() => addScheduleLine(day)}
                                             className="w-full p-2 text-blue-600 hover:bg-blue-50 rounded border border-dashed border-blue-300 text-sm"
+                                            disabled={isLoading}
                                         >
                                             <Plus className="w-3 h-3 inline mr-1" />
                                             Add line
