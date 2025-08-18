@@ -46,7 +46,6 @@
             const [isLoading, setIsLoading] = useState(true);
             const [lastSaved, setLastSaved] = useState(null);
             const saveTimeoutRef = useRef(null);
-            const dataRef = useRef({});
 
             // Get Monday of current week
             const getMonday = (date) => {
@@ -124,12 +123,13 @@
                     clearTimeout(saveTimeoutRef.current);
                 }
                 saveTimeoutRef.current = setTimeout(() => {
-                    // Use a separate async function so it doesn't affect the main thread
-                    (async () => {
-                        await saveWeekData(weekKey, data);
-                    })();
+                    // Only save if the data has actually changed
+                    const currentData = weekData[weekKey];
+                    if (JSON.stringify(currentData) !== JSON.stringify(data)) {
+                        saveWeekData(weekKey, data);
+                    }
                 }, 1000);
-            }, []);
+            }, [weekData]);
 
             // Initialize database
             const initializeDatabase = async () => {
@@ -203,17 +203,11 @@
                     }
                 };
                 
-                // Update both the state and ref immediately for UI
+                // Update state immediately for UI responsiveness
                 setWeekData(prev => ({ ...prev, [weekKey]: newData }));
-                dataRef.current[weekKey] = newData;
                 
-                // Debounced save using ref data
-                if (saveTimeoutRef.current) {
-                    clearTimeout(saveTimeoutRef.current);
-                }
-                saveTimeoutRef.current = setTimeout(() => {
-                    saveWeekData(weekKey, dataRef.current[weekKey]);
-                }, 1000);
+                // Debounced save
+                debouncedSave(weekKey, newData);
             };
 
             const addScheduleLine = (day) => {
@@ -265,17 +259,11 @@
                     [listType]: updatedItems
                 };
                 
-                // Update both the state and ref immediately for UI
+                // Update state immediately for UI responsiveness
                 setWeekData(prev => ({ ...prev, [weekKey]: newData }));
-                dataRef.current[weekKey] = newData;
                 
-                // Debounced save using ref data to avoid state update issues
-                if (saveTimeoutRef.current) {
-                    clearTimeout(saveTimeoutRef.current);
-                }
-                saveTimeoutRef.current = setTimeout(() => {
-                    saveWeekData(weekKey, dataRef.current[weekKey]);
-                }, 1000);
+                // Debounced save
+                debouncedSave(weekKey, newData);
             };
 
             const toggleListItem = (listType, id) => {
@@ -340,8 +328,15 @@
                                         type="text"
                                         value={item.text}
                                         onChange={(e) => updateListItem(listType, item.id, e.target.value)}
+                                        onBlur={(e) => {
+                                            // Only save on blur if there are actual changes
+                                            const currentItem = items.find(i => i.id === item.id);
+                                            if (currentItem && currentItem.text !== e.target.value) {
+                                                updateListItem(listType, item.id, e.target.value);
+                                            }
+                                        }}
                                         placeholder={placeholder}
-                                        className={`flex-1 p-2 border rounded ${item.completed ? 'line-through text-gray-500 bg-gray-50' : ''}`}
+                                        className={`flex-1 p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${item.completed ? 'line-through text-gray-500 bg-gray-50' : ''}`}
                                     />
                                     <button
                                         onClick={() => removeListItem(listType, item.id)}
@@ -430,8 +425,15 @@
                                                 <textarea
                                                     value={item}
                                                     onChange={(e) => updateSchedule(day, index, e.target.value)}
+                                                    onBlur={(e) => {
+                                                        // Only save on blur if there are actual changes
+                                                        const currentItem = currentWeekData.schedule?.[day]?.[index];
+                                                        if (currentItem !== e.target.value) {
+                                                            updateSchedule(day, index, e.target.value);
+                                                        }
+                                                    }}
                                                     placeholder="Add commitment or note..."
-                                                    className="flex-1 p-2 text-sm border rounded resize-none overflow-hidden"
+                                                    className="flex-1 p-2 text-sm border rounded resize-none overflow-hidden focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                                     rows={1}
                                                     style={{
                                                         minHeight: '36px',
