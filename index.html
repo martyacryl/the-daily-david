@@ -4,30 +4,35 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Weekly Marriage Meeting Tool</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.0/umd/lucide.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .lucide { width: 1em; height: 1em; display: inline-block; }
+    </style>
 </head>
 <body>
     <div id="root"></div>
 
     <script type="text/babel">
+        // Simple icon components to replace Lucide
+        const ChevronLeft = () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>;
+        const ChevronRight = () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>;
+        const Calendar = ({ className }) => <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>;
+        const CheckSquare = ({ className }) => <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>;
+        const Heart = ({ className }) => <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>;
+        const Target = ({ className }) => <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" /></svg>;
+        const ShoppingCart = ({ className }) => <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.293 2.293c-.63.63-.184 1.707.707 1.707H19M17 21a2 2 0 100-4 2 2 0 000 4zM9 21a2 2 0 100-4 2 2 0 000 4z" /></svg>;
+        const Plus = ({ className }) => <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>;
+        const X = ({ className }) => <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>;
+        const Check = ({ className }) => <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>;
+
         const { useState, useEffect } = React;
-        const { ChevronLeft, ChevronRight, Calendar, CheckSquare, Heart, Target, ShoppingCart, Plus, X, Check } = lucide;
 
         const MarriageMeetingTool = () => {
             const [currentWeek, setCurrentWeek] = useState(new Date());
-            const [weekData, setWeekData] = useState(() => {
-                const saved = localStorage.getItem('marriageMeetingData');
-                return saved ? JSON.parse(saved) : {};
-            });
-
-            // Save to localStorage whenever data changes
-            useEffect(() => {
-                localStorage.setItem('marriageMeetingData', JSON.stringify(weekData));
-            }, [weekData]);
+            const [weekData, setWeekData] = useState({});
 
             // Get Monday of current week
             const getMonday = (date) => {
@@ -170,132 +175,154 @@
             const ListSection = ({ title, listType, icon: Icon, placeholder }) => {
                 const items = currentWeekData[listType] || [];
                 
-                return React.createElement('div', { className: "bg-white rounded-lg border p-4" },
-                    React.createElement('div', { className: "flex items-center gap-2 mb-3" },
-                        React.createElement(Icon, { className: "w-5 h-5 text-blue-600" }),
-                        React.createElement('h3', { className: "text-lg font-semibold text-gray-800" }, title),
-                        React.createElement('button', {
-                            onClick: () => addListItem(listType),
-                            className: "ml-auto p-1 text-blue-600 hover:bg-blue-50 rounded"
-                        }, React.createElement(Plus, { className: "w-4 h-4" }))
-                    ),
-                    React.createElement('div', { className: "space-y-2" },
-                        items.map((item) =>
-                            React.createElement('div', { key: item.id, className: "flex items-center gap-2 group" },
-                                React.createElement('button', {
-                                    onClick: () => toggleListItem(listType, item.id),
-                                    className: `p-1 rounded ${item.completed ? 'text-green-600' : 'text-gray-400'} hover:bg-gray-50`
-                                }, React.createElement(Check, { className: "w-4 h-4" })),
-                                React.createElement('input', {
-                                    type: "text",
-                                    value: item.text,
-                                    onChange: (e) => updateListItem(listType, item.id, e.target.value),
-                                    placeholder: placeholder,
-                                    className: `flex-1 p-2 border rounded ${item.completed ? 'line-through text-gray-500 bg-gray-50' : ''}`
-                                }),
-                                React.createElement('button', {
-                                    onClick: () => removeListItem(listType, item.id),
-                                    className: "opacity-0 group-hover:opacity-100 p-1 text-red-500 hover:bg-red-50 rounded"
-                                }, React.createElement(X, { className: "w-4 h-4" }))
-                            )
-                        ),
-                        items.length === 0 && React.createElement('p', { className: "text-gray-500 text-center py-4" }, "No items yet. Click + to add one!")
-                    )
+                return (
+                    <div className="bg-white rounded-lg border p-4">
+                        <div className="flex items-center gap-2 mb-3">
+                            <Icon className="w-5 h-5 text-blue-600" />
+                            <h3 className="text-lg font-semibold text-gray-800">{title}</h3>
+                            <button
+                                onClick={() => addListItem(listType)}
+                                className="ml-auto p-1 text-blue-600 hover:bg-blue-50 rounded"
+                            >
+                                <Plus className="w-4 h-4" />
+                            </button>
+                        </div>
+                        <div className="space-y-2">
+                            {items.map((item) => (
+                                <div key={item.id} className="flex items-center gap-2 group">
+                                    <button
+                                        onClick={() => toggleListItem(listType, item.id)}
+                                        className={`p-1 rounded ${item.completed ? 'text-green-600' : 'text-gray-400'} hover:bg-gray-50`}
+                                    >
+                                        <Check className="w-4 h-4" />
+                                    </button>
+                                    <input
+                                        type="text"
+                                        value={item.text}
+                                        onChange={(e) => updateListItem(listType, item.id, e.target.value)}
+                                        placeholder={placeholder}
+                                        className={`flex-1 p-2 border rounded ${item.completed ? 'line-through text-gray-500 bg-gray-50' : ''}`}
+                                    />
+                                    <button
+                                        onClick={() => removeListItem(listType, item.id)}
+                                        className="opacity-0 group-hover:opacity-100 p-1 text-red-500 hover:bg-red-50 rounded"
+                                    >
+                                        <X className="w-4 h-4" />
+                                    </button>
+                                </div>
+                            ))}
+                            {items.length === 0 && (
+                                <p className="text-gray-500 text-center py-4">No items yet. Click + to add one!</p>
+                            )}
+                        </div>
+                    </div>
                 );
             };
 
-            return React.createElement('div', { className: "max-w-7xl mx-auto p-6 bg-gray-50 min-h-screen" },
-                // Header
-                React.createElement('div', { className: "bg-white rounded-lg shadow-sm border p-6 mb-6" },
-                    React.createElement('div', { className: "flex items-center justify-between" },
-                        React.createElement('div', { className: "flex items-center gap-4" },
-                            React.createElement(Calendar, { className: "w-8 h-8 text-blue-600" }),
-                            React.createElement('div', null,
-                                React.createElement('h1', { className: "text-2xl font-bold text-gray-800" }, "Weekly Marriage Meeting"),
-                                React.createElement('p', { className: "text-gray-600" }, "Planning and connecting together")
-                            )
-                        ),
-                        React.createElement('div', { className: "flex items-center gap-2" },
-                            React.createElement('button', {
-                                onClick: () => navigateWeek(-1),
-                                className: "p-2 text-gray-600 hover:bg-gray-100 rounded-full"
-                            }, React.createElement(ChevronLeft, { className: "w-5 h-5" })),
-                            React.createElement('span', { className: "text-lg font-semibold text-gray-800 px-4" },
-                                formatWeekDisplay(currentWeek)
-                            ),
-                            React.createElement('button', {
-                                onClick: () => navigateWeek(1),
-                                className: "p-2 text-gray-600 hover:bg-gray-100 rounded-full"
-                            }, React.createElement(ChevronRight, { className: "w-5 h-5" }))
-                        )
-                    )
-                ),
+            return (
+                <div className="max-w-7xl mx-auto p-6 bg-gray-50 min-h-screen">
+                    {/* Header */}
+                    <div className="bg-white rounded-lg shadow-sm border p-6 mb-6">
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-4">
+                                <Calendar className="w-8 h-8 text-blue-600" />
+                                <div>
+                                    <h1 className="text-2xl font-bold text-gray-800">Weekly Marriage Meeting</h1>
+                                    <p className="text-gray-600">Planning and connecting together</p>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <button
+                                    onClick={() => navigateWeek(-1)}
+                                    className="p-2 text-gray-600 hover:bg-gray-100 rounded-full"
+                                >
+                                    <ChevronLeft />
+                                </button>
+                                <span className="text-lg font-semibold text-gray-800 px-4">
+                                    {formatWeekDisplay(currentWeek)}
+                                </span>
+                                <button
+                                    onClick={() => navigateWeek(1)}
+                                    className="p-2 text-gray-600 hover:bg-gray-100 rounded-full"
+                                >
+                                    <ChevronRight />
+                                </button>
+                            </div>
+                        </div>
+                    </div>
 
-                // Schedule Section
-                React.createElement('div', { className: "bg-white rounded-lg border p-6 mb-6" },
-                    React.createElement('h2', { className: "text-xl font-semibold text-gray-800 mb-4" }, "Weekly Schedule"),
-                    React.createElement('div', { className: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4" },
-                        days.map((day) =>
-                            React.createElement('div', { key: day, className: "border rounded-lg p-3" },
-                                React.createElement('h3', { className: "font-semibold text-gray-700 mb-2" }, day),
-                                React.createElement('div', { className: "space-y-1" },
-                                    (currentWeekData.schedule?.[day] || ['']).map((item, index) =>
-                                        React.createElement('div', { key: index, className: "flex items-center gap-1" },
-                                            React.createElement('input', {
-                                                type: "text",
-                                                value: item,
-                                                onChange: (e) => updateSchedule(day, index, e.target.value),
-                                                placeholder: "Add commitment or note...",
-                                                className: "flex-1 p-2 text-sm border rounded"
-                                            }),
-                                            (currentWeekData.schedule?.[day] || []).length > 1 &&
-                                            React.createElement('button', {
-                                                onClick: () => removeScheduleLine(day, index),
-                                                className: "p-1 text-red-500 hover:bg-red-50 rounded"
-                                            }, React.createElement(X, { className: "w-3 h-3" }))
-                                        )
-                                    ),
-                                    React.createElement('button', {
-                                        onClick: () => addScheduleLine(day),
-                                        className: "w-full p-2 text-blue-600 hover:bg-blue-50 rounded border border-dashed border-blue-300 text-sm"
-                                    }, React.createElement(Plus, { className: "w-3 h-3 inline mr-1" }), "Add line")
-                                )
-                            )
-                        )
-                    )
-                ),
+                    {/* Schedule Section */}
+                    <div className="bg-white rounded-lg border p-6 mb-6">
+                        <h2 className="text-xl font-semibold text-gray-800 mb-4">Weekly Schedule</h2>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                            {days.map((day) => (
+                                <div key={day} className="border rounded-lg p-3">
+                                    <h3 className="font-semibold text-gray-700 mb-2">{day}</h3>
+                                    <div className="space-y-1">
+                                        {(currentWeekData.schedule?.[day] || ['']).map((item, index) => (
+                                            <div key={index} className="flex items-center gap-1">
+                                                <input
+                                                    type="text"
+                                                    value={item}
+                                                    onChange={(e) => updateSchedule(day, index, e.target.value)}
+                                                    placeholder="Add commitment or note..."
+                                                    className="flex-1 p-2 text-sm border rounded"
+                                                />
+                                                {(currentWeekData.schedule?.[day] || []).length > 1 && (
+                                                    <button
+                                                        onClick={() => removeScheduleLine(day, index)}
+                                                        className="p-1 text-red-500 hover:bg-red-50 rounded"
+                                                    >
+                                                        <X className="w-3 h-3" />
+                                                    </button>
+                                                )}
+                                            </div>
+                                        ))}
+                                        <button
+                                            onClick={() => addScheduleLine(day)}
+                                            className="w-full p-2 text-blue-600 hover:bg-blue-50 rounded border border-dashed border-blue-300 text-sm"
+                                        >
+                                            <Plus className="w-3 h-3 inline mr-1" />
+                                            Add line
+                                        </button>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
 
-                // Lists Section
-                React.createElement('div', { className: "grid grid-cols-1 md:grid-cols-2 gap-6" },
-                    React.createElement(ListSection, {
-                        title: "To-Do List",
-                        listType: "todos",
-                        icon: CheckSquare,
-                        placeholder: "Enter a task..."
-                    }),
-                    React.createElement(ListSection, {
-                        title: "Prayer List",
-                        listType: "prayers",
-                        icon: Heart,
-                        placeholder: "Enter a prayer request..."
-                    }),
-                    React.createElement(ListSection, {
-                        title: "Goals",
-                        listType: "goals",
-                        icon: Target,
-                        placeholder: "Enter a goal..."
-                    }),
-                    React.createElement(ListSection, {
-                        title: "Grocery List",
-                        listType: "grocery",
-                        icon: ShoppingCart,
-                        placeholder: "Enter grocery item..."
-                    })
-                )
+                    {/* Lists Section */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <ListSection
+                            title="To-Do List"
+                            listType="todos"
+                            icon={CheckSquare}
+                            placeholder="Enter a task..."
+                        />
+                        <ListSection
+                            title="Prayer List"
+                            listType="prayers"
+                            icon={Heart}
+                            placeholder="Enter a prayer request..."
+                        />
+                        <ListSection
+                            title="Goals"
+                            listType="goals"
+                            icon={Target}
+                            placeholder="Enter a goal..."
+                        />
+                        <ListSection
+                            title="Grocery List"
+                            listType="grocery"
+                            icon={ShoppingCart}
+                            placeholder="Enter grocery item..."
+                        />
+                    </div>
+                </div>
             );
         };
 
-        ReactDOM.render(React.createElement(MarriageMeetingTool), document.getElementById('root'));
+        ReactDOM.render(<MarriageMeetingTool />, document.getElementById('root'));
     </script>
 </body>
 </html>
