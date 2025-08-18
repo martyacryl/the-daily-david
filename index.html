@@ -47,8 +47,39 @@
             const [lastSaved, setLastSaved] = useState(null);
             const saveTimeoutRef = useRef(null);
 
+            // Save week data to database
+            const saveWeekData = useCallback(async (weekKey, data) => {
+                try {
+                    console.log('Saving data for week:', weekKey);
+                    console.log('Data to save:', data);
+                    
+                    // Use upsert with explicit conflict resolution
+                    const { data: result, error } = await supabase
+                        .from('marriage_meetings')
+                        .upsert({
+                            week_key: weekKey,
+                            data: data
+                        }, {
+                            onConflict: 'week_key'
+                        })
+                        .select();
+
+                    if (error) {
+                        console.log('Upsert error:', error);
+                        return false;
+                    }
+
+                    console.log('Data saved successfully:', result);
+                    setLastSaved(new Date());
+                    return true;
+                } catch (error) {
+                    console.log('Save error:', error);
+                    return false;
+                }
+            }, []);
+
             // Debounced save function - waits 1 second after you stop typing
-            const debouncedSave = useCallback(async (weekKey, data) => {
+            const debouncedSave = useCallback((weekKey, data) => {
                 // Clear any existing timeout
                 if (saveTimeoutRef.current) {
                     clearTimeout(saveTimeoutRef.current);
@@ -59,7 +90,7 @@
                     console.log('Saving after debounce...');
                     await saveWeekData(weekKey, data);
                 }, 1000); // Wait 1 second after user stops typing
-            }, []);
+            }, [saveWeekData]);
 
             // Clean up timeout on unmount
             useEffect(() => {
@@ -261,7 +292,7 @@
                 debouncedSave(weekKey, newData); // Debounced save
             };
 
-            const addScheduleLine = async (day) => {
+            const addScheduleLine = (day) => {
                 const weekKey = formatWeekKey(currentWeek);
                 const newData = {
                     ...currentWeekData,
@@ -271,10 +302,10 @@
                     }
                 };
                 setWeekData(prev => ({ ...prev, [weekKey]: newData }));
-                await saveWeekData(weekKey, newData); // Immediate save for structure changes
+                saveWeekData(weekKey, newData); // Immediate save for structure changes
             };
 
-            const removeScheduleLine = async (day, index) => {
+            const removeScheduleLine = (day, index) => {
                 const weekKey = formatWeekKey(currentWeek);
                 const newData = {
                     ...currentWeekData,
@@ -284,18 +315,10 @@
                     }
                 };
                 setWeekData(prev => ({ ...prev, [weekKey]: newData }));
-                await saveWeekData(weekKey, newData); // Immediate save for structure changes
+                saveWeekData(weekKey, newData); // Immediate save for structure changes
             };
 
-            const updateList = async (listType, items) => {
-                const weekKey = formatWeekKey(currentWeek);
-                const newData = {
-                    ...currentWeekData,
-                    [listType]: items
-                };
-                setWeekData(prev => ({ ...prev, [weekKey]: newData }));
-                debouncedSave(weekKey, newData); // Debounced save
-            };
+            // Remove the old updateList function since we're handling it directly now
 
             const addListItem = (listType, text = '') => {
                 const weekKey = formatWeekKey(currentWeek);
