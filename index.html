@@ -47,6 +47,35 @@
             const [lastSaved, setLastSaved] = useState(null);
             const saveTimeoutRef = useRef(null);
 
+            // Load week data from database
+            const loadWeekData = async (weekKey) => {
+                try {
+                    console.log('Loading data for week:', weekKey);
+                    const { data, error } = await supabase
+                        .from('marriage_meetings')
+                        .select('*')
+                        .eq('week_key', weekKey);
+
+                    console.log('Database response:', { data, error });
+
+                    if (error) {
+                        console.log('Error loading:', error);
+                        return null;
+                    }
+
+                    if (data && data.length > 0) {
+                        console.log('Found existing data:', data[0].data);
+                        return data[0].data;
+                    }
+
+                    console.log('No existing data found for this week');
+                    return null;
+                } catch (error) {
+                    console.log('Load error:', error);
+                    return null;
+                }
+            };
+
             // Save week data to database
             const saveWeekData = useCallback(async (weekKey, data) => {
                 try {
