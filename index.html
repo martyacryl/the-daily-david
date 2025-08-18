@@ -114,19 +114,41 @@
             // Save week data to database
             const saveWeekData = async (weekKey, data) => {
                 try {
-                    const { error } = await supabase
+                    console.log('Saving data for week:', weekKey);
+                    
+                    // First try to update existing record
+                    const { data: updateResult, error: updateError } = await supabase
                         .from('marriage_meetings')
-                        .upsert({
-                            week_key: weekKey,
+                        .update({
                             data: data,
                             updated_at: new Date().toISOString()
-                        });
+                        })
+                        .eq('week_key', weekKey)
+                        .select();
 
-                    if (error) {
-                        console.log('Save error:', error);
+                    if (updateError) {
+                        console.log('Update error:', updateError);
                         return false;
                     }
 
+                    // If no rows were updated, the record doesn't exist, so insert it
+                    if (!updateResult || updateResult.length === 0) {
+                        console.log('No existing record found, inserting new one');
+                        const { error: insertError } = await supabase
+                            .from('marriage_meetings')
+                            .insert({
+                                week_key: weekKey,
+                                data: data,
+                                updated_at: new Date().toISOString()
+                            });
+
+                        if (insertError) {
+                            console.log('Insert error:', insertError);
+                            return false;
+                        }
+                    }
+
+                    console.log('Data saved successfully');
                     setLastSaved(new Date());
                     return true;
                 } catch (error) {
