@@ -248,7 +248,7 @@
             };
 
             // Update functions with debounced auto-save
-            const updateSchedule = async (day, index, value) => {
+            const updateSchedule = (day, index, value) => {
                 const weekKey = formatWeekKey(currentWeek);
                 const newData = {
                     ...currentWeekData,
@@ -298,31 +298,41 @@
             };
 
             const addListItem = (listType, text = '') => {
+                const weekKey = formatWeekKey(currentWeek);
                 const currentItems = currentWeekData[listType] || [];
                 const newItem = { id: Date.now(), text, completed: false };
-                updateList(listType, [...currentItems, newItem]);
+                const newData = {
+                    ...currentWeekData,
+                    [listType]: [...currentItems, newItem]
+                };
+                setWeekData(prev => ({ ...prev, [weekKey]: newData }));
+                saveWeekData(weekKey, newData); // Immediate save for new items
             };
 
             const toggleListItem = (listType, id) => {
+                const weekKey = formatWeekKey(currentWeek);
                 const currentItems = currentWeekData[listType] || [];
                 const updatedItems = currentItems.map(item => 
                     item.id === id ? { ...item, completed: !item.completed } : item
                 );
-                updateList(listType, updatedItems);
-            };
-
-            const updateListItem = (listType, id, text) => {
-                const currentItems = currentWeekData[listType] || [];
-                const updatedItems = currentItems.map(item => 
-                    item.id === id ? { ...item, text } : item
-                );
-                updateList(listType, updatedItems);
+                const newData = {
+                    ...currentWeekData,
+                    [listType]: updatedItems
+                };
+                setWeekData(prev => ({ ...prev, [weekKey]: newData }));
+                saveWeekData(weekKey, newData); // Immediate save for toggles
             };
 
             const removeListItem = (listType, id) => {
+                const weekKey = formatWeekKey(currentWeek);
                 const currentItems = currentWeekData[listType] || [];
                 const updatedItems = currentItems.filter(item => item.id !== id);
-                updateList(listType, updatedItems);
+                const newData = {
+                    ...currentWeekData,
+                    [listType]: updatedItems
+                };
+                setWeekData(prev => ({ ...prev, [weekKey]: newData }));
+                saveWeekData(weekKey, newData); // Immediate save for deletions
             };
 
             const navigateWeek = (direction) => {
