@@ -645,70 +645,7 @@
                 debouncedSave(dateKey, newData);
             };
 
-            const addGoal = (goalType) => {
-                const dateKey = formatDateKey(currentDate);
-                const currentGoals = currentDayData.goals[goalType] || [];
-                const newGoal = { id: Date.now(), text: '', completed: false };
-                const newData = {
-                    ...currentDayData,
-                    goals: {
-                        ...currentDayData.goals,
-                        [goalType]: [...currentGoals, newGoal]
-                    }
-                };
-                setDayData(prev => ({ ...prev, [dateKey]: newData }));
-                saveDayData(dateKey, newData);
-            };
-
-            const updateGoal = (goalType, id, text) => {
-                const dateKey = formatDateKey(currentDate);
-                const currentGoals = currentDayData.goals[goalType] || [];
-                const updatedGoals = currentGoals.map(goal => 
-                    goal.id === id ? { ...goal, text } : goal
-                );
-                const newData = {
-                    ...currentDayData,
-                    goals: {
-                        ...currentDayData.goals,
-                        [goalType]: updatedGoals
-                    }
-                };
-                
-                setDayData(prev => ({ ...prev, [dateKey]: newData }));
-                debouncedSave(dateKey, newData);
-            };
-
-            const toggleGoal = (goalType, id) => {
-                const dateKey = formatDateKey(currentDate);
-                const currentGoals = currentDayData.goals[goalType] || [];
-                const updatedGoals = currentGoals.map(goal => 
-                    goal.id === id ? { ...goal, completed: !goal.completed } : goal
-                );
-                const newData = {
-                    ...currentDayData,
-                    goals: {
-                        ...currentDayData.goals,
-                        [goalType]: updatedGoals
-                    }
-                };
-                setDayData(prev => ({ ...prev, [dateKey]: newData }));
-                saveDayData(dateKey, newData);
-            };
-
-            const removeGoal = (goalType, id) => {
-                const dateKey = formatDateKey(currentDate);
-                const currentGoals = currentDayData.goals[goalType] || [];
-                const updatedGoals = currentGoals.filter(goal => goal.id !== id);
-                const newData = {
-                    ...currentDayData,
-                    goals: {
-                        ...currentDayData.goals,
-                        [goalType]: updatedGoals
-                    }
-                };
-                setDayData(prev => ({ ...prev, [dateKey]: newData }));
-                saveDayData(dateKey, newData);
-            };
+            // Removed duplicate goal functions - using addDailyGoal, updateDailyGoal, etc. instead
 
             const navigateDate = (direction) => {
                 const newDate = new Date(currentDate);
