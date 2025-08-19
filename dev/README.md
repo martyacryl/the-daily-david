@@ -20,11 +20,8 @@ This is the development version of The Daily David app, designed for testing new
 ```sql
 CREATE TABLE daily_david_entries_dev (
     id BIGSERIAL PRIMARY KEY,
-    scripture TEXT NOT NULL,
-    observation TEXT NOT NULL,
-    application TEXT NOT NULL,
-    prayer TEXT NOT NULL,
-    date DATE NOT NULL,
+    date_key TEXT NOT NULL UNIQUE,
+    data JSONB NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 ```
