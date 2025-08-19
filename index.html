@@ -9,35 +9,87 @@
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#6366f1',
+                        secondary: '#8b5cf6',
+                        accent: '#06b6d4',
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        .lucide { width: 1em; height: 1em; display: inline-block; }
+        .section-divider {
+            background: linear-gradient(90deg, transparent, #e5e7eb, transparent);
+            height: 1px;
+            margin: 1.5rem 0;
+        }
+        .section-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f9fafb 100%);
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+        }
+        .section-header {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700;
+        }
+        .status-indicator {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
     </style>
 </head>
-<body>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
     <div id="root"></div>
 
     <script type="text/babel">
-        // Simple icon components
-        const ChevronLeft = () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>;
-        const ChevronRight = () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>;
-        const Calendar = ({ className }) => <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>;
-        const CheckSquare = ({ className }) => <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>;
-        const Heart = ({ className }) => <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>;
-        const Target = ({ className }) => <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" /></svg>;
-        const ShoppingCart = ({ className }) => <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.293 2.293c-.63.63-.184 1.707.707 1.707H19M17 21a2 2 0 100-4 2 2 0 000 4zM9 21a2 2 0 100-4 2 2 0 000 4z" /></svg>;
-        const Plus = ({ className }) => <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>;
-        const X = ({ className }) => <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>;
-        const Check = ({ className }) => <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>;
-        const UserX = ({ className }) => <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>;
-        const Wifi = ({ className }) => <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0" /></svg>;
-        const WifiOff = ({ className }) => <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M1 1l22 22M16.72 11.06A10.94 10.94 0 0119 12.55M5 12.55a10.94 10.94 0 015.17-2.39M10.71 5.05A16 16 0 0122.58 9M1.42 9a15.91 15.91 0 014.7-2.88M8.53 16.11a6 6 0 016.95 0M12 20h.01" /></svg>;
-
         const { useState, useEffect, useCallback, useRef } = React;
 
         // Initialize Supabase
         const supabaseUrl = 'https://jrutqdesurnansyfydbf.supabase.co';
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpydXRxZGVzdXJuYW5zeWZ5ZGJmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU1NTA4MzgsImV4cCI6MjA3MTEyNjgzOH0.G-sTw0eF-tQEcqvbaz-hSM2h0KVr2NMOYMq4x0iwIIc';
         const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+        // Icons as SVG components
+        const ChevronLeftIcon = () => (
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+        );
+
+        const ChevronRightIcon = () => (
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+        );
+
+        const PlusIcon = () => (
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+        );
+
+        const CheckIcon = () => (
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+        );
+
+        const TrashIcon = () => (
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+        );
 
         const MarriageMeetingTool = () => {
             const [currentWeek, setCurrentWeek] = useState(new Date());
@@ -123,13 +175,9 @@
                     clearTimeout(saveTimeoutRef.current);
                 }
                 saveTimeoutRef.current = setTimeout(() => {
-                    // Only save if the data has actually changed
-                    const currentData = weekData[weekKey];
-                    if (JSON.stringify(currentData) !== JSON.stringify(data)) {
-                        saveWeekData(weekKey, data);
-                    }
+                    saveWeekData(weekKey, data);
                 }, 1000);
-            }, [weekData]);
+            }, []);
 
             // Initialize database
             const initializeDatabase = async () => {
@@ -300,210 +348,95 @@
 
             const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
-            const ListSection = ({ title, listType, icon: Icon, placeholder }) => {
-                const items = currentWeekData[listType] || [];
-                const [localInputs, setLocalInputs] = useState({});
-                
-                // Initialize local inputs when items change
-                useEffect(() => {
-                    const newLocalInputs = {};
-                    items.forEach(item => {
-                        if (!(item.id in localInputs)) {
-                            newLocalInputs[item.id] = item.text;
-                        }
-                    });
-                    if (Object.keys(newLocalInputs).length > 0) {
-                        setLocalInputs(prev => ({ ...prev, ...newLocalInputs }));
-                    }
-                }, [items]);
-                
-                const handleInputChange = (id, value) => {
-                    setLocalInputs(prev => ({ ...prev, [id]: value }));
-                };
-                
-                const handleInputBlur = (id) => {
-                    const localValue = localInputs[id];
-                    const currentItem = items.find(item => item.id === id);
-                    if (currentItem && currentItem.text !== localValue) {
-                        updateListItem(listType, id, localValue);
-                    }
-                };
-                
+            if (isLoading) {
                 return (
-                    <div className="bg-white rounded-lg border p-4">
-                        <div className="flex items-center gap-2 mb-3">
-                            <Icon className="w-5 h-5 text-blue-600" />
-                            <h3 className="text-lg font-semibold text-gray-800">{title}</h3>
-                            <button
-                                onClick={() => addListItem(listType)}
-                                className="ml-auto p-1 text-blue-600 hover:bg-blue-50 rounded"
-                            >
-                                <Plus className="w-4 h-4" />
-                            </button>
-                        </div>
-                        <div className="space-y-2">
-                            {items.map((item) => (
-                                <div key={item.id} className="flex items-center gap-2 group">
-                                    <button
-                                        onClick={() => toggleListItem(listType, item.id)}
-                                        className={`p-1 rounded ${item.completed ? 'text-green-600' : 'text-gray-400'} hover:bg-gray-50`}
-                                    >
-                                        <Check className="w-4 h-4" />
-                                    </button>
-                                    <input
-                                        type="text"
-                                        value={localInputs[item.id] || item.text || ''}
-                                        onChange={(e) => handleInputChange(item.id, e.target.value)}
-                                        onBlur={() => handleInputBlur(item.id)}
-                                        placeholder={placeholder}
-                                        className={`flex-1 p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${item.completed ? 'line-through text-gray-500 bg-gray-50' : ''}`}
-                                    />
-                                    <button
-                                        onClick={() => removeListItem(listType, item.id)}
-                                        className="opacity-0 group-hover:opacity-100 p-1 text-red-500 hover:bg-red-50 rounded"
-                                    >
-                                        <X className="w-4 h-4" />
-                                    </button>
-                                </div>
-                            ))}
-                            {items.length === 0 && (
-                                <p className="text-gray-500 text-center py-4">No items yet. Click + to add one!</p>
-                            )}
+                    <div className="flex items-center justify-center min-h-screen">
+                        <div className="text-center">
+                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+                            <p className="text-gray-600">Loading your marriage meeting...</p>
                         </div>
                     </div>
                 );
-            };
-
-            const ScheduleDay = ({ day, items, onUpdate, onAddLine, onRemoveLine }) => {
-                const [localInputs, setLocalInputs] = useState({});
-
-                // Initialize local inputs when items change
-                useEffect(() => {
-                    const newLocalInputs = {};
-                    items.forEach((item, index) => {
-                        newLocalInputs[index] = item;
-                    });
-                    setLocalInputs(newLocalInputs);
-                }, [items]);
-
-                const handleInputChange = (index, value) => {
-                    setLocalInputs(prev => ({ ...prev, [index]: value }));
-                };
-
-                const handleInputBlur = (index) => {
-                    const localValue = localInputs[index];
-                    const currentItem = items[index];
-                    if (currentItem !== localValue) {
-                        onUpdate(day, index, localValue);
-                    }
-                };
-
-                return (
-                    <div className="border rounded-lg p-3">
-                        <h3 className="font-semibold text-gray-700 mb-2">{day}</h3>
-                        <div className="space-y-1">
-                            {items.map((item, index) => (
-                                <div key={index} className="flex items-center gap-1">
-                                    <textarea
-                                        value={localInputs[index] || item || ''}
-                                        onChange={(e) => handleInputChange(index, e.target.value)}
-                                        onBlur={() => handleInputBlur(index)}
-                                        placeholder="Add commitment or note..."
-                                        className="flex-1 p-2 text-sm border rounded resize-none overflow-hidden focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                        rows={1}
-                                        style={{
-                                            minHeight: '36px',
-                                            height: 'auto'
-                                        }}
-                                        onInput={(e) => {
-                                            e.target.style.height = 'auto';
-                                            e.target.style.height = e.target.scrollHeight + 'px';
-                                        }}
-                                    />
-                                    {items.length > 1 && (
-                                        <button
-                                            onClick={() => onRemoveLine(index)}
-                                            className="p-1 text-red-500 hover:bg-red-50 rounded"
-                                        >
-                                            <X className="w-3 h-3" />
-                                        </button>
-                                    )}
-                                </div>
-                            ))}
-                            <button
-                                onClick={onAddLine}
-                                className="w-full p-2 text-blue-600 hover:bg-blue-50 rounded border border-dashed border-blue-300 text-sm"
-                            >
-                                <Plus className="w-3 h-3 inline mr-1" />
-                                Add line
-                            </button>
-                        </div>
-                    </div>
-                );
-            };
+            }
 
             return (
-                <div className="max-w-7xl mx-auto p-6 bg-gray-50 min-h-screen">
-                    {/* Header */}
-                    <div className="bg-white rounded-lg shadow-sm border p-6 mb-6">
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-4">
-                                <Calendar className="w-8 h-8 text-blue-600" />
-                                <div>
-                                    <h1 className="text-2xl font-bold text-gray-800">Weekly Marriage Meeting</h1>
-                                    <p className="text-gray-600">Planning and connecting together</p>
-                                </div>
+                <div className="container mx-auto px-4 py-8 max-w-7xl">
+                    {/* Header Section */}
+                    <div className="section-card rounded-xl p-6 mb-8">
+                        <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+                            <div className="text-center md:text-left">
+                                <h1 className="section-header text-4xl font-bold mb-2">
+                                    Weekly Marriage Meeting
+                                </h1>
+                                <p className="text-gray-600 text-lg">
+                                    Plan together, grow together
+                                </p>
                             </div>
+                            
                             <div className="flex items-center gap-4">
-                                <div className="flex items-center gap-2 text-sm">
-                                    {isConnected ? (
-                                        <div className="flex items-center gap-1 text-green-600">
-                                            <Wifi className="w-4 h-4" />
-                                            <span>Synced</span>
-                                        </div>
-                                    ) : (
-                                        <div className="flex items-center gap-1 text-red-500">
-                                            <WifiOff className="w-4 h-4" />
-                                            <span>Offline</span>
-                                        </div>
-                                    )}
+                                <div className="text-right text-sm">
+                                    <div className={`flex items-center gap-2 ${
+                                        isConnected ? 'text-green-600' : 'text-red-600'
+                                    }`}>
+                                        <div className={`w-2 h-2 rounded-full ${
+                                            isConnected ? 'bg-green-500' : 'bg-red-500'
+                                        } status-indicator`}></div>
+                                        {isConnected ? 'Synced' : 'Offline'}
+                                    </div>
                                     {lastSaved && (
-                                        <span className="text-gray-500">
-                                            • Saved {lastSaved.toLocaleTimeString()}
-                                        </span>
+                                        <div className="text-gray-500">
+                                            Last saved: {lastSaved.toLocaleTimeString()}
+                                        </div>
                                     )}
                                 </div>
-                                <div className="flex items-center gap-2">
-                                    <button
-                                        onClick={() => navigateWeek(-1)}
-                                        className="p-2 text-gray-600 hover:bg-gray-100 rounded-full"
-                                    >
-                                        <ChevronLeft />
-                                    </button>
-                                    <span className="text-lg font-semibold text-gray-800 px-4">
-                                        {formatWeekDisplay(currentWeek)}
-                                    </span>
-                                    <button
-                                        onClick={() => navigateWeek(1)}
-                                        className="p-2 text-gray-600 hover:bg-gray-100 rounded-full"
-                                    >
-                                        <ChevronRight />
-                                    </button>
-                                </div>
                             </div>
+                        </div>
+
+                        <div className="section-divider"></div>
+
+                        {/* Week Navigation */}
+                        <div className="flex items-center justify-center gap-6">
+                            <button 
+                                onClick={() => navigateWeek(-1)}
+                                className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors shadow-sm"
+                            >
+                                <ChevronLeftIcon />
+                                Previous Week
+                            </button>
+                            
+                            <div className="text-center">
+                                <h2 className="text-xl font-semibold text-gray-800">
+                                    {formatWeekDisplay(currentWeek)}
+                                </h2>
+                                <p className="text-sm text-gray-500 mt-1">
+                                    Week of {getMonday(currentWeek).toLocaleDateString('en-US', { weekday: 'long' })}
+                                </p>
+                            </div>
+                            
+                            <button 
+                                onClick={() => navigateWeek(1)}
+                                className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors shadow-sm"
+                            >
+                                Next Week
+                                <ChevronRightIcon />
+                            </button>
                         </div>
                     </div>
 
-                    {isLoading && (
-                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-                            <p className="text-blue-800">Loading week data...</p>
+                    {/* Weekly Schedule Section */}
+                    <div className="section-card rounded-xl p-6 mb-8">
+                        <div className="text-center mb-6">
+                            <h2 className="section-header text-2xl font-bold mb-2">
+                                📅 Weekly Schedule
+                            </h2>
+                            <p className="text-gray-600">
+                                Plan your week together, day by day
+                            </p>
                         </div>
-                    )}
 
-                    {/* Schedule Section */}
-                    <div className="bg-white rounded-lg border p-6 mb-6">
-                        <h2 className="text-xl font-semibold text-gray-800 mb-4">Weekly Schedule</h2>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                        <div className="section-divider"></div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-7 gap-4">
                             {days.map((day) => (
                                 <ScheduleDay 
                                     key={day} 
@@ -515,40 +448,310 @@
                                 />
                             ))}
                         </div>
+
+                        <div className="section-divider mt-6"></div>
+                        <div className="text-center">
+                            <p className="text-sm text-gray-500">
+                                Click in any day to add commitments, appointments, or notes
+                            </p>
+                        </div>
                     </div>
 
                     {/* Lists Section */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <ListSection
-                            title="To-Do List"
-                            listType="todos"
-                            icon={CheckSquare}
-                            placeholder="Enter a task..."
+                    <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+                        <ListSection 
+                            title="✅ To-Do List" 
+                            subtitle="Tasks and action items"
+                            listType="todos" 
+                            items={currentWeekData.todos || []} 
+                            onUpdate={updateListItem}
+                            onAdd={addListItem}
+                            onToggle={toggleListItem}
+                            onRemove={removeListItem}
+                            placeholder="Add a new task..."
+                            color="blue"
                         />
-                        <ListSection
-                            title="Prayer List"
-                            listType="prayers"
-                            icon={Heart}
-                            placeholder="Enter a prayer request..."
+                        
+                        <ListSection 
+                            title="🙏 Prayer List" 
+                            subtitle="Prayers and requests"
+                            listType="prayers" 
+                            items={currentWeekData.prayers || []} 
+                            onUpdate={updateListItem}
+                            onAdd={addListItem}
+                            onToggle={toggleListItem}
+                            onRemove={removeListItem}
+                            placeholder="Add a prayer request..."
+                            color="purple"
                         />
-                        <ListSection
-                            title="Goals"
-                            listType="goals"
-                            icon={Target}
-                            placeholder="Enter a goal..."
+                        
+                        <ListSection 
+                            title="🎯 Goals" 
+                            subtitle="Dreams and aspirations"
+                            listType="goals" 
+                            items={currentWeekData.goals || []} 
+                            onUpdate={updateListItem}
+                            onAdd={addListItem}
+                            onToggle={toggleListItem}
+                            onRemove={removeListItem}
+                            placeholder="Add a new goal..."
+                            color="green"
                         />
-                        <ListSection
-                            title="Grocery List"
-                            listType="grocery"
-                            icon={ShoppingCart}
-                            placeholder="Enter grocery item..."
+                        
+                        <ListSection 
+                            title="🛒 Grocery List" 
+                            subtitle="Shopping and supplies"
+                            listType="grocery" 
+                            items={currentWeekData.grocery || []} 
+                            onUpdate={updateListItem}
+                            onAdd={addListItem}
+                            onToggle={toggleListItem}
+                            onRemove={removeListItem}
+                            placeholder="Add grocery item..."
+                            color="orange"
                         />
-                        <ListSection
-                            title="Unconfessed Sin"
-                            listType="unconfessedSin"
-                            icon={UserX}
-                            placeholder="Enter area to confess..."
+                        
+                        <ListSection 
+                            title="💭 Unconfessed Sin" 
+                            subtitle="Accountability and grace"
+                            listType="unconfessedSin" 
+                            items={currentWeekData.unconfessedSin || []} 
+                            onUpdate={updateListItem}
+                            onAdd={addListItem}
+                            onToggle={toggleListItem}
+                            onRemove={removeListItem}
+                            placeholder="Add for accountability..."
+                            color="red"
                         />
+                    </div>
+
+                    {/* Footer */}
+                    <div className="mt-12 text-center">
+                        <div className="section-divider"></div>
+                        <p className="text-gray-500 text-sm">
+                            Built with ❤️ for strengthening marriages through intentional planning
+                        </p>
+                        <p className="text-gray-400 text-xs mt-2">
+                            All changes sync in real-time
+                        </p>
+                    </div>
+                </div>
+            );
+        };
+
+        // Schedule Day Component with local state for inputs
+        const ScheduleDay = ({ day, items, onUpdate, onAddLine, onRemoveLine }) => {
+            const [localInputs, setLocalInputs] = useState({});
+
+            // Initialize local inputs when items change
+            useEffect(() => {
+                const newLocalInputs = {};
+                items.forEach((item, index) => {
+                    newLocalInputs[index] = item;
+                });
+                setLocalInputs(newLocalInputs);
+            }, [items]);
+
+            const handleInputChange = (index, value) => {
+                setLocalInputs(prev => ({ ...prev, [index]: value }));
+            };
+
+            const handleInputBlur = (index) => {
+                const localValue = localInputs[index];
+                const currentItem = items[index];
+                if (localValue !== undefined && currentItem !== localValue) {
+                    onUpdate(day, index, localValue);
+                }
+            };
+
+            const autoResize = (e) => {
+                e.target.style.height = 'auto';
+                e.target.style.height = e.target.scrollHeight + 'px';
+            };
+
+            const dayColors = {
+                Monday: 'border-blue-200 focus:border-blue-400',
+                Tuesday: 'border-green-200 focus:border-green-400',
+                Wednesday: 'border-yellow-200 focus:border-yellow-400',
+                Thursday: 'border-purple-200 focus:border-purple-400',
+                Friday: 'border-pink-200 focus:border-pink-400',
+                Saturday: 'border-indigo-200 focus:border-indigo-400',
+                Sunday: 'border-red-200 focus:border-red-400'
+            };
+
+            return (
+                <div className="bg-white rounded-lg p-4 border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+                    <div className="text-center mb-3">
+                        <h3 className="font-semibold text-gray-800 text-sm">
+                            {day}
+                        </h3>
+                        <div className="w-full h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent mt-2"></div>
+                    </div>
+                    
+                    <div className="space-y-2">
+                        {items.map((line, index) => (
+                            <div key={index} className="relative group">
+                                <textarea
+                                    value={localInputs[index] !== undefined ? localInputs[index] : line}
+                                    onChange={(e) => {
+                                        handleInputChange(index, e.target.value);
+                                        autoResize(e);
+                                    }}
+                                    onBlur={() => handleInputBlur(index)}
+                                    onInput={autoResize}
+                                    className={`w-full text-sm border ${dayColors[day]} rounded px-3 py-2 resize-none overflow-hidden min-h-[2.5rem] focus:outline-none focus:ring-1 focus:ring-current transition-colors`}
+                                    placeholder={`${day} plans...`}
+                                    rows="1"
+                                />
+                                {items.length > 1 && (
+                                    <button
+                                        onClick={() => onRemoveLine(index)}
+                                        className="absolute right-1 top-1 opacity-0 group-hover:opacity-100 text-red-500 hover:text-red-700 p-1 transition-opacity"
+                                        title="Remove line"
+                                    >
+                                        <TrashIcon />
+                                    </button>
+                                )}
+                            </div>
+                        ))}
+                        
+                        <button
+                            onClick={() => onAddLine()}
+                            className="w-full text-sm text-gray-500 hover:text-gray-700 py-2 border border-dashed border-gray-300 hover:border-gray-400 rounded transition-colors flex items-center justify-center gap-1"
+                        >
+                            <PlusIcon />
+                            Add line
+                        </button>
+                    </div>
+                </div>
+            );
+        };
+
+        // List Section Component with local state for inputs
+        const ListSection = ({ title, subtitle, listType, items, onUpdate, onAdd, onToggle, onRemove, placeholder, color }) => {
+            const [localInputs, setLocalInputs] = useState({});
+
+            // Initialize local inputs when items change
+            useEffect(() => {
+                const newLocalInputs = {};
+                items.forEach(item => {
+                    if (!(item.id in localInputs)) {
+                        newLocalInputs[item.id] = item.text;
+                    }
+                });
+                if (Object.keys(newLocalInputs).length > 0) {
+                    setLocalInputs(prev => ({ ...prev, ...newLocalInputs }));
+                }
+            }, [items]);
+
+            const handleInputChange = (id, value) => {
+                setLocalInputs(prev => ({ ...prev, [id]: value }));
+            };
+
+            const handleInputBlur = (id) => {
+                const localValue = localInputs[id];
+                const currentItem = items.find(item => item.id === id);
+                if (localValue !== undefined && currentItem && localValue !== currentItem.text) {
+                    onUpdate(listType, id, localValue);
+                }
+            };
+
+            const colorClasses = {
+                blue: {
+                    header: 'from-blue-500 to-blue-600',
+                    border: 'border-blue-200',
+                    button: 'bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-200'
+                },
+                purple: {
+                    header: 'from-purple-500 to-purple-600',
+                    border: 'border-purple-200',
+                    button: 'bg-purple-50 hover:bg-purple-100 text-purple-700 border-purple-200'
+                },
+                green: {
+                    header: 'from-green-500 to-green-600',
+                    border: 'border-green-200',
+                    button: 'bg-green-50 hover:bg-green-100 text-green-700 border-green-200'
+                },
+                orange: {
+                    header: 'from-orange-500 to-orange-600',
+                    border: 'border-orange-200',
+                    button: 'bg-orange-50 hover:bg-orange-100 text-orange-700 border-orange-200'
+                },
+                red: {
+                    header: 'from-red-500 to-red-600',
+                    border: 'border-red-200',
+                    button: 'bg-red-50 hover:bg-red-100 text-red-700 border-red-200'
+                }
+            };
+
+            const colors = colorClasses[color];
+
+            return (
+                <div className={`section-card rounded-xl border ${colors.border} overflow-hidden h-fit`}>
+                    {/* Header */}
+                    <div className={`bg-gradient-to-r ${colors.header} text-white p-4`}>
+                        <h3 className="font-bold text-lg">{title}</h3>
+                        <p className="text-white/80 text-sm mt-1">{subtitle}</p>
+                    </div>
+
+                    {/* Content */}
+                    <div className="p-4">
+                        <div className="space-y-3 mb-4">
+                            {items.map((item) => (
+                                <div key={item.id} className="flex items-start gap-3 group">
+                                    <button
+                                        onClick={() => onToggle(listType, item.id)}
+                                        className={`mt-1 w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${
+                                            item.completed 
+                                                ? `bg-${color}-500 border-${color}-500 text-white` 
+                                                : `border-gray-300 hover:border-${color}-400`
+                                        }`}
+                                    >
+                                        {item.completed && <CheckIcon />}
+                                    </button>
+                                    
+                                    <div className="flex-1 min-w-0">
+                                        <input
+                                            type="text"
+                                            value={localInputs[item.id] !== undefined ? localInputs[item.id] : item.text}
+                                            onChange={(e) => handleInputChange(item.id, e.target.value)}
+                                            onBlur={() => handleInputBlur(item.id)}
+                                            className={`w-full text-sm border border-gray-200 rounded px-3 py-2 focus:outline-none focus:ring-1 focus:ring-${color}-400 focus:border-${color}-400 transition-colors ${
+                                                item.completed ? 'line-through text-gray-500 bg-gray-50' : ''
+                                            }`}
+                                            placeholder={placeholder}
+                                        />
+                                    </div>
+                                    
+                                    <button
+                                        onClick={() => onRemove(listType, item.id)}
+                                        className="opacity-0 group-hover:opacity-100 text-red-500 hover:text-red-700 p-1 transition-opacity"
+                                        title="Remove item"
+                                    >
+                                        <TrashIcon />
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* Add Button */}
+                        <button
+                            onClick={() => onAdd(listType)}
+                            className={`w-full py-3 border border-dashed rounded-lg transition-colors flex items-center justify-center gap-2 font-medium ${colors.button}`}
+                        >
+                            <PlusIcon />
+                            Add Item
+                        </button>
+
+                        {/* Footer Stats */}
+                        {items.length > 0 && (
+                            <div className="mt-4 pt-3 border-t border-gray-200">
+                                <div className="flex justify-between text-xs text-gray-500">
+                                    <span>{items.length} total</span>
+                                    <span>{items.filter(item => item.completed).length} completed</span>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
             );
