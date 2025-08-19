@@ -448,7 +448,7 @@
 
                         <div className="section-divider"></div>
 
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-8">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 max-w-6xl mx-auto">
                             {days.map((day) => (
                                 <ScheduleDay 
                                     key={day} 
@@ -683,29 +683,29 @@
 
             const colorClasses = {
                 blue: {
-                    header: 'from-blue-500 to-blue-600',
-                    border: 'border-blue-200',
-                    button: 'bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-200'
+                    header: 'from-slate-400 to-slate-600',
+                    border: 'border-slate-200',
+                    button: 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200'
                 },
                 purple: {
-                    header: 'from-blue-600 to-blue-700',
-                    border: 'border-blue-200',
-                    button: 'bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-200'
+                    header: 'from-slate-500 to-purple-500',
+                    border: 'border-slate-200',
+                    button: 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200'
                 },
                 green: {
-                    header: 'from-green-500 to-green-600',
-                    border: 'border-green-200',
-                    button: 'bg-green-50 hover:bg-green-100 text-green-700 border-green-200'
+                    header: 'from-purple-400 to-purple-600',
+                    border: 'border-purple-200',
+                    button: 'bg-purple-50 hover:bg-purple-100 text-purple-700 border-purple-200'
                 },
                 orange: {
-                    header: 'from-blue-500 to-green-500',
-                    border: 'border-blue-200',
-                    button: 'bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-200'
+                    header: 'from-purple-500 to-purple-700',
+                    border: 'border-purple-200',
+                    button: 'bg-purple-50 hover:bg-purple-100 text-purple-700 border-purple-200'
                 },
                 red: {
-                    header: 'from-green-600 to-blue-500',
-                    border: 'border-green-200',
-                    button: 'bg-green-50 hover:bg-green-100 text-green-700 border-green-200'
+                    header: 'from-purple-600 to-purple-800',
+                    border: 'border-purple-200',
+                    button: 'bg-purple-50 hover:bg-purple-100 text-purple-700 border-purple-200'
                 }
             };
 
