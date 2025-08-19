@@ -506,7 +506,7 @@
             };
 
             // Goal management functions for daily entry view
-            const addGoal = (goalType) => {
+            const addDailyGoal = (goalType) => {
                 const newGoal = {
                     id: Date.now(),
                     text: '',
@@ -522,7 +522,7 @@
                 debouncedSave(formatDateKey(currentDate), updatedDayData);
             };
 
-            const updateGoal = (goalType, goalId, newText) => {
+            const updateDailyGoal = (goalType, goalId, newText) => {
                 const updatedDayData = { ...currentDayData };
                 const goalIndex = updatedDayData.goals[goalType].findIndex(g => g.id === goalId);
                 if (goalIndex !== -1) {
@@ -532,17 +532,17 @@
                 }
             };
 
-            const toggleGoal = (goalType, goalId) => {
+            const toggleDailyGoal = (goalType, goalId) => {
                 const updatedDayData = { ...currentDayData };
                 const goalIndex = updatedDayData.goals[goalType].findIndex(g => g.id === goalId);
                 if (goalIndex !== -1) {
-                    updatedDayData.goals[goalType][goalIndex].completed = !updatedDayData.goals[goalType][goalId].completed;
-                    setDayData(prev => ({ ...prev, [formatDateKey(currentDate)]: updatedDayData }));
-                    debouncedSave(formatDateKey(currentDate), updatedDayData);
+                    updatedDayData.goals[goalType][goalIndex].completed = !updatedDayData.goals[goalType][goalIndex].completed;
                 }
+                setDayData(prev => ({ ...prev, [formatDateKey(currentDate)]: updatedDayData }));
+                debouncedSave(formatDateKey(currentDate), updatedDayData);
             };
 
-            const removeGoal = (goalType, goalId) => {
+            const removeDailyGoal = (goalType, goalId) => {
                 const updatedDayData = { ...currentDayData };
                 updatedDayData.goals[goalType] = updatedDayData.goals[goalType].filter(g => g.id !== goalId);
                 setDayData(prev => ({ ...prev, [formatDateKey(currentDate)]: updatedDayData }));
@@ -849,10 +849,10 @@
                             subtitle="Today's objectives"
                             goalType="daily"
                             goals={currentDayData.goals.daily || []}
-                            onAdd={addGoal}
-                            onUpdate={updateGoal}
-                            onToggle={toggleGoal}
-                            onRemove={removeGoal}
+                            onAdd={addDailyGoal}
+                            onUpdate={updateDailyGoal}
+                            onToggle={toggleDailyGoal}
+                            onRemove={removeDailyGoal}
                             color="blue"
                         />
                         
@@ -861,10 +861,10 @@
                             subtitle="This week's focus"
                             goalType="weekly"
                             goals={currentDayData.goals.weekly || []}
-                            onAdd={addGoal}
-                            onUpdate={updateGoal}
-                            onToggle={toggleGoal}
-                            onRemove={removeGoal}
+                            onAdd={addDailyGoal}
+                            onUpdate={updateDailyGoal}
+                            onToggle={toggleDailyGoal}
+                            onRemove={removeDailyGoal}
                             color="green"
                         />
                         
@@ -873,10 +873,10 @@
                             subtitle="This month's vision"
                             goalType="monthly"
                             goals={currentDayData.goals.monthly || []}
-                            onAdd={addGoal}
-                            onUpdate={updateGoal}
-                            onToggle={toggleGoal}
-                            onRemove={removeGoal}
+                            onAdd={addDailyGoal}
+                            onUpdate={updateDailyGoal}
+                            onToggle={toggleDailyGoal}
+                            onRemove={removeDailyGoal}
                             color="purple"
                         />
                     </div>
