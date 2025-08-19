@@ -14,9 +14,9 @@
             theme: {
                 extend: {
                     colors: {
-                        primary: '#1e40af',
-                        secondary: '#dc2626',
-                        accent: '#059669',
+                        primary: '#059669',
+                        secondary: '#10b981',
+                        accent: '#34d399',
                     }
                 }
             }
@@ -35,7 +35,7 @@
             border-radius: 16px;
         }
         .section-header {
-            background: linear-gradient(135deg, #1e40af 0%, #dc2626 100%);
+            background: linear-gradient(135deg, #94a3b8 0%, #059669 100%);
             background-clip: text;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -67,7 +67,7 @@
         }
     </style>
 </head>
-<body class="bg-gradient-to-br from-slate-50 to-blue-50 min-h-screen">
+<body class="bg-gradient-to-br from-slate-100 to-green-50 min-h-screen">
     <div id="root"></div>
 
     <script type="text/babel">
@@ -546,7 +546,7 @@
                                     value={localInputs[index] !== undefined ? localInputs[index] : item}
                                     onChange={(e) => handleInputChange(index, e.target.value)}
                                     onBlur={() => handleInputBlur(index)}
-                                    className="w-full text-base border-2 border-amber-200 focus:border-amber-400 focus:ring-2 focus:ring-amber-200 rounded-xl px-5 py-4 resize-none min-h-[3rem] focus:outline-none transition-all duration-200 placeholder-gray-400"
+                                    className="w-full text-base border-2 border-green-200 focus:border-green-400 focus:ring-2 focus:ring-green-200 rounded-xl px-5 py-4 resize-none min-h-[3rem] focus:outline-none transition-all duration-200 placeholder-gray-400"
                                     placeholder={`I'm grateful for...`}
                                     rows="1"
                                     onInput={(e) => {
@@ -554,7 +554,7 @@
                                         e.target.style.height = e.target.scrollHeight + 'px';
                                     }}
                                 />
-                                <div className="absolute left-2 top-4 text-amber-500 font-bold text-sm">
+                                <div className="absolute left-2 top-4 text-green-600 font-bold text-sm">
                                     {index + 1}.
                                 </div>
                             </div>
@@ -594,25 +594,25 @@
                     title: "📖 Scripture",
                     subtitle: "Today's Bible passage",
                     placeholder: "Enter the Bible verse or passage you're studying today...",
-                    color: "blue"
+                    color: "green"
                 },
                 observation: {
                     title: "👁️ Observation",
                     subtitle: "What does the passage say?",
                     placeholder: "What do you notice about this passage? What stands out? What context is important?",
-                    color: "green"
+                    color: "emerald"
                 },
                 application: {
                     title: "🎯 Application",
                     subtitle: "How does this apply to your life?",
                     placeholder: "How can you apply this passage to your life today? What changes will you make?",
-                    color: "orange"
+                    color: "teal"
                 },
                 prayer: {
                     title: "🙏 Prayer",
                     subtitle: "Your response to God",
                     placeholder: "How will you pray based on this passage? What are you asking God for?",
-                    color: "purple"
+                    color: "green"
                 }
             };
 
@@ -632,7 +632,7 @@
 
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                         {Object.entries(sectionConfigs).map(([section, config]) => (
-                            <div key={section} className="modern-card border-l-4 border-l-blue-500">
+                            <div key={section} className="modern-card border-l-4 border-l-green-500">
                                 <div className="p-6">
                                     <h3 className="font-bold text-xl mb-2 text-gray-800">
                                         {config.title}
@@ -699,19 +699,19 @@
 
             const colorClasses = {
                 blue: {
-                    header: 'from-blue-500 to-blue-700',
-                    button: 'bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-200',
-                    check: 'bg-blue-500 border-blue-500'
+                    header: 'from-slate-400 to-green-600',
+                    button: 'bg-green-50 hover:bg-green-100 text-green-700 border-green-200',
+                    check: 'bg-green-600 border-green-600'
                 },
                 green: {
-                    header: 'from-green-500 to-green-700',
+                    header: 'from-slate-500 to-green-700',
                     button: 'bg-green-50 hover:bg-green-100 text-green-700 border-green-200',
-                    check: 'bg-green-500 border-green-500'
+                    check: 'bg-green-700 border-green-700'
                 },
                 purple: {
-                    header: 'from-purple-500 to-purple-700',
-                    button: 'bg-purple-50 hover:bg-purple-100 text-purple-700 border-purple-200',
-                    check: 'bg-purple-500 border-purple-500'
+                    header: 'from-slate-600 to-green-800',
+                    button: 'bg-green-50 hover:bg-green-100 text-green-700 border-green-200',
+                    check: 'bg-green-800 border-green-800'
                 }
             };
 
