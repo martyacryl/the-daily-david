@@ -448,7 +448,7 @@
 
                         <div className="section-divider"></div>
 
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-7 gap-6">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-8">
                             {days.map((day) => (
                                 <ScheduleDay 
                                     key={day} 
@@ -595,25 +595,25 @@
             };
 
             const dayColors = {
-                Monday: 'border-blue-300 focus:border-blue-500 focus:ring-blue-200',
-                Tuesday: 'border-green-300 focus:border-green-500 focus:ring-green-200',
-                Wednesday: 'border-blue-400 focus:border-blue-600 focus:ring-blue-200',
-                Thursday: 'border-green-400 focus:border-green-600 focus:ring-green-200',
-                Friday: 'border-blue-500 focus:border-blue-700 focus:ring-blue-200',
-                Saturday: 'border-green-500 focus:border-green-700 focus:ring-green-200',
-                Sunday: 'border-blue-600 focus:border-blue-800 focus:ring-blue-200'
+                Monday: 'border-slate-300 focus:border-slate-500 focus:ring-slate-200',
+                Tuesday: 'border-slate-400 focus:border-slate-600 focus:ring-slate-200',
+                Wednesday: 'border-purple-300 focus:border-purple-500 focus:ring-purple-200',
+                Thursday: 'border-purple-400 focus:border-purple-600 focus:ring-purple-200',
+                Friday: 'border-purple-500 focus:border-purple-700 focus:ring-purple-200',
+                Saturday: 'border-purple-600 focus:border-purple-800 focus:ring-purple-200',
+                Sunday: 'border-purple-700 focus:border-purple-900 focus:ring-purple-200'
             };
 
             return (
-                <div className="modern-card p-6 min-h-[300px] flex flex-col">
-                    <div className="text-center mb-4">
-                        <h3 className="font-bold text-gray-800 text-lg mb-2">
+                <div className="modern-card p-8 min-h-[350px] flex flex-col w-full">
+                    <div className="text-center mb-6">
+                        <h3 className="font-bold text-gray-800 text-xl mb-3">
                             {day}
                         </h3>
-                        <div className="w-full h-px bg-gradient-to-r from-transparent via-blue-300 to-transparent"></div>
+                        <div className="w-full h-px bg-gradient-to-r from-transparent via-purple-300 to-transparent"></div>
                     </div>
                     
-                    <div className="space-y-3 flex-1">
+                    <div className="space-y-4 flex-1">
                         {items.map((line, index) => (
                             <div key={index} className="relative group">
                                 <textarea
@@ -624,14 +624,14 @@
                                     }}
                                     onBlur={() => handleInputBlur(index)}
                                     onInput={autoResize}
-                                    className={`w-full text-sm border ${dayColors[day]} rounded-lg px-4 py-3 resize-none overflow-hidden min-h-[3rem] focus:outline-none focus:ring-2 focus:ring-current transition-all duration-200`}
-                                    placeholder={`${day} plans...`}
+                                    className={`w-full text-base border-2 ${dayColors[day]} rounded-xl px-5 py-4 resize-none overflow-hidden min-h-[4rem] focus:outline-none focus:ring-2 focus:ring-current transition-all duration-200 placeholder-gray-400`}
+                                    placeholder={`What's planned for ${day}?`}
                                     rows="1"
                                 />
                                 {items.length > 1 && (
                                     <button
                                         onClick={() => onRemoveLine(index)}
-                                        className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 text-red-500 hover:text-red-700 p-1.5 bg-white rounded-full shadow-sm transition-all duration-200 hover:scale-110"
+                                        className="absolute right-3 top-3 opacity-0 group-hover:opacity-100 text-red-500 hover:text-red-700 p-2 bg-white rounded-full shadow-lg transition-all duration-200 hover:scale-110"
                                         title="Remove line"
                                     >
                                         <TrashIcon />
@@ -642,10 +642,10 @@
                         
                         <button
                             onClick={() => onAddLine()}
-                            className="w-full text-sm text-gray-600 hover:text-gray-800 py-3 border-2 border-dashed border-gray-300 hover:border-blue-400 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 hover:bg-blue-50"
+                            className="w-full text-base text-gray-600 hover:text-purple-700 py-4 border-2 border-dashed border-gray-300 hover:border-purple-400 rounded-xl transition-all duration-200 flex items-center justify-center gap-3 hover:bg-purple-50 font-medium"
                         >
                             <PlusIcon />
-                            Add line
+                            Add another line
                         </button>
                     </div>
                 </div>
