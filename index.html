@@ -73,9 +73,9 @@
     <script type="text/babel">
         const { useState, useEffect, useCallback, useRef } = React;
 
-        // Initialize Supabase - YOU'LL NEED TO REPLACE THESE WITH YOUR NEW PROJECT CREDENTIALS
-        const supabaseUrl = 'YOUR_SUPABASE_URL_HERE';
-        const supabaseKey = 'YOUR_SUPABASE_KEY_HERE';
+        // Initialize Supabase
+        const supabaseUrl = 'https://gkmclzlgrcmqocfoxkui.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdrbWNsemxncmNtcW9jZm94a3VpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU2MDYzNzEsImV4cCI6MjA3MTE4MjM3MX0.ovOR0iMGao5qvrAThrx8KucLyTctiRkVbNJvYdPEyk0';
         const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
         // Icons as SVG components
