@@ -787,7 +787,7 @@
                             goalType="daily"
                             goals={currentDayData.goals.daily || []}
                             onAdd={addDailyGoal}
-                            onUpdate={updateDailyGoal}
+                            onUpdate={(goalType, id, text, category) => updateDailyGoal(goalType, id, text)}
                             onToggle={toggleDailyGoal}
                             onRemove={removeDailyGoal}
                             color="blue"
@@ -799,7 +799,7 @@
                             goalType="weekly"
                             goals={currentDayData.goals.weekly || []}
                             onAdd={addDailyGoal}
-                            onUpdate={updateDailyGoal}
+                            onUpdate={(goalType, id, text, category) => updateDailyGoal(goalType, id, text)}
                             onToggle={toggleDailyGoal}
                             onRemove={removeDailyGoal}
                             color="green"
@@ -811,7 +811,7 @@
                             goalType="monthly"
                             goals={currentDayData.goals.monthly || []}
                             onAdd={addDailyGoal}
-                            onUpdate={updateDailyGoal}
+                            onUpdate={(goalType, id, text, category) => updateDailyGoal(goalType, id, text)}
                             onToggle={toggleDailyGoal}
                             onRemove={removeDailyGoal}
                             color="purple"
@@ -992,6 +992,8 @@
         // Goal Section Component
         const GoalSection = ({ title, subtitle, goalType, goals, onAdd, onUpdate, onToggle, onRemove, color }) => {
             const [localInputs, setLocalInputs] = useState({});
+            const [editingGoal, setEditingGoal] = useState(null);
+            const [editForm, setEditForm] = useState({ text: '', category: 'spiritual' });
 
             useEffect(() => {
                 const newLocalInputs = {};
@@ -1017,6 +1019,24 @@
                 }
             };
 
+            const startEditing = (goal) => {
+                setEditingGoal(goal.id);
+                setEditForm({ text: goal.text, category: goal.category || 'spiritual' });
+            };
+
+            const saveEdit = () => {
+                if (editForm.text.trim()) {
+                    onUpdate(goalType, editingGoal, editForm.text, editForm.category);
+                    setEditingGoal(null);
+                    setEditForm({ text: '', category: 'spiritual' });
+                }
+            };
+
+            const cancelEdit = () => {
+                setEditingGoal(null);
+                setEditForm({ text: '', category: 'spiritual' });
+            };
+
             const CheckIcon = () => (
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -1026,6 +1046,12 @@
             const TrashIcon = () => (
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+            );
+
+            const EditIcon = () => (
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                 </svg>
             );
 
@@ -1059,42 +1085,104 @@
                     <div className="p-6">
                         <div className="space-y-4 mb-6">
                             {goals.map((goal) => (
-                                <div key={goal.id} className="flex items-start gap-3 group">
-                                    <button
-                                        onClick={() => onToggle(goalType, goal.id)}
-                                        className={`mt-1 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-200 hover:scale-110 ${
-                                            goal.completed 
-                                                ? `${colors.check} text-white shadow-lg` 
-                                                : `border-gray-300 hover:border-${color}-400 hover:bg-gray-50`
-                                        }`}
-                                    >
-                                        {goal.completed && <CheckIcon />}
-                                    </button>
-                                    
-                                    <div className="flex-1 min-w-0">
-                                        <textarea
-                                            value={localInputs[goal.id] !== undefined ? localInputs[goal.id] : goal.text}
-                                            onChange={(e) => handleInputChange(goal.id, e.target.value)}
-                                            onBlur={() => handleInputBlur(goal.id)}
-                                            className={`w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-${color}-400 focus:border-${color}-400 transition-all duration-200 resize-none min-h-[2.5rem] ${
-                                                goal.completed ? 'line-through text-gray-500 bg-gray-50' : 'hover:border-gray-300'
-                                            }`}
-                                            placeholder="Enter your goal..."
-                                            rows="1"
-                                            onInput={(e) => {
-                                                e.target.style.height = 'auto';
-                                                e.target.style.height = e.target.scrollHeight + 'px';
-                                            }}
-                                        />
-                                    </div>
-                                    
-                                    <button
-                                        onClick={() => onRemove(goalType, goal.id)}
-                                        className="opacity-0 group-hover:opacity-100 text-red-500 hover:text-red-700 p-2 rounded-full hover:bg-red-50 transition-all duration-200 hover:scale-110"
-                                        title="Remove goal"
-                                    >
-                                        <TrashIcon />
-                                    </button>
+                                <div key={goal.id} className="space-y-3">
+                                    {editingGoal === goal.id ? (
+                                        // Edit Mode
+                                        <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                                            <div className="space-y-3">
+                                                <div>
+                                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                                        Goal Text
+                                                    </label>
+                                                    <textarea
+                                                        value={editForm.text}
+                                                        onChange={(e) => setEditForm(prev => ({ ...prev, text: e.target.value }))}
+                                                        className="w-full text-sm border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 resize-none min-h-[2.5rem]"
+                                                        placeholder="Enter your goal..."
+                                                        rows="2"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                                        Category
+                                                    </label>
+                                                    <select
+                                                        value={editForm.category}
+                                                        onChange={(e) => setEditForm(prev => ({ ...prev, category: e.target.value }))}
+                                                        className="w-full text-sm border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400"
+                                                    >
+                                                        <option value="spiritual">Spiritual</option>
+                                                        <option value="personal">Personal</option>
+                                                        <option value="outreach">Outreach</option>
+                                                        <option value="health">Health</option>
+                                                        <option value="work">Work</option>
+                                                    </select>
+                                                </div>
+                                                <div className="flex space-x-2">
+                                                    <button
+                                                        onClick={saveEdit}
+                                                        className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm transition-colors"
+                                                    >
+                                                        Save
+                                                    </button>
+                                                    <button
+                                                        onClick={cancelEdit}
+                                                        className="bg-gray-500 hover:bg-gray-600 text-white px-3 py-1 rounded text-sm transition-colors"
+                                                    >
+                                                        Cancel
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        // View Mode
+                                        <div className="flex items-start gap-3 group">
+                                            <button
+                                                onClick={() => onToggle(goalType, goal.id)}
+                                                className={`mt-1 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-200 hover:scale-110 ${
+                                                    goal.completed 
+                                                        ? `${colors.check} text-white shadow-lg` 
+                                                        : `border-gray-300 hover:border-${color}-400 hover:bg-gray-50`
+                                                }`}
+                                            >
+                                                {goal.completed && <CheckIcon />}
+                                            </button>
+                                            
+                                            <div className="flex-1 min-w-0">
+                                                <div className="text-sm text-gray-800 mb-1">
+                                                    {goal.text}
+                                                </div>
+                                                {goal.category && (
+                                                    <span className={`inline-block px-2 py-1 text-xs rounded-full ${
+                                                        goal.category === 'spiritual' ? 'bg-blue-100 text-blue-800' :
+                                                        goal.category === 'personal' ? 'bg-green-100 text-green-800' :
+                                                        goal.category === 'outreach' ? 'bg-purple-100 text-purple-800' :
+                                                        goal.category === 'health' ? 'bg-red-100 text-red-800' :
+                                                        'bg-gray-100 text-gray-800'
+                                                    }`}>
+                                                        {goal.category}
+                                                    </span>
+                                                )}
+                                            </div>
+                                            
+                                            <div className="flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <button
+                                                    onClick={() => startEditing(goal)}
+                                                    className="text-blue-600 hover:text-blue-700 p-2 rounded-full hover:bg-blue-50 transition-colors"
+                                                    title="Edit goal"
+                                                >
+                                                    <EditIcon />
+                                                </button>
+                                                <button
+                                                    onClick={() => onRemove(goalType, goal.id)}
+                                                    className="text-red-500 hover:text-red-700 p-2 rounded-full hover:bg-red-50 transition-colors"
+                                                    title="Remove goal"
+                                                >
+                                                    <TrashIcon />
+                                                </button>
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                             ))}
                         </div>
