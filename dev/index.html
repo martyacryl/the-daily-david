@@ -505,6 +505,50 @@
                 return completedDays;
             };
 
+            // Goal management functions for daily entry view
+            const addGoal = (goalType) => {
+                const newGoal = {
+                    id: Date.now(),
+                    text: '',
+                    completed: false
+                };
+                
+                const updatedDayData = { ...currentDayData };
+                if (!updatedDayData.goals) updatedDayData.goals = {};
+                if (!updatedDayData.goals[goalType]) updatedDayData.goals[goalType] = [];
+                
+                updatedDayData.goals[goalType].push(newGoal);
+                setDayData(prev => ({ ...prev, [formatDateKey(currentDate)]: updatedDayData }));
+                debouncedSave(formatDateKey(currentDate), updatedDayData);
+            };
+
+            const updateGoal = (goalType, goalId, newText) => {
+                const updatedDayData = { ...currentDayData };
+                const goalIndex = updatedDayData.goals[goalType].findIndex(g => g.id === goalId);
+                if (goalIndex !== -1) {
+                    updatedDayData.goals[goalType][goalIndex].text = newText;
+                    setDayData(prev => ({ ...prev, [formatDateKey(currentDate)]: updatedDayData }));
+                    debouncedSave(formatDateKey(currentDate), updatedDayData);
+                }
+            };
+
+            const toggleGoal = (goalType, goalId) => {
+                const updatedDayData = { ...currentDayData };
+                const goalIndex = updatedDayData.goals[goalType].findIndex(g => g.id === goalId);
+                if (goalIndex !== -1) {
+                    updatedDayData.goals[goalType][goalIndex].completed = !updatedDayData.goals[goalType][goalId].completed;
+                    setDayData(prev => ({ ...prev, [formatDateKey(currentDate)]: updatedDayData }));
+                    debouncedSave(formatDateKey(currentDate), updatedDayData);
+                }
+            };
+
+            const removeGoal = (goalType, goalId) => {
+                const updatedDayData = { ...currentDayData };
+                updatedDayData.goals[goalType] = updatedDayData.goals[goalType].filter(g => g.id !== goalId);
+                setDayData(prev => ({ ...prev, [formatDateKey(currentDate)]: updatedDayData }));
+                debouncedSave(formatDateKey(currentDate), updatedDayData);
+            };
+
             // Initialize day data
             const initializeDayData = useCallback(async () => {
                 const dateKey = formatDateKey(currentDate);
@@ -1066,7 +1110,7 @@
                 }
             };
 
-            const colors = colorClasses[color];
+            const colors = colorClasses[color] || colorClasses.blue; // Default to blue if color is undefined
 
             return (
                 <div className="modern-card overflow-hidden">
