@@ -8,6 +8,22 @@
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://unpkg.com/@supabase/supabase-js@2.38.4/dist/umd/supabase.min.js"></script>
+    
+    <!-- Global Supabase Ready Event Listener - MUST BE BEFORE React renders -->
+    <script>
+    window.supabaseReadyCallbacks = [];
+    window.addEventListener('supabaseReady', () => {
+      console.log('📢 Global supabaseReady listener triggered');
+      window.supabaseReadyCallbacks.forEach(callback => {
+        try {
+          callback();
+        } catch (error) {
+          console.error('Error in supabaseReady callback:', error);
+        }
+      });
+    });
+    </script>
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -632,7 +648,7 @@
                 'window.supabaseReady': window.supabaseReady
             });
             
-            // Replace your existing condition check with the new approach
+            // Your render logic
             if (!supabaseReady) {
                 console.log('❌ Supabase not ready, showing loading screen');
                 return (
@@ -640,6 +656,9 @@
                         <div className="text-center">
                             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
                             <p>Loading Supabase...</p>
+                            <p className="text-sm text-gray-500 mt-2">
+                                Status: {window.supabaseClientsReady ? 'Ready' : 'Loading...'}
+                            </p>
                         </div>
                     </div>
                 );
@@ -661,7 +680,9 @@
             const [userModePreference, setUserModePreference] = useState('user');
             const [supabaseReady, setSupabaseReady] = useState(() => {
                 // Check if already loaded on initial render
-                return window.supabaseClientsReady === true;
+                const isReady = window.supabaseClientsReady === true;
+                console.log('🔍 Initial supabaseReady state:', isReady);
+                return isReady;
             });
             const [userSpecificData, setUserSpecificData] = useState({
                 weekData: {},
@@ -1248,7 +1269,7 @@
                 });
             }, [initializeWeekData, user]);
 
-            // React Supabase State Bridge Fix
+            // React Supabase State Bridge Fix - Version 2
             useEffect(() => {
                 console.log('🔍 React useEffect: Setting up Supabase listeners');
                 
@@ -1260,15 +1281,18 @@
                     return;
                 }
 
-                // Listen for the supabaseReady event
+                // Create callback function
                 const handleSupabaseReady = () => {
-                    console.log('🎉 React received supabaseReady event, updating state');
+                    console.log('🎉 React received supabaseReady callback, updating state');
                     setSupabaseReady(true);
                     setAuthLoading(false);
                 };
 
-                // Add the event listener
-                window.addEventListener('supabaseReady', handleSupabaseReady);
+                // Add to global callbacks array
+                if (!window.supabaseReadyCallbacks) {
+                    window.supabaseReadyCallbacks = [];
+                }
+                window.supabaseReadyCallbacks.push(handleSupabaseReady);
                 
                 // Also set up forceReactUpdate for your existing code
                 window.forceReactUpdate = () => {
@@ -1279,10 +1303,41 @@
                 // Cleanup
                 return () => {
                     console.log('🧹 Cleaning up Supabase listeners');
-                    window.removeEventListener('supabaseReady', handleSupabaseReady);
+                    if (window.supabaseReadyCallbacks) {
+                        const index = window.supabaseReadyCallbacks.indexOf(handleSupabaseReady);
+                        if (index > -1) {
+                            window.supabaseReadyCallbacks.splice(index, 1);
+                        }
+                    }
                     delete window.forceReactUpdate;
                 };
             }, []);
+            
+            // Add a backup polling mechanism in case events fail
+            useEffect(() => {
+                if (supabaseReady) return;
+
+                console.log('🔄 Starting backup polling for Supabase');
+                const pollInterval = setInterval(() => {
+                    if (window.supabaseClientsReady === true) {
+                        console.log('✅ Backup polling detected Supabase ready');
+                        setSupabaseReady(true);
+                        setAuthLoading(false);
+                        clearInterval(pollInterval);
+                    }
+                }, 1000);
+
+                // Cleanup after 30 seconds
+                const timeout = setTimeout(() => {
+                    console.log('⚠️ Backup polling timeout reached');
+                    clearInterval(pollInterval);
+                }, 30000);
+
+                return () => {
+                    clearInterval(pollInterval);
+                    clearTimeout(timeout);
+                };
+            }, [supabaseReady]);
             
             // Initialize authentication
             useEffect(() => {
