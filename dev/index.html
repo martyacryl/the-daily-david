@@ -1551,7 +1551,10 @@
                     const monthlyGoalsNeedUpdate = currentMonthlyGoals.length !== mostRecentMonthlyGoals.length ||
                         !currentMonthlyGoals.every((goal, index) => goal.id === mostRecentMonthlyGoals[index]?.id);
                     
+                    console.log('🔄 DEBUG: Monthly goals check - current:', currentMonthlyGoals.length, 'recent:', mostRecentMonthlyGoals.length, 'needUpdate:', monthlyGoalsNeedUpdate);
+                    
                     if (monthlyGoalsNeedUpdate && isSameMonth(currentDate, new Date(sortedDates[0]))) {
+                        console.log('🔄 DEBUG: Updating monthly goals from', currentMonthlyGoals.length, 'to', mostRecentMonthlyGoals.length);
                         updatedDayData.goals.monthly = mostRecentMonthlyGoals.map(goal => ({
                             ...goal,
                             completed: goal.completed // Keep completion status
