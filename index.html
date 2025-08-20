@@ -189,12 +189,34 @@
             console.log('🎉 Supabase is ready! Notifying app...');
             console.log('🔍 About to dispatch supabaseReady event...');
             
-            // Dispatch a custom event to notify the React component
-            const event = new CustomEvent('supabaseReady');
-            window.dispatchEvent(event);
-            console.log('✅ supabaseReady event dispatched');
+            // Check if React is ready to receive events
+            if (window.supabaseReadyCallbacks && window.supabaseReadyCallbacks.length > 0) {
+                console.log('✅ React callbacks ready, dispatching event immediately');
+                window.dispatchEvent(new Event('supabaseReady'));
+                console.log('✅ supabaseReady event dispatched');
+            } else {
+                console.log('⏳ React not ready yet, setting up delayed dispatch...');
+                // Set up polling to wait for React to be ready
+                const checkReactReady = setInterval(() => {
+                    if (window.supabaseReadyCallbacks && window.supabaseReadyCallbacks.length > 0) {
+                        console.log('✅ React callbacks now ready, dispatching delayed event');
+                        window.dispatchEvent(new Event('supabaseReady'));
+                        console.log('✅ Delayed supabaseReady event dispatched');
+                        clearInterval(checkReactReady);
+                    }
+                }, 100);
+                
+                // Fallback: dispatch after 5 seconds even if React isn't ready
+                setTimeout(() => {
+                    if (checkReactReady) {
+                        clearInterval(checkReactReady);
+                        console.log('⚠️ Fallback: dispatching event after timeout');
+                        window.dispatchEvent(new Event('supabaseReady'));
+                    }
+                }, 5000);
+            }
             
-            // Also try to force a React re-render by updating a global variable
+            // Also try to force React update if available
             if (window.forceReactUpdate) {
                 console.log('🔄 Calling forceReactUpdate...');
                 window.forceReactUpdate();
