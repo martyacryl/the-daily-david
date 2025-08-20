@@ -463,8 +463,38 @@
                 setIsAdmin(false);
                 setUserModePreference('user');
                 
-                // Load user-specific data from localStorage
+                // Load user-specific data from localStorage first (fastest)
                 await loadUserSpecificData(userData.id);
+                
+                // Also try to sync with Supabase to get any newer data
+                try {
+                    console.log('🔄 Syncing with Supabase for any newer data...');
+                    const { data, error } = await supabase
+                        .from(TABLE_NAME)
+                        .select('*')
+                        .eq('user_id', userData.id);
+                    
+                    if (!error && data && data.length > 0) {
+                        console.log(`🌐 Found ${data.length} weeks in Supabase, checking for updates...`);
+                        
+                        // Check if Supabase has newer data than localStorage
+                        data.forEach(row => {
+                            const localStorageKey = `marriage_meetings_${userData.id}_${row.week_key}`;
+                            const localData = localStorage.getItem(localStorageKey);
+                            
+                            if (!localData || new Date(row.updated_at) > new Date(JSON.parse(localData).updated_at || 0)) {
+                                // Supabase has newer data, update localStorage
+                                localStorage.setItem(localStorageKey, JSON.stringify(row.data));
+                                console.log(`💾 Updated localStorage with newer Supabase data for week: ${row.week_key}`);
+                            }
+                        });
+                        
+                        // Reload data from localStorage to get any updates
+                        await loadUserSpecificData(userData.id);
+                    }
+                } catch (syncError) {
+                    console.log('Supabase sync error (non-critical):', syncError);
+                }
             };
 
             const handleAdminSignIn = async (userData) => {
@@ -495,18 +525,9 @@
                         saveTimeoutRef.current = null;
                     }
                     
-                    // Clear localStorage for current user (optional - for security)
-                    if (user) {
-                        try {
-                            const keysToRemove = Object.keys(localStorage).filter(key => 
-                                key.startsWith(`marriage_meetings_${user.id}_`)
-                            );
-                            keysToRemove.forEach(key => localStorage.removeItem(key));
-                            console.log('🗑️ Cleared user data from localStorage');
-                        } catch (localStorageError) {
-                            console.log('Note: Could not clear localStorage');
-                        }
-                    }
+                    // DON'T clear localStorage data - keep it for when user signs back in
+                    // This prevents data loss and allows seamless sign-in/sign-out
+                    console.log('💾 Keeping localStorage data for seamless re-authentication');
                     
                     // Then sign out from Supabase
                     const { error } = await supabase.auth.signOut();
@@ -608,15 +629,53 @@
                     console.log('📭 No localStorage data found, trying Supabase...');
                     
                     // Fallback to Supabase if no localStorage data
-                    const { data, error } = await supabase
-                        .from(TABLE_NAME)
-                        .select('*')
-                        .eq('user_id', userId);
+                    try {
+                        const { data, error } = await supabase
+                            .from(TABLE_NAME)
+                            .select('*')
+                            .eq('user_id', userId);
 
-                    if (error) {
-                        console.log('❌ Error loading from Supabase:', error);
-                        return;
-                    }
+                        if (error) {
+                            console.log('❌ Error loading from Supabase:', error);
+                            
+                            // If RLS fails, try with service role key for admin access
+                            if (USE_SERVICE_ROLE_KEY && error.code === 'PGRST116') {
+                                console.log('🔄 Trying with service role key for user data...');
+                                const { data: adminData, error: adminError } = await supabase
+                                    .from(TABLE_NAME)
+                                    .select('*')
+                                    .eq('user_id', userId);
+                                
+                                if (adminError) {
+                                    console.log('Service role key also failed for user data:', adminError);
+                                    return;
+                                }
+                                
+                                if (adminData && adminData.length > 0) {
+                                    console.log(`🌐 Loaded ${adminData.length} weeks from Supabase with service role`);
+                                    
+                                    const loadedWeekData = {};
+                                    adminData.forEach(row => {
+                                        loadedWeekData[row.week_key] = row.data;
+                                        
+                                        // Also save to localStorage for future use
+                                        const localStorageKey = `marriage_meetings_${userId}_${row.week_key}`;
+                                        localStorage.setItem(localStorageKey, JSON.stringify(row.data));
+                                        console.log(`💾 Saved week ${row.week_key} to localStorage`);
+                                    });
+                                    
+                                    setUserSpecificData(prev => ({
+                                        ...prev,
+                                        weekData: loadedWeekData
+                                    }));
+                                    setWeekData(loadedWeekData);
+                                    
+                                    console.log('✅ Successfully loaded and cached data from Supabase with service role');
+                                    return;
+                                }
+                            }
+                            return;
+                        }
 
                     if (data && data.length > 0) {
                         console.log(`🌐 Loaded ${data.length} weeks from Supabase`);
@@ -738,25 +797,55 @@
                     // Fallback to Supabase if no localStorage data
                     if (user) {
                         console.log(`🌐 Loading from Supabase for week: ${weekKey}`);
-                        const { data, error } = await supabase
-                            .from(TABLE_NAME)
-                            .select('*')
-                            .eq('week_key', weekKey)
-                            .eq('user_id', user.id);
+                        try {
+                            // Try with RLS policies first
+                            const { data, error } = await supabase
+                                .from(TABLE_NAME)
+                                .select('*')
+                                .eq('week_key', weekKey)
+                                .eq('user_id', user.id);
 
-                        if (error) {
-                            console.log('Supabase load error:', error);
-                        } else if (data && data.length > 0) {
-                            console.log(`✅ Loaded data from Supabase for week: ${weekKey}`);
-                            const supabaseData = data[0].data;
-                            setWeekData(prev => ({ ...prev, [weekKey]: supabaseData }));
-                            
-                            // Also save to localStorage for future use
-                            const localStorageKey = `marriage_meetings_${user.id}_${weekKey}`;
-                            localStorage.setItem(localStorageKey, JSON.stringify(supabaseData));
-                            
-                            setIsLoading(false);
-                            return supabaseData;
+                            if (error) {
+                                console.log('Supabase load error with RLS:', error);
+                                
+                                // If RLS fails, try with service role key for admin access
+                                if (USE_SERVICE_ROLE_KEY && error.code === 'PGRST116') {
+                                    console.log('🔄 Trying with service role key...');
+                                    const { data: adminData, error: adminError } = await supabase
+                                        .from(TABLE_NAME)
+                                        .select('*')
+                                        .eq('week_key', weekKey)
+                                        .eq('user_id', user.id);
+                                    
+                                    if (adminError) {
+                                        console.log('Service role key also failed:', adminError);
+                                    } else if (adminData && adminData.length > 0) {
+                                        console.log(`✅ Loaded data with service role for week: ${weekKey}`);
+                                        const supabaseData = adminData[0].data;
+                                        setWeekData(prev => ({ ...prev, [weekKey]: supabaseData }));
+                                        
+                                        // Also save to localStorage for future use
+                                        const localStorageKey = `marriage_meetings_${user.id}_${weekKey}`;
+                                        localStorage.setItem(localStorageKey, JSON.stringify(supabaseData));
+                                        
+                                        setIsLoading(false);
+                                        return supabaseData;
+                                    }
+                                }
+                            } else if (data && data.length > 0) {
+                                console.log(`✅ Loaded data from Supabase for week: ${weekKey}`);
+                                const supabaseData = data[0].data;
+                                setWeekData(prev => ({ ...prev, [weekKey]: supabaseData }));
+                                
+                                // Also save to localStorage for future use
+                                const localStorageKey = `marriage_meetings_${user.id}_${weekKey}`;
+                                localStorage.setItem(localStorageKey, JSON.stringify(supabaseData));
+                                
+                                setIsLoading(false);
+                                return supabaseData;
+                            }
+                        } catch (supabaseError) {
+                            console.log('Supabase connection error:', supabaseError);
                         }
                     }
 
