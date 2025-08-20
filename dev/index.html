@@ -2370,6 +2370,42 @@
                 }
             }, [userSpecificData, user, isAdmin]);
 
+            // IMMEDIATE DATA CLEARING DETECTION: Check if data is cleared immediately after being set
+            useEffect(() => {
+                if (user && !isAdmin) {
+                    // Store the previous state to detect immediate clearing
+                    const prevStateRef = useRef(userSpecificData);
+                    
+                    // Check if data was just set and then immediately cleared
+                    const prevHasData = Object.keys(prevStateRef.current.dayData).length > 0 || 
+                                       prevStateRef.current.weeklyGoals.length > 0 || 
+                                       prevStateRef.current.monthlyGoals.length > 0;
+                    
+                    const currentHasData = Object.keys(userSpecificData.dayData).length > 0 || 
+                                         userSpecificData.weeklyGoals.length > 0 || 
+                                         userSpecificData.monthlyGoals.length > 0;
+                    
+                    if (prevHasData && !currentHasData) {
+                        console.log('🚨 IMMEDIATE CLEARING DETECTED!');
+                        console.log('🚨 Data was just set and then immediately cleared!');
+                        console.log('🚨 Previous state had data, current state is empty');
+                        console.log('🚨 This suggests a race condition or conflicting effect');
+                        
+                        // Check what effects are running
+                        console.log('🚨 Checking for conflicting effects...');
+                        
+                        // Force immediate restoration
+                        setTimeout(() => {
+                            console.log('🚨 Attempting immediate restoration after clearing detection...');
+                            emergencyRestoreData();
+                        }, 0);
+                    }
+                    
+                    // Update the ref for next comparison
+                    prevStateRef.current = userSpecificData;
+                }
+            }, [userSpecificData, user, isAdmin]);
+
             // TRACK ALL EFFECTS: Monitor when effects run to find the culprit
             useEffect(() => {
                 console.log('🔍 TRACK: Effect with userSpecificData dependency ran');
