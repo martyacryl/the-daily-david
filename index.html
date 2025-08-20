@@ -632,28 +632,20 @@
                 'window.supabaseReady': window.supabaseReady
             });
             
-            // Use React state instead of global variables
-            const isSupabaseAvailable = supabaseReady;
-            
-            if (!isSupabaseAvailable) {
-                console.log('❌ Supabase clients not ready, showing loading screen');
+            // Replace your existing condition check with the new approach
+            if (!supabaseReady) {
+                console.log('❌ Supabase not ready, showing loading screen');
                 return (
-                    <div className="min-h-screen flex items-center justify-center bg-white">
+                    <div className="flex items-center justify-center min-h-screen">
                         <div className="text-center">
-                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-                            <p className="text-gray-600">Loading Supabase...</p>
-                            <p className="text-sm text-gray-500 mt-2">If this persists, please refresh the page</p>
-                            <div className="mt-4 text-xs text-gray-400">
-                                <p>Local supabase: {supabase ? '✅' : '❌'}</p>
-                                <p>Local adminSupabase: {adminSupabase ? '✅' : '❌'}</p>
-                                <p>Global window.supabase: {window.supabase ? '✅' : '❌'}</p>
-                                <p>Global window.adminSupabase: {window.adminSupabase ? '✅' : '❌'}</p>
-                                <p>window.supabaseReady: {window.supabaseReady ? '✅' : '❌'}</p>
-                            </div>
+                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                            <p>Loading Supabase...</p>
                         </div>
                     </div>
                 );
             }
+
+            console.log('✅ Supabase ready, rendering main app');
             
             const [currentWeek, setCurrentWeek] = useState(new Date());
             const [weekData, setWeekData] = useState({});
@@ -667,7 +659,10 @@
             const [isAdmin, setIsAdmin] = useState(false);
             const [authLoading, setAuthLoading] = useState(true);
             const [userModePreference, setUserModePreference] = useState('user');
-            const [supabaseReady, setSupabaseReady] = useState(false);
+            const [supabaseReady, setSupabaseReady] = useState(() => {
+                // Check if already loaded on initial render
+                return window.supabaseClientsReady === true;
+            });
             const [userSpecificData, setUserSpecificData] = useState({
                 weekData: {},
                 userPreferences: {}
@@ -1253,30 +1248,39 @@
                 });
             }, [initializeWeekData, user]);
 
-            // Proper React state management for Supabase initialization
+            // React Supabase State Bridge Fix
             useEffect(() => {
-                console.log('🚀 Setting up Supabase ready event listener');
+                console.log('🔍 React useEffect: Setting up Supabase listeners');
                 
-                // Check if already ready
+                // If already ready, no need to listen
                 if (window.supabaseClientsReady) {
-                    console.log('✅ Supabase already ready, updating state immediately');
+                    console.log('✅ Supabase already ready on mount');
                     setSupabaseReady(true);
                     setAuthLoading(false);
                     return;
                 }
-                
-                // Listen for the ready event
+
+                // Listen for the supabaseReady event
                 const handleSupabaseReady = () => {
-                    console.log('🎉 React received supabaseReady event');
+                    console.log('🎉 React received supabaseReady event, updating state');
                     setSupabaseReady(true);
                     setAuthLoading(false);
                 };
-                
+
+                // Add the event listener
                 window.addEventListener('supabaseReady', handleSupabaseReady);
                 
+                // Also set up forceReactUpdate for your existing code
+                window.forceReactUpdate = () => {
+                    console.log('🔄 forceReactUpdate called');
+                    setSupabaseReady(window.supabaseClientsReady === true);
+                };
+
+                // Cleanup
                 return () => {
-                    console.log('🧹 Cleaning up Supabase ready event listener');
+                    console.log('🧹 Cleaning up Supabase listeners');
                     window.removeEventListener('supabaseReady', handleSupabaseReady);
+                    delete window.forceReactUpdate;
                 };
             }, []);
             
