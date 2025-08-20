@@ -531,27 +531,41 @@
 
             const loadUserSpecificData = async (userId) => {
                 try {
-                    // Try to load from localStorage first
+                    console.log(`🔄 Loading user-specific data for user: ${userId}`);
+                    
+                    // Try to load from localStorage first (primary source)
                     const localStorageKeys = Object.keys(localStorage).filter(key => 
                         key.startsWith(`marriage_meetings_${userId}_`)
                     );
                     
                     if (localStorageKeys.length > 0) {
+                        console.log(`📊 Found ${localStorageKeys.length} weeks of data in localStorage`);
+                        
                         const loadedWeekData = {};
                         localStorageKeys.forEach(key => {
                             const weekKey = key.replace(`marriage_meetings_${userId}_`, '');
-                            const data = JSON.parse(localStorage.getItem(key));
-                            loadedWeekData[weekKey] = data;
+                            try {
+                                const data = JSON.parse(localStorage.getItem(key));
+                                loadedWeekData[weekKey] = data;
+                                console.log(`✅ Loaded week from localStorage: ${weekKey}`);
+                            } catch (parseError) {
+                                console.error(`❌ Error parsing localStorage data for week ${weekKey}:`, parseError);
+                            }
                         });
                         
+                        // Update both states immediately
                         setUserSpecificData(prev => ({
                             ...prev,
                             weekData: loadedWeekData
                         }));
                         setWeekData(loadedWeekData);
-                        return;
+                        
+                        console.log('🎉 Successfully loaded all data from localStorage');
+                        return; // Exit early - localStorage is our primary source
                     }
 
+                    console.log('📭 No localStorage data found, trying Supabase...');
+                    
                     // Fallback to Supabase if no localStorage data
                     const { data, error } = await supabase
                         .from(TABLE_NAME)
@@ -559,14 +573,21 @@
                         .eq('user_id', userId);
 
                     if (error) {
-                        console.log('Error loading from Supabase:', error);
+                        console.log('❌ Error loading from Supabase:', error);
                         return;
                     }
 
                     if (data && data.length > 0) {
+                        console.log(`🌐 Loaded ${data.length} weeks from Supabase`);
+                        
                         const loadedWeekData = {};
                         data.forEach(row => {
                             loadedWeekData[row.week_key] = row.data;
+                            
+                            // Also save to localStorage for future use
+                            const localStorageKey = `marriage_meetings_${userId}_${row.week_key}`;
+                            localStorage.setItem(localStorageKey, JSON.stringify(row.data));
+                            console.log(`💾 Saved week ${row.week_key} to localStorage`);
                         });
                         
                         setUserSpecificData(prev => ({
@@ -574,9 +595,13 @@
                             weekData: loadedWeekData
                         }));
                         setWeekData(loadedWeekData);
+                        
+                        console.log('✅ Successfully loaded and cached data from Supabase');
+                    } else {
+                        console.log('📭 No data found in Supabase either');
                     }
                 } catch (error) {
-                    console.log('Load error:', error);
+                    console.error('❌ Error in loadUserSpecificData:', error);
                 }
             };
 
@@ -612,42 +637,121 @@
                 }, 1000);
             }, []);
 
+            // Immediate localStorage save for instant persistence
+            const saveToLocalStorage = useCallback((weekKey, data) => {
+                if (!user) return;
+                
+                try {
+                    const localStorageKey = `marriage_meetings_${user.id}_${weekKey}`;
+                    localStorage.setItem(localStorageKey, JSON.stringify(data));
+                    console.log(`💾 Saved to localStorage: ${weekKey}`);
+                } catch (error) {
+                    console.error('❌ Error saving to localStorage:', error);
+                }
+            }, [user]);
+
             // Initialize database
             const initializeDatabase = async () => {
                 setIsConnected(true);
             };
 
-            // Initialize week data
+            // Initialize week data with robust localStorage persistence
             const initializeWeekData = useCallback(async () => {
                 const weekKey = formatWeekKey(currentWeek);
                 
+                // First check if we already have this week's data in state
                 if (weekData[weekKey]) {
                     return weekData[weekKey];
                 }
 
                 setIsLoading(true);
                 
-                // Check if we have user-specific data
-                if (user && userSpecificData.weekData[weekKey]) {
-                    setWeekData(prev => ({ ...prev, [weekKey]: userSpecificData.weekData[weekKey] }));
+                try {
+                    // Try to load from localStorage first (primary source)
+                    if (user) {
+                        const localStorageKey = `marriage_meetings_${user.id}_${weekKey}`;
+                        const savedData = localStorage.getItem(localStorageKey);
+                        
+                        if (savedData) {
+                            console.log(`📊 Found data in localStorage for week: ${weekKey}`);
+                            const parsedData = JSON.parse(savedData);
+                            setWeekData(prev => ({ ...prev, [weekKey]: parsedData }));
+                            setIsLoading(false);
+                            return parsedData;
+                        }
+                    }
+
+                    // Check if we have user-specific data from previous loads
+                    if (user && userSpecificData.weekData[weekKey]) {
+                        console.log(`🔄 Found data in userSpecificData for week: ${weekKey}`);
+                        setWeekData(prev => ({ ...prev, [weekKey]: userSpecificData.weekData[weekKey] }));
+                        setIsLoading(false);
+                        return userSpecificData.weekData[weekKey];
+                    }
+
+                    // Fallback to Supabase if no localStorage data
+                    if (user) {
+                        console.log(`🌐 Loading from Supabase for week: ${weekKey}`);
+                        const { data, error } = await supabase
+                            .from(TABLE_NAME)
+                            .select('*')
+                            .eq('week_key', weekKey)
+                            .eq('user_id', user.id);
+
+                        if (error) {
+                            console.log('Supabase load error:', error);
+                        } else if (data && data.length > 0) {
+                            console.log(`✅ Loaded data from Supabase for week: ${weekKey}`);
+                            const supabaseData = data[0].data;
+                            setWeekData(prev => ({ ...prev, [weekKey]: supabaseData }));
+                            
+                            // Also save to localStorage for future use
+                            const localStorageKey = `marriage_meetings_${user.id}_${weekKey}`;
+                            localStorage.setItem(localStorageKey, JSON.stringify(supabaseData));
+                            
+                            setIsLoading(false);
+                            return supabaseData;
+                        }
+                    }
+
+                    // Create new week data if nothing found
+                    console.log(`🆕 Creating new week data for: ${weekKey}`);
+                    const newWeekData = {
+                        schedule: {
+                            Monday: [''], Tuesday: [''], Wednesday: [''], Thursday: [''],
+                            Friday: [''], Saturday: [''], Sunday: ['']
+                        },
+                        todos: [], prayers: [], goals: [], grocery: [], unconfessedSin: [], weeklyWinddown: []
+                    };
+
+                    setWeekData(prev => ({ ...prev, [weekKey]: newWeekData }));
+                    
+                    // Save to localStorage immediately
+                    if (user) {
+                        const localStorageKey = `marriage_meetings_${user.id}_${weekKey}`;
+                        localStorage.setItem(localStorageKey, JSON.stringify(newWeekData));
+                        console.log(`💾 Saved new week data to localStorage: ${weekKey}`);
+                    }
+                    
                     setIsLoading(false);
-                    return userSpecificData.weekData[weekKey];
+                    return newWeekData;
+                    
+                } catch (error) {
+                    console.error('Error initializing week data:', error);
+                    setIsLoading(false);
+                    
+                    // Return basic structure even if there's an error
+                    const fallbackData = {
+                        schedule: {
+                            Monday: [''], Tuesday: [''], Wednesday: [''], Thursday: [''],
+                            Friday: [''], Saturday: [''], Sunday: ['']
+                        },
+                        todos: [], prayers: [], goals: [], grocery: [], unconfessedSin: [], weeklyWinddown: []
+                    };
+                    
+                    setWeekData(prev => ({ ...prev, [weekKey]: fallbackData }));
+                    return fallbackData;
                 }
-
-                const newWeekData = {
-                    schedule: {
-                        Monday: [''], Tuesday: [''], Wednesday: [''], Thursday: [''],
-                        Friday: [''], Saturday: [''], Sunday: ['']
-                    },
-                    todos: [], prayers: [], goals: [], grocery: [], unconfessedSin: [], weeklyWinddown: []
-                };
-
-                setWeekData(prev => ({ ...prev, [weekKey]: newWeekData }));
-                if (user) {
-                    await saveWeekData(weekKey, newWeekData);
-                }
-                setIsLoading(false);
-                return newWeekData;
             }, [currentWeek, weekData, user, userSpecificData.weekData]);
 
             // Initialize on mount
@@ -699,6 +803,56 @@
                 initializeAuth();
             }, []);
 
+            // Load all user data from localStorage when user changes
+            useEffect(() => {
+                if (user) {
+                    loadAllUserDataFromLocalStorage();
+                }
+            }, [user]);
+
+            // Function to load all user data from localStorage
+            const loadAllUserDataFromLocalStorage = () => {
+                if (!user) return;
+                
+                try {
+                    console.log('🔄 Loading all user data from localStorage...');
+                    
+                    // Get all localStorage keys for this user
+                    const localStorageKeys = Object.keys(localStorage).filter(key => 
+                        key.startsWith(`marriage_meetings_${user.id}_`)
+                    );
+                    
+                    if (localStorageKeys.length > 0) {
+                        console.log(`📊 Found ${localStorageKeys.length} weeks of data in localStorage`);
+                        
+                        const loadedWeekData = {};
+                        localStorageKeys.forEach(key => {
+                            const weekKey = key.replace(`marriage_meetings_${user.id}_`, '');
+                            try {
+                                const data = JSON.parse(localStorage.getItem(key));
+                                loadedWeekData[weekKey] = data;
+                                console.log(`✅ Loaded week: ${weekKey}`);
+                            } catch (parseError) {
+                                console.error(`❌ Error parsing localStorage data for week ${weekKey}:`, parseError);
+                            }
+                        });
+                        
+                        // Update both states
+                        setUserSpecificData(prev => ({
+                            ...prev,
+                            weekData: loadedWeekData
+                        }));
+                        setWeekData(loadedWeekData);
+                        
+                        console.log('🎉 Successfully loaded all user data from localStorage');
+                    } else {
+                        console.log('📭 No localStorage data found for user');
+                    }
+                } catch (error) {
+                    console.error('❌ Error loading localStorage data:', error);
+                }
+            };
+
             // User management functions
             const handleAddUser = async (email, password, displayName) => {
                 try {
@@ -743,6 +897,25 @@
                 };
             }, []);
 
+            // Handle page refresh and ensure data persistence
+            useEffect(() => {
+                const handleBeforeUnload = () => {
+                    // Save current week data before page unload
+                    if (user && currentWeek) {
+                        const weekKey = formatWeekKey(currentWeek);
+                        const currentData = weekData[weekKey];
+                        if (currentData) {
+                            const localStorageKey = `marriage_meetings_${user.id}_${weekKey}`;
+                            localStorage.setItem(localStorageKey, JSON.stringify(currentData));
+                            console.log('💾 Saved data before page unload');
+                        }
+                    }
+                };
+
+                window.addEventListener('beforeunload', handleBeforeUnload);
+                return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+            }, [user, currentWeek, weekData]);
+
             const currentWeekData = weekData[formatWeekKey(currentWeek)] || {
                 schedule: {
                     Monday: [''], Tuesday: [''], Wednesday: [''], Thursday: [''],
@@ -765,7 +938,10 @@
                 // Update state immediately for UI responsiveness
                 setWeekData(prev => ({ ...prev, [weekKey]: newData }));
                 
-                // Debounced save
+                // Save to localStorage immediately for instant persistence
+                saveToLocalStorage(weekKey, newData);
+                
+                // Debounced save to Supabase
                 debouncedSave(weekKey, newData);
             };
 
@@ -779,6 +955,11 @@
                     }
                 };
                 setWeekData(prev => ({ ...prev, [weekKey]: newData }));
+                
+                // Save to localStorage immediately
+                saveToLocalStorage(weekKey, newData);
+                
+                // Save to Supabase
                 saveWeekData(weekKey, newData);
             };
 
@@ -792,6 +973,11 @@
                     }
                 };
                 setWeekData(prev => ({ ...prev, [weekKey]: newData }));
+                
+                // Save to localStorage immediately
+                saveToLocalStorage(weekKey, newData);
+                
+                // Save to Supabase
                 saveWeekData(weekKey, newData);
             };
 
@@ -804,6 +990,11 @@
                     [listType]: [...currentItems, newItem]
                 };
                 setWeekData(prev => ({ ...prev, [weekKey]: newData }));
+                
+                // Save to localStorage immediately
+                saveToLocalStorage(weekKey, newData);
+                
+                // Save to Supabase
                 saveWeekData(weekKey, newData);
             };
 
@@ -821,7 +1012,10 @@
                 // Update state immediately for UI responsiveness
                 setWeekData(prev => ({ ...prev, [weekKey]: newData }));
                 
-                // Debounced save
+                // Save to localStorage immediately for instant persistence
+                saveToLocalStorage(weekKey, newData);
+                
+                // Debounced save to Supabase
                 debouncedSave(weekKey, newData);
             };
 
@@ -836,6 +1030,11 @@
                     [listType]: updatedItems
                 };
                 setWeekData(prev => ({ ...prev, [weekKey]: newData }));
+                
+                // Save to localStorage immediately
+                saveToLocalStorage(weekKey, newData);
+                
+                // Save to Supabase
                 saveWeekData(weekKey, newData);
             };
 
@@ -848,6 +1047,11 @@
                     [listType]: updatedItems
                 };
                 setWeekData(prev => ({ ...prev, [weekKey]: newData }));
+                
+                // Save to localStorage immediately
+                saveToLocalStorage(weekKey, newData);
+                
+                // Save to Supabase
                 saveWeekData(weekKey, newData);
             };
 
@@ -855,6 +1059,13 @@
                 const newDate = new Date(currentWeek);
                 newDate.setDate(newDate.getDate() + (direction * 7));
                 setCurrentWeek(newDate);
+                
+                // Ensure the new week's data is loaded
+                const newWeekKey = formatWeekKey(newDate);
+                if (user && !weekData[newWeekKey]) {
+                    console.log(`🔄 Navigating to new week: ${newWeekKey}, loading data...`);
+                    initializeWeekData();
+                }
             };
 
             const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
