@@ -632,51 +632,8 @@
                 'window.supabaseReady': window.supabaseReady
             });
             
-            // Check global flag first, then fall back to other checks
-            const isSupabaseAvailable = window.supabaseClientsReady || 
-                                     (window.supabase && window.adminSupabase) || 
-                                     (supabase && adminSupabase) ||
-                                     (window.supabase && typeof window.supabase.createClient === 'function');
-            
-            // If Supabase is ready, force a re-render to update the UI
-            if (window.supabaseClientsReady && !isSupabaseAvailable) {
-                console.log('🔄 Supabase ready flag detected, forcing re-render');
-                // Force a re-render by updating state
-                setTimeout(() => {
-                    if (window.supabaseClientsReady) {
-                        console.log('✅ Supabase ready, updating component');
-                        // This will trigger a re-render
-                        setAuthLoading(prev => !prev);
-                    }
-                }, 100);
-            }
-            
-            // Add continuous polling to check for Supabase readiness
-            useEffect(() => {
-                const checkSupabaseReady = () => {
-                    if (window.supabaseClientsReady) {
-                        console.log('🔍 Polling detected Supabase ready, forcing re-render');
-                        setAuthLoading(prev => !prev);
-                        return true;
-                    }
-                    return false;
-                };
-                
-                // Check immediately
-                if (checkSupabaseReady()) return;
-                
-                // Poll every 100ms
-                const interval = setInterval(() => {
-                    if (checkSupabaseReady()) {
-                        clearInterval(interval);
-                    }
-                }, 100);
-                
-                // Cleanup after 10 seconds
-                setTimeout(() => clearInterval(interval), 10000);
-                
-                return () => clearInterval(interval);
-            }, []);
+            // Simple check: if Supabase clients exist, we're ready
+            const isSupabaseAvailable = window.supabase && window.adminSupabase;
             
             if (!isSupabaseAvailable) {
                 console.log('❌ Supabase clients not ready, showing loading screen');
@@ -1295,36 +1252,10 @@
                 });
             }, [initializeWeekData, user]);
 
-            // Listen for Supabase ready event and also poll for readiness
+            // Simple effect: just initialize auth when component mounts
             useEffect(() => {
-                const handleSupabaseReady = () => {
-                    console.log('🎉 Received supabaseReady event, forcing re-render');
-                    // Force a re-render by updating a state variable
-                    setAuthLoading(prev => !prev);
-                };
-                
-                // Set up the global force update function
-                window.forceReactUpdate = () => {
-                    console.log('🔄 Global force update called');
-                    setAuthLoading(prev => !prev);
-                };
-                
-                window.addEventListener('supabaseReady', handleSupabaseReady);
-                
-                // Also poll every 100ms to check if Supabase is ready
-                const pollInterval = setInterval(() => {
-                    if (window.supabaseReady && (window.supabase || window.adminSupabase)) {
-                        console.log('🔍 Polling detected Supabase is ready, forcing re-render');
-                        clearInterval(pollInterval);
-                        setAuthLoading(prev => !prev);
-                    }
-                }, 100);
-                
-                return () => {
-                    window.removeEventListener('supabaseReady', handleSupabaseReady);
-                    clearInterval(pollInterval);
-                    delete window.forceReactUpdate;
-                };
+                // This will run once when the component mounts
+                console.log('🚀 Component mounted, ready to initialize auth');
             }, []);
             
             // Initialize authentication
