@@ -557,39 +557,102 @@
 
             // Initialize week data
             const initializeWeekData = useCallback(async () => {
+                console.log('🔄 Initializing week data...');
+                
+                // If we already have data, don't reinitialize
                 if (weekData && Object.keys(weekData).length > 0) {
+                    console.log('✅ Week data already exists, skipping initialization');
+                    setIsLoading(false);
                     return weekData;
                 }
 
                 setIsLoading(true);
+                console.log('🔄 Loading week data...');
                 
-                const savedData = await loadWeekData();
-                
-                if (savedData) {
-                    setWeekData(savedData);
+                try {
+                    const savedData = await loadWeekData();
+                    
+                    if (savedData) {
+                        console.log('✅ Loaded existing week data:', savedData);
+                        setWeekData(savedData);
+                        setIsLoading(false);
+                        return savedData;
+                    }
+
+                    console.log('🆕 No existing data found, creating new week data');
+                    
+                    // Create new week data with default structure
+                    const newWeekData = {
+                        monday: { schedule: [''], notes: '' },
+                        tuesday: { schedule: [''], notes: '' },
+                        wednesday: { schedule: [''], notes: '' },
+                        thursday: { schedule: [''], notes: '' },
+                        friday: { schedule: [''], notes: '' },
+                        saturday: { schedule: [''], notes: '' },
+                        sunday: { schedule: [''], notes: '' }
+                    };
+
+                    console.log('🆕 Setting new week data:', newWeekData);
+                    setWeekData(newWeekData);
+                    
+                    // Try to save to database, but don't block on it
+                    try {
+                        await saveWeekData(newWeekData);
+                        console.log('✅ New week data saved to database');
+                    } catch (saveError) {
+                        console.log('⚠️ Could not save to database, but continuing:', saveError);
+                    }
+                    
                     setIsLoading(false);
-                    return savedData;
+                    return newWeekData;
+                    
+                } catch (error) {
+                    console.error('❌ Error initializing week data:', error);
+                    
+                    // Create fallback data even if there's an error
+                    const fallbackData = {
+                        monday: { schedule: [''], notes: '' },
+                        tuesday: { schedule: [''], notes: '' },
+                        wednesday: { schedule: [''], notes: '' },
+                        thursday: { schedule: [''], notes: '' },
+                        friday: { schedule: [''], notes: '' },
+                        saturday: { schedule: [''], notes: '' },
+                        sunday: { schedule: [''], notes: '' }
+                    };
+                    
+                    console.log('🔄 Setting fallback data due to error');
+                    setWeekData(fallbackData);
+                    setIsLoading(false);
+                    return fallbackData;
                 }
-
-                const newWeekData = {
-                    monday: { schedule: [], notes: '' },
-                    tuesday: { schedule: [], notes: '' },
-                    wednesday: { schedule: [], notes: '' },
-                    thursday: { schedule: [], notes: '' },
-                    friday: { schedule: [], notes: '' },
-                    saturday: { schedule: [], notes: '' },
-                    sunday: { schedule: [], notes: '' }
-                };
-
-                setWeekData(newWeekData);
-                await saveWeekData(newWeekData);
-                setIsLoading(false);
-                return newWeekData;
             }, [weekData]);
 
             // Initialize on mount
             useEffect(() => {
-                initializeWeekData();
+                console.log('🚀 Component mounted, initializing week data...');
+                
+                // Add timeout to prevent infinite loading
+                const initTimeout = setTimeout(() => {
+                    console.log('⏰ Initialization timeout reached, forcing loading to false');
+                    setIsLoading(false);
+                }, 10000); // 10 second timeout
+                
+                const initializeData = async () => {
+                    try {
+                        await initializeWeekData();
+                        clearTimeout(initTimeout);
+                    } catch (error) {
+                        console.error('❌ Error in data initialization:', error);
+                        clearTimeout(initTimeout);
+                        setIsLoading(false);
+                    }
+                };
+                
+                initializeData();
+                
+                return () => {
+                    clearTimeout(initTimeout);
+                };
             }, [initializeWeekData]);
 
             // Initialize authentication
@@ -723,6 +786,18 @@
                         <div className="text-center">
                             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
                             <p className="text-gray-600">Loading your marriage meeting schedule...</p>
+                            <p className="text-sm text-gray-500 mt-2">This may take a few seconds...</p>
+                            
+                            {/* Fallback button if loading takes too long */}
+                            <button 
+                                onClick={() => {
+                                    console.log('🔄 User clicked fallback button, forcing loading to false');
+                                    setIsLoading(false);
+                                }}
+                                className="mt-4 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
+                            >
+                                Continue Anyway
+                            </button>
                         </div>
                     </div>
                 );
