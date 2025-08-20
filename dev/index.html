@@ -1504,6 +1504,66 @@
                 }
             };
 
+            // Function to ensure goals are carried over when navigating between dates
+            const ensureGoalsCarryOver = (dateKey) => {
+                const currentDayData = userSpecificData.dayData[dateKey];
+                if (!currentDayData) return;
+                
+                // Check if we need to carry over weekly/monthly goals
+                const currentDate = new Date(dateKey);
+                let needsUpdate = false;
+                const updatedDayData = { ...currentDayData };
+                
+                // Find goals from other days in the same week/month
+                const allDates = Object.keys(userSpecificData.dayData);
+                
+                // Check weekly goals
+                if (!updatedDayData.goals.weekly || updatedDayData.goals.weekly.length === 0) {
+                    for (const otherDateKey of allDates) {
+                        if (otherDateKey !== dateKey) {
+                            const otherDayData = userSpecificData.dayData[otherDateKey];
+                            if (otherDayData?.goals?.weekly?.length > 0 && isSameWeek(currentDate, new Date(otherDateKey))) {
+                                updatedDayData.goals.weekly = otherDayData.goals.weekly.map(goal => ({
+                                    ...goal,
+                                    completed: goal.completed // Keep completion status
+                                }));
+                                needsUpdate = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+                
+                // Check monthly goals
+                if (!updatedDayData.goals.monthly || updatedDayData.goals.monthly.length === 0) {
+                    for (const otherDateKey of allDates) {
+                        if (otherDateKey !== dateKey) {
+                            const otherDayData = userSpecificData.dayData[otherDateKey];
+                            if (otherDayData?.goals?.monthly?.length > 0 && isSameMonth(currentDate, new Date(otherDateKey))) {
+                                updatedDayData.goals.monthly = otherDayData.goals.monthly.map(goal => ({
+                                    ...goal,
+                                    completed: goal.completed // Keep completion status
+                                }));
+                                needsUpdate = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+                
+                if (needsUpdate) {
+                    // Save updated data
+                    const dayDataKey = `dailyDavid_dayData_${user.id}`;
+                    const allDayData = { ...userSpecificData.dayData, [dateKey]: updatedDayData };
+                    localStorage.setItem(dayDataKey, JSON.stringify(allDayData));
+                    
+                    setUserSpecificData(prev => ({
+                        ...prev,
+                        dayData: { ...prev.dayData, [dateKey]: updatedDayData }
+                    }));
+                }
+            };
+
             // Progress calculation functions - now work with current day's goals
             const getWeeklyProgress = () => {
                 const weeklyGoals = currentDayData?.goals?.weekly || [];
@@ -2909,9 +2969,20 @@
 
             const updateGoalsForDate = (targetDate) => {
                 const dateKey = formatDateKey(targetDate);
+                console.log('🔄 DEBUG: updateGoalsForDate called for date:', dateKey);
+                
+                // Use our new ensureGoalsCarryOver function
+                ensureGoalsCarryOver(dateKey);
+                
+                // Also run the existing logic as a backup
                 const existingData = userSpecificData.dayData[dateKey];
                 
-                if (!existingData) return;
+                if (!existingData) {
+                    console.log('🔄 DEBUG: No existing data for date:', dateKey);
+                    return;
+                }
+                
+                console.log('🔄 DEBUG: Existing goals for date:', dateKey, existingData.goals);
                 
                 let needsUpdate = false;
                 let updatedGoals = { ...existingData.goals };
@@ -2922,10 +2993,12 @@
                 
                 if (sortedDates.length > 0) {
                     const mostRecentDate = new Date(sortedDates[0]);
+                    console.log('🔄 DEBUG: Most recent date:', mostRecentDate);
                     
                     // Update weekly goals if same week
                     if (isSameWeek(targetDate, mostRecentDate)) {
                         const recentWeeklyGoals = getMostRecentGoals('weekly');
+                        console.log('🔄 DEBUG: Recent weekly goals:', recentWeeklyGoals);
                         if (recentWeeklyGoals.length > 0 && 
                             JSON.stringify(recentWeeklyGoals) !== JSON.stringify(existingData.goals.weekly)) {
                             updatedGoals.weekly = recentWeeklyGoals.map(goal => ({
@@ -2933,12 +3006,14 @@
                                 completed: existingData.goals.weekly.find(g => g.id === goal.id)?.completed || false
                             }));
                             needsUpdate = true;
+                            console.log('🔄 DEBUG: Updated weekly goals:', updatedGoals.weekly);
                         }
                     }
                     
                     // Update monthly goals if same month
                     if (isSameMonth(targetDate, mostRecentDate)) {
                         const recentMonthlyGoals = getMostRecentGoals('monthly');
+                        console.log('🔄 DEBUG: Recent monthly goals:', recentMonthlyGoals);
                         if (recentMonthlyGoals.length > 0 && 
                             JSON.stringify(recentMonthlyGoals) !== JSON.stringify(existingData.goals.monthly)) {
                             updatedGoals.monthly = recentMonthlyGoals.map(goal => ({
@@ -2946,6 +3021,7 @@
                                 completed: existingData.goals.monthly.find(g => g.id === goal.id)?.completed || false
                             }));
                             needsUpdate = true;
+                            console.log('🔄 DEBUG: Updated monthly goals:', updatedGoals.monthly);
                         }
                     }
                 }
@@ -2965,6 +3041,8 @@
                         ...prev,
                         dayData: { ...prev.dayData, [dateKey]: updatedDayData }
                     }));
+                    
+                    console.log('🔄 DEBUG: Goals updated and saved for date:', dateKey);
                 }
             };
 
