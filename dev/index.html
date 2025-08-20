@@ -1511,6 +1511,10 @@
                 
                 console.log('🔄 DEBUG: ensureGoalsCarryOver called for date:', dateKey);
                 console.log('🔄 DEBUG: Current day data goals:', currentDayData.goals);
+                console.log('🔄 DEBUG: Current day weekly goals:', currentDayData.goals?.weekly);
+                console.log('🔄 DEBUG: Current day monthly goals:', currentDayData.goals?.monthly);
+                console.log('🔄 DEBUG: Current day weekly goals length:', currentDayData.goals?.weekly?.length);
+                console.log('🔄 DEBUG: Current day monthly goals length:', currentDayData.goals?.monthly?.length);
                 
                 // Check if we need to carry over weekly/monthly goals
                 const currentDate = new Date(dateKey);
@@ -1542,6 +1546,11 @@
                 }
                 
                 // Check monthly goals
+                console.log('🔄 DEBUG: Checking monthly goals condition:');
+                console.log('🔄 DEBUG: !updatedDayData.goals.monthly:', !updatedDayData.goals.monthly);
+                console.log('🔄 DEBUG: updatedDayData.goals.monthly.length === 0:', updatedDayData.goals.monthly?.length === 0);
+                console.log('🔄 DEBUG: Condition result:', (!updatedDayData.goals.monthly || updatedDayData.goals.monthly.length === 0));
+                
                 if (!updatedDayData.goals.monthly || updatedDayData.goals.monthly.length === 0) {
                     console.log('🔄 DEBUG: No monthly goals, checking for carryover...');
                     for (const otherDateKey of allDates) {
