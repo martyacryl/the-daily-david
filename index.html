@@ -677,32 +677,32 @@
                             return;
                         }
 
-                    if (data && data.length > 0) {
-                        console.log(`🌐 Loaded ${data.length} weeks from Supabase`);
-                        
-                        const loadedWeekData = {};
-                        data.forEach(row => {
-                            loadedWeekData[row.week_key] = row.data;
+                        if (data && data.length > 0) {
+                            console.log(`🌐 Loaded ${data.length} weeks from Supabase`);
                             
-                            // Also save to localStorage for future use
-                            const localStorageKey = `marriage_meetings_${userId}_${row.week_key}`;
-                            localStorage.setItem(localStorageKey, JSON.stringify(row.data));
-                            console.log(`💾 Saved week ${row.week_key} to localStorage`);
-                        });
-                        
-                        setUserSpecificData(prev => ({
-                            ...prev,
-                            weekData: loadedWeekData
-                        }));
-                        setWeekData(loadedWeekData);
-                        
-                        console.log('✅ Successfully loaded and cached data from Supabase');
-                    } else {
-                        console.log('📭 No data found in Supabase either');
+                            const loadedWeekData = {};
+                            data.forEach(row => {
+                                loadedWeekData[row.week_key] = row.data;
+                                
+                                // Also save to localStorage for future use
+                                const localStorageKey = `marriage_meetings_${userId}_${row.week_key}`;
+                                localStorage.setItem(localStorageKey, JSON.stringify(row.data));
+                                console.log(`💾 Saved week ${row.week_key} to localStorage`);
+                            });
+                            
+                            setUserSpecificData(prev => ({
+                                ...prev,
+                                weekData: loadedWeekData
+                            }));
+                            setWeekData(loadedWeekData);
+                            
+                            console.log('✅ Successfully loaded and cached data from Supabase');
+                        } else {
+                            console.log('📭 No data found in Supabase either');
+                        }
+                    } catch (error) {
+                        console.error('❌ Error in loadUserSpecificData:', error);
                     }
-                } catch (error) {
-                    console.error('❌ Error in loadUserSpecificData:', error);
-                }
             };
 
             const clearUserData = () => {
