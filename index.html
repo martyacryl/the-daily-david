@@ -67,10 +67,24 @@
     <script type="text/babel">
         const { useState, useEffect, useCallback, useRef } = React;
 
-        // Initialize Supabase
+        // Initialize Supabase - PRODUCTION ENVIRONMENT with Auth
         const supabaseUrl = 'https://jrutqdesurnansyfydbf.supabase.co';
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpydXRxZGVzdXJuYW5zeWZ5ZGJmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU1NTA4MzgsImV4cCI6MjA3MTEyNjgzOH0.G-sTw0eF-tQEcqvbaz-hSM2h0KVr2NMOYMq4x0iwIIc';
+        // Choose your key type:
+        // - anon key: Safe for users, limited admin functions
+        // - service_role key: Full admin access (get from Supabase Dashboard → Settings → API)
+        const USE_SERVICE_ROLE_KEY = true; // Set to true to enable admin functions
+        const anonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpydXRxZGVzdXJuYW5zeWZ5ZGJmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU1NTA4MzgsImV4cCI6MjA3MTEyNjgzOH0.G-sTw0eF-tQEcqvbaz-hSM2h0KVr2NMOYMq4x0iwIIc';
+        // Add your service role key here (get from Supabase Dashboard → Settings → API)
+        const serviceRoleKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpydXRxZGVzdXJuYW5zeWZ5ZGJmIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NTU1MDgzOCwiZXhwIjoyMDcxMTI2ODM4fQ.DZFYORSXw99L7SmqoB-KHGf-F4RpTO99PC2wLCA1RBA';
+        const supabaseKey = USE_SERVICE_ROLE_KEY ? serviceRoleKey : anonKey;
         const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+        // PRODUCTION TABLE NAME
+        const TABLE_NAME = 'marriage_meetings';
+
+        // Auth state
+        let currentUser = null;
+        let isAdmin = false;
 
         // Icons as SVG components
         const ChevronLeftIcon = () => (
@@ -103,6 +117,320 @@
             </svg>
         );
 
+        // Authentication Components
+        const SignInScreen = ({ onSignIn, onAdminSignIn }) => {
+            const [email, setEmail] = useState('');
+            const [password, setPassword] = useState('');
+            const [loading, setLoading] = useState(false);
+            const [error, setError] = useState('');
+
+            const handleSignIn = async (e) => {
+                e.preventDefault();
+                setLoading(true);
+                setError('');
+                try {
+                    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+                    if (error) throw error;
+                    
+                    // Check if user is admin (you can set this in user metadata)
+                    const isUserAdmin = data.user?.user_metadata?.is_admin === true;
+                    if (isUserAdmin) {
+                        onAdminSignIn(data.user);
+                    } else {
+                        onSignIn(data.user);
+                    }
+                } catch (error) {
+                    setError(error.message);
+                } finally {
+                    setLoading(false);
+                }
+            };
+
+            return (
+                <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-100 to-green-50">
+                    <div className="modern-card p-8 w-full max-w-md">
+                        <h1 className="text-3xl font-bold text-center mb-8 text-primary">
+                            Weekly Marriage Meeting Tool
+                        </h1>
+                        <p className="text-center text-gray-600 mb-6">Sign in to access your marriage planning</p>
+                        
+                        {error && (
+                            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                                {error}
+                            </div>
+                        )}
+                        
+                        <form onSubmit={handleSignIn} className="space-y-4">
+                            <input
+                                type="email"
+                                placeholder="Email"
+                                className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                required
+                            />
+                            <input
+                                type="password"
+                                placeholder="Password"
+                                className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                required
+                            />
+                            <button
+                                type="submit"
+                                disabled={loading}
+                                className="w-full bg-primary text-white py-3 rounded-lg hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                {loading ? 'Signing In...' : 'Sign In'}
+                            </button>
+                        </form>
+                        
+                        <div className="mt-6 text-center">
+                            <p className="text-sm text-gray-500">
+                                Contact your administrator for access
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const AdminPanel = ({ user, onSignOut, onAddUser, onRemoveUser, useServiceRoleKey }) => {
+            const [users, setUsers] = useState([]);
+            const [newUserEmail, setNewUserEmail] = useState('');
+            const [newUserPassword, setNewUserPassword] = useState('');
+            const [newUserDisplayName, setNewUserDisplayName] = useState('');
+            const [loading, setLoading] = useState(false);
+
+            useEffect(() => {
+                loadUsers();
+            }, []);
+
+            const loadUsers = async () => {
+                try {
+                    console.log('Loading users...');
+                    // Load real users from Supabase Auth
+                    const { data, error } = await supabase.auth.admin.listUsers();
+                    if (error) {
+                        console.error('Error loading users:', error);
+                        alert('Error loading users: ' + error.message);
+                        setUsers([]);
+                        return;
+                    }
+                    console.log('Users loaded:', data);
+                    if (!data || !data.users) {
+                        console.log('No users data returned');
+                        setUsers([]);
+                        return;
+                    }
+                    
+                    // Filter out the current admin user and format the data
+                    const currentUserId = user?.id;
+                    const filteredUsers = data.users
+                        .filter(user => user.id !== currentUserId) // Don't show current admin user
+                        .map(user => ({
+                            id: user.id,
+                            email: user.email,
+                            display_name: user.user_metadata?.display_name || 'No Name',
+                            created_at: user.created_at
+                        }));
+                    
+                    console.log('Filtered users:', filteredUsers);
+                    setUsers(filteredUsers);
+                } catch (error) {
+                    console.error('Error loading users:', error);
+                    alert('Error loading users: ' + error.message);
+                    setUsers([]);
+                }
+            };
+
+            const handleAddUser = async (e) => {
+                e.preventDefault();
+                if (!newUserEmail || !newUserPassword || !newUserDisplayName) return;
+                
+                setLoading(true);
+                try {
+                    // Create real user in Supabase Auth
+                    const { data, error } = await supabase.auth.admin.createUser({
+                        email: newUserEmail,
+                        password: newUserPassword,
+                        user_metadata: { display_name: newUserDisplayName },
+                        email_confirm: true // Auto-confirm email for testing
+                    });
+                    
+                    if (error) throw error;
+                    
+                    // Add to local users list
+                    const newUser = {
+                        id: data.user.id,
+                        email: data.user.email,
+                        display_name: newUserDisplayName,
+                        created_at: data.user.created_at
+                    };
+                    setUsers([...users, newUser]);
+                    setNewUserEmail('');
+                    setNewUserPassword('');
+                    setNewUserDisplayName('');
+                    alert(`User ${newUserEmail} created successfully!`);
+                    
+                    // Refresh the users list to ensure sync
+                    setTimeout(() => loadUsers(), 1000);
+                } catch (error) {
+                    alert('Error adding user: ' + error.message);
+                } finally {
+                    setLoading(false);
+                }
+            };
+
+            return (
+                <div className="container mx-auto px-4 py-8 max-w-6xl">
+                    <div className="flex justify-between items-center mb-8">
+                        <h1 className="text-3xl font-bold text-gray-800">Admin Panel</h1>
+                        <div className="flex items-center gap-3">
+                            <button
+                                onClick={onSignOut}
+                                className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600"
+                            >
+                                Sign Out
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        {/* User Management */}
+                        <div className="modern-card p-6">
+                            <h2 className="text-2xl font-bold mb-4 text-primary">User Management</h2>
+                            
+                            {/* Service Role Key Notice - Only show if not configured */}
+                            {!useServiceRoleKey && (
+                                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-yellow-800">⚠️</span>
+                                        <div>
+                                            <p className="text-yellow-800 font-medium">Admin Functions Setup Required</p>
+                                            <p className="text-yellow-700 text-sm">
+                                                To use admin functions (create/delete users), you need to:
+                                            </p>
+                                            <ol className="text-yellow-700 text-sm mt-2 list-decimal list-inside space-y-1">
+                                                <li>Go to Supabase Dashboard → Settings → API</li>
+                                                <li>Copy your "service_role" key</li>
+                                                <li>Replace "YOUR_SERVICE_ROLE_KEY_HERE" in the code</li>
+                                                <li>Set USE_SERVICE_ROLE_KEY = true</li>
+                                            </ol>
+                                            <p className="text-yellow-700 text-sm mt-2">
+                                                <strong>Note:</strong> Service role keys have full database access - only use for development/testing.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                            
+                            {/* Success Message - Show when service role key is configured */}
+                            {useServiceRoleKey && (
+                                <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-green-800">✅</span>
+                                        <div>
+                                            <p className="text-green-800 font-medium">Admin Functions Enabled!</p>
+                                            <p className="text-green-700 text-sm">
+                                                Service role key is configured. You can now create, manage, and delete users through this panel.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                            
+                            <form onSubmit={handleAddUser} className="space-y-4 mb-6">
+                                <input
+                                    type="email"
+                                    placeholder="User Email"
+                                    className="w-full p-3 border rounded-lg"
+                                    value={newUserEmail}
+                                    onChange={(e) => setNewUserEmail(e.target.value)}
+                                    required
+                                />
+                                <input
+                                    type="text"
+                                    placeholder="Display Name"
+                                    className="w-full p-3 border rounded-lg"
+                                    value={newUserDisplayName}
+                                    onChange={(e) => setNewUserDisplayName(e.target.value)}
+                                    required
+                                />
+                                <input
+                                    type="password"
+                                    placeholder="Password"
+                                    className="w-full p-3 border rounded-lg"
+                                    value={newUserPassword}
+                                    onChange={(e) => setNewUserPassword(e.target.value)}
+                                    required
+                                />
+                                <button
+                                    type="submit"
+                                    disabled={loading}
+                                    className="w-full bg-primary text-white py-3 rounded-lg hover:bg-primary/90 disabled:opacity-50"
+                                >
+                                    {loading ? 'Adding User...' : 'Add User'}
+                                </button>
+                            </form>
+                            
+                            <div className="space-y-2">
+                                <div className="flex justify-between items-center">
+                                    <h3 className="font-semibold">Current Users:</h3>
+                                    <button
+                                        onClick={loadUsers}
+                                        className="px-3 py-1 bg-blue-500 text-white text-sm rounded-lg hover:bg-blue-600"
+                                    >
+                                        🔄 Refresh
+                                    </button>
+                                </div>
+                                {users.length === 0 ? (
+                                    <div className="text-center py-4 text-gray-500">
+                                        No users found. Click refresh to load users.
+                                    </div>
+                                ) : (
+                                    users.map(user => (
+                                        <div key={user.id} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                                            <div>
+                                                <div className="font-medium">{user.display_name}</div>
+                                                <div className="text-sm text-gray-600">{user.email}</div>
+                                            </div>
+                                            <button
+                                                onClick={() => onRemoveUser(user.id)}
+                                                className="text-red-500 hover:text-red-700"
+                                            >
+                                                Remove
+                                            </button>
+                                        </div>
+                                    ))
+                                )}
+                            </div>
+                        </div>
+                        
+                        {/* System Info */}
+                        <div className="modern-card p-6">
+                            <h2 className="text-2xl font-bold mb-4 text-primary">System Information</h2>
+                            <div className="space-y-3">
+                                <div>
+                                    <span className="font-medium">Admin User:</span> {user.email}
+                                </div>
+                                <div>
+                                    <span className="font-medium">Total Users:</span> {users.length}
+                                </div>
+                                <div>
+                                    <span className="font-medium">Environment:</span> Production
+                                </div>
+                                <div>
+                                    <span className="font-medium">Database:</span> {TABLE_NAME}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
         const MarriageMeetingTool = () => {
             const [currentWeek, setCurrentWeek] = useState(new Date());
             const [weekData, setWeekData] = useState({});
@@ -110,6 +438,16 @@
             const [isLoading, setIsLoading] = useState(true);
             const [lastSaved, setLastSaved] = useState(null);
             const saveTimeoutRef = useRef(null);
+            
+            // Authentication state
+            const [user, setUser] = useState(null);
+            const [isAdmin, setIsAdmin] = useState(false);
+            const [authLoading, setAuthLoading] = useState(true);
+            const [userModePreference, setUserModePreference] = useState('user');
+            const [userSpecificData, setUserSpecificData] = useState({
+                weekData: {},
+                userPreferences: {}
+            });
 
             // Get Monday of current week
             const getMonday = (date) => {
@@ -117,6 +455,134 @@
                 const day = d.getDay();
                 const diff = d.getDate() - day + (day === 0 ? -6 : 1);
                 return new Date(d.setDate(diff));
+            };
+
+            // Authentication and data management functions
+            const handleSignIn = async (userData) => {
+                setUser(userData);
+                setIsAdmin(false);
+                setUserModePreference('user');
+                
+                // Load user-specific data from localStorage
+                await loadUserSpecificData(userData.id);
+            };
+
+            const handleAdminSignIn = async (userData) => {
+                setUser(userData);
+                setIsAdmin(true);
+                setUserModePreference('admin');
+                
+                // Load user-specific data from localStorage
+                await loadUserSpecificData(userData.id);
+            };
+
+            const handleSignOut = async () => {
+                await supabase.auth.signOut();
+                setUser(null);
+                setIsAdmin(false);
+                setUserModePreference('user');
+                setUserSpecificData({ weekData: {}, userPreferences: {} });
+            };
+
+            const switchAdminToUserMode = async () => {
+                setUserModePreference('user');
+                setIsAdmin(false);
+                
+                // Load admin's personal data when switching to user mode
+                await loadUserSpecificData(user.id);
+            };
+
+            const switchUserToAdminMode = () => {
+                setUserModePreference('admin');
+                setIsAdmin(true);
+            };
+
+            // Data persistence functions
+            const saveWeekData = async (weekKey, data) => {
+                try {
+                    // Save to localStorage first (primary)
+                    const localStorageKey = `marriage_meetings_${user.id}_${weekKey}`;
+                    localStorage.setItem(localStorageKey, JSON.stringify(data));
+                    
+                    // Save to Supabase as backup
+                    const { error } = await supabase
+                        .from(TABLE_NAME)
+                        .upsert({
+                            week_key: weekKey,
+                            user_id: user.id,
+                            data: data,
+                            updated_at: new Date().toISOString()
+                        }, {
+                            onConflict: 'week_key,user_id'
+                        });
+
+                    if (error) {
+                        console.log('Supabase save error:', error);
+                        // Continue even if Supabase fails - localStorage is primary
+                    }
+
+                    setLastSaved(new Date());
+                    return true;
+                } catch (error) {
+                    console.log('Save error:', error);
+                    return false;
+                }
+            };
+
+            const loadUserSpecificData = async (userId) => {
+                try {
+                    // Try to load from localStorage first
+                    const localStorageKeys = Object.keys(localStorage).filter(key => 
+                        key.startsWith(`marriage_meetings_${userId}_`)
+                    );
+                    
+                    if (localStorageKeys.length > 0) {
+                        const loadedWeekData = {};
+                        localStorageKeys.forEach(key => {
+                            const weekKey = key.replace(`marriage_meetings_${userId}_`, '');
+                            const data = JSON.parse(localStorage.getItem(key));
+                            loadedWeekData[weekKey] = data;
+                        });
+                        
+                        setUserSpecificData(prev => ({
+                            ...prev,
+                            weekData: loadedWeekData
+                        }));
+                        setWeekData(loadedWeekData);
+                        return;
+                    }
+
+                    // Fallback to Supabase if no localStorage data
+                    const { data, error } = await supabase
+                        .from(TABLE_NAME)
+                        .select('*')
+                        .eq('user_id', userId);
+
+                    if (error) {
+                        console.log('Error loading from Supabase:', error);
+                        return;
+                    }
+
+                    if (data && data.length > 0) {
+                        const loadedWeekData = {};
+                        data.forEach(row => {
+                            loadedWeekData[row.week_key] = row.data;
+                        });
+                        
+                        setUserSpecificData(prev => ({
+                            ...prev,
+                            weekData: loadedWeekData
+                        }));
+                        setWeekData(loadedWeekData);
+                    }
+                } catch (error) {
+                    console.log('Load error:', error);
+                }
+            };
+
+            const clearUserData = () => {
+                setUserSpecificData({ weekData: {}, userPreferences: {} });
+                setWeekData({});
             };
 
             const formatWeekKey = (date) => {
@@ -132,54 +598,9 @@
                 return `${monday.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${sunday.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
             };
 
-            // Load week data from database
-            const loadWeekData = async (weekKey) => {
-                try {
-                    const { data, error } = await supabase
-                        .from('marriage_meetings')
-                        .select('*')
-                        .eq('week_key', weekKey);
 
-                    if (error) {
-                        console.log('Error loading:', error);
-                        return null;
-                    }
 
-                    if (data && data.length > 0) {
-                        return data[0].data;
-                    }
 
-                    return null;
-                } catch (error) {
-                    console.log('Load error:', error);
-                    return null;
-                }
-            };
-
-            // Save week data to database
-            const saveWeekData = async (weekKey, data) => {
-                try {
-                    const { error } = await supabase
-                        .from('marriage_meetings')
-                        .upsert({
-                            week_key: weekKey,
-                            data: data
-                        }, {
-                            onConflict: 'week_key'
-                        });
-
-                    if (error) {
-                        console.log('Save error:', error);
-                        return false;
-                    }
-
-                    setLastSaved(new Date());
-                    return true;
-                } catch (error) {
-                    console.log('Save error:', error);
-                    return false;
-                }
-            };
 
             // Debounced save - waits 1 second after typing stops
             const debouncedSave = useCallback((weekKey, data) => {
@@ -206,12 +627,11 @@
 
                 setIsLoading(true);
                 
-                const savedData = await loadWeekData(weekKey);
-                
-                if (savedData) {
-                    setWeekData(prev => ({ ...prev, [weekKey]: savedData }));
+                // Check if we have user-specific data
+                if (user && userSpecificData.weekData[weekKey]) {
+                    setWeekData(prev => ({ ...prev, [weekKey]: userSpecificData.weekData[weekKey] }));
                     setIsLoading(false);
-                    return savedData;
+                    return userSpecificData.weekData[weekKey];
                 }
 
                 const newWeekData = {
@@ -223,17 +643,96 @@
                 };
 
                 setWeekData(prev => ({ ...prev, [weekKey]: newWeekData }));
-                await saveWeekData(weekKey, newWeekData);
+                if (user) {
+                    await saveWeekData(weekKey, newWeekData);
+                }
                 setIsLoading(false);
                 return newWeekData;
-            }, [currentWeek, weekData]);
+            }, [currentWeek, weekData, user, userSpecificData.weekData]);
 
             // Initialize on mount
             useEffect(() => {
                 initializeDatabase().then(() => {
-                    initializeWeekData();
+                    if (user) {
+                        initializeWeekData();
+                    }
                 });
-            }, [initializeWeekData]);
+            }, [initializeWeekData, user]);
+
+            // Initialize authentication
+            useEffect(() => {
+                const initializeAuth = async () => {
+                    try {
+                        // Check for existing session
+                        const { data: { session } } = await supabase.auth.getSession();
+                        if (session?.user) {
+                            const isUserAdmin = session.user.user_metadata?.is_admin === true;
+                            if (isUserAdmin) {
+                                await handleAdminSignIn(session.user);
+                            } else {
+                                await handleSignIn(session.user);
+                            }
+                        }
+                        
+                        // Listen for auth changes
+                        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+                            if (event === 'SIGNED_IN' && session?.user) {
+                                const isUserAdmin = session.user.user_metadata?.is_admin === true;
+                                if (isUserAdmin) {
+                                    await handleAdminSignIn(session.user);
+                                } else {
+                                    await handleSignIn(session.user);
+                                }
+                            } else if (event === 'SIGNED_OUT') {
+                                await handleSignOut();
+                            }
+                        });
+                        
+                        setAuthLoading(false);
+                        return () => subscription.unsubscribe();
+                    } catch (error) {
+                        console.error('Auth initialization error:', error);
+                        setAuthLoading(false);
+                    }
+                };
+                
+                initializeAuth();
+            }, []);
+
+            // User management functions
+            const handleAddUser = async (email, password, displayName) => {
+                try {
+                    const { data, error } = await supabase.auth.admin.createUser({
+                        email,
+                        password,
+                        user_metadata: { display_name: displayName },
+                        email_confirm: true
+                    });
+                    
+                    if (error) throw error;
+                    return data.user;
+                } catch (error) {
+                    console.error('Error adding user:', error);
+                    throw error;
+                }
+            };
+
+            const handleRemoveUser = async (userId) => {
+                try {
+                    // Check if user exists in Supabase
+                    const { data: userData, error: getUserError } = await supabase.auth.admin.getUserById(userId);
+                    if (getUserError || !userData.user) {
+                        console.log('User not found in Supabase, removing from local state only');
+                        return;
+                    }
+                    
+                    const { error } = await supabase.auth.admin.deleteUser(userId);
+                    if (error) throw error;
+                } catch (error) {
+                    console.error('Error removing user:', error);
+                    throw error;
+                }
+            };
 
             // Clean up timeout
             useEffect(() => {
@@ -360,6 +859,42 @@
 
             const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
+            // Show loading state
+            if (authLoading) {
+                return (
+                    <div className="flex items-center justify-center min-h-screen">
+                        <div className="text-center">
+                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+                            <p className="text-gray-600">Initializing...</p>
+                        </div>
+                    </div>
+                );
+            }
+
+            // Show sign-in screen if not authenticated
+            if (!user) {
+                return (
+                    <SignInScreen 
+                        onSignIn={handleSignIn}
+                        onAdminSignIn={handleAdminSignIn}
+                    />
+                );
+            }
+
+            // Show admin panel if admin and in admin mode
+            if (isAdmin && userModePreference === 'admin') {
+                return (
+                    <AdminPanel 
+                        user={user}
+                        onSignOut={handleSignOut}
+                        onAddUser={handleAddUser}
+                        onRemoveUser={handleRemoveUser}
+                        useServiceRoleKey={USE_SERVICE_ROLE_KEY}
+                    />
+                );
+            }
+
+            // Show loading state for main app
             if (isLoading) {
                 return (
                     <div className="flex items-center justify-center min-h-screen">
@@ -383,9 +918,43 @@
                                 <p className="text-gray-600 text-lg">
                                     Plan together, grow together
                                 </p>
+                                {user && (
+                                    <div className="text-sm text-gray-500 mt-1">
+                                        Signed in as: {user.email}
+                                    </div>
+                                )}
                             </div>
                             
                             <div className="flex items-center gap-4">
+                                {/* Admin/User Mode Switch */}
+                                {user?.user_metadata?.is_admin === true && (
+                                    <div className="flex items-center gap-2">
+                                        {userModePreference === 'admin' ? (
+                                            <button
+                                                onClick={switchAdminToUserMode}
+                                                className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors"
+                                            >
+                                                Switch to User Mode
+                                            </button>
+                                        ) : (
+                                            <button
+                                                onClick={switchUserToAdminMode}
+                                                className="bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600 transition-colors"
+                                            >
+                                                Admin Mode
+                                            </button>
+                                        )}
+                                    </div>
+                                )}
+                                
+                                {/* Sign Out Button */}
+                                <button
+                                    onClick={handleSignOut}
+                                    className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors"
+                                >
+                                    Sign Out
+                                </button>
+                                
                                 <div className="text-right text-sm">
                                     <div className={`flex items-center gap-2 ${
                                         isConnected ? 'text-green-600' : 'text-red-600'
