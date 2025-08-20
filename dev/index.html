@@ -637,6 +637,9 @@
             const [user, setUser] = useState(null);
             const [isAdmin, setIsAdmin] = useState(false);
             const [authLoading, setAuthLoading] = useState(true);
+            
+            // Mode preference state (persists across refreshes)
+            const [userModePreference, setUserModePreference] = useState('admin'); // 'admin' or 'user'
 
             const formatDateKey = (date) => {
                 return date.toISOString().split('T')[0];
@@ -756,7 +759,9 @@
 
             const handleSwitchToUserMode = () => {
                 setIsAdmin(false);
+                setUserModePreference('user');
                 setCurrentView('landing');
+                localStorage.setItem('dailyDavidMode', 'user');
             };
 
             // Goal management functions
@@ -921,7 +926,20 @@
                         if (user) {
                             setUser(user);
                             // Check if user is admin (you can set this in user metadata)
-                            setIsAdmin(user.user_metadata?.is_admin === true);
+                            const isUserAdmin = user.user_metadata?.is_admin === true;
+                            setIsAdmin(isUserAdmin);
+                            
+                            // Load saved mode preference for admin users
+                            if (isUserAdmin) {
+                                const savedMode = localStorage.getItem('dailyDavidMode');
+                                if (savedMode === 'user') {
+                                    setUserModePreference('user');
+                                    setIsAdmin(false);
+                                } else {
+                                    setUserModePreference('admin');
+                                    setIsAdmin(true);
+                                }
+                            }
                         }
                     } catch (error) {
                         console.error('Auth initialization error:', error);
@@ -934,10 +952,25 @@
                 const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
                     if (event === 'SIGNED_IN' && session?.user) {
                         setUser(session.user);
-                        setIsAdmin(session.user.user_metadata?.is_admin === true);
+                        const isUserAdmin = session.user.user_metadata?.is_admin === true;
+                        setIsAdmin(isUserAdmin);
+                        
+                        // Load saved mode preference for admin users
+                        if (isUserAdmin) {
+                            const savedMode = localStorage.getItem('dailyDavidMode');
+                            if (savedMode === 'user') {
+                                setUserModePreference('user');
+                                setIsAdmin(false);
+                            } else {
+                                setUserModePreference('admin');
+                                setIsAdmin(true);
+                            }
+                        }
                     } else if (event === 'SIGNED_OUT') {
                         setUser(null);
                         setIsAdmin(false);
+                        setUserModePreference('admin');
+                        localStorage.removeItem('dailyDavidMode');
                     }
                 });
 
@@ -1091,7 +1124,11 @@
                                     </div>
                                     {user.user_metadata?.is_admin === true && (
                                         <button 
-                                            onClick={() => setIsAdmin(true)}
+                                            onClick={() => {
+                                                setIsAdmin(true);
+                                                setUserModePreference('admin');
+                                                localStorage.setItem('dailyDavidMode', 'admin');
+                                            }}
                                             className="px-3 py-1 bg-blue-500 text-white text-sm rounded-lg hover:bg-blue-600 transition-colors"
                                         >
                                             👑 Admin Mode
