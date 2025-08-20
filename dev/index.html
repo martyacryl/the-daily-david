@@ -2355,7 +2355,7 @@
                         
                         console.log('🔍 DEBUG: localStorage state when data was cleared:');
                         console.log('- Goals:', !!goalsData);
-                        console.log('- Day data (primary):', !!dayDataRaw);
+                        console.log('- Day data (primary):', !!goalsData);
                         console.log('- Day data (backup):', !!backupData);
                         console.log('- Day data (emergency):', !!emergencyData);
                         
@@ -2415,6 +2415,75 @@
                     }
                 }
             }, [userSpecificData, user, isAdmin]);
+
+            // NEW: Track UI rendering to see if data is being used correctly
+            useEffect(() => {
+                if (user && !isAdmin && currentView === 'daily') {
+                    console.log('🎯 UI RENDERING DEBUG: Daily view is rendering');
+                    console.log('🎯 UI RENDERING DEBUG: currentDayData:', currentDayData);
+                    console.log('🎯 UI RENDERING DEBUG: userSpecificData.dayData keys:', Object.keys(userSpecificData.dayData));
+                    console.log('🎯 UI RENDERING DEBUG: Current date:', currentDate);
+                    console.log('🎯 UI RENDERING DEBUG: Date key:', formatDateKey(currentDate));
+                    
+                    // Check if the UI is getting the right data
+                    const dateKey = formatDateKey(currentDate);
+                    const expectedData = userSpecificData.dayData[dateKey];
+                    const actualData = currentDayData;
+                    
+                    console.log('🎯 UI RENDERING DEBUG: Expected data for date:', !!expectedData);
+                    console.log('🎯 UI RENDERING DEBUG: Actual data from currentDayData:', !!actualData);
+                    console.log('🎯 UI RENDERING DEBUG: Data match:', expectedData === actualData);
+                    
+                    if (!actualData || Object.keys(actualData).length === 0) {
+                        console.log('🚨 UI RENDERING ERROR: currentDayData is empty but should have data!');
+                        console.log('🚨 UI RENDERING ERROR: This explains why the UI shows nothing!');
+                        
+                        // Force restore the specific date data
+                        if (expectedData) {
+                            console.log('🚨 UI RENDERING FIX: Restoring data for specific date');
+                            debugSetUserSpecificData(prev => ({
+                                ...prev,
+                                dayData: { ...prev.dayData, [dateKey]: expectedData }
+                            }));
+                        }
+                    }
+                }
+            }, [currentView, currentDate, currentDayData, userSpecificData.dayData, user, isAdmin]);
+
+            // CRITICAL FIX: Ensure UI components always have access to the right data
+            useEffect(() => {
+                if (user && !isAdmin && currentView === 'daily') {
+                    const dateKey = formatDateKey(currentDate);
+                    const expectedData = userSpecificData.dayData[dateKey];
+                    
+                    // If we're in daily view but don't have data for the current date, restore it
+                    if (!expectedData && Object.keys(userSpecificData.dayData).length > 0) {
+                        console.log('🚨 CRITICAL FIX: Missing data for daily view date:', dateKey);
+                        console.log('🚨 CRITICAL FIX: Available dates:', Object.keys(userSpecificData.dayData));
+                        
+                        // Try to get data from localStorage for this specific date
+                        const dayDataKey = `dailyDavid_dayData_${user.id}`;
+                        const dayDataRaw = localStorage.getItem(dayDataKey);
+                        
+                        if (dayDataRaw) {
+                            try {
+                                const dayData = JSON.parse(dayDataRaw);
+                                if (dayData[dateKey]) {
+                                    console.log('🚨 CRITICAL FIX: Found data in localStorage for date:', dateKey);
+                                    console.log('🚨 CRITICAL FIX: Restoring to state');
+                                    
+                                    debugSetUserSpecificData(prev => ({
+                                        ...prev,
+                                        dayData: { ...prev.dayData, [dateKey]: dayData[dateKey] }
+                                    }));
+                                }
+                            } catch (error) {
+                                console.error('❌ Error parsing day data for critical fix:', error);
+                            }
+                        }
+                    }
+                }
+            }, [currentView, currentDate, userSpecificData.dayData, user, isAdmin]);
 
             // IMMEDIATE DATA CLEARING DETECTION: Check if data is cleared immediately after being set
             const prevStateRef = useRef(userSpecificData);
