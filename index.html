@@ -65,7 +65,7 @@
     <div id="root"></div>
 
     <script type="text/babel">
-        const { useState, useEffect, useCallback, useRef } = React;
+        const { useState, useEffect, useCallback, useRef, useMemo } = React;
 
         // Initialize Supabase - PRODUCTION ENVIRONMENT with Auth
         const supabaseUrl = 'https://jrutqdesurnansyfydbf.supabase.co';
@@ -1024,17 +1024,20 @@
                 }
             }, [user, currentWeek, weekData, saveToLocalStorage, saveWeekData]);
 
-            // Function to load all user data from localStorage
+            // Function to load all user data from localStorage - BULLETPROOF approach
             const loadAllUserDataFromLocalStorage = () => {
                 if (!user) return;
                 
                 try {
-                    console.log('🔄 Loading all user data from localStorage...');
+                    console.log('🔄 BULLETPROOF: Loading all user data from localStorage...');
+                    console.log('🔄 User ID:', user.id);
                     
                     // Get all localStorage keys for this user
                     const localStorageKeys = Object.keys(localStorage).filter(key => 
                         key.startsWith(`marriage_meetings_${user.id}_`)
                     );
+                    
+                    console.log('🔑 Found localStorage keys:', localStorageKeys);
                     
                     if (localStorageKeys.length > 0) {
                         console.log(`📊 Found ${localStorageKeys.length} weeks of data in localStorage`);
@@ -1045,25 +1048,48 @@
                             try {
                                 const data = JSON.parse(localStorage.getItem(key));
                                 loadedWeekData[weekKey] = data;
-                                console.log(`✅ Loaded week: ${weekKey}`);
+                                console.log(`✅ Loaded week: ${weekKey}`, data);
                             } catch (parseError) {
                                 console.error(`❌ Error parsing localStorage data for week ${weekKey}:`, parseError);
                             }
                         });
                         
-                        // Update both states
-                        setUserSpecificData(prev => ({
-                            ...prev,
-                            weekData: loadedWeekData
-                        }));
+                        console.log('📊 Final loaded week data:', loadedWeekData);
+                        console.log('📊 Week keys:', Object.keys(loadedWeekData));
+                        
+                        // Update both states - FORCE update
+                        setUserSpecificData(prev => {
+                            const newState = {
+                                ...prev,
+                                weekData: loadedWeekData
+                            };
+                            console.log('🔄 Setting userSpecificData to:', newState);
+                            return newState;
+                        });
+                        
                         setWeekData(loadedWeekData);
                         
-                        console.log('🎉 Successfully loaded all user data from localStorage');
+                        console.log('🎉 BULLETPROOF: Successfully loaded all user data from localStorage');
+                        console.log('🎉 State should now contain:', Object.keys(loadedWeekData).length, 'weeks');
                     } else {
                         console.log('📭 No localStorage data found for user');
+                        
+                        // Set empty state to prevent undefined errors
+                        setUserSpecificData(prev => ({
+                            ...prev,
+                            weekData: {}
+                        }));
+                        setWeekData({});
                     }
                 } catch (error) {
-                    console.error('❌ Error loading localStorage data:', error);
+                    console.error('❌ CRITICAL ERROR loading localStorage data:', error);
+                    
+                    // Emergency fallback - set empty state
+                    setUserSpecificData(prev => ({
+                        ...prev,
+                        weekData: {}
+                    }));
+                    setWeekData({});
                 }
             };
 
@@ -1221,13 +1247,64 @@
                 };
             }, [user, currentWeek, weekData]);
 
-            const currentWeekData = weekData[formatWeekKey(currentWeek)] || {
-                schedule: {
-                    Monday: [''], Tuesday: [''], Wednesday: [''], Thursday: [''],
-                    Friday: [''], Saturday: [''], Sunday: ['']
-                },
-                todos: [], prayers: [], goals: [], grocery: [], unconfessedSin: [], weeklyWinddown: []
-            };
+            // Use useMemo to properly calculate currentWeekData based on current state
+            const currentWeekData = useMemo(() => {
+                const weekKey = formatWeekKey(currentWeek);
+                const existingData = userSpecificData.weekData[weekKey];
+                
+                // DEBUG: Log what's happening in currentWeekData calculation
+                console.log('🔍 currentWeekData useMemo running:');
+                console.log('🔍 Week key:', weekKey);
+                console.log('🔍 Existing data found:', !!existingData);
+                console.log('🔍 userSpecificData.weekData keys:', Object.keys(userSpecificData.weekData));
+                
+                if (existingData) {
+                    console.log('🔍 Returning existing data for week:', weekKey);
+                    return existingData;
+                }
+                
+                // Check if we should have data but it's missing
+                if (Object.keys(userSpecificData.weekData).length > 0) {
+                    console.log('🚨 WARNING: Data exists in userSpecificData but not for this week');
+                    console.log('🚨 Available weeks:', Object.keys(userSpecificData.weekData));
+                    console.log('🚨 Requested week:', weekKey);
+                    
+                    // Try to restore data if it's missing for this specific week
+                    if (user && !isAdmin) {
+                        const weekDataKey = `marriage_meetings_${user.id}`;
+                        
+                        // Check all localStorage keys for this user
+                        const allKeys = Object.keys(localStorage).filter(key => key.startsWith(weekDataKey));
+                        console.log('🔍 Found localStorage keys:', allKeys);
+                        
+                        for (const key of allKeys) {
+                            try {
+                                const data = JSON.parse(localStorage.getItem(key));
+                                if (data && data[weekKey]) {
+                                    console.log('🚨 Found data for week in localStorage, updating state');
+                                    setUserSpecificData(prev => ({
+                                        ...prev,
+                                        weekData: { ...prev.weekData, [weekKey]: data[weekKey] }
+                                    }));
+                                    return data[weekKey];
+                                }
+                            } catch (error) {
+                                console.error('❌ Error parsing localStorage data:', error);
+                            }
+                        }
+                    }
+                }
+                
+                console.log('🔍 Returning default structure for week:', weekKey);
+                // Return default structure if no data exists
+                return {
+                    schedule: {
+                        Monday: [''], Tuesday: [''], Wednesday: [''], Thursday: [''],
+                        Friday: [''], Saturday: [''], Sunday: ['']
+                    },
+                    todos: [], prayers: [], goals: [], grocery: [], unconfessedSin: [], weeklyWinddown: []
+                };
+            }, [currentWeek, userSpecificData.weekData, user, isAdmin]);
 
             // Update functions
             const updateSchedule = (day, index, value) => {
