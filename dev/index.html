@@ -863,6 +863,24 @@
                 monthlyGoals: []
             });
 
+            // DEBUG: Wrap setUserSpecificData to track all calls
+            const debugSetUserSpecificData = (newData) => {
+                console.log('🔍 DEBUG: setUserSpecificData called with:', newData);
+                console.log('🔍 DEBUG: Previous state was:', userSpecificData);
+                console.log('🔍 DEBUG: Stack trace for this call:');
+                console.trace('setUserSpecificData call stack trace');
+                
+                if (typeof newData === 'function') {
+                    console.log('🔍 DEBUG: This is a function update, will call it with current state');
+                    const result = newData(userSpecificData);
+                    console.log('🔍 DEBUG: Function returned:', result);
+                    setUserSpecificData(result);
+                } else {
+                    console.log('🔍 DEBUG: This is a direct value update');
+                    setUserSpecificData(newData);
+                }
+            };
+
             const formatDateKey = (date) => {
                 return date.toISOString().split('T')[0];
             };
@@ -1706,7 +1724,7 @@
                                 }
                             }
                             
-                            setUserSpecificData({
+                            debugSetUserSpecificData({
                                 dayData: dayData,
                                 weeklyGoals: weeklyGoals,
                                 monthlyGoals: monthlyGoals
@@ -1824,7 +1842,7 @@
                                 console.log('- monthlyGoals:', monthlyGoals);
                                 
                                 // Force update state
-                                setUserSpecificData(prev => {
+                                debugSetUserSpecificData(prev => {
                                     const newState = {
                                         ...prev,
                                         dayData: dayData,
@@ -2031,6 +2049,120 @@
                             console.log('🚨 Attempting emergency restore due to data clearing...');
                             emergencyRestoreData();
                         }, 100);
+                    }
+                }
+            }, [userSpecificData, user, isAdmin]);
+
+            // CONSTANT DATA RESTORATION: Force restore data on every render when needed
+            useEffect(() => {
+                if (user && !isAdmin) {
+                    // Check if we have data in localStorage but not in state
+                    const goalsKey = `dailyDavid_goals_${user.id}`;
+                    const dayDataKey = `dailyDavid_dayData_${user.id}`;
+                    const backupKey = `dailyDavid_dayData_backup_${user.id}`;
+                    const emergencyKey = `dailyDavid_dayData_emergency_${user.id}`;
+                    
+                    const goalsData = localStorage.getItem(goalsKey);
+                    const dayDataRaw = localStorage.getItem(dayDataKey);
+                    const backupData = localStorage.getItem(backupKey);
+                    const emergencyData = localStorage.getItem(emergencyKey);
+                    
+                    const hasLocalStorageData = goalsData || dayDataRaw || backupData || emergencyData;
+                    const hasStateData = Object.keys(userSpecificData.dayData).length > 0 || 
+                                       userSpecificData.weeklyGoals.length > 0 || 
+                                       userSpecificData.monthlyGoals.length > 0;
+                    
+                    if (hasLocalStorageData && !hasStateData) {
+                        console.log('🚨 CONSTANT: localStorage has data but state is empty, restoring...');
+                        
+                        let weeklyGoals = [];
+                        let monthlyGoals = [];
+                        let dayData = {};
+                        
+                        if (goalsData) {
+                            try {
+                                const parsed = JSON.parse(goalsData);
+                                weeklyGoals = parsed.weeklyGoals || [];
+                                monthlyGoals = parsed.monthlyGoals || [];
+                            } catch (error) {
+                                console.error('❌ Error parsing goals:', error);
+                            }
+                        }
+                        
+                        if (dayDataRaw) {
+                            try {
+                                dayData = JSON.parse(dayDataRaw);
+                            } catch (error) {
+                                console.error('❌ Error parsing primary day data:', error);
+                            }
+                        } else if (backupData) {
+                            try {
+                                dayData = JSON.parse(backupData);
+                            } catch (error) {
+                                console.error('❌ Error parsing backup day data:', error);
+                            }
+                        } else if (emergencyData) {
+                            try {
+                                dayData = JSON.parse(emergencyData);
+                            } catch (error) {
+                                console.error('❌ Error parsing emergency day data:', error);
+                            }
+                        }
+                        
+                        setUserSpecificData({
+                            dayData: dayData,
+                            weeklyGoals: weeklyGoals,
+                            monthlyGoals: monthlyGoals
+                        });
+                        
+                        console.log('🚨 CONSTANT: Data restored successfully');
+                    }
+                }
+            });
+
+            // DEBUG: Track ALL state changes to find what's clearing data
+            useEffect(() => {
+                console.log('🔍 DEBUG: userSpecificData changed - Stack trace:');
+                console.trace('userSpecificData change stack trace');
+                
+                if (user && !isAdmin) {
+                    console.log('🔍 DEBUG: Current userSpecificData state:', userSpecificData);
+                    console.log('🔍 DEBUG: Day data keys:', Object.keys(userSpecificData.dayData));
+                    console.log('🔍 DEBUG: Weekly goals count:', userSpecificData.weeklyGoals.length);
+                    console.log('🔍 DEBUG: Monthly goals count:', userSpecificData.monthlyGoals.length);
+                    
+                    // Check if data was just cleared
+                    if (Object.keys(userSpecificData.dayData).length === 0 && 
+                        userSpecificData.weeklyGoals.length === 0 && 
+                        userSpecificData.monthlyGoals.length === 0) {
+                        console.log('🚨 DEBUG: DATA WAS JUST CLEARED!');
+                        console.log('🚨 DEBUG: This happened after the previous state change');
+                        console.log('🚨 DEBUG: Previous state should have had data');
+                        
+                        // Check localStorage to see if data still exists there
+                        const goalsKey = `dailyDavid_goals_${user.id}`;
+                        const dayDataKey = `dailyDavid_dayData_${user.id}`;
+                        const backupKey = `dailyDavid_dayData_backup_${user.id}`;
+                        const emergencyKey = `dailyDavid_dayData_emergency_${user.id}`;
+                        
+                        const goalsData = localStorage.getItem(goalsKey);
+                        const dayDataRaw = localStorage.getItem(dayDataKey);
+                        const backupData = localStorage.getItem(backupKey);
+                        const emergencyData = localStorage.getItem(emergencyKey);
+                        
+                        console.log('🔍 DEBUG: localStorage state when data was cleared:');
+                        console.log('- Goals:', !!goalsData);
+                        console.log('- Day data (primary):', !!dayDataRaw);
+                        console.log('- Day data (backup):', !!backupData);
+                        console.log('- Day data (emergency):', !!emergencyData);
+                        
+                        if (goalsData || dayDataRaw || backupData || emergencyData) {
+                            console.log('🚨 DEBUG: localStorage STILL HAS DATA but state was cleared!');
+                            console.log('🚨 DEBUG: This means something is clearing the React state');
+                        } else {
+                            console.log('🚨 DEBUG: localStorage was also cleared!');
+                            console.log('🚨 DEBUG: This means something is clearing localStorage');
+                        }
                     }
                 }
             }, [userSpecificData, user, isAdmin]);
