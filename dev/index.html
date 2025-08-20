@@ -79,7 +79,18 @@
 
         // Initialize Supabase - DEV ENVIRONMENT with Auth
         const supabaseUrl = 'https://gkmclzlgrcmqocfoxkui.supabase.co';
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdrbWNsemxncmNtcW9jZm94a3VpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU2MDYzNzEsImV4cCI6MjA3MTE4MjM3MX0.ovOR0iMGao5qvrAThrx8KucLyTctiRkVbNJvYdPEyk0';
+        
+        // Choose your key type:
+        // - anon key: Safe for users, limited admin functions
+        // - service_role key: Full admin access (get from Supabase Dashboard → Settings → API)
+        const USE_SERVICE_ROLE_KEY = false; // Set to true to enable admin functions
+        
+        const anonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdrbWNsemxncmNtcW9jZm94a3VpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU2MDYzNzEsImV4cCI6MjA3MTE4MjM3MX0.ovOR0iMGao5qvrAThrx8KucLyTctiRkVbNJvYdPEyk0';
+        
+        // Add your service role key here (get from Supabase Dashboard → Settings → API)
+        const serviceRoleKey = 'YOUR_SERVICE_ROLE_KEY_HERE'; // Replace with your actual service role key
+        
+        const supabaseKey = USE_SERVICE_ROLE_KEY ? serviceRoleKey : anonKey;
         const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
         
         // DEV TABLE NAME - Separate from production
@@ -306,8 +317,16 @@
                                     <div>
                                         <p className="text-yellow-800 font-medium">Admin Functions Setup Required</p>
                                         <p className="text-yellow-700 text-sm">
-                                            To use admin functions (create/delete users), you need to add your Supabase service role key to the app. 
-                                            For now, manage users manually in the Supabase dashboard.
+                                            To use admin functions (create/delete users), you need to:
+                                        </p>
+                                        <ol className="text-yellow-700 text-sm mt-2 list-decimal list-inside space-y-1">
+                                            <li>Go to Supabase Dashboard → Settings → API</li>
+                                            <li>Copy your "service_role" key</li>
+                                            <li>Replace "YOUR_SERVICE_ROLE_KEY_HERE" in the code</li>
+                                            <li>Set USE_SERVICE_ROLE_KEY = true</li>
+                                        </ol>
+                                        <p className="text-yellow-700 text-sm mt-2">
+                                            <strong>Note:</strong> Service role keys have full database access - only use for development/testing.
                                         </p>
                                     </div>
                                 </div>
