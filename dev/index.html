@@ -2687,43 +2687,28 @@
 
             // Update functions
             const updateGratitude = (index, value) => {
-                console.log('🔄 DEBUG: updateGratitude called with:');
-                console.log('🔄 DEBUG: index:', index);
-                console.log('🔄 DEBUG: value:', value);
-                console.log('🔄 DEBUG: currentDate:', currentDate);
-                
                 const dateKey = formatDateKey(currentDate);
-                console.log('🔄 DEBUG: dateKey:', dateKey);
                 
                 // Update the state immediately with the new value
                 setUserSpecificData(prev => {
-                    console.log('🔄 DEBUG: Inside setUserSpecificData callback');
-                    console.log('🔄 DEBUG: prev.dayData[dateKey]:', prev.dayData[dateKey]);
-                    
                     const currentDayData = prev.dayData[dateKey];
                     if (!currentDayData) {
-                        console.log('❌ DEBUG: No currentDayData found for dateKey:', dateKey);
                         return prev;
                     }
-                    
-                    console.log('🔄 DEBUG: currentDayData.gratitude:', currentDayData.gratitude);
                     
                     const newData = {
                         ...currentDayData,
                         gratitude: currentDayData.gratitude.map((item, i) => i === index ? value : item)
                     };
                     
-                    console.log('🔄 DEBUG: newData.gratitude:', newData.gratitude);
-                    console.log('🔄 DEBUG: About to call debouncedSave');
-                    
-                    // Save to localStorage and database using the SAME newData
-                    debouncedSave(dateKey, newData);
-                    
-                    console.log('🔄 DEBUG: debouncedSave called, returning new state');
+                    // Save to localStorage immediately
+                    const dayDataKey = `dailyDavid_dayData_${user.id}`;
+                    const updatedDayData = { ...prev.dayData, [dateKey]: newData };
+                    localStorage.setItem(dayDataKey, JSON.stringify(updatedDayData));
                     
                     return {
                         ...prev,
-                        dayData: { ...prev.dayData, [dateKey]: newData }
+                        dayData: updatedDayData
                     };
                 });
             };
@@ -2744,12 +2729,14 @@
                         }
                     };
                     
-                    // Save to localStorage and database using the SAME newData
-                    debouncedSave(dateKey, newData);
+                    // Save to localStorage immediately
+                    const dayDataKey = `dailyDavid_dayData_${user.id}`;
+                    const updatedDayData = { ...prev.dayData, [dateKey]: newData };
+                    localStorage.setItem(dayDataKey, JSON.stringify(updatedDayData));
                     
                     return {
                         ...prev,
-                        dayData: { ...prev.dayData, [dateKey]: newData }
+                        dayData: updatedDayData
                     };
                 });
             };
