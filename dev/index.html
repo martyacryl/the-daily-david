@@ -204,7 +204,7 @@
             );
         };
 
-        const AdminPanel = ({ user, onSignOut, onAddUser, onRemoveUser, onSwitchToUserMode, useServiceRoleKey }) => {
+        const AdminPanel = ({ user, onSignOut, onAddUser, onRemoveUser, useServiceRoleKey }) => {
             const [users, setUsers] = useState([]);
             const [newUserEmail, setNewUserEmail] = useState('');
             const [newUserPassword, setNewUserPassword] = useState('');
@@ -304,12 +304,6 @@
                     <div className="flex justify-between items-center mb-8">
                         <h1 className="text-3xl font-bold text-gray-800">Admin Panel</h1>
                         <div className="flex items-center gap-3">
-                            <button 
-                                onClick={onSwitchToUserMode}
-                                className="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors"
-                            >
-                                👤 Switch to User Mode
-                            </button>
                             <button 
                                 onClick={onSignOut}
                                 className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600"
@@ -1061,11 +1055,14 @@
             // Function to load user-specific data
             const loadUserSpecificData = async (userId) => {
                 try {
-                    console.log('Loading user-specific data for:', userId);
+                    console.log('🔄 Loading user-specific data for:', userId);
+                    console.log('Current userSpecificData state:', userSpecificData);
                     
                     // Load goals from localStorage first
                     const goalsLocalStorageKey = `dailyDavid_goals_${userId}`;
                     const goalsLocalStorageData = localStorage.getItem(goalsLocalStorageKey);
+                    console.log('Goals localStorage key:', goalsLocalStorageKey);
+                    console.log('Goals localStorage data exists:', !!goalsLocalStorageData);
                     
                     let weeklyGoals, monthlyGoals;
                     
@@ -1075,16 +1072,20 @@
                             if (parsedData.weeklyGoals && parsedData.monthlyGoals) {
                                 weeklyGoals = parsedData.weeklyGoals;
                                 monthlyGoals = parsedData.monthlyGoals;
-                                console.log('Loaded goals from localStorage:', { weeklyGoals, monthlyGoals });
+                                console.log('✅ Loaded goals from localStorage:', { weeklyGoals, monthlyGoals });
                             }
                         } catch (parseError) {
-                            console.error('Error parsing goals localStorage data:', parseError);
+                            console.error('❌ Error parsing goals localStorage data:', parseError);
                         }
+                    } else {
+                        console.log('⚠️ No goals data found in localStorage');
                     }
                     
                     // Load day data from localStorage
                     const dayDataLocalStorageKey = `dailyDavid_dayData_${userId}`;
                     const dayDataLocalStorageData = localStorage.getItem(dayDataLocalStorageKey);
+                    console.log('Day data localStorage key:', dayDataLocalStorageKey);
+                    console.log('Day data localStorage data exists:', !!dayDataLocalStorageData);
                     
                     let dayData = {};
                     
@@ -1092,10 +1093,13 @@
                         try {
                             const parsedData = JSON.parse(dayDataLocalStorageData);
                             dayData = parsedData;
-                            console.log('Loaded day data from localStorage:', Object.keys(dayData).length, 'dates');
+                            console.log('✅ Loaded day data from localStorage:', Object.keys(dayData).length, 'dates');
+                            console.log('Day data keys:', Object.keys(dayData));
                         } catch (parseError) {
-                            console.error('Error parsing day data localStorage data:', parseError);
+                            console.error('❌ Error parsing day data localStorage data:', parseError);
                         }
+                    } else {
+                        console.log('⚠️ No day data found in localStorage');
                     }
                     
                     // If no localStorage data for goals, try database
@@ -1191,83 +1195,41 @@
                 }
             };
 
-            // Authentication handlers
+            // Authentication handlers - Simplified approach
             const handleSignIn = async (userData) => {
                 console.log('🔐 User signing in:', userData.email);
-                console.log('Current user ID:', user?.id);
-                console.log('New user ID:', userData.id);
                 
-                // Check if this is the same user signing back in (not switching users)
+                // Check if this is the same user signing back in
                 const currentUserId = user?.id;
                 const isSameUser = currentUserId === userData.id;
                 
-                console.log('Is same user?', isSameUser);
-                
                 if (isSameUser) {
                     console.log('✅ Same user signing back in, preserving data');
-                    // Don't clear data for the same user
                     setUser(userData);
-                    setIsAdmin(userData.user_metadata?.is_admin === true);
-                    // Data should already be in localStorage, just ensure it's loaded
+                    setIsAdmin(false); // Regular users are never admin
                     await loadUserSpecificData(userData.id);
                 } else {
                     console.log('🔄 Different user signing in, clearing previous data');
-                    clearUserData(); // Only clear when switching between different users
+                    clearUserData();
                     setUser(userData);
-                    setIsAdmin(userData.user_metadata?.is_admin === true);
+                    setIsAdmin(false);
                     await loadUserSpecificData(userData.id);
                 }
             };
 
             const handleAdminSignIn = async (userData) => {
-                console.log('Admin signing in:', userData.email);
+                console.log('👑 Admin signing in:', userData.email);
                 
-                // Check if this is the same admin user signing back in
-                const currentUserId = user?.id;
-                const isSameUser = currentUserId === userData.id;
+                // Admin users only get admin functionality
+                setUser(userData);
+                setIsAdmin(true);
+                setUserModePreference('admin');
                 
-                if (isSameUser) {
-                    console.log('Same admin user signing back in, preserving data');
-                    // Don't clear data for the same user
-                    setUser(userData);
-                    setIsAdmin(true);
-                    
-                    // Check if admin was previously in user mode and restore their data
-                    const savedMode = localStorage.getItem('dailyDavidMode');
-                    if (savedMode === 'user') {
-                        setUserModePreference('user');
-                        // Load their saved user mode data
-                        await loadUserSpecificData(userData.id);
-                    }
-                } else {
-                    console.log('Different admin user signing in, clearing previous data');
-                    clearUserData(); // Only clear when switching between different users
-                    setUser(userData);
-                    setIsAdmin(true);
-                    
-                    // Check if admin was previously in user mode and restore their data
-                    const savedMode = localStorage.getItem('dailyDavidMode');
-                    if (savedMode === 'user') {
-                        setUserModePreference('user');
-                        // Load their saved user mode data
-                        await loadUserSpecificData(userData.id);
-                    }
-                }
+                // Don't load user-specific data for admin users
+                // They only manage other users
             };
 
-            // Function to switch admin to user mode without clearing data
-            const switchAdminToUserMode = async () => {
-                console.log('Admin switching to user mode');
-                setIsAdmin(false);
-                setUserModePreference('user');
-                setCurrentView('landing');
-                localStorage.setItem('dailyDavidMode', 'user');
-                
-                // Load user-specific data if not already loaded
-                if (userSpecificData.weeklyGoals.length === 0) {
-                    await loadUserSpecificData(user.id);
-                }
-            };
+            // Remove the mode switching function - no longer needed
 
             const handleSignOut = async () => {
                 try {
@@ -1600,18 +1562,28 @@
             useEffect(() => {
                 const initializeAuth = async () => {
                     try {
-                        console.log('Initializing authentication...');
+                        console.log('🔐 Initializing authentication...');
+                        
+                        // Debug: Check localStorage state before auth
+                        console.log('📋 localStorage state before auth:');
+                        for (let i = 0; i < localStorage.length; i++) {
+                            const key = localStorage.key(i);
+                            if (key && key.startsWith('dailyDavid_')) {
+                                console.log('  ', key, ':', localStorage.getItem(key)?.substring(0, 100) + '...');
+                            }
+                        }
+                        
                         // Get current user session
                         const { data: { user }, error } = await supabase.auth.getUser();
                         
                         if (error) {
-                            console.error('Error getting user:', error);
+                            console.error('❌ Error getting user:', error);
                             setAuthLoading(false);
                             return;
                         }
                         
                         if (user) {
-                            console.log('User found:', user.email);
+                            console.log('✅ User found:', user.email);
                             setUser(user);
                             // Check if user is admin (you can set this in user metadata)
                             const isUserAdmin = user.user_metadata?.is_admin === true;
@@ -1624,7 +1596,7 @@
                                     setUserModePreference('user');
                                     setIsAdmin(false);
                                     // Load user-specific data for user mode
-                                    console.log('Loading user-specific data for admin in user mode...');
+                                    console.log('🔄 Loading user-specific data for admin in user mode...');
                                     await loadUserSpecificData(user.id);
                                 } else {
                                     setUserModePreference('admin');
@@ -1632,21 +1604,21 @@
                                 }
                             } else {
                                 // Regular user, load their data
-                                console.log('Loading user-specific data for regular user...');
+                                console.log('🔄 Loading user-specific data for regular user...');
                                 await loadUserSpecificData(user.id);
                             }
                         } else {
-                            console.log('No user session found');
+                            console.log('⚠️ No user session found');
                         }
                     } catch (error) {
-                        console.error('Auth initialization error:', error);
+                        console.error('❌ Auth initialization error:', error);
                     } finally {
-                        console.log('Setting auth loading to false');
+                        console.log('✅ Setting auth loading to false');
                         setAuthLoading(false);
                     }
                 };
 
-                // Listen for auth changes
+                // Listen for auth changes - Simplified approach
                 const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
                     if (event === 'SIGNED_IN' && session?.user) {
                         // Check if this is the same user signing back in
@@ -1654,49 +1626,30 @@
                         const isSameUser = currentUserId === session.user.id;
                         
                         if (isSameUser) {
-                            console.log('Same user signing back in via auth state change, preserving data');
-                            // Don't clear data for the same user
+                            console.log('✅ Same user signing back in via auth state change, preserving data');
                             setUser(session.user);
                             const isUserAdmin = session.user.user_metadata?.is_admin === true;
                             setIsAdmin(isUserAdmin);
                             
-                            // Load saved mode preference for admin users
                             if (isUserAdmin) {
-                                const savedMode = localStorage.getItem('dailyDavidMode');
-                                if (savedMode === 'user') {
-                                    setUserModePreference('user');
-                                    setIsAdmin(false);
-                                    // Load user-specific data for user mode
-                                    await loadUserSpecificData(session.user.id);
-                                } else {
-                                    setUserModePreference('admin');
-                                    setIsAdmin(true);
-                                }
+                                // Admin users only get admin functionality
+                                setUserModePreference('admin');
                             } else {
-                                // Regular user, ensure their data is loaded
+                                // Regular users get their data loaded
                                 await loadUserSpecificData(session.user.id);
                             }
                         } else {
-                            console.log('Different user signing in via auth state change, clearing previous data');
-                            clearUserData(); // Only clear when switching between different users
+                            console.log('🔄 Different user signing in via auth state change, clearing previous data');
+                            clearUserData();
                             setUser(session.user);
                             const isUserAdmin = session.user.user_metadata?.is_admin === true;
                             setIsAdmin(isUserAdmin);
                             
-                            // Load saved mode preference for admin users
                             if (isUserAdmin) {
-                                const savedMode = localStorage.getItem('dailyDavidMode');
-                                if (savedMode === 'user') {
-                                    setUserModePreference('user');
-                                    setIsAdmin(false);
-                                    // Load user-specific data for user mode
-                                    await loadUserSpecificData(session.user.id);
-                                } else {
-                                    setUserModePreference('admin');
-                                    setIsAdmin(true);
-                                }
+                                // Admin users only get admin functionality
+                                setUserModePreference('admin');
                             } else {
-                                // Regular user, load their data
+                                // Regular users get their data loaded
                                 await loadUserSpecificData(session.user.id);
                             }
                         }
@@ -1804,14 +1757,13 @@
             // Show admin panel if user is admin
             if (isAdmin) {
                 return (
-                    <AdminPanel 
-                        user={user}
-                        onSignOut={handleSignOut}
-                        onAddUser={handleAddUser}
-                        onRemoveUser={handleRemoveUser}
-                        onSwitchToUserMode={handleSwitchToUserMode}
-                        useServiceRoleKey={USE_SERVICE_ROLE_KEY}
-                    />
+                                            <AdminPanel 
+                            user={user}
+                            onSignOut={handleSignOut}
+                            onAddUser={handleAddUser}
+                            onRemoveUser={handleRemoveUser}
+                            useServiceRoleKey={USE_SERVICE_ROLE_KEY}
+                        />
                 );
             }
 
@@ -1865,20 +1817,7 @@
                                         Welcome, {user.email}
                                         {!isAdmin && <span className="ml-2 text-blue-600">👤 User Mode</span>}
                                     </div>
-                                    {user.user_metadata?.is_admin === true && (
-                                        <button 
-                                            onClick={() => {
-                                                console.log('User switching to admin mode');
-                                                setIsAdmin(true);
-                                                setUserModePreference('admin');
-                                                localStorage.setItem('dailyDavidMode', 'admin');
-                                                // Don't clear user data - just switch modes
-                                            }}
-                                            className="px-3 py-1 bg-blue-500 text-white text-sm rounded-lg hover:bg-blue-600 transition-colors"
-                                        >
-                                            👑 Admin Mode
-                                        </button>
-                                    )}
+
                                     <button 
                                         onClick={handleSignOut}
                                         className="px-3 py-1 bg-red-500 text-white text-sm rounded-lg hover:bg-red-600 transition-colors"
