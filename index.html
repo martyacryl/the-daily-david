@@ -651,6 +651,33 @@
                 }, 100);
             }
             
+            // Add continuous polling to check for Supabase readiness
+            useEffect(() => {
+                const checkSupabaseReady = () => {
+                    if (window.supabaseClientsReady) {
+                        console.log('🔍 Polling detected Supabase ready, forcing re-render');
+                        setAuthLoading(prev => !prev);
+                        return true;
+                    }
+                    return false;
+                };
+                
+                // Check immediately
+                if (checkSupabaseReady()) return;
+                
+                // Poll every 100ms
+                const interval = setInterval(() => {
+                    if (checkSupabaseReady()) {
+                        clearInterval(interval);
+                    }
+                }, 100);
+                
+                // Cleanup after 10 seconds
+                setTimeout(() => clearInterval(interval), 10000);
+                
+                return () => clearInterval(interval);
+            }, []);
+            
             if (!isSupabaseAvailable) {
                 console.log('❌ Supabase clients not ready, showing loading screen');
                 return (
