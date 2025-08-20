@@ -1198,6 +1198,13 @@
             // Authentication handlers - Simplified approach
             const handleSignIn = async (userData) => {
                 console.log('🔐 User signing in:', userData.email);
+                console.log('📋 localStorage before sign in:');
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    if (key && key.startsWith('dailyDavid_')) {
+                        console.log('  ', key, ':', localStorage.getItem(key)?.substring(0, 100) + '...');
+                    }
+                }
                 
                 // Check if this is the same user signing back in
                 const currentUserId = user?.id;
@@ -1207,13 +1214,23 @@
                     console.log('✅ Same user signing back in, preserving data');
                     setUser(userData);
                     setIsAdmin(false); // Regular users are never admin
+                    console.log('🔄 Loading user-specific data for same user...');
                     await loadUserSpecificData(userData.id);
                 } else {
                     console.log('🔄 Different user signing in, clearing previous data');
                     clearUserData();
                     setUser(userData);
                     setIsAdmin(false);
+                    console.log('🔄 Loading user-specific data for different user...');
                     await loadUserSpecificData(userData.id);
+                }
+                
+                console.log('📋 localStorage after sign in:');
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    if (key && key.startsWith('dailyDavid_')) {
+                        console.log('  ', key, ':', localStorage.getItem(key)?.substring(0, 100) + '...');
+                    }
                 }
             };
 
@@ -1621,6 +1638,15 @@
                 // Listen for auth changes - Simplified approach
                 const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
                     if (event === 'SIGNED_IN' && session?.user) {
+                        console.log('🔄 Auth state change: SIGNED_IN for user:', session.user.email);
+                        console.log('📋 localStorage before auth state change:');
+                        for (let i = 0; i < localStorage.length; i++) {
+                            const key = localStorage.key(i);
+                            if (key && key.startsWith('dailyDavid_')) {
+                                console.log('  ', key, ':', localStorage.getItem(key)?.substring(0, 100) + '...');
+                            }
+                        }
+                        
                         // Check if this is the same user signing back in
                         const currentUserId = user?.id;
                         const isSameUser = currentUserId === session.user.id;
@@ -1636,6 +1662,7 @@
                                 setUserModePreference('admin');
                             } else {
                                 // Regular users get their data loaded
+                                console.log('🔄 Loading user-specific data via auth state change...');
                                 await loadUserSpecificData(session.user.id);
                             }
                         } else {
@@ -1650,10 +1677,20 @@
                                 setUserModePreference('admin');
                             } else {
                                 // Regular users get their data loaded
+                                console.log('🔄 Loading user-specific data via auth state change...');
                                 await loadUserSpecificData(session.user.id);
                             }
                         }
+                        
+                        console.log('📋 localStorage after auth state change:');
+                        for (let i = 0; i < localStorage.length; i++) {
+                            const key = localStorage.key(i);
+                            if (key && key.startsWith('dailyDavid_')) {
+                                console.log('  ', key, ':', localStorage.getItem(key)?.substring(0, 100) + '...');
+                            }
+                        }
                     } else if (event === 'SIGNED_OUT') {
+                        console.log('🔄 Auth state change: SIGNED_OUT');
                         setUser(null);
                         setIsAdmin(false);
                         setUserModePreference('admin');
