@@ -1544,7 +1544,7 @@
                     }
                 }
                 
-                // Check monthly goals - compare with most recent goals to see if they need updating
+                // Check monthly goals - use same logic as weekly goals
                 const mostRecentMonthlyGoals = getMostRecentGoals('monthly');
                 if (mostRecentMonthlyGoals.length > 0) {
                     const currentMonthlyGoals = updatedDayData.goals.monthly || [];
@@ -1552,7 +1552,6 @@
                         !currentMonthlyGoals.every((goal, index) => goal.id === mostRecentMonthlyGoals[index]?.id);
                     
                     if (monthlyGoalsNeedUpdate && isSameMonth(currentDate, new Date(sortedDates[0]))) {
-                        console.log('🔄 DEBUG: Monthly goals need updating, carrying over from most recent:', mostRecentMonthlyGoals);
                         updatedDayData.goals.monthly = mostRecentMonthlyGoals.map(goal => ({
                             ...goal,
                             completed: goal.completed // Keep completion status
