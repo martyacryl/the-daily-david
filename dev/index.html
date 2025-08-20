@@ -846,7 +846,14 @@
             const [lastSaved, setLastSaved] = useState(null);
             const [currentView, setCurrentView] = useState('landing'); // 'landing' or 'daily'
             
-            // Simple setCurrentView - no more debugging mess
+            // Debug wrapper for setCurrentView
+            const debugSetCurrentView = (newView) => {
+                console.log('🎯 VIEW CHANGE DEBUG: setCurrentView called with:', newView);
+                console.log('🎯 VIEW CHANGE DEBUG: Previous view was:', currentView);
+                console.log('🎯 VIEW CHANGE DEBUG: Stack trace:');
+                console.trace('View change stack trace');
+                setCurrentView(newView);
+            };
             // Goals are now stored in userSpecificData and loaded per user
             const saveTimeoutRef = useRef(null);
             
@@ -1968,11 +1975,201 @@
                 }
             }, [user?.id, isAdmin]);
 
-            // Simple data loading - no more aggressive restoration
+            // AGGRESSIVE: Restore data when data is missing (but prevent infinite loops)
+            useEffect(() => {
+                if (user && !isAdmin) {
+                    // Check if data is missing and restore it
+                    const hasData = Object.keys(userSpecificData.dayData).length > 0 || 
+                                   userSpecificData.weeklyGoals.length > 0 || 
+                                   userSpecificData.monthlyGoals.length > 0;
+                    
+                    if (!hasData) {
+                        console.log('🚨 AGGRESSIVE: No data detected, restoring from localStorage');
+                        const goalsKey = `dailyDavid_goals_${user.id}`;
+                        const dayDataKey = `dailyDavid_dayData_${user.id}`;
+                        const backupKey = `dailyDavid_dayData_backup_${user.id}`;
+                        const emergencyKey = `dailyDavid_dayData_emergency_${user.id}`;
+                        
+                        const goalsData = localStorage.getItem(goalsKey);
+                        const dayDataRaw = localStorage.getItem(dayDataKey);
+                        const backupData = localStorage.getItem(backupKey);
+                        const emergencyData = localStorage.getItem(emergencyKey);
+                        
+                        if (goalsData || dayDataRaw || backupData || emergencyData) {
+                            console.log('🚨 AGGRESSIVE: Found data in localStorage, restoring immediately');
+                            
+                            let weeklyGoals = [];
+                            let monthlyGoals = [];
+                            let dayData = {};
+                            
+                            if (goalsData) {
+                                try {
+                                    const parsed = JSON.parse(goalsData);
+                                    weeklyGoals = parsed.weeklyGoals || [];
+                                    monthlyGoals = parsed.monthlyGoals || [];
+                                } catch (error) {
+                                    console.error('❌ Error parsing goals:', error);
+                                }
+                            }
+                            
+                            if (dayDataRaw) {
+                                try {
+                                    dayData = JSON.parse(dayDataRaw);
+                                } catch (error) {
+                                    console.error('❌ Error parsing primary day data:', error);
+                                }
+                            } else if (backupData) {
+                                try {
+                                    dayData = JSON.parse(backupData);
+                                } catch (error) {
+                                    console.error('❌ Error parsing backup day data:', error);
+                                }
+                            } else if (emergencyData) {
+                                try {
+                                    dayData = JSON.parse(emergencyData);
+                                } catch (error) {
+                                    console.error('❌ Error parsing emergency day data:', error);
+                                }
+                            }
+                            
+                            setUserSpecificData({
+                                dayData: dayData,
+                                weeklyGoals: weeklyGoals,
+                                monthlyGoals: monthlyGoals
+                            });
+                            
+                            console.log('🚨 AGGRESSIVE: Data restored successfully');
+                        }
+                    }
+                }
+            }, [user?.id, isAdmin, userSpecificData.dayData, userSpecificData.weeklyGoals, userSpecificData.monthlyGoals]);
 
-            // Simple data loading - no more aggressive restoration
+            // EMERGENCY: Manual data restoration function
+            const emergencyRestoreData = () => {
+                if (!user) return;
+                
+                console.log('🚨 EMERGENCY: Manual data restoration triggered');
+                
+                try {
+                    const goalsKey = `dailyDavid_goals_${user.id}`;
+                    const dayDataKey = `dailyDavid_dayData_${user.id}`;
+                    const backupKey = `dailyDavid_dayData_backup_${user.id}`;
+                    const emergencyKey = `dailyDavid_dayData_emergency_${user.id}`;
+                    
+                    console.log('🔍 Checking all localStorage keys for user:', user.id);
+                    console.log('🔑 Goals key:', goalsKey);
+                    console.log('🔑 Day data key:', dayDataKey);
+                    console.log('🔑 Backup key:', backupKey);
+                    console.log('🔑 Emergency key:', emergencyKey);
+                    
+                    const goalsData = localStorage.getItem(goalsKey);
+                    const dayDataRaw = localStorage.getItem(dayDataKey);
+                    const backupData = localStorage.getItem(backupKey);
+                    const emergencyData = localStorage.getItem(emergencyKey);
+                    
+                    console.log('📊 Found data:');
+                    console.log('- Goals:', !!goalsData);
+                    console.log('- Day data (primary):', !!dayDataRaw);
+                    console.log('- Day data (backup):', !!backupData);
+                    console.log('- Day data (emergency):', !!emergencyData);
+                    
+                    let weeklyGoals = [];
+                    let monthlyGoals = [];
+                    let dayData = {};
+                    
+                    // Restore goals
+                    if (goalsData) {
+                        try {
+                            const parsed = JSON.parse(goalsData);
+                            weeklyGoals = parsed.weeklyGoals || [];
+                            monthlyGoals = parsed.monthlyGoals || [];
+                            console.log('✅ Emergency restored goals:', { weeklyGoals, monthlyGoals });
+                        } catch (error) {
+                            console.error('❌ Error parsing goals:', error);
+                        }
+                    }
+                    
+                    // Restore day data (try all keys)
+                    if (dayDataRaw) {
+                        try {
+                            dayData = JSON.parse(dayDataRaw);
+                            console.log('✅ Emergency restored day data from primary:', Object.keys(dayData).length, 'dates');
+                        } catch (error) {
+                            console.error('❌ Error parsing primary day data:', error);
+                        }
+                    } else if (backupData) {
+                        try {
+                            dayData = JSON.parse(backupData);
+                            console.log('✅ Emergency restored day data from backup:', Object.keys(dayData).length, 'dates');
+                        } catch (error) {
+                            console.error('❌ Error parsing backup day data:', error);
+                        }
+                    } else if (emergencyData) {
+                        try {
+                            dayData = JSON.parse(emergencyData);
+                            console.log('✅ Emergency restored day data from emergency:', Object.keys(dayData).length, 'dates');
+                        } catch (error) {
+                            console.error('❌ Error parsing emergency day data:', error);
+                        }
+                    }
+                    
+                    // Force update state
+                    setUserSpecificData({
+                        dayData: dayData,
+                        weeklyGoals: weeklyGoals,
+                        monthlyGoals: monthlyGoals
+                    });
+                    
+                    console.log('🚨 EMERGENCY: Data restoration complete');
+                    console.log('📊 Final state - dayData keys:', Object.keys(dayData));
+                    console.log('📊 Final state - weeklyGoals count:', weeklyGoals.length);
+                    console.log('📊 Final state - monthlyGoals count:', monthlyGoals.length);
+                    
+                } catch (error) {
+                    console.error('❌ CRITICAL ERROR in emergency restore:', error);
+                }
+            };
 
-            // Simple data loading - no more aggressive restoration
+            // GLOBAL DATA MONITORING: Track when userSpecificData changes
+            useEffect(() => {
+                if (user && !isAdmin) {
+                    console.log('🔍 GLOBAL MONITOR: userSpecificData state changed');
+                    console.log('🔍 New state:', userSpecificData);
+                    console.log('🔍 Day data keys:', Object.keys(userSpecificData.dayData));
+                    console.log('🔍 Weekly goals count:', userSpecificData.weeklyGoals.length);
+                    console.log('🔍 Monthly goals count:', userSpecificData.monthlyGoals.length);
+                    
+                    // Check if data was cleared unexpectedly
+                    if (Object.keys(userSpecificData.dayData).length === 0 && 
+                        userSpecificData.weeklyGoals.length === 0 && 
+                        userSpecificData.monthlyGoals.length === 0) {
+                        console.log('🚨 WARNING: All data appears to be cleared!');
+                        console.log('🚨 This might indicate data is being reset somewhere');
+                        
+                        // Try to restore from localStorage immediately
+                        setTimeout(() => {
+                            console.log('🚨 Attempting emergency restore due to data clearing...');
+                            emergencyRestoreData();
+                        }, 100);
+                    }
+                }
+            }, [userSpecificData, user, isAdmin]);
+
+            // CONSTANT DATA RESTORATION: Force restore data on every render when needed
+            useEffect(() => {
+                if (user && !isAdmin) {
+                    // Check if we have data in localStorage but not in state
+                    const goalsKey = `dailyDavid_goals_${user.id}`;
+                    const dayDataKey = `dailyDavid_dayData_${user.id}`;
+                    const backupKey = `dailyDavid_dayData_backup_${user.id}`;
+                    const emergencyKey = `dailyDavid_dayData_emergency_${user.id}`;
+                    
+                    const goalsData = localStorage.getItem(goalsKey);
+                    const dayDataRaw = localStorage.getItem(dayDataKey);
+                    const backupData = localStorage.getItem(backupKey);
+                    const emergencyData = localStorage.getItem(emergencyKey);
+                    
+                    const hasLocalStorageData = goalsData || dayDataRaw || backupData || emergencyData;
                     const hasStateData = Object.keys(userSpecificData.dayData).length > 0 || 
                                        userSpecificData.weeklyGoals.length > 0 || 
                                        userSpecificData.monthlyGoals.length > 0;
@@ -2025,9 +2222,189 @@
                 }
             });
 
-            // Simple data loading - no more aggressive restoration
+            // AGGRESSIVE: Check and restore data on EVERY render
+            const aggressiveDataCheck = () => {
+                if (user && !isAdmin) {
+                    const goalsKey = `dailyDavid_goals_${user.id}`;
+                    const dayDataKey = `dailyDavid_dayData_${user.id}`;
+                    const backupKey = `dailyDavid_dayData_backup_${user.id}`;
+                    const emergencyKey = `dailyDavid_dayData_emergency_${user.id}`;
+                    
+                    const goalsData = localStorage.getItem(goalsKey);
+                    const dayDataRaw = localStorage.getItem(dayDataKey);
+                    const backupData = localStorage.getItem(backupKey);
+                    const emergencyData = localStorage.getItem(emergencyKey);
+                    
+                    const hasLocalStorageData = goalsData || dayDataRaw || backupData || emergencyData;
+                    const hasStateData = Object.keys(userSpecificData.dayData).length > 0 || 
+                                       userSpecificData.weeklyGoals.length > 0 || 
+                                       userSpecificData.monthlyGoals.length > 0;
+                    
+                    if (hasLocalStorageData && !hasStateData) {
+                        console.log('🚨 AGGRESSIVE: Data missing on render, restoring immediately');
+                        
+                        let weeklyGoals = [];
+                        let monthlyGoals = [];
+                        let dayData = {};
+                        
+                        if (goalsData) {
+                            try {
+                                const parsed = JSON.parse(goalsData);
+                                weeklyGoals = parsed.weeklyGoals || [];
+                                monthlyGoals = parsed.monthlyGoals || [];
+                            } catch (error) {
+                                console.error('❌ Error parsing goals:', error);
+                            }
+                        }
+                        
+                        if (dayDataRaw) {
+                            try {
+                                dayData = JSON.parse(dayDataRaw);
+                            } catch (error) {
+                                console.error('❌ Error parsing primary day data:', error);
+                            }
+                        } else if (backupData) {
+                            try {
+                                dayData = JSON.parse(backupData);
+                            } catch (error) {
+                                console.error('❌ Error parsing backup day data:', error);
+                            }
+                        } else if (emergencyData) {
+                            try {
+                                dayData = JSON.parse(emergencyData);
+                            } catch (error) {
+                                console.error('❌ Error parsing emergency day data:', error);
+                            }
+                        }
+                        
+                        debugSetUserSpecificData({
+                            dayData: dayData,
+                            weeklyGoals: weeklyGoals,
+                            monthlyGoals: monthlyGoals
+                        });
+                        
+                        console.log('🚨 AGGRESSIVE: Data restored on render');
+                    }
+                }
+            };
+            
+            // Call aggressive check on every render
+            aggressiveDataCheck();
+            
+            // ULTRA AGGRESSIVE: Check data on every render when in daily view
+            if (currentView === 'daily' && user && !isAdmin) {
+                const hasData = Object.keys(userSpecificData.dayData).length > 0 || 
+                               userSpecificData.weeklyGoals.length > 0 || 
+                               userSpecificData.monthlyGoals.length > 0;
+                
+                if (!hasData) {
+                    console.log('🚨 ULTRA AGGRESSIVE: In daily view with no data, restoring immediately');
+                    
+                    const goalsKey = `dailyDavid_goals_${user.id}`;
+                    const dayDataKey = `dailyDavid_dayData_${user.id}`;
+                    const backupKey = `dailyDavid_dayData_backup_${user.id}`;
+                    const emergencyKey = `dailyDavid_dayData_emergency_${user.id}`;
+                    
+                    const goalsData = localStorage.getItem(goalsKey);
+                    const dayDataRaw = localStorage.getItem(dayDataKey);
+                    const backupData = localStorage.getItem(backupKey);
+                    const emergencyData = localStorage.getItem(emergencyKey);
+                    
+                    if (goalsData || dayDataRaw || backupData || emergencyData) {
+                        let weeklyGoals = [];
+                        let monthlyGoals = [];
+                        let dayData = {};
+                        
+                        if (goalsData) {
+                            try {
+                                const parsed = JSON.parse(goalsData);
+                                weeklyGoals = parsed.weeklyGoals || [];
+                                monthlyGoals = parsed.monthlyGoals || [];
+                            } catch (error) {
+                                console.error('❌ Error parsing goals:', error);
+                            }
+                        }
+                        
+                        if (dayDataRaw) {
+                            try {
+                                dayData = JSON.parse(dayDataRaw);
+                            } catch (error) {
+                                console.error('❌ Error parsing primary day data:', error);
+                            }
+                        } else if (backupData) {
+                            try {
+                                dayData = JSON.parse(backupData);
+                            } catch (error) {
+                                console.error('❌ Error parsing backup day data:', error);
+                            }
+                        } else if (emergencyData) {
+                            try {
+                                dayData = JSON.parse(emergencyData);
+                            } catch (error) {
+                                console.error('❌ Error parsing emergency day data:', error);
+                            }
+                        }
+                        
+                        debugSetUserSpecificData({
+                            dayData: dayData,
+                            weeklyGoals: weeklyGoals,
+                            monthlyGoals: monthlyGoals
+                        });
+                        
+                        console.log('🚨 ULTRA AGGRESSIVE: Data restored on render');
+                    }
+                }
+            }
 
-            // Simple data loading - no more aggressive restoration
+            // DEBUG: Track ALL state changes to find what's clearing data
+            useEffect(() => {
+                console.log('🔍 DEBUG: userSpecificData changed - Stack trace:');
+                console.trace('userSpecificData change stack trace');
+                
+                if (user && !isAdmin) {
+                    console.log('🔍 DEBUG: Current userSpecificData state:', userSpecificData);
+                    console.log('🔍 DEBUG: Day data keys:', Object.keys(userSpecificData.dayData));
+                    console.log('🔍 DEBUG: Weekly goals count:', userSpecificData.weeklyGoals.length);
+                    console.log('🔍 DEBUG: Monthly goals count:', userSpecificData.monthlyGoals.length);
+                    
+                    // Check if data was just cleared
+                    if (Object.keys(userSpecificData.dayData).length === 0 && 
+                        userSpecificData.weeklyGoals.length === 0 && 
+                        userSpecificData.monthlyGoals.length === 0) {
+                        console.log('🚨 DEBUG: DATA WAS JUST CLEARED!');
+                        console.log('🚨 DEBUG: This happened after the previous state change');
+                        console.log('🚨 DEBUG: Previous state should have had data');
+                        
+                        // Check localStorage to see if data still exists there
+                        const goalsKey = `dailyDavid_goals_${user.id}`;
+                        const dayDataKey = `dailyDavid_dayData_${user.id}`;
+                        const backupKey = `dailyDavid_dayData_backup_${user.id}`;
+                        const emergencyKey = `dailyDavid_dayData_emergency_${user.id}`;
+                        
+                        const goalsData = localStorage.getItem(goalsKey);
+                        const dayDataRaw = localStorage.getItem(dayDataKey);
+                        const backupData = localStorage.getItem(backupKey);
+                        const emergencyData = localStorage.getItem(emergencyKey);
+                        
+                        console.log('🔍 DEBUG: localStorage state when data was cleared:');
+                        console.log('- Goals:', !!goalsData);
+                        console.log('- Day data (primary):', !!goalsData);
+                        console.log('- Day data (backup):', !!backupData);
+                        console.log('- Day data (emergency):', !!emergencyData);
+                        
+                        if (goalsData || dayDataRaw || backupData || emergencyData) {
+                            console.log('🚨 DEBUG: localStorage STILL HAS DATA but state was cleared!');
+                            console.log('🚨 DEBUG: This means something is clearing the React state');
+                            
+                            // PREVENT DATA CLEARING: Immediately restore data if it was cleared
+                            console.log('🚨 PREVENTING DATA CLEARING: Restoring data immediately');
+                            
+                            let weeklyGoals = [];
+                            let monthlyGoals = [];
+                            let dayData = {};
+                            
+                            if (goalsData) {
+                                try {
                                     const parsed = JSON.parse(goalsData);
                                     weeklyGoals = parsed.weeklyGoals || [];
                                     monthlyGoals = parsed.monthlyGoals || [];
