@@ -925,7 +925,7 @@
                         if (userError.message.includes('not found')) {
                             // User doesn't exist in Supabase, just remove from local list
                             console.log('User not found in Supabase, removing from local list only');
-                            const updatedUsers = users.filter(user => user.id !== userId);
+                            const updatedUsers = users.filter(u => u.id !== userId);
                             setUsers(updatedUsers);
                             alert('User was not found in the system and has been removed from the list.');
                             return;
@@ -935,7 +935,7 @@
                     
                     if (!userData || !userData.user) {
                         console.log('No user data returned, removing from local list only');
-                        const updatedUsers = users.filter(user => user.id !== userId);
+                        const updatedUsers = users.filter(u => u.id !== userId);
                         setUsers(updatedUsers);
                         alert('User data not found, removed from local list.');
                         return;
@@ -954,7 +954,7 @@
                     console.log('User deleted successfully from Supabase');
                     
                     // Remove from local users list
-                    const updatedUsers = users.filter(user => user.id !== userId);
+                    const updatedUsers = users.filter(u => u.id !== userId);
                     setUsers(updatedUsers);
                     console.log('Updated local users list:', updatedUsers);
                     
