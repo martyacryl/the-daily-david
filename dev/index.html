@@ -2371,11 +2371,10 @@
             }, [userSpecificData, user, isAdmin]);
 
             // IMMEDIATE DATA CLEARING DETECTION: Check if data is cleared immediately after being set
+            const prevStateRef = useRef(userSpecificData);
+            
             useEffect(() => {
                 if (user && !isAdmin) {
-                    // Store the previous state to detect immediate clearing
-                    const prevStateRef = useRef(userSpecificData);
-                    
                     // Check if data was just set and then immediately cleared
                     const prevHasData = Object.keys(prevStateRef.current.dayData).length > 0 || 
                                        prevStateRef.current.weeklyGoals.length > 0 || 
