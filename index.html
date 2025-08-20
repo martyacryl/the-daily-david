@@ -81,7 +81,11 @@
         const supabaseKey = USE_SERVICE_ROLE_KEY ? serviceRoleKey : anonKey;
         
         // Initialize Supabase clients with better loading detection
-        let supabase, adminSupabase;
+        // Make these truly global so React component can access them
+        window.supabase = null;
+        window.adminSupabase = null;
+        let supabase = window.supabase;
+        let adminSupabase = window.adminSupabase;
         
         function initializeSupabaseClients() {
             // Check multiple possible ways Supabase might be available
@@ -111,9 +115,16 @@
             
             if (supabaseModule) {
                 try {
+                    // Create clients and assign to both local and global variables
                     supabase = supabaseModule.createClient(supabaseUrl, supabaseKey);
                     adminSupabase = supabaseModule.createClient(supabaseUrl, serviceRoleKey);
+                    window.supabase = supabase;
+                    window.adminSupabase = adminSupabase;
                     console.log('✅ Supabase clients created successfully');
+                    console.log('✅ Global variables updated:', {
+                        'window.supabase': !!window.supabase,
+                        'window.adminSupabase': !!window.adminSupabase
+                    });
                     // Notify that Supabase is ready
                     notifySupabaseReady();
                     return true;
@@ -601,8 +612,9 @@
                 'window.supabaseReady': window.supabaseReady
             });
             
-            // More aggressive check - also check if window.supabase is available
-            const isSupabaseAvailable = (supabase && adminSupabase) || 
+            // Check global variables first, then fall back to local ones
+            const isSupabaseAvailable = (window.supabase && window.adminSupabase) || 
+                                     (supabase && adminSupabase) ||
                                      (window.supabase && typeof window.supabase.createClient === 'function');
             
             if (!isSupabaseAvailable) {
@@ -614,9 +626,10 @@
                             <p className="text-gray-600">Loading Supabase...</p>
                             <p className="text-sm text-gray-500 mt-2">If this persists, please refresh the page</p>
                             <div className="mt-4 text-xs text-gray-400">
-                                <p>supabase: {supabase ? '✅' : '❌'}</p>
-                                <p>adminSupabase: {adminSupabase ? '✅' : '❌'}</p>
-                                <p>window.supabase: {window.supabase ? '✅' : '❌'}</p>
+                                <p>Local supabase: {supabase ? '✅' : '❌'}</p>
+                                <p>Local adminSupabase: {adminSupabase ? '✅' : '❌'}</p>
+                                <p>Global window.supabase: {window.supabase ? '✅' : '❌'}</p>
+                                <p>Global window.adminSupabase: {window.adminSupabase ? '✅' : '❌'}</p>
                                 <p>window.supabaseReady: {window.supabaseReady ? '✅' : '❌'}</p>
                             </div>
                         </div>
@@ -1239,7 +1252,7 @@
                 
                 // Also poll every 100ms to check if Supabase is ready
                 const pollInterval = setInterval(() => {
-                    if (window.supabaseReady && (supabase || adminSupabase)) {
+                    if (window.supabaseReady && (window.supabase || window.adminSupabase)) {
                         console.log('🔍 Polling detected Supabase is ready, forcing re-render');
                         clearInterval(pollInterval);
                         setAuthLoading(prev => !prev);
