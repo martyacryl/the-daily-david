@@ -997,7 +997,8 @@
 
             // Function to clear user data when switching between different users
             const clearUserData = () => {
-                console.log('Clearing user data - switching to different user');
+                console.log('🚨 CLEARING USER DATA - switching to different user');
+                console.trace('clearUserData called from:'); // This will show the call stack
                 setUserSpecificData({
                     dayData: {},
                     weeklyGoals: [],
@@ -1192,21 +1193,25 @@
 
             // Authentication handlers
             const handleSignIn = async (userData) => {
-                console.log('User signing in:', userData.email);
+                console.log('🔐 User signing in:', userData.email);
+                console.log('Current user ID:', user?.id);
+                console.log('New user ID:', userData.id);
                 
                 // Check if this is the same user signing back in (not switching users)
                 const currentUserId = user?.id;
                 const isSameUser = currentUserId === userData.id;
                 
+                console.log('Is same user?', isSameUser);
+                
                 if (isSameUser) {
-                    console.log('Same user signing back in, preserving data');
+                    console.log('✅ Same user signing back in, preserving data');
                     // Don't clear data for the same user
                     setUser(userData);
                     setIsAdmin(userData.user_metadata?.is_admin === true);
                     // Data should already be in localStorage, just ensure it's loaded
                     await loadUserSpecificData(userData.id);
                 } else {
-                    console.log('Different user signing in, clearing previous data');
+                    console.log('🔄 Different user signing in, clearing previous data');
                     clearUserData(); // Only clear when switching between different users
                     setUser(userData);
                     setIsAdmin(userData.user_metadata?.is_admin === true);
@@ -1267,10 +1272,12 @@
             const handleSignOut = async () => {
                 try {
                     console.log('User signing out');
+                    // Don't clear user data on sign out - it's already saved to localStorage
+                    // Just clear the user state
                     await supabase.auth.signOut();
                     setUser(null);
                     setIsAdmin(false);
-                    clearUserData(); // Clear user data on sign out
+                    // Note: We don't call clearUserData() here to preserve localStorage data
                 } catch (error) {
                     console.error('Sign out error:', error);
                 }
@@ -1524,10 +1531,10 @@
                 const updatedDayData = { ...currentDayData };
                 const goalIndex = updatedDayData.goals[goalType].findIndex(g => g.id === goalId);
                 if (goalIndex !== -1) {
-                    updatedDayData.goals[goalIndex].completed = !updatedDayData.goals[goalIndex].completed;
+                    updatedDayData.goals[goalType][goalIndex].completed = !updatedDayData.goals[goalType][goalIndex].completed;
+                    setUserSpecificData(prev => ({ ...prev, dayData: { ...prev.dayData, [formatDateKey(currentDate)]: updatedDayData } }));
+                    debouncedSave(formatDateKey(currentDate), updatedDayData);
                 }
-                setUserSpecificData(prev => ({ ...prev, dayData: { ...prev.dayData, [formatDateKey(currentDate)]: updatedDayData } }));
-                debouncedSave(formatDateKey(currentDate), updatedDayData);
             };
 
             const removeDailyGoal = (goalType, goalId) => {
