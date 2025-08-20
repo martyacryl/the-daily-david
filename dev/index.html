@@ -731,16 +731,7 @@
             const [isLoading, setIsLoading] = useState(true);
             const [lastSaved, setLastSaved] = useState(null);
             const [currentView, setCurrentView] = useState('landing'); // 'landing' or 'daily'
-            const [weeklyGoals, setWeeklyGoals] = useState([
-                { id: 1, text: 'Complete 5 SOAP studies this week', completed: false, category: 'spiritual' },
-                { id: 2, text: 'Practice gratitude daily', completed: false, category: 'personal' },
-                { id: 3, text: 'Read 3 chapters of scripture', completed: false, category: 'spiritual' }
-            ]);
-            const [monthlyGoals, setMonthlyGoals] = useState([
-                { id: 1, text: 'Establish daily prayer routine', completed: false, category: 'spiritual' },
-                { id: 2, text: 'Complete 20 SOAP studies', completed: false, category: 'spiritual' },
-                { id: 3, text: 'Share faith with 2 people', completed: false, category: 'outreach' }
-            ]);
+            // Goals are now stored in userSpecificData and loaded per user
             const saveTimeoutRef = useRef(null);
             
             // Authentication state
@@ -750,6 +741,13 @@
             
             // Mode preference state (persists across refreshes)
             const [userModePreference, setUserModePreference] = useState('admin'); // 'admin' or 'user'
+            
+            // User-specific data state (isolated per user)
+            const [userSpecificData, setUserSpecificData] = useState({
+                dayData: {},
+                weeklyGoals: [],
+                monthlyGoals: []
+            });
 
             const formatDateKey = (date) => {
                 return date.toISOString().split('T')[0];
@@ -834,23 +832,72 @@
                 setIsConnected(true);
             };
 
-            // Authentication handlers
-            const handleSignIn = (userData) => {
-                setUser(userData);
-                setIsAdmin(userData.user_metadata?.is_admin === true);
+            // Function to clear user data when switching users
+            const clearUserData = () => {
+                setUserSpecificData({
+                    dayData: {},
+                    weeklyGoals: [],
+                    monthlyGoals: []
+                });
+                setCurrentView('landing');
+                setCurrentDate(new Date());
             };
 
-            const handleAdminSignIn = (userData) => {
+            // Function to load user-specific data
+            const loadUserSpecificData = async (userId) => {
+                try {
+                    console.log('Loading user-specific data for:', userId);
+                    
+                    // Load user's goals and preferences from database
+                    // For now, we'll use default goals, but this could be extended to load from user profile
+                    const defaultWeeklyGoals = [
+                        { id: 1, text: 'Complete 5 SOAP studies this week', completed: false, category: 'spiritual' },
+                        { id: 2, text: 'Practice gratitude daily', completed: false, category: 'personal' },
+                        { id: 3, text: 'Read 3 chapters of scripture', completed: false, category: 'spiritual' }
+                    ];
+                    
+                    const defaultMonthlyGoals = [
+                        { id: 1, text: 'Establish daily prayer routine', completed: false, category: 'spiritual' },
+                        { id: 2, text: 'Complete 20 SOAP studies', completed: false, category: 'spiritual' },
+                        { id: 3, text: 'Share faith with 2 people', completed: false, category: 'outreach' }
+                    ];
+                    
+                    setUserSpecificData(prev => ({
+                        ...prev,
+                        weeklyGoals: defaultWeeklyGoals,
+                        monthlyGoals: defaultMonthlyGoals
+                    }));
+                    
+                    console.log('User-specific data loaded');
+                } catch (error) {
+                    console.error('Error loading user-specific data:', error);
+                }
+            };
+
+            // Authentication handlers
+            const handleSignIn = async (userData) => {
+                console.log('User signing in:', userData.email);
+                clearUserData(); // Clear any previous user's data
+                setUser(userData);
+                setIsAdmin(userData.user_metadata?.is_admin === true);
+                await loadUserSpecificData(userData.id); // Load user's specific data
+            };
+
+            const handleAdminSignIn = async (userData) => {
+                console.log('Admin signing in:', userData.email);
+                clearUserData(); // Clear any previous user's data
                 setUser(userData);
                 setIsAdmin(true);
+                // Don't load user-specific data for admin (they don't need it)
             };
 
             const handleSignOut = async () => {
                 try {
+                    console.log('User signing out');
                     await supabase.auth.signOut();
                     setUser(null);
                     setIsAdmin(false);
-                    setCurrentView('landing');
+                    clearUserData(); // Clear user data on sign out
                 } catch (error) {
                     console.error('Sign out error:', error);
                 }
@@ -941,13 +988,19 @@
             // Goal management functions
             const toggleGoal = (goalType, goalId) => {
                 if (goalType === 'weekly') {
-                    setWeeklyGoals(prev => prev.map(goal => 
-                        goal.id === goalId ? { ...goal, completed: !goal.completed } : goal
-                    ));
+                    setUserSpecificData(prev => ({
+                        ...prev,
+                        weeklyGoals: prev.weeklyGoals.map(goal => 
+                            goal.id === goalId ? { ...goal, completed: !goal.completed } : goal
+                        )
+                    }));
                 } else {
-                    setMonthlyGoals(prev => prev.map(goal => 
-                        goal.id === goalId ? { ...goal, completed: !goal.completed } : goal
-                    ));
+                    setUserSpecificData(prev => ({
+                        ...prev,
+                        monthlyGoals: prev.monthlyGoals.map(goal => 
+                            goal.id === goalId ? { ...goal, completed: !goal.completed } : goal
+                        )
+                    }));
                 }
             };
 
@@ -960,29 +1013,41 @@
                 };
                 
                 if (goalType === 'weekly') {
-                    setWeeklyGoals(prev => [...prev, newGoal]);
+                    setUserSpecificData(prev => ({
+                        ...prev,
+                        weeklyGoals: [...prev.weeklyGoals, newGoal]
+                    }));
                 } else {
-                    setMonthlyGoals(prev => [...prev, newGoal]);
+                    setUserSpecificData(prev => ({
+                        ...prev,
+                        monthlyGoals: [...prev.monthlyGoals, newGoal]
+                    }));
                 }
             };
 
             const removeGoal = (goalType, goalId) => {
                 if (goalType === 'weekly') {
-                    setWeeklyGoals(prev => prev.filter(goal => goal.id !== goalId));
+                    setUserSpecificData(prev => ({
+                        ...prev,
+                        weeklyGoals: prev.weeklyGoals.filter(goal => goal.id !== goalId)
+                    }));
                 } else {
-                    setMonthlyGoals(prev => prev.filter(goal => goal.id !== goalId));
+                    setUserSpecificData(prev => ({
+                        ...prev,
+                        monthlyGoals: prev.monthlyGoals.filter(goal => goal.id !== goalId)
+                    }));
                 }
             };
 
             // Progress calculation functions
             const getWeeklyProgress = () => {
-                const completed = weeklyGoals.filter(goal => goal.completed).length;
-                return { completed, total: weeklyGoals.length, percentage: Math.round((completed / weeklyGoals.length) * 100) };
+                const completed = userSpecificData.weeklyGoals.filter(goal => goal.completed).length;
+                return { completed, total: userSpecificData.weeklyGoals.length, percentage: Math.round((completed / userSpecificData.weeklyGoals.length) * 100) };
             };
 
             const getMonthlyProgress = () => {
-                const completed = monthlyGoals.filter(goal => goal.completed).length;
-                return { completed, total: monthlyGoals.length, percentage: Math.round((completed / monthlyGoals.length) * 100) };
+                const completed = userSpecificData.monthlyGoals.filter(goal => goal.completed).length;
+                return { completed, total: userSpecificData.monthlyGoals.length, percentage: Math.round((completed / userSpecificData.monthlyGoals.length) * 100) };
             };
 
             const getDaysCompletedThisWeek = () => {
@@ -993,7 +1058,7 @@
                 let completedDays = 0;
                 for (let d = new Date(startOfWeek); d <= endOfWeek; d.setDate(d.getDate() + 1)) {
                     const dateKey = formatDateKey(d);
-                    if (dayData[dateKey]) {
+                    if (userSpecificData.dayData[dateKey]) {
                         completedDays++;
                     }
                 }
@@ -1162,7 +1227,7 @@
                 };
             }, []);
 
-            const currentDayData = dayData[formatDateKey(currentDate)] || {
+            const currentDayData = userSpecificData.dayData[formatDateKey(currentDate)] || {
                 gratitude: ['', '', '', '', ''],
                 soap: {
                     scripture: '',
@@ -1185,7 +1250,7 @@
                     gratitude: currentDayData.gratitude.map((item, i) => i === index ? value : item)
                 };
                 
-                setDayData(prev => ({ ...prev, [dateKey]: newData }));
+                setUserSpecificData(prev => ({ ...prev, dayData: { ...prev.dayData, [dateKey]: newData } }));
                 debouncedSave(dateKey, newData);
             };
 
@@ -1199,9 +1264,9 @@
                     }
                 };
                 
-                setDayData(prev => ({ ...prev, [dateKey]: newData }));
+                setUserSpecificData(prev => ({ ...prev, dayData: { ...prev.dayData, [dateKey]: newData } }));
                 debouncedSave(dateKey, newData);
-            };
+                };
 
             // Removed duplicate goal functions - using addDailyGoal, updateDailyGoal, etc. instead
 
@@ -1377,8 +1442,8 @@
                     {/* Conditional Rendering Based on View */}
                     {currentView === 'landing' ? (
                         <LandingPage 
-                            weeklyGoals={weeklyGoals}
-                            monthlyGoals={monthlyGoals}
+                            weeklyGoals={userSpecificData.weeklyGoals}
+                            monthlyGoals={userSpecificData.monthlyGoals}
                             toggleGoal={toggleGoal}
                             addGoal={addGoal}
                             removeGoal={removeGoal}
