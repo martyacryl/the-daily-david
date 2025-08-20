@@ -713,6 +713,57 @@
                 setWeekData({});
             };
 
+            // Debug function to manually check and restore data from Supabase
+            const debugCheckSupabaseData = async () => {
+                if (!user) return;
+                
+                console.log('🔍 DEBUG: Checking Supabase for user data...');
+                console.log('User ID:', user.id);
+                console.log('User Email:', user.email);
+                
+                try {
+                    // Try to get all data for this user from Supabase
+                    const { data, error } = await supabase
+                        .from(TABLE_NAME)
+                        .select('*')
+                        .eq('user_id', user.id);
+                    
+                    if (error) {
+                        console.error('❌ Supabase query error:', error);
+                        return;
+                    }
+                    
+                    if (data && data.length > 0) {
+                        console.log(`✅ Found ${data.length} weeks of data in Supabase:`, data);
+                        
+                        // Restore the data to localStorage and state
+                        const restoredWeekData = {};
+                        data.forEach(row => {
+                            restoredWeekData[row.week_key] = row.data;
+                            
+                            // Save to localStorage
+                            const localStorageKey = `marriage_meetings_${user.id}_${row.week_key}`;
+                            localStorage.setItem(localStorageKey, JSON.stringify(row.data));
+                            console.log(`💾 Restored week ${row.week_key} to localStorage`);
+                        });
+                        
+                        // Update state
+                        setUserSpecificData(prev => ({
+                            ...prev,
+                            weekData: restoredWeekData
+                        }));
+                        setWeekData(restoredWeekData);
+                        
+                        console.log('🎉 Data restored successfully!');
+                        alert(`Restored ${data.length} weeks of data from Supabase!`);
+                    } else {
+                        console.log('📭 No data found in Supabase for this user');
+                    }
+                } catch (error) {
+                    console.error('❌ Debug function error:', error);
+                }
+            };
+
             const formatWeekKey = (date) => {
                 const monday = getMonday(date);
                 return monday.toISOString().split('T')[0];
@@ -1413,6 +1464,45 @@
                                         )}
                                     </div>
                                 )}
+                                
+                                {/* Debug Button - Show current data state */}
+                                <button
+                                    onClick={() => {
+                                        console.log('🔍 DEBUG: Current app state:');
+                                        console.log('User:', user);
+                                        console.log('Week Data:', weekData);
+                                        console.log('User Specific Data:', userSpecificData);
+                                        console.log('Current Week:', currentWeek);
+                                        console.log('LocalStorage Keys:', Object.keys(localStorage).filter(key => key.startsWith('marriage_meetings_')));
+                                        
+                                        // Show data in alert for easy viewing
+                                        const weekKeys = Object.keys(weekData);
+                                        if (weekKeys.length > 0) {
+                                            alert(`Found ${weekKeys.length} weeks of data:\n${weekKeys.join('\n')}`);
+                                        } else {
+                                            alert('No week data found in app state');
+                                        }
+                                    }}
+                                    className="bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600 transition-colors"
+                                    title="Debug: Check current data state"
+                                >
+                                    🐛 Debug
+                                </button>
+                                
+                                {/* Force Reload Data Button */}
+                                <button
+                                    onClick={() => {
+                                        if (user) {
+                                            console.log('🔄 Force reloading data from localStorage...');
+                                            loadAllUserDataFromLocalStorage();
+                                            alert('Data reloaded! Check the console for details.');
+                                        }
+                                    }}
+                                    className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors"
+                                    title="Force reload data from localStorage"
+                                >
+                                    🔄 Reload Data
+                                </button>
                                 
                                 {/* Mobile Save Button */}
                                 {/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) && (
