@@ -149,6 +149,11 @@
             console.log('🎉 Supabase is ready! Notifying app...');
             // Dispatch a custom event to notify the React component
             window.dispatchEvent(new CustomEvent('supabaseReady'));
+            
+            // Also try to force a React re-render by updating a global variable
+            if (window.forceReactUpdate) {
+                window.forceReactUpdate();
+            }
         }
         
         function initializeSupabaseWithRetry() {
@@ -592,10 +597,15 @@
                 'supabase type': typeof supabase,
                 'adminSupabase type': typeof adminSupabase,
                 'window.supabase exists': !!window.supabase,
-                'window.supabase.createClient': typeof window.supabase?.createClient
+                'window.supabase.createClient': typeof window.supabase?.createClient,
+                'window.supabaseReady': window.supabaseReady
             });
             
-            if (!supabase || !adminSupabase) {
+            // More aggressive check - also check if window.supabase is available
+            const isSupabaseAvailable = (supabase && adminSupabase) || 
+                                     (window.supabase && typeof window.supabase.createClient === 'function');
+            
+            if (!isSupabaseAvailable) {
                 console.log('❌ Supabase clients not ready, showing loading screen');
                 return (
                     <div className="min-h-screen flex items-center justify-center bg-white">
@@ -606,6 +616,8 @@
                             <div className="mt-4 text-xs text-gray-400">
                                 <p>supabase: {supabase ? '✅' : '❌'}</p>
                                 <p>adminSupabase: {adminSupabase ? '✅' : '❌'}</p>
+                                <p>window.supabase: {window.supabase ? '✅' : '❌'}</p>
+                                <p>window.supabaseReady: {window.supabaseReady ? '✅' : '❌'}</p>
                             </div>
                         </div>
                     </div>
@@ -1209,7 +1221,7 @@
                 });
             }, [initializeWeekData, user]);
 
-            // Listen for Supabase ready event
+            // Listen for Supabase ready event and also poll for readiness
             useEffect(() => {
                 const handleSupabaseReady = () => {
                     console.log('🎉 Received supabaseReady event, forcing re-render');
@@ -1217,10 +1229,27 @@
                     setAuthLoading(prev => !prev);
                 };
                 
+                // Set up the global force update function
+                window.forceReactUpdate = () => {
+                    console.log('🔄 Global force update called');
+                    setAuthLoading(prev => !prev);
+                };
+                
                 window.addEventListener('supabaseReady', handleSupabaseReady);
+                
+                // Also poll every 100ms to check if Supabase is ready
+                const pollInterval = setInterval(() => {
+                    if (window.supabaseReady && (supabase || adminSupabase)) {
+                        console.log('🔍 Polling detected Supabase is ready, forcing re-render');
+                        clearInterval(pollInterval);
+                        setAuthLoading(prev => !prev);
+                    }
+                }, 100);
                 
                 return () => {
                     window.removeEventListener('supabaseReady', handleSupabaseReady);
+                    clearInterval(pollInterval);
+                    delete window.forceReactUpdate;
                 };
             }, []);
             
