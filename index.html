@@ -1252,10 +1252,24 @@
                 });
             }, [initializeWeekData, user]);
 
-            // Simple effect: just initialize auth when component mounts
+            // Simple effect: check if Supabase is ready and update state
             useEffect(() => {
-                // This will run once when the component mounts
-                console.log('🚀 Component mounted, ready to initialize auth');
+                const checkSupabaseReady = () => {
+                    if (window.supabase && window.adminSupabase) {
+                        console.log('✅ Supabase clients detected, updating state');
+                        setAuthLoading(false);
+                        return true;
+                    }
+                    return false;
+                };
+                
+                // Check immediately
+                if (checkSupabaseReady()) return;
+                
+                // Check every 500ms
+                const interval = setInterval(checkSupabaseReady, 500);
+                
+                return () => clearInterval(interval);
             }, []);
             
             // Initialize authentication
