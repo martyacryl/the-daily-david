@@ -709,6 +709,8 @@
             };
 
             const clearUserData = () => {
+                console.log('🚨 clearUserData called - this should only happen when switching users');
+                // Only clear data when switching between different users, not on signout
                 setUserSpecificData({ weekData: {}, userPreferences: {} });
                 setWeekData({});
             };
@@ -984,9 +986,8 @@
                                 setUser(null);
                                 setIsAdmin(false);
                                 setUserModePreference('user');
-                                setUserSpecificData({ weekData: {}, userPreferences: {} });
-                                setWeekData({});
-                                console.log('🔄 Auth state change: cleared local state');
+                                // DON'T clear weekData here - it will be handled by handleSignOut
+                                console.log('🔄 Auth state change: cleared local state (preserving weekData)');
                             }
                         });
                         
@@ -1007,6 +1008,28 @@
                     loadAllUserDataFromLocalStorage();
                 }
             }, [user]);
+
+            // DEBUG: Monitor when userSpecificData.weekData changes to catch data clearing
+            useEffect(() => {
+                if (user && !isAdmin) {
+                    console.log('🔍 DEBUG: userSpecificData.weekData changed');
+                    console.log('🔍 New weekData keys:', Object.keys(userSpecificData.weekData));
+                    console.log('🔍 WeekData length:', Object.keys(userSpecificData.weekData).length);
+                    
+                    // Check if data was just cleared
+                    if (Object.keys(userSpecificData.weekData).length === 0) {
+                        console.log('🚨 WARNING: weekData was just cleared to empty!');
+                        console.log('🚨 This might indicate a race condition or incorrect clearing');
+                        console.trace('Stack trace for weekData clearing');
+                        
+                        // Try to restore data immediately if it was cleared unexpectedly
+                        setTimeout(() => {
+                            console.log('🚨 Attempting to restore data after unexpected clearing...');
+                            loadAllUserDataFromLocalStorage();
+                        }, 100);
+                    }
+                }
+            }, [userSpecificData.weekData, user, isAdmin]);
 
             // Function to force save all current data (useful for mobile)
             const forceSaveAllData = useCallback(() => {
