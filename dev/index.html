@@ -953,6 +953,17 @@
             const saveDayData = async (dateKey, data) => {
                 if (!user) return false;
                 
+                // DEBUG: Log what data is being saved
+                console.log('💾 DEBUG: saveDayData called with:');
+                console.log('💾 DEBUG: dateKey:', dateKey);
+                console.log('💾 DEBUG: data:', data);
+                console.log('💾 DEBUG: data.gratitude:', data?.gratitude);
+                console.log('💾 DEBUG: data.soap:', data?.soap);
+                console.log('💾 DEBUG: data.gratitude.length:', data?.gratitude?.length);
+                console.log('💾 DEBUG: data.gratitude[0]:', data?.gratitude?.[0]);
+                console.log('💾 DEBUG: data.gratitude[1]:', data?.gratitude?.[1]);
+                console.log('💾 DEBUG: data.soap.scripture:', data?.soap?.scripture);
+                
                 // AGGRESSIVE: Save to localStorage MULTIPLE times with multiple keys
                 const localStorageKey = `dailyDavid_dayData_${user.id}`;
                 const backupKey = `dailyDavid_dayData_backup_${user.id}`;
@@ -962,6 +973,12 @@
                     const existingData = localStorage.getItem(localStorageKey);
                     const parsedData = existingData ? JSON.parse(existingData) : {};
                     parsedData[dateKey] = data;
+                    
+                    // DEBUG: Log what's being saved to localStorage
+                    console.log('💾 DEBUG: Saving to localStorage:');
+                    console.log('💾 DEBUG: parsedData[dateKey]:', parsedData[dateKey]);
+                    console.log('💾 DEBUG: parsedData[dateKey].gratitude:', parsedData[dateKey]?.gratitude);
+                    console.log('💾 DEBUG: parsedData[dateKey].soap:', parsedData[dateKey]?.soap);
                     
                     // Save to primary key
                     localStorage.setItem(localStorageKey, JSON.stringify(parsedData));
@@ -1019,10 +1036,17 @@
 
             // Debounced save - waits 1 second after typing stops
             const debouncedSave = useCallback((dateKey, data) => {
+                console.log('⏰ DEBUG: debouncedSave called with:');
+                console.log('⏰ DEBUG: dateKey:', dateKey);
+                console.log('⏰ DEBUG: data:', data);
+                console.log('⏰ DEBUG: data.gratitude:', data?.gratitude);
+                console.log('⏰ DEBUG: data.soap:', data?.soap);
+                
                 if (saveTimeoutRef.current) {
                     clearTimeout(saveTimeoutRef.current);
                 }
                 saveTimeoutRef.current = setTimeout(() => {
+                    console.log('⏰ DEBUG: debouncedSave timeout fired, calling saveDayData');
                     saveDayData(dateKey, data);
                 }, 1000);
             }, []);
@@ -2654,20 +2678,39 @@
 
             // Update functions
             const updateGratitude = (index, value) => {
+                console.log('🔄 DEBUG: updateGratitude called with:');
+                console.log('🔄 DEBUG: index:', index);
+                console.log('🔄 DEBUG: value:', value);
+                console.log('🔄 DEBUG: currentDate:', currentDate);
+                
                 const dateKey = formatDateKey(currentDate);
+                console.log('🔄 DEBUG: dateKey:', dateKey);
                 
                 // Update the state immediately with the new value
                 setUserSpecificData(prev => {
+                    console.log('🔄 DEBUG: Inside setUserSpecificData callback');
+                    console.log('🔄 DEBUG: prev.dayData[dateKey]:', prev.dayData[dateKey]);
+                    
                     const currentDayData = prev.dayData[dateKey];
-                    if (!currentDayData) return prev;
+                    if (!currentDayData) {
+                        console.log('❌ DEBUG: No currentDayData found for dateKey:', dateKey);
+                        return prev;
+                    }
+                    
+                    console.log('🔄 DEBUG: currentDayData.gratitude:', currentDayData.gratitude);
                     
                     const newData = {
                         ...currentDayData,
                         gratitude: currentDayData.gratitude.map((item, i) => i === index ? value : item)
                     };
                     
+                    console.log('🔄 DEBUG: newData.gratitude:', newData.gratitude);
+                    console.log('🔄 DEBUG: About to call debouncedSave');
+                    
                     // Save to localStorage and database using the SAME newData
                     debouncedSave(dateKey, newData);
+                    
+                    console.log('🔄 DEBUG: debouncedSave called, returning new state');
                     
                     return {
                         ...prev,
@@ -2992,10 +3035,19 @@
             };
 
             const handleInputBlur = (index) => {
+                console.log('📝 DEBUG: handleInputBlur called with:');
+                console.log('📝 DEBUG: index:', index);
+                console.log('📝 DEBUG: localValue:', localInputs[index]);
+                console.log('📝 DEBUG: currentItem:', gratitude[index]);
+                console.log('📝 DEBUG: localValue !== currentItem:', localInputs[index] !== gratitude[index]);
+                
                 const localValue = localInputs[index];
                 const currentItem = gratitude[index];
                 if (localValue !== undefined && currentItem !== localValue) {
+                    console.log('📝 DEBUG: Calling onUpdate with:', index, localValue);
                     onUpdate(index, localValue);
+                } else {
+                    console.log('📝 DEBUG: NOT calling onUpdate - values are the same or undefined');
                 }
             };
 
