@@ -3020,14 +3020,21 @@
 
         // Gratitude Component
         const GratitudeSection = ({ gratitude, onUpdate }) => {
+            console.log('🎨 DEBUG: GratitudeSection rendering with:');
+            console.log('🎨 DEBUG: gratitude:', gratitude);
+            console.log('🎨 DEBUG: onUpdate:', onUpdate);
+            console.log('🎨 DEBUG: gratitude.length:', gratitude?.length);
+            
             const [localInputs, setLocalInputs] = useState({});
 
             useEffect(() => {
+                console.log('🎨 DEBUG: GratitudeSection useEffect running');
                 const newLocalInputs = {};
                 gratitude.forEach((item, index) => {
                     newLocalInputs[index] = item;
                 });
                 setLocalInputs(newLocalInputs);
+                console.log('🎨 DEBUG: localInputs set to:', newLocalInputs);
             }, [gratitude]);
 
             const handleInputChange = (index, value) => {
