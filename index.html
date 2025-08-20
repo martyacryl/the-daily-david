@@ -459,6 +459,7 @@
 
             // Authentication and data management functions
             const handleSignIn = async (userData) => {
+                console.log('🔐 handleSignIn called for user:', userData.email);
                 setUser(userData);
                 setIsAdmin(false);
                 setUserModePreference('user');
@@ -495,6 +496,10 @@
                 } catch (syncError) {
                     console.log('Supabase sync error (non-critical):', syncError);
                 }
+                
+                // CRITICAL: Set loading to false after sign-in is complete
+                console.log('🔐 handleSignIn complete, setting isLoading to false');
+                setIsLoading(false);
             };
 
             const handleAdminSignIn = async (userData) => {
@@ -600,6 +605,8 @@
                         key.startsWith(`marriage_meetings_${userId}_`)
                     );
                     
+                    console.log(`🔍 Found localStorage keys:`, localStorageKeys);
+                    
                     if (localStorageKeys.length > 0) {
                         console.log(`📊 Found ${localStorageKeys.length} weeks of data in localStorage`);
                         
@@ -609,11 +616,14 @@
                             try {
                                 const data = JSON.parse(localStorage.getItem(key));
                                 loadedWeekData[weekKey] = data;
-                                console.log(`✅ Loaded week from localStorage: ${weekKey}`);
+                                console.log(`✅ Loaded week from localStorage: ${weekKey}`, data);
                             } catch (parseError) {
                                 console.error(`❌ Error parsing localStorage data for week ${weekKey}:`, parseError);
                             }
                         });
+                        
+                        console.log(`📊 Final loaded week data:`, loadedWeekData);
+                        console.log(`📊 Week keys:`, Object.keys(loadedWeekData));
                         
                         // Update both states immediately
                         setUserSpecificData(prev => ({
@@ -648,6 +658,12 @@
                                 
                                 if (adminError) {
                                     console.log('Service role key also failed for user data:', adminError);
+                                    // Set empty state and continue
+                                    setUserSpecificData(prev => ({
+                                        ...prev,
+                                        weekData: {}
+                                    }));
+                                    setWeekData({});
                                     return;
                                 }
                                 
@@ -674,6 +690,14 @@
                                     return;
                                 }
                             }
+                            
+                            // If we get here, no data was found anywhere
+                            console.log('📭 No data found in localStorage or Supabase, setting empty state');
+                            setUserSpecificData(prev => ({
+                                ...prev,
+                                weekData: {}
+                            }));
+                            setWeekData({});
                             return;
                         }
 
@@ -958,15 +982,24 @@
             useEffect(() => {
                 const initializeAuth = async () => {
                     try {
+                        console.log('🔐 Starting auth initialization...');
+                        
                         // Check for existing session
                         const { data: { session } } = await supabase.auth.getSession();
+                        console.log('🔐 Session check result:', !!session?.user);
+                        
                         if (session?.user) {
+                            console.log('🔐 Found existing session for user:', session.user.email);
                             const isUserAdmin = session.user.user_metadata?.is_admin === true;
                             if (isUserAdmin) {
+                                console.log('🔐 User is admin, calling handleAdminSignIn');
                                 await handleAdminSignIn(session.user);
                             } else {
+                                console.log('🔐 User is regular user, calling handleSignIn');
                                 await handleSignIn(session.user);
                             }
+                        } else {
+                            console.log('🔐 No existing session found');
                         }
                         
                         // Listen for auth changes
@@ -991,20 +1024,43 @@
                             }
                         });
                         
+                        console.log('🔐 Auth initialization complete, setting authLoading to false');
                         setAuthLoading(false);
                         return () => subscription.unsubscribe();
                     } catch (error) {
-                        console.error('Auth initialization error:', error);
+                        console.error('❌ Auth initialization error:', error);
+                        console.log('🔐 Setting authLoading to false due to error');
                         setAuthLoading(false);
                     }
                 };
                 
-                initializeAuth();
+                // Add timeout to prevent infinite loading
+                const authTimeout = setTimeout(() => {
+                    console.log('⏰ Auth initialization timeout - forcing authLoading to false');
+                    setAuthLoading(false);
+                }, 10000); // 10 second timeout
+                
+                initializeAuth().finally(() => {
+                    clearTimeout(authTimeout);
+                });
             }, []);
 
             // Load all user data from localStorage when user changes
             useEffect(() => {
                 if (user) {
+                    console.log('🔄 User changed, loading data from localStorage...');
+                    console.log('🔄 User ID:', user.id);
+                    console.log('🔄 User email:', user.email);
+                    
+                    // Debug: Check what's actually in localStorage
+                    console.log('🔍 DEBUG: All localStorage keys:');
+                    for (let i = 0; i < localStorage.length; i++) {
+                        const key = localStorage.key(i);
+                        if (key && key.includes('marriage_meetings')) {
+                            console.log('  ', key, ':', localStorage.getItem(key)?.substring(0, 100) + '...');
+                        }
+                    }
+                    
                     loadAllUserDataFromLocalStorage();
                 }
             }, [user]);
