@@ -465,10 +465,14 @@
         );
 
         // Landing Page Component
-        const LandingPage = ({ weeklyGoals, monthlyGoals, toggleGoal, addGoal, removeGoal, getWeeklyProgress, getMonthlyProgress, getDaysCompletedThisWeek, setCurrentView }) => {
+        const LandingPage = ({ weeklyGoals, monthlyGoals, toggleGoal, addGoal, removeGoal, updateGoal, getWeeklyProgress, getMonthlyProgress, getDaysCompletedThisWeek, setCurrentView }) => {
             const [newGoalText, setNewGoalText] = useState('');
             const [newGoalCategory, setNewGoalCategory] = useState('spiritual');
             const [showAddGoal, setShowAddGoal] = useState(false);
+            const [editingWeeklyGoal, setEditingWeeklyGoal] = useState(null);
+            const [editingMonthlyGoal, setEditingMonthlyGoal] = useState(null);
+            const [editWeeklyForm, setEditWeeklyForm] = useState({ text: '', category: 'spiritual' });
+            const [editMonthlyForm, setEditMonthlyForm] = useState({ text: '', category: 'spiritual' });
 
             // Icon components for the landing page
             const TrashIcon = () => (
@@ -555,23 +559,81 @@
                                     >
                                         {goal.completed && '✓'}
                                     </button>
-                                    <span className={`flex-1 ${goal.completed ? 'line-through text-gray-500' : ''}`}>
-                                        {goal.text}
-                                    </span>
-                                    <span className={`px-2 py-1 text-xs rounded-full ${
-                                        goal.category === 'spiritual' ? 'bg-blue-100 text-blue-800' :
-                                        goal.category === 'personal' ? 'bg-green-100 text-green-800' :
-                                        'bg-purple-100 text-purple-800'
-                                    }`}>
-                                        {goal.category}
-                                    </span>
-                                    <button
-                                        onClick={() => removeGoal('weekly', goal.id)}
-                                        className="opacity-0 group-hover:opacity-100 text-red-500 hover:text-red-700 p-2 rounded-full hover:bg-red-50 transition-all duration-200"
-                                        title="Remove goal"
-                                    >
-                                        <TrashIcon />
-                                    </button>
+                                    {editingWeeklyGoal === goal.id ? (
+                                        // Edit Mode
+                                        <div className="flex-1 flex space-x-2">
+                                            <input
+                                                type="text"
+                                                value={editWeeklyForm.text}
+                                                onChange={(e) => setEditWeeklyForm(prev => ({ ...prev, text: e.target.value }))}
+                                                className="flex-1 px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-primary"
+                                                placeholder="Enter goal text..."
+                                            />
+                                            <select
+                                                value={editWeeklyForm.category}
+                                                onChange={(e) => setEditWeeklyForm(prev => ({ ...prev, category: e.target.value }))}
+                                                className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-primary"
+                                            >
+                                                <option value="spiritual">Spiritual</option>
+                                                <option value="personal">Personal</option>
+                                                <option value="outreach">Outreach</option>
+                                                <option value="health">Health</option>
+                                                <option value="work">Work</option>
+                                            </select>
+                                            <button
+                                                onClick={() => {
+                                                    updateGoal('weekly', goal.id, editWeeklyForm.text, editWeeklyForm.category);
+                                                    setEditingWeeklyGoal(null);
+                                                    setEditWeeklyForm({ text: '', category: 'spiritual' });
+                                                }}
+                                                className="px-2 py-1 text-xs bg-green-500 text-white rounded hover:bg-green-600"
+                                            >
+                                                Save
+                                            </button>
+                                            <button
+                                                onClick={() => {
+                                                    setEditingWeeklyGoal(null);
+                                                    setEditWeeklyForm({ text: '', category: 'spiritual' });
+                                                }}
+                                                className="px-2 py-1 text-xs bg-gray-500 text-white rounded hover:bg-gray-600"
+                                            >
+                                                Cancel
+                                            </button>
+                                        </div>
+                                    ) : (
+                                        // Display Mode
+                                        <>
+                                            <span className={`flex-1 ${goal.completed ? 'line-through text-gray-500' : ''}`}>
+                                                {goal.text}
+                                            </span>
+                                            <span className={`px-2 py-1 text-xs rounded-full ${
+                                                goal.category === 'spiritual' ? 'bg-blue-100 text-blue-800' :
+                                                goal.category === 'personal' ? 'bg-green-100 text-green-800' :
+                                                'bg-purple-100 text-purple-800'
+                                            }`}>
+                                                {goal.category}
+                                            </span>
+                                        </>
+                                    )}
+                                    <div className="flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <button
+                                            onClick={() => {
+                                                setEditingWeeklyGoal(goal.id);
+                                                setEditWeeklyForm({ text: goal.text, category: goal.category || 'spiritual' });
+                                            }}
+                                            className="text-blue-500 hover:text-blue-700 p-1 rounded-full hover:bg-blue-50"
+                                            title="Edit goal"
+                                        >
+                                            ✏️
+                                        </button>
+                                        <button
+                                            onClick={() => removeGoal('weekly', goal.id)}
+                                            className="text-red-500 hover:text-red-700 p-1 rounded-full hover:bg-red-50"
+                                            title="Remove goal"
+                                        >
+                                            <TrashIcon />
+                                        </button>
+                                    </div>
                                 </div>
                             ))}
                         </div>
@@ -653,23 +715,81 @@
                                     >
                                         {goal.completed && '✓'}
                                     </button>
-                                    <span className={`flex-1 ${goal.completed ? 'line-through text-gray-500' : ''}`}>
-                                        {goal.text}
-                                    </span>
-                                    <span className={`px-2 py-1 text-xs rounded-full ${
-                                        goal.category === 'spiritual' ? 'bg-blue-100 text-blue-800' :
-                                        goal.category === 'personal' ? 'bg-green-100 text-green-800' :
-                                        'bg-purple-100 text-purple-800'
-                                    }`}>
-                                        {goal.category}
-                                    </span>
-                                    <button
-                                        onClick={() => removeGoal('monthly', goal.id)}
-                                        className="opacity-0 group-hover:opacity-100 text-red-500 hover:text-red-700 p-2 rounded-full hover:bg-red-50 transition-all duration-200"
-                                        title="Remove goal"
-                                    >
-                                        <TrashIcon />
-                                    </button>
+                                    {editingMonthlyGoal === goal.id ? (
+                                        // Edit Mode
+                                        <div className="flex-1 flex space-x-2">
+                                            <input
+                                                type="text"
+                                                value={editMonthlyForm.text}
+                                                onChange={(e) => setEditMonthlyForm(prev => ({ ...prev, text: e.target.value }))}
+                                                className="flex-1 px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-primary"
+                                                placeholder="Enter goal text..."
+                                            />
+                                            <select
+                                                value={editMonthlyForm.category}
+                                                onChange={(e) => setEditMonthlyForm(prev => ({ ...prev, category: e.target.value }))}
+                                                className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-primary"
+                                            >
+                                                <option value="spiritual">Spiritual</option>
+                                                <option value="personal">Personal</option>
+                                                <option value="outreach">Outreach</option>
+                                                <option value="health">Health</option>
+                                                <option value="work">Work</option>
+                                            </select>
+                                            <button
+                                                onClick={() => {
+                                                    updateGoal('monthly', goal.id, editMonthlyForm.text, editMonthlyForm.category);
+                                                    setEditingMonthlyGoal(null);
+                                                    setEditMonthlyForm({ text: '', category: 'spiritual' });
+                                                }}
+                                                className="px-2 py-1 text-xs bg-green-500 text-white rounded hover:bg-green-600"
+                                            >
+                                                Save
+                                            </button>
+                                            <button
+                                                onClick={() => {
+                                                    setEditingMonthlyGoal(null);
+                                                    setEditMonthlyForm({ text: '', category: 'spiritual' });
+                                                }}
+                                                className="px-2 py-1 text-xs bg-gray-500 text-white rounded hover:bg-gray-600"
+                                            >
+                                                Cancel
+                                            </button>
+                                        </div>
+                                    ) : (
+                                        // Display Mode
+                                        <>
+                                            <span className={`flex-1 ${goal.completed ? 'line-through text-gray-500' : ''}`}>
+                                                {goal.text}
+                                            </span>
+                                            <span className={`px-2 py-1 text-xs rounded-full ${
+                                                goal.category === 'spiritual' ? 'bg-blue-100 text-blue-800' :
+                                                goal.category === 'personal' ? 'bg-green-100 text-green-800' :
+                                                'bg-purple-100 text-purple-800'
+                                            }`}>
+                                                {goal.category}
+                                            </span>
+                                        </>
+                                    )}
+                                    <div className="flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <button
+                                            onClick={() => {
+                                                setEditingMonthlyGoal(goal.id);
+                                                setEditMonthlyForm({ text: goal.text, category: goal.category || 'spiritual' });
+                                            }}
+                                            className="text-blue-500 hover:text-blue-700 p-1 rounded-full hover:bg-blue-50"
+                                            title="Edit goal"
+                                            >
+                                            ✏️
+                                        </button>
+                                        <button
+                                            onClick={() => removeGoal('monthly', goal.id)}
+                                            className="text-red-500 hover:text-red-700 p-1 rounded-full hover:bg-red-50"
+                                            title="Remove goal"
+                                        >
+                                            <TrashIcon />
+                                        </button>
+                                    </div>
                                 </div>
                             ))}
                         </div>
@@ -844,29 +964,84 @@
                 setCurrentDate(new Date());
             };
 
+            // Function to save goals to database
+            const saveGoals = async (weeklyGoals, monthlyGoals) => {
+                if (!user) return false;
+                
+                try {
+                    const goalsData = {
+                        weeklyGoals: weeklyGoals,
+                        monthlyGoals: monthlyGoals,
+                        lastUpdated: new Date().toISOString()
+                    };
+                    
+                    const { error } = await supabase
+                        .from(DEV_TABLE_NAME)
+                        .upsert({
+                            date_key: 'user_goals',
+                            user_id: user.id,
+                            data: goalsData
+                        }, {
+                            onConflict: 'date_key,user_id'
+                        });
+
+                    if (error) {
+                        console.log('Save goals error:', error);
+                        return false;
+                    }
+
+                    console.log('Goals saved successfully');
+                    return true;
+                } catch (error) {
+                    console.log('Save goals error:', error);
+                    return false;
+                }
+            };
+
             // Function to load user-specific data
             const loadUserSpecificData = async (userId) => {
                 try {
                     console.log('Loading user-specific data for:', userId);
                     
-                    // Load user's goals and preferences from database
-                    // For now, we'll use default goals, but this could be extended to load from user profile
-                    const defaultWeeklyGoals = [
-                        { id: 1, text: 'Complete 5 SOAP studies this week', completed: false, category: 'spiritual' },
-                        { id: 2, text: 'Practice gratitude daily', completed: false, category: 'personal' },
-                        { id: 3, text: 'Read 3 chapters of scripture', completed: false, category: 'spiritual' }
-                    ];
+                    // Try to load saved goals from database
+                    const { data: goalsData, error } = await supabase
+                        .from(DEV_TABLE_NAME)
+                        .select('data')
+                        .eq('date_key', 'user_goals')
+                        .eq('user_id', userId)
+                        .single();
+
+                    if (error && error.code !== 'PGRST116') { // PGRST116 = no rows returned
+                        console.error('Error loading goals:', error);
+                    }
+
+                    let weeklyGoals, monthlyGoals;
                     
-                    const defaultMonthlyGoals = [
-                        { id: 1, text: 'Establish daily prayer routine', completed: false, category: 'spiritual' },
-                        { id: 2, text: 'Complete 20 SOAP studies', completed: false, category: 'spiritual' },
-                        { id: 3, text: 'Share faith with 2 people', completed: false, category: 'outreach' }
-                    ];
+                    if (goalsData && goalsData.data) {
+                        // Use saved goals from database
+                        weeklyGoals = goalsData.data.weeklyGoals || [];
+                        monthlyGoals = goalsData.data.monthlyGoals || [];
+                        console.log('Loaded saved goals from database');
+                    } else {
+                        // Use default goals if no saved goals found
+                        weeklyGoals = [
+                            { id: 1, text: 'Complete 5 SOAP studies this week', completed: false, category: 'spiritual' },
+                            { id: 2, text: 'Practice gratitude daily', completed: false, category: 'personal' },
+                            { id: 3, text: 'Read 3 chapters of scripture', completed: false, category: 'spiritual' }
+                        ];
+                        
+                        monthlyGoals = [
+                            { id: 1, text: 'Establish daily prayer routine', completed: false, category: 'spiritual' },
+                            { id: 2, text: 'Complete 20 SOAP studies', completed: false, category: 'spiritual' },
+                            { id: 3, text: 'Share faith with 2 people', completed: false, category: 'outreach' }
+                        ];
+                        console.log('Using default goals');
+                    }
                     
                     setUserSpecificData(prev => ({
                         ...prev,
-                        weeklyGoals: defaultWeeklyGoals,
-                        monthlyGoals: defaultMonthlyGoals
+                        weeklyGoals: weeklyGoals,
+                        monthlyGoals: monthlyGoals
                     }));
                     
                     console.log('User-specific data loaded');
@@ -886,10 +1061,16 @@
 
             const handleAdminSignIn = async (userData) => {
                 console.log('Admin signing in:', userData.email);
-                clearUserData(); // Clear any previous user's data
                 setUser(userData);
                 setIsAdmin(true);
-                // Don't load user-specific data for admin (they don't need it)
+                
+                // Check if admin was previously in user mode and restore their data
+                const savedMode = localStorage.getItem('dailyDavidMode');
+                if (savedMode === 'user') {
+                    setUserModePreference('user');
+                    // Load their saved user mode data
+                    await loadUserSpecificData(userData.id);
+                }
             };
 
             // Function to switch admin to user mode without clearing data
@@ -998,25 +1179,35 @@
             };
 
             // Goal management functions
-            const toggleGoal = (goalType, goalId) => {
+            const toggleGoal = async (goalType, goalId) => {
                 if (goalType === 'weekly') {
-                    setUserSpecificData(prev => ({
-                        ...prev,
-                        weeklyGoals: prev.weeklyGoals.map(goal => 
+                    setUserSpecificData(prev => {
+                        const newWeeklyGoals = prev.weeklyGoals.map(goal => 
                             goal.id === goalId ? { ...goal, completed: !goal.completed } : goal
-                        )
-                    }));
+                        );
+                        // Save to database
+                        saveGoals(newWeeklyGoals, prev.monthlyGoals);
+                        return {
+                            ...prev,
+                            weeklyGoals: newWeeklyGoals
+                        };
+                    });
                 } else {
-                    setUserSpecificData(prev => ({
-                        ...prev,
-                        monthlyGoals: prev.monthlyGoals.map(goal => 
+                    setUserSpecificData(prev => {
+                        const newMonthlyGoals = prev.monthlyGoals.map(goal => 
                             goal.id === goalId ? { ...goal, completed: !goal.completed } : goal
-                        )
-                    }));
+                        );
+                        // Save to database
+                        saveGoals(prev.weeklyGoals, newMonthlyGoals);
+                        return {
+                            ...prev,
+                            monthlyGoals: newMonthlyGoals
+                        };
+                    });
                 }
             };
 
-            const addGoal = (goalType, text, category) => {
+            const addGoal = async (goalType, text, category) => {
                 const newGoal = {
                     id: Date.now(),
                     text,
@@ -1025,29 +1216,77 @@
                 };
                 
                 if (goalType === 'weekly') {
-                    setUserSpecificData(prev => ({
-                        ...prev,
-                        weeklyGoals: [...prev.weeklyGoals, newGoal]
-                    }));
+                    setUserSpecificData(prev => {
+                        const newWeeklyGoals = [...prev.weeklyGoals, newGoal];
+                        // Save to database
+                        saveGoals(newWeeklyGoals, prev.monthlyGoals);
+                        return {
+                            ...prev,
+                            weeklyGoals: newWeeklyGoals
+                        };
+                    });
                 } else {
-                    setUserSpecificData(prev => ({
-                        ...prev,
-                        monthlyGoals: [...prev.monthlyGoals, newGoal]
-                    }));
+                    setUserSpecificData(prev => {
+                        const newMonthlyGoals = [...prev.monthlyGoals, newGoal];
+                        // Save to database
+                        saveGoals(prev.weeklyGoals, newMonthlyGoals);
+                        return {
+                            ...prev,
+                            monthlyGoals: newMonthlyGoals
+                        };
+                    });
                 }
             };
 
-            const removeGoal = (goalType, goalId) => {
+            const removeGoal = async (goalType, goalId) => {
                 if (goalType === 'weekly') {
-                    setUserSpecificData(prev => ({
-                        ...prev,
-                        weeklyGoals: prev.weeklyGoals.filter(goal => goal.id !== goalId)
-                    }));
+                    setUserSpecificData(prev => {
+                        const newWeeklyGoals = prev.weeklyGoals.filter(goal => goal.id !== goalId);
+                        // Save to database
+                        saveGoals(newWeeklyGoals, prev.monthlyGoals);
+                        return {
+                            ...prev,
+                            weeklyGoals: newWeeklyGoals
+                        };
+                    });
                 } else {
-                    setUserSpecificData(prev => ({
-                        ...prev,
-                        monthlyGoals: prev.monthlyGoals.filter(goal => goal.id !== goalId)
-                    }));
+                    setUserSpecificData(prev => {
+                        const newMonthlyGoals = prev.monthlyGoals.filter(goal => goal.id !== goalId);
+                        // Save to database
+                        saveGoals(prev.weeklyGoals, newMonthlyGoals);
+                        return {
+                            ...prev,
+                            monthlyGoals: newMonthlyGoals
+                        };
+                    });
+                }
+            };
+
+            const updateGoal = async (goalType, goalId, newText, newCategory) => {
+                if (goalType === 'weekly') {
+                    setUserSpecificData(prev => {
+                        const newWeeklyGoals = prev.weeklyGoals.map(goal => 
+                            goal.id === goalId ? { ...goal, text: newText, category: newCategory } : goal
+                        );
+                        // Save to database
+                        saveGoals(newWeeklyGoals, prev.monthlyGoals);
+                        return {
+                            ...prev,
+                            weeklyGoals: newWeeklyGoals
+                        };
+                    });
+                } else {
+                    setUserSpecificData(prev => {
+                        const newMonthlyGoals = prev.monthlyGoals.map(goal => 
+                            goal.id === goalId ? { ...goal, text: newText, category: newCategory } : goal
+                        );
+                        // Save to database
+                        saveGoals(prev.weeklyGoals, newMonthlyGoals);
+                        return {
+                            ...prev,
+                            monthlyGoals: newMonthlyGoals
+                        };
+                    });
                 }
             };
 
@@ -1471,6 +1710,7 @@
                             toggleGoal={toggleGoal}
                             addGoal={addGoal}
                             removeGoal={removeGoal}
+                            updateGoal={updateGoal}
                             getWeeklyProgress={getWeeklyProgress}
                             getMonthlyProgress={getMonthlyProgress}
                             getDaysCompletedThisWeek={getDaysCompletedThisWeek}
