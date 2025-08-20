@@ -2434,10 +2434,57 @@
                 const dateKey = formatDateKey(currentDate);
                 const existingData = userSpecificData.dayData[dateKey];
                 
+                // DEBUG: Log what's happening in currentDayData calculation
+                console.log('🔍 currentDayData useMemo running:');
+                console.log('🔍 Date key:', dateKey);
+                console.log('🔍 Existing data found:', !!existingData);
+                console.log('🔍 userSpecificData.dayData keys:', Object.keys(userSpecificData.dayData));
+                
                 if (existingData) {
+                    console.log('🔍 Returning existing data for date:', dateKey);
                     return existingData;
                 }
                 
+                // Check if we should have data but it's missing
+                if (Object.keys(userSpecificData.dayData).length > 0) {
+                    console.log('🚨 WARNING: Data exists in userSpecificData but not for this date');
+                    console.log('🚨 Available dates:', Object.keys(userSpecificData.dayData));
+                    console.log('🚨 Requested date:', dateKey);
+                    
+                    // Try to restore data if it's missing for this specific date
+                    if (user && !isAdmin) {
+                        const dayDataKey = `dailyDavid_dayData_${user.id}`;
+                        const backupKey = `dailyDavid_dayData_backup_${user.id}`;
+                        const emergencyKey = `dailyDavid_dayData_emergency_${user.id}`;
+                        
+                        const dayDataRaw = localStorage.getItem(dayDataKey);
+                        const backupData = localStorage.getItem(backupKey);
+                        const emergencyData = localStorage.getItem(emergencyKey);
+                        
+                        if (dayDataRaw || backupData || emergencyData) {
+                            console.log('🚨 Attempting to restore missing date data...');
+                            
+                            let dayData = {};
+                            if (dayDataRaw) {
+                                try {
+                                    dayData = JSON.parse(dayDataRaw);
+                                    if (dayData[dateKey]) {
+                                        console.log('🚨 Found data for date in localStorage, updating state');
+                                        debugSetUserSpecificData(prev => ({
+                                            ...prev,
+                                            dayData: { ...prev.dayData, [dateKey]: dayData[dateKey] }
+                                        }));
+                                        return dayData[dateKey];
+                                    }
+                                } catch (error) {
+                                    console.error('❌ Error parsing day data:', error);
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                console.log('🔍 Returning default structure for date:', dateKey);
                 // Return default structure if no data exists
                 return {
                     gratitude: ['', '', '', '', ''],
@@ -2453,7 +2500,7 @@
                         monthly: []
                     }
                 };
-            }, [currentDate, userSpecificData.dayData]);
+            }, [currentDate, userSpecificData.dayData, user, isAdmin]);
 
             // Update functions
             const updateGratitude = (index, value) => {
