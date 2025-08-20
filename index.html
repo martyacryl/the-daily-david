@@ -467,34 +467,85 @@
                 // Load user-specific data from localStorage first (fastest)
                 await loadUserSpecificData(userData.id);
                 
-                // Also try to sync with Supabase to get any newer data
+                // CRITICAL: Always try to sync with Supabase to get cross-device data
                 try {
-                    console.log('🔄 Syncing with Supabase for any newer data...');
-                    const { data, error } = await supabase
+                    console.log('🔄 CRITICAL: Syncing with Supabase for cross-device data...');
+                    
+                    // Try with RLS first
+                    let { data, error } = await supabase
                         .from(TABLE_NAME)
                         .select('*')
                         .eq('user_id', userData.id);
                     
-                    if (!error && data && data.length > 0) {
-                        console.log(`🌐 Found ${data.length} weeks in Supabase, checking for updates...`);
+                    // If RLS fails, try with service role key for admin access
+                    if (error && USE_SERVICE_ROLE_KEY) {
+                        console.log('🔄 RLS failed, trying with service role key for cross-device sync...');
+                        const { data: adminData, error: adminError } = await supabase
+                            .from(TABLE_NAME)
+                            .select('*')
+                            .eq('user_id', userData.id);
                         
-                        // Check if Supabase has newer data than localStorage
+                        if (!adminError && adminData) {
+                            data = adminData;
+                            error = null;
+                            console.log('✅ Service role key worked for cross-device sync');
+                        }
+                    }
+                    
+                    if (!error && data && data.length > 0) {
+                        console.log(`🌐 Found ${data.length} weeks in Supabase for cross-device sync`);
+                        
+                        let hasNewData = false;
+                        
+                        // Always sync Supabase data to localStorage for cross-device access
                         data.forEach(row => {
                             const localStorageKey = `marriage_meetings_${userData.id}_${row.week_key}`;
                             const localData = localStorage.getItem(localStorageKey);
                             
-                            if (!localData || new Date(row.updated_at) > new Date(JSON.parse(localData).updated_at || 0)) {
-                                // Supabase has newer data, update localStorage
+                            // Check if we need to update localStorage
+                            if (!localData) {
+                                // No local data, definitely sync from Supabase
                                 localStorage.setItem(localStorageKey, JSON.stringify(row.data));
-                                console.log(`💾 Updated localStorage with newer Supabase data for week: ${row.week_key}`);
+                                console.log(`💾 SYNCED: Week ${row.week_key} from Supabase to localStorage (new data)`);
+                                hasNewData = true;
+                            } else {
+                                try {
+                                    const parsedLocal = JSON.parse(localData);
+                                    const localUpdatedAt = parsedLocal.updated_at || 0;
+                                    const supabaseUpdatedAt = new Date(row.updated_at || 0).getTime();
+                                    
+                                    if (supabaseUpdatedAt > localUpdatedAt) {
+                                        // Supabase has newer data, update localStorage
+                                        localStorage.setItem(localStorageKey, JSON.stringify(row.data));
+                                        console.log(`💾 SYNCED: Week ${row.week_key} from Supabase to localStorage (newer data)`);
+                                        hasNewData = true;
+                                    } else {
+                                        console.log(`✅ Week ${row.week_key} already up to date`);
+                                    }
+                                } catch (parseError) {
+                                    // Local data corrupted, sync from Supabase
+                                    localStorage.setItem(localStorageKey, JSON.stringify(row.data));
+                                    console.log(`💾 SYNCED: Week ${row.week_key} from Supabase to localStorage (corrupted local data)`);
+                                    hasNewData = true;
+                                }
                             }
                         });
                         
-                        // Reload data from localStorage to get any updates
-                        await loadUserSpecificData(userData.id);
+                        if (hasNewData) {
+                            console.log('🔄 Reloading data after Supabase sync...');
+                            await loadUserSpecificData(userData.id);
+                        } else {
+                            console.log('✅ No new data to sync from Supabase');
+                        }
+                    } else if (error) {
+                        console.log('❌ Supabase sync failed:', error);
+                        console.log('📱 Your phone may not have access to data created on other devices');
+                    } else {
+                        console.log('📭 No data found in Supabase for cross-device sync');
                     }
                 } catch (syncError) {
-                    console.log('Supabase sync error (non-critical):', syncError);
+                    console.error('❌ CRITICAL: Supabase sync error:', syncError);
+                    console.log('📱 Cross-device sync failed - your phone may not see data from other devices');
                 }
                 
                 // CRITICAL: Set loading to false after sign-in is complete
@@ -1710,6 +1761,63 @@
                                     title="Force reload data from localStorage"
                                 >
                                     🔄 Reload Data
+                                </button>
+
+                                {/* Force Sync with Supabase Button */}
+                                <button
+                                    onClick={async () => {
+                                        if (user) {
+                                            console.log('🌐 Force syncing with Supabase for cross-device data...');
+                                            try {
+                                                // Try with RLS first
+                                                let { data, error } = await supabase
+                                                    .from(TABLE_NAME)
+                                                    .select('*')
+                                                    .eq('user_id', user.id);
+                                                
+                                                // If RLS fails, try with service role key
+                                                if (error && USE_SERVICE_ROLE_KEY) {
+                                                    console.log('🔄 RLS failed, trying with service role key...');
+                                                    const { data: adminData, error: adminError } = await supabase
+                                                        .from(TABLE_NAME)
+                                                        .select('*')
+                                                        .eq('user_id', user.id);
+                                                    
+                                                    if (!adminError && adminData) {
+                                                        data = adminData;
+                                                        error = null;
+                                                    }
+                                                }
+                                                
+                                                if (!error && data && data.length > 0) {
+                                                    console.log(`🌐 Found ${data.length} weeks in Supabase, syncing...`);
+                                                    
+                                                    let syncedCount = 0;
+                                                    data.forEach(row => {
+                                                        const localStorageKey = `marriage_meetings_${user.id}_${row.week_key}`;
+                                                        localStorage.setItem(localStorageKey, JSON.stringify(row.data));
+                                                        syncedCount++;
+                                                    });
+                                                    
+                                                    // Reload data after sync
+                                                    await loadAllUserDataFromLocalStorage();
+                                                    
+                                                    alert(`✅ Synced ${syncedCount} weeks from Supabase! Your phone should now show all data.`);
+                                                } else if (error) {
+                                                    alert(`❌ Sync failed: ${error.message}\n\nYour phone may not have access to data from other devices.`);
+                                                } else {
+                                                    alert('📭 No data found in Supabase to sync.');
+                                                }
+                                            } catch (syncError) {
+                                                console.error('❌ Manual sync error:', syncError);
+                                                alert(`❌ Manual sync failed: ${syncError.message}`);
+                                            }
+                                        }
+                                    }}
+                                    className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors"
+                                    title="Force sync with Supabase for cross-device data"
+                                >
+                                    🌐 Sync Cloud
                                 </button>
                                 
                                 {/* Mobile Save Button */}
