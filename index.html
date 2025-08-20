@@ -67,7 +67,7 @@
         // Choose your key type:
         // - anon key: Safe for users, limited admin functions
         // - service_role key: Full admin access (get from Supabase Dashboard → Settings → API)
-        const USE_SERVICE_ROLE_KEY = false; // Set to true to enable admin functions
+        const USE_SERVICE_ROLE_KEY = true; // Set to true to enable admin functions
         
         const anonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdrbWNsemxncmNtcW9jZm94a3VpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU2MDYzNzEsImV4cCI6MjA3MTE4MjM3MX0.ovOR0iMGao5qvrAThrx8KucLyTctiRkVbNJvYdPEyk0';
         
@@ -481,8 +481,8 @@
                     console.error('Error loading from localStorage:', error);
                 }
                 
-                // If no localStorage data, try database
-                console.log('No localStorage data, trying database');
+                // If no localStorage data, try database with service role access
+                console.log('No localStorage data, trying database with service role');
                 try {
                     const { data, error } = await supabase
                         .from(TABLE_NAME)
@@ -528,6 +528,7 @@
                 }
                 
                 try {
+                    // Use service role access for simple database operations
                     const { error } = await supabase
                         .from(TABLE_NAME)
                         .upsert({
