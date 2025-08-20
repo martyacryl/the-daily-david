@@ -75,7 +75,7 @@
     <div id="root"></div>
 
     <script type="text/babel">
-        const { useState, useEffect, useCallback, useRef } = React;
+        const { useState, useEffect, useCallback, useRef, useMemo } = React;
 
         // Initialize Supabase - DEV ENVIRONMENT with Auth
         const supabaseUrl = 'https://gkmclzlgrcmqocfoxkui.supabase.co';
@@ -1683,20 +1683,38 @@
                 };
             }, []);
 
-            const currentDayData = userSpecificData.dayData[formatDateKey(currentDate)] || {
-                gratitude: ['', '', '', '', ''],
-                soap: {
-                    scripture: '',
-                    observation: '',
-                    application: '',
-                    prayer: ''
-                },
-                goals: {
-                    daily: [],
-                    weekly: [],
-                    monthly: []
+            // Debug: Log when view changes
+            useEffect(() => {
+                console.log('🔄 View changed to:', currentView);
+                console.log('📅 Current date:', formatDateKey(currentDate));
+                console.log('📊 Current day data:', currentDayData);
+            }, [currentView, currentDate, currentDayData]);
+
+            // Use useMemo to properly calculate currentDayData based on current state
+            const currentDayData = useMemo(() => {
+                const dateKey = formatDateKey(currentDate);
+                const existingData = userSpecificData.dayData[dateKey];
+                
+                if (existingData) {
+                    return existingData;
                 }
-            };
+                
+                // Return default structure if no data exists
+                return {
+                    gratitude: ['', '', '', '', ''],
+                    soap: {
+                        scripture: '',
+                        observation: '',
+                        application: '',
+                        prayer: ''
+                    },
+                    goals: {
+                        daily: [],
+                        weekly: [],
+                        monthly: []
+                    }
+                };
+            }, [currentDate, userSpecificData.dayData]);
 
             // Update functions
             const updateGratitude = (index, value) => {
