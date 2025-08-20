@@ -1374,7 +1374,13 @@
                 const goalIndex = updatedDayData.goals[goalType].findIndex(g => g.id === goalId);
                 
                 if (goalIndex !== -1) {
-                    updatedDayData.goals[goalType][goalIndex].completed = !updatedDayData.goals[goalType][goalIndex].completed;
+                    const newCompletedStatus = !updatedDayData.goals[goalType][goalIndex].completed;
+                    updatedDayData.goals[goalType][goalIndex].completed = newCompletedStatus;
+                    
+                    // For weekly/monthly goals, sync completion status across all days in same week/month
+                    if (goalType === 'weekly' || goalType === 'monthly') {
+                        await syncGoalCompletionAcrossDays(goalType, goalId, newCompletedStatus);
+                    }
                     
                     // Save to localStorage immediately
                     const dayDataKey = `dailyDavid_dayData_${user.id}`;
@@ -1459,6 +1465,41 @@
                     setUserSpecificData(prev => ({
                         ...prev,
                         dayData: { ...prev.dayData, [dateKey]: updatedDayData }
+                    }));
+                }
+            };
+
+            // Function to sync goal completion across all days in same week/month
+            const syncGoalCompletionAcrossDays = async (goalType, goalId, completedStatus) => {
+                const allDayData = { ...userSpecificData.dayData };
+                let updated = false;
+                
+                // Get all dates that have this goal type
+                const datesWithGoals = Object.keys(allDayData).filter(dateKey => {
+                    const dayData = allDayData[dateKey];
+                    return dayData?.goals?.[goalType]?.some(g => g.id === goalId);
+                });
+                
+                // Update completion status for all days that have this goal
+                for (const dateKey of datesWithGoals) {
+                    const dayData = allDayData[dateKey];
+                    const goalIndex = dayData.goals[goalType].findIndex(g => g.id === goalId);
+                    
+                    if (goalIndex !== -1) {
+                        dayData.goals[goalType][goalIndex].completed = completedStatus;
+                        updated = true;
+                    }
+                }
+                
+                if (updated) {
+                    // Save all updated day data to localStorage
+                    const dayDataKey = `dailyDavid_dayData_${user.id}`;
+                    localStorage.setItem(dayDataKey, JSON.stringify(allDayData));
+                    
+                    // Update state
+                    setUserSpecificData(prev => ({
+                        ...prev,
+                        dayData: allDayData
                     }));
                 }
             };
@@ -1629,10 +1670,19 @@
                     if (isSameWeek(currentDate, mostRecentDate)) {
                         const recentWeeklyGoals = getMostRecentGoals('weekly');
                         if (recentWeeklyGoals.length > 0) {
-                            weeklyGoals = recentWeeklyGoals.map(goal => ({
-                                ...goal,
-                                completed: false // Reset completion status for new day
-                            }));
+                            weeklyGoals = recentWeeklyGoals.map(goal => {
+                                // Check if this goal is completed anywhere in the week
+                                const isCompletedAnywhere = Object.keys(userSpecificData.dayData).some(dateKey => {
+                                    const dayData = userSpecificData.dayData[dateKey];
+                                    const weekGoal = dayData?.goals?.weekly?.find(g => g.id === goal.id);
+                                    return weekGoal?.completed;
+                                });
+                                
+                                return {
+                                    ...goal,
+                                    completed: isCompletedAnywhere // Carry over completion status from other days
+                                };
+                            });
                         }
                     }
                     
@@ -1640,10 +1690,19 @@
                     if (isSameMonth(currentDate, mostRecentDate)) {
                         const recentMonthlyGoals = getMostRecentGoals('monthly');
                         if (recentMonthlyGoals.length > 0) {
-                            monthlyGoals = recentMonthlyGoals.map(goal => ({
-                                ...goal,
-                                completed: false // Reset completion status for new day
-                            }));
+                            monthlyGoals = recentMonthlyGoals.map(goal => {
+                                // Check if this goal is completed anywhere in the month
+                                const isCompletedAnywhere = Object.keys(userSpecificData.dayData).some(dateKey => {
+                                    const dayData = userSpecificData.dayData[dateKey];
+                                    const monthGoal = dayData?.goals?.monthly?.find(g => g.id === goal.id);
+                                    return monthGoal?.completed;
+                                });
+                                
+                                return {
+                                    ...goal,
+                                    completed: isCompletedAnywhere // Carry over completion status from other days
+                                };
+                            });
                         }
                     }
                 }
