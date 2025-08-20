@@ -157,30 +157,62 @@
                         clearInterval(checkSupabase);
                         console.log('⚠️ Taking too long, loading Supabase dynamically...');
                         
-                        const script = document.createElement('script');
-                        script.src = 'https://unpkg.com/@supabase/supabase-js@2.38.4/dist/umd/supabase.min.js';
-                        script.onload = () => {
-                            console.log('✅ Supabase script loaded dynamically');
-                            console.log('🔍 Checking what was loaded:', {
-                                'window.supabase': typeof window.supabase,
-                                'window.Supabase': typeof window.Supabase,
-                                'window.supabaseClient': typeof window.supabaseClient,
-                                'window.supabase.createClient': typeof window.supabase?.createClient,
-                                'window.Supabase.createClient': typeof window.Supabase?.createClient
-                            });
-                            setTimeout(() => {
-                                if (initializeSupabaseClients()) {
-                                    console.log('✅ Supabase clients created after dynamic load');
-                                } else {
-                                    console.error('❌ Still failed to create clients after dynamic load');
-                                    console.log('🚨 Final check - available globals:', Object.keys(window).filter(key => key.toLowerCase().includes('supabase')));
-                                }
-                            }, 1000);
-                        };
-                        script.onerror = () => {
-                            console.error('❌ Failed to load Supabase script dynamically');
-                        };
-                        document.head.appendChild(script);
+                        console.log('🔄 Trying multiple CDN sources for Supabase...');
+                        
+                        // Try multiple CDN sources
+                        const cdnSources = [
+                            'https://unpkg.com/@supabase/supabase-js@2.38.4/dist/umd/supabase.min.js',
+                            'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.38.4/dist/umd/supabase.min.js',
+                            'https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.min.js',
+                            'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js'
+                        ];
+                        
+                        let currentSourceIndex = 0;
+                        
+                        function tryNextSource() {
+                            if (currentSourceIndex >= cdnSources.length) {
+                                console.error('❌ All CDN sources failed. Trying to reload the page...');
+                                // Last resort: reload the page to retry the original script tag
+                                setTimeout(() => {
+                                    console.log('🔄 Reloading page as last resort...');
+                                    window.location.reload();
+                                }, 2000);
+                                return;
+                            }
+                            
+                            const script = document.createElement('script');
+                            script.src = cdnSources[currentSourceIndex];
+                            console.log(`🔄 Trying CDN source ${currentSourceIndex + 1}: ${cdnSources[currentSourceIndex]}`);
+                            
+                            script.onload = () => {
+                                console.log(`✅ Supabase script loaded from: ${cdnSources[currentSourceIndex]}`);
+                                console.log('🔍 Checking what was loaded:', {
+                                    'window.supabase': typeof window.supabase,
+                                    'window.Supabase': typeof window.Supabase,
+                                    'window.supabaseClient': typeof window.supabaseClient,
+                                    'window.supabase.createClient': typeof window.supabase?.createClient,
+                                    'window.Supabase.createClient': typeof window.Supabase?.createClient
+                                });
+                                setTimeout(() => {
+                                    if (initializeSupabaseClients()) {
+                                        console.log('✅ Supabase clients created after dynamic load');
+                                    } else {
+                                        console.error('❌ Still failed to create clients after dynamic load');
+                                        console.log('🚨 Final check - available globals:', Object.keys(window).filter(key => key.toLowerCase().includes('supabase')));
+                                    }
+                                }, 1000);
+                            };
+                            
+                            script.onerror = () => {
+                                console.error(`❌ Failed to load from: ${cdnSources[currentSourceIndex]}`);
+                                currentSourceIndex++;
+                                tryNextSource();
+                            };
+                            
+                            document.head.appendChild(script);
+                        }
+                        
+                        tryNextSource();
                     }
                 }, 5000); // Wait 5 seconds before trying dynamic loading
             }
