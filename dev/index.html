@@ -880,6 +880,41 @@
                 });
             };
 
+            // Helper functions for goal carryover
+            const isSameWeek = (date1, date2) => {
+                const week1 = getWeekNumber(date1);
+                const week2 = getWeekNumber(date2);
+                return week1.year === week2.year && week1.week === week2.week;
+            };
+
+            const isSameMonth = (date1, date2) => {
+                return date1.getFullYear() === date2.getFullYear() && 
+                       date1.getMonth() === date2.getMonth();
+            };
+
+            const getWeekNumber = (date) => {
+                const d = new Date(date);
+                d.setHours(0, 0, 0, 0);
+                d.setDate(d.getDate() + 4 - (d.getDay() || 7));
+                const yearStart = new Date(d.getFullYear(), 0, 1);
+                const weekNo = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+                return { year: d.getFullYear(), week: weekNo };
+            };
+
+            const getMostRecentGoals = (goalType) => {
+                // Find the most recent day with goals of this type
+                const sortedDates = Object.keys(userSpecificData.dayData)
+                    .sort((a, b) => new Date(b) - new Date(a));
+                
+                for (const dateKey of sortedDates) {
+                    const dayData = userSpecificData.dayData[dateKey];
+                    if (dayData?.goals?.[goalType]?.length > 0) {
+                        return dayData.goals[goalType];
+                    }
+                }
+                return [];
+            };
+
             // Load day data from database and localStorage
             const loadDayData = async (dateKey) => {
                 if (!user) return null;
@@ -1330,34 +1365,35 @@
 
             // Goal management functions
             const toggleGoal = async (goalType, goalId) => {
-                if (goalType === 'weekly') {
-                    setUserSpecificData(prev => {
-                        const newWeeklyGoals = prev.weeklyGoals.map(goal => 
-                            goal.id === goalId ? { ...goal, completed: !goal.completed } : goal
-                        );
-                        // Save to database
-                        saveGoals(newWeeklyGoals, prev.monthlyGoals);
-                        return {
-                            ...prev,
-                            weeklyGoals: newWeeklyGoals
-                        };
-                    });
-                } else {
-                    setUserSpecificData(prev => {
-                        const newMonthlyGoals = prev.monthlyGoals.map(goal => 
-                            goal.id === goalId ? { ...goal, completed: !goal.completed } : goal
-                        );
-                        // Save to database
-                        saveGoals(prev.weeklyGoals, newMonthlyGoals);
-                        return {
-                            ...prev,
-                            monthlyGoals: newMonthlyGoals
-                        };
-                    });
+                const dateKey = formatDateKey(currentDate);
+                const currentDayData = userSpecificData.dayData[dateKey];
+                
+                if (!currentDayData) return;
+                
+                const updatedDayData = { ...currentDayData };
+                const goalIndex = updatedDayData.goals[goalType].findIndex(g => g.id === goalId);
+                
+                if (goalIndex !== -1) {
+                    updatedDayData.goals[goalType][goalIndex].completed = !updatedDayData.goals[goalType][goalIndex].completed;
+                    
+                    // Save to localStorage immediately
+                    const dayDataKey = `dailyDavid_dayData_${user.id}`;
+                    const allDayData = { ...userSpecificData.dayData, [dateKey]: updatedDayData };
+                    localStorage.setItem(dayDataKey, JSON.stringify(allDayData));
+                    
+                    setUserSpecificData(prev => ({
+                        ...prev,
+                        dayData: { ...prev.dayData, [dateKey]: updatedDayData }
+                    }));
                 }
             };
 
             const addGoal = async (goalType, text, category) => {
+                const dateKey = formatDateKey(currentDate);
+                const currentDayData = userSpecificData.dayData[dateKey];
+                
+                if (!currentDayData) return;
+                
                 const newGoal = {
                     id: Date.now(),
                     text,
@@ -1365,90 +1401,79 @@
                     category
                 };
                 
-                if (goalType === 'weekly') {
-                    setUserSpecificData(prev => {
-                        const newWeeklyGoals = [...prev.weeklyGoals, newGoal];
-                        // Save to database
-                        saveGoals(newWeeklyGoals, prev.monthlyGoals);
-                        return {
-                            ...prev,
-                            weeklyGoals: newWeeklyGoals
-                        };
-                    });
-                } else {
-                    setUserSpecificData(prev => {
-                        const newMonthlyGoals = [...prev.monthlyGoals, newGoal];
-                        // Save to database
-                        saveGoals(prev.weeklyGoals, newMonthlyGoals);
-                        return {
-                            ...prev,
-                            monthlyGoals: newMonthlyGoals
-                        };
-                    });
-                }
+                const updatedDayData = { ...currentDayData };
+                if (!updatedDayData.goals) updatedDayData.goals = {};
+                if (!updatedDayData.goals[goalType]) updatedDayData.goals[goalType] = [];
+                
+                updatedDayData.goals[goalType].push(newGoal);
+                
+                // Save to localStorage immediately
+                const dayDataKey = `dailyDavid_dayData_${user.id}`;
+                const allDayData = { ...userSpecificData.dayData, [dateKey]: updatedDayData };
+                localStorage.setItem(dayDataKey, JSON.stringify(allDayData));
+                
+                setUserSpecificData(prev => ({
+                    ...prev,
+                    dayData: { ...prev.dayData, [dateKey]: updatedDayData }
+                }));
             };
 
             const removeGoal = async (goalType, goalId) => {
-                if (goalType === 'weekly') {
-                    setUserSpecificData(prev => {
-                        const newWeeklyGoals = prev.weeklyGoals.filter(goal => goal.id !== goalId);
-                        // Save to database
-                        saveGoals(newWeeklyGoals, prev.monthlyGoals);
-                        return {
-                            ...prev,
-                            weeklyGoals: newWeeklyGoals
-                        };
-                    });
-                } else {
-                    setUserSpecificData(prev => {
-                        const newMonthlyGoals = prev.monthlyGoals.filter(goal => goal.id !== goalId);
-                        // Save to database
-                        saveGoals(prev.weeklyGoals, newMonthlyGoals);
-                        return {
-                            ...prev,
-                            monthlyGoals: newMonthlyGoals
-                        };
-                    });
-                }
+                const dateKey = formatDateKey(currentDate);
+                const currentDayData = userSpecificData.dayData[dateKey];
+                
+                if (!currentDayData) return;
+                
+                const updatedDayData = { ...currentDayData };
+                updatedDayData.goals[goalType] = updatedDayData.goals[goalType].filter(g => g.id !== goalId);
+                
+                // Save to localStorage immediately
+                const dayDataKey = `dailyDavid_dayData_${user.id}`;
+                const allDayData = { ...userSpecificData.dayData, [dateKey]: updatedDayData };
+                localStorage.setItem(dayDataKey, JSON.stringify(allDayData));
+                
+                setUserSpecificData(prev => ({
+                    ...prev,
+                    dayData: { ...prev.dayData, [dateKey]: updatedDayData }
+                }));
             };
 
             const updateGoal = async (goalType, goalId, newText, newCategory) => {
-                if (goalType === 'weekly') {
-                    setUserSpecificData(prev => {
-                        const newWeeklyGoals = prev.weeklyGoals.map(goal => 
-                            goal.id === goalId ? { ...goal, text: newText, category: newCategory } : goal
-                        );
-                        // Save to database
-                        saveGoals(newWeeklyGoals, prev.monthlyGoals);
-                        return {
-                            ...prev,
-                            weeklyGoals: newWeeklyGoals
-                        };
-                    });
-                } else {
-                    setUserSpecificData(prev => {
-                        const newMonthlyGoals = prev.monthlyGoals.map(goal => 
-                            goal.id === goalId ? { ...goal, text: newText, category: newCategory } : goal
-                        );
-                        // Save to database
-                        saveGoals(prev.weeklyGoals, newMonthlyGoals);
-                        return {
-                            ...prev,
-                            monthlyGoals: newMonthlyGoals
-                        };
-                    });
+                const dateKey = formatDateKey(currentDate);
+                const currentDayData = userSpecificData.dayData[dateKey];
+                
+                if (!currentDayData) return;
+                
+                const updatedDayData = { ...currentDayData };
+                const goalIndex = updatedDayData.goals[goalType].findIndex(g => g.id === goalId);
+                
+                if (goalIndex !== -1) {
+                    updatedDayData.goals[goalType][goalIndex].text = newText;
+                    updatedDayData.goals[goalType][goalIndex].category = newCategory;
+                    
+                    // Save to localStorage immediately
+                    const dayDataKey = `dailyDavid_dayData_${user.id}`;
+                    const allDayData = { ...userSpecificData.dayData, [dateKey]: updatedDayData };
+                    localStorage.setItem(dayDataKey, JSON.stringify(allDayData));
+                    
+                    setUserSpecificData(prev => ({
+                        ...prev,
+                        dayData: { ...prev.dayData, [dateKey]: updatedDayData }
+                    }));
                 }
             };
 
-            // Progress calculation functions
+            // Progress calculation functions - now work with current day's goals
             const getWeeklyProgress = () => {
-                const completed = userSpecificData.weeklyGoals.filter(goal => goal.completed).length;
-                return { completed, total: userSpecificData.weeklyGoals.length, percentage: Math.round((completed / userSpecificData.weeklyGoals.length) * 100) };
+                const weeklyGoals = currentDayData?.goals?.weekly || [];
+                const completed = weeklyGoals.filter(goal => goal.completed).length;
+                return { completed, total: weeklyGoals.length, percentage: weeklyGoals.length > 0 ? Math.round((completed / weeklyGoals.length) * 100) : 0 };
             };
 
             const getMonthlyProgress = () => {
-                const completed = userSpecificData.monthlyGoals.filter(goal => goal.completed).length;
-                return { completed, total: userSpecificData.monthlyGoals.length, percentage: Math.round((completed / userSpecificData.monthlyGoals.length) * 100) };
+                const monthlyGoals = currentDayData?.goals?.monthly || [];
+                const completed = monthlyGoals.filter(goal => goal.completed).length;
+                return { completed, total: monthlyGoals.length, percentage: monthlyGoals.length > 0 ? Math.round((completed / monthlyGoals.length) * 100) : 0 };
             };
 
             const getDaysCompletedThisWeek = () => {
@@ -1468,28 +1493,50 @@
 
             // Goal management functions for daily entry view
             const addDailyGoal = (goalType) => {
-                const dateKey = formatDateKey(currentDate);
                 const newGoal = {
                     id: Date.now(),
                     text: '',
                     completed: false
                 };
                 
-                const updatedDayData = { ...currentDayData };
-                if (!updatedDayData.goals) updatedDayData.goals = {};
-                if (!updatedDayData.goals[goalType]) updatedDayData.goals[goalType] = [];
-                
-                updatedDayData.goals[goalType].push(newGoal);
-                
-                // Save to localStorage immediately
-                const dayDataKey = `dailyDavid_dayData_${user.id}`;
-                const allDayData = { ...userSpecificData.dayData, [dateKey]: updatedDayData };
-                localStorage.setItem(dayDataKey, JSON.stringify(allDayData));
-                
-                setUserSpecificData(prev => ({ 
-                    ...prev, 
-                    dayData: { ...prev.dayData, [dateKey]: updatedDayData } 
-                }));
+                if (goalType === 'daily') {
+                    // Daily goals are stored per-day
+                    const dateKey = formatDateKey(currentDate);
+                    const updatedDayData = { ...currentDayData };
+                    if (!updatedDayData.goals) updatedDayData.goals = {};
+                    if (!updatedDayData.goals[goalType]) updatedDayData.goals[goalType] = [];
+                    
+                    updatedDayData.goals[goalType].push(newGoal);
+                    
+                    // Save to localStorage immediately
+                    const dayDataKey = `dailyDavid_dayData_${user.id}`;
+                    const allDayData = { ...userSpecificData.dayData, [dateKey]: updatedDayData };
+                    localStorage.setItem(dayDataKey, JSON.stringify(allDayData));
+                    
+                    setUserSpecificData(prev => ({ 
+                        ...prev, 
+                        dayData: { ...prev.dayData, [dateKey]: updatedDayData } 
+                    }));
+                } else {
+                    // Weekly and monthly goals are stored at user level
+                    const updatedGoals = goalType === 'weekly' 
+                        ? [...userSpecificData.weeklyGoals, newGoal]
+                        : [...userSpecificData.monthlyGoals, newGoal];
+                    
+                    // Save to localStorage immediately
+                    const goalsKey = `dailyDavid_goals_${user.id}`;
+                    const goalsData = {
+                        weeklyGoals: goalType === 'weekly' ? updatedGoals : userSpecificData.weeklyGoals,
+                        monthlyGoals: goalType === 'monthly' ? updatedGoals : userSpecificData.monthlyGoals,
+                        lastUpdated: new Date().toISOString()
+                    };
+                    localStorage.setItem(goalsKey, JSON.stringify(goalsData));
+                    
+                    setUserSpecificData(prev => ({
+                        ...prev,
+                        [goalType === 'weekly' ? 'weeklyGoals' : 'monthlyGoals']: updatedGoals
+                    }));
+                }
             };
 
             const updateDailyGoal = (goalType, goalId, newText) => {
@@ -1567,6 +1614,40 @@
                     return savedData;
                 }
 
+                // Check if we should carry over weekly/monthly goals
+                let weeklyGoals = [];
+                let monthlyGoals = [];
+                
+                // Find the most recent day with goals to check if we're in the same week/month
+                const sortedDates = Object.keys(userSpecificData.dayData)
+                    .sort((a, b) => new Date(b) - new Date(a));
+                
+                if (sortedDates.length > 0) {
+                    const mostRecentDate = new Date(sortedDates[0]);
+                    
+                    // Check weekly goals - carry over if same week
+                    if (isSameWeek(currentDate, mostRecentDate)) {
+                        const recentWeeklyGoals = getMostRecentGoals('weekly');
+                        if (recentWeeklyGoals.length > 0) {
+                            weeklyGoals = recentWeeklyGoals.map(goal => ({
+                                ...goal,
+                                completed: false // Reset completion status for new day
+                            }));
+                        }
+                    }
+                    
+                    // Check monthly goals - carry over if same month
+                    if (isSameMonth(currentDate, mostRecentDate)) {
+                        const recentMonthlyGoals = getMostRecentGoals('monthly');
+                        if (recentMonthlyGoals.length > 0) {
+                            monthlyGoals = recentMonthlyGoals.map(goal => ({
+                                ...goal,
+                                completed: false // Reset completion status for new day
+                            }));
+                        }
+                    }
+                }
+                
                 const newDayData = {
                     gratitude: ['', '', '', '', ''],
                     soap: {
@@ -1577,8 +1658,8 @@
                     },
                     goals: {
                         daily: [],
-                        weekly: [],
-                        monthly: []
+                        weekly: weeklyGoals,
+                        monthly: monthlyGoals
                     }
                 };
 
@@ -2760,6 +2841,72 @@
                 const newDate = new Date(currentDate);
                 newDate.setDate(newDate.getDate() + direction);
                 setCurrentDate(newDate);
+                
+                // Check if we need to update goals for the new date
+                setTimeout(() => {
+                    updateGoalsForDate(newDate);
+                }, 100);
+            };
+
+            const updateGoalsForDate = (targetDate) => {
+                const dateKey = formatDateKey(targetDate);
+                const existingData = userSpecificData.dayData[dateKey];
+                
+                if (!existingData) return;
+                
+                let needsUpdate = false;
+                let updatedGoals = { ...existingData.goals };
+                
+                // Check weekly goals
+                const sortedDates = Object.keys(userSpecificData.dayData)
+                    .sort((a, b) => new Date(b) - new Date(a));
+                
+                if (sortedDates.length > 0) {
+                    const mostRecentDate = new Date(sortedDates[0]);
+                    
+                    // Update weekly goals if same week
+                    if (isSameWeek(targetDate, mostRecentDate)) {
+                        const recentWeeklyGoals = getMostRecentGoals('weekly');
+                        if (recentWeeklyGoals.length > 0 && 
+                            JSON.stringify(recentWeeklyGoals) !== JSON.stringify(existingData.goals.weekly)) {
+                            updatedGoals.weekly = recentWeeklyGoals.map(goal => ({
+                                ...goal,
+                                completed: existingData.goals.weekly.find(g => g.id === goal.id)?.completed || false
+                            }));
+                            needsUpdate = true;
+                        }
+                    }
+                    
+                    // Update monthly goals if same month
+                    if (isSameMonth(targetDate, mostRecentDate)) {
+                        const recentMonthlyGoals = getMostRecentGoals('monthly');
+                        if (recentMonthlyGoals.length > 0 && 
+                            JSON.stringify(recentMonthlyGoals) !== JSON.stringify(existingData.goals.monthly)) {
+                            updatedGoals.monthly = recentMonthlyGoals.map(goal => ({
+                                ...goal,
+                                completed: existingData.goals.monthly.find(g => g.id === goal.id)?.completed || false
+                            }));
+                            needsUpdate = true;
+                        }
+                    }
+                }
+                
+                // Save updated goals if needed
+                if (needsUpdate) {
+                    const updatedDayData = {
+                        ...existingData,
+                        goals: updatedGoals
+                    };
+                    
+                    const dayDataKey = `dailyDavid_dayData_${user.id}`;
+                    const allDayData = { ...userSpecificData.dayData, [dateKey]: updatedDayData };
+                    localStorage.setItem(dayDataKey, JSON.stringify(allDayData));
+                    
+                    setUserSpecificData(prev => ({
+                        ...prev,
+                        dayData: { ...prev.dayData, [dateKey]: updatedDayData }
+                    }));
+                }
             };
 
             // Show loading while auth is initializing
@@ -2955,8 +3102,8 @@
                             console.log('🎯 VIEW RENDERING DEBUG: Rendering LandingPage');
                             return (
                                 <LandingPage 
-                                    weeklyGoals={userSpecificData.weeklyGoals}
-                                    monthlyGoals={userSpecificData.monthlyGoals}
+                                    weeklyGoals={currentDayData?.goals?.weekly || []}
+                                    monthlyGoals={currentDayData?.goals?.monthly || []}
                                     toggleGoal={toggleGoal}
                                     addGoal={addGoal}
                                     removeGoal={removeGoal}
