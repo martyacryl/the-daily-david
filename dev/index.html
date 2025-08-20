@@ -2362,6 +2362,52 @@
                         if (goalsData || dayDataRaw || backupData || emergencyData) {
                             console.log('🚨 DEBUG: localStorage STILL HAS DATA but state was cleared!');
                             console.log('🚨 DEBUG: This means something is clearing the React state');
+                            
+                            // PREVENT DATA CLEARING: Immediately restore data if it was cleared
+                            console.log('🚨 PREVENTING DATA CLEARING: Restoring data immediately');
+                            
+                            let weeklyGoals = [];
+                            let monthlyGoals = [];
+                            let dayData = {};
+                            
+                            if (goalsData) {
+                                try {
+                                    const parsed = JSON.parse(goalsData);
+                                    weeklyGoals = parsed.weeklyGoals || [];
+                                    monthlyGoals = parsed.monthlyGoals || [];
+                                } catch (error) {
+                                    console.error('❌ Error parsing goals:', error);
+                                }
+                            }
+                            
+                            if (dayDataRaw) {
+                                try {
+                                    dayData = JSON.parse(dayDataRaw);
+                                } catch (error) {
+                                    console.error('❌ Error parsing primary day data:', error);
+                                }
+                            } else if (backupData) {
+                                try {
+                                    dayData = JSON.parse(backupData);
+                                } catch (error) {
+                                    console.error('❌ Error parsing backup day data:', error);
+                                }
+                            } else if (emergencyData) {
+                                try {
+                                    dayData = JSON.parse(emergencyData);
+                                } catch (error) {
+                                    console.error('❌ Error parsing emergency day data:', error);
+                                }
+                            }
+                            
+                            // Force restore the data
+                            debugSetUserSpecificData({
+                                dayData: dayData,
+                                weeklyGoals: weeklyGoals,
+                                monthlyGoals: monthlyGoals
+                            });
+                            
+                            console.log('🚨 DATA CLEARING PREVENTED: Data restored successfully');
                         } else {
                             console.log('🚨 DEBUG: localStorage was also cleared!');
                             console.log('🚨 DEBUG: This means something is clearing localStorage');
