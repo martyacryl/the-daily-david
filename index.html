@@ -3,47 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Weekly Marriage Meeting Tool</title>
+    <title>Marriage Meeting Tool</title>
     <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script src="https://unpkg.com/@supabase/supabase-js@2.38.4/dist/umd/supabase.min.js"></script>
-    
-    <!-- Global Supabase Ready Event Listener - MUST BE BEFORE React renders -->
-    <script>
-    window.supabaseReadyCallbacks = [];
-    window.supabaseHasAlreadyFired = false;
-
-    window.addEventListener('supabaseReady', () => {
-      console.log('📢 Global supabaseReady listener triggered');
-      console.log('📢 Available callbacks:', window.supabaseReadyCallbacks.length);
-      
-      window.supabaseHasAlreadyFired = true;
-      
-      if (window.supabaseReadyCallbacks.length === 0) {
-        console.log('⚠️ No callbacks available when event fired - will trigger when callbacks are registered');
-        return;
-      }
-      
-      window.supabaseReadyCallbacks.forEach(callback => {
-        try {
-          callback();
-        } catch (error) {
-          console.error('Error in supabaseReady callback:', error);
-        }
-      });
-    });
-    </script>
-    
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        primary: '#6366f1',
-                        secondary: '#8b5cf6',
-                        accent: '#06b6d4',
+                        primary: '#047857',
+                        secondary: '#10b981',
+                        accent: '#34d399',
                     }
                 }
             }
@@ -62,18 +35,11 @@
             border-radius: 16px;
         }
         .section-header {
-            background: linear-gradient(135deg, #3b82f6 0%, #10b981 100%);
+            background: linear-gradient(135deg, #94a3b8 0%, #059669 100%);
             background-clip: text;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             font-weight: 700;
-        }
-        .status-indicator {
-            animation: pulse 2s infinite;
-        }
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
         }
         .modern-card {
             background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
@@ -88,253 +54,32 @@
         }
     </style>
 </head>
-<body class="bg-white min-h-screen">
+<body class="bg-gradient-to-br from-slate-100 to-green-50 min-h-screen">
+
     <div id="root"></div>
 
     <script type="text/babel">
         const { useState, useEffect, useCallback, useRef, useMemo } = React;
 
         // Initialize Supabase - PRODUCTION ENVIRONMENT with Auth
-        const supabaseUrl = 'https://jrutqdesurnansyfydbf.supabase.co';
+        const supabaseUrl = 'https://gkmclzlgrcmqocfoxkui.supabase.co';
+        
         // Choose your key type:
-        // - anon key: Safe for users, limited admin functions (RECOMMENDED for production)
+        // - anon key: Safe for users, limited admin functions
         // - service_role key: Full admin access (get from Supabase Dashboard → Settings → API)
-        const USE_SERVICE_ROLE_KEY = false; // Set to false to use proper RLS policies
-        const anonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpydXRxZGVzdXJuYW5zeWZ5ZGJmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU1NTA4MzgsImV4cCI6MjA3MTEyNjgzOH0.G-sTw0eF-tQEcqvbaz-hSM2h0KVr2NMOYMq4x0iwIIc';
+        const USE_SERVICE_ROLE_KEY = false; // Set to true to enable admin functions
+        
+        const anonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdrbWNsemxncmNtcW9jZm94a3VpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU2MDYzNzEsImV4cCI6MjA3MTE4MjM3MX0.ovOR0iMGao5qvrAThrx8KucLyTctiRkVbNJvYdPEyk0';
+        
         // Add your service role key here (get from Supabase Dashboard → Settings → API)
-        const serviceRoleKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpydXRxZGVzdXJuYW5zeWZ5ZGJmIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NTU1MDgzOCwiZXhwIjoyMDcxMTI2ODM4fQ.DZFYORSXw99L7SmqoB-KHGf-F4RpTO99PC2wLCA1RBA';
+        const serviceRoleKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdrbWNsemxncmNtcW9jZm94a3VpIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NTYwNjM3MSwiZXhwIjoyMDcxMTgyMzcxfQ.Iz1__lQGZmxAiiMlildaypRObXBUzGu72DznKsGxTWk';
         
-        // Use anon key for regular users, service role key only for admin functions
         const supabaseKey = USE_SERVICE_ROLE_KEY ? serviceRoleKey : anonKey;
+        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
         
-        // Initialize Supabase clients with better loading detection
-        // Make these truly global so React component can access them
-        window.supabase = null;
-        window.adminSupabase = null;
-        let supabase = window.supabase;
-        let adminSupabase = window.adminSupabase;
-        
-        function initializeSupabaseClients() {
-            console.log('🔍 initializeSupabaseClients called');
-            console.log('🔍 Current state:', {
-                'window.supabase': window.supabase,
-                'window.Supabase': window.Supabase,
-                'window.supabaseClient': window.supabaseClient,
-                'window.supabase type': typeof window.supabase,
-                'window.Supabase type': typeof window.Supabase,
-                'window.supabaseClient type': typeof window.supabaseClient
-            });
-            
-            // Check multiple possible ways Supabase might be available
-            let supabaseModule = null;
-            
-            if (window.supabase && typeof window.supabase.createClient === 'function') {
-                supabaseModule = window.supabase;
-                console.log('✅ Found window.supabase.createClient');
-            } else if (window.Supabase && typeof window.Supabase.createClient === 'function') {
-                supabaseModule = window.Supabase;
-                console.log('✅ Found window.Supabase.createClient');
-            } else if (window.supabaseClient && typeof window.supabaseClient.createClient === 'function') {
-                supabaseModule = window.supabaseClient;
-                console.log('✅ Found window.supabaseClient.createClient');
-            } else {
-                // Try to find any Supabase-related global
-                const supabaseKeys = Object.keys(window).filter(key => 
-                    key.toLowerCase().includes('supabase') && 
-                    window[key] && 
-                    typeof window[key].createClient === 'function'
-                );
-                if (supabaseKeys.length > 0) {
-                    supabaseModule = window[supabaseKeys[0]];
-                    console.log('✅ Found Supabase module via search:', supabaseKeys[0]);
-                }
-            }
-            
-            if (supabaseModule) {
-                try {
-                    // Create clients and assign to both local and global variables
-                    supabase = supabaseModule.createClient(supabaseUrl, supabaseKey);
-                    adminSupabase = supabaseModule.createClient(supabaseUrl, serviceRoleKey);
-                    window.supabase = supabase;
-                    window.adminSupabase = adminSupabase;
-                    window.supabaseClientsReady = true;
-                    console.log('✅ Supabase clients created successfully');
-                    console.log('✅ Global variables updated:', {
-                        'window.supabase': !!window.supabase,
-                        'window.adminSupabase': !!window.adminSupabase,
-                        'window.supabaseClientsReady': window.supabaseClientsReady
-                    });
-                    // Notify that Supabase is ready
-                    notifySupabaseReady();
-                    return true;
-                } catch (error) {
-                    console.error('❌ Error creating Supabase clients:', error);
-                    return false;
-                }
-            }
-            
-            console.log('❌ No Supabase module found. Available globals:', Object.keys(window).filter(key => key.toLowerCase().includes('supabase')));
-            return false;
-        }
-        
-        // Wait for DOM and scripts to be fully loaded
-        document.addEventListener('DOMContentLoaded', () => {
-            initializeSupabaseWithRetry();
-        });
-        
-        // Also try on window load as backup
-        window.addEventListener('load', () => {
-            if (!supabase || !adminSupabase) {
-                console.log('🔄 Window loaded, trying Supabase initialization again...');
-                initializeSupabaseWithRetry();
-            }
-        });
-        
-        // Global flag to track when Supabase is ready
-        window.supabaseReady = false;
-        window.supabaseClientsReady = false;
-        
-        // Function to notify that Supabase is ready
-        function notifySupabaseReady() {
-            window.supabaseReady = true;
-            console.log('🎉 Supabase is ready! Notifying app...');
-            console.log('🔍 About to dispatch supabaseReady event...');
-            
-                    // FINAL SOLUTION: Bypass React entirely and show app content directly
-        console.log('🚀 FINAL SOLUTION: Bypassing React, showing app content directly');
-        
-        // Set the global flag immediately
-        window.supabaseClientsReady = true;
-        console.log('🚀 Global flag set to true');
-        
-        // Force React to re-render by triggering a state change
-        console.log('🚀 Forcing React to detect Supabase readiness');
-        
-        // Dispatch the event to trigger any available callbacks
-        console.log('🚀 Dispatching supabaseReady event');
-        window.dispatchEvent(new Event('supabaseReady'));
-        console.log('🚀 Event dispatched successfully');
-        
-        // Set up a polling mechanism to force React to update
-        const forceReactUpdate = setInterval(() => {
-            if (window.supabaseReadyCallbacks && window.supabaseReadyCallbacks.length > 0) {
-                console.log('🚀 React callbacks found, triggering them');
-                window.supabaseReadyCallbacks.forEach(callback => {
-                    try {
-                        callback();
-                    } catch (error) {
-                        console.error('Error in callback:', error);
-                    }
-                });
-                clearInterval(forceReactUpdate);
-            }
-        }, 100);
-        
-        // Fallback: if React still doesn't respond, force a manual update
-        setTimeout(() => {
-            if (forceReactUpdate) {
-                clearInterval(forceReactUpdate);
-                console.log('🚀 Fallback: manually updating React state');
-                // Try to find and update the React component directly
-                if (window.forceReactUpdate) {
-                    window.forceReactUpdate();
-                }
-            }
-        }, 3000);
-            
-            // Also try to force React update if available
-            if (window.forceReactUpdate) {
-                console.log('🔄 Calling forceReactUpdate...');
-                window.forceReactUpdate();
-            } else {
-                console.log('⚠️ forceReactUpdate not available yet');
-            }
-        }
-        
-        function initializeSupabaseWithRetry() {
-            // Try to initialize immediately
-            if (!initializeSupabaseClients()) {
-                console.log('⚠️ Supabase library not ready, waiting for it to load...');
-                
-                // Wait for Supabase to be available
-                const checkSupabase = setInterval(() => {
-                    if (initializeSupabaseClients()) {
-                        clearInterval(checkSupabase);
-                        console.log('✅ Supabase clients initialized after waiting');
-                    }
-                }, 100);
-                
-                // Fallback: if it takes too long, try dynamic loading
-                setTimeout(() => {
-                    if (!supabase || !adminSupabase) {
-                        clearInterval(checkSupabase);
-                        console.log('⚠️ Taking too long, loading Supabase dynamically...');
-                        
-                        console.log('🔄 Trying multiple CDN sources for Supabase...');
-                        
-                        // Try multiple CDN sources
-                        const cdnSources = [
-                            'https://unpkg.com/@supabase/supabase-js@2.38.4/dist/umd/supabase.min.js',
-                            'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.38.4/dist/umd/supabase.min.js',
-                            'https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.min.js',
-                            'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js'
-                        ];
-                        
-                        let currentSourceIndex = 0;
-                        
-                        function tryNextSource() {
-                            if (currentSourceIndex >= cdnSources.length) {
-                                console.error('❌ All CDN sources failed. Trying to reload the page...');
-                                // Last resort: reload the page to retry the original script tag
-                                setTimeout(() => {
-                                    console.log('🔄 Reloading page as last resort...');
-                                    window.location.reload();
-                                }, 2000);
-                                return;
-                            }
-                            
-                            const script = document.createElement('script');
-                            script.src = cdnSources[currentSourceIndex];
-                            console.log(`🔄 Trying CDN source ${currentSourceIndex + 1}: ${cdnSources[currentSourceIndex]}`);
-                            
-                            script.onload = () => {
-                                console.log(`✅ Supabase script loaded from: ${cdnSources[currentSourceIndex]}`);
-                                console.log('🔍 Checking what was loaded:', {
-                                    'window.supabase': typeof window.supabase,
-                                    'window.Supabase': typeof window.Supabase,
-                                    'window.supabaseClient': typeof window.supabaseClient,
-                                    'window.supabase.createClient': typeof window.supabase?.createClient,
-                                    'window.Supabase.createClient': typeof window.Supabase?.createClient
-                                });
-                                setTimeout(() => {
-                                    if (initializeSupabaseClients()) {
-                                        console.log('✅ Supabase clients created after dynamic load');
-                                        // notifySupabaseReady is already called in initializeSupabaseClients
-                                    } else {
-                                        console.error('❌ Still failed to create clients after dynamic load');
-                                        console.log('🚨 Final check - available globals:', Object.keys(window).filter(key => key.toLowerCase().includes('supabase')));
-                                    }
-                                }, 1000);
-                            };
-                            
-                            script.onerror = () => {
-                                console.error(`❌ Failed to load from: ${cdnSources[currentSourceIndex]}`);
-                                currentSourceIndex++;
-                                tryNextSource();
-                            };
-                            
-                            document.head.appendChild(script);
-                        }
-                        
-                        tryNextSource();
-                    }
-                }, 5000); // Wait 5 seconds before trying dynamic loading
-            }
-        }
-
         // PRODUCTION TABLE NAME
         const TABLE_NAME = 'marriage_meetings';
-
+        
         // Auth state
         let currentUser = null;
         let isAdmin = false;
@@ -358,18 +103,6 @@
             </svg>
         );
 
-        const CheckIcon = () => (
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-            </svg>
-        );
-
-        const TrashIcon = () => (
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-            </svg>
-        );
-
         // Authentication Components
         const SignInScreen = ({ onSignIn, onAdminSignIn }) => {
             const [email, setEmail] = useState('');
@@ -381,12 +114,18 @@
                 e.preventDefault();
                 setLoading(true);
                 setError('');
+
                 try {
-                    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+                    const { data, error } = await supabase.auth.signInWithPassword({
+                        email,
+                        password
+                    });
+
                     if (error) throw error;
-                    
+
                     // Check if user is admin (you can set this in user metadata)
                     const isUserAdmin = data.user?.user_metadata?.is_admin === true;
+                    
                     if (isUserAdmin) {
                         onAdminSignIn(data.user);
                     } else {
@@ -403,9 +142,9 @@
                 <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-100 to-green-50">
                     <div className="modern-card p-8 w-full max-w-md">
                         <h1 className="text-3xl font-bold text-center mb-8 text-primary">
-                            Weekly Marriage Meeting Tool
+                            Marriage Meeting Tool
                         </h1>
-                        <p className="text-center text-gray-600 mb-6">Sign in to access your marriage planning</p>
+                        <p className="text-center text-gray-600 mb-6">Sign in to access your marriage meeting schedule</p>
                         
                         {error && (
                             <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
@@ -414,23 +153,23 @@
                         )}
                         
                         <form onSubmit={handleSignIn} className="space-y-4">
-                            <input
-                                type="email"
-                                placeholder="Email"
+                            <input 
+                                type="email" 
+                                placeholder="Email" 
                                 className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 required
                             />
-                            <input
-                                type="password"
-                                placeholder="Password"
+                            <input 
+                                type="password" 
+                                placeholder="Password" 
                                 className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
                                 required
                             />
-                            <button
+                            <button 
                                 type="submit"
                                 disabled={loading}
                                 className="w-full bg-primary text-white py-3 rounded-lg hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -463,15 +202,19 @@
             const loadUsers = async () => {
                 try {
                     console.log('Loading users...');
-                    // Load real users from Supabase Auth using admin client
-                    const { data, error } = await adminSupabase.auth.admin.listUsers();
+                    
+                    // Load real users from Supabase Auth
+                    const { data, error } = await supabase.auth.admin.listUsers();
+                    
                     if (error) {
                         console.error('Error loading users:', error);
                         alert('Error loading users: ' + error.message);
                         setUsers([]);
                         return;
                     }
+                    
                     console.log('Users loaded:', data);
+                    
                     if (!data || !data.users) {
                         console.log('No users data returned');
                         setUsers([]);
@@ -501,18 +244,20 @@
             const handleAddUser = async (e) => {
                 e.preventDefault();
                 if (!newUserEmail || !newUserPassword || !newUserDisplayName) return;
-                
+
                 setLoading(true);
                 try {
-                    // Create real user in Supabase Auth using admin client
-                    const { data, error } = await adminSupabase.auth.admin.createUser({
+                    // Create real user in Supabase Auth
+                    const { data, error } = await supabase.auth.admin.createUser({
                         email: newUserEmail,
                         password: newUserPassword,
                         user_metadata: { display_name: newUserDisplayName },
                         email_confirm: true // Auto-confirm email for testing
                     });
                     
-                    if (error) throw error;
+                    if (error) {
+                        throw error;
+                    }
                     
                     // Add to local users list
                     const newUser = {
@@ -521,10 +266,12 @@
                         display_name: newUserDisplayName,
                         created_at: data.user.created_at
                     };
+                    
                     setUsers([...users, newUser]);
                     setNewUserEmail('');
                     setNewUserPassword('');
                     setNewUserDisplayName('');
+                    
                     alert(`User ${newUserEmail} created successfully!`);
                     
                     // Refresh the users list to ensure sync
@@ -541,7 +288,7 @@
                     <div className="flex justify-between items-center mb-8">
                         <h1 className="text-3xl font-bold text-gray-800">Admin Panel</h1>
                         <div className="flex items-center gap-3">
-                            <button
+                            <button 
                                 onClick={onSignOut}
                                 className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600"
                             >
@@ -549,7 +296,7 @@
                             </button>
                         </div>
                     </div>
-                    
+
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                         {/* User Management */}
                         <div className="modern-card p-6">
@@ -595,31 +342,31 @@
                             )}
                             
                             <form onSubmit={handleAddUser} className="space-y-4 mb-6">
-                                <input
-                                    type="email"
-                                    placeholder="User Email"
+                                <input 
+                                    type="email" 
+                                    placeholder="User Email" 
                                     className="w-full p-3 border rounded-lg"
                                     value={newUserEmail}
                                     onChange={(e) => setNewUserEmail(e.target.value)}
                                     required
                                 />
-                                <input
-                                    type="text"
-                                    placeholder="Display Name"
+                                <input 
+                                    type="text" 
+                                    placeholder="Display Name" 
                                     className="w-full p-3 border rounded-lg"
                                     value={newUserDisplayName}
                                     onChange={(e) => setNewUserDisplayName(e.target.value)}
                                     required
                                 />
-                                <input
-                                    type="password"
-                                    placeholder="Password"
+                                <input 
+                                    type="password" 
+                                    placeholder="Password" 
                                     className="w-full p-3 border rounded-lg"
                                     value={newUserPassword}
                                     onChange={(e) => setNewUserPassword(e.target.value)}
                                     required
                                 />
-                                <button
+                                <button 
                                     type="submit"
                                     disabled={loading}
                                     className="w-full bg-primary text-white py-3 rounded-lg hover:bg-primary/90 disabled:opacity-50"
@@ -627,17 +374,18 @@
                                     {loading ? 'Adding User...' : 'Add User'}
                                 </button>
                             </form>
-                            
+
                             <div className="space-y-2">
                                 <div className="flex justify-between items-center">
                                     <h3 className="font-semibold">Current Users:</h3>
-                                    <button
+                                    <button 
                                         onClick={loadUsers}
                                         className="px-3 py-1 bg-blue-500 text-white text-sm rounded-lg hover:bg-blue-600"
                                     >
                                         🔄 Refresh
                                     </button>
                                 </div>
+                                
                                 {users.length === 0 ? (
                                     <div className="text-center py-4 text-gray-500">
                                         No users found. Click refresh to load users.
@@ -649,7 +397,7 @@
                                                 <div className="font-medium">{user.display_name}</div>
                                                 <div className="text-sm text-gray-600">{user.email}</div>
                                             </div>
-                                            <button
+                                            <button 
                                                 onClick={() => onRemoveUser(user.id)}
                                                 className="text-red-500 hover:text-red-700"
                                             >
@@ -660,7 +408,7 @@
                                 )}
                             </div>
                         </div>
-                        
+
                         {/* System Info */}
                         <div className="modern-card p-6">
                             <h2 className="text-2xl font-bold mb-4 text-primary">System Information</h2>
@@ -672,7 +420,7 @@
                                     <span className="font-medium">Total Users:</span> {users.length}
                                 </div>
                                 <div>
-                                    <span className="font-medium">Environment:</span> Production
+                                    <span className="font-medium">Environment:</span> Development
                                 </div>
                                 <div>
                                     <span className="font-medium">Database:</span> {TABLE_NAME}
@@ -685,1358 +433,233 @@
         };
 
         const MarriageMeetingTool = () => {
-            // Check if Supabase is available with better debugging
-            console.log('🔍 MarriageMeetingTool render check:', {
-                'supabase exists': !!supabase,
-                'adminSupabase exists': !!adminSupabase,
-                'supabase type': typeof supabase,
-                'adminSupabase type': typeof adminSupabase,
-                'window.supabase exists': !!window.supabase,
-                'window.supabase.createClient': typeof window.supabase?.createClient,
-                'window.supabaseReady': window.supabaseReady
+            const [currentDate, setCurrentDate] = useState(new Date());
+            const [weekData, setWeekData] = useState({
+                monday: { schedule: [], notes: '' },
+                tuesday: { schedule: [], notes: '' },
+                wednesday: { schedule: [], notes: '' },
+                thursday: { schedule: [], notes: '' },
+                friday: { schedule: [], notes: '' },
+                saturday: { schedule: [], notes: '' },
+                sunday: { schedule: [], notes: '' }
             });
-            
-            // Your render logic
-            if (!supabaseReady) {
-                console.log('❌ Supabase not ready, showing loading screen');
-                return (
-                    <div className="flex items-center justify-center min-h-screen">
-                        <div className="text-center">
-                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-                            <p>Loading Supabase...</p>
-                            <p className="text-sm text-gray-500 mt-2">
-                                Status: {window.supabaseClientsReady ? 'Ready' : 'Loading...'}
-                            </p>
-                            <p className="text-sm text-gray-500">
-                                Event fired: {window.supabaseHasAlreadyFired ? 'Yes' : 'No'}
-                            </p>
-                            <p className="text-sm text-gray-500">
-                                Callbacks: {window.supabaseReadyCallbacks ? window.supabaseReadyCallbacks.length : 0}
-                            </p>
-                        </div>
-                    </div>
-                );
-            }
-
-            console.log('✅ Supabase ready, rendering main app');
-            
-            const [currentWeek, setCurrentWeek] = useState(new Date());
-            const [weekData, setWeekData] = useState({});
-            const [isConnected, setIsConnected] = useState(false);
             const [isLoading, setIsLoading] = useState(true);
             const [lastSaved, setLastSaved] = useState(null);
-            const saveTimeoutRef = useRef(null);
             
             // Authentication state
             const [user, setUser] = useState(null);
             const [isAdmin, setIsAdmin] = useState(false);
             const [authLoading, setAuthLoading] = useState(true);
-            const [userModePreference, setUserModePreference] = useState('user');
-            const [supabaseReady, setSupabaseReady] = useState(() => {
-                // Check if already loaded on initial render
-                const isReady = window.supabaseClientsReady === true;
-                console.log('🔍 Initial supabaseReady state:', isReady);
-                return isReady;
-            });
-            const [userSpecificData, setUserSpecificData] = useState({
-                weekData: {},
-                userPreferences: {}
-            });
 
-            // Get Monday of current week
-            const getMonday = (date) => {
-                const d = new Date(date);
-                const day = d.getDay();
-                const diff = d.getDate() - day + (day === 0 ? -6 : 1);
-                return new Date(d.setDate(diff));
+            const formatDateKey = (date) => {
+                return date.toISOString().split('T')[0];
             };
 
-            // Authentication and data management functions
-            const handleSignIn = async (userData) => {
-                console.log('🔐 handleSignIn called for user:', userData.email);
-                setUser(userData);
-                setIsAdmin(false);
-                setUserModePreference('user');
+            const formatDateDisplay = (date) => {
+                return date.toLocaleDateString('en-US', { 
+                    weekday: 'long', 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                });
+            };
+
+            // Load week data from database and localStorage
+            const loadWeekData = async () => {
+                if (!user) return null;
                 
-                // Load user-specific data from localStorage first (fastest)
-                await loadUserSpecificData(userData.id);
-                
-                // CRITICAL: Always try to sync with Supabase to get cross-device data
+                // First try to load from localStorage
+                const localStorageKey = `marriageMeetings_weekData_${user.id}`;
                 try {
-                    console.log('🔄 CRITICAL: Syncing with Supabase for cross-device data...');
-                    
-                    // Try with RLS first
-                    let { data, error } = await supabase
+                    const localStorageData = localStorage.getItem(localStorageKey);
+                    if (localStorageData) {
+                        const parsedData = JSON.parse(localStorageData);
+                        console.log('Loaded week data from localStorage');
+                        return parsedData;
+                    }
+                } catch (error) {
+                    console.error('Error loading from localStorage:', error);
+                }
+                
+                // If no localStorage data, try database
+                console.log('No localStorage data, trying database');
+                try {
+                    const { data, error } = await supabase
                         .from(TABLE_NAME)
                         .select('*')
-                        .eq('user_id', userData.id);
-                    
-                    // If RLS fails, try with service role key for admin access
-                    if (error && USE_SERVICE_ROLE_KEY) {
-                        console.log('🔄 RLS failed, trying with service role key for cross-device sync...');
-                        const { data: adminData, error: adminError } = await supabase
-                            .from(TABLE_NAME)
-                            .select('*')
-                            .eq('user_id', userData.id);
-                        
-                        if (!adminError && adminData) {
-                            data = adminData;
-                            error = null;
-                            console.log('✅ Service role key worked for cross-device sync');
-                        }
-                    }
-                    
-                    if (!error && data && data.length > 0) {
-                        console.log(`🌐 Found ${data.length} weeks in Supabase for cross-device sync`);
-                        
-                        let hasNewData = false;
-                        
-                        // Always sync Supabase data to localStorage for cross-device access
-                        data.forEach(row => {
-                            const localStorageKey = `marriage_meetings_${userData.id}_${row.week_key}`;
-                            const localData = localStorage.getItem(localStorageKey);
-                            
-                            // Check if we need to update localStorage
-                            if (!localData) {
-                                // No local data, definitely sync from Supabase
-                                localStorage.setItem(localStorageKey, JSON.stringify(row.data));
-                                console.log(`💾 SYNCED: Week ${row.week_key} from Supabase to localStorage (new data)`);
-                                hasNewData = true;
-                            } else {
-                                try {
-                                    const parsedLocal = JSON.parse(localData);
-                                    const localUpdatedAt = parsedLocal.updated_at || 0;
-                                    const supabaseUpdatedAt = new Date(row.updated_at || 0).getTime();
-                                    
-                                    if (supabaseUpdatedAt > localUpdatedAt) {
-                                        // Supabase has newer data, update localStorage
-                                        localStorage.setItem(localStorageKey, JSON.stringify(row.data));
-                                        console.log(`💾 SYNCED: Week ${row.week_key} from Supabase to localStorage (newer data)`);
-                                        hasNewData = true;
-                                    } else {
-                                        console.log(`✅ Week ${row.week_key} already up to date`);
-                                    }
-                                } catch (parseError) {
-                                    // Local data corrupted, sync from Supabase
-                                    localStorage.setItem(localStorageKey, JSON.stringify(row.data));
-                                    console.log(`💾 SYNCED: Week ${row.week_key} from Supabase to localStorage (corrupted local data)`);
-                                    hasNewData = true;
-                                }
-                            }
-                        });
-                        
-                        if (hasNewData) {
-                            console.log('🔄 Reloading data after Supabase sync...');
-                            await loadUserSpecificData(userData.id);
-                        } else {
-                            console.log('✅ No new data to sync from Supabase');
-                        }
-                    } else if (error) {
-                        console.log('❌ Supabase sync failed:', error);
-                        console.log('📱 Your phone may not have access to data created on other devices');
-                    } else {
-                        console.log('📭 No data found in Supabase for cross-device sync');
-                    }
-                } catch (syncError) {
-                    console.error('❌ CRITICAL: Supabase sync error:', syncError);
-                    console.log('📱 Cross-device sync failed - your phone may not see data from other devices');
-                }
-                
-                // CRITICAL: Set loading to false after sign-in is complete
-                console.log('🔐 handleSignIn complete, setting isLoading to false');
-                setIsLoading(false);
-            };
+                        .eq('date_key', 'current_week')
+                        .eq('user_id', user.id);
 
-            const handleAdminSignIn = async (userData) => {
-                setUser(userData);
-                setIsAdmin(true);
-                setUserModePreference('admin');
-                
-                // Load user-specific data from localStorage
-                await loadUserSpecificData(userData.id);
-            };
-
-            const handleSignOut = async () => {
-                try {
-                    console.log('🚪 Signing out...');
-                    
-                    // Force immediate state updates to trigger re-render
-                    setUser(null);
-                    setIsAdmin(false);
-                    setUserModePreference('user');
-                    setUserSpecificData({ weekData: {}, userPreferences: {} });
-                    setWeekData({});
-                    setCurrentWeek(new Date()); // Reset week to force re-render
-                    setIsLoading(false); // Ensure loading state is cleared
-                    
-                    // Clear any pending timeouts
-                    if (saveTimeoutRef.current) {
-                        clearTimeout(saveTimeoutRef.current);
-                        saveTimeoutRef.current = null;
-                    }
-                    
-                    // DON'T clear localStorage data - keep it for when user signs back in
-                    // This prevents data loss and allows seamless sign-in/sign-out
-                    console.log('💾 Keeping localStorage data for seamless re-authentication');
-                    
-                    // Then sign out from Supabase
-                    const { error } = await supabase.auth.signOut();
                     if (error) {
-                        console.error('Supabase signout error:', error);
-                    } else {
-                        console.log('✅ Successfully signed out from Supabase');
+                        console.log('Error loading from database:', error);
+                        return null;
                     }
-                    
-                    console.log('🎯 Signout complete - should show login screen now');
-                    
+
+                    if (data && data.length > 0) {
+                        console.log('Loaded week data from database');
+                        // Also save to localStorage for future use
+                        try {
+                            localStorage.setItem(localStorageKey, JSON.stringify(data[0].data));
+                            console.log('Week data also saved to localStorage');
+                        } catch (localError) {
+                            console.error('Error saving to localStorage:', localError);
+                        }
+                        return data[0].data;
+                    }
+
+                    return null;
                 } catch (error) {
-                    console.error('Signout error:', error);
-                    // Even if there's an error, we've cleared local state
-                    console.log('🎯 Signout complete despite error - should show login screen now');
+                    console.log('Load error from database:', error);
+                    return null;
                 }
             };
 
-            const switchAdminToUserMode = async () => {
-                setUserModePreference('user');
-                setIsAdmin(false);
+            // Save week data to database and localStorage
+            const saveWeekData = async (data) => {
+                if (!user) return false;
                 
-                // Load admin's personal data when switching to user mode
-                await loadUserSpecificData(user.id);
-            };
-
-            const switchUserToAdminMode = () => {
-                setUserModePreference('admin');
-                setIsAdmin(true);
-            };
-
-            // Data persistence functions
-            const saveWeekData = async (weekKey, data) => {
+                // Save to localStorage as backup
+                const localStorageKey = `marriageMeetings_weekData_${user.id}`;
                 try {
-                    // Save to localStorage first (primary)
-                    const localStorageKey = `marriage_meetings_${user.id}_${weekKey}`;
                     localStorage.setItem(localStorageKey, JSON.stringify(data));
-                    
-                    // Save to Supabase as backup
+                    console.log('Week data saved to localStorage');
+                } catch (error) {
+                    console.error('Error saving to localStorage:', error);
+                }
+                
+                try {
                     const { error } = await supabase
                         .from(TABLE_NAME)
                         .upsert({
-                            week_key: weekKey,
+                            date_key: 'current_week',
                             user_id: user.id,
-                            data: data,
-                            updated_at: new Date().toISOString()
+                            data: data
                         }, {
-                            onConflict: 'week_key,user_id'
+                            onConflict: 'date_key,user_id'
                         });
 
                     if (error) {
-                        console.log('Supabase save error:', error);
-                        // Continue even if Supabase fails - localStorage is primary
+                        console.log('Save error:', error);
+                        console.log('Week data saved to localStorage as backup');
+                        return false;
                     }
 
                     setLastSaved(new Date());
+                    console.log('Week data saved successfully to database');
                     return true;
                 } catch (error) {
                     console.log('Save error:', error);
+                    console.log('Week data saved to localStorage as backup');
                     return false;
                 }
             };
 
-            const loadUserSpecificData = async (userId) => {
-                try {
-                    console.log(`🔄 Loading user-specific data for user: ${userId}`);
-                    
-                    // Try to load from localStorage first (primary source)
-                    const localStorageKeys = Object.keys(localStorage).filter(key => 
-                        key.startsWith(`marriage_meetings_${userId}_`)
-                    );
-                    
-                    console.log(`🔍 Found localStorage keys:`, localStorageKeys);
-                    
-                    if (localStorageKeys.length > 0) {
-                        console.log(`📊 Found ${localStorageKeys.length} weeks of data in localStorage`);
-                        
-                        const loadedWeekData = {};
-                        localStorageKeys.forEach(key => {
-                            const weekKey = key.replace(`marriage_meetings_${userId}_`, '');
-                            try {
-                                const data = JSON.parse(localStorage.getItem(key));
-                                loadedWeekData[weekKey] = data;
-                                console.log(`✅ Loaded week from localStorage: ${weekKey}`, data);
-                            } catch (parseError) {
-                                console.error(`❌ Error parsing localStorage data for week ${weekKey}:`, parseError);
-                            }
-                        });
-                        
-                        console.log(`📊 Final loaded week data:`, loadedWeekData);
-                        console.log(`📊 Week keys:`, Object.keys(loadedWeekData));
-                        
-                        // Update both states immediately
-                        setUserSpecificData(prev => ({
-                            ...prev,
-                            weekData: loadedWeekData
-                        }));
-                        setWeekData(loadedWeekData);
-                        
-                        console.log('🎉 Successfully loaded all data from localStorage');
-                        return; // Exit early - localStorage is our primary source
-                    }
-
-                    console.log('📭 No localStorage data found, trying Supabase...');
-                    
-                    // Fallback to Supabase if no localStorage data
-                    try {
-                        const { data, error } = await supabase
-                            .from(TABLE_NAME)
-                            .select('*')
-                            .eq('user_id', userId);
-
-                        if (error) {
-                            console.log('❌ Error loading from Supabase:', error);
-                            
-                            // If RLS fails, try with service role key for admin access
-                            if (USE_SERVICE_ROLE_KEY && error.code === 'PGRST116') {
-                                console.log('🔄 Trying with service role key for user data...');
-                                const { data: adminData, error: adminError } = await supabase
-                                    .from(TABLE_NAME)
-                                    .select('*')
-                                    .eq('user_id', userId);
-                                
-                                if (adminError) {
-                                    console.log('Service role key also failed for user data:', adminError);
-                                    // Set empty state and continue
-                                    setUserSpecificData(prev => ({
-                                        ...prev,
-                                        weekData: {}
-                                    }));
-                                    setWeekData({});
-                                    return;
-                                }
-                                
-                                if (adminData && adminData.length > 0) {
-                                    console.log(`🌐 Loaded ${adminData.length} weeks from Supabase with service role`);
-                                    
-                                    const loadedWeekData = {};
-                                    adminData.forEach(row => {
-                                        loadedWeekData[row.week_key] = row.data;
-                                        
-                                        // Also save to localStorage for future use
-                                        const localStorageKey = `marriage_meetings_${userId}_${row.week_key}`;
-                                        localStorage.setItem(localStorageKey, JSON.stringify(row.data));
-                                        console.log(`💾 Saved week ${row.week_key} to localStorage`);
-                                    });
-                                    
-                                    setUserSpecificData(prev => ({
-                                        ...prev,
-                                        weekData: loadedWeekData
-                                    }));
-                                    setWeekData(loadedWeekData);
-                                    
-                                    console.log('✅ Successfully loaded and cached data from Supabase with service role');
-                                    return;
-                                }
-                            }
-                            
-                            // If we get here, no data was found anywhere
-                            console.log('📭 No data found in localStorage or Supabase, setting empty state');
-                            setUserSpecificData(prev => ({
-                                ...prev,
-                                weekData: {}
-                            }));
-                            setWeekData({});
-                            return;
-                        }
-
-                        if (data && data.length > 0) {
-                            console.log(`🌐 Loaded ${data.length} weeks from Supabase`);
-                            
-                            const loadedWeekData = {};
-                            data.forEach(row => {
-                                loadedWeekData[row.week_key] = row.data;
-                                
-                                // Also save to localStorage for future use
-                                const localStorageKey = `marriage_meetings_${userId}_${row.week_key}`;
-                                localStorage.setItem(localStorageKey, JSON.stringify(row.data));
-                                console.log(`💾 Saved week ${row.week_key} to localStorage`);
-                            });
-                            
-                            setUserSpecificData(prev => ({
-                                ...prev,
-                                weekData: loadedWeekData
-                            }));
-                            setWeekData(loadedWeekData);
-                            
-                            console.log('✅ Successfully loaded and cached data from Supabase');
-                        } else {
-                            console.log('📭 No data found in Supabase either');
-                        }
-                    } catch (error) {
-                        console.error('❌ Error in loadUserSpecificData:', error);
-                    }
-                } catch (error) {
-                    console.error('❌ Error in loadUserSpecificData outer try:', error);
-                }
-            };
-
-            const clearUserData = () => {
-                console.log('🚨 clearUserData called - this should only happen when switching users');
-                // Only clear data when switching between different users, not on signout
-                setUserSpecificData({ weekData: {}, userPreferences: {} });
-                setWeekData({});
-            };
-
-            // Debug function to manually check and restore data from Supabase
-            const debugCheckSupabaseData = async () => {
-                if (!user) return;
-                
-                console.log('🔍 DEBUG: Checking Supabase for user data...');
-                console.log('User ID:', user.id);
-                console.log('User Email:', user.email);
-                
-                try {
-                    // Try to get all data for this user from Supabase
-                    const { data, error } = await supabase
-                        .from(TABLE_NAME)
-                        .select('*')
-                        .eq('user_id', user.id);
-                    
-                    if (error) {
-                        console.error('❌ Supabase query error:', error);
-                        return;
-                    }
-                    
-                    if (data && data.length > 0) {
-                        console.log(`✅ Found ${data.length} weeks of data in Supabase:`, data);
-                        
-                        // Restore the data to localStorage and state
-                        const restoredWeekData = {};
-                        data.forEach(row => {
-                            restoredWeekData[row.week_key] = row.data;
-                            
-                            // Save to localStorage
-                            const localStorageKey = `marriage_meetings_${user.id}_${row.week_key}`;
-                            localStorage.setItem(localStorageKey, JSON.stringify(row.data));
-                            console.log(`💾 Restored week ${row.week_key} to localStorage`);
-                        });
-                        
-                        // Update state
-                        setUserSpecificData(prev => ({
-                            ...prev,
-                            weekData: restoredWeekData
-                        }));
-                        setWeekData(restoredWeekData);
-                        
-                        console.log('🎉 Data restored successfully!');
-                        alert(`Restored ${data.length} weeks of data from Supabase!`);
-                    } else {
-                        console.log('📭 No data found in Supabase for this user');
-                    }
-                } catch (error) {
-                    console.error('❌ Debug function error:', error);
-                }
-            };
-
-            const formatWeekKey = (date) => {
-                const monday = getMonday(date);
-                return monday.toISOString().split('T')[0];
-            };
-
-            const formatWeekDisplay = (date) => {
-                const monday = getMonday(date);
-                const sunday = new Date(monday);
-                sunday.setDate(sunday.getDate() + 6);
-                
-                return `${monday.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${sunday.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
-            };
-
-
-
-
-
-            // Enhanced debounced save with mobile optimization - faster saves on mobile devices
-            const debouncedSave = useCallback((weekKey, data) => {
-                if (saveTimeoutRef.current) {
-                    clearTimeout(saveTimeoutRef.current);
-                }
-                
-                // Faster saves on mobile devices for better data persistence
-                const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-                const saveDelay = isMobile ? 500 : 1000; // 500ms on mobile, 1000ms on desktop
-                
-                saveTimeoutRef.current = setTimeout(() => {
-                    saveWeekData(weekKey, data);
-                }, saveDelay);
-            }, []);
-
-            // Immediate localStorage save for instant persistence
-            const saveToLocalStorage = useCallback((weekKey, data) => {
-                if (!user) return;
-                
-                try {
-                    const localStorageKey = `marriage_meetings_${user.id}_${weekKey}`;
-                    localStorage.setItem(localStorageKey, JSON.stringify(data));
-                    console.log(`💾 Saved to localStorage: ${weekKey}`);
-                } catch (error) {
-                    console.error('❌ Error saving to localStorage:', error);
-                }
-            }, [user]);
-
-            // Initialize database
-            const initializeDatabase = async () => {
-                setIsConnected(true);
-            };
-
-            // Initialize week data with robust localStorage persistence
+            // Initialize week data
             const initializeWeekData = useCallback(async () => {
-                const weekKey = formatWeekKey(currentWeek);
-                
-                // First check if we already have this week's data in state
-                if (weekData[weekKey]) {
-                    return weekData[weekKey];
+                if (weekData && Object.keys(weekData).length > 0) {
+                    return weekData;
                 }
 
                 setIsLoading(true);
                 
-                try {
-                    // Try to load from localStorage first (primary source)
-                    if (user) {
-                        const localStorageKey = `marriage_meetings_${user.id}_${weekKey}`;
-                        const savedData = localStorage.getItem(localStorageKey);
-                        
-                        if (savedData) {
-                            console.log(`📊 Found data in localStorage for week: ${weekKey}`);
-                            const parsedData = JSON.parse(savedData);
-                            setWeekData(prev => ({ ...prev, [weekKey]: parsedData }));
-                            setIsLoading(false);
-                            return parsedData;
-                        }
-                    }
-
-                    // Check if we have user-specific data from previous loads
-                    if (user && userSpecificData.weekData[weekKey]) {
-                        console.log(`🔄 Found data in userSpecificData for week: ${weekKey}`);
-                        setWeekData(prev => ({ ...prev, [weekKey]: userSpecificData.weekData[weekKey] }));
-                        setIsLoading(false);
-                        return userSpecificData.weekData[weekKey];
-                    }
-
-                    // Fallback to Supabase if no localStorage data
-                    if (user) {
-                        console.log(`🌐 Loading from Supabase for week: ${weekKey}`);
-                        try {
-                            // Try with RLS policies first
-                            const { data, error } = await supabase
-                                .from(TABLE_NAME)
-                                .select('*')
-                                .eq('week_key', weekKey)
-                                .eq('user_id', user.id);
-
-                            if (error) {
-                                console.log('Supabase load error with RLS:', error);
-                                
-                                // If RLS fails, try with service role key for admin access
-                                if (USE_SERVICE_ROLE_KEY && error.code === 'PGRST116') {
-                                    console.log('🔄 Trying with service role key...');
-                                    const { data: adminData, error: adminError } = await supabase
-                                        .from(TABLE_NAME)
-                                        .select('*')
-                                        .eq('week_key', weekKey)
-                                        .eq('user_id', user.id);
-                                    
-                                    if (adminError) {
-                                        console.log('Service role key also failed:', adminError);
-                                    } else if (adminData && adminData.length > 0) {
-                                        console.log(`✅ Loaded data with service role for week: ${weekKey}`);
-                                        const supabaseData = adminData[0].data;
-                                        setWeekData(prev => ({ ...prev, [weekKey]: supabaseData }));
-                                        
-                                        // Also save to localStorage for future use
-                                        const localStorageKey = `marriage_meetings_${user.id}_${weekKey}`;
-                                        localStorage.setItem(localStorageKey, JSON.stringify(supabaseData));
-                                        
-                                        setIsLoading(false);
-                                        return supabaseData;
-                                    }
-                                }
-                            } else if (data && data.length > 0) {
-                                console.log(`✅ Loaded data from Supabase for week: ${weekKey}`);
-                                const supabaseData = data[0].data;
-                                setWeekData(prev => ({ ...prev, [weekKey]: supabaseData }));
-                                
-                                // Also save to localStorage for future use
-                                const localStorageKey = `marriage_meetings_${user.id}_${weekKey}`;
-                                localStorage.setItem(localStorageKey, JSON.stringify(supabaseData));
-                                
-                                setIsLoading(false);
-                                return supabaseData;
-                            }
-                        } catch (supabaseError) {
-                            console.log('Supabase connection error:', supabaseError);
-                        }
-                    }
-
-                    // Create new week data if nothing found
-                    console.log(`🆕 Creating new week data for: ${weekKey}`);
-                    const newWeekData = {
-                        schedule: {
-                            Monday: [''], Tuesday: [''], Wednesday: [''], Thursday: [''],
-                            Friday: [''], Saturday: [''], Sunday: ['']
-                        },
-                        todos: [], prayers: [], goals: [], grocery: [], unconfessedSin: [], weeklyWinddown: []
-                    };
-
-                    setWeekData(prev => ({ ...prev, [weekKey]: newWeekData }));
-                    
-                    // Save to localStorage immediately
-                    if (user) {
-                        const localStorageKey = `marriage_meetings_${user.id}_${weekKey}`;
-                        localStorage.setItem(localStorageKey, JSON.stringify(newWeekData));
-                        console.log(`💾 Saved new week data to localStorage: ${weekKey}`);
-                    }
-                    
+                const savedData = await loadWeekData();
+                
+                if (savedData) {
+                    setWeekData(savedData);
                     setIsLoading(false);
-                    return newWeekData;
-                    
-                } catch (error) {
-                    console.error('Error initializing week data:', error);
-                    setIsLoading(false);
-                    
-                    // Return basic structure even if there's an error
-                    const fallbackData = {
-                        schedule: {
-                            Monday: [''], Tuesday: [''], Wednesday: [''], Thursday: [''],
-                            Friday: [''], Saturday: [''], Sunday: ['']
-                        },
-                        todos: [], prayers: [], goals: [], grocery: [], unconfessedSin: [], weeklyWinddown: []
-                    };
-                    
-                    setWeekData(prev => ({ ...prev, [weekKey]: fallbackData }));
-                    return fallbackData;
+                    return savedData;
                 }
-            }, [currentWeek, weekData, user, userSpecificData.weekData]);
+
+                const newWeekData = {
+                    monday: { schedule: [], notes: '' },
+                    tuesday: { schedule: [], notes: '' },
+                    wednesday: { schedule: [], notes: '' },
+                    thursday: { schedule: [], notes: '' },
+                    friday: { schedule: [], notes: '' },
+                    saturday: { schedule: [], notes: '' },
+                    sunday: { schedule: [], notes: '' }
+                };
+
+                setWeekData(newWeekData);
+                await saveWeekData(newWeekData);
+                setIsLoading(false);
+                return newWeekData;
+            }, [weekData]);
 
             // Initialize on mount
             useEffect(() => {
-                initializeDatabase().then(() => {
-                    if (user) {
-                        initializeWeekData();
-                    }
-                });
-            }, [initializeWeekData, user]);
+                initializeWeekData();
+            }, [initializeWeekData]);
 
-            // React Supabase State Bridge Fix - Version 3 (Claude's Solution)
-            useEffect(() => {
-                console.log('🔍 React useEffect: Setting up Supabase listeners');
-                console.log('🔍 Current supabaseClientsReady:', window.supabaseClientsReady);
-                console.log('🔍 Event already fired:', window.supabaseHasAlreadyFired);
-                
-                // If already ready, no need to listen
-                if (window.supabaseClientsReady) {
-                    console.log('✅ Supabase already ready on mount');
-                    setSupabaseReady(true);
-                    setAuthLoading(false);
-                    return;
-                }
-
-                // Create callback function
-                const handleSupabaseReady = () => {
-                    console.log('🎉 React callback triggered, updating state');
-                    setSupabaseReady(true);
-                    setAuthLoading(false);
-                };
-
-                // Initialize callbacks array if it doesn't exist
-                if (!window.supabaseReadyCallbacks) {
-                    window.supabaseReadyCallbacks = [];
-                }
-
-                // Add our callback
-                window.supabaseReadyCallbacks.push(handleSupabaseReady);
-                console.log('✅ Callback registered. Total callbacks:', window.supabaseReadyCallbacks.length);
-
-                // CRITICAL FIX: If the event already fired, trigger our callback immediately
-                if (window.supabaseHasAlreadyFired && window.supabaseClientsReady) {
-                    console.log('🔥 Event already fired and Supabase is ready - triggering callback immediately');
-                    handleSupabaseReady();
-                }
-                
-                // Also set up forceReactUpdate for your existing code
-                window.forceReactUpdate = () => {
-                    console.log('🔄 forceReactUpdate called');
-                    setSupabaseReady(window.supabaseClientsReady === true);
-                };
-
-                // Cleanup
-                return () => {
-                    console.log('🧹 Cleaning up Supabase listeners');
-                    if (window.supabaseReadyCallbacks) {
-                        const index = window.supabaseReadyCallbacks.indexOf(handleSupabaseReady);
-                        if (index > -1) {
-                            window.supabaseReadyCallbacks.splice(index, 1);
-                            console.log('🧹 Callback removed. Remaining callbacks:', window.supabaseReadyCallbacks.length);
-                        }
-                    }
-                    delete window.forceReactUpdate;
-                };
-            }, []);
-            
-            // Add a backup polling mechanism in case events fail
-            useEffect(() => {
-                if (supabaseReady) return;
-
-                console.log('🔄 Starting backup polling for Supabase');
-                const pollInterval = setInterval(() => {
-                    if (window.supabaseClientsReady === true) {
-                        console.log('✅ Backup polling detected Supabase ready');
-                        setSupabaseReady(true);
-                        setAuthLoading(false);
-                        clearInterval(pollInterval);
-                    }
-                }, 1000);
-
-                // Cleanup after 30 seconds
-                const timeout = setTimeout(() => {
-                    console.log('⚠️ Backup polling timeout reached');
-                    clearInterval(pollInterval);
-                }, 30000);
-
-                return () => {
-                    clearInterval(pollInterval);
-                    clearTimeout(timeout);
-                };
-            }, [supabaseReady]);
-            
-            // DIRECT FIX: Add immediate polling that doesn't depend on useEffect
-            // This ensures React state updates even if the main useEffect is broken
-            useEffect(() => {
-                console.log('🔧 DIRECT FIX: Setting up immediate React update mechanism');
-                
-                // Check immediately
-                if (window.supabaseClientsReady === true) {
-                    console.log('🔧 DIRECT FIX: Supabase already ready, updating React immediately');
-                    setSupabaseReady(true);
-                    setAuthLoading(false);
-                    return;
-                }
-                
-                // Set up aggressive polling
-                const directPollInterval = setInterval(() => {
-                    if (window.supabaseClientsReady === true) {
-                        console.log('🔧 DIRECT FIX: Polling detected Supabase ready, updating React');
-                        setSupabaseReady(true);
-                        setAuthLoading(false);
-                        clearInterval(directPollInterval);
-                    }
-                }, 500); // Check every 500ms
-                
-                return () => clearInterval(directPollInterval);
-            }, []); // Run only once on mount
-            
             // Initialize authentication
             useEffect(() => {
                 const initializeAuth = async () => {
                     try {
-                        console.log('🔐 Starting auth initialization...');
+                        console.log('🔐 Initializing authentication...');
                         
-                        // Check for existing session
-                        const { data: { session } } = await supabase.auth.getSession();
-                        console.log('🔐 Session check result:', !!session?.user);
+                        // Get current user session
+                        const { data: { user }, error } = await supabase.auth.getUser();
                         
-                        if (session?.user) {
-                            console.log('🔐 Found existing session for user:', session.user.email);
-                            const isUserAdmin = session.user.user_metadata?.is_admin === true;
-                            if (isUserAdmin) {
-                                console.log('🔐 User is admin, calling handleAdminSignIn');
-                                await handleAdminSignIn(session.user);
-                            } else {
-                                console.log('🔐 User is regular user, calling handleSignIn');
-                                await handleSignIn(session.user);
-                            }
-                        } else {
-                            console.log('🔐 No existing session found');
+                        if (error) {
+                            console.error('❌ Error getting user:', error);
+                            setAuthLoading(false);
+                            return;
                         }
                         
-                        // Listen for auth changes
-                        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-                            console.log('🔐 Auth state change:', event, session?.user?.email);
-                            
-                            if (event === 'SIGNED_IN' && session?.user) {
-                                const isUserAdmin = session.user.user_metadata?.is_admin === true;
-                                if (isUserAdmin) {
-                                    await handleAdminSignIn(session.user);
-                                } else {
-                                    await handleSignIn(session.user);
-                                }
-                            } else if (event === 'SIGNED_OUT') {
-                                // Don't call handleSignOut here to avoid circular dependency
-                                // Just clear local state
-                                setUser(null);
-                                setIsAdmin(false);
-                                setUserModePreference('user');
-                                // DON'T clear weekData here - it will be handled by handleSignOut
-                                console.log('🔄 Auth state change: cleared local state (preserving weekData)');
-                            }
-                        });
-                        
-                        console.log('🔐 Auth initialization complete, setting authLoading to false');
-                        setAuthLoading(false);
-                        return () => subscription.unsubscribe();
+                        if (user) {
+                            console.log('✅ User found:', user.email);
+                            setUser(user);
+                            // Check if user is admin (you can set this in user metadata)
+                            const isUserAdmin = user.user_metadata?.is_admin === true;
+                            setIsAdmin(isUserAdmin);
+                        } else {
+                            console.log('⚠️ No user session found');
+                        }
                     } catch (error) {
                         console.error('❌ Auth initialization error:', error);
-                        console.log('🔐 Setting authLoading to false due to error');
+                    } finally {
+                        console.log('✅ Setting auth loading to false');
                         setAuthLoading(false);
                     }
                 };
-                
+
+                // Listen for auth changes
+                const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+                    if (event === 'SIGNED_IN' && session?.user) {
+                        console.log('🔄 Auth state change: SIGNED_IN for user:', session.user.email);
+                        
+                        if (!user) {
+                            const isUserAdmin = session.user.user_metadata?.is_admin === true;
+                            
+                            if (isUserAdmin) {
+                                setUser(session.user);
+                                setIsAdmin(true);
+                            } else {
+                                setUser(session.user);
+                                setIsAdmin(false);
+                            }
+                        }
+                    } else if (event === 'SIGNED_OUT') {
+                        console.log('🔄 Auth state change: SIGNED_OUT');
+                        setUser(null);
+                        setIsAdmin(false);
+                    }
+                });
+
                 // Add timeout to prevent infinite loading
                 const authTimeout = setTimeout(() => {
-                    console.log('⏰ Auth initialization timeout - forcing authLoading to false');
+                    console.log('Auth initialization timeout, forcing auth loading to false');
                     setAuthLoading(false);
-                }, 10000); // 10 second timeout
+                }, 15000); // 15 second timeout
                 
                 initializeAuth().finally(() => {
                     clearTimeout(authTimeout);
                 });
+
+                return () => subscription?.unsubscribe();
             }, []);
 
-            // Load all user data from localStorage when user changes
-            useEffect(() => {
-                if (user) {
-                    console.log('🔄 User changed, loading data from localStorage...');
-                    console.log('🔄 User ID:', user.id);
-                    console.log('🔄 User email:', user.email);
-                    
-                    // Debug: Check what's actually in localStorage
-                    console.log('🔍 DEBUG: All localStorage keys:');
-                    for (let i = 0; i < localStorage.length; i++) {
-                        const key = localStorage.key(i);
-                        if (key && key.includes('marriage_meetings')) {
-                            console.log('  ', key, ':', localStorage.getItem(key)?.substring(0, 100) + '...');
-                        }
-                    }
-                    
-                    loadAllUserDataFromLocalStorage();
-                }
-            }, [user]);
-
-            // DEBUG: Monitor when userSpecificData.weekData changes to catch data clearing
-            useEffect(() => {
-                if (user && !isAdmin) {
-                    console.log('🔍 DEBUG: userSpecificData.weekData changed');
-                    console.log('🔍 New weekData keys:', Object.keys(userSpecificData.weekData));
-                    console.log('🔍 WeekData length:', Object.keys(userSpecificData.weekData).length);
-                    
-                    // Check if data was just cleared
-                    if (Object.keys(userSpecificData.weekData).length === 0) {
-                        console.log('🚨 WARNING: weekData was just cleared to empty!');
-                        console.log('🚨 This might indicate a race condition or incorrect clearing');
-                        console.trace('Stack trace for weekData clearing');
-                        
-                        // Try to restore data immediately if it was cleared unexpectedly
-                        setTimeout(() => {
-                            console.log('🚨 Attempting to restore data after unexpected clearing...');
-                            loadAllUserDataFromLocalStorage();
-                        }, 100);
-                    }
-                }
-            }, [userSpecificData.weekData, user, isAdmin]);
-
-            // Function to force save all current data (useful for mobile)
-            const forceSaveAllData = useCallback(() => {
-                if (!user || !currentWeek) return;
-                
-                const weekKey = formatWeekKey(currentWeek);
-                const currentData = weekData[weekKey];
-                if (currentData) {
-                    // Save to localStorage immediately
-                    saveToLocalStorage(weekKey, currentData);
-                    // Save to Supabase as backup
-                    saveWeekData(weekKey, currentData);
-                    console.log('💾 Force save all data triggered');
-                    setLastSaved(new Date());
-                }
-            }, [user, currentWeek, weekData, saveToLocalStorage, saveWeekData]);
-
-            // Function to load all user data from localStorage - BULLETPROOF approach
-            const loadAllUserDataFromLocalStorage = () => {
-                if (!user) return;
-                
-                try {
-                    console.log('🔄 BULLETPROOF: Loading all user data from localStorage...');
-                    console.log('🔄 User ID:', user.id);
-                    
-                    // Get all localStorage keys for this user
-                    const localStorageKeys = Object.keys(localStorage).filter(key => 
-                        key.startsWith(`marriage_meetings_${user.id}_`)
-                    );
-                    
-                    console.log('🔑 Found localStorage keys:', localStorageKeys);
-                    
-                    if (localStorageKeys.length > 0) {
-                        console.log(`📊 Found ${localStorageKeys.length} weeks of data in localStorage`);
-                        
-                        const loadedWeekData = {};
-                        localStorageKeys.forEach(key => {
-                            const weekKey = key.replace(`marriage_meetings_${user.id}_`, '');
-                            try {
-                                const data = JSON.parse(localStorage.getItem(key));
-                                loadedWeekData[weekKey] = data;
-                                console.log(`✅ Loaded week: ${weekKey}`, data);
-                            } catch (parseError) {
-                                console.error(`❌ Error parsing localStorage data for week ${weekKey}:`, parseError);
-                            }
-                        });
-                        
-                        console.log('📊 Final loaded week data:', loadedWeekData);
-                        console.log('📊 Week keys:', Object.keys(loadedWeekData));
-                        
-                        // Update both states - FORCE update
-                        setUserSpecificData(prev => {
-                            const newState = {
-                                ...prev,
-                                weekData: loadedWeekData
-                            };
-                            console.log('🔄 Setting userSpecificData to:', newState);
-                            return newState;
-                        });
-                        
-                        setWeekData(loadedWeekData);
-                        
-                        console.log('🎉 BULLETPROOF: Successfully loaded all user data from localStorage');
-                        console.log('🎉 State should now contain:', Object.keys(loadedWeekData).length, 'weeks');
-                    } else {
-                        console.log('📭 No localStorage data found for user');
-                        
-                        // Set empty state to prevent undefined errors
-                        setUserSpecificData(prev => ({
-                            ...prev,
-                            weekData: {}
-                        }));
-                        setWeekData({});
-                    }
-                } catch (error) {
-                    console.error('❌ CRITICAL ERROR loading localStorage data:', error);
-                    
-                    // Emergency fallback - set empty state
-                    setUserSpecificData(prev => ({
-                        ...prev,
-                        weekData: {}
-                    }));
-                    setWeekData({});
-                }
-            };
-
-            // User management functions
-            const handleAddUser = async (email, password, displayName) => {
-                try {
-                    const { data, error } = await adminSupabase.auth.admin.createUser({
-                        email,
-                        password,
-                        user_metadata: { display_name: displayName },
-                        email_confirm: true
-                    });
-                    
-                    if (error) throw error;
-                    return data.user;
-                } catch (error) {
-                    console.error('Error adding user:', error);
-                    throw error;
-                }
-            };
-
-            const handleRemoveUser = async (userId) => {
-                try {
-                    // Check if user exists in Supabase
-                    const { data: userData, error: getUserError } = await adminSupabase.auth.admin.getUserById(userId);
-                    if (getUserError || !userData.user) {
-                        console.log('User not found in Supabase, removing from local state only');
-                        return;
-                    }
-                    
-                    const { error } = await adminSupabase.auth.admin.deleteUser(userId);
-                    if (error) throw error;
-                } catch (error) {
-                    console.error('Error removing user:', error);
-                    throw error;
-                }
-            };
-
-            // Enhanced timeout management with mobile auto-save
-            useEffect(() => {
-                let autoSaveInterval;
-                
-                // Set up periodic auto-save for mobile devices (every 30 seconds)
-                if (user && currentWeek) {
-                    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-                    if (isMobile) {
-                        autoSaveInterval = setInterval(() => {
-                            const weekKey = formatWeekKey(currentWeek);
-                            const currentData = weekData[weekKey];
-                            if (currentData) {
-                                // Save to localStorage immediately
-                                saveToLocalStorage(weekKey, currentData);
-                                // Also save to Supabase as backup
-                                saveWeekData(weekKey, currentData);
-                                console.log('📱 Mobile auto-save triggered');
-                            }
-                        }, 30000); // 30 seconds
-                    }
-                }
-                
-                return () => {
-                    if (saveTimeoutRef.current) {
-                        clearTimeout(saveTimeoutRef.current);
-                    }
-                    if (autoSaveInterval) {
-                        clearInterval(autoSaveInterval);
-                    }
-                };
-            }, [user, currentWeek, weekData, saveToLocalStorage, saveWeekData]);
-
-            // Enhanced data persistence for mobile devices - handles tab switching, page refresh, and app switching
-            useEffect(() => {
-                const handleBeforeUnload = () => {
-                    // Save current week data before page unload
-                    if (user && currentWeek) {
-                        const weekKey = formatWeekKey(currentWeek);
-                        const currentData = weekData[weekKey];
-                        if (currentData) {
-                            const localStorageKey = `marriage_meetings_${user.id}_${weekKey}`;
-                            localStorage.setItem(localStorageKey, JSON.stringify(currentData));
-                            console.log('💾 Saved data before page unload');
-                        }
-                    }
-                };
-
-                const handleVisibilityChange = () => {
-                    // Save data when app goes to background (mobile) or tab becomes hidden
-                    if (document.hidden && user && currentWeek) {
-                        const weekKey = formatWeekKey(currentWeek);
-                        const currentData = weekData[weekKey];
-                        if (currentData) {
-                            const localStorageKey = `marriage_meetings_${user.id}_${weekKey}`;
-                            localStorage.setItem(localStorageKey, JSON.stringify(currentData));
-                            console.log('💾 Saved data on visibility change (app backgrounded)');
-                        }
-                    }
-                };
-
-                const handlePageHide = () => {
-                    // Save data when page is about to be hidden (mobile app switching)
-                    if (user && currentWeek) {
-                        const weekKey = formatWeekKey(currentWeek);
-                        const currentData = weekData[weekKey];
-                        if (currentData) {
-                            const localStorageKey = `marriage_meetings_${user.id}_${weekKey}`;
-                            localStorage.setItem(localStorageKey, JSON.stringify(currentData));
-                            console.log('💾 Saved data on page hide (app switching)');
-                        }
-                    }
-                };
-
-                const handleFocus = () => {
-                    // Reload data when app comes back to foreground (mobile)
-                    if (user && !document.hidden) {
-                        console.log('📱 App returned to foreground, ensuring data is loaded');
-                        // Force a refresh of current week data
-                        const weekKey = formatWeekKey(currentWeek);
-                        if (weekData[weekKey]) {
-                            // Trigger a re-render to ensure UI is up to date
-                            setWeekData(prev => ({ ...prev }));
-                        }
-                    }
-                };
-
-                // Add all event listeners for comprehensive mobile support
-                window.addEventListener('beforeunload', handleBeforeUnload);
-                document.addEventListener('visibilitychange', handleVisibilityChange);
-                window.addEventListener('pagehide', handlePageHide);
-                window.addEventListener('focus', handleFocus);
-                
-                // Mobile-specific events
-                if ('onpagehide' in window) {
-                    // iOS Safari support
-                    window.addEventListener('pagehide', handlePageHide);
-                }
-                
-                if ('onbeforeunload' in window) {
-                    // Standard browser support
-                    window.addEventListener('beforeunload', handleBeforeUnload);
-                }
-
-                return () => {
-                    window.removeEventListener('beforeunload', handleBeforeUnload);
-                    document.removeEventListener('visibilitychange', handleVisibilityChange);
-                    window.removeEventListener('pagehide', handlePageHide);
-                    window.removeEventListener('focus', handleFocus);
-                    
-                    if ('onpagehide' in window) {
-                        window.removeEventListener('pagehide', handlePageHide);
-                    }
-                    
-                    if ('onbeforeunload' in window) {
-                        window.removeEventListener('beforeunload', handleBeforeUnload);
-                    }
-                };
-            }, [user, currentWeek, weekData]);
-
-            // Use useMemo to properly calculate currentWeekData based on current state
-            const currentWeekData = useMemo(() => {
-                const weekKey = formatWeekKey(currentWeek);
-                const existingData = userSpecificData.weekData[weekKey];
-                
-                // DEBUG: Log what's happening in currentWeekData calculation
-                console.log('🔍 currentWeekData useMemo running:');
-                console.log('🔍 Week key:', weekKey);
-                console.log('🔍 Existing data found:', !!existingData);
-                console.log('🔍 userSpecificData.weekData keys:', Object.keys(userSpecificData.weekData));
-                
-                if (existingData) {
-                    console.log('🔍 Returning existing data for week:', weekKey);
-                    return existingData;
-                }
-                
-                // Check if we should have data but it's missing
-                if (Object.keys(userSpecificData.weekData).length > 0) {
-                    console.log('🚨 WARNING: Data exists in userSpecificData but not for this week');
-                    console.log('🚨 Available weeks:', Object.keys(userSpecificData.weekData));
-                    console.log('🚨 Requested week:', weekKey);
-                    
-                    // Try to restore data if it's missing for this specific week
-                    if (user && !isAdmin) {
-                        const weekDataKey = `marriage_meetings_${user.id}`;
-                        
-                        // Check all localStorage keys for this user
-                        const allKeys = Object.keys(localStorage).filter(key => key.startsWith(weekDataKey));
-                        console.log('🔍 Found localStorage keys:', allKeys);
-                        
-                        for (const key of allKeys) {
-                            try {
-                                const data = JSON.parse(localStorage.getItem(key));
-                                if (data && data[weekKey]) {
-                                    console.log('🚨 Found data for week in localStorage, updating state');
-                                    setUserSpecificData(prev => ({
-                                        ...prev,
-                                        weekData: { ...prev.weekData, [weekKey]: data[weekKey] }
-                                    }));
-                                    return data[weekKey];
-                                }
-                            } catch (error) {
-                                console.error('❌ Error parsing localStorage data:', error);
-                            }
-                        }
-                    }
-                }
-                
-                console.log('🔍 Returning default structure for week:', weekKey);
-                // Return default structure if no data exists
-                return {
-                    schedule: {
-                        Monday: [''], Tuesday: [''], Wednesday: [''], Thursday: [''],
-                        Friday: [''], Saturday: [''], Sunday: ['']
-                    },
-                    todos: [], prayers: [], goals: [], grocery: [], unconfessedSin: [], weeklyWinddown: []
-                };
-            }, [currentWeek, userSpecificData.weekData, user, isAdmin]);
-
-            // Update functions
-            const updateSchedule = (day, index, value) => {
-                const weekKey = formatWeekKey(currentWeek);
-                const newData = {
-                    ...currentWeekData,
-                    schedule: {
-                        ...currentWeekData.schedule,
-                        [day]: currentWeekData.schedule[day].map((item, i) => i === index ? value : item)
-                    }
-                };
-                
-                // Update BOTH state variables to keep them in sync
-                setWeekData(prev => ({ ...prev, [weekKey]: newData }));
-                setUserSpecificData(prev => ({
-                    ...prev,
-                    weekData: { ...prev.weekData, [weekKey]: newData }
-                }));
-                
-                // Save to localStorage immediately for instant persistence
-                saveToLocalStorage(weekKey, newData);
-                
-                // Debounced save to Supabase
-                debouncedSave(weekKey, newData);
-                
-                console.log('✏️ Updated schedule for day:', day, 'index:', index, 'value:', value);
-            };
-
-            const addScheduleLine = (day) => {
-                const weekKey = formatWeekKey(currentWeek);
-                const newData = {
-                    ...currentWeekData,
-                    schedule: {
-                        ...currentWeekData.schedule,
-                        [day]: [...currentWeekData.schedule[day], '']
-                    }
-                };
-                
-                // Update BOTH state variables to keep them in sync
-                setWeekData(prev => ({ ...prev, [weekKey]: newData }));
-                setUserSpecificData(prev => ({
-                    ...prev,
-                    weekData: { ...prev.weekData, [weekKey]: newData }
-                }));
-                
-                // Save to localStorage immediately
-                saveToLocalStorage(weekKey, newData);
-                
-                // Save to Supabase
-                saveWeekData(weekKey, newData);
-                
-                console.log('➕ Added schedule line for day:', day, 'New data:', newData);
-            };
-
-            const removeScheduleLine = (day, index) => {
-                const weekKey = formatWeekKey(currentWeek);
-                const newData = {
-                    ...currentWeekData,
-                    schedule: {
-                        ...currentWeekData.schedule,
-                        [day]: currentWeekData.schedule[day].filter((_, i) => i !== index)
-                    }
-                };
-                
-                // Update BOTH state variables to keep them in sync
-                setWeekData(prev => ({ ...prev, [weekKey]: newData }));
-                setUserSpecificData(prev => ({
-                    ...prev,
-                    weekData: { ...prev.weekData, [weekKey]: newData }
-                }));
-                
-                // Save to localStorage immediately
-                saveToLocalStorage(weekKey, newData);
-                
-                // Save to Supabase
-                saveWeekData(weekKey, newData);
-                
-                console.log('➖ Removed schedule line for day:', day, 'index:', index, 'New data:', newData);
-            };
-
-            const addListItem = (listType) => {
-                const weekKey = formatWeekKey(currentWeek);
-                const currentItems = currentWeekData[listType] || [];
-                const newItem = { id: Date.now(), text: '', completed: false };
-                const newData = {
-                    ...currentWeekData,
-                    [listType]: [...currentItems, newItem]
-                };
-                
-                // Update BOTH state variables to keep them in sync
-                setWeekData(prev => ({ ...prev, [weekKey]: newData }));
-                setUserSpecificData(prev => ({
-                    ...prev,
-                    weekData: { ...prev.weekData, [weekKey]: newData }
-                }));
-                
-                // Save to localStorage immediately
-                saveToLocalStorage(weekKey, newData);
-                
-                // Save to Supabase
-                saveWeekData(weekKey, newData);
-                
-                console.log('➕ Added list item for type:', listType, 'New data:', newData);
-            };
-
-            const updateListItem = (listType, id, text) => {
-                const weekKey = formatWeekKey(currentWeek);
-                const currentItems = currentWeekData[listType] || [];
-                const updatedItems = currentItems.map(item => 
-                    item.id === id ? { ...item, text } : item
-                );
-                const newData = {
-                    ...currentWeekData,
-                    [listType]: updatedItems
-                };
-                
-                // Update BOTH state variables to keep them in sync
-                setWeekData(prev => ({ ...prev, [weekKey]: newData }));
-                setUserSpecificData(prev => ({
-                    ...prev,
-                    weekData: { ...prev.weekData, [weekKey]: newData }
-                }));
-                
-                // Save to localStorage immediately for instant persistence
-                saveToLocalStorage(weekKey, newData);
-                
-                // Debounced save to Supabase
-                debouncedSave(weekKey, newData);
-                
-                console.log('✏️ Updated list item for type:', listType, 'id:', id, 'text:', text);
-            };
-
-            const toggleListItem = (listType, id) => {
-                const weekKey = formatWeekKey(currentWeek);
-                const currentItems = currentWeekData[listType] || [];
-                const updatedItems = currentItems.map(item => 
-                    item.id === id ? { ...item, completed: !item.completed } : item
-                );
-                const newData = {
-                    ...currentWeekData,
-                    [listType]: updatedItems
-                };
-                
-                // Update BOTH state variables to keep them in sync
-                setWeekData(prev => ({ ...prev, [weekKey]: newData }));
-                setUserSpecificData(prev => ({
-                    ...prev,
-                    weekData: { ...prev.weekData, [weekKey]: newData }
-                }));
-                
-                // Save to localStorage immediately
-                saveToLocalStorage(weekKey, newData);
-                
-                // Save to Supabase
-                saveWeekData(weekKey, newData);
-                
-                console.log('🔄 Toggled list item for type:', listType, 'id:', id, 'completed:', !currentItems.find(item => item.id === id)?.completed);
-            };
-
-            const removeListItem = (listType, id) => {
-                const weekKey = formatWeekKey(currentWeek);
-                const currentItems = currentWeekData[listType] || [];
-                const updatedItems = currentItems.filter(item => item.id !== id);
-                const newData = {
-                    ...currentWeekData,
-                    [listType]: updatedItems
-                };
-                
-                // Update BOTH state variables to keep them in sync
-                setWeekData(prev => ({ ...prev, [weekKey]: newData }));
-                setUserSpecificData(prev => ({
-                    ...prev,
-                    weekData: { ...prev.weekData, [weekKey]: newData }
-                }));
-                
-                // Save to localStorage immediately
-                saveToLocalStorage(weekKey, newData);
-                
-                // Save to Supabase
-                saveWeekData(weekKey, newData);
-                
-                console.log('🗑️ Removed list item for type:', listType, 'id:', id);
-            };
-
-            const navigateWeek = (direction) => {
-                const newDate = new Date(currentWeek);
-                newDate.setDate(newDate.getDate() + (direction * 7));
-                setCurrentWeek(newDate);
-                
-                // Ensure the new week's data is loaded
-                const newWeekKey = formatWeekKey(newDate);
-                if (user && !weekData[newWeekKey]) {
-                    console.log(`🔄 Navigating to new week: ${newWeekKey}, loading data...`);
-                    initializeWeekData();
-                }
-            };
-
-            const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-
-            // Show loading state
+            // Show loading while auth is initializing
             if (authLoading) {
                 return (
                     <div className="flex items-center justify-center min-h-screen">
@@ -2049,231 +672,158 @@
             }
 
             // Show sign-in screen if not authenticated
-            console.log('🔍 Render check - user state:', user ? user.email : 'null', 'isAdmin:', isAdmin);
             if (!user) {
-                console.log('🎯 Rendering SignInScreen - user is null');
                 return (
                     <SignInScreen 
-                        onSignIn={handleSignIn}
-                        onAdminSignIn={handleAdminSignIn}
+                        onSignIn={(userData) => {
+                            setUser(userData);
+                            setIsAdmin(false);
+                        }}
+                        onAdminSignIn={(userData) => {
+                            setUser(userData);
+                            setIsAdmin(true);
+                        }}
                     />
                 );
             }
 
-            // Show admin panel if admin and in admin mode
-            if (isAdmin && userModePreference === 'admin') {
+            // Show admin panel if user is admin
+            if (isAdmin) {
                 return (
                     <AdminPanel 
                         user={user}
-                        onSignOut={handleSignOut}
-                        onAddUser={handleAddUser}
-                        onRemoveUser={handleRemoveUser}
+                        onSignOut={async () => {
+                            try {
+                                await supabase.auth.signOut();
+                                setUser(null);
+                                setIsAdmin(false);
+                            } catch (error) {
+                                console.error('Sign out error:', error);
+                            }
+                        }}
+                        onAddUser={async (email, password, displayName) => {
+                            alert(`User ${email} would be created with admin privileges. In production, this would use Supabase admin API.`);
+                        }}
+                        onRemoveUser={async (userId) => {
+                            if (!confirm('Are you sure you want to remove this user? This action cannot be undone.')) {
+                                return;
+                            }
+                            alert('User removal would be implemented with Supabase admin API in production.');
+                        }}
                         useServiceRoleKey={USE_SERVICE_ROLE_KEY}
                     />
                 );
             }
 
-            // Show loading state for main app
+            // Show loading while app data is loading
             if (isLoading) {
                 return (
                     <div className="flex items-center justify-center min-h-screen">
                         <div className="text-center">
                             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-                            <p className="text-gray-600">Loading your marriage meeting...</p>
+                            <p className="text-gray-600">Loading your marriage meeting schedule...</p>
                         </div>
                     </div>
                 );
             }
 
+            // Update functions
+            const updateSchedule = (day, schedule) => {
+                const updatedWeekData = {
+                    ...weekData,
+                    [day]: { ...weekData[day], schedule }
+                };
+                setWeekData(updatedWeekData);
+                saveWeekData(updatedWeekData);
+            };
+
+            const updateNotes = (day, notes) => {
+                const updatedWeekData = {
+                    ...weekData,
+                    [day]: { ...weekData[day], notes }
+                };
+                setWeekData(updatedWeekData);
+                saveWeekData(updatedWeekData);
+            };
+
+            const addScheduleLine = (day) => {
+                const updatedSchedule = [...weekData[day].schedule, ''];
+                updateSchedule(day, updatedSchedule);
+            };
+
+            const removeScheduleLine = (day, index) => {
+                const updatedSchedule = weekData[day].schedule.filter((_, i) => i !== index);
+                updateSchedule(day, updatedSchedule);
+            };
+
+            const updateScheduleLine = (day, index, value) => {
+                const updatedSchedule = weekData[day].schedule.map((line, i) => i === index ? value : line);
+                updateSchedule(day, updatedSchedule);
+            };
+
+            const navigateDate = (direction) => {
+                const newDate = new Date(currentDate);
+                newDate.setDate(newDate.getDate() + direction);
+                setCurrentDate(newDate);
+            };
+
             return (
-                <div className="container mx-auto px-4 py-8 max-w-7xl">
+                <div className="container mx-auto px-4 py-8 max-w-6xl">
                     {/* Header Section */}
                     <div className="section-card rounded-xl p-6 mb-8">
                         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
                             <div className="text-center md:text-left">
                                 <h1 className="section-header text-4xl font-bold mb-2">
-                                    Weekly Marriage Meeting
+                                    Marriage Meeting Tool
                                 </h1>
                                 <p className="text-gray-600 text-lg">
-                                    Plan together, grow together
+                                    Plan and organize your weekly marriage meetings
                                 </p>
-                                {user && (
-                                    <div className="text-sm text-gray-500 mt-1">
-                                        Signed in as: {user.email}
-                                    </div>
-                                )}
                             </div>
                             
                             <div className="flex items-center gap-4">
-                                {/* Admin/User Mode Switch */}
-                                {user?.user_metadata?.is_admin === true && (
-                                    <div className="flex items-center gap-2">
-                                        {userModePreference === 'admin' ? (
-                                            <button
-                                                onClick={switchAdminToUserMode}
-                                                className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors"
-                                            >
-                                                Switch to User Mode
-                                            </button>
-                                        ) : (
-                                            <button
-                                                onClick={switchUserToAdminMode}
-                                                className="bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600 transition-colors"
-                                            >
-                                                Admin Mode
-                                            </button>
-                                        )}
-                                    </div>
-                                )}
-                                
-                                {/* Debug Button - Show current data state */}
-                                <button
-                                    onClick={() => {
-                                        console.log('🔍 DEBUG: Current app state:');
-                                        console.log('User:', user);
-                                        console.log('Week Data:', weekData);
-                                        console.log('User Specific Data:', userSpecificData);
-                                        console.log('Current Week:', currentWeek);
-                                        console.log('LocalStorage Keys:', Object.keys(localStorage).filter(key => key.startsWith('marriage_meetings_')));
-                                        
-                                        // Show data in alert for easy viewing
-                                        const weekKeys = Object.keys(weekData);
-                                        if (weekKeys.length > 0) {
-                                            alert(`Found ${weekKeys.length} weeks of data:\n${weekKeys.join('\n')}`);
-                                        } else {
-                                            alert('No week data found in app state');
-                                        }
-                                    }}
-                                    className="bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600 transition-colors"
-                                    title="Debug: Check current data state"
-                                >
-                                    🐛 Debug
-                                </button>
-                                
-                                {/* Force Reload Data Button */}
-                                <button
-                                    onClick={() => {
-                                        if (user) {
-                                            console.log('🔄 Force reloading data from localStorage...');
-                                            loadAllUserDataFromLocalStorage();
-                                            alert('Data reloaded! Check the console for details.');
-                                        }
-                                    }}
-                                    className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors"
-                                    title="Force reload data from localStorage"
-                                >
-                                    🔄 Reload Data
-                                </button>
-
-                                {/* Force Sync with Supabase Button */}
-                                <button
-                                    onClick={async () => {
-                                        if (user) {
-                                            console.log('🌐 Force syncing with Supabase for cross-device data...');
-                                            try {
-                                                // Try with RLS first
-                                                let { data, error } = await supabase
-                                                    .from(TABLE_NAME)
-                                                    .select('*')
-                                                    .eq('user_id', user.id);
-                                                
-                                                // If RLS fails, try with service role key
-                                                if (error && USE_SERVICE_ROLE_KEY) {
-                                                    console.log('🔄 RLS failed, trying with service role key...');
-                                                    const { data: adminData, error: adminError } = await supabase
-                                                        .from(TABLE_NAME)
-                                                        .select('*')
-                                                        .eq('user_id', user.id);
-                                                    
-                                                    if (!adminError && adminData) {
-                                                        data = adminData;
-                                                        error = null;
-                                                    }
-                                                }
-                                                
-                                                if (!error && data && data.length > 0) {
-                                                    console.log(`🌐 Found ${data.length} weeks in Supabase, syncing...`);
-                                                    
-                                                    let syncedCount = 0;
-                                                    data.forEach(row => {
-                                                        const localStorageKey = `marriage_meetings_${user.id}_${row.week_key}`;
-                                                        localStorage.setItem(localStorageKey, JSON.stringify(row.data));
-                                                        syncedCount++;
-                                                    });
-                                                    
-                                                    // Reload data after sync
-                                                    await loadAllUserDataFromLocalStorage();
-                                                    
-                                                    alert(`✅ Synced ${syncedCount} weeks from Supabase! Your phone should now show all data.`);
-                                                } else if (error) {
-                                                    alert(`❌ Sync failed: ${error.message}\n\nYour phone may not have access to data from other devices.`);
-                                                } else {
-                                                    alert('📭 No data found in Supabase to sync.');
-                                                }
-                                            } catch (syncError) {
-                                                console.error('❌ Manual sync error:', syncError);
-                                                alert(`❌ Manual sync failed: ${syncError.message}`);
-                                            }
-                                        }
-                                    }}
-                                    className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors"
-                                    title="Force sync with Supabase for cross-device data"
-                                >
-                                    🌐 Sync Cloud
-                                </button>
-                                
-                                {/* Mobile Save Button */}
-                                {/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) && (
-                                    <button
-                                        onClick={forceSaveAllData}
-                                        className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors"
-                                        title="Force save all data"
-                                    >
-                                        💾 Save Now
-                                    </button>
-                                )}
-                                
-                                {/* Sign Out Button */}
-                                <button
-                                    onClick={() => {
-                                        console.log('🔴 Sign Out button clicked!');
-                                        handleSignOut();
-                                    }}
-                                    className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors"
-                                >
-                                    Sign Out
-                                </button>
-                                
                                 <div className="text-right text-sm">
-                                    <div className={`flex items-center gap-2 ${
-                                        isConnected ? 'text-green-600' : 'text-red-600'
-                                    }`}>
-                                        <div className={`w-2 h-2 rounded-full ${
-                                            isConnected ? 'bg-green-500' : 'bg-red-500'
-                                        } status-indicator`}></div>
-                                        {isConnected ? 'Synced' : 'Offline'}
+                                    <div className="text-green-600">
+                                        <div className="w-2 h-2 rounded-full bg-green-500 mx-auto mb-1"></div>
+                                        Synced
                                     </div>
                                     {lastSaved && (
                                         <div className="text-gray-500">
                                             Last saved: {lastSaved.toLocaleTimeString()}
                                         </div>
                                     )}
-                                    {/* Mobile save indicator */}
-                                    {/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) && (
-                                        <div className="text-xs text-blue-600 font-medium">
-                                            📱 Auto-saving every 30s
-                                        </div>
-                                    )}
+                                </div>
+                                
+                                {/* User Info and Sign Out */}
+                                <div className="flex items-center gap-3">
+                                    <div className="text-sm text-gray-600">
+                                        Welcome, {user.email}
+                                    </div>
+
+                                    <button 
+                                        onClick={async () => {
+                                            try {
+                                                await supabase.auth.signOut();
+                                                setUser(null);
+                                                setIsAdmin(false);
+                                            } catch (error) {
+                                                console.error('Sign out error:', error);
+                                            }
+                                        }}
+                                        className="px-3 py-1 bg-red-500 text-white text-sm rounded-lg hover:bg-red-600 transition-colors"
+                                    >
+                                        Sign Out
+                                    </button>
                                 </div>
                             </div>
                         </div>
 
                         <div className="section-divider"></div>
 
-                        {/* Week Navigation */}
+                        {/* Date Navigation */}
                         <div className="flex items-center justify-center gap-6">
                             <button 
-                                onClick={() => navigateWeek(-1)}
+                                onClick={() => navigateDate(-1)}
                                 className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors shadow-sm"
                             >
                                 <ChevronLeftIcon />
@@ -2282,15 +832,12 @@
                             
                             <div className="text-center">
                                 <h2 className="text-xl font-semibold text-gray-800">
-                                    {formatWeekDisplay(currentWeek)}
+                                    Week of {formatDateDisplay(currentDate)}
                                 </h2>
-                                <p className="text-sm text-gray-500 mt-1">
-                                    Week of {getMonday(currentWeek).toLocaleDateString('en-US', { weekday: 'long' })}
-                                </p>
                             </div>
                             
                             <button 
-                                onClick={() => navigateWeek(1)}
+                                onClick={() => navigateDate(1)}
                                 className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors shadow-sm"
                             >
                                 Next Week
@@ -2299,363 +846,66 @@
                         </div>
                     </div>
 
-                    {/* Weekly Schedule Section */}
-                    <div className="section-card rounded-xl p-6 mb-8">
-                        {/* DEBUG: Show currentWeekData for debugging */}
-                        {(() => {
-                            console.log('🎯 UI RENDERING DEBUG: Rendering Weekly Schedule Section');
-                            console.log('🎯 currentWeekData:', currentWeekData);
-                            console.log('🎯 currentWeekData.schedule:', currentWeekData.schedule);
-                            console.log('🎯 currentWeekData.todos:', currentWeekData.todos);
-                            console.log('🎯 currentWeekData.prayers:', currentWeekData.prayers);
-                            return null;
-                        })()}
-                        
-                        <div className="text-center mb-6">
-                            <h2 className="section-header text-2xl font-bold mb-2">
-                                📅 Weekly Schedule
-                            </h2>
-                            <p className="text-gray-600">
-                                Plan your week together, day by day
-                            </p>
-                        </div>
-
-                        <div className="section-divider"></div>
-
-                        <div className="flex flex-wrap justify-center gap-8 max-w-6xl mx-auto">
-                            {days.map((day) => {
-                                const dayItems = currentWeekData.schedule?.[day] || [''];
-                                console.log(`🎯 Rendering day ${day}:`, dayItems);
-                                return (
-                                    <div key={day} className="w-full sm:w-[calc(50%-1rem)] lg:w-[calc(33.333%-1.33rem)] xl:w-[calc(25%-1.5rem)]">
-                                        <ScheduleDay 
-                                            day={day} 
-                                            items={dayItems}
-                                            onUpdate={updateSchedule}
-                                            onAddLine={() => addScheduleLine(day)}
-                                            onRemoveLine={(index) => removeScheduleLine(day, index)}
-                                        />
-                                    </div>
-                                );
-                            })}
-                        </div>
-
-                        <div className="section-divider mt-6"></div>
-                        <div className="text-center">
-                            <p className="text-sm text-gray-500">
-                                Click in any day to add commitments, appointments, or notes
-                            </p>
-                        </div>
-                    </div>
-
-                    {/* Lists Section */}
-                    <div className="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-8">
-                        <ListSection 
-                            title="✅ To-Do List" 
-                            subtitle="Tasks and action items"
-                            listType="todos" 
-                            items={currentWeekData.todos || []} 
-                            onUpdate={updateListItem}
-                            onAdd={addListItem}
-                            onToggle={toggleListItem}
-                            onRemove={removeListItem}
-                            placeholder="Add a new task..."
-                            color="blue"
-                        />
-                        
-                        <ListSection 
-                            title="🙏 Prayer List" 
-                            subtitle="Prayers and requests"
-                            listType="prayers" 
-                            items={currentWeekData.prayers || []} 
-                            onUpdate={updateListItem}
-                            onAdd={addListItem}
-                            onToggle={toggleListItem}
-                            onRemove={removeListItem}
-                            placeholder="Add a prayer request..."
-                            color="purple"
-                        />
-                        
-                        <ListSection 
-                            title="🎯 Goals" 
-                            subtitle="Dreams and aspirations"
-                            listType="goals" 
-                            items={currentWeekData.goals || []} 
-                            onUpdate={updateListItem}
-                            onAdd={addListItem}
-                            onToggle={toggleListItem}
-                            onRemove={removeListItem}
-                            placeholder="Add a new goal..."
-                            color="green"
-                        />
-                        
-                        <ListSection 
-                            title="🛒 Grocery List" 
-                            subtitle="Shopping and supplies"
-                            listType="grocery" 
-                            items={currentWeekData.grocery || []} 
-                            onUpdate={updateListItem}
-                            onAdd={addListItem}
-                            onToggle={toggleListItem}
-                            onRemove={removeListItem}
-                            placeholder="Add grocery item..."
-                            color="orange"
-                        />
-                        
-                        <ListSection 
-                            title="💭 Unconfessed Sin" 
-                            subtitle="Accountability and grace"
-                            listType="unconfessedSin" 
-                            items={currentWeekData.unconfessedSin || []} 
-                            onUpdate={updateListItem}
-                            onAdd={addListItem}
-                            onToggle={toggleListItem}
-                            onRemove={removeListItem}
-                            placeholder="Add for accountability..."
-                            color="red"
-                        />
-                        
-                        <ListSection 
-                            title="🌙 Weekly Winddown" 
-                            subtitle="Weekly relaxation plan together"
-                            listType="weeklyWinddown" 
-                            items={currentWeekData.weeklyWinddown || []} 
-                            onUpdate={updateListItem}
-                            onAdd={addListItem}
-                            onToggle={toggleListItem}
-                            onRemove={removeListItem}
-                            placeholder="Add relaxation activity..."
-                            color="blue"
-                        />
+                    {/* Weekly Schedule */}
+                    <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+                        {Object.entries(weekData).map(([day, dayData]) => (
+                            <div key={day} className="modern-card p-6">
+                                <h3 className="text-xl font-bold text-gray-800 mb-4 capitalize">
+                                    {day}
+                                </h3>
+                                
+                                {/* Schedule Lines */}
+                                <div className="space-y-3 mb-4">
+                                    {dayData.schedule.map((line, index) => (
+                                        <div key={index} className="flex items-center gap-2">
+                                            <input
+                                                type="text"
+                                                value={line}
+                                                onChange={(e) => updateScheduleLine(day, index, e.target.value)}
+                                                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                                                placeholder={`Schedule item ${index + 1}`}
+                                            />
+                                            <button
+                                                onClick={() => removeScheduleLine(day, index)}
+                                                className="px-2 py-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
+                                            >
+                                                ✕
+                                            </button>
+                                        </div>
+                                    ))}
+                                    
+                                    <button
+                                        onClick={() => addScheduleLine(day)}
+                                        className="w-full py-2 border-2 border-dashed border-gray-300 rounded-lg text-gray-500 hover:text-gray-700 hover:border-gray-400 transition-colors flex items-center justify-center gap-2"
+                                    >
+                                        <PlusIcon />
+                                        Add Another Line
+                                    </button>
+                                </div>
+                                
+                                {/* Notes */}
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Notes
+                                    </label>
+                                    <textarea
+                                        value={dayData.notes}
+                                        onChange={(e) => updateNotes(day, e.target.value)}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
+                                        rows="3"
+                                        placeholder="Add notes for this day..."
+                                    />
+                                </div>
+                            </div>
+                        ))}
                     </div>
 
                     {/* Footer */}
                     <div className="mt-12 text-center">
                         <div className="section-divider"></div>
                         <p className="text-gray-500 text-sm">
-                            Built with ❤️ for strengthening marriages through intentional planning
+                            Built for stronger marriages through better communication and planning
                         </p>
-                        <p className="text-gray-400 text-xs mt-2">
-                            All changes sync in real-time
-                        </p>
-                    </div>
-                </div>
-            );
-        };
-
-        // Schedule Day Component with local state for inputs
-        const ScheduleDay = ({ day, items, onUpdate, onAddLine, onRemoveLine }) => {
-            const [localInputs, setLocalInputs] = useState({});
-
-            // Initialize local inputs when items change
-            useEffect(() => {
-                const newLocalInputs = {};
-                items.forEach((item, index) => {
-                    newLocalInputs[index] = item;
-                });
-                setLocalInputs(newLocalInputs);
-            }, [items]);
-
-            const handleInputChange = (index, value) => {
-                setLocalInputs(prev => ({ ...prev, [index]: value }));
-            };
-
-            const handleInputBlur = (index) => {
-                const localValue = localInputs[index];
-                const currentItem = items[index];
-                if (localValue !== undefined && currentItem !== localValue) {
-                    onUpdate(day, index, localValue);
-                }
-            };
-
-            const autoResize = (e) => {
-                e.target.style.height = 'auto';
-                e.target.style.height = e.target.scrollHeight + 'px';
-            };
-
-            const dayColors = {
-                Monday: 'border-slate-300 focus:border-slate-500 focus:ring-slate-200',
-                Tuesday: 'border-slate-400 focus:border-slate-600 focus:ring-slate-200',
-                Wednesday: 'border-purple-300 focus:border-purple-500 focus:ring-purple-200',
-                Thursday: 'border-purple-400 focus:border-purple-600 focus:ring-purple-200',
-                Friday: 'border-purple-500 focus:border-purple-700 focus:ring-purple-200',
-                Saturday: 'border-purple-600 focus:border-purple-800 focus:ring-purple-200',
-                Sunday: 'border-purple-700 focus:border-purple-900 focus:ring-purple-200'
-            };
-
-            return (
-                <div className="modern-card p-8 min-h-[350px] flex flex-col w-full">
-                    <div className="text-center mb-6">
-                        <h3 className="font-bold text-gray-800 text-xl mb-3">
-                            {day}
-                        </h3>
-                        <div className="w-full h-px bg-gradient-to-r from-transparent via-purple-300 to-transparent"></div>
-                    </div>
-                    
-                    <div className="space-y-4 flex-1">
-                        {items.map((line, index) => (
-                            <div key={index} className="relative group">
-                                <textarea
-                                    value={localInputs[index] !== undefined ? localInputs[index] : line}
-                                    onChange={(e) => {
-                                        handleInputChange(index, e.target.value);
-                                        autoResize(e);
-                                    }}
-                                    onBlur={() => handleInputBlur(index)}
-                                    onInput={autoResize}
-                                    className={`w-full text-base border-2 ${dayColors[day]} rounded-xl px-5 py-4 resize-none overflow-hidden min-h-[4rem] focus:outline-none focus:ring-2 focus:ring-current transition-all duration-200 placeholder-gray-400`}
-                                    placeholder={`What's planned for ${day}?`}
-                                    rows="1"
-                                />
-                                {items.length > 1 && (
-                                    <button
-                                        onClick={() => onRemoveLine(index)}
-                                        className="absolute right-3 top-3 opacity-0 group-hover:opacity-100 text-red-500 hover:text-red-700 p-2 bg-white rounded-full shadow-lg transition-all duration-200 hover:scale-110"
-                                        title="Remove line"
-                                    >
-                                        <TrashIcon />
-                                    </button>
-                                )}
-                            </div>
-                        ))}
-                        
-                        <button
-                            onClick={() => onAddLine()}
-                            className="w-full text-base text-gray-600 hover:text-purple-700 py-4 border-2 border-dashed border-gray-300 hover:border-purple-400 rounded-xl transition-all duration-200 flex items-center justify-center gap-3 hover:bg-purple-50 font-medium"
-                        >
-                            <PlusIcon />
-                            Add another line
-                        </button>
-                    </div>
-                </div>
-            );
-        };
-
-        // List Section Component with local state for inputs
-        const ListSection = ({ title, subtitle, listType, items, onUpdate, onAdd, onToggle, onRemove, placeholder, color }) => {
-            const [localInputs, setLocalInputs] = useState({});
-
-            // Initialize local inputs when items change
-            useEffect(() => {
-                const newLocalInputs = {};
-                items.forEach(item => {
-                    if (!(item.id in localInputs)) {
-                        newLocalInputs[item.id] = item.text;
-                    }
-                });
-                if (Object.keys(newLocalInputs).length > 0) {
-                    setLocalInputs(prev => ({ ...prev, ...newLocalInputs }));
-                }
-            }, [items]);
-
-            const handleInputChange = (id, value) => {
-                setLocalInputs(prev => ({ ...prev, [id]: value }));
-            };
-
-            const handleInputBlur = (id) => {
-                const localValue = localInputs[id];
-                const currentItem = items.find(item => item.id === id);
-                if (localValue !== undefined && currentItem && localValue !== currentItem.text) {
-                    onUpdate(listType, id, localValue);
-                }
-            };
-
-            const colorClasses = {
-                blue: {
-                    header: 'from-slate-400 to-slate-600',
-                    border: 'border-slate-200',
-                    button: 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200'
-                },
-                purple: {
-                    header: 'from-slate-500 to-purple-500',
-                    border: 'border-slate-200',
-                    button: 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200'
-                },
-                green: {
-                    header: 'from-purple-400 to-purple-600',
-                    border: 'border-purple-200',
-                    button: 'bg-purple-50 hover:bg-purple-100 text-purple-700 border-purple-200'
-                },
-                orange: {
-                    header: 'from-purple-500 to-purple-700',
-                    border: 'border-purple-200',
-                    button: 'bg-purple-50 hover:bg-purple-100 text-purple-700 border-purple-200'
-                },
-                red: {
-                    header: 'from-purple-600 to-purple-800',
-                    border: 'border-purple-200',
-                    button: 'bg-purple-50 hover:bg-purple-100 text-purple-700 border-purple-200'
-                }
-            };
-
-            const colors = colorClasses[color];
-
-            return (
-                <div className={`modern-card border ${colors.border} overflow-hidden`}>
-                    {/* Header */}
-                    <div className={`bg-gradient-to-r ${colors.header} text-white p-6`}>
-                        <h3 className="font-bold text-xl">{title}</h3>
-                        <p className="text-white/90 text-sm mt-2">{subtitle}</p>
-                    </div>
-
-                    {/* Content */}
-                    <div className="p-6">
-                        <div className="space-y-4 mb-6">
-                            {items.map((item) => (
-                                <div key={item.id} className="flex items-start gap-4 group">
-                                    <button
-                                        onClick={() => onToggle(listType, item.id)}
-                                        className={`mt-1 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-200 hover:scale-110 ${
-                                            item.completed 
-                                                ? `bg-${color}-500 border-${color}-500 text-white shadow-lg` 
-                                                : `border-gray-300 hover:border-${color}-400 hover:bg-gray-50`
-                                        }`}
-                                    >
-                                        {item.completed && <CheckIcon />}
-                                    </button>
-                                    
-                                    <div className="flex-1 min-w-0">
-                                        <input
-                                            type="text"
-                                            value={localInputs[item.id] !== undefined ? localInputs[item.id] : item.text}
-                                            onChange={(e) => handleInputChange(item.id, e.target.value)}
-                                            onBlur={() => handleInputBlur(item.id)}
-                                            className={`w-full text-sm border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-${color}-400 focus:border-${color}-400 transition-all duration-200 ${
-                                                item.completed ? 'line-through text-gray-500 bg-gray-50' : 'hover:border-gray-300'
-                                            }`}
-                                            placeholder={placeholder}
-                                        />
-                                    </div>
-                                    
-                                    <button
-                                        onClick={() => onRemove(listType, item.id)}
-                                        className="opacity-0 group-hover:opacity-100 text-red-500 hover:text-red-700 p-2 rounded-full hover:bg-red-50 transition-all duration-200 hover:scale-110"
-                                        title="Remove item"
-                                    >
-                                        <TrashIcon />
-                                    </button>
-                                </div>
-                            ))}
-                        </div>
-
-                        {/* Add Button */}
-                        <button
-                            onClick={() => onAdd(listType)}
-                            className={`w-full py-4 border-2 border-dashed rounded-xl transition-all duration-200 flex items-center justify-center gap-3 font-medium text-lg hover:scale-[1.02] ${colors.button}`}
-                        >
-                            <PlusIcon />
-                            Add Item
-                        </button>
-
-                        {/* Footer Stats */}
-                        {items.length > 0 && (
-                            <div className="mt-6 pt-4 border-t border-gray-200">
-                                <div className="flex justify-between text-sm text-gray-600 font-medium">
-                                    <span>{items.length} total</span>
-                                    <span>{items.filter(item => item.completed).length} completed</span>
-                                </div>
-                            </div>
-                        )}
                     </div>
                 </div>
             );
