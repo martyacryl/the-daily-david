@@ -70,14 +70,19 @@
         // Initialize Supabase - PRODUCTION ENVIRONMENT with Auth
         const supabaseUrl = 'https://jrutqdesurnansyfydbf.supabase.co';
         // Choose your key type:
-        // - anon key: Safe for users, limited admin functions
+        // - anon key: Safe for users, limited admin functions (RECOMMENDED for production)
         // - service_role key: Full admin access (get from Supabase Dashboard → Settings → API)
-        const USE_SERVICE_ROLE_KEY = true; // Set to true to enable admin functions
+        const USE_SERVICE_ROLE_KEY = false; // Set to false to use proper RLS policies
         const anonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpydXRxZGVzdXJuYW5zeWZ5ZGJmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU1NTA4MzgsImV4cCI6MjA3MTEyNjgzOH0.G-sTw0eF-tQEcqvbaz-hSM2h0KVr2NMOYMq4x0iwIIc';
         // Add your service role key here (get from Supabase Dashboard → Settings → API)
         const serviceRoleKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpydXRxZGVzdXJuYW5zeWZ5ZGJmIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NTU1MDgzOCwiZXhwIjoyMDcxMTI2ODM4fQ.DZFYORSXw99L7SmqoB-KHGf-F4RpTO99PC2wLCA1RBA';
+        
+        // Use anon key for regular users, service role key only for admin functions
         const supabaseKey = USE_SERVICE_ROLE_KEY ? serviceRoleKey : anonKey;
         const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+        
+        // Create a separate admin client for admin-only operations
+        const adminSupabase = window.supabase.createClient(supabaseUrl, serviceRoleKey);
 
         // PRODUCTION TABLE NAME
         const TABLE_NAME = 'marriage_meetings';
@@ -210,8 +215,8 @@
             const loadUsers = async () => {
                 try {
                     console.log('Loading users...');
-                    // Load real users from Supabase Auth
-                    const { data, error } = await supabase.auth.admin.listUsers();
+                    // Load real users from Supabase Auth using admin client
+                    const { data, error } = await adminSupabase.auth.admin.listUsers();
                     if (error) {
                         console.error('Error loading users:', error);
                         alert('Error loading users: ' + error.message);
@@ -251,8 +256,8 @@
                 
                 setLoading(true);
                 try {
-                    // Create real user in Supabase Auth
-                    const { data, error } = await supabase.auth.admin.createUser({
+                    // Create real user in Supabase Auth using admin client
+                    const { data, error } = await adminSupabase.auth.admin.createUser({
                         email: newUserEmail,
                         password: newUserPassword,
                         user_metadata: { display_name: newUserDisplayName },
@@ -1226,7 +1231,7 @@
             // User management functions
             const handleAddUser = async (email, password, displayName) => {
                 try {
-                    const { data, error } = await supabase.auth.admin.createUser({
+                    const { data, error } = await adminSupabase.auth.admin.createUser({
                         email,
                         password,
                         user_metadata: { display_name: displayName },
@@ -1244,13 +1249,13 @@
             const handleRemoveUser = async (userId) => {
                 try {
                     // Check if user exists in Supabase
-                    const { data: userData, error: getUserError } = await supabase.auth.admin.getUserById(userId);
+                    const { data: userData, error: getUserError } = await adminSupabase.auth.admin.getUserById(userId);
                     if (getUserError || !userData.user) {
                         console.log('User not found in Supabase, removing from local state only');
                         return;
                     }
                     
-                    const { error } = await supabase.auth.admin.deleteUser(userId);
+                    const { error } = await adminSupabase.auth.admin.deleteUser(userId);
                     if (error) throw error;
                 } catch (error) {
                     console.error('Error removing user:', error);
