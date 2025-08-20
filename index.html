@@ -88,16 +88,26 @@
         let adminSupabase = window.adminSupabase;
         
         function initializeSupabaseClients() {
+            console.log('🔍 initializeSupabaseClients called');
+            console.log('🔍 Current state:', {
+                'window.supabase': window.supabase,
+                'window.Supabase': window.Supabase,
+                'window.supabaseClient': window.supabaseClient,
+                'window.supabase type': typeof window.supabase,
+                'window.Supabase type': typeof window.Supabase,
+                'window.supabaseClient type': typeof window.supabaseClient
+            });
+            
             // Check multiple possible ways Supabase might be available
             let supabaseModule = null;
             
-            if (typeof window.supabase !== 'undefined' && typeof window.supabase.createClient === 'function') {
+            if (window.supabase && typeof window.supabase.createClient === 'function') {
                 supabaseModule = window.supabase;
                 console.log('✅ Found window.supabase.createClient');
-            } else if (typeof window.Supabase !== 'undefined' && typeof window.Supabase.createClient === 'function') {
+            } else if (window.Supabase && typeof window.Supabase.createClient === 'function') {
                 supabaseModule = window.Supabase;
                 console.log('✅ Found window.Supabase.createClient');
-            } else if (typeof window.supabaseClient !== 'undefined' && typeof window.supabaseClient.createClient === 'function') {
+            } else if (window.supabaseClient && typeof window.supabaseClient.createClient === 'function') {
                 supabaseModule = window.supabaseClient;
                 console.log('✅ Found window.supabaseClient.createClient');
             } else {
