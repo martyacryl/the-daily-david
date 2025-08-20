@@ -638,6 +638,19 @@
                                      (supabase && adminSupabase) ||
                                      (window.supabase && typeof window.supabase.createClient === 'function');
             
+            // If Supabase is ready, force a re-render to update the UI
+            if (window.supabaseClientsReady && !isSupabaseAvailable) {
+                console.log('🔄 Supabase ready flag detected, forcing re-render');
+                // Force a re-render by updating state
+                setTimeout(() => {
+                    if (window.supabaseClientsReady) {
+                        console.log('✅ Supabase ready, updating component');
+                        // This will trigger a re-render
+                        setAuthLoading(prev => !prev);
+                    }
+                }, 100);
+            }
+            
             if (!isSupabaseAvailable) {
                 console.log('❌ Supabase clients not ready, showing loading screen');
                 return (
