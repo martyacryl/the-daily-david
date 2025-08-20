@@ -2666,18 +2666,14 @@
                         gratitude: currentDayData.gratitude.map((item, i) => i === index ? value : item)
                     };
                     
+                    // Save to localStorage and database using the SAME newData
+                    debouncedSave(dateKey, newData);
+                    
                     return {
                         ...prev,
                         dayData: { ...prev.dayData, [dateKey]: newData }
                     };
                 });
-                
-                // Save to localStorage and database
-                const newData = {
-                    ...userSpecificData.dayData[dateKey],
-                    gratitude: userSpecificData.dayData[dateKey].gratitude.map((item, i) => i === index ? value : item)
-                };
-                debouncedSave(dateKey, newData);
             };
 
             const updateSOAP = (section, value) => {
@@ -2696,21 +2692,14 @@
                         }
                     };
                     
+                    // Save to localStorage and database using the SAME newData
+                    debouncedSave(dateKey, newData);
+                    
                     return {
                         ...prev,
                         dayData: { ...prev.dayData, [dateKey]: newData }
                     };
                 });
-                
-                // Save to localStorage and database
-                const newData = {
-                    ...userSpecificData.dayData[dateKey],
-                    soap: {
-                        ...userSpecificData.dayData[dateKey].soap,
-                        [section]: value
-                    }
-                };
-                debouncedSave(dateKey, newData);
             };
 
             // Removed duplicate goal functions - using addDailyGoal, updateDailyGoal, etc. instead
