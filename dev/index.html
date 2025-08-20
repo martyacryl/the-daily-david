@@ -1636,6 +1636,92 @@
                     clearTimeout(authTimeout);
                 });
 
+                // IMMEDIATE DATA RESTORATION: Force restore data after auth initialization
+                const immediateDataRestore = async () => {
+                    // Wait a bit for auth to complete
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                    
+                    if (user && !isAdmin) {
+                        console.log('🚨 IMMEDIATE: Force restoring data after auth initialization');
+                        const goalsKey = `dailyDavid_goals_${user.id}`;
+                        const dayDataKey = `dailyDavid_dayData_${user.id}`;
+                        const backupKey = `dailyDavid_dayData_backup_${user.id}`;
+                        const emergencyKey = `dailyDavid_dayData_emergency_${user.id}`;
+                        
+                        console.log('🔍 IMMEDIATE: Checking localStorage keys:');
+                        console.log('🔑 Goals key:', goalsKey);
+                        console.log('🔑 Day data key:', dayDataKey);
+                        console.log('🔑 Backup key:', backupKey);
+                        console.log('🔑 Emergency key:', emergencyKey);
+                        
+                        const goalsData = localStorage.getItem(goalsKey);
+                        const dayDataRaw = localStorage.getItem(dayDataKey);
+                        const backupData = localStorage.getItem(backupKey);
+                        const emergencyData = localStorage.getItem(emergencyKey);
+                        
+                        console.log('📊 IMMEDIATE: Found data:');
+                        console.log('- Goals:', !!goalsData);
+                        console.log('- Day data (primary):', !!dayDataRaw);
+                        console.log('- Day data (backup):', !!backupData);
+                        console.log('- Day data (emergency):', !!emergencyData);
+                        
+                        if (goalsData || dayDataRaw || backupData || emergencyData) {
+                            console.log('🚨 IMMEDIATE: Found data, restoring now');
+                            
+                            let weeklyGoals = [];
+                            let monthlyGoals = [];
+                            let dayData = {};
+                            
+                            if (goalsData) {
+                                try {
+                                    const parsed = JSON.parse(goalsData);
+                                    weeklyGoals = parsed.weeklyGoals || [];
+                                    monthlyGoals = parsed.monthlyGoals || [];
+                                    console.log('✅ IMMEDIATE: Goals restored');
+                                } catch (error) {
+                                    console.error('❌ Error parsing goals:', error);
+                                }
+                            }
+                            
+                            if (dayDataRaw) {
+                                try {
+                                    dayData = JSON.parse(dayDataRaw);
+                                    console.log('✅ IMMEDIATE: Day data restored from primary');
+                                } catch (error) {
+                                    console.error('❌ Error parsing primary day data:', error);
+                                }
+                            } else if (backupData) {
+                                try {
+                                    dayData = JSON.parse(backupData);
+                                    console.log('✅ IMMEDIATE: Day data restored from backup');
+                                } catch (error) {
+                                    console.error('❌ Error parsing backup day data:', error);
+                                }
+                            } else if (emergencyData) {
+                                try {
+                                    dayData = JSON.parse(emergencyData);
+                                    console.log('✅ IMMEDIATE: Day data restored from emergency');
+                                } catch (error) {
+                                    console.error('❌ Error parsing emergency day data:', error);
+                                }
+                            }
+                            
+                            setUserSpecificData({
+                                dayData: dayData,
+                                weeklyGoals: weeklyGoals,
+                                monthlyGoals: monthlyGoals
+                            });
+                            
+                            console.log('🚨 IMMEDIATE: Data restoration complete');
+                        } else {
+                            console.log('⚠️ IMMEDIATE: No data found in localStorage');
+                        }
+                    }
+                };
+                
+                // Run immediate data restoration after auth
+                setTimeout(immediateDataRestore, 200);
+
                 return () => subscription?.unsubscribe();
             }, []);
 
@@ -1769,7 +1855,7 @@
                 }
             }, [user?.id, isAdmin]);
 
-            // AGGRESSIVE: Restore data on EVERY render when user is signed in
+            // AGGRESSIVE: Restore data when data is missing (but prevent infinite loops)
             useEffect(() => {
                 if (user && !isAdmin) {
                     // Check if data is missing and restore it
@@ -1836,7 +1922,7 @@
                         }
                     }
                 }
-            });
+            }, [user?.id, isAdmin, userSpecificData.dayData, userSpecificData.weeklyGoals, userSpecificData.monthlyGoals]);
 
             // EMERGENCY: Manual data restoration function
             const emergencyRestoreData = () => {
