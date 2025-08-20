@@ -901,12 +901,17 @@
                 return { year: d.getFullYear(), week: weekNo };
             };
 
-            const getMostRecentGoals = (goalType) => {
-                // Find the most recent day with goals of this type
+            const getMostRecentGoals = (goalType, excludeDateKey = null) => {
+                // Find the most recent day with goals of this type, excluding the specified date
                 const sortedDates = Object.keys(userSpecificData.dayData)
                     .sort((a, b) => new Date(b) - new Date(a));
                 
                 for (const dateKey of sortedDates) {
+                    // Skip the excluded date
+                    if (excludeDateKey && dateKey === excludeDateKey) {
+                        continue;
+                    }
+                    
                     const dayData = userSpecificData.dayData[dateKey];
                     if (dayData?.goals?.[goalType]?.length > 0) {
                         return dayData.goals[goalType];
@@ -1528,7 +1533,7 @@
                 console.log('🔄 DEBUG: Sorted dates (most recent first):', sortedDates);
                 
                 // Check weekly goals - compare with most recent goals to see if they need updating
-                const mostRecentWeeklyGoals = getMostRecentGoals('weekly');
+                const mostRecentWeeklyGoals = getMostRecentGoals('weekly', dateKey);
                 if (mostRecentWeeklyGoals.length > 0) {
                     const currentWeeklyGoals = updatedDayData.goals.weekly || [];
                     const weeklyGoalsNeedUpdate = currentWeeklyGoals.length !== mostRecentWeeklyGoals.length ||
@@ -1545,7 +1550,7 @@
                 }
                 
                 // Check monthly goals - use same logic as weekly goals
-                const mostRecentMonthlyGoals = getMostRecentGoals('monthly');
+                const mostRecentMonthlyGoals = getMostRecentGoals('monthly', dateKey);
                 if (mostRecentMonthlyGoals.length > 0) {
                     const currentMonthlyGoals = updatedDayData.goals.monthly || [];
                     const monthlyGoalsNeedUpdate = currentMonthlyGoals.length !== mostRecentMonthlyGoals.length ||
