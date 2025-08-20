@@ -832,8 +832,9 @@
                 setIsConnected(true);
             };
 
-            // Function to clear user data when switching users
+            // Function to clear user data when switching between different users
             const clearUserData = () => {
+                console.log('Clearing user data - switching to different user');
                 setUserSpecificData({
                     dayData: {},
                     weeklyGoals: [],
@@ -889,6 +890,20 @@
                 setUser(userData);
                 setIsAdmin(true);
                 // Don't load user-specific data for admin (they don't need it)
+            };
+
+            // Function to switch admin to user mode without clearing data
+            const switchAdminToUserMode = async () => {
+                console.log('Admin switching to user mode');
+                setIsAdmin(false);
+                setUserModePreference('user');
+                setCurrentView('landing');
+                localStorage.setItem('dailyDavidMode', 'user');
+                
+                // Load user-specific data if not already loaded
+                if (userSpecificData.weeklyGoals.length === 0) {
+                    await loadUserSpecificData(user.id);
+                }
             };
 
             const handleSignOut = async () => {
@@ -979,13 +994,7 @@
             };
 
             const handleSwitchToUserMode = async () => {
-                setIsAdmin(false);
-                setUserModePreference('user');
-                setCurrentView('landing');
-                localStorage.setItem('dailyDavidMode', 'user');
-                
-                // Load default goals for admin when switching to user mode
-                await loadUserSpecificData(user.id);
+                await switchAdminToUserMode();
             };
 
             // Goal management functions
@@ -1368,9 +1377,11 @@
                                     {user.user_metadata?.is_admin === true && (
                                         <button 
                                             onClick={() => {
+                                                console.log('User switching to admin mode');
                                                 setIsAdmin(true);
                                                 setUserModePreference('admin');
                                                 localStorage.setItem('dailyDavidMode', 'admin');
+                                                // Don't clear user data - just switch modes
                                             }}
                                             className="px-3 py-1 bg-blue-500 text-white text-sm rounded-lg hover:bg-blue-600 transition-colors"
                                         >
