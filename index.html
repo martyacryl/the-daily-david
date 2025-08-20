@@ -1254,7 +1254,14 @@
 
             // Simple effect: check if Supabase is ready and update state
             useEffect(() => {
+                console.log('🚀 useEffect for Supabase check started');
+                
                 const checkSupabaseReady = () => {
+                    console.log('🔍 Checking Supabase readiness:', {
+                        'window.supabase': !!window.supabase,
+                        'window.adminSupabase': !!window.adminSupabase
+                    });
+                    
                     if (window.supabase && window.adminSupabase) {
                         console.log('✅ Supabase clients detected, updating state');
                         setAuthLoading(false);
@@ -1264,12 +1271,25 @@
                 };
                 
                 // Check immediately
-                if (checkSupabaseReady()) return;
+                if (checkSupabaseReady()) {
+                    console.log('✅ Supabase was ready immediately');
+                    return;
+                }
                 
+                console.log('⏰ Setting up interval to check every 500ms');
                 // Check every 500ms
-                const interval = setInterval(checkSupabaseReady, 500);
+                const interval = setInterval(() => {
+                    console.log('⏰ Interval check running...');
+                    if (checkSupabaseReady()) {
+                        console.log('✅ Interval detected Supabase ready, clearing interval');
+                        clearInterval(interval);
+                    }
+                }, 500);
                 
-                return () => clearInterval(interval);
+                return () => {
+                    console.log('🧹 Cleaning up interval');
+                    clearInterval(interval);
+                };
             }, []);
             
             // Initialize authentication
