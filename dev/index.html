@@ -828,7 +828,7 @@
                     {/* Action Buttons */}
                     <div className="text-center">
                         <button
-                            onClick={() => debugSetCurrentView('daily')}
+                            onClick={() => setCurrentView('daily')}
                             className="bg-primary hover:bg-green-700 text-white font-bold py-3 px-8 rounded-full shadow-lg hover:shadow-xl transition-all duration-300"
                         >
                             Start Today's Entry
@@ -846,14 +846,7 @@
             const [lastSaved, setLastSaved] = useState(null);
             const [currentView, setCurrentView] = useState('landing'); // 'landing' or 'daily'
             
-            // Debug wrapper for setCurrentView
-            const debugSetCurrentView = (newView) => {
-                console.log('🎯 VIEW CHANGE DEBUG: setCurrentView called with:', newView);
-                console.log('🎯 VIEW CHANGE DEBUG: Previous view was:', currentView);
-                console.log('🎯 VIEW CHANGE DEBUG: Stack trace:');
-                console.trace('View change stack trace');
-                setCurrentView(newView);
-            };
+            // Simple setCurrentView - no more debugging mess
             // Goals are now stored in userSpecificData and loaded per user
             const saveTimeoutRef = useRef(null);
             
@@ -872,23 +865,7 @@
                 monthlyGoals: []
             });
 
-            // DEBUG: Wrap setUserSpecificData to track all calls
-            const debugSetUserSpecificData = (newData) => {
-                console.log('🔍 DEBUG: setUserSpecificData called with:', newData);
-                console.log('🔍 DEBUG: Previous state was:', userSpecificData);
-                console.log('🔍 DEBUG: Stack trace for this call:');
-                console.trace('setUserSpecificData call stack trace');
-                
-                if (typeof newData === 'function') {
-                    console.log('🔍 DEBUG: This is a function update, will call it with current state');
-                    const result = newData(userSpecificData);
-                    console.log('🔍 DEBUG: Function returned:', result);
-                    setUserSpecificData(result);
-                } else {
-                    console.log('🔍 DEBUG: This is a direct value update');
-                    setUserSpecificData(newData);
-                }
-            };
+            // Simple setUserSpecificData - no more debugging mess
 
             const formatDateKey = (date) => {
                 return date.toISOString().split('T')[0];
@@ -1074,7 +1051,7 @@
                     weeklyGoals: [],
                     monthlyGoals: []
                 });
-                debugSetCurrentView('landing');
+                setCurrentView('landing');
                 setCurrentDate(new Date());
             };
 
@@ -1757,7 +1734,7 @@
                                 }
                             }
                             
-                            debugSetUserSpecificData({
+                            setUserSpecificData({
                                 dayData: dayData,
                                 weeklyGoals: weeklyGoals,
                                 monthlyGoals: monthlyGoals
@@ -1847,7 +1824,7 @@
                                 }
                             }
                             
-                            debugSetUserSpecificData({
+                            setUserSpecificData({
                                 dayData: dayData,
                                 weeklyGoals: weeklyGoals,
                                 monthlyGoals: monthlyGoals
@@ -1944,7 +1921,7 @@
                                 console.log('- monthlyGoals:', monthlyGoals);
                                 
                                 // Force update state
-                                debugSetUserSpecificData(prev => {
+                                setUserSpecificData(prev => {
                                     const newState = {
                                         ...prev,
                                         dayData: dayData,
@@ -2211,7 +2188,7 @@
                             }
                         }
                         
-                        debugSetUserSpecificData({
+                        setUserSpecificData({
                             dayData: dayData,
                             weeklyGoals: weeklyGoals,
                             monthlyGoals: monthlyGoals
@@ -2277,7 +2254,7 @@
                             }
                         }
                         
-                        debugSetUserSpecificData({
+                        setUserSpecificData({
                             dayData: dayData,
                             weeklyGoals: weeklyGoals,
                             monthlyGoals: monthlyGoals
@@ -2345,7 +2322,7 @@
                             }
                         }
                         
-                        debugSetUserSpecificData({
+                        setUserSpecificData({
                             dayData: dayData,
                             weeklyGoals: weeklyGoals,
                             monthlyGoals: monthlyGoals
@@ -2434,7 +2411,7 @@
                             }
                             
                             // Force restore the data
-                            debugSetUserSpecificData({
+                            setUserSpecificData({
                                 dayData: dayData,
                                 weeklyGoals: weeklyGoals,
                                 monthlyGoals: monthlyGoals
@@ -2474,7 +2451,7 @@
                         // Force restore the specific date data
                         if (expectedData) {
                             console.log('🚨 UI RENDERING FIX: Restoring data for specific date');
-                            debugSetUserSpecificData(prev => ({
+                            setUserSpecificData(prev => ({
                                 ...prev,
                                 dayData: { ...prev.dayData, [dateKey]: expectedData }
                             }));
@@ -2505,7 +2482,7 @@
                                     console.log('🚨 CRITICAL FIX: Found data in localStorage for date:', dateKey);
                                     console.log('🚨 CRITICAL FIX: Restoring to state');
                                     
-                                    debugSetUserSpecificData(prev => ({
+                                    setUserSpecificData(prev => ({
                                         ...prev,
                                         dayData: { ...prev.dayData, [dateKey]: dayData[dateKey] }
                                     }));
@@ -2653,7 +2630,7 @@
                                     dayData = JSON.parse(dayDataRaw);
                                     if (dayData[dateKey]) {
                                         console.log('🚨 Found data for date in localStorage, updating state');
-                                        debugSetUserSpecificData(prev => ({
+                                        setUserSpecificData(prev => ({
                                             ...prev,
                                             dayData: { ...prev.dayData, [dateKey]: dayData[dateKey] }
                                         }));
@@ -2881,12 +2858,7 @@
                         {/* View Navigation */}
                         <div className="flex items-center justify-center gap-4 mb-6">
                             <button
-                                onClick={() => {
-                                    console.log('🎯 BUTTON CLICK: Dashboard button clicked');
-                                    console.log('🎯 BUTTON CLICK: Current view before change:', currentView);
-                                    console.log('🎯 BUTTON CLICK: Setting view to landing');
-                                    debugSetCurrentView('landing');
-                                }}
+                                onClick={() => setCurrentView('landing')}
                                 className={`px-6 py-2 rounded-lg font-medium transition-colors ${
                                     currentView === 'landing'
                                         ? 'bg-primary text-white shadow-md'
@@ -2896,12 +2868,7 @@
                                 🏠 Dashboard
                             </button>
                             <button
-                                onClick={() => {
-                                    console.log('🎯 BUTTON CLICK: Daily Entry button clicked');
-                                    console.log('🎯 BUTTON CLICK: Current view before change:', currentView);
-                                    console.log('🎯 BUTTON CLICK: Setting view to daily');
-                                    debugSetCurrentView('daily');
-                                }}
+                                onClick={() => setCurrentView('daily')}
                                 className={`px-6 py-2 rounded-lg font-medium transition-colors ${
                                     currentView === 'daily'
                                         ? 'bg-primary text-white shadow-md'
@@ -2961,7 +2928,7 @@
                                     getWeeklyProgress={getWeeklyProgress}
                                     getMonthlyProgress={getMonthlyProgress}
                                     getDaysCompletedThisWeek={getDaysCompletedThisWeek}
-                                    setCurrentView={debugSetCurrentView}
+                                    setCurrentView={setCurrentView}
                                 />
                             );
                         } else if (currentView === 'daily') {
