@@ -1739,6 +1739,16 @@
 
                     {/* Weekly Schedule Section */}
                     <div className="section-card rounded-xl p-6 mb-8">
+                        {/* DEBUG: Show currentWeekData for debugging */}
+                        {(() => {
+                            console.log('🎯 UI RENDERING DEBUG: Rendering Weekly Schedule Section');
+                            console.log('🎯 currentWeekData:', currentWeekData);
+                            console.log('🎯 currentWeekData.schedule:', currentWeekData.schedule);
+                            console.log('🎯 currentWeekData.todos:', currentWeekData.todos);
+                            console.log('🎯 currentWeekData.prayers:', currentWeekData.prayers);
+                            return null;
+                        })()}
+                        
                         <div className="text-center mb-6">
                             <h2 className="section-header text-2xl font-bold mb-2">
                                 📅 Weekly Schedule
@@ -1751,18 +1761,21 @@
                         <div className="section-divider"></div>
 
                         <div className="flex flex-wrap justify-center gap-8 max-w-6xl mx-auto">
-                            {days.map((day) => (
-                                <div className="w-full sm:w-[calc(50%-1rem)] lg:w-[calc(33.333%-1.33rem)] xl:w-[calc(25%-1.5rem)]">
-                                    <ScheduleDay 
-                                        key={day} 
-                                        day={day} 
-                                        items={currentWeekData.schedule?.[day] || ['']}
-                                        onUpdate={updateSchedule}
-                                        onAddLine={() => addScheduleLine(day)}
-                                        onRemoveLine={(index) => removeScheduleLine(day, index)}
-                                    />
-                                </div>
-                            ))}
+                            {days.map((day) => {
+                                const dayItems = currentWeekData.schedule?.[day] || [''];
+                                console.log(`🎯 Rendering day ${day}:`, dayItems);
+                                return (
+                                    <div key={day} className="w-full sm:w-[calc(50%-1rem)] lg:w-[calc(33.333%-1.33rem)] xl:w-[calc(25%-1.5rem)]">
+                                        <ScheduleDay 
+                                            day={day} 
+                                            items={dayItems}
+                                            onUpdate={updateSchedule}
+                                            onAddLine={() => addScheduleLine(day)}
+                                            onRemoveLine={(index) => removeScheduleLine(day, index)}
+                                        />
+                                    </div>
+                                );
+                            })}
                         </div>
 
                         <div className="section-divider mt-6"></div>
