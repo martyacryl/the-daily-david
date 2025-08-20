@@ -206,14 +206,32 @@
 
             const loadUsers = async () => {
                 try {
-                    // Note: This would require a service role key for production
-                    // For now, we'll show a placeholder
-                    setUsers([
-                        { id: '1', email: 'user1@example.com', display_name: 'User 1' },
-                        { id: '2', email: 'user2@example.com', display_name: 'User 2' }
-                    ]);
+                    // Load real users from Supabase Auth
+                    const { data: { users }, error } = await supabase.auth.admin.listUsers();
+                    
+                    if (error) {
+                        console.error('Error loading users:', error);
+                        // Show helpful error message
+                        alert('Note: Admin functions require a service role key. For now, users will be managed manually in Supabase dashboard.');
+                        setUsers([]);
+                        return;
+                    }
+                    
+                    // Filter out the current admin user and format the data
+                    const filteredUsers = users
+                        .filter(user => user.id !== user.id) // Don't show current user
+                        .map(user => ({
+                            id: user.id,
+                            email: user.email,
+                            display_name: user.user_metadata?.display_name || 'No Name',
+                            created_at: user.created_at
+                        }));
+                    
+                    setUsers(filteredUsers);
                 } catch (error) {
                     console.error('Error loading users:', error);
+                    alert('Note: Admin functions require a service role key. For now, users will be managed manually in Supabase dashboard.');
+                    setUsers([]);
                 }
             };
 
@@ -223,11 +241,24 @@
 
                 setLoading(true);
                 try {
-                    // This would use Supabase admin functions in production
-                    const newUser = {
-                        id: Date.now().toString(),
+                    // Create real user in Supabase Auth
+                    const { data, error } = await supabase.auth.admin.createUser({
                         email: newUserEmail,
-                        display_name: newUserDisplayName
+                        password: newUserPassword,
+                        user_metadata: { display_name: newUserDisplayName },
+                        email_confirm: true // Auto-confirm email for testing
+                    });
+                    
+                    if (error) {
+                        throw error;
+                    }
+                    
+                    // Add to local users list
+                    const newUser = {
+                        id: data.user.id,
+                        email: data.user.email,
+                        display_name: newUserDisplayName,
+                        created_at: data.user.created_at
                     };
                     
                     setUsers([...users, newUser]);
@@ -235,7 +266,7 @@
                     setNewUserPassword('');
                     setNewUserDisplayName('');
                     
-                    alert('User added successfully! (Note: This is a demo - real implementation would use Supabase admin API)');
+                    alert(`User ${newUserEmail} created successfully!`);
                 } catch (error) {
                     alert('Error adding user: ' + error.message);
                 } finally {
@@ -267,6 +298,20 @@
                         {/* User Management */}
                         <div className="modern-card p-6">
                             <h2 className="text-2xl font-bold mb-4 text-primary">User Management</h2>
+                            
+                            {/* Service Role Key Notice */}
+                            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+                                <div className="flex items-center gap-2">
+                                    <span className="text-yellow-800">⚠️</span>
+                                    <div>
+                                        <p className="text-yellow-800 font-medium">Admin Functions Setup Required</p>
+                                        <p className="text-yellow-700 text-sm">
+                                            To use admin functions (create/delete users), you need to add your Supabase service role key to the app. 
+                                            For now, manage users manually in the Supabase dashboard.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
                             
                             <form onSubmit={handleAddUser} className="space-y-4 mb-6">
                                 <input 
@@ -753,8 +798,25 @@
             };
 
             const handleRemoveUser = async (userId) => {
-                // This would use Supabase admin functions in production
-                alert(`User ${userId} would be removed. In production, this would use Supabase admin API.`);
+                if (!confirm('Are you sure you want to remove this user? This action cannot be undone.')) {
+                    return;
+                }
+                
+                try {
+                    // Delete real user from Supabase Auth
+                    const { error } = await supabase.auth.admin.deleteUser(userId);
+                    
+                    if (error) {
+                        throw error;
+                    }
+                    
+                    // Remove from local users list
+                    setUsers(users.filter(user => user.id !== userId));
+                    alert('User removed successfully!');
+                } catch (error) {
+                    alert('Error removing user: ' + error.message);
+                    console.error('Remove user error:', error);
+                }
             };
 
             const handleSwitchToUserMode = () => {
