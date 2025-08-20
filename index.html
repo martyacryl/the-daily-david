@@ -703,6 +703,9 @@
                     } catch (error) {
                         console.error('❌ Error in loadUserSpecificData:', error);
                     }
+                } catch (error) {
+                    console.error('❌ Error in loadUserSpecificData outer try:', error);
+                }
             };
 
             const clearUserData = () => {
