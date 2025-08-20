@@ -200,19 +200,17 @@
             console.log('🎉 Supabase is ready! Notifying app...');
             console.log('🔍 About to dispatch supabaseReady event...');
             
-                    // NUCLEAR OPTION: Force React to render by bypassing the broken component entirely
-        console.log('🚀 NUCLEAR OPTION: Bypassing broken React component');
+                    // PROPER FIX: Set global flag and dispatch event without page refresh
+        console.log('🔧 PROPER FIX: Setting global flag and dispatching event');
         
         // Set the global flag immediately
         window.supabaseClientsReady = true;
-        console.log('🚀 Global flag set to true');
+        console.log('🔧 Global flag set to true');
         
-        // Force a page refresh to restart React with the correct state
-        console.log('🚀 Forcing page refresh to restart React with correct state');
-        setTimeout(() => {
-            console.log('🚀 Refreshing page now...');
-            window.location.reload();
-        }, 1000);
+        // Dispatch the event to trigger any available callbacks
+        console.log('🔧 Dispatching supabaseReady event');
+        window.dispatchEvent(new Event('supabaseReady'));
+        console.log('🔧 Event dispatched successfully');
             
             // Also try to force React update if available
             if (window.forceReactUpdate) {
