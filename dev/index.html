@@ -1003,13 +1003,20 @@
                 try {
                     console.log('Loading user-specific data for:', userId);
                     
+                    // Add timeout to prevent hanging
+                    const timeoutPromise = new Promise((_, reject) => {
+                        setTimeout(() => reject(new Error('Database query timeout')), 10000); // 10 second timeout
+                    });
+                    
                     // Try to load saved goals from database
-                    const { data: goalsData, error } = await supabase
+                    const goalsQuery = supabase
                         .from(DEV_TABLE_NAME)
                         .select('data')
                         .eq('date_key', 'user_goals')
                         .eq('user_id', userId)
                         .single();
+
+                    const { data: goalsData, error } = await Promise.race([goalsQuery, timeoutPromise]);
 
                     if (error && error.code !== 'PGRST116') { // PGRST116 = no rows returned
                         console.error('Error loading goals:', error);
@@ -1047,6 +1054,24 @@
                     console.log('User-specific data loaded');
                 } catch (error) {
                     console.error('Error loading user-specific data:', error);
+                    // Set default goals on error to prevent app from hanging
+                    const defaultWeeklyGoals = [
+                        { id: 1, text: 'Complete 5 SOAP studies this week', completed: false, category: 'spiritual' },
+                        { id: 2, text: 'Practice gratitude daily', completed: false, category: 'personal' },
+                        { id: 3, text: 'Read 3 chapters of scripture', completed: false, category: 'spiritual' }
+                    ];
+                    
+                    const defaultMonthlyGoals = [
+                        { id: 1, text: 'Establish daily prayer routine', completed: false, category: 'spiritual' },
+                        { id: 2, text: 'Complete 20 SOAP studies', completed: false, category: 'spiritual' },
+                        { id: 3, text: 'Share faith with 2 people', completed: false, category: 'outreach' }
+                    ];
+                    
+                    setUserSpecificData(prev => ({
+                        ...prev,
+                        weeklyGoals: defaultWeeklyGoals,
+                        monthlyGoals: defaultMonthlyGoals
+                    }));
                 }
             };
 
@@ -1416,10 +1441,18 @@
             useEffect(() => {
                 const initializeAuth = async () => {
                     try {
+                        console.log('Initializing authentication...');
                         // Get current user session
-                        const { data: { user } } = await supabase.auth.getUser();
+                        const { data: { user }, error } = await supabase.auth.getUser();
+                        
+                        if (error) {
+                            console.error('Error getting user:', error);
+                            setAuthLoading(false);
+                            return;
+                        }
                         
                         if (user) {
+                            console.log('User found:', user.email);
                             setUser(user);
                             // Check if user is admin (you can set this in user metadata)
                             const isUserAdmin = user.user_metadata?.is_admin === true;
@@ -1432,16 +1465,24 @@
                                     setUserModePreference('user');
                                     setIsAdmin(false);
                                     // Load user-specific data for user mode
+                                    console.log('Loading user-specific data for admin in user mode...');
                                     await loadUserSpecificData(user.id);
                                 } else {
                                     setUserModePreference('admin');
                                     setIsAdmin(true);
                                 }
+                            } else {
+                                // Regular user, load their data
+                                console.log('Loading user-specific data for regular user...');
+                                await loadUserSpecificData(user.id);
                             }
+                        } else {
+                            console.log('No user session found');
                         }
                     } catch (error) {
                         console.error('Auth initialization error:', error);
                     } finally {
+                        console.log('Setting auth loading to false');
                         setAuthLoading(false);
                     }
                 };
@@ -1474,7 +1515,15 @@
                     }
                 });
 
-                initializeAuth();
+                // Add timeout to prevent infinite loading
+                const authTimeout = setTimeout(() => {
+                    console.log('Auth initialization timeout, forcing auth loading to false');
+                    setAuthLoading(false);
+                }, 15000); // 15 second timeout
+                
+                initializeAuth().finally(() => {
+                    clearTimeout(authTimeout);
+                });
 
                 return () => subscription?.unsubscribe();
             }, []);
