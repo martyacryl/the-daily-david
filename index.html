@@ -14,13 +14,19 @@
     window.supabaseReadyCallbacks = [];
     window.addEventListener('supabaseReady', () => {
       console.log('📢 Global supabaseReady listener triggered');
-      window.supabaseReadyCallbacks.forEach(callback => {
-        try {
-          callback();
-        } catch (error) {
-          console.error('Error in supabaseReady callback:', error);
-        }
-      });
+      console.log('📢 Available callbacks:', window.supabaseReadyCallbacks ? window.supabaseReadyCallbacks.length : 'undefined');
+      if (window.supabaseReadyCallbacks && window.supabaseReadyCallbacks.length > 0) {
+        window.supabaseReadyCallbacks.forEach((callback, index) => {
+          console.log(`📢 Executing callback ${index}:`, callback);
+          try {
+            callback();
+          } catch (error) {
+            console.error('Error in supabaseReady callback:', error);
+          }
+        });
+      } else {
+        console.log('⚠️ No callbacks available when event fired');
+      }
     });
     </script>
     
@@ -1315,6 +1321,8 @@
                     window.supabaseReadyCallbacks = [];
                 }
                 window.supabaseReadyCallbacks.push(handleSupabaseReady);
+                console.log('📝 React callback registered. Total callbacks:', window.supabaseReadyCallbacks.length);
+                console.log('📝 Callback function:', handleSupabaseReady);
                 
                 // Also set up forceReactUpdate for your existing code
                 window.forceReactUpdate = () => {
