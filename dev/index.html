@@ -77,13 +77,17 @@
     <script type="text/babel">
         const { useState, useEffect, useCallback, useRef } = React;
 
-        // Initialize Supabase - DEV ENVIRONMENT
+        // Initialize Supabase - DEV ENVIRONMENT with Auth
         const supabaseUrl = 'https://gkmclzlgrcmqocfoxkui.supabase.co';
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdrbWNsemxncmNtcW9jZm94a3VpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU2MDYzNzEsImV4cCI6MjA3MTE4MjM3MX0.ovOR0iMGao5qvrAThrx8KucLyTctiRkVbNJvYdPEyk0';
         const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
         
         // DEV TABLE NAME - Separate from production
         const DEV_TABLE_NAME = 'daily_david_entries_dev';
+        
+        // Auth state
+        let currentUser = null;
+        let isAdmin = false;
 
         // Icons as SVG components
         const ChevronLeftIcon = () => (
@@ -103,6 +107,232 @@
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
             </svg>
         );
+
+        // Authentication Components
+        const SignInScreen = ({ onSignIn, onAdminSignIn }) => {
+            const [email, setEmail] = useState('');
+            const [password, setPassword] = useState('');
+            const [loading, setLoading] = useState(false);
+            const [error, setError] = useState('');
+
+            const handleSignIn = async (e) => {
+                e.preventDefault();
+                setLoading(true);
+                setError('');
+
+                try {
+                    const { data, error } = await supabase.auth.signInWithPassword({
+                        email,
+                        password
+                    });
+
+                    if (error) throw error;
+
+                    // Check if user is admin (you can set this in user metadata)
+                    const isUserAdmin = data.user?.user_metadata?.is_admin === true;
+                    
+                    if (isUserAdmin) {
+                        onAdminSignIn(data.user);
+                    } else {
+                        onSignIn(data.user);
+                    }
+                } catch (error) {
+                    setError(error.message);
+                } finally {
+                    setLoading(false);
+                }
+            };
+
+            return (
+                <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-100 to-green-50">
+                    <div className="modern-card p-8 w-full max-w-md">
+                        <h1 className="text-3xl font-bold text-center mb-8 text-primary">
+                            The Daily David
+                        </h1>
+                        <p className="text-center text-gray-600 mb-6">Sign in to access your spiritual growth journey</p>
+                        
+                        {error && (
+                            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                                {error}
+                            </div>
+                        )}
+                        
+                        <form onSubmit={handleSignIn} className="space-y-4">
+                            <input 
+                                type="email" 
+                                placeholder="Email" 
+                                className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                required
+                            />
+                            <input 
+                                type="password" 
+                                placeholder="Password" 
+                                className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                required
+                            />
+                            <button 
+                                type="submit"
+                                disabled={loading}
+                                className="w-full bg-primary text-white py-3 rounded-lg hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                {loading ? 'Signing In...' : 'Sign In'}
+                            </button>
+                        </form>
+                        
+                        <div className="mt-6 text-center">
+                            <p className="text-sm text-gray-500">
+                                Contact your administrator for access
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const AdminPanel = ({ user, onSignOut, onAddUser, onRemoveUser }) => {
+            const [users, setUsers] = useState([]);
+            const [newUserEmail, setNewUserEmail] = useState('');
+            const [newUserPassword, setNewUserPassword] = useState('');
+            const [newUserDisplayName, setNewUserDisplayName] = useState('');
+            const [loading, setLoading] = useState(false);
+
+            useEffect(() => {
+                loadUsers();
+            }, []);
+
+            const loadUsers = async () => {
+                try {
+                    // Note: This would require a service role key for production
+                    // For now, we'll show a placeholder
+                    setUsers([
+                        { id: '1', email: 'user1@example.com', display_name: 'User 1' },
+                        { id: '2', email: 'user2@example.com', display_name: 'User 2' }
+                    ]);
+                } catch (error) {
+                    console.error('Error loading users:', error);
+                }
+            };
+
+            const handleAddUser = async (e) => {
+                e.preventDefault();
+                if (!newUserEmail || !newUserPassword || !newUserDisplayName) return;
+
+                setLoading(true);
+                try {
+                    // This would use Supabase admin functions in production
+                    const newUser = {
+                        id: Date.now().toString(),
+                        email: newUserEmail,
+                        display_name: newUserDisplayName
+                    };
+                    
+                    setUsers([...users, newUser]);
+                    setNewUserEmail('');
+                    setNewUserPassword('');
+                    setNewUserDisplayName('');
+                    
+                    alert('User added successfully! (Note: This is a demo - real implementation would use Supabase admin API)');
+                } catch (error) {
+                    alert('Error adding user: ' + error.message);
+                } finally {
+                    setLoading(false);
+                }
+            };
+
+            return (
+                <div className="container mx-auto px-4 py-8 max-w-6xl">
+                    <div className="flex justify-between items-center mb-8">
+                        <h1 className="text-3xl font-bold text-gray-800">Admin Panel</h1>
+                        <button 
+                            onClick={onSignOut}
+                            className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600"
+                        >
+                            Sign Out
+                        </button>
+                    </div>
+
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        {/* User Management */}
+                        <div className="modern-card p-6">
+                            <h2 className="text-2xl font-bold mb-4 text-primary">User Management</h2>
+                            
+                            <form onSubmit={handleAddUser} className="space-y-4 mb-6">
+                                <input 
+                                    type="email" 
+                                    placeholder="User Email" 
+                                    className="w-full p-3 border rounded-lg"
+                                    value={newUserEmail}
+                                    onChange={(e) => setNewUserEmail(e.target.value)}
+                                    required
+                                />
+                                <input 
+                                    type="text" 
+                                    placeholder="Display Name" 
+                                    className="w-full p-3 border rounded-lg"
+                                    value={newUserDisplayName}
+                                    onChange={(e) => setNewUserDisplayName(e.target.value)}
+                                    required
+                                />
+                                <input 
+                                    type="password" 
+                                    placeholder="Password" 
+                                    className="w-full p-3 border rounded-lg"
+                                    value={newUserPassword}
+                                    onChange={(e) => setNewUserPassword(e.target.value)}
+                                    required
+                                />
+                                <button 
+                                    type="submit"
+                                    disabled={loading}
+                                    className="w-full bg-primary text-white py-3 rounded-lg hover:bg-primary/90 disabled:opacity-50"
+                                >
+                                    {loading ? 'Adding User...' : 'Add User'}
+                                </button>
+                            </form>
+
+                            <div className="space-y-2">
+                                <h3 className="font-semibold">Current Users:</h3>
+                                {users.map(user => (
+                                    <div key={user.id} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                                        <div>
+                                            <div className="font-medium">{user.display_name}</div>
+                                            <div className="text-sm text-gray-600">{user.email}</div>
+                                        </div>
+                                        <button 
+                                            onClick={() => onRemoveUser(user.id)}
+                                            className="text-red-500 hover:text-red-700"
+                                        >
+                                            Remove
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* System Info */}
+                        <div className="modern-card p-6">
+                            <h2 className="text-2xl font-bold mb-4 text-primary">System Information</h2>
+                            <div className="space-y-3">
+                                <div>
+                                    <span className="font-medium">Admin User:</span> {user.email}
+                                </div>
+                                    <span className="font-medium">Total Users:</span> {users.length}
+                                <div>
+                                    <span className="font-medium">Environment:</span> Development
+                                </div>
+                                <div>
+                                    <span className="font-medium">Database:</span> {DEV_TABLE_NAME}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
 
         const BookOpenIcon = () => (
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -394,6 +624,11 @@
                 { id: 3, text: 'Share faith with 2 people', completed: false, category: 'outreach' }
             ]);
             const saveTimeoutRef = useRef(null);
+            
+            // Authentication state
+            const [user, setUser] = useState(null);
+            const [isAdmin, setIsAdmin] = useState(false);
+            const [authLoading, setAuthLoading] = useState(true);
 
             const formatDateKey = (date) => {
                 return date.toISOString().split('T')[0];
@@ -410,11 +645,14 @@
 
             // Load day data from database
             const loadDayData = async (dateKey) => {
+                if (!user) return null;
+                
                 try {
                     const { data, error } = await supabase
                         .from(DEV_TABLE_NAME)
                         .select('*')
-                        .eq('date_key', dateKey);
+                        .eq('date_key', dateKey)
+                        .eq('user_id', user.id);
 
                     if (error) {
                         console.log('Error loading:', error);
@@ -434,14 +672,17 @@
 
             // Save day data to database
             const saveDayData = async (dateKey, data) => {
+                if (!user) return false;
+                
                 try {
                     const { error } = await supabase
                         .from(DEV_TABLE_NAME)
                         .upsert({
                             date_key: dateKey,
+                            user_id: user.id,
                             data: data
                         }, {
-                            onConflict: 'date_key'
+                            onConflict: 'date_key,user_id'
                         });
 
                     if (error) {
@@ -455,7 +696,7 @@
                     console.log('Save error:', error);
                     return false;
                 }
-            };
+                };
 
             // Debounced save - waits 1 second after typing stops
             const debouncedSave = useCallback((dateKey, data) => {
@@ -470,6 +711,39 @@
             // Initialize database connection
             const initializeDatabase = async () => {
                 setIsConnected(true);
+            };
+
+            // Authentication handlers
+            const handleSignIn = (userData) => {
+                setUser(userData);
+                setIsAdmin(userData.user_metadata?.is_admin === true);
+            };
+
+            const handleAdminSignIn = (userData) => {
+                setUser(userData);
+                setIsAdmin(true);
+            };
+
+            const handleSignOut = async () => {
+                try {
+                    await supabase.auth.signOut();
+                    setUser(null);
+                    setIsAdmin(false);
+                    setCurrentView('landing');
+                } catch (error) {
+                    console.error('Sign out error:', error);
+                }
+            };
+
+            const handleAddUser = async (email, password, displayName) => {
+                // This would use Supabase admin functions in production
+                // For now, just show a success message
+                alert(`User ${email} would be created with admin privileges. In production, this would use Supabase admin API.`);
+            };
+
+            const handleRemoveUser = async (userId) => {
+                // This would use Supabase admin functions in production
+                alert(`User ${userId} would be removed. In production, this would use Supabase admin API.`);
             };
 
             // Goal management functions
@@ -624,6 +898,41 @@
                 });
             }, [initializeDayData]);
 
+            // Initialize authentication
+            useEffect(() => {
+                const initializeAuth = async () => {
+                    try {
+                        // Get current user session
+                        const { data: { user } } = await supabase.auth.getUser();
+                        
+                        if (user) {
+                            setUser(user);
+                            // Check if user is admin (you can set this in user metadata)
+                            setIsAdmin(user.user_metadata?.is_admin === true);
+                        }
+                    } catch (error) {
+                        console.error('Auth initialization error:', error);
+                    } finally {
+                        setAuthLoading(false);
+                    }
+                };
+
+                // Listen for auth changes
+                const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+                    if (event === 'SIGNED_IN' && session?.user) {
+                        setUser(session.user);
+                        setIsAdmin(session.user.user_metadata?.is_admin === true);
+                    } else if (event === 'SIGNED_OUT') {
+                        setUser(null);
+                        setIsAdmin(false);
+                    }
+                });
+
+                initializeAuth();
+
+                return () => subscription?.unsubscribe();
+            }, []);
+
             // Clean up timeout
             useEffect(() => {
                 return () => {
@@ -682,6 +991,41 @@
                 setCurrentDate(newDate);
             };
 
+            // Show loading while auth is initializing
+            if (authLoading) {
+                return (
+                    <div className="flex items-center justify-center min-h-screen">
+                        <div className="text-center">
+                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+                            <p className="text-gray-600">Initializing...</p>
+                        </div>
+                    </div>
+                );
+            }
+
+            // Show sign-in screen if not authenticated
+            if (!user) {
+                return (
+                    <SignInScreen 
+                        onSignIn={handleSignIn}
+                        onAdminSignIn={handleAdminSignIn}
+                    />
+                );
+            }
+
+            // Show admin panel if user is admin
+            if (isAdmin) {
+                return (
+                    <AdminPanel 
+                        user={user}
+                        onSignOut={handleSignOut}
+                        onAddUser={handleAddUser}
+                        onRemoveUser={handleRemoveUser}
+                    />
+                );
+            }
+
+            // Show loading while app data is loading
             if (isLoading) {
                 return (
                     <div className="flex items-center justify-center min-h-screen">
@@ -723,6 +1067,19 @@
                                             Last saved: {lastSaved.toLocaleTimeString()}
                                         </div>
                                     )}
+                                </div>
+                                
+                                {/* User Info and Sign Out */}
+                                <div className="flex items-center gap-3">
+                                    <div className="text-sm text-gray-600">
+                                        Welcome, {user.email}
+                                    </div>
+                                    <button 
+                                        onClick={handleSignOut}
+                                        className="px-3 py-1 bg-red-500 text-white text-sm rounded-lg hover:bg-red-600 transition-colors"
+                                    >
+                                        Sign Out
+                                    </button>
                                 </div>
                             </div>
                         </div>
