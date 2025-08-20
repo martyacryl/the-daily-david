@@ -632,8 +632,8 @@
                 'window.supabaseReady': window.supabaseReady
             });
             
-            // Use React state to determine if Supabase is ready
-            const isSupabaseAvailable = supabaseReady || (window.supabase && window.adminSupabase);
+            // Use React state instead of global variables
+            const isSupabaseAvailable = supabaseReady;
             
             if (!isSupabaseAvailable) {
                 console.log('❌ Supabase clients not ready, showing loading screen');
@@ -1257,21 +1257,22 @@
             useEffect(() => {
                 console.log('🚀 Setting up Supabase ready event listener');
                 
+                // Check if already ready
+                if (window.supabaseClientsReady) {
+                    console.log('✅ Supabase already ready, updating state immediately');
+                    setSupabaseReady(true);
+                    setAuthLoading(false);
+                    return;
+                }
+                
+                // Listen for the ready event
                 const handleSupabaseReady = () => {
-                    console.log('🎉 Received supabaseReady event, updating state');
+                    console.log('🎉 React received supabaseReady event');
                     setSupabaseReady(true);
                     setAuthLoading(false);
                 };
                 
-                // Listen for the supabaseReady event
                 window.addEventListener('supabaseReady', handleSupabaseReady);
-                
-                // Also check if Supabase is already ready
-                if (window.supabase && window.adminSupabase) {
-                    console.log('✅ Supabase already ready, updating state immediately');
-                    setSupabaseReady(true);
-                    setAuthLoading(false);
-                }
                 
                 return () => {
                     console.log('🧹 Cleaning up Supabase ready event listener');
