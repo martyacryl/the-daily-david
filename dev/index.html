@@ -1509,6 +1509,9 @@
                 const currentDayData = userSpecificData.dayData[dateKey];
                 if (!currentDayData) return;
                 
+                console.log('🔄 DEBUG: ensureGoalsCarryOver called for date:', dateKey);
+                console.log('🔄 DEBUG: Current day data goals:', currentDayData.goals);
+                
                 // Check if we need to carry over weekly/monthly goals
                 const currentDate = new Date(dateKey);
                 let needsUpdate = false;
@@ -1516,13 +1519,17 @@
                 
                 // Find goals from other days in the same week/month
                 const allDates = Object.keys(userSpecificData.dayData);
+                console.log('🔄 DEBUG: All available dates:', allDates);
                 
                 // Check weekly goals
                 if (!updatedDayData.goals.weekly || updatedDayData.goals.weekly.length === 0) {
+                    console.log('🔄 DEBUG: No weekly goals, checking for carryover...');
                     for (const otherDateKey of allDates) {
                         if (otherDateKey !== dateKey) {
                             const otherDayData = userSpecificData.dayData[otherDateKey];
+                            console.log('🔄 DEBUG: Checking other date:', otherDateKey, 'for weekly goals');
                             if (otherDayData?.goals?.weekly?.length > 0 && isSameWeek(currentDate, new Date(otherDateKey))) {
+                                console.log('🔄 DEBUG: Found weekly goals to carry over:', otherDayData.goals.weekly);
                                 updatedDayData.goals.weekly = otherDayData.goals.weekly.map(goal => ({
                                     ...goal,
                                     completed: goal.completed // Keep completion status
@@ -1536,10 +1543,14 @@
                 
                 // Check monthly goals
                 if (!updatedDayData.goals.monthly || updatedDayData.goals.monthly.length === 0) {
+                    console.log('🔄 DEBUG: No monthly goals, checking for carryover...');
                     for (const otherDateKey of allDates) {
                         if (otherDateKey !== dateKey) {
                             const otherDayData = userSpecificData.dayData[otherDateKey];
+                            console.log('🔄 DEBUG: Checking other date:', otherDateKey, 'for monthly goals');
+                            console.log('🔄 DEBUG: Other day data goals:', otherDayData?.goals);
                             if (otherDayData?.goals?.monthly?.length > 0 && isSameMonth(currentDate, new Date(otherDateKey))) {
+                                console.log('🔄 DEBUG: Found monthly goals to carry over:', otherDayData.goals.monthly);
                                 updatedDayData.goals.monthly = otherDayData.goals.monthly.map(goal => ({
                                     ...goal,
                                     completed: goal.completed // Keep completion status
@@ -1552,6 +1563,9 @@
                 }
                 
                 if (needsUpdate) {
+                    console.log('🔄 DEBUG: Updating goals for date:', dateKey);
+                    console.log('🔄 DEBUG: Updated goals:', updatedDayData.goals);
+                    
                     // Save updated data
                     const dayDataKey = `dailyDavid_dayData_${user.id}`;
                     const allDayData = { ...userSpecificData.dayData, [dateKey]: updatedDayData };
@@ -1561,6 +1575,8 @@
                         ...prev,
                         dayData: { ...prev.dayData, [dateKey]: updatedDayData }
                     }));
+                } else {
+                    console.log('🔄 DEBUG: No goals need to be carried over for date:', dateKey);
                 }
             };
 
