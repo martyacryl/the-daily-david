@@ -114,6 +114,8 @@
                     supabase = supabaseModule.createClient(supabaseUrl, supabaseKey);
                     adminSupabase = supabaseModule.createClient(supabaseUrl, serviceRoleKey);
                     console.log('✅ Supabase clients created successfully');
+                    // Notify that Supabase is ready
+                    notifySupabaseReady();
                     return true;
                 } catch (error) {
                     console.error('❌ Error creating Supabase clients:', error);
@@ -137,6 +139,17 @@
                 initializeSupabaseWithRetry();
             }
         });
+        
+        // Global flag to track when Supabase is ready
+        window.supabaseReady = false;
+        
+        // Function to notify that Supabase is ready
+        function notifySupabaseReady() {
+            window.supabaseReady = true;
+            console.log('🎉 Supabase is ready! Notifying app...');
+            // Dispatch a custom event to notify the React component
+            window.dispatchEvent(new CustomEvent('supabaseReady'));
+        }
         
         function initializeSupabaseWithRetry() {
             // Try to initialize immediately
@@ -196,6 +209,7 @@
                                 setTimeout(() => {
                                     if (initializeSupabaseClients()) {
                                         console.log('✅ Supabase clients created after dynamic load');
+                                        // notifySupabaseReady is already called in initializeSupabaseClients
                                     } else {
                                         console.error('❌ Still failed to create clients after dynamic load');
                                         console.log('🚨 Final check - available globals:', Object.keys(window).filter(key => key.toLowerCase().includes('supabase')));
@@ -571,14 +585,28 @@
         };
 
         const MarriageMeetingTool = () => {
-            // Check if Supabase is available
+            // Check if Supabase is available with better debugging
+            console.log('🔍 MarriageMeetingTool render check:', {
+                'supabase exists': !!supabase,
+                'adminSupabase exists': !!adminSupabase,
+                'supabase type': typeof supabase,
+                'adminSupabase type': typeof adminSupabase,
+                'window.supabase exists': !!window.supabase,
+                'window.supabase.createClient': typeof window.supabase?.createClient
+            });
+            
             if (!supabase || !adminSupabase) {
+                console.log('❌ Supabase clients not ready, showing loading screen');
                 return (
                     <div className="min-h-screen flex items-center justify-center bg-white">
                         <div className="text-center">
                             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
                             <p className="text-gray-600">Loading Supabase...</p>
                             <p className="text-sm text-gray-500 mt-2">If this persists, please refresh the page</p>
+                            <div className="mt-4 text-xs text-gray-400">
+                                <p>supabase: {supabase ? '✅' : '❌'}</p>
+                                <p>adminSupabase: {adminSupabase ? '✅' : '❌'}</p>
+                            </div>
                         </div>
                     </div>
                 );
@@ -1181,6 +1209,21 @@
                 });
             }, [initializeWeekData, user]);
 
+            // Listen for Supabase ready event
+            useEffect(() => {
+                const handleSupabaseReady = () => {
+                    console.log('🎉 Received supabaseReady event, forcing re-render');
+                    // Force a re-render by updating a state variable
+                    setAuthLoading(prev => !prev);
+                };
+                
+                window.addEventListener('supabaseReady', handleSupabaseReady);
+                
+                return () => {
+                    window.removeEventListener('supabaseReady', handleSupabaseReady);
+                };
+            }, []);
+            
             // Initialize authentication
             useEffect(() => {
                 const initializeAuth = async () => {
