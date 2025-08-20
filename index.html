@@ -434,15 +434,7 @@
 
         const MarriageMeetingTool = () => {
             const [currentDate, setCurrentDate] = useState(new Date());
-            const [weekData, setWeekData] = useState({
-                monday: { schedule: [], notes: '' },
-                tuesday: { schedule: [], notes: '' },
-                wednesday: { schedule: [], notes: '' },
-                thursday: { schedule: [], notes: '' },
-                friday: { schedule: [], notes: '' },
-                saturday: { schedule: [], notes: '' },
-                sunday: { schedule: [], notes: '' }
-            });
+            const [weekData, setWeekData] = useState({});
             const [isLoading, setIsLoading] = useState(true);
             const [lastSaved, setLastSaved] = useState(null);
             
@@ -462,6 +454,27 @@
                     month: 'long', 
                     day: 'numeric' 
                 });
+            };
+
+            // Get Monday of current week
+            const getMonday = (date) => {
+                const d = new Date(date);
+                const day = d.getDay();
+                const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+                return new Date(d.setDate(diff));
+            };
+
+            const formatWeekKey = (date) => {
+                const monday = getMonday(date);
+                return monday.toISOString().split('T')[0];
+            };
+
+            const formatWeekDisplay = (date) => {
+                const monday = getMonday(date);
+                const sunday = new Date(monday);
+                sunday.setDate(sunday.getDate() + 6);
+                
+                return `${monday.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${sunday.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
             };
 
             // Load week data from database and localStorage
@@ -487,7 +500,7 @@
                     const { data, error } = await supabase
                         .from(TABLE_NAME)
                         .select('*')
-                        .eq('date_key', 'current_week')
+                        .eq('week_key', formatWeekKey(currentDate))
                         .eq('user_id', user.id);
 
                     if (error) {
@@ -515,7 +528,7 @@
             };
 
             // Save week data to database and localStorage
-            const saveWeekData = async (data) => {
+            const saveWeekData = async (weekKey, data) => {
                 if (!user) return false;
                 
                 // Save to localStorage as backup
@@ -532,11 +545,11 @@
                     const { error } = await supabase
                         .from(TABLE_NAME)
                         .upsert({
-                            date_key: 'current_week',
+                            week_key: weekKey,
                             user_id: user.id,
                             data: data
                         }, {
-                            onConflict: 'date_key,user_id'
+                            onConflict: 'week_key,user_id'
                         });
 
                     if (error) {
@@ -559,45 +572,50 @@
             const initializeWeekData = useCallback(async () => {
                 console.log('🔄 Initializing week data...');
                 
-                // If we already have data, don't reinitialize
-                if (weekData && Object.keys(weekData).length > 0) {
-                    console.log('✅ Week data already exists, skipping initialization');
+                const weekKey = formatWeekKey(currentDate);
+                
+                // If we already have data for this week, don't reinitialize
+                if (weekData[weekKey]) {
+                    console.log('✅ Week data already exists for this week, skipping initialization');
                     setIsLoading(false);
-                    return weekData;
+                    return weekData[weekKey];
                 }
 
                 setIsLoading(true);
-                console.log('🔄 Loading week data...');
+                console.log('🔄 Loading week data for week:', weekKey);
                 
                 try {
                     const savedData = await loadWeekData();
                     
                     if (savedData) {
                         console.log('✅ Loaded existing week data:', savedData);
-                        setWeekData(savedData);
+                        setWeekData(prev => ({ ...prev, [weekKey]: savedData }));
                         setIsLoading(false);
                         return savedData;
                     }
 
                     console.log('🆕 No existing data found, creating new week data');
                     
-                    // Create new week data with default structure
+                    // Create new week data with full structure
                     const newWeekData = {
-                        monday: { schedule: [''], notes: '' },
-                        tuesday: { schedule: [''], notes: '' },
-                        wednesday: { schedule: [''], notes: '' },
-                        thursday: { schedule: [''], notes: '' },
-                        friday: { schedule: [''], notes: '' },
-                        saturday: { schedule: [''], notes: '' },
-                        sunday: { schedule: [''], notes: '' }
+                        schedule: {
+                            Monday: [''], Tuesday: [''], Wednesday: [''], Thursday: [''],
+                            Friday: [''], Saturday: [''], Sunday: ['']
+                        },
+                        todos: [],
+                        prayers: [],
+                        goals: [],
+                        grocery: [],
+                        unconfessedSin: [],
+                        weeklyWinddown: []
                     };
 
                     console.log('🆕 Setting new week data:', newWeekData);
-                    setWeekData(newWeekData);
+                    setWeekData(prev => ({ ...prev, [weekKey]: newWeekData }));
                     
                     // Try to save to database, but don't block on it
                     try {
-                        await saveWeekData(newWeekData);
+                        await saveWeekData(weekKey, newWeekData);
                         console.log('✅ New week data saved to database');
                     } catch (saveError) {
                         console.log('⚠️ Could not save to database, but continuing:', saveError);
@@ -611,21 +629,24 @@
                     
                     // Create fallback data even if there's an error
                     const fallbackData = {
-                        monday: { schedule: [''], notes: '' },
-                        tuesday: { schedule: [''], notes: '' },
-                        wednesday: { schedule: [''], notes: '' },
-                        thursday: { schedule: [''], notes: '' },
-                        friday: { schedule: [''], notes: '' },
-                        saturday: { schedule: [''], notes: '' },
-                        sunday: { schedule: [''], notes: '' }
+                        schedule: {
+                            Monday: [''], Tuesday: [''], Wednesday: [''], Thursday: [''],
+                            Friday: [''], Saturday: [''], Sunday: ['']
+                        },
+                        todos: [],
+                        prayers: [],
+                        goals: [],
+                        grocery: [],
+                        unconfessedSin: [],
+                        weeklyWinddown: []
                     };
                     
                     console.log('🔄 Setting fallback data due to error');
-                    setWeekData(fallbackData);
+                    setWeekData(prev => ({ ...prev, [weekKey]: fallbackData }));
                     setIsLoading(false);
                     return fallbackData;
                 }
-            }, [weekData]);
+            }, [currentDate, weekData, user]);
 
             // Initialize on mount
             useEffect(() => {
@@ -803,61 +824,171 @@
                 );
             }
 
-            // Update functions
-            const updateSchedule = (day, schedule) => {
-                const updatedWeekData = {
-                    ...weekData,
-                    [day]: { ...weekData[day], schedule }
-                };
-                setWeekData(updatedWeekData);
-                saveWeekData(updatedWeekData);
+            // Get current week data
+            const currentWeekKey = formatWeekKey(currentDate);
+            const currentWeekData = weekData[currentWeekKey] || {
+                schedule: {
+                    Monday: [''], Tuesday: [''], Wednesday: [''], Thursday: [''],
+                    Friday: [''], Saturday: [''], Sunday: ['']
+                },
+                todos: [],
+                prayers: [],
+                goals: [],
+                grocery: [],
+                unconfessedSin: [],
+                weeklyWinddown: []
             };
 
-            const updateNotes = (day, notes) => {
-                const updatedWeekData = {
-                    ...weekData,
-                    [day]: { ...weekData[day], notes }
+            // Update functions
+            const updateSchedule = (day, index, value) => {
+                const weekKey = formatWeekKey(currentDate);
+                const newData = {
+                    ...currentWeekData,
+                    schedule: {
+                        ...currentWeekData.schedule,
+                        [day]: currentWeekData.schedule[day].map((item, i) => i === index ? value : item)
+                    }
                 };
-                setWeekData(updatedWeekData);
-                saveWeekData(updatedWeekData);
+                
+                setWeekData(prev => ({ ...prev, [weekKey]: newData }));
+                saveWeekData(weekKey, newData);
             };
 
             const addScheduleLine = (day) => {
-                const updatedSchedule = [...weekData[day].schedule, ''];
-                updateSchedule(day, updatedSchedule);
+                const weekKey = formatWeekKey(currentDate);
+                const newData = {
+                    ...currentWeekData,
+                    schedule: {
+                        ...currentWeekData.schedule,
+                        [day]: [...currentWeekData.schedule[day], '']
+                    }
+                };
+                
+                setWeekData(prev => ({ ...prev, [weekKey]: newData }));
+                saveWeekData(weekKey, newData);
             };
 
             const removeScheduleLine = (day, index) => {
-                const updatedSchedule = weekData[day].schedule.filter((_, i) => i !== index);
-                updateSchedule(day, updatedSchedule);
+                const weekKey = formatWeekKey(currentDate);
+                const newData = {
+                    ...currentWeekData,
+                    schedule: {
+                        ...currentWeekData.schedule,
+                        [day]: currentWeekData.schedule[day].filter((_, i) => i !== index)
+                    }
+                };
+                
+                setWeekData(prev => ({ ...prev, [weekKey]: newData }));
+                saveWeekData(weekKey, newData);
             };
 
-            const updateScheduleLine = (day, index, value) => {
-                const updatedSchedule = weekData[day].schedule.map((line, i) => i === index ? value : line);
-                updateSchedule(day, updatedSchedule);
+            const addListItem = (listType) => {
+                const weekKey = formatWeekKey(currentDate);
+                const currentItems = currentWeekData[listType] || [];
+                const newItem = { id: Date.now(), text: '', completed: false };
+                const newData = {
+                    ...currentWeekData,
+                    [listType]: [...currentItems, newItem]
+                };
+                
+                setWeekData(prev => ({ ...prev, [weekKey]: newData }));
+                saveWeekData(weekKey, newData);
             };
 
-            const navigateDate = (direction) => {
+            const updateListItem = (listType, id, text) => {
+                const weekKey = formatWeekKey(currentDate);
+                const currentItems = currentWeekData[listType] || [];
+                const updatedItems = currentItems.map(item => 
+                    item.id === id ? { ...item, text } : item
+                );
+                const newData = {
+                    ...currentWeekData,
+                    [listType]: updatedItems
+                };
+                
+                setWeekData(prev => ({ ...prev, [weekKey]: newData }));
+                saveWeekData(weekKey, newData);
+            };
+
+            const toggleListItem = (listType, id) => {
+                const weekKey = formatWeekKey(currentDate);
+                const currentItems = currentWeekData[listType] || [];
+                const updatedItems = currentItems.map(item => 
+                    item.id === id ? { ...item, completed: !item.completed } : item
+                );
+                const newData = {
+                    ...currentWeekData,
+                    [listType]: updatedItems
+                };
+                
+                setWeekData(prev => ({ ...prev, [weekKey]: newData }));
+                saveWeekData(weekKey, newData);
+            };
+
+            const removeListItem = (listType, id) => {
+                const weekKey = formatWeekKey(currentDate);
+                const currentItems = currentWeekData[listType] || [];
+                const updatedItems = currentItems.filter(item => item.id !== id);
+                const newData = {
+                    ...currentWeekData,
+                    [listType]: updatedItems
+                };
+                
+                setWeekData(prev => ({ ...prev, [weekKey]: newData }));
+                saveWeekData(weekKey, newData);
+            };
+
+            const navigateWeek = (direction) => {
                 const newDate = new Date(currentDate);
-                newDate.setDate(newDate.getDate() + direction);
+                newDate.setDate(newDate.getDate() + (direction * 7));
                 setCurrentDate(newDate);
+                
+                // Ensure the new week's data is loaded
+                const newWeekKey = formatWeekKey(newDate);
+                if (user && !weekData[newWeekKey]) {
+                    console.log(`🔄 Navigating to new week: ${newWeekKey}, loading data...`);
+                    initializeWeekData();
+                }
             };
+
+            const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
             return (
-                <div className="container mx-auto px-4 py-8 max-w-6xl">
+                <div className="container mx-auto px-4 py-8 max-w-7xl">
                     {/* Header Section */}
                     <div className="section-card rounded-xl p-6 mb-8">
                         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
                             <div className="text-center md:text-left">
                                 <h1 className="section-header text-4xl font-bold mb-2">
-                                    Marriage Meeting Tool
+                                    Weekly Marriage Meeting
                                 </h1>
                                 <p className="text-gray-600 text-lg">
-                                    Plan and organize your weekly marriage meetings
+                                    Plan together, grow together
                                 </p>
+                                {user && (
+                                    <div className="text-sm text-gray-500 mt-1">
+                                        Signed in as: {user.email}
+                                    </div>
+                                )}
                             </div>
                             
                             <div className="flex items-center gap-4">
+                                {/* Sign Out Button */}
+                                <button
+                                    onClick={async () => {
+                                        try {
+                                            await supabase.auth.signOut();
+                                            setUser(null);
+                                            setIsAdmin(false);
+                                        } catch (error) {
+                                            console.error('Sign out error:', error);
+                                        }
+                                    }}
+                                    className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors"
+                                >
+                                    Sign Out
+                                </button>
+                                
                                 <div className="text-right text-sm">
                                     <div className="text-green-600">
                                         <div className="w-2 h-2 rounded-full bg-green-500 mx-auto mb-1"></div>
@@ -869,37 +1000,15 @@
                                         </div>
                                     )}
                                 </div>
-                                
-                                {/* User Info and Sign Out */}
-                                <div className="flex items-center gap-3">
-                                    <div className="text-sm text-gray-600">
-                                        Welcome, {user.email}
-                                    </div>
-
-                                    <button 
-                                        onClick={async () => {
-                                            try {
-                                                await supabase.auth.signOut();
-                                                setUser(null);
-                                                setIsAdmin(false);
-                                            } catch (error) {
-                                                console.error('Sign out error:', error);
-                                            }
-                                        }}
-                                        className="px-3 py-1 bg-red-500 text-white text-sm rounded-lg hover:bg-red-600 transition-colors"
-                                    >
-                                        Sign Out
-                                    </button>
-                                </div>
                             </div>
                         </div>
 
                         <div className="section-divider"></div>
 
-                        {/* Date Navigation */}
+                        {/* Week Navigation */}
                         <div className="flex items-center justify-center gap-6">
                             <button 
-                                onClick={() => navigateDate(-1)}
+                                onClick={() => navigateWeek(-1)}
                                 className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors shadow-sm"
                             >
                                 <ChevronLeftIcon />
@@ -908,12 +1017,15 @@
                             
                             <div className="text-center">
                                 <h2 className="text-xl font-semibold text-gray-800">
-                                    Week of {formatDateDisplay(currentDate)}
+                                    {formatWeekDisplay(currentDate)}
                                 </h2>
+                                <p className="text-sm text-gray-500 mt-1">
+                                    Week of {getMonday(currentDate).toLocaleDateString('en-US', { weekday: 'long' })}
+                                </p>
                             </div>
                             
                             <button 
-                                onClick={() => navigateDate(1)}
+                                onClick={() => navigateWeek(1)}
                                 className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors shadow-sm"
                             >
                                 Next Week
@@ -922,66 +1034,352 @@
                         </div>
                     </div>
 
-                    {/* Weekly Schedule */}
-                    <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-                        {Object.entries(weekData).map(([day, dayData]) => (
-                            <div key={day} className="modern-card p-6">
-                                <h3 className="text-xl font-bold text-gray-800 mb-4 capitalize">
-                                    {day}
-                                </h3>
-                                
-                                {/* Schedule Lines */}
-                                <div className="space-y-3 mb-4">
-                                    {dayData.schedule.map((line, index) => (
-                                        <div key={index} className="flex items-center gap-2">
-                                            <input
-                                                type="text"
-                                                value={line}
-                                                onChange={(e) => updateScheduleLine(day, index, e.target.value)}
-                                                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                                                placeholder={`Schedule item ${index + 1}`}
-                                            />
-                                            <button
-                                                onClick={() => removeScheduleLine(day, index)}
-                                                className="px-2 py-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
-                                            >
-                                                ✕
-                                            </button>
-                                        </div>
-                                    ))}
-                                    
-                                    <button
-                                        onClick={() => addScheduleLine(day)}
-                                        className="w-full py-2 border-2 border-dashed border-gray-300 rounded-lg text-gray-500 hover:text-gray-700 hover:border-gray-400 transition-colors flex items-center justify-center gap-2"
-                                    >
-                                        <PlusIcon />
-                                        Add Another Line
-                                    </button>
-                                </div>
-                                
-                                {/* Notes */}
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                                        Notes
-                                    </label>
-                                    <textarea
-                                        value={dayData.notes}
-                                        onChange={(e) => updateNotes(day, e.target.value)}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
-                                        rows="3"
-                                        placeholder="Add notes for this day..."
-                                    />
-                                </div>
-                            </div>
-                        ))}
+                    {/* Weekly Schedule Section */}
+                    <div className="section-card rounded-xl p-6 mb-8">
+                        <div className="text-center mb-6">
+                            <h2 className="section-header text-2xl font-bold mb-2">
+                                📅 Weekly Schedule
+                            </h2>
+                            <p className="text-gray-600">
+                                Plan your week together, day by day
+                            </p>
+                        </div>
+
+                        <div className="section-divider"></div>
+
+                        <div className="flex flex-wrap justify-center gap-8 max-w-6xl mx-auto">
+                            {days.map((day) => {
+                                const dayItems = currentWeekData.schedule?.[day] || [''];
+                                return (
+                                    <div key={day} className="w-full sm:w-[calc(50%-1rem)] lg:w-[calc(33.333%-1.33rem)] xl:w-[calc(25%-1.5rem)]">
+                                        <ScheduleDay 
+                                            day={day} 
+                                            items={dayItems}
+                                            onUpdate={updateSchedule}
+                                            onAddLine={() => addScheduleLine(day)}
+                                            onRemoveLine={(index) => removeScheduleLine(day, index)}
+                                        />
+                                    </div>
+                                );
+                            })}
+                        </div>
+
+                        <div className="section-divider mt-6"></div>
+                        <div className="text-center">
+                            <p className="text-sm text-gray-500">
+                                Click in any day to add commitments, appointments, or notes
+                            </p>
+                        </div>
+                    </div>
+
+                    {/* Lists Section */}
+                    <div className="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-8">
+                        <ListSection 
+                            title="✅ To-Do List" 
+                            subtitle="Tasks and action items"
+                            listType="todos" 
+                            items={currentWeekData.todos || []} 
+                            onUpdate={updateListItem}
+                            onAdd={addListItem}
+                            onToggle={toggleListItem}
+                            onRemove={removeListItem}
+                            placeholder="Add a new task..."
+                            color="blue"
+                        />
+                        
+                        <ListSection 
+                            title="🙏 Prayer List" 
+                            subtitle="Prayers and requests"
+                            listType="prayers" 
+                            items={currentWeekData.prayers || []} 
+                            onUpdate={updateListItem}
+                            onAdd={addListItem}
+                            onToggle={toggleListItem}
+                            onRemove={removeListItem}
+                            placeholder="Add a prayer request..."
+                            color="purple"
+                        />
+                        
+                        <ListSection 
+                            title="🎯 Goals" 
+                            subtitle="Dreams and aspirations"
+                            listType="goals" 
+                            items={currentWeekData.goals || []} 
+                            onUpdate={updateListItem}
+                            onAdd={addListItem}
+                            onToggle={toggleListItem}
+                            onRemove={removeListItem}
+                            placeholder="Add a new goal..."
+                            color="green"
+                        />
+                        
+                        <ListSection 
+                            title="🛒 Grocery List" 
+                            subtitle="Shopping and supplies"
+                            listType="grocery" 
+                            items={currentWeekData.grocery || []} 
+                            onUpdate={updateListItem}
+                            onAdd={addListItem}
+                            onToggle={toggleListItem}
+                            onRemove={removeListItem}
+                            placeholder="Add grocery item..."
+                            color="orange"
+                        />
+                        
+                        <ListSection 
+                            title="💭 Unconfessed Sin" 
+                            subtitle="Accountability and grace"
+                            listType="unconfessedSin" 
+                            items={currentWeekData.unconfessedSin || []} 
+                            onUpdate={updateListItem}
+                            onAdd={addListItem}
+                            onToggle={toggleListItem}
+                            onRemove={removeListItem}
+                            placeholder="Add for accountability..."
+                            color="red"
+                        />
+                        
+                        <ListSection 
+                            title="🌙 Weekly Winddown" 
+                            subtitle="Weekly relaxation plan together"
+                            listType="weeklyWinddown" 
+                            items={currentWeekData.weeklyWinddown || []} 
+                            onUpdate={updateListItem}
+                            onAdd={addListItem}
+                            onToggle={toggleListItem}
+                            onRemove={removeListItem}
+                            placeholder="Add relaxation activity..."
+                            color="blue"
+                        />
                     </div>
 
                     {/* Footer */}
                     <div className="mt-12 text-center">
                         <div className="section-divider"></div>
                         <p className="text-gray-500 text-sm">
-                            Built for stronger marriages through better communication and planning
+                            Built with ❤️ for strengthening marriages through intentional planning
                         </p>
+                        <p className="text-gray-400 text-xs mt-2">
+                            All changes sync in real-time
+                        </p>
+                    </div>
+                </div>
+            );
+        };
+
+        // Schedule Day Component with local state for inputs
+        const ScheduleDay = ({ day, items, onUpdate, onAddLine, onRemoveLine }) => {
+            const [localInputs, setLocalInputs] = useState({});
+
+            // Initialize local inputs when items change
+            useEffect(() => {
+                const newLocalInputs = {};
+                items.forEach((item, index) => {
+                    newLocalInputs[index] = item;
+                });
+                setLocalInputs(newLocalInputs);
+            }, [items]);
+
+            const handleInputChange = (index, value) => {
+                setLocalInputs(prev => ({ ...prev, [index]: value }));
+            };
+
+            const handleInputBlur = (index) => {
+                const localValue = localInputs[index];
+                const currentItem = items[index];
+                if (localValue !== undefined && currentItem !== localValue) {
+                    onUpdate(day, index, localValue);
+                }
+            };
+
+            const autoResize = (e) => {
+                e.target.style.height = 'auto';
+                e.target.style.height = e.target.scrollHeight + 'px';
+            };
+
+            const dayColors = {
+                Monday: 'border-slate-300 focus:border-slate-500 focus:ring-slate-200',
+                Tuesday: 'border-slate-400 focus:border-slate-600 focus:ring-slate-200',
+                Wednesday: 'border-purple-300 focus:border-purple-500 focus:ring-purple-200',
+                Thursday: 'border-purple-400 focus:border-purple-600 focus:ring-purple-200',
+                Friday: 'border-purple-500 focus:border-purple-700 focus:ring-purple-200',
+                Saturday: 'border-purple-600 focus:border-purple-800 focus:ring-purple-200',
+                Sunday: 'border-purple-700 focus:border-purple-900 focus:ring-purple-200'
+            };
+
+            return (
+                <div className="modern-card p-8 min-h-[350px] flex flex-col w-full">
+                    <div className="text-center mb-6">
+                        <h3 className="font-bold text-gray-800 text-xl mb-3">
+                            {day}
+                        </h3>
+                        <div className="w-full h-px bg-gradient-to-r from-transparent via-purple-300 to-transparent"></div>
+                    </div>
+                    
+                    <div className="space-y-4 flex-1">
+                        {items.map((line, index) => (
+                            <div key={index} className="relative group">
+                                <textarea
+                                    value={localInputs[index] !== undefined ? localInputs[index] : line}
+                                    onChange={(e) => {
+                                        handleInputChange(index, e.target.value);
+                                        autoResize(e);
+                                    }}
+                                    onBlur={() => handleInputBlur(index)}
+                                    onInput={autoResize}
+                                    className={`w-full text-base border-2 ${dayColors[day]} rounded-xl px-5 py-4 resize-none overflow-hidden min-h-[4rem] focus:outline-none focus:ring-2 focus:ring-current transition-all duration-200 placeholder-gray-400`}
+                                    placeholder={`What's planned for ${day}?`}
+                                    rows="1"
+                                />
+                                {items.length > 1 && (
+                                    <button
+                                        onClick={() => onRemoveLine(index)}
+                                        className="absolute right-3 top-3 opacity-0 group-hover:opacity-100 text-red-500 hover:text-red-700 p-2 bg-white rounded-full shadow-lg transition-all duration-200 hover:scale-110"
+                                        title="Remove line"
+                                    >
+                                        ✕
+                                    </button>
+                                )}
+                            </div>
+                        ))}
+                        
+                        <button
+                            onClick={() => onAddLine()}
+                            className="w-full text-base text-gray-600 hover:text-purple-700 py-4 border-2 border-dashed border-gray-300 hover:border-purple-400 rounded-xl transition-all duration-200 flex items-center justify-center gap-3 hover:bg-purple-50 font-medium"
+                        >
+                            <PlusIcon />
+                            Add another line
+                        </button>
+                    </div>
+                </div>
+            );
+        };
+
+        // List Section Component with local state for inputs
+        const ListSection = ({ title, subtitle, listType, items, onUpdate, onAdd, onToggle, onRemove, placeholder, color }) => {
+            const [localInputs, setLocalInputs] = useState({});
+
+            // Initialize local inputs when items change
+            useEffect(() => {
+                const newLocalInputs = {};
+                items.forEach(item => {
+                    if (!(item.id in localInputs)) {
+                        newLocalInputs[item.id] = item.text;
+                    }
+                });
+                if (Object.keys(newLocalInputs).length > 0) {
+                    setLocalInputs(prev => ({ ...prev, ...newLocalInputs }));
+                }
+            }, [items]);
+
+            const handleInputChange = (id, value) => {
+                setLocalInputs(prev => ({ ...prev, [id]: value }));
+            };
+
+            const handleInputBlur = (id) => {
+                const localValue = localInputs[id];
+                const currentItem = items.find(item => item.id === id);
+                if (localValue !== undefined && currentItem && localValue !== currentItem.text) {
+                    onUpdate(listType, id, localValue);
+                }
+            };
+
+            const colorClasses = {
+                blue: {
+                    header: 'from-slate-400 to-slate-600',
+                    border: 'border-slate-200',
+                    button: 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200'
+                },
+                purple: {
+                    header: 'from-slate-500 to-purple-500',
+                    border: 'border-slate-200',
+                    button: 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200'
+                },
+                green: {
+                    header: 'from-purple-400 to-purple-600',
+                    border: 'border-purple-200',
+                    button: 'bg-purple-50 hover:bg-purple-100 text-purple-700 border-purple-200'
+                },
+                orange: {
+                    header: 'from-purple-500 to-purple-700',
+                    border: 'border-purple-200',
+                    button: 'bg-purple-50 hover:bg-purple-100 text-purple-700 border-purple-200'
+                },
+                red: {
+                    header: 'from-purple-600 to-purple-800',
+                    border: 'border-purple-200',
+                    button: 'bg-purple-50 hover:bg-purple-100 text-purple-700 border-purple-200'
+                }
+            };
+
+            const colors = colorClasses[color];
+
+            return (
+                <div className={`modern-card border ${colors.border} overflow-hidden`}>
+                    {/* Header */}
+                    <div className={`bg-gradient-to-r ${colors.header} text-white p-6`}>
+                        <h3 className="font-bold text-xl">{title}</h3>
+                        <p className="text-white/90 text-sm mt-2">{subtitle}</p>
+                    </div>
+
+                    {/* Content */}
+                    <div className="p-6">
+                        <div className="space-y-4 mb-6">
+                            {items.map((item) => (
+                                <div key={item.id} className="flex items-start gap-4 group">
+                                    <button
+                                        onClick={() => onToggle(listType, item.id)}
+                                        className={`mt-1 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-200 hover:scale-110 ${
+                                            item.completed 
+                                                ? `bg-${color}-500 border-${color}-500 text-white shadow-lg` 
+                                                : `border-gray-300 hover:border-${color}-400 hover:bg-gray-50`
+                                        }`}
+                                    >
+                                        {item.completed && '✓'}
+                                    </button>
+                                    
+                                    <div className="flex-1 min-w-0">
+                                        <input
+                                            type="text"
+                                            value={localInputs[item.id] !== undefined ? localInputs[item.id] : item.text}
+                                            onChange={(e) => handleInputChange(item.id, e.target.value)}
+                                            onBlur={() => handleInputBlur(item.id)}
+                                            className={`w-full text-sm border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-${color}-400 focus:border-${color}-400 transition-all duration-200 ${
+                                                item.completed ? 'line-through text-gray-500 bg-gray-50' : 'hover:border-gray-300'
+                                            }`}
+                                            placeholder={placeholder}
+                                        />
+                                    </div>
+                                    
+                                    <button
+                                        onClick={() => onRemove(listType, item.id)}
+                                        className="opacity-0 group-hover:opacity-100 text-red-500 hover:text-red-700 p-2 rounded-full hover:bg-red-50 transition-all duration-200 hover:scale-110"
+                                        title="Remove item"
+                                    >
+                                        ✕
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* Add Button */}
+                        <button
+                            onClick={() => onAdd(listType)}
+                            className={`w-full py-4 border-2 border-dashed rounded-xl transition-all duration-200 flex items-center justify-center gap-3 font-medium text-lg hover:scale-[1.02] ${colors.button}`}
+                        >
+                            <PlusIcon />
+                            Add Item
+                        </button>
+
+                        {/* Footer Stats */}
+                        {items.length > 0 && (
+                            <div className="mt-6 pt-4 border-t border-gray-200">
+                                <div className="flex justify-between text-sm text-gray-600 font-medium">
+                                    <span>{items.length} total</span>
+                                    <span>{items.filter(item => item.completed).length} completed</span>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
             );
