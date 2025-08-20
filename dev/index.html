@@ -1052,152 +1052,104 @@
                 }
             };
 
-            // Function to load user-specific data
+                        // Function to load user-specific data - BULLETPROOF localStorage approach
             const loadUserSpecificData = async (userId) => {
                 try {
-                    console.log('🔄 Loading user-specific data for:', userId);
-                    console.log('Current userSpecificData state:', userSpecificData);
+                    console.log('🔄 BULLETPROOF: Loading user-specific data for:', userId);
                     
-                    // Load goals from localStorage first
-                    const goalsLocalStorageKey = `dailyDavid_goals_${userId}`;
-                    const goalsLocalStorageData = localStorage.getItem(goalsLocalStorageKey);
-                    console.log('Goals localStorage key:', goalsLocalStorageKey);
-                    console.log('Goals localStorage data exists:', !!goalsLocalStorageData);
+                    // DIRECT localStorage access - no complex logic
+                    const goalsKey = `dailyDavid_goals_${userId}`;
+                    const dayDataKey = `dailyDavid_dayData_${userId}`;
                     
-                    let weeklyGoals, monthlyGoals;
+                    console.log('🔑 Goals key:', goalsKey);
+                    console.log('🔑 Day data key:', dayDataKey);
                     
-                    if (goalsLocalStorageData) {
-                        try {
-                            const parsedData = JSON.parse(goalsLocalStorageData);
-                            if (parsedData.weeklyGoals && parsedData.monthlyGoals) {
-                                weeklyGoals = parsedData.weeklyGoals;
-                                monthlyGoals = parsedData.monthlyGoals;
-                                console.log('✅ Loaded goals from localStorage:', { weeklyGoals, monthlyGoals });
-                            }
-                        } catch (parseError) {
-                            console.error('❌ Error parsing goals localStorage data:', parseError);
-                        }
-                    } else {
-                        console.log('⚠️ No goals data found in localStorage');
-                    }
-                    
-                    // Load day data from localStorage
-                    const dayDataLocalStorageKey = `dailyDavid_dayData_${userId}`;
-                    const dayDataLocalStorageData = localStorage.getItem(dayDataLocalStorageKey);
-                    console.log('Day data localStorage key:', dayDataLocalStorageKey);
-                    console.log('Day data localStorage data exists:', !!dayDataLocalStorageData);
-                    
+                    // Load goals directly from localStorage
+                    let weeklyGoals = [];
+                    let monthlyGoals = [];
                     let dayData = {};
                     
-                    if (dayDataLocalStorageData) {
-                        try {
-                            const parsedData = JSON.parse(dayDataLocalStorageData);
-                            dayData = parsedData;
-                            console.log('✅ Loaded day data from localStorage:', Object.keys(dayData).length, 'dates');
-                            console.log('Day data keys:', Object.keys(dayData));
-                        } catch (parseError) {
-                            console.error('❌ Error parsing day data localStorage data:', parseError);
+                    try {
+                        const goalsData = localStorage.getItem(goalsKey);
+                        if (goalsData) {
+                            const parsed = JSON.parse(goalsData);
+                            weeklyGoals = parsed.weeklyGoals || [];
+                            monthlyGoals = parsed.monthlyGoals || [];
+                            console.log('✅ Goals loaded from localStorage:', { weeklyGoals, monthlyGoals });
+                        } else {
+                            console.log('⚠️ No goals in localStorage, using defaults');
+                            weeklyGoals = [
+                                { id: 1, text: 'Complete 5 SOAP studies this week', completed: false, category: 'spiritual' },
+                                { id: 2, text: 'Practice gratitude daily', completed: false, category: 'personal' },
+                                { id: 3, text: 'Read 3 chapters of scripture', completed: false, category: 'spiritual' }
+                            ];
+                            monthlyGoals = [
+                                { id: 1, text: 'Establish daily prayer routine', completed: false, category: 'spiritual' },
+                                { id: 2, text: 'Complete 20 SOAP studies', completed: false, category: 'spiritual' },
+                                { id: 3, text: 'Share faith with 2 people', completed: false, category: 'outreach' }
+                            ];
                         }
-                    } else {
-                        console.log('⚠️ No day data found in localStorage');
-                    }
-                    
-                    // If no localStorage data for goals, try database
-                    if (!weeklyGoals || !monthlyGoals) {
-                        console.log('No localStorage goals data, trying database...');
-                        
-                        // Add timeout to prevent hanging
-                        const timeoutPromise = new Promise((_, reject) => {
-                            setTimeout(() => reject(new Error('Database query timeout')), 10000); // 10 second timeout
-                        });
-                        
-                        // Try to load saved goals from database
-                        const goalsQuery = supabase
-                            .from(DEV_TABLE_NAME)
-                            .select('data')
-                            .eq('date_key', 'user_goals')
-                            .eq('user_id', userId)
-                            .single();
-
-                        console.log('Executing goals query for user_goals...');
-                        const { data: goalsData, error } = await Promise.race([goalsQuery, timeoutPromise]);
-
-                        console.log('Goals query result:', { goalsData, error });
-
-                        if (error && error.code !== 'PGRST116') { // PGRST116 = no rows returned
-                            console.error('Error loading goals:', error);
-                        }
-
-                        if (goalsData && goalsData.data) {
-                            // Use saved goals from database
-                            weeklyGoals = goalsData.data.weeklyGoals || [];
-                            monthlyGoals = goalsData.data.monthlyGoals || [];
-                            console.log('Loaded saved goals from database:', { weeklyGoals, monthlyGoals });
-                            
-                            // Also save to localStorage for future use
-                            try {
-                                localStorage.setItem(goalsLocalStorageKey, JSON.stringify(goalsData.data));
-                                console.log('Goals also saved to localStorage');
-                            } catch (localError) {
-                                console.error('Error saving to localStorage:', localError);
-                            }
-                        }
-                    }
-                    
-                    // Set default goals if none found
-                    if (!weeklyGoals) {
+                    } catch (error) {
+                        console.error('❌ Error loading goals from localStorage:', error);
+                        // Use defaults on error
                         weeklyGoals = [
                             { id: 1, text: 'Complete 5 SOAP studies this week', completed: false, category: 'spiritual' },
                             { id: 2, text: 'Practice gratitude daily', completed: false, category: 'personal' },
                             { id: 3, text: 'Read 3 chapters of scripture', completed: false, category: 'spiritual' }
                         ];
-                        console.log('Using default weekly goals');
-                    }
-                    
-                    if (!monthlyGoals) {
                         monthlyGoals = [
                             { id: 1, text: 'Establish daily prayer routine', completed: false, category: 'spiritual' },
                             { id: 2, text: 'Complete 20 SOAP studies', completed: false, category: 'spiritual' },
                             { id: 3, text: 'Share faith with 2 people', completed: false, category: 'outreach' }
                         ];
-                        console.log('Using default monthly goals');
                     }
                     
-                    // Set all user-specific data
-                    const newUserSpecificData = {
-                        ...userSpecificData,
+                    // Load day data directly from localStorage
+                    try {
+                        const dayDataRaw = localStorage.getItem(dayDataKey);
+                        if (dayDataRaw) {
+                            dayData = JSON.parse(dayDataRaw);
+                            console.log('✅ Day data loaded from localStorage:', Object.keys(dayData).length, 'dates');
+                            console.log('📅 Date keys:', Object.keys(dayData));
+                        } else {
+                            console.log('⚠️ No day data in localStorage, starting fresh');
+                            dayData = {};
+                        }
+                    } catch (error) {
+                        console.error('❌ Error loading day data from localStorage:', error);
+                        dayData = {};
+                    }
+                    
+                    // FORCE update the state with what we loaded
+                    console.log('🔄 FORCING state update with loaded data');
+                    console.log('📊 Day data to set:', dayData);
+                    console.log('📊 Weekly goals to set:', weeklyGoals);
+                    console.log('📊 Monthly goals to set:', monthlyGoals);
+                    
+                    setUserSpecificData({
                         dayData: dayData,
                         weeklyGoals: weeklyGoals,
                         monthlyGoals: monthlyGoals
-                    };
+                    });
                     
-                    console.log('🔄 Setting new user-specific data:', newUserSpecificData);
-                    setUserSpecificData(newUserSpecificData);
+                    console.log('✅ BULLETPROOF: User-specific data loaded and state updated');
                     
-                    console.log('✅ User-specific data loaded successfully from localStorage and database');
-                    console.log('📊 Final state - dayData keys:', Object.keys(dayData));
-                    console.log('📊 Final state - weeklyGoals count:', weeklyGoals.length);
-                    console.log('📊 Final state - monthlyGoals count:', monthlyGoals.length);
                 } catch (error) {
-                    console.error('Error loading user-specific data:', error);
-                    // Set default data on error to prevent app from hanging
-                    const defaultWeeklyGoals = [
-                        { id: 1, text: 'Complete 5 SOAP studies this week', completed: false, category: 'spiritual' },
-                        { id: 2, text: 'Practice gratitude daily', completed: false, category: 'personal' },
-                        { id: 3, text: 'Read 3 chapters of scripture', completed: false, category: 'spiritual' }
-                    ];
-                    
-                    const defaultMonthlyGoals = [
-                        { id: 1, text: 'Establish daily prayer routine', completed: false, category: 'spiritual' },
-                        { id: 2, text: 'Complete 20 SOAP studies', completed: false, category: 'spiritual' },
-                        { id: 3, text: 'Share faith with 2 people', completed: false, category: 'outreach' }
-                    ];
-                    
-                    setUserSpecificData(prev => ({
-                        ...prev,
-                        weeklyGoals: defaultWeeklyGoals,
-                        monthlyGoals: defaultMonthlyGoals
-                    }));
+                    console.error('❌ CRITICAL ERROR in loadUserSpecificData:', error);
+                    // Emergency fallback
+                    setUserSpecificData({
+                        dayData: {},
+                        weeklyGoals: [
+                            { id: 1, text: 'Complete 5 SOAP studies this week', completed: false, category: 'spiritual' },
+                            { id: 2, text: 'Practice gratitude daily', completed: false, category: 'personal' },
+                            { id: 3, text: 'Read 3 chapters of scripture', completed: false, category: 'spiritual' }
+                        ],
+                        monthlyGoals: [
+                            { id: 1, text: 'Establish daily prayer routine', completed: false, category: 'spiritual' },
+                            { id: 2, text: 'Complete 20 SOAP studies', completed: false, category: 'spiritual' },
+                            { id: 3, text: 'Share faith with 2 people', completed: false, category: 'outreach' }
+                        ]
+                    });
                 }
             };
 
@@ -1677,6 +1629,69 @@
                 console.log('📅 Current date:', formatDateKey(currentDate));
                 console.log('📊 Current day data:', currentDayData);
             }, [currentView, currentDate, currentDayData]);
+
+            // BULLETPROOF: Force restore data from localStorage whenever user changes
+            useEffect(() => {
+                if (user && !isAdmin) {
+                    console.log('🔄 BULLETPROOF: User changed, forcing data restore from localStorage');
+                    // Force restore data from localStorage
+                    const forceRestoreData = () => {
+                        try {
+                            const goalsKey = `dailyDavid_goals_${user.id}`;
+                            const dayDataKey = `dailyDavid_dayData_${user.id}`;
+                            
+                            const goalsData = localStorage.getItem(goalsKey);
+                            const dayDataRaw = localStorage.getItem(dayDataKey);
+                            
+                            if (goalsData || dayDataRaw) {
+                                console.log('🔄 Found data in localStorage, restoring...');
+                                
+                                let weeklyGoals = [];
+                                let monthlyGoals = [];
+                                let dayData = {};
+                                
+                                if (goalsData) {
+                                    try {
+                                        const parsed = JSON.parse(goalsData);
+                                        weeklyGoals = parsed.weeklyGoals || [];
+                                        monthlyGoals = parsed.monthlyGoals || [];
+                                        console.log('✅ Restored goals from localStorage');
+                                    } catch (error) {
+                                        console.error('❌ Error parsing goals:', error);
+                                    }
+                                }
+                                
+                                if (dayDataRaw) {
+                                    try {
+                                        dayData = JSON.parse(dayDataRaw);
+                                        console.log('✅ Restored day data from localStorage:', Object.keys(dayData).length, 'dates');
+                                    } catch (error) {
+                                        console.error('❌ Error parsing day data:', error);
+                                    }
+                                }
+                                
+                                // Force update state
+                                setUserSpecificData(prev => ({
+                                    ...prev,
+                                    dayData: dayData,
+                                    weeklyGoals: weeklyGoals,
+                                    monthlyGoals: monthlyGoals
+                                }));
+                                
+                                console.log('✅ BULLETPROOF: Data restored from localStorage');
+                            }
+                        } catch (error) {
+                            console.error('❌ Error in force restore:', error);
+                        }
+                    };
+                    
+                    // Run immediately
+                    forceRestoreData();
+                    
+                    // Also run after a short delay to catch any race conditions
+                    setTimeout(forceRestoreData, 1000);
+                }
+            }, [user?.id, isAdmin]);
 
             // Use useMemo to properly calculate currentDayData based on current state
             const currentDayData = useMemo(() => {
