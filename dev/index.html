@@ -1388,7 +1388,7 @@
                 }
             };
 
-            const addGoal = async (goalType, text, category) => {
+            const addGoal = async (goalType, text = '', category = '') => {
                 const dateKey = formatDateKey(currentDate);
                 const currentDayData = userSpecificData.dayData[dateKey];
                 
@@ -3150,10 +3150,10 @@
                                     subtitle="This week's focus"
                                     goalType="weekly"
                                     goals={currentDayData.goals.weekly || []}
-                                    onAdd={addDailyGoal}
-                                    onUpdate={(goalType, id, text, category) => updateDailyGoal(goalType, id, text)}
-                                    onToggle={toggleDailyGoal}
-                                    onRemove={removeDailyGoal}
+                                    onAdd={addGoal}
+                                    onUpdate={updateGoal}
+                                    onToggle={toggleGoal}
+                                    onRemove={removeGoal}
                                     color="green"
                                 />
                                 
@@ -3162,10 +3162,10 @@
                                     subtitle="This month's vision"
                                     goalType="monthly"
                                     goals={currentDayData.goals.monthly || []}
-                                    onAdd={addDailyGoal}
-                                    onUpdate={(goalType, id, text, category) => updateDailyGoal(goalType, id, text)}
-                                    onToggle={toggleDailyGoal}
-                                    onRemove={removeDailyGoal}
+                                    onAdd={addGoal}
+                                    onUpdate={updateGoal}
+                                    onToggle={toggleGoal}
+                                    onRemove={removeGoal}
                                     color="purple"
                                 />
                             </div>
