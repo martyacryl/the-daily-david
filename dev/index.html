@@ -882,10 +882,27 @@
                 });
             };
 
-            // Load day data from database
+            // Load day data from database and localStorage
             const loadDayData = async (dateKey) => {
                 if (!user) return null;
                 
+                // First try to load from localStorage
+                const localStorageKey = `dailyDavid_dayData_${user.id}`;
+                try {
+                    const localStorageData = localStorage.getItem(localStorageKey);
+                    if (localStorageData) {
+                        const parsedData = JSON.parse(localStorageData);
+                        if (parsedData[dateKey]) {
+                            console.log('Loaded day data from localStorage for date:', dateKey);
+                            return parsedData[dateKey];
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error loading from localStorage:', error);
+                }
+                
+                // If no localStorage data, try database
+                console.log('No localStorage data, trying database for date:', dateKey);
                 try {
                     const { data, error } = await supabase
                         .from(DEV_TABLE_NAME)
@@ -894,24 +911,47 @@
                         .eq('user_id', user.id);
 
                     if (error) {
-                        console.log('Error loading:', error);
+                        console.log('Error loading from database:', error);
                         return null;
                     }
 
                     if (data && data.length > 0) {
+                        console.log('Loaded day data from database for date:', dateKey);
+                        // Also save to localStorage for future use
+                        try {
+                            const existingData = localStorage.getItem(localStorageKey);
+                            const parsedData = existingData ? JSON.parse(existingData) : {};
+                            parsedData[dateKey] = data[0].data;
+                            localStorage.setItem(localStorageKey, JSON.stringify(parsedData));
+                            console.log('Day data also saved to localStorage');
+                        } catch (localError) {
+                            console.error('Error saving to localStorage:', localError);
+                        }
                         return data[0].data;
                     }
 
                     return null;
                 } catch (error) {
-                    console.log('Load error:', error);
+                    console.log('Load error from database:', error);
                     return null;
                 }
             };
 
-            // Save day data to database
+            // Save day data to database and localStorage
             const saveDayData = async (dateKey, data) => {
                 if (!user) return false;
+                
+                // Always save to localStorage as backup
+                const localStorageKey = `dailyDavid_dayData_${user.id}`;
+                try {
+                    const existingData = localStorage.getItem(localStorageKey);
+                    const parsedData = existingData ? JSON.parse(existingData) : {};
+                    parsedData[dateKey] = data;
+                    localStorage.setItem(localStorageKey, JSON.stringify(parsedData));
+                    console.log('Day data saved to localStorage for date:', dateKey);
+                } catch (error) {
+                    console.error('Error saving to localStorage:', error);
+                }
                 
                 try {
                     const { error } = await supabase
@@ -926,16 +966,19 @@
 
                     if (error) {
                         console.log('Save error:', error);
+                        console.log('Day data saved to localStorage as backup');
                         return false;
                     }
 
                     setLastSaved(new Date());
+                    console.log('Day data saved successfully to database');
                     return true;
                 } catch (error) {
                     console.log('Save error:', error);
+                    console.log('Day data saved to localStorage as backup');
                     return false;
                 }
-                };
+            };
 
             // Debounced save - waits 1 second after typing stops
             const debouncedSave = useCallback((dateKey, data) => {
@@ -1019,94 +1062,114 @@
                 try {
                     console.log('Loading user-specific data for:', userId);
                     
-                    // First try to load from localStorage as primary source
-                    const localStorageKey = `dailyDavid_goals_${userId}`;
-                    const localStorageData = localStorage.getItem(localStorageKey);
+                    // Load goals from localStorage first
+                    const goalsLocalStorageKey = `dailyDavid_goals_${userId}`;
+                    const goalsLocalStorageData = localStorage.getItem(goalsLocalStorageKey);
                     
-                    if (localStorageData) {
-                        try {
-                            const parsedData = JSON.parse(localStorageData);
-                            if (parsedData.weeklyGoals && parsedData.monthlyGoals) {
-                                console.log('Loaded goals from localStorage:', parsedData);
-                                setUserSpecificData(prev => ({
-                                    ...prev,
-                                    weeklyGoals: parsedData.weeklyGoals,
-                                    monthlyGoals: parsedData.monthlyGoals
-                                }));
-                                console.log('User-specific data loaded from localStorage');
-                                return;
-                            }
-                        } catch (parseError) {
-                            console.error('Error parsing localStorage data:', parseError);
-                        }
-                    }
-                    
-                    // If no localStorage data, try database
-                    console.log('No localStorage data, trying database...');
-                    
-                    // Add timeout to prevent hanging
-                    const timeoutPromise = new Promise((_, reject) => {
-                        setTimeout(() => reject(new Error('Database query timeout')), 10000); // 10 second timeout
-                    });
-                    
-                    // Try to load saved goals from database
-                    const goalsQuery = supabase
-                        .from(DEV_TABLE_NAME)
-                        .select('data')
-                        .eq('date_key', 'user_goals')
-                        .eq('user_id', userId)
-                        .single();
-
-                    console.log('Executing goals query for user_goals...');
-                    const { data: goalsData, error } = await Promise.race([goalsQuery, timeoutPromise]);
-
-                    console.log('Goals query result:', { goalsData, error });
-
-                    if (error && error.code !== 'PGRST116') { // PGRST116 = no rows returned
-                        console.error('Error loading goals:', error);
-                    }
-
                     let weeklyGoals, monthlyGoals;
                     
-                    if (goalsData && goalsData.data) {
-                        // Use saved goals from database
-                        weeklyGoals = goalsData.data.weeklyGoals || [];
-                        monthlyGoals = goalsData.data.monthlyGoals || [];
-                        console.log('Loaded saved goals from database:', { weeklyGoals, monthlyGoals });
-                        
-                        // Also save to localStorage for future use
+                    if (goalsLocalStorageData) {
                         try {
-                            localStorage.setItem(localStorageKey, JSON.stringify(goalsData.data));
-                            console.log('Goals also saved to localStorage');
-                        } catch (localError) {
-                            console.error('Error saving to localStorage:', localError);
+                            const parsedData = JSON.parse(goalsLocalStorageData);
+                            if (parsedData.weeklyGoals && parsedData.monthlyGoals) {
+                                weeklyGoals = parsedData.weeklyGoals;
+                                monthlyGoals = parsedData.monthlyGoals;
+                                console.log('Loaded goals from localStorage:', { weeklyGoals, monthlyGoals });
+                            }
+                        } catch (parseError) {
+                            console.error('Error parsing goals localStorage data:', parseError);
                         }
-                    } else {
-                        // Use default goals if no saved goals found
+                    }
+                    
+                    // Load day data from localStorage
+                    const dayDataLocalStorageKey = `dailyDavid_dayData_${userId}`;
+                    const dayDataLocalStorageData = localStorage.getItem(dayDataLocalStorageKey);
+                    
+                    let dayData = {};
+                    
+                    if (dayDataLocalStorageData) {
+                        try {
+                            const parsedData = JSON.parse(dayDataLocalStorageData);
+                            dayData = parsedData;
+                            console.log('Loaded day data from localStorage:', Object.keys(dayData).length, 'dates');
+                        } catch (parseError) {
+                            console.error('Error parsing day data localStorage data:', parseError);
+                        }
+                    }
+                    
+                    // If no localStorage data for goals, try database
+                    if (!weeklyGoals || !monthlyGoals) {
+                        console.log('No localStorage goals data, trying database...');
+                        
+                        // Add timeout to prevent hanging
+                        const timeoutPromise = new Promise((_, reject) => {
+                            setTimeout(() => reject(new Error('Database query timeout')), 10000); // 10 second timeout
+                        });
+                        
+                        // Try to load saved goals from database
+                        const goalsQuery = supabase
+                            .from(DEV_TABLE_NAME)
+                            .select('data')
+                            .eq('date_key', 'user_goals')
+                            .eq('user_id', userId)
+                            .single();
+
+                        console.log('Executing goals query for user_goals...');
+                        const { data: goalsData, error } = await Promise.race([goalsQuery, timeoutPromise]);
+
+                        console.log('Goals query result:', { goalsData, error });
+
+                        if (error && error.code !== 'PGRST116') { // PGRST116 = no rows returned
+                            console.error('Error loading goals:', error);
+                        }
+
+                        if (goalsData && goalsData.data) {
+                            // Use saved goals from database
+                            weeklyGoals = goalsData.data.weeklyGoals || [];
+                            monthlyGoals = goalsData.data.monthlyGoals || [];
+                            console.log('Loaded saved goals from database:', { weeklyGoals, monthlyGoals });
+                            
+                            // Also save to localStorage for future use
+                            try {
+                                localStorage.setItem(goalsLocalStorageKey, JSON.stringify(goalsData.data));
+                                console.log('Goals also saved to localStorage');
+                            } catch (localError) {
+                                console.error('Error saving to localStorage:', localError);
+                            }
+                        }
+                    }
+                    
+                    // Set default goals if none found
+                    if (!weeklyGoals) {
                         weeklyGoals = [
                             { id: 1, text: 'Complete 5 SOAP studies this week', completed: false, category: 'spiritual' },
                             { id: 2, text: 'Practice gratitude daily', completed: false, category: 'personal' },
                             { id: 3, text: 'Read 3 chapters of scripture', completed: false, category: 'spiritual' }
                         ];
-                        
+                        console.log('Using default weekly goals');
+                    }
+                    
+                    if (!monthlyGoals) {
                         monthlyGoals = [
                             { id: 1, text: 'Establish daily prayer routine', completed: false, category: 'spiritual' },
                             { id: 2, text: 'Complete 20 SOAP studies', completed: false, category: 'spiritual' },
                             { id: 3, text: 'Share faith with 2 people', completed: false, category: 'outreach' }
                         ];
-                        console.log('Using default goals (no saved goals found)');
+                        console.log('Using default monthly goals');
                     }
                     
+                    // Set all user-specific data
                     setUserSpecificData(prev => ({
                         ...prev,
+                        dayData: dayData,
                         weeklyGoals: weeklyGoals,
                         monthlyGoals: monthlyGoals
                     }));
                     
-                    console.log('User-specific data loaded successfully');
+                    console.log('User-specific data loaded successfully from localStorage and database');
                 } catch (error) {
                     console.error('Error loading user-specific data:', error);
-                    // Set default goals on error to prevent app from hanging
+                    // Set default data on error to prevent app from hanging
                     const defaultWeeklyGoals = [
                         { id: 1, text: 'Complete 5 SOAP studies this week', completed: false, category: 'spiritual' },
                         { id: 2, text: 'Practice gratitude daily', completed: false, category: 'personal' },
