@@ -80,31 +80,75 @@
         // Use anon key for regular users, service role key only for admin functions
         const supabaseKey = USE_SERVICE_ROLE_KEY ? serviceRoleKey : anonKey;
         
-        // Initialize Supabase clients
+        // Initialize Supabase clients with better loading detection
         let supabase, adminSupabase;
         
-        // Check if Supabase is loaded and create clients
-        if (typeof window.supabase !== 'undefined') {
-            try {
-                supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
-                adminSupabase = window.supabase.createClient(supabaseUrl, serviceRoleKey);
-                console.log('✅ Supabase clients created successfully');
-            } catch (error) {
-                console.error('❌ Error creating Supabase clients:', error);
+        function initializeSupabaseClients() {
+            if (typeof window.supabase !== 'undefined' && typeof window.supabase.createClient === 'function') {
+                try {
+                    supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+                    adminSupabase = window.supabase.createClient(supabaseUrl, serviceRoleKey);
+                    console.log('✅ Supabase clients created successfully');
+                    return true;
+                } catch (error) {
+                    console.error('❌ Error creating Supabase clients:', error);
+                    return false;
+                }
             }
-        } else {
-            console.error('❌ Supabase library not loaded! Check script tag.');
-            // Fallback: try to load Supabase dynamically
-            const script = document.createElement('script');
-            script.src = 'https://unpkg.com/@supabase/supabase-js@2';
-            script.onload = () => {
-                console.log('✅ Supabase loaded dynamically');
-                window.location.reload(); // Reload page to reinitialize
-            };
-            script.onerror = () => {
-                console.error('❌ Failed to load Supabase dynamically');
-            };
-            document.head.appendChild(script);
+            return false;
+        }
+        
+        // Wait for DOM and scripts to be fully loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeSupabaseWithRetry();
+        });
+        
+        // Also try on window load as backup
+        window.addEventListener('load', () => {
+            if (!supabase || !adminSupabase) {
+                console.log('🔄 Window loaded, trying Supabase initialization again...');
+                initializeSupabaseWithRetry();
+            }
+        });
+        
+        function initializeSupabaseWithRetry() {
+            // Try to initialize immediately
+            if (!initializeSupabaseClients()) {
+                console.log('⚠️ Supabase library not ready, waiting for it to load...');
+                
+                // Wait for Supabase to be available
+                const checkSupabase = setInterval(() => {
+                    if (initializeSupabaseClients()) {
+                        clearInterval(checkSupabase);
+                        console.log('✅ Supabase clients initialized after waiting');
+                    }
+                }, 100);
+                
+                // Fallback: if it takes too long, try dynamic loading
+                setTimeout(() => {
+                    if (!supabase || !adminSupabase) {
+                        clearInterval(checkSupabase);
+                        console.log('⚠️ Taking too long, loading Supabase dynamically...');
+                        
+                        const script = document.createElement('script');
+                        script.src = 'https://unpkg.com/@supabase/supabase-js@2';
+                        script.onload = () => {
+                            console.log('✅ Supabase script loaded dynamically');
+                            setTimeout(() => {
+                                if (initializeSupabaseClients()) {
+                                    console.log('✅ Supabase clients created after dynamic load');
+                                } else {
+                                    console.error('❌ Still failed to create clients after dynamic load');
+                                }
+                            }, 500);
+                        };
+                        script.onerror = () => {
+                            console.error('❌ Failed to load Supabase script dynamically');
+                        };
+                        document.head.appendChild(script);
+                    }
+                }, 5000); // Wait 5 seconds before trying dynamic loading
+            }
         }
 
         // PRODUCTION TABLE NAME
