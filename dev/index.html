@@ -1164,14 +1164,20 @@
                     }
                     
                     // Set all user-specific data
-                    setUserSpecificData(prev => ({
-                        ...prev,
+                    const newUserSpecificData = {
+                        ...userSpecificData,
                         dayData: dayData,
                         weeklyGoals: weeklyGoals,
                         monthlyGoals: monthlyGoals
-                    }));
+                    };
                     
-                    console.log('User-specific data loaded successfully from localStorage and database');
+                    console.log('🔄 Setting new user-specific data:', newUserSpecificData);
+                    setUserSpecificData(newUserSpecificData);
+                    
+                    console.log('✅ User-specific data loaded successfully from localStorage and database');
+                    console.log('📊 Final state - dayData keys:', Object.keys(dayData));
+                    console.log('📊 Final state - weeklyGoals count:', weeklyGoals.length);
+                    console.log('📊 Final state - monthlyGoals count:', monthlyGoals.length);
                 } catch (error) {
                     console.error('Error loading user-specific data:', error);
                     // Set default data on error to prevent app from hanging
@@ -1198,40 +1204,16 @@
             // Authentication handlers - Simplified approach
             const handleSignIn = async (userData) => {
                 console.log('🔐 User signing in:', userData.email);
-                console.log('📋 localStorage before sign in:');
-                for (let i = 0; i < localStorage.length; i++) {
-                    const key = localStorage.key(i);
-                    if (key && key.startsWith('dailyDavid_')) {
-                        console.log('  ', key, ':', localStorage.getItem(key)?.substring(0, 100) + '...');
-                    }
-                }
                 
-                // Check if this is the same user signing back in
-                const currentUserId = user?.id;
-                const isSameUser = currentUserId === userData.id;
+                // ALWAYS load user data from localStorage first, regardless of same user or not
+                console.log('🔄 Loading user-specific data from localStorage...');
+                await loadUserSpecificData(userData.id);
                 
-                if (isSameUser) {
-                    console.log('✅ Same user signing back in, preserving data');
-                    setUser(userData);
-                    setIsAdmin(false); // Regular users are never admin
-                    console.log('🔄 Loading user-specific data for same user...');
-                    await loadUserSpecificData(userData.id);
-                } else {
-                    console.log('🔄 Different user signing in, clearing previous data');
-                    clearUserData();
-                    setUser(userData);
-                    setIsAdmin(false);
-                    console.log('🔄 Loading user-specific data for different user...');
-                    await loadUserSpecificData(userData.id);
-                }
+                // Set user state after loading data
+                setUser(userData);
+                setIsAdmin(false); // Regular users are never admin
                 
-                console.log('📋 localStorage after sign in:');
-                for (let i = 0; i < localStorage.length; i++) {
-                    const key = localStorage.key(i);
-                    if (key && key.startsWith('dailyDavid_')) {
-                        console.log('  ', key, ':', localStorage.getItem(key)?.substring(0, 100) + '...');
-                    }
-                }
+                console.log('✅ User sign-in complete, data loaded from localStorage');
             };
 
             const handleAdminSignIn = async (userData) => {
@@ -1639,54 +1621,23 @@
                 const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
                     if (event === 'SIGNED_IN' && session?.user) {
                         console.log('🔄 Auth state change: SIGNED_IN for user:', session.user.email);
-                        console.log('📋 localStorage before auth state change:');
-                        for (let i = 0; i < localStorage.length; i++) {
-                            const key = localStorage.key(i);
-                            if (key && key.startsWith('dailyDavid_')) {
-                                console.log('  ', key, ':', localStorage.getItem(key)?.substring(0, 100) + '...');
-                            }
-                        }
                         
-                        // Check if this is the same user signing back in
-                        const currentUserId = user?.id;
-                        const isSameUser = currentUserId === session.user.id;
-                        
-                        if (isSameUser) {
-                            console.log('✅ Same user signing back in via auth state change, preserving data');
-                            setUser(session.user);
+                        // Only handle auth state changes if we don't already have a user
+                        // This prevents conflicts with manual sign-in
+                        if (!user) {
                             const isUserAdmin = session.user.user_metadata?.is_admin === true;
-                            setIsAdmin(isUserAdmin);
                             
                             if (isUserAdmin) {
                                 // Admin users only get admin functionality
+                                setUser(session.user);
+                                setIsAdmin(true);
                                 setUserModePreference('admin');
                             } else {
                                 // Regular users get their data loaded
                                 console.log('🔄 Loading user-specific data via auth state change...');
                                 await loadUserSpecificData(session.user.id);
-                            }
-                        } else {
-                            console.log('🔄 Different user signing in via auth state change, clearing previous data');
-                            clearUserData();
-                            setUser(session.user);
-                            const isUserAdmin = session.user.user_metadata?.is_admin === true;
-                            setIsAdmin(isUserAdmin);
-                            
-                            if (isUserAdmin) {
-                                // Admin users only get admin functionality
-                                setUserModePreference('admin');
-                            } else {
-                                // Regular users get their data loaded
-                                console.log('🔄 Loading user-specific data via auth state change...');
-                                await loadUserSpecificData(session.user.id);
-                            }
-                        }
-                        
-                        console.log('📋 localStorage after auth state change:');
-                        for (let i = 0; i < localStorage.length; i++) {
-                            const key = localStorage.key(i);
-                            if (key && key.startsWith('dailyDavid_')) {
-                                console.log('  ', key, ':', localStorage.getItem(key)?.substring(0, 100) + '...');
+                                setUser(session.user);
+                                setIsAdmin(false);
                             }
                         }
                     } else if (event === 'SIGNED_OUT') {
