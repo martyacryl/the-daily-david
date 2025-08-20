@@ -1193,23 +1193,60 @@
             // Authentication handlers
             const handleSignIn = async (userData) => {
                 console.log('User signing in:', userData.email);
-                clearUserData(); // Clear any previous user's data
-                setUser(userData);
-                setIsAdmin(userData.user_metadata?.is_admin === true);
-                await loadUserSpecificData(userData.id); // Load user's specific data
+                
+                // Check if this is the same user signing back in (not switching users)
+                const currentUserId = user?.id;
+                const isSameUser = currentUserId === userData.id;
+                
+                if (isSameUser) {
+                    console.log('Same user signing back in, preserving data');
+                    // Don't clear data for the same user
+                    setUser(userData);
+                    setIsAdmin(userData.user_metadata?.is_admin === true);
+                    // Data should already be in localStorage, just ensure it's loaded
+                    await loadUserSpecificData(userData.id);
+                } else {
+                    console.log('Different user signing in, clearing previous data');
+                    clearUserData(); // Only clear when switching between different users
+                    setUser(userData);
+                    setIsAdmin(userData.user_metadata?.is_admin === true);
+                    await loadUserSpecificData(userData.id);
+                }
             };
 
             const handleAdminSignIn = async (userData) => {
                 console.log('Admin signing in:', userData.email);
-                setUser(userData);
-                setIsAdmin(true);
                 
-                // Check if admin was previously in user mode and restore their data
-                const savedMode = localStorage.getItem('dailyDavidMode');
-                if (savedMode === 'user') {
-                    setUserModePreference('user');
-                    // Load their saved user mode data
-                    await loadUserSpecificData(userData.id);
+                // Check if this is the same admin user signing back in
+                const currentUserId = user?.id;
+                const isSameUser = currentUserId === userData.id;
+                
+                if (isSameUser) {
+                    console.log('Same admin user signing back in, preserving data');
+                    // Don't clear data for the same user
+                    setUser(userData);
+                    setIsAdmin(true);
+                    
+                    // Check if admin was previously in user mode and restore their data
+                    const savedMode = localStorage.getItem('dailyDavidMode');
+                    if (savedMode === 'user') {
+                        setUserModePreference('user');
+                        // Load their saved user mode data
+                        await loadUserSpecificData(userData.id);
+                    }
+                } else {
+                    console.log('Different admin user signing in, clearing previous data');
+                    clearUserData(); // Only clear when switching between different users
+                    setUser(userData);
+                    setIsAdmin(true);
+                    
+                    // Check if admin was previously in user mode and restore their data
+                    const savedMode = localStorage.getItem('dailyDavidMode');
+                    if (savedMode === 'user') {
+                        setUserModePreference('user');
+                        // Load their saved user mode data
+                        await loadUserSpecificData(userData.id);
+                    }
                 }
             };
 
@@ -1605,21 +1642,55 @@
                 // Listen for auth changes
                 const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
                     if (event === 'SIGNED_IN' && session?.user) {
-                        setUser(session.user);
-                        const isUserAdmin = session.user.user_metadata?.is_admin === true;
-                        setIsAdmin(isUserAdmin);
+                        // Check if this is the same user signing back in
+                        const currentUserId = user?.id;
+                        const isSameUser = currentUserId === session.user.id;
                         
-                        // Load saved mode preference for admin users
-                        if (isUserAdmin) {
-                            const savedMode = localStorage.getItem('dailyDavidMode');
-                            if (savedMode === 'user') {
-                                setUserModePreference('user');
-                                setIsAdmin(false);
-                                // Load user-specific data for user mode
-                                await loadUserSpecificData(session.user.id);
+                        if (isSameUser) {
+                            console.log('Same user signing back in via auth state change, preserving data');
+                            // Don't clear data for the same user
+                            setUser(session.user);
+                            const isUserAdmin = session.user.user_metadata?.is_admin === true;
+                            setIsAdmin(isUserAdmin);
+                            
+                            // Load saved mode preference for admin users
+                            if (isUserAdmin) {
+                                const savedMode = localStorage.getItem('dailyDavidMode');
+                                if (savedMode === 'user') {
+                                    setUserModePreference('user');
+                                    setIsAdmin(false);
+                                    // Load user-specific data for user mode
+                                    await loadUserSpecificData(session.user.id);
+                                } else {
+                                    setUserModePreference('admin');
+                                    setIsAdmin(true);
+                                }
                             } else {
-                                setUserModePreference('admin');
-                                setIsAdmin(true);
+                                // Regular user, ensure their data is loaded
+                                await loadUserSpecificData(session.user.id);
+                            }
+                        } else {
+                            console.log('Different user signing in via auth state change, clearing previous data');
+                            clearUserData(); // Only clear when switching between different users
+                            setUser(session.user);
+                            const isUserAdmin = session.user.user_metadata?.is_admin === true;
+                            setIsAdmin(isUserAdmin);
+                            
+                            // Load saved mode preference for admin users
+                            if (isUserAdmin) {
+                                const savedMode = localStorage.getItem('dailyDavidMode');
+                                if (savedMode === 'user') {
+                                    setUserModePreference('user');
+                                    setIsAdmin(false);
+                                    // Load user-specific data for user mode
+                                    await loadUserSpecificData(session.user.id);
+                                } else {
+                                    setUserModePreference('admin');
+                                    setIsAdmin(true);
+                                }
+                            } else {
+                                // Regular user, load their data
+                                await loadUserSpecificData(session.user.id);
                             }
                         }
                     } else if (event === 'SIGNED_OUT') {
