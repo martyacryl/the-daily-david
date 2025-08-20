@@ -1090,7 +1090,7 @@
                 if (!updatedDayData.goals[goalType]) updatedDayData.goals[goalType] = [];
                 
                 updatedDayData.goals[goalType].push(newGoal);
-                setDayData(prev => ({ ...prev, [formatDateKey(currentDate)]: updatedDayData }));
+                setUserSpecificData(prev => ({ ...prev, dayData: { ...prev.dayData, [formatDateKey(currentDate)]: updatedDayData } }));
                 debouncedSave(formatDateKey(currentDate), updatedDayData);
             };
 
@@ -1099,7 +1099,7 @@
                 const goalIndex = updatedDayData.goals[goalType].findIndex(g => g.id === goalId);
                 if (goalIndex !== -1) {
                     updatedDayData.goals[goalType][goalIndex].text = newText;
-                    setDayData(prev => ({ ...prev, [formatDateKey(currentDate)]: updatedDayData }));
+                    setUserSpecificData(prev => ({ ...prev, dayData: { ...prev.dayData, [formatDateKey(currentDate)]: updatedDayData } }));
                     debouncedSave(formatDateKey(currentDate), updatedDayData);
                 }
             };
@@ -1108,16 +1108,16 @@
                 const updatedDayData = { ...currentDayData };
                 const goalIndex = updatedDayData.goals[goalType].findIndex(g => g.id === goalId);
                 if (goalIndex !== -1) {
-                    updatedDayData.goals[goalType][goalIndex].completed = !updatedDayData.goals[goalType][goalIndex].completed;
+                    updatedDayData.goals[goalIndex].completed = !updatedDayData.goals[goalIndex].completed;
                 }
-                setDayData(prev => ({ ...prev, [formatDateKey(currentDate)]: updatedDayData }));
+                setUserSpecificData(prev => ({ ...prev, dayData: { ...prev.dayData, [formatDateKey(currentDate)]: updatedDayData } }));
                 debouncedSave(formatDateKey(currentDate), updatedDayData);
             };
 
             const removeDailyGoal = (goalType, goalId) => {
                 const updatedDayData = { ...currentDayData };
                 updatedDayData.goals[goalType] = updatedDayData.goals[goalType].filter(g => g.id !== goalId);
-                setDayData(prev => ({ ...prev, [formatDateKey(currentDate)]: updatedDayData }));
+                setUserSpecificData(prev => ({ ...prev, dayData: { ...prev.dayData, [formatDateKey(currentDate)]: updatedDayData } }));
                 debouncedSave(formatDateKey(currentDate), updatedDayData);
             };
 
@@ -1125,8 +1125,8 @@
             const initializeDayData = useCallback(async () => {
                 const dateKey = formatDateKey(currentDate);
                 
-                if (dayData[dateKey]) {
-                    return dayData[dateKey];
+                if (userSpecificData.dayData[dateKey]) {
+                    return userSpecificData.dayData[dateKey];
                 }
 
                 setIsLoading(true);
@@ -1134,7 +1134,10 @@
                 const savedData = await loadDayData(dateKey);
                 
                 if (savedData) {
-                    setDayData(prev => ({ ...prev, [dateKey]: savedData }));
+                    setUserSpecificData(prev => ({ 
+                        ...prev, 
+                        dayData: { ...prev.dayData, [dateKey]: savedData } 
+                    }));
                     setIsLoading(false);
                     return savedData;
                 }
@@ -1154,11 +1157,14 @@
                     }
                 };
 
-                setDayData(prev => ({ ...prev, [dateKey]: newDayData }));
+                setUserSpecificData(prev => ({ 
+                    ...prev, 
+                    dayData: { ...prev.dayData, [dateKey]: newDayData } 
+                }));
                 await saveDayData(dateKey, newDayData);
                 setIsLoading(false);
                 return newDayData;
-            }, [currentDate, dayData]);
+            }, [currentDate, userSpecificData.dayData]);
 
             // Initialize on mount
             useEffect(() => {
@@ -1186,6 +1192,8 @@
                                 if (savedMode === 'user') {
                                     setUserModePreference('user');
                                     setIsAdmin(false);
+                                    // Load user-specific data for user mode
+                                    await loadUserSpecificData(user.id);
                                 } else {
                                     setUserModePreference('admin');
                                     setIsAdmin(true);
@@ -1212,6 +1220,8 @@
                             if (savedMode === 'user') {
                                 setUserModePreference('user');
                                 setIsAdmin(false);
+                                // Load user-specific data for user mode
+                                await loadUserSpecificData(session.user.id);
                             } else {
                                 setUserModePreference('admin');
                                 setIsAdmin(true);
