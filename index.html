@@ -477,11 +477,52 @@
             };
 
             const handleSignOut = async () => {
-                await supabase.auth.signOut();
-                setUser(null);
-                setIsAdmin(false);
-                setUserModePreference('user');
-                setUserSpecificData({ weekData: {}, userPreferences: {} });
+                try {
+                    console.log('🚪 Signing out...');
+                    
+                    // Force immediate state updates to trigger re-render
+                    setUser(null);
+                    setIsAdmin(false);
+                    setUserModePreference('user');
+                    setUserSpecificData({ weekData: {}, userPreferences: {} });
+                    setWeekData({});
+                    setCurrentWeek(new Date()); // Reset week to force re-render
+                    setIsLoading(false); // Ensure loading state is cleared
+                    
+                    // Clear any pending timeouts
+                    if (saveTimeoutRef.current) {
+                        clearTimeout(saveTimeoutRef.current);
+                        saveTimeoutRef.current = null;
+                    }
+                    
+                    // Clear localStorage for current user (optional - for security)
+                    if (user) {
+                        try {
+                            const keysToRemove = Object.keys(localStorage).filter(key => 
+                                key.startsWith(`marriage_meetings_${user.id}_`)
+                            );
+                            keysToRemove.forEach(key => localStorage.removeItem(key));
+                            console.log('🗑️ Cleared user data from localStorage');
+                        } catch (localStorageError) {
+                            console.log('Note: Could not clear localStorage');
+                        }
+                    }
+                    
+                    // Then sign out from Supabase
+                    const { error } = await supabase.auth.signOut();
+                    if (error) {
+                        console.error('Supabase signout error:', error);
+                    } else {
+                        console.log('✅ Successfully signed out from Supabase');
+                    }
+                    
+                    console.log('🎯 Signout complete - should show login screen now');
+                    
+                } catch (error) {
+                    console.error('Signout error:', error);
+                    // Even if there's an error, we've cleared local state
+                    console.log('🎯 Signout complete despite error - should show login screen now');
+                }
             };
 
             const switchAdminToUserMode = async () => {
@@ -785,6 +826,8 @@
                         
                         // Listen for auth changes
                         const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+                            console.log('🔐 Auth state change:', event, session?.user?.email);
+                            
                             if (event === 'SIGNED_IN' && session?.user) {
                                 const isUserAdmin = session.user.user_metadata?.is_admin === true;
                                 if (isUserAdmin) {
@@ -793,7 +836,14 @@
                                     await handleSignIn(session.user);
                                 }
                             } else if (event === 'SIGNED_OUT') {
-                                await handleSignOut();
+                                // Don't call handleSignOut here to avoid circular dependency
+                                // Just clear local state
+                                setUser(null);
+                                setIsAdmin(false);
+                                setUserModePreference('user');
+                                setUserSpecificData({ weekData: {}, userPreferences: {} });
+                                setWeekData({});
+                                console.log('🔄 Auth state change: cleared local state');
                             }
                         });
                         
@@ -1195,7 +1245,9 @@
             }
 
             // Show sign-in screen if not authenticated
+            console.log('🔍 Render check - user state:', user ? user.email : 'null', 'isAdmin:', isAdmin);
             if (!user) {
+                console.log('🎯 Rendering SignInScreen - user is null');
                 return (
                     <SignInScreen 
                         onSignIn={handleSignIn}
@@ -1283,7 +1335,10 @@
                                 
                                 {/* Sign Out Button */}
                                 <button
-                                    onClick={handleSignOut}
+                                    onClick={() => {
+                                        console.log('🔴 Sign Out button clicked!');
+                                        handleSignOut();
+                                    }}
                                     className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors"
                                 >
                                     Sign Out
