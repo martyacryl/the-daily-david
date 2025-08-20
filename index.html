@@ -130,10 +130,12 @@
                     adminSupabase = supabaseModule.createClient(supabaseUrl, serviceRoleKey);
                     window.supabase = supabase;
                     window.adminSupabase = adminSupabase;
+                    window.supabaseClientsReady = true;
                     console.log('✅ Supabase clients created successfully');
                     console.log('✅ Global variables updated:', {
                         'window.supabase': !!window.supabase,
-                        'window.adminSupabase': !!window.adminSupabase
+                        'window.adminSupabase': !!window.adminSupabase,
+                        'window.supabaseClientsReady': window.supabaseClientsReady
                     });
                     // Notify that Supabase is ready
                     notifySupabaseReady();
@@ -163,17 +165,25 @@
         
         // Global flag to track when Supabase is ready
         window.supabaseReady = false;
+        window.supabaseClientsReady = false;
         
         // Function to notify that Supabase is ready
         function notifySupabaseReady() {
             window.supabaseReady = true;
             console.log('🎉 Supabase is ready! Notifying app...');
+            console.log('🔍 About to dispatch supabaseReady event...');
+            
             // Dispatch a custom event to notify the React component
-            window.dispatchEvent(new CustomEvent('supabaseReady'));
+            const event = new CustomEvent('supabaseReady');
+            window.dispatchEvent(event);
+            console.log('✅ supabaseReady event dispatched');
             
             // Also try to force a React re-render by updating a global variable
             if (window.forceReactUpdate) {
+                console.log('🔄 Calling forceReactUpdate...');
                 window.forceReactUpdate();
+            } else {
+                console.log('⚠️ forceReactUpdate not available yet');
             }
         }
         
@@ -622,8 +632,9 @@
                 'window.supabaseReady': window.supabaseReady
             });
             
-            // Check global variables first, then fall back to local ones
-            const isSupabaseAvailable = (window.supabase && window.adminSupabase) || 
+            // Check global flag first, then fall back to other checks
+            const isSupabaseAvailable = window.supabaseClientsReady || 
+                                     (window.supabase && window.adminSupabase) || 
                                      (supabase && adminSupabase) ||
                                      (window.supabase && typeof window.supabase.createClient === 'function');
             
