@@ -289,6 +289,9 @@
                     setNewUserDisplayName('');
                     
                     alert(`User ${newUserEmail} created successfully!`);
+                    
+                    // Refresh the users list to ensure sync
+                    setTimeout(() => loadUsers(), 1000);
                 } catch (error) {
                     alert('Error adding user: ' + error.message);
                 } finally {
@@ -865,19 +868,66 @@
                 }
                 
                 try {
-                    // Delete real user from Supabase Auth
-                    const { error } = await supabase.auth.admin.deleteUser(userId);
+                    console.log('Attempting to remove user:', userId);
                     
-                    if (error) {
-                        throw error;
+                    // First, verify the user exists in Supabase
+                    const { data: userData, error: userError } = await supabase.auth.admin.getUserById(userId);
+                    
+                    if (userError) {
+                        console.error('User lookup error:', userError);
+                        if (userError.message.includes('not found')) {
+                            // User doesn't exist in Supabase, just remove from local list
+                            console.log('User not found in Supabase, removing from local list only');
+                            const updatedUsers = users.filter(user => user.id !== userId);
+                            setUsers(updatedUsers);
+                            alert('User was not found in the system and has been removed from the list.');
+                            return;
+                        }
+                        throw userError;
                     }
                     
+                    if (!userData || !userData.user) {
+                        console.log('No user data returned, removing from local list only');
+                        const updatedUsers = users.filter(user => user.id !== userId);
+                        setUsers(updatedUsers);
+                        alert('User data not found, removed from local list.');
+                        return;
+                    }
+                    
+                    console.log('User found in Supabase:', userData.user.email);
+                    
+                    // Now delete the user from Supabase Auth
+                    const { error: deleteError } = await supabase.auth.admin.deleteUser(userId);
+                    
+                    if (deleteError) {
+                        console.error('Supabase delete user error:', deleteError);
+                        throw deleteError;
+                    }
+                    
+                    console.log('User deleted successfully from Supabase');
+                    
                     // Remove from local users list
-                    setUsers(users.filter(user => user.id !== userId));
+                    const updatedUsers = users.filter(user => user.id !== userId);
+                    setUsers(updatedUsers);
+                    console.log('Updated local users list:', updatedUsers);
+                    
                     alert('User removed successfully!');
                 } catch (error) {
-                    alert('Error removing user: ' + error.message);
-                    console.error('Remove user error:', error);
+                    console.error('Remove user error details:', error);
+                    console.error('Error message:', error.message);
+                    console.error('Error code:', error.status);
+                    console.error('Error details:', error.details);
+                    
+                    let errorMessage = 'Error removing user';
+                    if (error.message) {
+                        errorMessage += ': ' + error.message;
+                    } else if (error.error_description) {
+                        errorMessage += ': ' + error.error_description;
+                    } else if (error.status) {
+                        errorMessage += ` (Status: ${error.status})`;
+                    }
+                    
+                    alert(errorMessage);
                 }
             };
 
