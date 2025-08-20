@@ -627,14 +627,19 @@
 
 
 
-            // Debounced save - waits 1 second after typing stops
+            // Enhanced debounced save with mobile optimization - faster saves on mobile devices
             const debouncedSave = useCallback((weekKey, data) => {
                 if (saveTimeoutRef.current) {
                     clearTimeout(saveTimeoutRef.current);
                 }
+                
+                // Faster saves on mobile devices for better data persistence
+                const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+                const saveDelay = isMobile ? 500 : 1000; // 500ms on mobile, 1000ms on desktop
+                
                 saveTimeoutRef.current = setTimeout(() => {
                     saveWeekData(weekKey, data);
-                }, 1000);
+                }, saveDelay);
             }, []);
 
             // Immediate localStorage save for instant persistence
@@ -810,6 +815,22 @@
                 }
             }, [user]);
 
+            // Function to force save all current data (useful for mobile)
+            const forceSaveAllData = useCallback(() => {
+                if (!user || !currentWeek) return;
+                
+                const weekKey = formatWeekKey(currentWeek);
+                const currentData = weekData[weekKey];
+                if (currentData) {
+                    // Save to localStorage immediately
+                    saveToLocalStorage(weekKey, currentData);
+                    // Save to Supabase as backup
+                    saveWeekData(weekKey, currentData);
+                    console.log('💾 Force save all data triggered');
+                    setLastSaved(new Date());
+                }
+            }, [user, currentWeek, weekData, saveToLocalStorage, saveWeekData]);
+
             // Function to load all user data from localStorage
             const loadAllUserDataFromLocalStorage = () => {
                 if (!user) return;
@@ -888,16 +909,39 @@
                 }
             };
 
-            // Clean up timeout
+            // Enhanced timeout management with mobile auto-save
             useEffect(() => {
+                let autoSaveInterval;
+                
+                // Set up periodic auto-save for mobile devices (every 30 seconds)
+                if (user && currentWeek) {
+                    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+                    if (isMobile) {
+                        autoSaveInterval = setInterval(() => {
+                            const weekKey = formatWeekKey(currentWeek);
+                            const currentData = weekData[weekKey];
+                            if (currentData) {
+                                // Save to localStorage immediately
+                                saveToLocalStorage(weekKey, currentData);
+                                // Also save to Supabase as backup
+                                saveWeekData(weekKey, currentData);
+                                console.log('📱 Mobile auto-save triggered');
+                            }
+                        }, 30000); // 30 seconds
+                    }
+                }
+                
                 return () => {
                     if (saveTimeoutRef.current) {
                         clearTimeout(saveTimeoutRef.current);
                     }
+                    if (autoSaveInterval) {
+                        clearInterval(autoSaveInterval);
+                    }
                 };
-            }, []);
+            }, [user, currentWeek, weekData, saveToLocalStorage, saveWeekData]);
 
-            // Handle page refresh and ensure data persistence
+            // Enhanced data persistence for mobile devices - handles tab switching, page refresh, and app switching
             useEffect(() => {
                 const handleBeforeUnload = () => {
                     // Save current week data before page unload
@@ -912,8 +956,76 @@
                     }
                 };
 
+                const handleVisibilityChange = () => {
+                    // Save data when app goes to background (mobile) or tab becomes hidden
+                    if (document.hidden && user && currentWeek) {
+                        const weekKey = formatWeekKey(currentWeek);
+                        const currentData = weekData[weekKey];
+                        if (currentData) {
+                            const localStorageKey = `marriage_meetings_${user.id}_${weekKey}`;
+                            localStorage.setItem(localStorageKey, JSON.stringify(currentData));
+                            console.log('💾 Saved data on visibility change (app backgrounded)');
+                        }
+                    }
+                };
+
+                const handlePageHide = () => {
+                    // Save data when page is about to be hidden (mobile app switching)
+                    if (user && currentWeek) {
+                        const weekKey = formatWeekKey(currentWeek);
+                        const currentData = weekData[weekKey];
+                        if (currentData) {
+                            const localStorageKey = `marriage_meetings_${user.id}_${weekKey}`;
+                            localStorage.setItem(localStorageKey, JSON.stringify(currentData));
+                            console.log('💾 Saved data on page hide (app switching)');
+                        }
+                    }
+                };
+
+                const handleFocus = () => {
+                    // Reload data when app comes back to foreground (mobile)
+                    if (user && !document.hidden) {
+                        console.log('📱 App returned to foreground, ensuring data is loaded');
+                        // Force a refresh of current week data
+                        const weekKey = formatWeekKey(currentWeek);
+                        if (weekData[weekKey]) {
+                            // Trigger a re-render to ensure UI is up to date
+                            setWeekData(prev => ({ ...prev }));
+                        }
+                    }
+                };
+
+                // Add all event listeners for comprehensive mobile support
                 window.addEventListener('beforeunload', handleBeforeUnload);
-                return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+                document.addEventListener('visibilitychange', handleVisibilityChange);
+                window.addEventListener('pagehide', handlePageHide);
+                window.addEventListener('focus', handleFocus);
+                
+                // Mobile-specific events
+                if ('onpagehide' in window) {
+                    // iOS Safari support
+                    window.addEventListener('pagehide', handlePageHide);
+                }
+                
+                if ('onbeforeunload' in window) {
+                    // Standard browser support
+                    window.addEventListener('beforeunload', handleBeforeUnload);
+                }
+
+                return () => {
+                    window.removeEventListener('beforeunload', handleBeforeUnload);
+                    document.removeEventListener('visibilitychange', handleVisibilityChange);
+                    window.removeEventListener('pagehide', handlePageHide);
+                    window.removeEventListener('focus', handleFocus);
+                    
+                    if ('onpagehide' in window) {
+                        window.removeEventListener('pagehide', handlePageHide);
+                    }
+                    
+                    if ('onbeforeunload' in window) {
+                        window.removeEventListener('beforeunload', handleBeforeUnload);
+                    }
+                };
             }, [user, currentWeek, weekData]);
 
             const currentWeekData = weekData[formatWeekKey(currentWeek)] || {
@@ -1158,6 +1270,17 @@
                                     </div>
                                 )}
                                 
+                                {/* Mobile Save Button */}
+                                {/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) && (
+                                    <button
+                                        onClick={forceSaveAllData}
+                                        className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors"
+                                        title="Force save all data"
+                                    >
+                                        💾 Save Now
+                                    </button>
+                                )}
+                                
                                 {/* Sign Out Button */}
                                 <button
                                     onClick={handleSignOut}
@@ -1178,6 +1301,12 @@
                                     {lastSaved && (
                                         <div className="text-gray-500">
                                             Last saved: {lastSaved.toLocaleTimeString()}
+                                        </div>
+                                    )}
+                                    {/* Mobile save indicator */}
+                                    {/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) && (
+                                        <div className="text-xs text-blue-600 font-medium">
+                                            📱 Auto-saving every 30s
                                         </div>
                                     )}
                                 </div>
