@@ -1396,14 +1396,20 @@
                     }
                 };
                 
-                // Update state immediately for UI responsiveness
+                // Update BOTH state variables to keep them in sync
                 setWeekData(prev => ({ ...prev, [weekKey]: newData }));
+                setUserSpecificData(prev => ({
+                    ...prev,
+                    weekData: { ...prev.weekData, [weekKey]: newData }
+                }));
                 
                 // Save to localStorage immediately for instant persistence
                 saveToLocalStorage(weekKey, newData);
                 
                 // Debounced save to Supabase
                 debouncedSave(weekKey, newData);
+                
+                console.log('✏️ Updated schedule for day:', day, 'index:', index, 'value:', value);
             };
 
             const addScheduleLine = (day) => {
@@ -1415,13 +1421,21 @@
                         [day]: [...currentWeekData.schedule[day], '']
                     }
                 };
+                
+                // Update BOTH state variables to keep them in sync
                 setWeekData(prev => ({ ...prev, [weekKey]: newData }));
+                setUserSpecificData(prev => ({
+                    ...prev,
+                    weekData: { ...prev.weekData, [weekKey]: newData }
+                }));
                 
                 // Save to localStorage immediately
                 saveToLocalStorage(weekKey, newData);
                 
                 // Save to Supabase
                 saveWeekData(weekKey, newData);
+                
+                console.log('➕ Added schedule line for day:', day, 'New data:', newData);
             };
 
             const removeScheduleLine = (day, index) => {
@@ -1433,13 +1447,21 @@
                         [day]: currentWeekData.schedule[day].filter((_, i) => i !== index)
                     }
                 };
+                
+                // Update BOTH state variables to keep them in sync
                 setWeekData(prev => ({ ...prev, [weekKey]: newData }));
+                setUserSpecificData(prev => ({
+                    ...prev,
+                    weekData: { ...prev.weekData, [weekKey]: newData }
+                }));
                 
                 // Save to localStorage immediately
                 saveToLocalStorage(weekKey, newData);
                 
                 // Save to Supabase
                 saveWeekData(weekKey, newData);
+                
+                console.log('➖ Removed schedule line for day:', day, 'index:', index, 'New data:', newData);
             };
 
             const addListItem = (listType) => {
@@ -1450,13 +1472,21 @@
                     ...currentWeekData,
                     [listType]: [...currentItems, newItem]
                 };
+                
+                // Update BOTH state variables to keep them in sync
                 setWeekData(prev => ({ ...prev, [weekKey]: newData }));
+                setUserSpecificData(prev => ({
+                    ...prev,
+                    weekData: { ...prev.weekData, [weekKey]: newData }
+                }));
                 
                 // Save to localStorage immediately
                 saveToLocalStorage(weekKey, newData);
                 
                 // Save to Supabase
                 saveWeekData(weekKey, newData);
+                
+                console.log('➕ Added list item for type:', listType, 'New data:', newData);
             };
 
             const updateListItem = (listType, id, text) => {
@@ -1470,14 +1500,20 @@
                     [listType]: updatedItems
                 };
                 
-                // Update state immediately for UI responsiveness
+                // Update BOTH state variables to keep them in sync
                 setWeekData(prev => ({ ...prev, [weekKey]: newData }));
+                setUserSpecificData(prev => ({
+                    ...prev,
+                    weekData: { ...prev.weekData, [weekKey]: newData }
+                }));
                 
                 // Save to localStorage immediately for instant persistence
                 saveToLocalStorage(weekKey, newData);
                 
                 // Debounced save to Supabase
                 debouncedSave(weekKey, newData);
+                
+                console.log('✏️ Updated list item for type:', listType, 'id:', id, 'text:', text);
             };
 
             const toggleListItem = (listType, id) => {
@@ -1490,13 +1526,21 @@
                     ...currentWeekData,
                     [listType]: updatedItems
                 };
+                
+                // Update BOTH state variables to keep them in sync
                 setWeekData(prev => ({ ...prev, [weekKey]: newData }));
+                setUserSpecificData(prev => ({
+                    ...prev,
+                    weekData: { ...prev.weekData, [weekKey]: newData }
+                }));
                 
                 // Save to localStorage immediately
                 saveToLocalStorage(weekKey, newData);
                 
                 // Save to Supabase
                 saveWeekData(weekKey, newData);
+                
+                console.log('🔄 Toggled list item for type:', listType, 'id:', id, 'completed:', !currentItems.find(item => item.id === id)?.completed);
             };
 
             const removeListItem = (listType, id) => {
@@ -1507,13 +1551,21 @@
                     ...currentWeekData,
                     [listType]: updatedItems
                 };
+                
+                // Update BOTH state variables to keep them in sync
                 setWeekData(prev => ({ ...prev, [weekKey]: newData }));
+                setUserSpecificData(prev => ({
+                    ...prev,
+                    weekData: { ...prev.weekData, [weekKey]: newData }
+                }));
                 
                 // Save to localStorage immediately
                 saveToLocalStorage(weekKey, newData);
                 
                 // Save to Supabase
                 saveWeekData(weekKey, newData);
+                
+                console.log('🗑️ Removed list item for type:', listType, 'id:', id);
             };
 
             const navigateWeek = (direction) => {
