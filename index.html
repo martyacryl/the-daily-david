@@ -12,21 +12,26 @@
     <!-- Global Supabase Ready Event Listener - MUST BE BEFORE React renders -->
     <script>
     window.supabaseReadyCallbacks = [];
+    window.supabaseHasAlreadyFired = false;
+
     window.addEventListener('supabaseReady', () => {
       console.log('📢 Global supabaseReady listener triggered');
-      console.log('📢 Available callbacks:', window.supabaseReadyCallbacks ? window.supabaseReadyCallbacks.length : 'undefined');
-      if (window.supabaseReadyCallbacks && window.supabaseReadyCallbacks.length > 0) {
-        window.supabaseReadyCallbacks.forEach((callback, index) => {
-          console.log(`📢 Executing callback ${index}:`, callback);
-          try {
-            callback();
-          } catch (error) {
-            console.error('Error in supabaseReady callback:', error);
-          }
-        });
-      } else {
-        console.log('⚠️ No callbacks available when event fired');
+      console.log('📢 Available callbacks:', window.supabaseReadyCallbacks.length);
+      
+      window.supabaseHasAlreadyFired = true;
+      
+      if (window.supabaseReadyCallbacks.length === 0) {
+        console.log('⚠️ No callbacks available when event fired - will trigger when callbacks are registered');
+        return;
       }
+      
+      window.supabaseReadyCallbacks.forEach(callback => {
+        try {
+          callback();
+        } catch (error) {
+          console.error('Error in supabaseReady callback:', error);
+        }
+      });
     });
     </script>
     
@@ -693,6 +698,12 @@
                             <p className="text-sm text-gray-500 mt-2">
                                 Status: {window.supabaseClientsReady ? 'Ready' : 'Loading...'}
                             </p>
+                            <p className="text-sm text-gray-500">
+                                Event fired: {window.supabaseHasAlreadyFired ? 'Yes' : 'No'}
+                            </p>
+                            <p className="text-sm text-gray-500">
+                                Callbacks: {window.supabaseReadyCallbacks ? window.supabaseReadyCallbacks.length : 0}
+                            </p>
                         </div>
                     </div>
                 );
@@ -1303,9 +1314,11 @@
                 });
             }, [initializeWeekData, user]);
 
-            // React Supabase State Bridge Fix - Version 2
+            // React Supabase State Bridge Fix - Version 3 (Claude's Solution)
             useEffect(() => {
                 console.log('🔍 React useEffect: Setting up Supabase listeners');
+                console.log('🔍 Current supabaseClientsReady:', window.supabaseClientsReady);
+                console.log('🔍 Event already fired:', window.supabaseHasAlreadyFired);
                 
                 // If already ready, no need to listen
                 if (window.supabaseClientsReady) {
@@ -1317,18 +1330,25 @@
 
                 // Create callback function
                 const handleSupabaseReady = () => {
-                    console.log('🎉 React received supabaseReady callback, updating state');
+                    console.log('🎉 React callback triggered, updating state');
                     setSupabaseReady(true);
                     setAuthLoading(false);
                 };
 
-                // Add to global callbacks array
+                // Initialize callbacks array if it doesn't exist
                 if (!window.supabaseReadyCallbacks) {
                     window.supabaseReadyCallbacks = [];
                 }
+
+                // Add our callback
                 window.supabaseReadyCallbacks.push(handleSupabaseReady);
-                console.log('📝 React callback registered. Total callbacks:', window.supabaseReadyCallbacks.length);
-                console.log('📝 Callback function:', handleSupabaseReady);
+                console.log('✅ Callback registered. Total callbacks:', window.supabaseReadyCallbacks.length);
+
+                // CRITICAL FIX: If the event already fired, trigger our callback immediately
+                if (window.supabaseHasAlreadyFired && window.supabaseClientsReady) {
+                    console.log('🔥 Event already fired and Supabase is ready - triggering callback immediately');
+                    handleSupabaseReady();
+                }
                 
                 // Also set up forceReactUpdate for your existing code
                 window.forceReactUpdate = () => {
@@ -1343,6 +1363,7 @@
                         const index = window.supabaseReadyCallbacks.indexOf(handleSupabaseReady);
                         if (index > -1) {
                             window.supabaseReadyCallbacks.splice(index, 1);
+                            console.log('🧹 Callback removed. Remaining callbacks:', window.supabaseReadyCallbacks.length);
                         }
                     }
                     delete window.forceReactUpdate;
