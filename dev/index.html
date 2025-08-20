@@ -2485,6 +2485,41 @@
                 }
             }, [currentView, currentDate, userSpecificData.dayData, user, isAdmin]);
 
+            // FINAL DEBUG: Track what the UI components are actually receiving
+            useEffect(() => {
+                if (user && !isAdmin && currentView === 'daily' && currentDayData) {
+                    console.log('🎯 FINAL DEBUG: UI Components should be receiving this data:');
+                    console.log('🎯 FINAL DEBUG: currentDayData.gratitude:', currentDayData.gratitude);
+                    console.log('🎯 FINAL DEBUG: currentDayData.soap:', currentDayData.soap);
+                    console.log('🎯 FINAL DEBUG: currentDayData.goals:', currentDayData.goals);
+                    console.log('🎯 FINAL DEBUG: currentDayData.gratitude.length:', currentDayData.gratitude?.length);
+                    console.log('🎯 FINAL DEBUG: currentDayData.soap.thoughts:', currentDayData.soap?.thoughts);
+                    console.log('🎯 FINAL DEBUG: currentDayData.goals.daily:', currentDayData.goals?.daily);
+                    
+                    // Check if the data structure is correct
+                    if (currentDayData.gratitude && Array.isArray(currentDayData.gratitude)) {
+                        console.log('✅ FINAL DEBUG: Gratitude array is valid, length:', currentDayData.gratitude.length);
+                        currentDayData.gratitude.forEach((item, index) => {
+                            console.log(`✅ FINAL DEBUG: Gratitude[${index}]:`, item);
+                        });
+                    } else {
+                        console.log('❌ FINAL DEBUG: Gratitude is NOT valid:', currentDayData.gratitude);
+                    }
+                    
+                    if (currentDayData.soap && typeof currentDayData.soap === 'object') {
+                        console.log('✅ FINAL DEBUG: SOAP object is valid:', currentDayData.soap);
+                    } else {
+                        console.log('❌ FINAL DEBUG: SOAP is NOT valid:', currentDayData.soap);
+                    }
+                    
+                    if (currentDayData.goals && typeof currentDayData.goals === 'object') {
+                        console.log('✅ FINAL DEBUG: Goals object is valid:', currentDayData.goals);
+                    } else {
+                        console.log('❌ FINAL DEBUG: Goals is NOT valid:', currentDayData.goals);
+                    }
+                }
+            }, [currentView, currentDayData, user, isAdmin]);
+
             // IMMEDIATE DATA CLEARING DETECTION: Check if data is cleared immediately after being set
             const prevStateRef = useRef(userSpecificData);
             
@@ -2620,28 +2655,63 @@
             // Update functions
             const updateGratitude = (index, value) => {
                 const dateKey = formatDateKey(currentDate);
-                const newData = {
-                    ...currentDayData,
-                    gratitude: currentDayData.gratitude.map((item, i) => i === index ? value : item)
-                };
                 
-                setUserSpecificData(prev => ({ ...prev, dayData: { ...prev.dayData, [dateKey]: newData } }));
+                // Update the state immediately with the new value
+                setUserSpecificData(prev => {
+                    const currentDayData = prev.dayData[dateKey];
+                    if (!currentDayData) return prev;
+                    
+                    const newData = {
+                        ...currentDayData,
+                        gratitude: currentDayData.gratitude.map((item, i) => i === index ? value : item)
+                    };
+                    
+                    return {
+                        ...prev,
+                        dayData: { ...prev.dayData, [dateKey]: newData }
+                    };
+                });
+                
+                // Save to localStorage and database
+                const newData = {
+                    ...userSpecificData.dayData[dateKey],
+                    gratitude: userSpecificData.dayData[dateKey].gratitude.map((item, i) => i === index ? value : item)
+                };
                 debouncedSave(dateKey, newData);
             };
 
             const updateSOAP = (section, value) => {
                 const dateKey = formatDateKey(currentDate);
+                
+                // Update the state immediately with the new value
+                setUserSpecificData(prev => {
+                    const currentDayData = prev.dayData[dateKey];
+                    if (!currentDayData) return prev;
+                    
+                    const newData = {
+                        ...currentDayData,
+                        soap: {
+                            ...currentDayData.soap,
+                            [section]: value
+                        }
+                    };
+                    
+                    return {
+                        ...prev,
+                        dayData: { ...prev.dayData, [dateKey]: newData }
+                    };
+                });
+                
+                // Save to localStorage and database
                 const newData = {
-                    ...currentDayData,
+                    ...userSpecificData.dayData[dateKey],
                     soap: {
-                        ...currentDayData.soap,
+                        ...userSpecificData.dayData[dateKey].soap,
                         [section]: value
                     }
                 };
-                
-                setUserSpecificData(prev => ({ ...prev, dayData: { ...prev.dayData, [dateKey]: newData } }));
                 debouncedSave(dateKey, newData);
-                };
+            };
 
             // Removed duplicate goal functions - using addDailyGoal, updateDailyGoal, etc. instead
 
