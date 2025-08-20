@@ -828,7 +828,7 @@
                     {/* Action Buttons */}
                     <div className="text-center">
                         <button
-                            onClick={() => setCurrentView('daily')}
+                            onClick={() => debugSetCurrentView('daily')}
                             className="bg-primary hover:bg-green-700 text-white font-bold py-3 px-8 rounded-full shadow-lg hover:shadow-xl transition-all duration-300"
                         >
                             Start Today's Entry
@@ -845,6 +845,15 @@
             const [isLoading, setIsLoading] = useState(true);
             const [lastSaved, setLastSaved] = useState(null);
             const [currentView, setCurrentView] = useState('landing'); // 'landing' or 'daily'
+            
+            // Debug wrapper for setCurrentView
+            const debugSetCurrentView = (newView) => {
+                console.log('🎯 VIEW CHANGE DEBUG: setCurrentView called with:', newView);
+                console.log('🎯 VIEW CHANGE DEBUG: Previous view was:', currentView);
+                console.log('🎯 VIEW CHANGE DEBUG: Stack trace:');
+                console.trace('View change stack trace');
+                setCurrentView(newView);
+            };
             // Goals are now stored in userSpecificData and loaded per user
             const saveTimeoutRef = useRef(null);
             
@@ -1065,7 +1074,7 @@
                     weeklyGoals: [],
                     monthlyGoals: []
                 });
-                setCurrentView('landing');
+                debugSetCurrentView('landing');
                 setCurrentDate(new Date());
             };
 
@@ -2885,17 +2894,27 @@
                         {/* View Navigation */}
                         <div className="flex items-center justify-center gap-4 mb-6">
                             <button
-                                onClick={() => setCurrentView('landing')}
+                                onClick={() => {
+                                    console.log('🎯 BUTTON CLICK: Dashboard button clicked');
+                                    console.log('🎯 BUTTON CLICK: Current view before change:', currentView);
+                                    console.log('🎯 BUTTON CLICK: Setting view to landing');
+                                    debugSetCurrentView('landing');
+                                }}
                                 className={`px-6 py-2 rounded-lg font-medium transition-colors ${
                                     currentView === 'landing'
                                         ? 'bg-primary text-white shadow-md'
-                                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                        : 'bg-gray-200 text-gray-600 hover:bg-gray-200'
                                 }`}
                             >
                                 🏠 Dashboard
                             </button>
                             <button
-                                onClick={() => setCurrentView('daily')}
+                                onClick={() => {
+                                    console.log('🎯 BUTTON CLICK: Daily Entry button clicked');
+                                    console.log('🎯 BUTTON CLICK: Current view before change:', currentView);
+                                    console.log('🎯 BUTTON CLICK: Setting view to daily');
+                                    debugSetCurrentView('daily');
+                                }}
                                 className={`px-6 py-2 rounded-lg font-medium transition-colors ${
                                     currentView === 'daily'
                                         ? 'bg-primary text-white shadow-md'
@@ -2936,73 +2955,90 @@
                     </div>
 
                     {/* Conditional Rendering Based on View */}
-                    {currentView === 'landing' ? (
-                        <LandingPage 
-                            weeklyGoals={userSpecificData.weeklyGoals}
-                            monthlyGoals={userSpecificData.monthlyGoals}
-                            toggleGoal={toggleGoal}
-                            addGoal={addGoal}
-                            removeGoal={removeGoal}
-                            updateGoal={updateGoal}
-                            getWeeklyProgress={getWeeklyProgress}
-                            getMonthlyProgress={getMonthlyProgress}
-                            getDaysCompletedThisWeek={getDaysCompletedThisWeek}
-                            setCurrentView={setCurrentView}
-                        />
-                    ) : (
-                        <>
-                            {/* Gratitude Section */}
-                            <GratitudeSection 
-                                gratitude={currentDayData.gratitude}
-                                onUpdate={updateGratitude}
-                            />
-
-                            {/* SOAP Section */}
-                            <SOAPSection 
-                                soap={currentDayData.soap}
-                                onUpdate={updateSOAP}
-                            />
-
-                            {/* Goals Section */}
-                            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-                        <GoalSection 
-                            title="🎯 Daily Goals"
-                            subtitle="Today's objectives"
-                            goalType="daily"
-                            goals={currentDayData.goals.daily || []}
-                            onAdd={addDailyGoal}
-                            onUpdate={(goalType, id, text, category) => updateDailyGoal(goalType, id, text)}
-                            onToggle={toggleDailyGoal}
-                            onRemove={removeDailyGoal}
-                            color="blue"
-                        />
+                    {(() => {
+                        console.log('🎯 VIEW RENDERING DEBUG: Current view:', currentView);
+                        console.log('🎯 VIEW RENDERING DEBUG: Auth loading:', authLoading);
+                        console.log('🎯 VIEW RENDERING DEBUG: User:', !!user);
+                        console.log('🎯 VIEW RENDERING DEBUG: Is admin:', isAdmin);
                         
-                        <GoalSection 
-                            title="📅 Weekly Goals"
-                            subtitle="This week's focus"
-                            goalType="weekly"
-                            goals={currentDayData.goals.weekly || []}
-                            onAdd={addDailyGoal}
-                            onUpdate={(goalType, id, text, category) => updateDailyGoal(goalType, id, text)}
-                            onToggle={toggleDailyGoal}
-                            onRemove={removeDailyGoal}
-                            color="green"
-                        />
-                        
-                        <GoalSection 
-                            title="🗓️ Monthly Goals"
-                            subtitle="This month's vision"
-                            goalType="monthly"
-                            goals={currentDayData.goals.monthly || []}
-                            onAdd={addDailyGoal}
-                            onUpdate={(goalType, id, text, category) => updateDailyGoal(goalType, id, text)}
-                            onToggle={toggleDailyGoal}
-                            onRemove={removeDailyGoal}
-                            color="purple"
-                        />
-                    </div>
-                        </>
-                    )}
+                        if (currentView === 'landing') {
+                            console.log('🎯 VIEW RENDERING DEBUG: Rendering LandingPage');
+                            return (
+                                <LandingPage 
+                                    weeklyGoals={userSpecificData.weeklyGoals}
+                                    monthlyGoals={userSpecificData.monthlyGoals}
+                                    toggleGoal={toggleGoal}
+                                    addGoal={addGoal}
+                                    removeGoal={removeGoal}
+                                    updateGoal={updateGoal}
+                                    getWeeklyProgress={getWeeklyProgress}
+                                    getMonthlyProgress={getMonthlyProgress}
+                                    getDaysCompletedThisWeek={getDaysCompletedThisWeek}
+                                    setCurrentView={debugSetCurrentView}
+                                />
+                            );
+                        } else if (currentView === 'daily') {
+                            console.log('🎯 VIEW RENDERING DEBUG: Rendering Daily View Components');
+                            console.log('🎯 VIEW RENDERING DEBUG: currentDayData:', currentDayData);
+                            return (
+                                <>
+                                    {/* Gratitude Section */}
+                                    <GratitudeSection 
+                                        gratitude={currentDayData.gratitude}
+                                        onUpdate={updateGratitude}
+                                    />
+
+                                    {/* SOAP Section */}
+                                    <SOAPSection 
+                                        soap={currentDayData.soap}
+                                        onUpdate={updateSOAP}
+                                    />
+
+                                    {/* Goals Section */}
+                                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                                <GoalSection 
+                                    title="🎯 Daily Goals"
+                                    subtitle="Today's objectives"
+                                    goalType="daily"
+                                    goals={currentDayData.goals.daily || []}
+                                    onAdd={addDailyGoal}
+                                    onUpdate={(goalType, id, text, category) => updateDailyGoal(goalType, id, text)}
+                                    onToggle={toggleDailyGoal}
+                                    onRemove={removeDailyGoal}
+                                    color="blue"
+                                />
+                                
+                                <GoalSection 
+                                    title="📅 Weekly Goals"
+                                    subtitle="This week's focus"
+                                    goalType="weekly"
+                                    goals={currentDayData.goals.weekly || []}
+                                    onAdd={addDailyGoal}
+                                    onUpdate={(goalType, id, text, category) => updateDailyGoal(goalType, id, text)}
+                                    onToggle={toggleDailyGoal}
+                                    onRemove={removeDailyGoal}
+                                    color="green"
+                                />
+                                
+                                <GoalSection 
+                                    title="🗓️ Monthly Goals"
+                                    subtitle="This month's vision"
+                                    goalType="monthly"
+                                    goals={currentDayData.goals.monthly || []}
+                                    onAdd={addDailyGoal}
+                                    onUpdate={(goalType, id, text, category) => updateDailyGoal(goalType, id, text)}
+                                    onToggle={toggleDailyGoal}
+                                    onRemove={removeDailyGoal}
+                                    color="purple"
+                                />
+                            </div>
+                                </>
+                            );
+                        } else {
+                            console.log('🎯 VIEW RENDERING DEBUG: No view matched, rendering null');
+                            return null;
+                        }
+                    })()}
 
                     {/* Footer */}
                     <div className="mt-12 text-center">
