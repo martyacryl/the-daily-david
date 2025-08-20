@@ -931,18 +931,43 @@
                 }
             };
 
-            // Save day data to database and localStorage
+            // Save day data to database and localStorage - AGGRESSIVE localStorage backup
             const saveDayData = async (dateKey, data) => {
                 if (!user) return false;
                 
-                // Always save to localStorage as backup
+                // AGGRESSIVE: Save to localStorage MULTIPLE times with multiple keys
                 const localStorageKey = `dailyDavid_dayData_${user.id}`;
+                const backupKey = `dailyDavid_dayData_backup_${user.id}`;
+                const emergencyKey = `dailyDavid_dayData_emergency_${user.id}`;
+                
                 try {
                     const existingData = localStorage.getItem(localStorageKey);
                     const parsedData = existingData ? JSON.parse(existingData) : {};
                     parsedData[dateKey] = data;
+                    
+                    // Save to primary key
                     localStorage.setItem(localStorageKey, JSON.stringify(parsedData));
-                    console.log('Day data saved to localStorage for date:', dateKey);
+                    console.log('💾 AGGRESSIVE: Day data saved to localStorage (primary):', dateKey);
+                    
+                    // Save to backup key
+                    localStorage.setItem(backupKey, JSON.stringify(parsedData));
+                    console.log('💾 AGGRESSIVE: Day data saved to backup localStorage:', dateKey);
+                    
+                    // Save to emergency key
+                    localStorage.setItem(emergencyKey, JSON.stringify(parsedData));
+                    console.log('💾 AGGRESSIVE: Day data saved to emergency localStorage:', dateKey);
+                    
+                    // Save again after a tiny delay
+                    setTimeout(() => {
+                        try {
+                            localStorage.setItem(localStorageKey, JSON.stringify(parsedData));
+                            localStorage.setItem(backupKey, JSON.stringify(parsedData));
+                            console.log('💾 AGGRESSIVE: Day data saved again (delayed):', dateKey);
+                        } catch (error) {
+                            console.error('❌ Error in delayed save:', error);
+                        }
+                    }, 100);
+                    
                 } catch (error) {
                     console.error('Error saving to localStorage:', error);
                 }
@@ -1639,11 +1664,15 @@
                         try {
                             const goalsKey = `dailyDavid_goals_${user.id}`;
                             const dayDataKey = `dailyDavid_dayData_${user.id}`;
+                            const backupKey = `dailyDavid_dayData_backup_${user.id}`;
+                            const emergencyKey = `dailyDavid_dayData_emergency_${user.id}`;
                             
                             const goalsData = localStorage.getItem(goalsKey);
                             const dayDataRaw = localStorage.getItem(dayDataKey);
+                            const backupData = localStorage.getItem(backupKey);
+                            const emergencyData = localStorage.getItem(emergencyKey);
                             
-                            if (goalsData || dayDataRaw) {
+                            if (goalsData || dayDataRaw || backupData || emergencyData) {
                                 console.log('🔄 Found data in localStorage, restoring...');
                                 
                                 let weeklyGoals = [];
@@ -1661,12 +1690,27 @@
                                     }
                                 }
                                 
+                                // Try primary key first, then backup, then emergency
                                 if (dayDataRaw) {
                                     try {
                                         dayData = JSON.parse(dayDataRaw);
-                                        console.log('✅ Restored day data from localStorage:', Object.keys(dayData).length, 'dates');
+                                        console.log('✅ Restored day data from primary localStorage:', Object.keys(dayData).length, 'dates');
                                     } catch (error) {
-                                        console.error('❌ Error parsing day data:', error);
+                                        console.error('❌ Error parsing primary day data:', error);
+                                    }
+                                } else if (backupData) {
+                                    try {
+                                        dayData = JSON.parse(backupData);
+                                        console.log('✅ Restored day data from backup localStorage:', Object.keys(dayData).length, 'dates');
+                                    } catch (error) {
+                                        console.error('❌ Error parsing backup day data:', error);
+                                    }
+                                } else if (emergencyData) {
+                                    try {
+                                        dayData = JSON.parse(emergencyData);
+                                        console.log('✅ Restored day data from emergency localStorage:', Object.keys(dayData).length, 'dates');
+                                    } catch (error) {
+                                        console.error('❌ Error parsing emergency day data:', error);
                                     }
                                 }
                                 
@@ -1692,6 +1736,92 @@
                     setTimeout(forceRestoreData, 1000);
                 }
             }, [user?.id, isAdmin]);
+
+            // EMERGENCY: Manual data restoration function
+            const emergencyRestoreData = () => {
+                if (!user) return;
+                
+                console.log('🚨 EMERGENCY: Manual data restoration triggered');
+                
+                try {
+                    const goalsKey = `dailyDavid_goals_${user.id}`;
+                    const dayDataKey = `dailyDavid_dayData_${user.id}`;
+                    const backupKey = `dailyDavid_dayData_backup_${user.id}`;
+                    const emergencyKey = `dailyDavid_dayData_emergency_${user.id}`;
+                    
+                    console.log('🔍 Checking all localStorage keys for user:', user.id);
+                    console.log('🔑 Goals key:', goalsKey);
+                    console.log('🔑 Day data key:', dayDataKey);
+                    console.log('🔑 Backup key:', backupKey);
+                    console.log('🔑 Emergency key:', emergencyKey);
+                    
+                    const goalsData = localStorage.getItem(goalsKey);
+                    const dayDataRaw = localStorage.getItem(dayDataKey);
+                    const backupData = localStorage.getItem(backupKey);
+                    const emergencyData = localStorage.getItem(emergencyKey);
+                    
+                    console.log('📊 Found data:');
+                    console.log('- Goals:', !!goalsData);
+                    console.log('- Day data (primary):', !!dayDataRaw);
+                    console.log('- Day data (backup):', !!backupData);
+                    console.log('- Day data (emergency):', !!emergencyData);
+                    
+                    let weeklyGoals = [];
+                    let monthlyGoals = [];
+                    let dayData = {};
+                    
+                    // Restore goals
+                    if (goalsData) {
+                        try {
+                            const parsed = JSON.parse(goalsData);
+                            weeklyGoals = parsed.weeklyGoals || [];
+                            monthlyGoals = parsed.monthlyGoals || [];
+                            console.log('✅ Emergency restored goals:', { weeklyGoals, monthlyGoals });
+                        } catch (error) {
+                            console.error('❌ Error parsing goals:', error);
+                        }
+                    }
+                    
+                    // Restore day data (try all keys)
+                    if (dayDataRaw) {
+                        try {
+                            dayData = JSON.parse(dayDataRaw);
+                            console.log('✅ Emergency restored day data from primary:', Object.keys(dayData).length, 'dates');
+                        } catch (error) {
+                            console.error('❌ Error parsing primary day data:', error);
+                        }
+                    } else if (backupData) {
+                        try {
+                            dayData = JSON.parse(backupData);
+                            console.log('✅ Emergency restored day data from backup:', Object.keys(dayData).length, 'dates');
+                        } catch (error) {
+                            console.error('❌ Error parsing backup day data:', error);
+                        }
+                    } else if (emergencyData) {
+                        try {
+                            dayData = JSON.parse(emergencyData);
+                            console.log('✅ Emergency restored day data from emergency:', Object.keys(dayData).length, 'dates');
+                        } catch (error) {
+                            console.error('❌ Error parsing emergency day data:', error);
+                        }
+                    }
+                    
+                    // Force update state
+                    setUserSpecificData({
+                        dayData: dayData,
+                        weeklyGoals: weeklyGoals,
+                        monthlyGoals: monthlyGoals
+                    });
+                    
+                    console.log('🚨 EMERGENCY: Data restoration complete');
+                    console.log('📊 Final state - dayData keys:', Object.keys(dayData));
+                    console.log('📊 Final state - weeklyGoals count:', weeklyGoals.length);
+                    console.log('📊 Final state - monthlyGoals count:', monthlyGoals.length);
+                    
+                } catch (error) {
+                    console.error('❌ CRITICAL ERROR in emergency restore:', error);
+                }
+            };
 
             // Use useMemo to properly calculate currentDayData based on current state
             const currentDayData = useMemo(() => {
@@ -1830,6 +1960,26 @@
                                             Last saved: {lastSaved.toLocaleTimeString()}
                                         </div>
                                     )}
+                                    
+                                    {/* Data Persistence Status */}
+                                    {!isAdmin && user && (
+                                        <div className="text-xs text-gray-500 mt-1">
+                                            {(() => {
+                                                const goalsKey = `dailyDavid_goals_${user.id}`;
+                                                const dayDataKey = `dailyDavid_dayData_${user.id}`;
+                                                const backupKey = `dailyDavid_dayData_backup_${user.id}`;
+                                                const emergencyKey = `dailyDavid_dayData_emergency_${user.id}`;
+                                                
+                                                const goalsData = localStorage.getItem(goalsKey);
+                                                const dayDataRaw = localStorage.getItem(dayDataKey);
+                                                const backupData = localStorage.getItem(backupKey);
+                                                const emergencyData = localStorage.getItem(emergencyKey);
+                                                
+                                                const totalKeys = [goalsData, dayDataRaw, backupData, emergencyData].filter(Boolean).length;
+                                                return `Data: ${totalKeys}/4 keys`;
+                                            })()}
+                                        </div>
+                                    )}
                                 </div>
                                 
                                 {/* User Info and Sign Out */}
@@ -1838,6 +1988,17 @@
                                         Welcome, {user.email}
                                         {!isAdmin && <span className="ml-2 text-blue-600">👤 User Mode</span>}
                                     </div>
+
+                                    {/* EMERGENCY RESTORE BUTTON */}
+                                    {!isAdmin && (
+                                        <button 
+                                            onClick={emergencyRestoreData}
+                                            className="px-3 py-1 bg-orange-500 text-white text-sm rounded-lg hover:bg-orange-600 transition-colors"
+                                            title="Emergency restore data from localStorage"
+                                        >
+                                            🚨 Restore Data
+                                        </button>
+                                    )}
 
                                     <button 
                                         onClick={handleSignOut}
