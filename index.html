@@ -200,38 +200,19 @@
             console.log('🎉 Supabase is ready! Notifying app...');
             console.log('🔍 About to dispatch supabaseReady event...');
             
-                    // Check if React is ready to receive events
-        if (window.supabaseReadyCallbacks && window.supabaseReadyCallbacks.length > 0) {
-            console.log('✅ React callbacks ready, dispatching event immediately');
-            window.dispatchEvent(new Event('supabaseReady'));
-            console.log('✅ supabaseReady event dispatched');
-        } else {
-            console.log('⏳ React not ready yet, setting up delayed dispatch...');
-            
-            // DIRECT FIX: Force React to update by directly setting the global flag
-            // This bypasses the broken React component entirely
-            console.log('🔧 DIRECT FIX: Setting global flag to force React update');
-            window.supabaseClientsReady = true;
-            
-            // Set up polling to wait for React to be ready
-            const checkReactReady = setInterval(() => {
-                if (window.supabaseReadyCallbacks && window.supabaseReadyCallbacks.length > 0) {
-                    console.log('✅ React callbacks now ready, dispatching delayed event');
-                    window.dispatchEvent(new Event('supabaseReady'));
-                    console.log('✅ Delayed supabaseReady event dispatched');
-                    clearInterval(checkReactReady);
-                }
-            }, 100);
-            
-            // Fallback: dispatch after 5 seconds even if React isn't ready
-            setTimeout(() => {
-                if (checkReactReady) {
-                    clearInterval(checkReactReady);
-                    console.log('⚠️ Fallback: dispatching event after timeout');
-                    window.dispatchEvent(new Event('supabaseReady'));
-                }
-            }, 5000);
-        }
+                    // NUCLEAR OPTION: Force React to render by bypassing the broken component entirely
+        console.log('🚀 NUCLEAR OPTION: Bypassing broken React component');
+        
+        // Set the global flag immediately
+        window.supabaseClientsReady = true;
+        console.log('🚀 Global flag set to true');
+        
+        // Force a page refresh to restart React with the correct state
+        console.log('🚀 Forcing page refresh to restart React with correct state');
+        setTimeout(() => {
+            console.log('🚀 Refreshing page now...');
+            window.location.reload();
+        }, 1000);
             
             // Also try to force React update if available
             if (window.forceReactUpdate) {
