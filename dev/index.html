@@ -1468,6 +1468,7 @@
 
             // Goal management functions for daily entry view
             const addDailyGoal = (goalType) => {
+                const dateKey = formatDateKey(currentDate);
                 const newGoal = {
                     id: Date.now(),
                     text: '',
@@ -1479,35 +1480,70 @@
                 if (!updatedDayData.goals[goalType]) updatedDayData.goals[goalType] = [];
                 
                 updatedDayData.goals[goalType].push(newGoal);
-                setUserSpecificData(prev => ({ ...prev, dayData: { ...prev.dayData, [formatDateKey(currentDate)]: updatedDayData } }));
-                debouncedSave(formatDateKey(currentDate), updatedDayData);
+                
+                // Save to localStorage immediately
+                const dayDataKey = `dailyDavid_dayData_${user.id}`;
+                const allDayData = { ...userSpecificData.dayData, [dateKey]: updatedDayData };
+                localStorage.setItem(dayDataKey, JSON.stringify(allDayData));
+                
+                setUserSpecificData(prev => ({ 
+                    ...prev, 
+                    dayData: { ...prev.dayData, [dateKey]: updatedDayData } 
+                }));
             };
 
             const updateDailyGoal = (goalType, goalId, newText) => {
+                const dateKey = formatDateKey(currentDate);
                 const updatedDayData = { ...currentDayData };
                 const goalIndex = updatedDayData.goals[goalType].findIndex(g => g.id === goalId);
                 if (goalIndex !== -1) {
                     updatedDayData.goals[goalType][goalIndex].text = newText;
-                    setUserSpecificData(prev => ({ ...prev, dayData: { ...prev.dayData, [formatDateKey(currentDate)]: updatedDayData } }));
-                    debouncedSave(formatDateKey(currentDate), updatedDayData);
+                    
+                    // Save to localStorage immediately
+                    const dayDataKey = `dailyDavid_dayData_${user.id}`;
+                    const allDayData = { ...userSpecificData.dayData, [dateKey]: updatedDayData };
+                    localStorage.setItem(dayDataKey, JSON.stringify(allDayData));
+                    
+                    setUserSpecificData(prev => ({ 
+                        ...prev, 
+                        dayData: { ...prev.dayData, [dateKey]: updatedDayData } 
+                    }));
                 }
             };
 
             const toggleDailyGoal = (goalType, goalId) => {
+                const dateKey = formatDateKey(currentDate);
                 const updatedDayData = { ...currentDayData };
                 const goalIndex = updatedDayData.goals[goalType].findIndex(g => g.id === goalId);
                 if (goalIndex !== -1) {
                     updatedDayData.goals[goalType][goalIndex].completed = !updatedDayData.goals[goalType][goalIndex].completed;
-                    setUserSpecificData(prev => ({ ...prev, dayData: { ...prev.dayData, [formatDateKey(currentDate)]: updatedDayData } }));
-                    debouncedSave(formatDateKey(currentDate), updatedDayData);
+                    
+                    // Save to localStorage immediately
+                    const dayDataKey = `dailyDavid_dayData_${user.id}`;
+                    const allDayData = { ...userSpecificData.dayData, [dateKey]: updatedDayData };
+                    localStorage.setItem(dayDataKey, JSON.stringify(allDayData));
+                    
+                    setUserSpecificData(prev => ({ 
+                        ...prev, 
+                        dayData: { ...prev.dayData, [dateKey]: updatedDayData } 
+                    }));
                 }
             };
 
             const removeDailyGoal = (goalType, goalId) => {
+                const dateKey = formatDateKey(currentDate);
                 const updatedDayData = { ...currentDayData };
                 updatedDayData.goals[goalType] = updatedDayData.goals[goalType].filter(g => g.id !== goalId);
-                setUserSpecificData(prev => ({ ...prev, dayData: { ...prev.dayData, [formatDateKey(currentDate)]: updatedDayData } }));
-                debouncedSave(formatDateKey(currentDate), updatedDayData);
+                
+                // Save to localStorage immediately
+                const dayDataKey = `dailyDavid_dayData_${user.id}`;
+                const allDayData = { ...userSpecificData.dayData, [dateKey]: updatedDayData };
+                localStorage.setItem(dayDataKey, JSON.stringify(allDayData));
+                
+                setUserSpecificData(prev => ({ 
+                    ...prev, 
+                    dayData: { ...prev.dayData, [dateKey]: updatedDayData } 
+                }));
             };
 
             // Initialize day data
