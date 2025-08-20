@@ -1523,51 +1523,41 @@
                 
                 // Find goals from other days in the same week/month
                 const allDates = Object.keys(userSpecificData.dayData);
+                const sortedDates = allDates.sort((a, b) => new Date(b) - new Date(a));
                 console.log('🔄 DEBUG: All available dates:', allDates);
+                console.log('🔄 DEBUG: Sorted dates (most recent first):', sortedDates);
                 
-                // Check weekly goals
-                if (!updatedDayData.goals.weekly || updatedDayData.goals.weekly.length === 0) {
-                    console.log('🔄 DEBUG: No weekly goals, checking for carryover...');
-                    for (const otherDateKey of allDates) {
-                        if (otherDateKey !== dateKey) {
-                            const otherDayData = userSpecificData.dayData[otherDateKey];
-                            console.log('🔄 DEBUG: Checking other date:', otherDateKey, 'for weekly goals');
-                            if (otherDayData?.goals?.weekly?.length > 0 && isSameWeek(currentDate, new Date(otherDateKey))) {
-                                console.log('🔄 DEBUG: Found weekly goals to carry over:', otherDayData.goals.weekly);
-                                updatedDayData.goals.weekly = otherDayData.goals.weekly.map(goal => ({
-                                    ...goal,
-                                    completed: goal.completed // Keep completion status
-                                }));
-                                needsUpdate = true;
-                                break;
-                            }
-                        }
+                // Check weekly goals - compare with most recent goals to see if they need updating
+                const mostRecentWeeklyGoals = getMostRecentGoals('weekly');
+                if (mostRecentWeeklyGoals.length > 0) {
+                    const currentWeeklyGoals = updatedDayData.goals.weekly || [];
+                    const weeklyGoalsNeedUpdate = currentWeeklyGoals.length !== mostRecentWeeklyGoals.length ||
+                        !currentWeeklyGoals.every((goal, index) => goal.id === mostRecentWeeklyGoals[index]?.id);
+                    
+                    if (weeklyGoalsNeedUpdate && isSameWeek(currentDate, new Date(sortedDates[0]))) {
+                        console.log('🔄 DEBUG: Weekly goals need updating, carrying over from most recent:', mostRecentWeeklyGoals);
+                        updatedDayData.goals.weekly = mostRecentWeeklyGoals.map(goal => ({
+                            ...goal,
+                            completed: goal.completed // Keep completion status
+                        }));
+                        needsUpdate = true;
                     }
                 }
                 
-                // Check monthly goals
-                console.log('🔄 DEBUG: Checking monthly goals condition:');
-                console.log('🔄 DEBUG: !updatedDayData.goals.monthly:', !updatedDayData.goals.monthly);
-                console.log('🔄 DEBUG: updatedDayData.goals.monthly.length === 0:', updatedDayData.goals.monthly?.length === 0);
-                console.log('🔄 DEBUG: Condition result:', (!updatedDayData.goals.monthly || updatedDayData.goals.monthly.length === 0));
-                
-                if (!updatedDayData.goals.monthly || updatedDayData.goals.monthly.length === 0) {
-                    console.log('🔄 DEBUG: No monthly goals, checking for carryover...');
-                    for (const otherDateKey of allDates) {
-                        if (otherDateKey !== dateKey) {
-                            const otherDayData = userSpecificData.dayData[otherDateKey];
-                            console.log('🔄 DEBUG: Checking other date:', otherDateKey, 'for monthly goals');
-                            console.log('🔄 DEBUG: Other day data goals:', otherDayData?.goals);
-                            if (otherDayData?.goals?.monthly?.length > 0 && isSameMonth(currentDate, new Date(otherDateKey))) {
-                                console.log('🔄 DEBUG: Found monthly goals to carry over:', otherDayData.goals.monthly);
-                                updatedDayData.goals.monthly = otherDayData.goals.monthly.map(goal => ({
-                                    ...goal,
-                                    completed: goal.completed // Keep completion status
-                                }));
-                                needsUpdate = true;
-                                break;
-                            }
-                        }
+                // Check monthly goals - compare with most recent goals to see if they need updating
+                const mostRecentMonthlyGoals = getMostRecentGoals('monthly');
+                if (mostRecentMonthlyGoals.length > 0) {
+                    const currentMonthlyGoals = updatedDayData.goals.monthly || [];
+                    const monthlyGoalsNeedUpdate = currentMonthlyGoals.length !== mostRecentMonthlyGoals.length ||
+                        !currentMonthlyGoals.every((goal, index) => goal.id === mostRecentMonthlyGoals[index]?.id);
+                    
+                    if (monthlyGoalsNeedUpdate && isSameMonth(currentDate, new Date(sortedDates[0]))) {
+                        console.log('🔄 DEBUG: Monthly goals need updating, carrying over from most recent:', mostRecentMonthlyGoals);
+                        updatedDayData.goals.monthly = mostRecentMonthlyGoals.map(goal => ({
+                            ...goal,
+                            completed: goal.completed // Keep completion status
+                        }));
+                        needsUpdate = true;
                     }
                 }
                 
