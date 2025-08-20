@@ -1208,7 +1208,7 @@
                 };
 
                 // Listen for auth changes
-                const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+                const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
                     if (event === 'SIGNED_IN' && session?.user) {
                         setUser(session.user);
                         const isUserAdmin = session.user.user_metadata?.is_admin === true;
