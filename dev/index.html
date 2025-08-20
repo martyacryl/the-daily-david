@@ -978,11 +978,14 @@
                 }
             };
 
-            const handleSwitchToUserMode = () => {
+            const handleSwitchToUserMode = async () => {
                 setIsAdmin(false);
                 setUserModePreference('user');
                 setCurrentView('landing');
                 localStorage.setItem('dailyDavidMode', 'user');
+                
+                // Load default goals for admin when switching to user mode
+                await loadUserSpecificData(user.id);
             };
 
             // Goal management functions
