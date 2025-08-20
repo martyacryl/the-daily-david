@@ -1659,6 +1659,9 @@
             useEffect(() => {
                 if (user && !isAdmin) {
                     console.log('🔄 BULLETPROOF: User changed, forcing data restore from localStorage');
+                    console.log('🔄 User ID:', user.id);
+                    console.log('🔄 Current userSpecificData state:', userSpecificData);
+                    
                     // Force restore data from localStorage
                     const forceRestoreData = () => {
                         try {
@@ -1667,10 +1670,22 @@
                             const backupKey = `dailyDavid_dayData_backup_${user.id}`;
                             const emergencyKey = `dailyDavid_dayData_emergency_${user.id}`;
                             
+                            console.log('🔍 Checking localStorage keys:');
+                            console.log('🔑 Goals key:', goalsKey);
+                            console.log('🔑 Day data key:', dayDataKey);
+                            console.log('🔑 Backup key:', backupKey);
+                            console.log('🔑 Emergency key:', emergencyKey);
+                            
                             const goalsData = localStorage.getItem(goalsKey);
                             const dayDataRaw = localStorage.getItem(dayDataKey);
                             const backupData = localStorage.getItem(backupKey);
                             const emergencyData = localStorage.getItem(emergencyKey);
+                            
+                            console.log('📊 Found data in localStorage:');
+                            console.log('- Goals:', !!goalsData);
+                            console.log('- Day data (primary):', !!dayDataRaw);
+                            console.log('- Day data (backup):', !!backupData);
+                            console.log('- Day data (emergency):', !!emergencyData);
                             
                             if (goalsData || dayDataRaw || backupData || emergencyData) {
                                 console.log('🔄 Found data in localStorage, restoring...');
@@ -1684,7 +1699,7 @@
                                         const parsed = JSON.parse(goalsData);
                                         weeklyGoals = parsed.weeklyGoals || [];
                                         monthlyGoals = parsed.monthlyGoals || [];
-                                        console.log('✅ Restored goals from localStorage');
+                                        console.log('✅ Restored goals from localStorage:', { weeklyGoals, monthlyGoals });
                                     } catch (error) {
                                         console.error('❌ Error parsing goals:', error);
                                     }
@@ -1695,6 +1710,7 @@
                                     try {
                                         dayData = JSON.parse(dayDataRaw);
                                         console.log('✅ Restored day data from primary localStorage:', Object.keys(dayData).length, 'dates');
+                                        console.log('📅 Date keys found:', Object.keys(dayData));
                                     } catch (error) {
                                         console.error('❌ Error parsing primary day data:', error);
                                     }
@@ -1702,6 +1718,7 @@
                                     try {
                                         dayData = JSON.parse(backupData);
                                         console.log('✅ Restored day data from backup localStorage:', Object.keys(dayData).length, 'dates');
+                                        console.log('📅 Date keys found:', Object.keys(dayData));
                                     } catch (error) {
                                         console.error('❌ Error parsing backup day data:', error);
                                     }
@@ -1709,20 +1726,32 @@
                                     try {
                                         dayData = JSON.parse(emergencyData);
                                         console.log('✅ Restored day data from emergency localStorage:', Object.keys(dayData).length, 'dates');
+                                        console.log('📅 Date keys found:', Object.keys(dayData));
                                     } catch (error) {
                                         console.error('❌ Error parsing emergency day data:', error);
                                     }
                                 }
                                 
+                                console.log('🔄 About to update userSpecificData state with:');
+                                console.log('- dayData:', dayData);
+                                console.log('- weeklyGoals:', weeklyGoals);
+                                console.log('- monthlyGoals:', monthlyGoals);
+                                
                                 // Force update state
-                                setUserSpecificData(prev => ({
-                                    ...prev,
-                                    dayData: dayData,
-                                    weeklyGoals: weeklyGoals,
-                                    monthlyGoals: monthlyGoals
-                                }));
+                                setUserSpecificData(prev => {
+                                    const newState = {
+                                        ...prev,
+                                        dayData: dayData,
+                                        weeklyGoals: weeklyGoals,
+                                        monthlyGoals: monthlyGoals
+                                    };
+                                    console.log('🔄 New state will be:', newState);
+                                    return newState;
+                                });
                                 
                                 console.log('✅ BULLETPROOF: Data restored from localStorage');
+                            } else {
+                                console.log('⚠️ No data found in any localStorage keys');
                             }
                         } catch (error) {
                             console.error('❌ Error in force restore:', error);
@@ -1734,8 +1763,80 @@
                     
                     // Also run after a short delay to catch any race conditions
                     setTimeout(forceRestoreData, 1000);
+                    
+                    // Run again after a longer delay to ensure it sticks
+                    setTimeout(forceRestoreData, 3000);
                 }
             }, [user?.id, isAdmin]);
+
+            // AGGRESSIVE: Restore data on EVERY render when user is signed in
+            useEffect(() => {
+                if (user && !isAdmin) {
+                    // Check if data is missing and restore it
+                    const hasData = Object.keys(userSpecificData.dayData).length > 0 || 
+                                   userSpecificData.weeklyGoals.length > 0 || 
+                                   userSpecificData.monthlyGoals.length > 0;
+                    
+                    if (!hasData) {
+                        console.log('🚨 AGGRESSIVE: No data detected, restoring from localStorage');
+                        const goalsKey = `dailyDavid_goals_${user.id}`;
+                        const dayDataKey = `dailyDavid_dayData_${user.id}`;
+                        const backupKey = `dailyDavid_dayData_backup_${user.id}`;
+                        const emergencyKey = `dailyDavid_dayData_emergency_${user.id}`;
+                        
+                        const goalsData = localStorage.getItem(goalsKey);
+                        const dayDataRaw = localStorage.getItem(dayDataKey);
+                        const backupData = localStorage.getItem(backupKey);
+                        const emergencyData = localStorage.getItem(emergencyKey);
+                        
+                        if (goalsData || dayDataRaw || backupData || emergencyData) {
+                            console.log('🚨 AGGRESSIVE: Found data in localStorage, restoring immediately');
+                            
+                            let weeklyGoals = [];
+                            let monthlyGoals = [];
+                            let dayData = {};
+                            
+                            if (goalsData) {
+                                try {
+                                    const parsed = JSON.parse(goalsData);
+                                    weeklyGoals = parsed.weeklyGoals || [];
+                                    monthlyGoals = parsed.monthlyGoals || [];
+                                } catch (error) {
+                                    console.error('❌ Error parsing goals:', error);
+                                }
+                            }
+                            
+                            if (dayDataRaw) {
+                                try {
+                                    dayData = JSON.parse(dayDataRaw);
+                                } catch (error) {
+                                    console.error('❌ Error parsing primary day data:', error);
+                                }
+                            } else if (backupData) {
+                                try {
+                                    dayData = JSON.parse(backupData);
+                                } catch (error) {
+                                    console.error('❌ Error parsing backup day data:', error);
+                                }
+                            } else if (emergencyData) {
+                                try {
+                                    dayData = JSON.parse(emergencyData);
+                                } catch (error) {
+                                    console.error('❌ Error parsing emergency day data:', error);
+                                }
+                            }
+                            
+                            setUserSpecificData({
+                                dayData: dayData,
+                                weeklyGoals: weeklyGoals,
+                                monthlyGoals: monthlyGoals
+                            });
+                            
+                            console.log('🚨 AGGRESSIVE: Data restored successfully');
+                        }
+                    }
+                }
+            });
 
             // EMERGENCY: Manual data restoration function
             const emergencyRestoreData = () => {
@@ -1822,6 +1923,31 @@
                     console.error('❌ CRITICAL ERROR in emergency restore:', error);
                 }
             };
+
+            // GLOBAL DATA MONITORING: Track when userSpecificData changes
+            useEffect(() => {
+                if (user && !isAdmin) {
+                    console.log('🔍 GLOBAL MONITOR: userSpecificData state changed');
+                    console.log('🔍 New state:', userSpecificData);
+                    console.log('🔍 Day data keys:', Object.keys(userSpecificData.dayData));
+                    console.log('🔍 Weekly goals count:', userSpecificData.weeklyGoals.length);
+                    console.log('🔍 Monthly goals count:', userSpecificData.monthlyGoals.length);
+                    
+                    // Check if data was cleared unexpectedly
+                    if (Object.keys(userSpecificData.dayData).length === 0 && 
+                        userSpecificData.weeklyGoals.length === 0 && 
+                        userSpecificData.monthlyGoals.length === 0) {
+                        console.log('🚨 WARNING: All data appears to be cleared!');
+                        console.log('🚨 This might indicate data is being reset somewhere');
+                        
+                        // Try to restore from localStorage immediately
+                        setTimeout(() => {
+                            console.log('🚨 Attempting emergency restore due to data clearing...');
+                            emergencyRestoreData();
+                        }, 100);
+                    }
+                }
+            }, [userSpecificData, user, isAdmin]);
 
             // Use useMemo to properly calculate currentDayData based on current state
             const currentDayData = useMemo(() => {
