@@ -292,15 +292,19 @@
                 setError('');
 
                 try {
-                    // For Neon, we'll use a simple approach - just create a user object
+                    // For Neon, we'll use a simple approach - check for admin email
                     // In a real app, you'd implement proper authentication
+                    const isAdminEmail = email.toLowerCase().includes('admin') || 
+                                       email.toLowerCase() === 'admin@dailydavid.com' ||
+                                       password === 'admin123'; // Simple admin check
+                    
                     const userData = {
                         id: email,
                         email: email,
-                        user_metadata: { is_admin: false }
+                        user_metadata: { is_admin: isAdminEmail }
                     };
                     
-                    // Check if user is admin (you can set this in user metadata)
+                    // Check if user is admin
                     const isUserAdmin = userData.user_metadata?.is_admin === true;
                     
                     if (isUserAdmin) {
