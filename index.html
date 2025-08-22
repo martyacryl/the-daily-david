@@ -9,6 +9,8 @@
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <!-- Neon Database Client - Bundled -->
     <script src="dev/dist/neon-client.js"></script>
+    <!-- Neon User Management System -->
+    <script src="dev/src/user-management.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -384,20 +386,27 @@
                 try {
                     console.log('Loading users...');
                     
-                    // For Neon, we'll use a simple approach - just show the current user
-                    // In a real app, you'd implement user management in your own tables
-                    const currentUserId = user?.id;
-                    const currentUser = {
-                        id: currentUserId,
-                        email: currentUserId,
-                        display_name: 'Current User',
-                        created_at: new Date().toISOString()
-                    };
+                    // Use the new Neon user management system
+                    if (!window.NeonUserManager) {
+                        throw new Error('NeonUserManager not loaded. Please include dev/src/user-management.js');
+                    }
                     
-                    console.log('Users loaded:', [currentUser]);
-                    setUsers([currentUser]);
+                    // Initialize user manager if not already done
+                    if (!window.userManager) {
+                        window.userManager = new window.NeonUserManager(neonDB);
+                    }
+                    
+                    // Load all users from the database
+                    const result = await window.userManager.getAllUsers();
+                    
+                    if (result.success) {
+                        console.log('✅ Users loaded successfully:', result.users);
+                        setUsers(result.users);
+                    } else {
+                        throw new Error(result.error || 'Failed to load users');
+                    }
                 } catch (error) {
-                    console.error('Error loading users:', error);
+                    console.error('❌ Error loading users:', error);
                     alert('Error loading users: ' + error.message);
                     setUsers([]);
                 }
@@ -1448,9 +1457,48 @@
             };
 
             const handleAddUser = async (email, password, displayName) => {
-                // This would use Supabase admin functions in production
-                // For now, just show a success message
-                alert(`User ${email} would be created with admin privileges. In production, this would use Supabase admin API.`);
+                try {
+                    console.log('Creating new user:', { email, password, displayName });
+                    
+                    // Use the new Neon user management system
+                    if (!window.NeonUserManager) {
+                        throw new Error('NeonUserManager not loaded. Please include dev/src/user-management.js');
+                    }
+                    
+                    // Initialize user manager if not already done
+                    if (!window.userManager) {
+                        window.userManager = new window.NeonUserManager(neonDB);
+                    }
+                    
+                    // Create the user
+                    const result = await window.userManager.createUser(email, password, displayName, false);
+                    
+                    if (result.success) {
+                        console.log('✅ User created successfully:', result);
+                        
+                        // Add to local users list
+                        const newUser = {
+                            id: result.userId,
+                            email: email,
+                            display_name: displayName,
+                            is_admin: false,
+                            created_at: new Date().toISOString()
+                        };
+                        
+                        setUsers([...users, newUser]);
+                        alert(`User ${email} created successfully!`);
+                        
+                        // Clear form
+                        setNewUserEmail('');
+                        setNewUserPassword('');
+                        setNewUserDisplayName('');
+                    } else {
+                        throw new Error(result.error || 'Failed to create user');
+                    }
+                } catch (error) {
+                    console.error('❌ Create user error:', error);
+                    alert(`Error creating user: ${error.message}`);
+                }
             };
 
             const handleRemoveUser = async (userId) => {
@@ -1461,64 +1509,33 @@
                 try {
                     console.log('Attempting to remove user:', userId);
                     
-                    // First, verify the user exists in Supabase
-                    const { data: userData, error: userError } = await neonDB.getUserById(userId);
-                    
-                    if (userError) {
-                        console.error('User lookup error:', userError);
-                        if (userError.message.includes('not found')) {
-                            // User doesn't exist in Supabase, just remove from local list
-                            console.log('User not found in Supabase, removing from local list only');
-                            const updatedUsers = users.filter(u => u.id !== userId);
-                            setUsers(updatedUsers);
-                            alert('User was not found in the system and has been removed from the list.');
-                            return;
-                        }
-                        throw userError;
+                    // Use the new Neon user management system
+                    if (!window.NeonUserManager) {
+                        throw new Error('NeonUserManager not loaded. Please include dev/src/user-management.js');
                     }
                     
-                    if (!userData || !userData.user) {
-                        console.log('No user data returned, removing from local list only');
+                    // Initialize user manager if not already done
+                    if (!window.userManager) {
+                        window.userManager = new window.NeonUserManager(neonDB);
+                    }
+                    
+                    // Delete user from database
+                    const result = await window.userManager.deleteUser(userId);
+                    
+                    if (result.success) {
+                        // Remove from local users list
                         const updatedUsers = users.filter(u => u.id !== userId);
                         setUsers(updatedUsers);
-                        alert('User data not found, removed from local list.');
-                        return;
+                        console.log('Updated local users list:', updatedUsers);
+                        
+                        alert('User removed successfully!');
+                    } else {
+                        throw new Error(result.error || 'Failed to delete user');
                     }
                     
-                    console.log('User found in Supabase:', userData.user.email);
-                    
-                    // Now delete the user from Supabase Auth
-                    const { error: deleteError } = await neonDB.deleteUser(userId);
-                    
-                    if (deleteError) {
-                        console.error('Supabase delete user error:', deleteError);
-                        throw deleteError;
-                    }
-                    
-                    console.log('User deleted successfully from Supabase');
-                    
-                    // Remove from local users list
-                    const updatedUsers = users.filter(u => u.id !== userId);
-                    setUsers(updatedUsers);
-                    console.log('Updated local users list:', updatedUsers);
-                    
-                    alert('User removed successfully!');
                 } catch (error) {
-                    console.error('Remove user error details:', error);
-                    console.error('Error message:', error.message);
-                    console.error('Error code:', error.status);
-                    console.error('Error details:', error.details);
-                    
-                    let errorMessage = 'Error removing user';
-                    if (error.message) {
-                        errorMessage += ': ' + error.message;
-                    } else if (error.error_description) {
-                        errorMessage += ': ' + error.error_description;
-                    } else if (error.status) {
-                        errorMessage += ` (Status: ${error.status})`;
-                    }
-                    
-                    alert(errorMessage);
+                    console.error('❌ Remove user error:', error);
+                    alert(`Error removing user: ${error.message}`);
                 }
             };
 

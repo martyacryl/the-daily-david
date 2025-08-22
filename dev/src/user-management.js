@@ -189,6 +189,39 @@ class NeonUserManager {
         }
     }
 
+    // Delete a user (admin only)
+    async deleteUser(userId) {
+        if (!this.currentUser?.is_admin) {
+            return { success: false, error: 'Admin access required' };
+        }
+        
+        try {
+            // First, check if user exists
+            const query = `
+                SELECT id FROM users WHERE id = $1
+            `;
+            
+            const userCheck = await this.neonDB.executeQuery(query, [userId]);
+            
+            if (!userCheck || !Array.isArray(userCheck) || userCheck.length === 0) {
+                return { success: false, error: 'User not found' };
+            }
+            
+            // Delete user (this will cascade to related data due to foreign keys)
+            const deleteQuery = `
+                DELETE FROM users WHERE id = $1
+            `;
+            
+            const result = await this.neonDB.executeQuery(deleteQuery, [userId]);
+            
+            console.log('✅ [NEON] User deleted successfully');
+            return { success: true };
+        } catch (error) {
+            console.error('❌ [NEON] Delete user error:', error);
+            return { success: false, error: error.message };
+        }
+    }
+
     // Update user data with RLS
     async updateUserData(dateKey, data) {
         if (!this.currentUser || !this.sessionToken) {
