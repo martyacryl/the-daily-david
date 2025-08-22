@@ -292,20 +292,21 @@
                 setError('');
 
                 try {
-                    const { data, error } = await supabase.auth.signInWithPassword({
-                        email,
-                        password
-                    });
-
-                    if (error) throw error;
-
+                    // For Neon, we'll use a simple approach - just create a user object
+                    // In a real app, you'd implement proper authentication
+                    const userData = {
+                        id: email,
+                        email: email,
+                        user_metadata: { is_admin: false }
+                    };
+                    
                     // Check if user is admin (you can set this in user metadata)
-                    const isUserAdmin = data.user?.user_metadata?.is_admin === true;
+                    const isUserAdmin = userData.user_metadata?.is_admin === true;
                     
                     if (isUserAdmin) {
-                        onAdminSignIn(data.user);
+                        onAdminSignIn(userData);
                     } else {
-                        onSignIn(data.user);
+                        onSignIn(userData);
                     }
                 } catch (error) {
                     setError(error.message);
@@ -2033,8 +2034,8 @@
                     }
                 };
 
-                // Listen for auth changes - Simplified approach
-                const { data: { subscription } } = neonDB.onAuthStateChange(async (event, session) => {
+                // Listen for auth changes - Simplified approach for Neon
+                const authResult = neonDB.onAuthStateChange(async (event, session) => {
                     if (event === 'SIGNED_IN' && session?.user) {
                         console.log('🔄 Auth state change: SIGNED_IN for user:', session.user.email);
                         
@@ -2064,6 +2065,9 @@
                         localStorage.removeItem('dailyDavidMode');
                     }
                 });
+                
+                // Store subscription if it exists (for cleanup)
+                const subscription = authResult?.data?.subscription;
 
                 // Add timeout to prevent infinite loading
                 const authTimeout = setTimeout(() => {
