@@ -1,12 +1,14 @@
 {
   "name": "the-daily-david-dev",
   "version": "1.0.0",
-  "description": "Development environment for The Daily David app",
+  "description": "Development environment for The Daily David app with Neon database",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "dev": "node server.js",
-    "serve": "node server.js"
+    "serve": "node server.js",
+    "build": "node build.js",
+    "build:neon": "npm run build"
   },
   "keywords": [
     "daily-david",
@@ -14,13 +16,18 @@
     "development",
     "spiritual",
     "soap",
-    "supabase"
+    "neon",
+    "postgresql"
   ],
   "author": "Your Name",
   "license": "MIT",
   "engines": {
-    "node": ">=14.0.0"
+    "node": ">=18.0.0"
   },
-  "devDependencies": {},
-  "dependencies": {}
+  "devDependencies": {
+    "esbuild": "^0.20.0"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "^0.9.0"
+  }
 }

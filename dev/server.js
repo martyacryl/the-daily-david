@@ -3,6 +3,7 @@ const fs = require('fs');
 const path = require('path');
 
 const PORT = process.env.PORT || 3001;
+const ENV = process.env.NODE_ENV || 'development';
 
 const mimeTypes = {
     '.html': 'text/html',
@@ -61,16 +62,22 @@ const server = http.createServer((req, res) => {
 });
 
 server.listen(PORT, () => {
-    console.log(`🚀 Development server running at http://localhost:${PORT}`);
+    console.log(`🚀 The Daily David server running at http://localhost:${PORT}`);
     console.log(`📁 Serving files from: ${__dirname}`);
-    console.log(`🔴 This is the DEVELOPMENT environment`);
+    console.log(`🌍 Environment: ${ENV}`);
+    console.log(`🗄️  Database: Neon PostgreSQL`);
     console.log(`📖 Open http://localhost:${PORT} in your browser`);
     console.log(`⏹️  Press Ctrl+C to stop the server`);
+    
+    if (ENV === 'development') {
+        console.log(`🔧 Development mode - Neon client will be bundled`);
+        console.log(`📦 Run 'npm run build' to bundle the Neon client`);
+    }
 });
 
 // Graceful shutdown
 process.on('SIGINT', () => {
-    console.log('\n🛑 Shutting down development server...');
+    console.log('\n🛑 Shutting down server...');
     server.close(() => {
         console.log('✅ Server closed');
         process.exit(0);
