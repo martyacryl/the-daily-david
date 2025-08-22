@@ -294,25 +294,35 @@
                 setError('');
 
                 try {
-                    // For Neon, we'll use a simple approach - check for admin email
-                    // In a real app, you'd implement proper authentication
-                    const isAdminEmail = email.toLowerCase().includes('admin') || 
-                                       email.toLowerCase() === 'admin@dailydavid.com' ||
-                                       password === 'admin123'; // Simple admin check
+                    // Use the new Neon user management system for proper authentication
+                    if (!window.NeonUserManager) {
+                        throw new Error('NeonUserManager not loaded. Please include dev/src/user-management.js');
+                    }
                     
-                    const userData = {
-                        id: email,
-                        email: email,
-                        user_metadata: { is_admin: isAdminEmail }
-                    };
+                    // Initialize user manager if not already done
+                    if (!window.userManager) {
+                        window.userManager = new window.NeonUserManager(neonDB);
+                    }
                     
-                    // Check if user is admin
-                    const isUserAdmin = userData.user_metadata?.is_admin === true;
+                    // Authenticate user with the database
+                    console.log('🔍 Attempting authentication for:', email);
+                    const authResult = await window.userManager.authenticateUser(email, password);
+                    console.log('🔍 Authentication result:', authResult);
                     
-                    if (isUserAdmin) {
-                        onAdminSignIn(userData);
+                    if (authResult.success) {
+                        console.log('✅ Authentication successful:', authResult.user);
+                        console.log('🔍 User is_admin flag:', authResult.user.is_admin);
+                        
+                        // Check if user is admin
+                        if (authResult.user.is_admin) {
+                            console.log('👑 User is admin, calling onAdminSignIn');
+                            onAdminSignIn(authResult.user);
+                        } else {
+                            console.log('👤 User is not admin, calling onSignIn');
+                            onSignIn(authResult.user);
+                        }
                     } else {
-                        onSignIn(userData);
+                        throw new Error(authResult.error || 'Authentication failed');
                     }
                 } catch (error) {
                     setError(error.message);
@@ -385,6 +395,8 @@
             const loadUsers = async () => {
                 try {
                     console.log('Loading users...');
+                    console.log('🔍 Current user:', user);
+                    console.log('🔍 Is admin:', isAdmin);
                     
                     // Use the new Neon user management system
                     if (!window.NeonUserManager) {
@@ -395,6 +407,10 @@
                     if (!window.userManager) {
                         window.userManager = new window.NeonUserManager(neonDB);
                     }
+                    
+                    // Debug: Check user manager state
+                    console.log('🔍 User manager current user:', window.userManager.getCurrentUser());
+                    console.log('🔍 User manager is admin:', window.userManager.isAdmin());
                     
                     // Load all users from the database
                     const result = await window.userManager.getAllUsers();
