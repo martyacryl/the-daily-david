@@ -2037,10 +2037,22 @@
                     
                     updatedDayData.goals[goalType].push(newGoal);
                     
-                    // Save to localStorage immediately
+                    // Save to localStorage immediately (for backup)
                     const dayDataKey = `dailyDavid_dayData_${user.id}`;
                     const allDayData = { ...userSpecificData.dayData, [dateKey]: updatedDayData };
                     localStorage.setItem(dayDataKey, JSON.stringify(allDayData));
+                    
+                    // Save to Neon database immediately
+                    if (user && user.id) {
+                        const dbManager = new NeonDatabaseManager();
+                        dbManager.debouncedSave(dateKey, user.id, updatedDayData, (error, success) => {
+                            if (success) {
+                                console.log('✅ Daily goal added and saved to Neon');
+                            } else {
+                                console.error('❌ Failed to save daily goal to Neon:', error);
+                            }
+                        });
+                    }
                     
                     setUserSpecificData(prev => ({ 
                         ...prev, 
@@ -2052,7 +2064,7 @@
                         ? [...userSpecificData.weeklyGoals, newGoal]
                         : [...userSpecificData.monthlyGoals, newGoal];
                     
-                    // Save to localStorage immediately
+                    // Save to localStorage immediately (for backup)
                     const goalsKey = `dailyDavid_goals_${user.id}`;
                     const goalsData = {
                         weeklyGoals: goalType === 'weekly' ? updatedGoals : userSpecificData.weeklyGoals,
@@ -2060,6 +2072,18 @@
                         lastUpdated: new Date().toISOString()
                     };
                     localStorage.setItem(goalsKey, JSON.stringify(goalsData));
+                    
+                    // Save to Neon database immediately
+                    if (user && user.id) {
+                        const dbManager = new NeonDatabaseManager();
+                        dbManager.saveGoals(user.id, goalsData).then(({ data, error }) => {
+                            if (error) {
+                                console.error('❌ Failed to save goals to Neon:', error);
+                            } else {
+                                console.log('✅ Goals saved to Neon');
+                            }
+                        });
+                    }
                     
                     setUserSpecificData(prev => ({
                         ...prev,
@@ -2075,10 +2099,22 @@
                 if (goalIndex !== -1) {
                     updatedDayData.goals[goalType][goalIndex].text = newText;
                     
-                    // Save to localStorage immediately
+                    // Save to localStorage immediately (for backup)
                     const dayDataKey = `dailyDavid_dayData_${user.id}`;
                     const allDayData = { ...userSpecificData.dayData, [dateKey]: updatedDayData };
                     localStorage.setItem(dayDataKey, JSON.stringify(allDayData));
+                    
+                    // Save to Neon database immediately
+                    if (user && user.id) {
+                        const dbManager = new NeonDatabaseManager();
+                        dbManager.debouncedSave(dateKey, user.id, updatedDayData, (error, success) => {
+                            if (success) {
+                                console.log('✅ Daily goal updated and saved to Neon');
+                            } else {
+                                console.error('❌ Failed to save daily goal update to Neon:', error);
+                            }
+                        });
+                    }
                     
                     setUserSpecificData(prev => ({ 
                         ...prev, 
@@ -2094,10 +2130,22 @@
                 if (goalIndex !== -1) {
                     updatedDayData.goals[goalType][goalIndex].completed = !updatedDayData.goals[goalType][goalIndex].completed;
                     
-                    // Save to localStorage immediately
+                    // Save to localStorage immediately (for backup)
                     const dayDataKey = `dailyDavid_dayData_${user.id}`;
                     const allDayData = { ...userSpecificData.dayData, [dateKey]: updatedDayData };
                     localStorage.setItem(dayDataKey, JSON.stringify(allDayData));
+                    
+                    // Save to Neon database immediately
+                    if (user && user.id) {
+                        const dbManager = new NeonDatabaseManager();
+                        dbManager.debouncedSave(dateKey, user.id, updatedDayData, (error, success) => {
+                            if (success) {
+                                console.log('✅ Daily goal toggled and saved to Neon');
+                            } else {
+                                console.error('❌ Failed to save daily goal toggle to Neon:', error);
+                            }
+                        });
+                    }
                     
                     setUserSpecificData(prev => ({ 
                         ...prev, 
@@ -2111,10 +2159,22 @@
                 const updatedDayData = { ...currentDayData };
                 updatedDayData.goals[goalType] = updatedDayData.goals[goalType].filter(g => g.id !== goalId);
                 
-                // Save to localStorage immediately
+                // Save to localStorage immediately (for backup)
                 const dayDataKey = `dailyDavid_dayData_${user.id}`;
                 const allDayData = { ...userSpecificData.dayData, [dateKey]: updatedDayData };
                 localStorage.setItem(dayDataKey, JSON.stringify(allDayData));
+                
+                // Save to Neon database immediately
+                if (user && user.id) {
+                    const dbManager = new NeonDatabaseManager();
+                    dbManager.debouncedSave(dateKey, user.id, updatedDayData, (error, success) => {
+                        if (success) {
+                            console.log('✅ Daily goal removed and saved to Neon');
+                        } else {
+                            console.error('❌ Failed to save daily goal removal to Neon:', error);
+                        }
+                    });
+                }
                 
                 setUserSpecificData(prev => ({ 
                     ...prev, 
@@ -3376,10 +3436,22 @@
                         gratitude: currentDayData.gratitude.map((item, i) => i === index ? value : item)
                     };
                     
-                    // Save to localStorage immediately
+                    // Save to localStorage immediately (for backup)
                     const dayDataKey = `dailyDavid_dayData_${user.id}`;
                     const updatedDayData = { ...prev.dayData, [dateKey]: newData };
                     localStorage.setItem(dayDataKey, JSON.stringify(updatedDayData));
+                    
+                    // Save to Neon database immediately
+                    if (user && user.id) {
+                        const dbManager = new NeonDatabaseManager();
+                        dbManager.debouncedSave(dateKey, user.id, newData, (error, success) => {
+                            if (success) {
+                                console.log('✅ Gratitude updated and saved to Neon');
+                            } else {
+                                console.error('❌ Failed to save gratitude to Neon:', error);
+                            }
+                        });
+                    }
                     
                     return {
                         ...prev,
@@ -3404,10 +3476,22 @@
                         }
                     };
                     
-                    // Save to localStorage immediately
+                    // Save to localStorage immediately (for backup)
                     const dayDataKey = `dailyDavid_dayData_${user.id}`;
                     const updatedDayData = { ...prev.dayData, [dateKey]: newData };
                     localStorage.setItem(dayDataKey, JSON.stringify(updatedDayData));
+                    
+                    // Save to Neon database immediately
+                    if (user && user.id) {
+                        const dbManager = new NeonDatabaseManager();
+                        dbManager.debouncedSave(dateKey, user.id, newData, (error, success) => {
+                            if (success) {
+                                console.log('✅ SOAP updated and saved to Neon');
+                            } else {
+                                console.error('❌ Failed to save SOAP to Neon:', error);
+                            }
+                        });
+                    }
                     
                     return {
                         ...prev,
