@@ -465,6 +465,115 @@
             }
         }
 
+        // Updated React hook for managing day data (adapted from working marriage meeting tool)
+        function useDayData(dateKey, userId) {
+            const [dayData, setDayData] = React.useState(null);
+            const [isLoading, setIsLoading] = React.useState(true);
+            const [error, setError] = React.useState(null);
+            const dbManager = React.useRef(new NeonDatabaseManager());
+            const lastSaveData = React.useRef(null);
+
+            // Initialize and load data
+            React.useEffect(() => {
+                async function initializeData() {
+                    try {
+                        setIsLoading(true);
+                        setError(null);
+
+                        // Test connection first
+                        const connectionOk = await dbManager.current.testConnection();
+                        if (!connectionOk) {
+                            throw new Error('Database connection failed');
+                        }
+
+                        // Load day data
+                        const data = await dbManager.current.loadDayData(dateKey, userId);
+                        setDayData(data);
+                        lastSaveData.current = JSON.stringify(data);
+                        
+                        console.log('✅ Day data initialization complete for:', dateKey);
+                    } catch (err) {
+                        console.error('❌ Day data initialization failed:', err);
+                        setError(err.message);
+                        // Set empty structure as fallback
+                        const emptyData = dbManager.current.getEmptyDayStructure();
+                        setDayData(emptyData);
+                        lastSaveData.current = JSON.stringify(emptyData);
+                    } finally {
+                        setIsLoading(false);
+                    }
+                }
+
+                console.log('🔍 useDayData useEffect - dateKey:', dateKey, 'userId:', userId);
+                
+                if (dateKey && userId) {
+                    console.log('🔍 useDayData - Initializing data with userId:', userId);
+                    initializeData();
+                } else {
+                    console.log('🔍 useDayData - Skipping initialization, missing dateKey or userId');
+                    // Set empty structure when no user
+                    const emptyData = dbManager.current.getEmptyDayStructure();
+                    setDayData(emptyData);
+                    lastSaveData.current = JSON.stringify(emptyData);
+                    setIsLoading(false);
+                }
+            }, [dateKey, userId]);
+
+            // Auto-save functionality with improved debouncing
+            React.useEffect(() => {
+                if (!dayData || isLoading || !userId) return;
+
+                const currentDataString = JSON.stringify(dayData);
+                
+                // Only save if data has actually changed
+                if (currentDataString !== lastSaveData.current) {
+                    console.log('🔄 [AUTO-SAVE] Day data changed, scheduling save...');
+                    
+                    dbManager.current.debouncedSave(dateKey, userId, dayData, (error, success) => {
+                        if (success) {
+                            lastSaveData.current = currentDataString;
+                            console.log('✅ [AUTO-SAVE] Day data saved successfully');
+                        } else {
+                            console.error('❌ [AUTO-SAVE] Day data save failed:', error);
+                            setError('Auto-save failed');
+                        }
+                    });
+                }
+            }, [dayData, dateKey, userId, isLoading]);
+
+            const updateDayData = React.useCallback((updater) => {
+                setDayData(prevData => {
+                    if (typeof updater === 'function') {
+                        return updater(prevData);
+                    } else {
+                        return { ...prevData, ...updater };
+                    }
+                });
+            }, []);
+
+            const manualSave = React.useCallback(async (onSuccess) => {
+                try {
+                    await dbManager.current.saveDayData(dateKey, userId, dayData);
+                    lastSaveData.current = JSON.stringify(dayData);
+                    console.log('✅ [MANUAL-SAVE] Day data saved successfully');
+                    if (onSuccess) onSuccess();
+                    return true;
+                } catch (error) {
+                    console.error('❌ [MANUAL-SAVE] Day data save failed:', error);
+                    setError('Manual save failed');
+                    return false;
+                }
+            }, [dateKey, userId, dayData]);
+
+            return {
+                dayData,
+                setDayData: updateDayData,
+                isLoading,
+                error,
+                manualSave
+            };
+        }
+
         // Initialize the Neon database manager
         const neonDB = new NeonDatabaseManager();
 
@@ -1293,6 +1402,11 @@
                 monthlyGoals: []
             });
 
+            // Use the working useDayData hook pattern from marriage meeting tool
+            const currentDateKey = formatDateKey(currentDate);
+            const currentUserId = user ? getCurrentUserId() : null;
+            const { dayData: currentDayData, setDayData: setCurrentDayData, isLoading: dayDataLoading, error: dayDataError, manualSave } = useDayData(currentDateKey, currentUserId);
+
             // Simple setUserSpecificData - no more debugging mess
 
             const formatDateKey = (date) => {
@@ -2029,35 +2143,25 @@
                 };
                 
                 if (goalType === 'daily') {
-                    // Daily goals are stored per-day
-                    const dateKey = formatDateKey(currentDate);
-                    const updatedDayData = { ...currentDayData };
-                    if (!updatedDayData.goals) updatedDayData.goals = {};
-                    if (!updatedDayData.goals[goalType]) updatedDayData.goals[goalType] = [];
-                    
-                    updatedDayData.goals[goalType].push(newGoal);
-                    
-                    // Save to localStorage immediately (for backup)
-                    const dayDataKey = `dailyDavid_dayData_${user.id}`;
-                    const allDayData = { ...userSpecificData.dayData, [dateKey]: updatedDayData };
-                    localStorage.setItem(dayDataKey, JSON.stringify(allDayData));
-                    
-                    // Save to Neon database immediately
-                    if (user && user.id) {
-                        const dbManager = new NeonDatabaseManager();
-                        dbManager.debouncedSave(dateKey, user.id, updatedDayData, (error, success) => {
-                            if (success) {
-                                console.log('✅ Daily goal added and saved to Neon');
-                            } else {
-                                console.error('❌ Failed to save daily goal to Neon:', error);
-                            }
-                        });
-                    }
-                    
-                    setUserSpecificData(prev => ({ 
-                        ...prev, 
-                        dayData: { ...prev.dayData, [dateKey]: updatedDayData } 
-                    }));
+                    // Daily goals are stored per-day - use the hook's setDayData
+                    setCurrentDayData(prevData => {
+                        if (!prevData) return prevData;
+                        
+                        const updatedData = { ...prevData };
+                        if (!updatedData.goals) updatedData.goals = {};
+                        if (!updatedData.goals[goalType]) updatedData.goals[goalType] = [];
+                        
+                        updatedData.goals[goalType].push(newGoal);
+                        
+                        // Also update localStorage for backup
+                        if (user && user.id) {
+                            const dayDataKey = `dailyDavid_dayData_${user.id}`;
+                            const allDayData = { ...userSpecificData.dayData, [currentDateKey]: updatedData };
+                            localStorage.setItem(dayDataKey, JSON.stringify(allDayData));
+                        }
+                        
+                        return updatedData;
+                    });
                 } else {
                     // Weekly and monthly goals are stored at user level
                     const updatedGoals = goalType === 'weekly' 
@@ -2093,93 +2197,68 @@
             };
 
             const updateDailyGoal = (goalType, goalId, newText) => {
-                const dateKey = formatDateKey(currentDate);
-                const updatedDayData = { ...currentDayData };
-                const goalIndex = updatedDayData.goals[goalType].findIndex(g => g.id === goalId);
-                if (goalIndex !== -1) {
-                    updatedDayData.goals[goalType][goalIndex].text = newText;
+                // Use the hook's setDayData for daily goals
+                setCurrentDayData(prevData => {
+                    if (!prevData || !prevData.goals || !prevData.goals[goalType]) return prevData;
                     
-                    // Save to localStorage immediately (for backup)
-                    const dayDataKey = `dailyDavid_dayData_${user.id}`;
-                    const allDayData = { ...userSpecificData.dayData, [dateKey]: updatedDayData };
-                    localStorage.setItem(dayDataKey, JSON.stringify(allDayData));
-                    
-                    // Save to Neon database immediately
-                    if (user && user.id) {
-                        const dbManager = new NeonDatabaseManager();
-                        dbManager.debouncedSave(dateKey, user.id, updatedDayData, (error, success) => {
-                            if (success) {
-                                console.log('✅ Daily goal updated and saved to Neon');
-                            } else {
-                                console.error('❌ Failed to save daily goal update to Neon:', error);
-                            }
-                        });
+                    const updatedData = { ...prevData };
+                    const goalIndex = updatedData.goals[goalType].findIndex(g => g.id === goalId);
+                    if (goalIndex !== -1) {
+                        updatedData.goals[goalType][goalIndex].text = newText;
+                        
+                        // Also update localStorage for backup
+                        if (user && user.id) {
+                            const dayDataKey = `dailyDavid_dayData_${user.id}`;
+                            const allDayData = { ...userSpecificData.dayData, [currentDateKey]: updatedData };
+                            localStorage.setItem(dayDataKey, JSON.stringify(allDayData));
+                        }
+                        
+                        return updatedData;
                     }
-                    
-                    setUserSpecificData(prev => ({ 
-                        ...prev, 
-                        dayData: { ...prev.dayData, [dateKey]: updatedDayData } 
-                    }));
-                }
+                    return prevData;
+                });
             };
 
             const toggleDailyGoal = (goalType, goalId) => {
-                const dateKey = formatDateKey(currentDate);
-                const updatedDayData = { ...currentDayData };
-                const goalIndex = updatedDayData.goals[goalType].findIndex(g => g.id === goalId);
-                if (goalIndex !== -1) {
-                    updatedDayData.goals[goalType][goalIndex].completed = !updatedDayData.goals[goalType][goalIndex].completed;
+                // Use the hook's setDayData for daily goals
+                setCurrentDayData(prevData => {
+                    if (!prevData || !prevData.goals || !prevData.goals[goalType]) return prevData;
                     
-                    // Save to localStorage immediately (for backup)
-                    const dayDataKey = `dailyDavid_dayData_${user.id}`;
-                    const allDayData = { ...userSpecificData.dayData, [dateKey]: updatedDayData };
-                    localStorage.setItem(dayDataKey, JSON.stringify(allDayData));
-                    
-                    // Save to Neon database immediately
-                    if (user && user.id) {
-                        const dbManager = new NeonDatabaseManager();
-                        dbManager.debouncedSave(dateKey, user.id, updatedDayData, (error, success) => {
-                            if (success) {
-                                console.log('✅ Daily goal toggled and saved to Neon');
-                            } else {
-                                console.error('❌ Failed to save daily goal toggle to Neon:', error);
-                            }
-                        });
+                    const updatedData = { ...prevData };
+                    const goalIndex = updatedData.goals[goalType].findIndex(g => g.id === goalId);
+                    if (goalIndex !== -1) {
+                        updatedData.goals[goalType][goalIndex].completed = !updatedData.goals[goalType][goalIndex].completed;
+                        
+                        // Also update localStorage for backup
+                        if (user && user.id) {
+                            const dayDataKey = `dailyDavid_dayData_${user.id}`;
+                            const allDayData = { ...userSpecificData.dayData, [currentDateKey]: updatedData };
+                            localStorage.setItem(dayDataKey, JSON.stringify(allDayData));
+                        }
+                        
+                        return updatedData;
                     }
-                    
-                    setUserSpecificData(prev => ({ 
-                        ...prev, 
-                        dayData: { ...prev.dayData, [dateKey]: updatedDayData } 
-                    }));
-                }
+                    return prevData;
+                });
             };
 
             const removeDailyGoal = (goalType, goalId) => {
-                const dateKey = formatDateKey(currentDate);
-                const updatedDayData = { ...currentDayData };
-                updatedDayData.goals[goalType] = updatedDayData.goals[goalType].filter(g => g.id !== goalId);
-                
-                // Save to localStorage immediately (for backup)
-                const dayDataKey = `dailyDavid_dayData_${user.id}`;
-                const allDayData = { ...userSpecificData.dayData, [dateKey]: updatedDayData };
-                localStorage.setItem(dayDataKey, JSON.stringify(allDayData));
-                
-                // Save to Neon database immediately
-                if (user && user.id) {
-                    const dbManager = new NeonDatabaseManager();
-                    dbManager.debouncedSave(dateKey, user.id, updatedDayData, (error, success) => {
-                        if (success) {
-                            console.log('✅ Daily goal removed and saved to Neon');
-                        } else {
-                            console.error('❌ Failed to save daily goal removal to Neon:', error);
-                        }
-                    });
-                }
-                
-                setUserSpecificData(prev => ({ 
-                    ...prev, 
-                    dayData: { ...prev.dayData, [dateKey]: updatedDayData } 
-                }));
+                // Use the hook's setDayData for daily goals
+                setCurrentDayData(prevData => {
+                    if (!prevData || !prevData.goals || !prevData.goals[goalType]) return prevData;
+                    
+                    const updatedData = { ...prevData };
+                    updatedData.goals[goalType] = updatedData.goals[goalType].filter(g => g.id !== goalId);
+                    
+                    // Also update localStorage for backup
+                    if (user && user.id) {
+                        const dayDataKey = `dailyDavid_dayData_${user.id}`;
+                        const allDayData = { ...userSpecificData.dayData, [currentDateKey]: updatedData };
+                        localStorage.setItem(dayDataKey, JSON.stringify(allDayData));
+                    }
+                    
+                    return updatedData;
+                });
             };
 
             // Initialize day data
@@ -3347,156 +3426,51 @@
                 console.trace('Auth loading change');
             }, [authLoading]);
 
-            // Use useMemo to properly calculate currentDayData based on current state
-            const currentDayData = useMemo(() => {
-                const dateKey = formatDateKey(currentDate);
-                const existingData = userSpecificData.dayData[dateKey];
-                
-                // DEBUG: Log what's happening in currentDayData calculation
-                console.log('🔍 currentDayData useMemo running:');
-                console.log('🔍 Date key:', dateKey);
-                console.log('🔍 Existing data found:', !!existingData);
-                console.log('🔍 userSpecificData.dayData keys:', Object.keys(userSpecificData.dayData));
-                
-                if (existingData) {
-                    console.log('🔍 Returning existing data for date:', dateKey);
-                    return existingData;
-                }
-                
-                // Check if we should have data but it's missing
-                if (Object.keys(userSpecificData.dayData).length > 0) {
-                    console.log('🚨 WARNING: Data exists in userSpecificData but not for this date');
-                    console.log('🚨 Available dates:', Object.keys(userSpecificData.dayData));
-                    console.log('🚨 Requested date:', dateKey);
-                    
-                    // Try to restore data if it's missing for this specific date
-                    if (user && !isAdmin) {
-                        const dayDataKey = `dailyDavid_dayData_${user.id}`;
-                        const backupKey = `dailyDavid_dayData_backup_${user.id}`;
-                        const emergencyKey = `dailyDavid_dayData_emergency_${user.id}`;
-                        
-                        const dayDataRaw = localStorage.getItem(dayDataKey);
-                        const backupData = localStorage.getItem(backupKey);
-                        const emergencyData = localStorage.getItem(emergencyKey);
-                        
-                        if (dayDataRaw || backupData || emergencyData) {
-                            console.log('🚨 Attempting to restore missing date data...');
-                            
-                            let dayData = {};
-                            if (dayDataRaw) {
-                                try {
-                                    dayData = JSON.parse(dayDataRaw);
-                                    if (dayData[dateKey]) {
-                                        console.log('🚨 Found data for date in localStorage, updating state');
-                                        setUserSpecificData(prev => ({
-                                            ...prev,
-                                            dayData: { ...prev.dayData, [dateKey]: dayData[dateKey] }
-                                        }));
-                                        return dayData[dateKey];
-                                    }
-                                } catch (error) {
-                                    console.error('❌ Error parsing day data:', error);
-                                }
-                            }
-                        }
-                    }
-                }
-                
-                console.log('🔍 Returning default structure for date:', dateKey);
-                // Return default structure if no data exists
-                return {
-                    gratitude: ['', '', '', '', ''],
-                    soap: {
-                        scripture: '',
-                        observation: '',
-                        application: '',
-                        prayer: ''
-                    },
-                    goals: {
-                        daily: [],
-                        weekly: [],
-                        monthly: []
-                    }
-                };
-            }, [currentDate, userSpecificData.dayData, user, isAdmin]);
+            // Use the currentDayData from the useDayData hook instead of useMemo
 
             // Update functions
             const updateGratitude = (index, value) => {
-                const dateKey = formatDateKey(currentDate);
-                
-                // Update the state immediately with the new value
-                setUserSpecificData(prev => {
-                    const currentDayData = prev.dayData[dateKey];
-                    if (!currentDayData) {
-                        return prev;
-                    }
+                // Update the hook's dayData directly (this will auto-save to Neon)
+                setCurrentDayData(prevData => {
+                    if (!prevData) return prevData;
                     
                     const newData = {
-                        ...currentDayData,
-                        gratitude: currentDayData.gratitude.map((item, i) => i === index ? value : item)
+                        ...prevData,
+                        gratitude: prevData.gratitude.map((item, i) => i === index ? value : item)
                     };
                     
-                    // Save to localStorage immediately (for backup)
-                    const dayDataKey = `dailyDavid_dayData_${user.id}`;
-                    const updatedDayData = { ...prev.dayData, [dateKey]: newData };
-                    localStorage.setItem(dayDataKey, JSON.stringify(updatedDayData));
-                    
-                    // Save to Neon database immediately
+                    // Also update localStorage for backup
                     if (user && user.id) {
-                        const dbManager = new NeonDatabaseManager();
-                        dbManager.debouncedSave(dateKey, user.id, newData, (error, success) => {
-                            if (success) {
-                                console.log('✅ Gratitude updated and saved to Neon');
-                            } else {
-                                console.error('❌ Failed to save gratitude to Neon:', error);
-                            }
-                        });
+                        const dayDataKey = `dailyDavid_dayData_${user.id}`;
+                        const allDayData = { ...userSpecificData.dayData, [currentDateKey]: newData };
+                        localStorage.setItem(dayDataKey, JSON.stringify(allDayData));
                     }
                     
-                    return {
-                        ...prev,
-                        dayData: updatedDayData
-                    };
+                    return newData;
                 });
             };
 
             const updateSOAP = (section, value) => {
-                const dateKey = formatDateKey(currentDate);
-                
-                // Update the state immediately with the new value
-                setUserSpecificData(prev => {
-                    const currentDayData = prev.dayData[dateKey];
-                    if (!currentDayData) return prev;
+                // Update the hook's dayData directly (this will auto-save to Neon)
+                setCurrentDayData(prevData => {
+                    if (!prevData) return prevData;
                     
                     const newData = {
-                        ...currentDayData,
+                        ...prevData,
                         soap: {
-                            ...currentDayData.soap,
+                            ...prevData.soap,
                             [section]: value
                         }
                     };
                     
-                    // Save to localStorage immediately (for backup)
-                    const dayDataKey = `dailyDavid_dayData_${user.id}`;
-                    const updatedDayData = { ...prev.dayData, [dateKey]: newData };
-                    localStorage.setItem(dayDataKey, JSON.stringify(updatedDayData));
-                    
-                    // Save to Neon database immediately
+                    // Also update localStorage for backup
                     if (user && user.id) {
-                        const dbManager = new NeonDatabaseManager();
-                        dbManager.debouncedSave(dateKey, user.id, newData, (error, success) => {
-                            if (success) {
-                                console.log('✅ SOAP updated and saved to Neon');
-                            } else {
-                                console.error('❌ Failed to save SOAP to Neon:', error);
-                            }
-                        });
+                        const dayDataKey = `dailyDavid_dayData_${user.id}`;
+                        const allDayData = { ...userSpecificData.dayData, [currentDateKey]: newData };
+                        localStorage.setItem(dayDataKey, JSON.stringify(allDayData));
                     }
                     
-                    return {
-                        ...prev,
-                        dayData: updatedDayData
-                    };
+                    return newData;
                 });
             };
 
@@ -3804,13 +3778,13 @@
                                 <>
                                     {/* Gratitude Section */}
                                     <GratitudeSection 
-                                        gratitude={currentDayData.gratitude}
+                                        gratitude={currentDayData?.gratitude || ['', '', '', '', '']}
                                         onUpdate={updateGratitude}
                                     />
 
                                     {/* SOAP Section */}
                                     <SOAPSection 
-                                        soap={currentDayData.soap}
+                                        soap={currentDayData?.soap || { scripture: '', observation: '', application: '', prayer: '' }}
                                         onUpdate={updateSOAP}
                                     />
 
@@ -3820,7 +3794,7 @@
                                     title="🎯 Daily Goals"
                                     subtitle="Today's objectives"
                                     goalType="daily"
-                                    goals={currentDayData.goals.daily || []}
+                                    goals={currentDayData?.goals?.daily || []}
                                     onAdd={addDailyGoal}
                                     onUpdate={(goalType, id, text, category) => updateDailyGoal(goalType, id, text)}
                                     onToggle={toggleDailyGoal}
@@ -3832,7 +3806,7 @@
                                     title="📅 Weekly Goals"
                                     subtitle="This week's focus"
                                     goalType="weekly"
-                                    goals={currentDayData.goals.weekly || []}
+                                    goals={currentDayData?.goals?.weekly || []}
                                     onAdd={addGoal}
                                     onUpdate={updateGoal}
                                     onToggle={toggleGoal}
@@ -3844,7 +3818,7 @@
                                     title="🗓️ Monthly Goals"
                                     subtitle="This month's vision"
                                     goalType="monthly"
-                                    goals={currentDayData.goals.monthly || []}
+                                    goals={currentDayData?.goals?.monthly || []}
                                     onAdd={addGoal}
                                     onUpdate={updateGoal}
                                     onToggle={toggleGoal}
