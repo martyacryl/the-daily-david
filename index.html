@@ -415,6 +415,54 @@
                     return null;
                 }
             }
+
+            // Goals management methods
+            async saveGoals(userId, goalsData) {
+                try {
+                    const query = `
+                        INSERT INTO daily_david_entries (date_key, user_id, data_content, updated_at)
+                        VALUES ($1, $2, $3, NOW())
+                        ON CONFLICT (date_key, user_id)
+                        DO UPDATE SET 
+                            data_content = EXCLUDED.data_content,
+                            updated_at = NOW()
+                        RETURNING id, updated_at
+                    `;
+
+                    const jsonData = JSON.stringify(goalsData);
+                    const result = await this.executeQuery(query, ['user_goals', userId, jsonData]);
+                    
+                    console.log('✅ [NEON] Goals saved successfully:', result);
+                    return { data: result, error: null };
+                } catch (error) {
+                    console.error('❌ [NEON] Goals save error:', error);
+                    return { data: null, error: error.message };
+                }
+            }
+
+            async loadGoals(userId) {
+                try {
+                    const query = `
+                        SELECT data_content 
+                        FROM daily_david_entries 
+                        WHERE date_key = $1 AND user_id = $2 
+                        LIMIT 1
+                    `;
+                    
+                    const result = await this.executeQuery(query, ['user_goals', userId]);
+                    
+                    if (result && Array.isArray(result) && result.length > 0) {
+                        return result[0].data_content;
+                    } else if (result && result.rows && Array.isArray(result.rows) && result.rows.length > 0) {
+                        return result.rows[0].data_content;
+                    }
+                    
+                    return null;
+                } catch (error) {
+                    console.error('❌ [NEON] Load goals error:', error);
+                    return null;
+                }
+            }
         }
 
         // Initialize the Neon database manager
@@ -858,7 +906,8 @@
                                 onClick={async () => {
                                     try {
                                         console.log('🧪 Testing Neon connection...');
-                                        const success = await neonDB.initializeNeon();
+                                        const dbManager = new NeonDatabaseManager();
+        const success = await dbManager.initializeNeon();
                                         if (success) {
                                             alert('✅ Neon connection successful! Check console for details.');
                                         } else {
@@ -1321,7 +1370,8 @@
                 // If no localStorage data, try database
                 console.log('No localStorage data, trying database for date:', dateKey);
                 try {
-                    const data = await neonDB.loadDayData(dateKey, user.id);
+                    const dbManager = new NeonDatabaseManager();
+        const data = await dbManager.loadDayData(dateKey, user.id);
 
                     if (data) {
                         console.log('Loaded day data from database for date:', dateKey);
@@ -1404,7 +1454,8 @@
                 }
                 
                 try {
-                    const success = await neonDB.saveDayData(dateKey, user.id, data);
+                    const dbManager = new NeonDatabaseManager();
+        const success = await dbManager.saveDayData(dateKey, user.id, data);
 
                     if (!success) {
                         console.log('Save error: Database save failed');
@@ -1482,7 +1533,8 @@
                 try {
                     console.log('Saving goals to database:', { weeklyGoals, monthlyGoals, userId: user.id });
                     
-                    const { data, error } = await neonDB.saveGoals(user.id, goalsData);
+                    const dbManager = new NeonDatabaseManager();
+        const { data, error } = await dbManager.saveGoals(user.id, goalsData);
 
                     if (error) {
                         console.error('Save goals error:', error);
@@ -1519,7 +1571,8 @@
                     try {
                         // First try to load from database
                         console.log('🔄 Trying to load goals from database...');
-                        const dbGoalsData = await neonDB.loadGoals(userId);
+                        const dbManager = new NeonDatabaseManager();
+        const dbGoalsData = await dbManager.loadGoals(userId);
                         
                         if (dbGoalsData) {
                             weeklyGoals = dbGoalsData.weeklyGoals || [];
@@ -2249,40 +2302,8 @@
                     }
                 };
 
-                // Listen for auth changes - Simplified approach for Neon
-                const authResult = neonDB.onAuthStateChange(async (event, session) => {
-                    if (event === 'SIGNED_IN' && session?.user) {
-                        console.log('🔄 Auth state change: SIGNED_IN for user:', session.user.email);
-                        
-                        // Only handle auth state changes if we don't already have a user
-                        // This prevents conflicts with manual sign-in
-                        if (!user) {
-                            const isUserAdmin = session.user.user_metadata?.is_admin === true;
-                            
-                            if (isUserAdmin) {
-                                // Admin users only get admin functionality
-                                setUser(session.user);
-                                setIsAdmin(true);
-                                setUserModePreference('admin');
-                            } else {
-                                // Regular users get their data loaded
-                                console.log('🔄 Loading user-specific data via auth state change...');
-                                await loadUserSpecificData(session.user.id);
-                                setUser(session.user);
-                                setIsAdmin(false);
-                            }
-                        }
-                    } else if (event === 'SIGNED_OUT') {
-                        console.log('🔄 Auth state change: SIGNED_OUT');
-                        setUser(null);
-                        setIsAdmin(false);
-                        setUserModePreference('admin');
-                        localStorage.removeItem('dailyDavidMode');
-                    }
-                });
-                
-                // Store subscription if it exists (for cleanup)
-                const subscription = authResult?.data?.subscription;
+                // Neon doesn't have auth state changes like Supabase, so we handle this manually
+                // The authentication is managed through localStorage and manual sign-in/sign-out
 
                 // Add timeout to prevent infinite loading
                 const authTimeout = setTimeout(() => {

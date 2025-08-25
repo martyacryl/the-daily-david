@@ -1,49 +1,42 @@
-const fs = require('fs');
 const { neon } = require('@neondatabase/serverless');
 
-// Read the SQL setup file
-const sqlSetup = fs.readFileSync('./setup_neon_users_and_rls.sql', 'utf8');
-
-// Neon connection string from config
-const connectionString = 'postgresql://neondb_owner:npg_L5ysD0JfHSFP@ep-little-base-adgfntzb-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require';
+const connectionString = 'postgresql://neondb_owner:npg_JVaULlB0w8mo@ep-soft-rice-adn6s9vn-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require';
 
 async function setupDatabase() {
     try {
-        console.log('🔧 Setting up Neon database...');
+        console.log('🔧 Setting up Daily David database...');
         
-        // Split SQL into individual statements
-        const statements = sqlSetup
-            .split(';')
-            .map(stmt => stmt.trim())
-            .filter(stmt => stmt.length > 0 && !stmt.startsWith('--'));
+        // Create users table
+        await neon(connectionString)('CREATE TABLE IF NOT EXISTS users (id UUID PRIMARY KEY DEFAULT gen_random_uuid(), email VARCHAR(255) UNIQUE NOT NULL, display_name VARCHAR(255) NOT NULL, password_hash VARCHAR(255) NOT NULL, is_admin BOOLEAN DEFAULT FALSE, created_at TIMESTAMP DEFAULT NOW(), updated_at TIMESTAMP DEFAULT NOW());');
+        console.log('✅ Users table created');
         
-        console.log(`📝 Found ${statements.length} SQL statements to execute`);
+        // Create daily_david_entries table
+        await neon(connectionString)('CREATE TABLE IF NOT EXISTS daily_david_entries (id SERIAL PRIMARY KEY, date_key VARCHAR(10) NOT NULL, user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE, data_content JSONB NOT NULL, created_at TIMESTAMP DEFAULT NOW(), updated_at TIMESTAMP DEFAULT NOW(), UNIQUE(date_key, user_id));');
+        console.log('✅ Daily David entries table created');
         
-        // Execute each statement
-        for (let i = 0; i < statements.length; i++) {
-            const statement = statements[i];
-            if (statement.trim()) {
-                try {
-                    console.log(`\n📋 Executing statement ${i + 1}/${statements.length}:`);
-                    console.log(statement.substring(0, 100) + (statement.length > 100 ? '...' : ''));
-                    
-                    const result = await neon(connectionString)(statement);
-                    console.log(`✅ Statement ${i + 1} executed successfully`);
-                } catch (error) {
-                    console.error(`❌ Error executing statement ${i + 1}:`, error.message);
-                    // Continue with other statements
-                }
-            }
-        }
+        // Create indexes
+        await neon(connectionString)('CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);');
+        await neon(connectionString)('CREATE INDEX IF NOT EXISTS idx_users_admin ON users(is_admin);');
+        await neon(connectionString)('CREATE INDEX IF NOT EXISTS idx_daily_david_entries_user_date ON daily_david_entries(user_id, date_key);');
+        await neon(connectionString)('CREATE INDEX IF NOT EXISTS idx_daily_david_entries_date ON daily_david_entries(date_key);');
+        console.log('✅ Indexes created');
         
-        console.log('\n🎉 Database setup completed!');
-        console.log('\n📋 Next steps:');
-        console.log('1. Try logging in with admin@dailydavid.com / admin123');
-        console.log('2. The admin panel should now work properly');
+        // Insert admin user
+        await neon(connectionString)('INSERT INTO users (email, display_name, password_hash, is_admin) VALUES (\'admin@dailydavid.com\', \'Admin User\', \'admin123\', true) ON CONFLICT (email) DO NOTHING;');
+        console.log('✅ Admin user created');
+        
+        // Insert test users
+        await neon(connectionString)('INSERT INTO users (email, display_name, password_hash, is_admin) VALUES (\'user1@example.com\', \'Test User 1\', \'password123\', false), (\'user2@example.com\', \'Test User 2\', \'password123\', false) ON CONFLICT (email) DO NOTHING;');
+        console.log('✅ Test users created');
+        
+        console.log('🎉 Database setup completed!');
+        console.log('📋 Login credentials:');
+        console.log('  Admin: admin@dailydavid.com / admin123');
+        console.log('  Test User 1: user1@example.com / password123');
+        console.log('  Test User 2: user2@example.com / password123');
         
     } catch (error) {
-        console.error('❌ Database setup failed:', error);
-        process.exit(1);
+        console.error('❌ Setup failed:', error);
     }
 }
 
