@@ -2346,19 +2346,7 @@
                                 console.log('✅ Default admin user already exists in database');
                             }
                             
-                            // Add test users if they don't exist
-                            const testUsers = [
-                                { email: 'user1@example.com', displayName: 'Test User 1', password: 'password123' },
-                                { email: 'user2@example.com', displayName: 'Test User 2', password: 'password123' }
-                            ];
-                            
-                            for (const testUser of testUsers) {
-                                const existingUser = await dbManager.getUserByEmail(testUser.email);
-                                if (!existingUser) {
-                                    console.log(`➕ Adding test user: ${testUser.email}`);
-                                    await dbManager.createUser(testUser.email, testUser.displayName, testUser.password, false);
-                                }
-                            }
+                            // No test users needed - users will be created through admin panel
                             
                             console.log('✅ Database initialization complete');
                         } else {

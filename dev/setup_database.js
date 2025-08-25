@@ -25,15 +25,10 @@ async function setupDatabase() {
         await neon(connectionString)('INSERT INTO users (email, display_name, password_hash, is_admin) VALUES (\'admin@dailydavid.com\', \'Admin User\', \'admin123\', true) ON CONFLICT (email) DO NOTHING;');
         console.log('✅ Admin user created');
         
-        // Insert test users
-        await neon(connectionString)('INSERT INTO users (email, display_name, password_hash, is_admin) VALUES (\'user1@example.com\', \'Test User 1\', \'password123\', false), (\'user2@example.com\', \'Test User 2\', \'password123\', false) ON CONFLICT (email) DO NOTHING;');
-        console.log('✅ Test users created');
-        
         console.log('🎉 Database setup completed!');
         console.log('📋 Login credentials:');
         console.log('  Admin: admin@dailydavid.com / admin123');
-        console.log('  Test User 1: user1@example.com / password123');
-        console.log('  Test User 2: user2@example.com / password123');
+        console.log('📋 You can create new users through the admin panel after logging in');
         
     } catch (error) {
         console.error('❌ Setup failed:', error);

@@ -34,15 +34,8 @@ INSERT INTO users (email, display_name, password_hash, is_admin)
 VALUES ('admin@dailydavid.com', 'Admin User', 'admin123', true) 
 ON CONFLICT (email) DO NOTHING;
 
--- Insert test users
-INSERT INTO users (email, display_name, password_hash, is_admin) 
-VALUES 
-    ('user1@example.com', 'Test User 1', 'password123', false),
-    ('user2@example.com', 'Test User 2', 'password123', false)
-ON CONFLICT (email) DO NOTHING;
-
 -- Display created tables and users
 SELECT 'Users table created successfully' as status;
 SELECT 'Daily David entries table created successfully' as status;
 SELECT 'Default admin user: admin@dailydavid.com (password: admin123)' as admin_info;
-SELECT 'Test users created: user1@example.com, user2@example.com (password: password123)' as test_users;
+SELECT 'You can create new users through the admin panel after logging in' as next_steps;
