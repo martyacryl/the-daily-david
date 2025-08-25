@@ -77,36 +77,32 @@
     <script type="text/babel">
         const { useState, useEffect, useCallback, useRef, useMemo } = React;
 
-        // Initialize Neon Database - PRODUCTION ENVIRONMENT
+        // Initialize Neon Database - Structured approach (copied from working marriage meeting tool)
         const neonConnectionString = 'postgresql://neondb_owner:npg_JVaULlB0w8mo@ep-soft-rice-adn6s9vn-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require';
         
         // PRODUCTION TABLE NAME
         const TABLE_NAME = 'daily_david_entries';
         
-        // Simple user management (since Neon doesn't have built-in auth)
-        let currentUser = { id: 'default@user.com', email: 'default@user.com' };
-        let isAdmin = true; // For now, set to true for testing
+        // User management using real Neon database
+        let currentUser = null;
+        let isAdmin = false;
 
-        // Neon Database Manager - Using the working pattern from marriage meeting tool
+        // Neon Database Manager - Structured approach (copied from working marriage meeting tool)
         class NeonDatabaseManager {
             constructor() {
                 this.isInitialized = false;
                 this.neonClient = null;
-                this.connectionString = neonConnectionString;
+                this.saveDebounceTimer = null;
+                this.SAVE_DEBOUNCE_DELAY = 2000; // Increase debounce delay
             }
 
             async initializeNeon() {
                 try {
-                    // Use the working pattern: check for window.neonClient first
+                    // Make sure Neon client is properly loaded
                     if (window.neonClient) {
                         this.neonClient = window.neonClient;
                         this.isInitialized = true;
                         console.log('✅ [NEON] Client initialized successfully');
-                        return true;
-                    } else if (window.neon) {
-                        this.neonClient = window.neon;
-                        this.isInitialized = true;
-                        console.log('✅ [NEON] Client initialized successfully from window.neon');
                         return true;
                     } else {
                         console.error('❌ [NEON] Client not found on window object');
@@ -128,12 +124,20 @@
 
                 try {
                     console.log('🚀 [NEON] Executing query:', query);
-                    const sqlClient = this.neonClient(this.connectionString);
-                    
-                    // The Neon client is a function that should be called directly
-                    const result = await sqlClient(query, params);
-                    
+                    console.log('🚀 [NEON] Parameters:', params);
+
+                    // The neon client function should be called directly with the connection string and query
+                    const sql = this.neonClient(neonConnectionString);
+                    const result = await sql(query, params);
+
                     console.log('✅ [NEON] Query successful:', result);
+                    console.log('🔍 [NEON] Result type:', typeof result);
+                    console.log('🔍 [NEON] Result structure:', {
+                        isArray: Array.isArray(result),
+                        hasRows: result && result.rows,
+                        length: Array.isArray(result) ? result.length : 'N/A',
+                        keys: result && typeof result === 'object' ? Object.keys(result) : 'N/A'
+                    });
                     return result;
                 } catch (error) {
                     console.error('❌ [NEON] Query failed:', error);
@@ -145,117 +149,271 @@
                 try {
                     const query = `
                         SELECT data_content, updated_at 
-                        FROM ${TABLE_NAME} 
+                        FROM daily_david_entries 
                         WHERE date_key = $1 AND user_id = $2 
                         LIMIT 1
                     `;
                     
                     const result = await this.executeQuery(query, [dateKey, userId]);
+                    console.log('🔍 [NEON] Raw query result:', result);
                     
+                    // Handle different result structures from Neon client
+                    let data;
                     if (result && Array.isArray(result) && result.length > 0) {
-                        return result[0].data_content;
+                        // Standard array result
+                        data = result[0];
                     } else if (result && result.rows && Array.isArray(result.rows) && result.rows.length > 0) {
-                        return result.rows[0].data_content;
+                        // Result with rows property
+                        data = result.rows[0];
+                    } else if (result && typeof result === 'object' && result.data_content) {
+                        // Direct object result
+                        data = result;
+                    } else {
+                        console.log('ℹ️ [NEON] No existing data found, returning empty structure');
+                        return this.getEmptyDayStructure();
                     }
                     
-                    return null;
+                    if (data && data.data_content) {
+                        const parsedData = typeof data.data_content === 'string' 
+                            ? JSON.parse(data.data_content) 
+                            : data.data_content;
+                        
+                        console.log('✅ [NEON] Day data loaded successfully:', parsedData);
+                        return parsedData;
+                    } else {
+                        console.log('ℹ️ [NEON] No data_content found in result, returning empty structure');
+                        return this.getEmptyDayStructure();
+                    }
                 } catch (error) {
-                    console.error('❌ [NEON] Load error:', error);
-                    return null;
+                    console.error('❌ [NEON] Failed to load day data:', error);
+                    throw error;
                 }
             }
 
             async saveDayData(dateKey, userId, data) {
                 try {
                     const query = `
-                        INSERT INTO ${TABLE_NAME} (date_key, user_id, data)
-                        VALUES ($1, $2, $3)
-                        ON CONFLICT (date_key, user_id) 
+                        INSERT INTO daily_david_entries (date_key, user_id, data_content, updated_at)
+                        VALUES ($1, $2, $3, NOW())
+                        ON CONFLICT (date_key, user_id)
                         DO UPDATE SET 
-                            data = EXCLUDED.data,
+                            data_content = EXCLUDED.data_content,
                             updated_at = NOW()
-                        RETURNING id
+                        RETURNING id, updated_at
                     `;
+
+                    const jsonData = JSON.stringify(data);
+                    const result = await this.executeQuery(query, [dateKey, userId, jsonData]);
                     
-                    const result = await this.executeQuery(query, [dateKey, userId, data]);
-                    console.log('✅ [NEON] Data saved successfully');
+                    console.log('✅ [NEON] Day data saved successfully:', result);
+                    return result;
+                } catch (error) {
+                    console.error('❌ [NEON] Failed to save day data:', error);
+                    throw error;
+                }
+            }
+
+            debouncedSave(dateKey, userId, data, callback) {
+                // Clear existing timer
+                if (this.saveDebounceTimer) {
+                    clearTimeout(this.saveDebounceTimer);
+                }
+
+                // Set new timer
+                this.saveDebounceTimer = setTimeout(async () => {
+                    try {
+                        await this.saveDayData(dateKey, userId, data);
+                        if (callback) callback(null, true);
+                    } catch (error) {
+                        console.error('❌ [NEON] Debounced save failed:', error);
+                        if (callback) callback(error, false);
+                    }
+                }, this.SAVE_DEBOUNCE_DELAY);
+            }
+
+            getEmptyDayStructure() {
+                return {
+                    gratitude: ['', '', '', '', ''],
+                    soap: {
+                        scripture: '',
+                        observation: '',
+                        application: '',
+                        prayer: ''
+                    },
+                    goals: {
+                        daily: [],
+                        weekly: [],
+                        monthly: []
+                    }
+                };
+            }
+
+            async testConnection() {
+                try {
+                    // Ensure Neon client is initialized first
+                    if (!this.isInitialized) {
+                        const initialized = await this.initializeNeon();
+                        if (!initialized) {
+                            console.error('❌ [NEON] Failed to initialize Neon client');
+                            return false;
+                        }
+                    }
+
+                    // Test with a simple query
+                    const result = await this.executeQuery('SELECT 1 as test');
+                    console.log('✅ [NEON] Connection test successful:', result);
                     return true;
                 } catch (error) {
-                    console.error('❌ [NEON] Save error:', error);
+                    console.error('❌ [NEON] Connection test failed:', error);
                     return false;
                 }
             }
 
-            async saveGoals(userId, goalsData) {
+            // User Management Methods (copied from working marriage meeting tool)
+            async createUsersTable() {
                 try {
-                    const query = `
-                        INSERT INTO ${TABLE_NAME} (date_key, user_id, data)
-                        VALUES ($1, $2, $3)
-                        ON CONFLICT (date_key, user_id) 
-                        DO UPDATE SET 
-                            data = EXCLUDED.data,
-                            updated_at = NOW()
-                        RETURNING id
+                    // First, check if the table exists and has the correct schema
+                    const checkQuery = `
+                        SELECT column_name, data_type 
+                        FROM information_schema.columns 
+                        WHERE table_name = 'users' AND column_name = 'id'
                     `;
                     
-                    const result = await this.executeQuery(query, ['user_goals', userId, goalsData]);
-                    console.log('✅ [NEON] Goals saved successfully');
-                    return { data: result, error: null };
-                } catch (error) {
-                    console.error('❌ [NEON] Goals save error:', error);
-                    return { data: null, error: error.message };
-                }
-            }
-
-            async loadGoals(userId) {
-                try {
-                    const query = `
-                        SELECT data 
-                        FROM ${TABLE_NAME} 
-                        WHERE date_key = $1 AND user_id = $2 
-                        LIMIT 1
-                    `;
+                    const checkResult = await this.executeQuery(checkQuery);
+                    console.log('🔍 [NEON] Current users table schema:', checkResult);
                     
-                    const result = await this.executeQuery(query, ['user_goals', userId]);
-                    
-                    if (result && Array.isArray(result) && result.length > 0) {
-                        return result[0].data;
-                    } else if (result && result.rows && Array.isArray(result.rows) && result.rows.length > 0) {
-                        return result.rows[0].data;
+                    if (checkResult && checkResult.length > 0) {
+                        const idColumn = checkResult[0];
+                        if (idColumn.data_type !== 'uuid') {
+                            console.log('⚠️ [NEON] Users table has wrong ID column type, recreating...');
+                            
+                            // Drop the existing table
+                            await this.executeQuery('DROP TABLE IF EXISTS users CASCADE');
+                            console.log('✅ [NEON] Dropped existing users table');
+                        }
                     }
                     
-                    return null;
+                    const query = `
+                        CREATE TABLE IF NOT EXISTS users (
+                            id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                            email VARCHAR(255) UNIQUE NOT NULL,
+                            display_name VARCHAR(255) NOT NULL,
+                            password_hash VARCHAR(255) NOT NULL,
+                            is_admin BOOLEAN DEFAULT FALSE,
+                            created_at TIMESTAMP DEFAULT NOW(),
+                            updated_at TIMESTAMP DEFAULT NOW()
+                        )
+                    `;
+                    
+                    await this.executeQuery(query);
+                    console.log('✅ [NEON] Users table created/verified successfully');
+                    return true;
                 } catch (error) {
-                    console.error('❌ [NEON] Load goals error:', error);
-                    return null;
+                    console.error('❌ [NEON] Failed to create users table:', error);
+                    return false;
                 }
             }
 
-            async signOut() {
-                // Simple sign out for Neon (no auth to sign out from)
-                console.log('✅ [NEON] User signed out');
-                return Promise.resolve();
+            async createDailyDavidEntriesTable() {
+                try {
+                    const query = `
+                        CREATE TABLE IF NOT EXISTS daily_david_entries (
+                            id SERIAL PRIMARY KEY,
+                            date_key VARCHAR(10) NOT NULL,
+                            user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                            data_content JSONB NOT NULL,
+                            created_at TIMESTAMP DEFAULT NOW(),
+                            updated_at TIMESTAMP DEFAULT NOW(),
+                            UNIQUE(date_key, user_id)
+                        )
+                    `;
+                    
+                    await this.executeQuery(query);
+                    console.log('✅ [NEON] Daily David entries table created successfully');
+                    
+                    // Create indexes for performance
+                    await this.executeQuery('CREATE INDEX IF NOT EXISTS idx_daily_david_entries_user_date ON daily_david_entries(user_id, date_key)');
+                    await this.executeQuery('CREATE INDEX IF NOT EXISTS idx_daily_david_entries_date ON daily_david_entries(date_key)');
+                    
+                    return true;
+                } catch (error) {
+                    console.error('❌ [NEON] Failed to create daily david entries table:', error);
+                    return false;
+                }
             }
 
-            async getUser() {
-                // Return current user for Neon (no auth to check)
-                return { data: { user: currentUser }, error: null };
+            async createUser(email, displayName, password, isAdmin = false) {
+                try {
+                    // In a real app, you'd hash the password
+                    // For development, we'll store it as-is (NOT recommended for production)
+                    const passwordHash = password; // In production: await bcrypt.hash(password, 10)
+                    
+                    // Generate a UUID explicitly since DEFAULT gen_random_uuid() isn't working
+                    const query = `
+                        INSERT INTO users (id, email, display_name, password_hash, is_admin)
+                        VALUES (gen_random_uuid(), $1, $2, $3, $4)
+                        RETURNING id, email, display_name, is_admin, created_at
+                    `;
+                    
+                    const result = await this.executeQuery(query, [email, displayName, passwordHash, isAdmin]);
+                    console.log('✅ [NEON] User created successfully:', result);
+                    return result;
+                } catch (error) {
+                    console.error('❌ [NEON] Failed to create user:', error);
+                    throw error;
+                }
             }
 
-            async getUserById(userId) {
-                // Simple user lookup for Neon
-                return { data: { user: { id: userId, email: userId } }, error: null };
+            async getAllUsers() {
+                try {
+                    const query = `
+                        SELECT id, email, display_name, is_admin, created_at, updated_at
+                        FROM users
+                        ORDER BY created_at DESC
+                    `;
+                    
+                    const result = await this.executeQuery(query);
+                    console.log('✅ [NEON] Users loaded successfully:', result);
+                    return result;
+                } catch (error) {
+                    console.error('❌ [NEON] Failed to load users:', error);
+                    return [];
+                }
             }
 
             async deleteUser(userId) {
-                // Simple user deletion for Neon
-                console.log('✅ [NEON] User deleted:', userId);
-                return { error: null };
+                try {
+                    const query = `
+                        DELETE FROM users
+                        WHERE id = $1
+                        RETURNING id, email
+                    `;
+                    
+                    const result = await this.executeQuery(query, [userId]);
+                    console.log('✅ [NEON] User deleted successfully:', result);
+                    return result;
+                } catch (error) {
+                    console.error('❌ [NEON] Failed to delete user:', error);
+                    throw error;
+                }
             }
 
-            async onAuthStateChange(callback) {
-                // Simple auth state change for Neon
-                return { data: { subscription: null } };
+            async getUserByEmail(email) {
+                try {
+                    const query = `
+                        SELECT id, email, display_name, password_hash, is_admin, created_at
+                        FROM users
+                        WHERE email = $1
+                        LIMIT 1
+                    `;
+                    
+                    const result = await this.executeQuery(query, [email]);
+                    console.log('✅ [NEON] User found by email:', result);
+                    return result && result.length > 0 ? result[0] : null;
+                } catch (error) {
+                    console.error('❌ [NEON] Failed to find user by email:', error);
+                    return null;
+                }
             }
         }
 
@@ -281,7 +439,7 @@
             </svg>
         );
 
-        // Authentication Components
+                // Authentication Components (copied from working marriage meeting tool)
         const SignInScreen = ({ onSignIn, onAdminSignIn }) => {
             const [email, setEmail] = useState('');
             const [password, setPassword] = useState('');
@@ -294,31 +452,66 @@
                 setError('');
 
                 try {
-                    // Simple authentication like the working marriage meeting tool
-                    console.log('🔍 Attempting authentication for:', email);
+                    // Real authentication with database users (copied from working marriage meeting tool)
+                    console.log('🔐 Attempting real authentication...');
                     
-                    // Check if user is admin (simple check like marriage meeting tool)
-                    const isUserAdmin = email.toLowerCase().includes('admin') || 
-                                       email.toLowerCase() === 'admin@dailydavid.com' ||
-                                       password === 'admin123';
+                    // Check if user exists in database
+                    const dbManager = new NeonDatabaseManager();
                     
-                    // Create user object similar to marriage meeting tool
-                    const userData = {
-                        id: email,
-                        email: email,
-                        user_metadata: { is_admin: isUserAdmin }
+                    // Explicitly query for user with password_hash
+                    const query = `
+                        SELECT id, email, display_name, password_hash, is_admin, created_at
+                        FROM users
+                        WHERE email = $1
+                        LIMIT 1
+                    `;
+                    const result = await dbManager.executeQuery(query, [email]);
+                    const dbUser = result && result.length > 0 ? result[0] : null;
+                    
+                    if (!dbUser) {
+                        throw new Error('User not found. Please contact an admin to create your account.');
+                    }
+                    
+                    console.log('🔍 Password check:', {
+                        provided: password,
+                        stored: dbUser.password_hash,
+                        match: dbUser.password_hash === password
+                    });
+                    
+                    // In a real app, you'd verify the password hash
+                    // For development, we'll just check if password matches (NOT secure for production)
+                    if (dbUser.password_hash !== password) {
+                        throw new Error(`Invalid password. Expected: ${dbUser.password_hash}, Got: ${password}`);
+                    }
+                    
+                    // Create user object from database user
+                    const authenticatedUser = {
+                        id: dbUser.id,
+                        email: dbUser.email,
+                        display_name: dbUser.display_name,
+                        is_admin: dbUser.is_admin,
+                        user_metadata: { is_admin: dbUser.is_admin }
                     };
                     
-                    console.log('✅ Authentication successful:', userData);
-                    console.log('🔍 User is_admin flag:', isUserAdmin);
+                    console.log('✅ User authenticated:', authenticatedUser.email);
+                    console.log('🔍 User ID from database:', dbUser.id, 'Type:', typeof dbUser.id);
+                    console.log('🔍 Full dbUser object:', dbUser);
                     
-                    // Check if user is admin
-                    if (isUserAdmin) {
-                        console.log('👑 User is admin, calling onAdminSignIn');
-                        onAdminSignIn(userData);
+                    // Set the global currentUser variable for getCurrentUserId() to work
+                    window.currentAuthenticatedUser = authenticatedUser;
+                    
+                    // Store authentication in localStorage for persistence
+                    const authData = {
+                        user: authenticatedUser,
+                        timestamp: Date.now()
+                    };
+                    localStorage.setItem('dailyDavidAuth', JSON.stringify(authData));
+                    console.log('💾 Authentication stored in localStorage');
+                    
+                    if (authenticatedUser.is_admin) {
+                        onAdminSignIn(authenticatedUser);
                     } else {
-                        console.log('👤 User is not admin, calling onSignIn');
-                        onSignIn(userData);
+                        onSignIn(authenticatedUser);
                     }
                 } catch (error) {
                     setError(error.message);
@@ -377,6 +570,20 @@
             );
         };
 
+        // Get the current user ID (copied from working marriage meeting tool)
+        const getCurrentUserId = () => {
+            console.log('🔍 getCurrentUserId called');
+            console.log('🔍 window.currentAuthenticatedUser:', window.currentAuthenticatedUser);
+            
+            if (window.currentAuthenticatedUser && window.currentAuthenticatedUser.id) {
+                console.log('🔍 Returning authenticated user ID:', window.currentAuthenticatedUser.id);
+                return window.currentAuthenticatedUser.id;
+            }
+            // Return null if no authenticated user (no fallback to dev user ID)
+            console.log('🔍 No authenticated user, returning null');
+            return null;
+        };
+
         const AdminPanel = ({ user, onSignOut, onAddUser, onRemoveUser, useServiceRoleKey }) => {
             const [users, setUsers] = useState([]);
             const [newUserEmail, setNewUserEmail] = useState('');
@@ -390,19 +597,21 @@
 
             const loadUsers = async () => {
                 try {
-                    console.log('Loading users...');
+                    console.log('Loading users from Neon database...');
                     console.log('🔍 Current user:', user);
                     console.log('🔍 Is admin:', isAdmin);
                     
-                    // Simple user management like marriage meeting tool
-                    const mockUsers = [
-                        { id: 'admin@dailydavid.com', email: 'admin@dailydavid.com', display_name: 'Admin User', is_admin: true },
-                        { id: 'user1@example.com', email: 'user1@example.com', display_name: 'Test User 1', is_admin: false },
-                        { id: 'user2@example.com', email: 'user2@example.com', display_name: 'Test User 2', is_admin: false }
-                    ];
+                    // Load users from real Neon database (copied from working marriage meeting tool)
+                    const dbManager = new NeonDatabaseManager();
+                    const result = await dbManager.getAllUsers();
                     
-                    setUsers(mockUsers);
-                    console.log('✅ Users loaded successfully:', mockUsers);
+                    if (result && Array.isArray(result)) {
+                        setUsers(result);
+                        console.log('✅ Users loaded from database:', result);
+                    } else {
+                        console.log('⚠️ No users found in database, using fallback');
+                        setUsers([]);
+                    }
                 } catch (error) {
                     console.error('❌ Error loading users:', error);
                     setUsers([]);
@@ -415,28 +624,32 @@
 
                 setLoading(true);
                 try {
-                    // For Neon, we'll just show a success message
-                    // In a real app, you'd implement user creation in your own tables
-                    console.log('User creation simulated for Neon');
-                    alert('User creation simulated! In a real Neon app, you would create users in your own user management table.');
+                    // Create user in database (copied from working marriage meeting tool)
+                    const dbManager = new NeonDatabaseManager();
+                    console.log('🔄 Creating user in database:', { email: newUserEmail, displayName: newUserDisplayName, isAdmin: false });
                     
-                    // Add to local users list for demo purposes
-                    const newUser = {
-                        id: newUserEmail,
-                        email: newUserEmail,
-                        display_name: newUserDisplayName,
-                        created_at: new Date().toISOString()
-                    };
+                    const newUser = await dbManager.createUser(newUserEmail, newUserDisplayName, newUserPassword, false);
+                    console.log('📊 New user result:', newUser);
                     
-                    setUsers([...users, newUser]);
-                    setNewUserEmail('');
-                    setNewUserPassword('');
-                    setNewUserDisplayName('');
-                    
-                    // Refresh the users list to ensure sync
-                    setTimeout(() => loadUsers(), 1000);
+                    if (newUser && newUser.length > 0) {
+                        // Add to local state
+                        setUsers(prevUsers => [newUser[0], ...prevUsers]);
+                        
+                        // Show success message
+                        alert(`✅ User created successfully!\n\nEmail: ${newUserEmail}\nDisplay Name: ${newUserDisplayName}\n\nUser ID: ${newUser[0].id}`);
+                        
+                        // Reset form
+                        setNewUserEmail('');
+                        setNewUserPassword('');
+                        setNewUserDisplayName('');
+                        
+                        console.log('✅ User added to local state, total users:', users.length + 1);
+                    } else {
+                        throw new Error('User creation returned empty result');
+                    }
                 } catch (error) {
-                    alert('Error adding user: ' + error.message);
+                    console.error('❌ Failed to create user:', error);
+                    alert(`❌ Failed to create user:\n\n${error.message}`);
                 } finally {
                     setLoading(false);
                 }
@@ -1442,12 +1655,15 @@
             const handleSignOut = async () => {
                 try {
                     console.log('User signing out');
-                    // Don't clear user data on sign out - it's already saved to localStorage
-                    // Just clear the user state
-                    await neonDB.signOut();
+                    
+                    // Clear authenticated user (copied from working marriage meeting tool)
                     setUser(null);
                     setIsAdmin(false);
-                    // Note: We don't call clearUserData() here to preserve localStorage data
+                    window.currentAuthenticatedUser = null;
+                    
+                    // Clear stored authentication
+                    localStorage.removeItem('dailyDavidAuth');
+                    console.log('✅ User signed out and authentication cleared');
                 } catch (error) {
                     console.error('Sign out error:', error);
                 }
@@ -1972,43 +2188,59 @@
                             }
                         }
                         
-                        // Get current user session
-                        const { data: { user }, error } = await neonDB.getUser();
-                        
-                        if (error) {
-                            console.error('❌ Error getting user:', error);
-                            setAuthLoading(false);
-                            return;
-                        }
-                        
-                        if (user) {
-                            console.log('✅ User found:', user.email);
-                            setUser(user);
-                            // Check if user is admin (you can set this in user metadata)
-                            const isUserAdmin = user.user_metadata?.is_admin === true;
-                            setIsAdmin(isUserAdmin);
-                            
-                            // Load saved mode preference for admin users
-                            if (isUserAdmin) {
-                                const savedMode = localStorage.getItem('dailyDavidMode');
-                                if (savedMode === 'user') {
-                                    setUserModePreference('user');
-                                    setIsAdmin(false);
-                                    // Load user-specific data for user mode
-                                    console.log('🔄 Loading user-specific data for admin in user mode...');
-                                    await loadUserSpecificData(user.id);
+                        // Check for stored user session (copied from working marriage meeting tool)
+                        const storedAuth = localStorage.getItem('dailyDavidAuth');
+                        if (storedAuth) {
+                            try {
+                                const authData = JSON.parse(storedAuth);
+                                const { user: storedUser, timestamp } = authData;
+                                
+                                // Check if the stored auth is still valid (24 hours)
+                                const now = Date.now();
+                                const authAge = now - timestamp;
+                                const maxAge = 24 * 60 * 60 * 1000; // 24 hours
+                                
+                                if (authAge < maxAge && storedUser && storedUser.id) {
+                                    console.log('🔍 Found valid stored authentication');
+                                    
+                                    // Verify the user still exists in database
+                                    const dbManager = new NeonDatabaseManager();
+                                    const dbUser = await dbManager.getUserByEmail(storedUser.email);
+                                    
+                                    if (dbUser && dbUser.id === storedUser.id) {
+                                        console.log('✅ Stored authentication is valid, auto-logging in');
+                                        window.currentAuthenticatedUser = storedUser;
+                                        
+                                        if (storedUser.is_admin) {
+                                            setUser(storedUser);
+                                            setIsAdmin(true);
+                                        } else {
+                                            setUser(storedUser);
+                                            setIsAdmin(false);
+                                        }
+                                        
+                                        // Load user-specific data
+                                        console.log('🔄 Loading user-specific data for user:', storedUser.id);
+                                        await loadUserSpecificData(storedUser.id);
+                                        
+                                        setAuthLoading(false);
+                                        return;
+                                    } else {
+                                        console.log('⚠️ Stored user no longer exists in database, clearing auth');
+                                        localStorage.removeItem('dailyDavidAuth');
+                                    }
                                 } else {
-                                    setUserModePreference('admin');
-                                    setIsAdmin(true);
+                                    console.log('⚠️ Stored authentication expired, clearing');
+                                    localStorage.removeItem('dailyDavidAuth');
                                 }
-                            } else {
-                                // Regular user, load their data
-                                console.log('🔄 Loading user-specific data for regular user...');
-                                await loadUserSpecificData(user.id);
+                            } catch (parseError) {
+                                console.log('⚠️ Invalid stored authentication, clearing');
+                                localStorage.removeItem('dailyDavidAuth');
                             }
-                        } else {
-                            console.log('⚠️ No user session found');
                         }
+                        
+                        setAuthLoading(false);
+                        console.log('✅ Authentication ready - please sign in');
                     } catch (error) {
                         console.error('❌ Auth initialization error:', error);
                     } finally {
@@ -2061,6 +2293,65 @@
                 initializeAuth().finally(() => {
                     clearTimeout(authTimeout);
                 });
+
+                // Test Neon connection and initialize database tables after authentication is complete
+                const initializeNeonAndDatabase = async () => {
+                    try {
+                        console.log('🚀 Testing Neon connection and initializing database...');
+                        
+                        const dbManager = new NeonDatabaseManager();
+                        const connectionOk = await dbManager.testConnection();
+                        
+                        if (connectionOk) {
+                            console.log('✅ Ready to use Neon database');
+                            
+                            // Initialize users table
+                            await dbManager.createUsersTable();
+                            
+                            // Initialize daily david entries table
+                            await dbManager.createDailyDavidEntriesTable();
+                            
+                            // Add default admin user to database if not exists
+                            const currentAdminEmail = 'admin@dailydavid.com';
+                            const existingAdmin = await dbManager.getUserByEmail(currentAdminEmail);
+                            
+                            if (!existingAdmin) {
+                                console.log('➕ Adding default admin user to database...');
+                                await dbManager.createUser(currentAdminEmail, 'Admin User', 'admin123', true);
+                                console.log('✅ Default admin user added to database');
+                                console.log('📧 Email: admin@dailydavid.com');
+                                console.log('🔑 Password: admin123');
+                            } else {
+                                console.log('✅ Default admin user already exists in database');
+                            }
+                            
+                            // Add test users if they don't exist
+                            const testUsers = [
+                                { email: 'user1@example.com', displayName: 'Test User 1', password: 'password123' },
+                                { email: 'user2@example.com', displayName: 'Test User 2', password: 'password123' }
+                            ];
+                            
+                            for (const testUser of testUsers) {
+                                const existingUser = await dbManager.getUserByEmail(testUser.email);
+                                if (!existingUser) {
+                                    console.log(`➕ Adding test user: ${testUser.email}`);
+                                    await dbManager.createUser(testUser.email, testUser.displayName, testUser.password, false);
+                                }
+                            }
+                            
+                            console.log('✅ Database initialization complete');
+                        } else {
+                            console.error('❌ Neon connection failed');
+                        }
+                    } catch (error) {
+                        console.error('❌ Neon initialization error:', error);
+                    }
+                };
+                
+                // Initialize Neon after a short delay to ensure auth is complete
+                setTimeout(() => {
+                    initializeNeonAndDatabase();
+                }, 1000);
 
                 // IMMEDIATE DATA RESTORATION: Force restore data after auth initialization
                 const immediateDataRestore = async () => {
