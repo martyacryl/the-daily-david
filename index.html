@@ -194,6 +194,10 @@
                 try {
                     // Ensure data has the correct structure before saving
                     const validatedData = {
+                        checkIn: {
+                            emotions: data.checkIn?.emotions || [],
+                            feeling: data.checkIn?.feeling || ''
+                        },
                         gratitude: data.gratitude || ['', '', '', '', ''],
                         soap: {
                             scripture: data.soap?.scripture || '',
@@ -213,6 +217,7 @@
                         userId,
                         originalData: data,
                         validatedData,
+                        checkInEmotions: validatedData.checkIn.emotions.length,
                         gratitudeLength: validatedData.gratitude.length,
                         soapKeys: Object.keys(validatedData.soap),
                         goalsKeys: Object.keys(validatedData.goals)
@@ -266,6 +271,10 @@
 
             getEmptyDayStructure() {
                 return {
+                    checkIn: {
+                        emotions: [],
+                        feeling: ''
+                    },
                     gratitude: ['', '', '', '', ''],
                     soap: {
                         scripture: '',
@@ -3604,6 +3613,27 @@
                 });
             };
 
+            const updateCheckIn = (checkInData) => {
+                // Update the hook's dayData directly (this will auto-save to Neon)
+                setCurrentDayData(prevData => {
+                    if (!prevData) return prevData;
+                    
+                    const newData = {
+                        ...prevData,
+                        checkIn: checkInData
+                    };
+                    
+                    // Also update localStorage for backup
+                    if (user && user.id) {
+                        const dayDataKey = `dailyDavid_dayData_${user.id}`;
+                        const allDayData = { ...userSpecificData.dayData, [currentDateKey]: newData };
+                        localStorage.setItem(dayDataKey, JSON.stringify(allDayData));
+                    }
+                    
+                    return newData;
+                });
+            };
+
             // Removed duplicate goal functions - using addDailyGoal, updateDailyGoal, etc. instead
 
             const navigateDate = (direction) => {
@@ -3906,6 +3936,12 @@
                             console.log('🎯 VIEW RENDERING DEBUG: currentDayData:', currentDayData);
                             return (
                                 <>
+                                    {/* Check In Section */}
+                                    <CheckInSection 
+                                        checkIn={currentDayData?.checkIn || { emotions: [], feeling: '' }}
+                                        onUpdate={updateCheckIn}
+                                    />
+
                                     {/* Gratitude Section */}
                                     <GratitudeSection 
                                         gratitude={currentDayData?.gratitude || ['', '', '', '', '']}
@@ -3973,6 +4009,89 @@
                         <p className="text-gray-400 text-xs mt-2">
                             "Be strong and courageous! Do not be afraid or discouraged. For the Lord your God is with you wherever you go." - Joshua 1:9
                         </p>
+                    </div>
+                </div>
+            );
+        };
+
+        // Check In Component
+        const CheckInSection = ({ checkIn, onUpdate }) => {
+            const [localFeeling, setLocalFeeling] = useState(checkIn.feeling || '');
+            const [localEmotions, setLocalEmotions] = useState(checkIn.emotions || []);
+
+            useEffect(() => {
+                setLocalFeeling(checkIn.feeling || '');
+                setLocalEmotions(checkIn.emotions || []);
+            }, [checkIn]);
+
+            const handleEmotionToggle = (emotion) => {
+                const newEmotions = localEmotions.includes(emotion)
+                    ? localEmotions.filter(e => e !== emotion)
+                    : [...localEmotions, emotion];
+                
+                setLocalEmotions(newEmotions);
+                onUpdate({ emotions: newEmotions, feeling: localFeeling });
+            };
+
+            const handleFeelingChange = (value) => {
+                setLocalFeeling(value);
+                onUpdate({ emotions: localEmotions, feeling: value });
+            };
+
+            const emotionOptions = [
+                { key: 'sad', label: 'Sad', color: 'bg-blue-100 text-blue-800 border-blue-200' },
+                { key: 'angry', label: 'Angry', color: 'bg-red-100 text-red-800 border-red-200' },
+                { key: 'scared', label: 'Scared', color: 'bg-purple-100 text-purple-800 border-purple-200' },
+                { key: 'happy', label: 'Happy', color: 'bg-yellow-100 text-yellow-800 border-yellow-200' },
+                { key: 'excited', label: 'Excited', color: 'bg-green-100 text-green-800 border-green-200' },
+                { key: 'tender', label: 'Tender', color: 'bg-pink-100 text-pink-800 border-pink-200' }
+            ];
+
+            return (
+                <div className="modern-card mb-6">
+                    <div className="bg-gradient-to-r from-slate-400 to-blue-600 text-white p-6">
+                        <h3 className="font-bold text-xl">💭 CHECK IN</h3>
+                        <p className="text-white/90 text-sm mt-2">How are you feeling today?</p>
+                    </div>
+                    
+                    <div className="p-6">
+                        {/* Emotion Checkboxes */}
+                        <div className="mb-6">
+                            <h4 className="text-sm font-medium text-gray-700 mb-3">Select your emotions:</h4>
+                            <div className="grid grid-cols-3 gap-3">
+                                {emotionOptions.map((emotion) => (
+                                    <label key={emotion.key} className="flex items-center space-x-2 cursor-pointer">
+                                        <input
+                                            type="checkbox"
+                                            checked={localEmotions.includes(emotion.key)}
+                                            onChange={() => handleEmotionToggle(emotion.key)}
+                                            className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                        />
+                                        <span className={`px-3 py-2 rounded-lg border text-sm font-medium transition-colors ${
+                                            localEmotions.includes(emotion.key) 
+                                                ? emotion.color 
+                                                : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100'
+                                        }`}>
+                                            {emotion.label}
+                                        </span>
+                                    </label>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Feeling Text Area */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                How are you feeling? (optional)
+                            </label>
+                            <textarea
+                                value={localFeeling}
+                                onChange={(e) => handleFeelingChange(e.target.value)}
+                                placeholder="Describe how you're feeling today..."
+                                className="w-full text-sm border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 resize-none"
+                                rows="3"
+                            />
+                        </div>
                     </div>
                 </div>
             );
