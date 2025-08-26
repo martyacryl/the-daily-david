@@ -192,6 +192,32 @@
 
             async saveDayData(dateKey, userId, data) {
                 try {
+                    // Ensure data has the correct structure before saving
+                    const validatedData = {
+                        gratitude: data.gratitude || ['', '', '', '', ''],
+                        soap: {
+                            scripture: data.soap?.scripture || '',
+                            observation: data.soap?.observation || '',
+                            application: data.soap?.application || '',
+                            prayer: data.soap?.prayer || ''
+                        },
+                        goals: {
+                            daily: data.goals?.daily || [],
+                            weekly: data.goals?.weekly || [],
+                            monthly: data.goals?.monthly || []
+                        }
+                    };
+                    
+                    console.log('💾 [NEON] Saving day data with structure:', {
+                        dateKey,
+                        userId,
+                        originalData: data,
+                        validatedData,
+                        gratitudeLength: validatedData.gratitude.length,
+                        soapKeys: Object.keys(validatedData.soap),
+                        goalsKeys: Object.keys(validatedData.goals)
+                    });
+                    
                     const query = `
                         INSERT INTO daily_david_entries (date_key, user_id, data_content, updated_at)
                         VALUES ($1, $2, $3, NOW())
@@ -202,7 +228,7 @@
                         RETURNING id, updated_at
                     `;
 
-                    const jsonData = JSON.stringify(data);
+                    const jsonData = JSON.stringify(validatedData);
                     const result = await this.executeQuery(query, [dateKey, userId, jsonData]);
                     
                     console.log('✅ [NEON] Day data saved successfully:', result);
@@ -214,21 +240,28 @@
             }
 
             debouncedSave(dateKey, userId, data, callback) {
+                console.log('⏰ [DEBOUNCE] Scheduling save for:', { dateKey, userId, data });
+                
                 // Clear existing timer
                 if (this.saveDebounceTimer) {
                     clearTimeout(this.saveDebounceTimer);
+                    console.log('⏰ [DEBOUNCE] Cleared existing timer');
                 }
 
                 // Set new timer
                 this.saveDebounceTimer = setTimeout(async () => {
+                    console.log('⏰ [DEBOUNCE] Timer fired, executing save...');
                     try {
                         await this.saveDayData(dateKey, userId, data);
+                        console.log('✅ [DEBOUNCE] Save completed successfully');
                         if (callback) callback(null, true);
                     } catch (error) {
-                        console.error('❌ [NEON] Debounced save failed:', error);
+                        console.error('❌ [DEBOUNCE] Save failed:', error);
                         if (callback) callback(error, false);
                     }
                 }, this.SAVE_DEBOUNCE_DELAY);
+                
+                console.log('⏰ [DEBOUNCE] Timer set for', this.SAVE_DEBOUNCE_DELAY, 'ms');
             }
 
             getEmptyDayStructure() {
@@ -489,6 +522,15 @@
                              data.goals?.weekly?.length > 0 ||
                              data.goals?.monthly?.length > 0);
                         
+                        console.log('🔍 [useDayData] Data validation check:', {
+                            hasData: !!data,
+                            dataKeys: data ? Object.keys(data) : [],
+                            gratitudeHasContent: data?.gratitude?.some(item => item.trim() !== ''),
+                            soapHasContent: data?.soap?.scripture?.trim() !== '' || data?.soap?.observation?.trim() !== '' || data?.soap?.application?.trim() !== '' || data?.soap?.prayer?.trim() !== '',
+                            goalsHaveContent: data?.goals?.daily?.length > 0 || data?.goals?.weekly?.length > 0 || data?.goals?.monthly?.length > 0,
+                            hasRealData
+                        });
+                        
                         if (hasRealData) {
                             setDayData(data);
                             lastSaveData.current = JSON.stringify(data);
@@ -564,6 +606,9 @@
                 // Only save if data has actually changed
                 if (currentDataString !== lastSaveData.current) {
                     console.log('🔄 [AUTO-SAVE] Day data changed, scheduling save...');
+                    console.log('🔄 [AUTO-SAVE] Data to save:', dayData);
+                    console.log('🔄 [AUTO-SAVE] Date key:', dateKey);
+                    console.log('🔄 [AUTO-SAVE] User ID:', userId);
                     
                     dbManager.current.debouncedSave(dateKey, userId, dayData, (error, success) => {
                         if (success) {
@@ -589,13 +634,18 @@
 
             const manualSave = React.useCallback(async (onSuccess) => {
                 try {
+                    console.log('🔧 [MANUAL-SAVE] Starting manual save...');
+                    console.log('🔧 [MANUAL-SAVE] Data to save:', dayData);
+                    console.log('🔧 [MANUAL-SAVE] Date key:', dateKey);
+                    console.log('🔧 [MANUAL-SAVE] User ID:', userId);
+                    
                     await dbManager.current.saveDayData(dateKey, userId, dayData);
                     lastSaveData.current = JSON.stringify(dayData);
                     console.log('✅ [MANUAL-SAVE] Day data saved successfully');
                     if (onSuccess) onSuccess();
                     return true;
                 } catch (error) {
-                    console.error('❌ [MANUAL-SAVE] Day data save failed:', error);
+                    console.error('❌ [MANUAL-SAVE] Save failed:', error);
                     setError('Manual save failed');
                     return false;
                 }
