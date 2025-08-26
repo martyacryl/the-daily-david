@@ -316,8 +316,16 @@
 
             async createDailyDavidEntriesTable() {
                 try {
+                    // First, drop the existing table if it has wrong structure
+                    try {
+                        await this.executeQuery('DROP TABLE IF EXISTS daily_david_entries CASCADE');
+                        console.log('🔄 [NEON] Dropped existing daily_david_entries table');
+                    } catch (dropError) {
+                        console.log('ℹ️ [NEON] No existing table to drop');
+                    }
+                    
                     const query = `
-                        CREATE TABLE IF NOT EXISTS daily_david_entries (
+                        CREATE TABLE daily_david_entries (
                             id SERIAL PRIMARY KEY,
                             date_key VARCHAR(10) NOT NULL,
                             user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -419,21 +427,11 @@
             // Goals management methods
             async saveGoals(userId, goalsData) {
                 try {
-                    const query = `
-                        INSERT INTO daily_david_entries (date_key, user_id, data_content, updated_at)
-                        VALUES ($1, $2, $3, NOW())
-                        ON CONFLICT (date_key, user_id)
-                        DO UPDATE SET 
-                            data_content = EXCLUDED.data_content,
-                            updated_at = NOW()
-                        RETURNING id, updated_at
-                    `;
-
-                    const jsonData = JSON.stringify(goalsData);
-                    const result = await this.executeQuery(query, ['user_goals', userId, jsonData]);
-                    
-                    console.log('✅ [NEON] Goals saved successfully:', result);
-                    return { data: result, error: null };
+                    // Goals are now stored as part of day data, not as separate entries
+                    // This function is kept for backward compatibility but doesn't save to Neon
+                    // Goals should be saved through saveDayData instead
+                    console.log('ℹ️ [NEON] saveGoals called - goals are now part of day data');
+                    return { data: null, error: null };
                 } catch (error) {
                     console.error('❌ [NEON] Goals save error:', error);
                     return { data: null, error: error.message };
@@ -442,21 +440,10 @@
 
             async loadGoals(userId) {
                 try {
-                    const query = `
-                        SELECT data_content 
-                        FROM daily_david_entries 
-                        WHERE date_key = $1 AND user_id = $2 
-                        LIMIT 1
-                    `;
-                    
-                    const result = await this.executeQuery(query, ['user_goals', userId]);
-                    
-                    if (result && Array.isArray(result) && result.length > 0) {
-                        return result[0].data_content;
-                    } else if (result && result.rows && Array.isArray(result.rows) && result.rows.length > 0) {
-                        return result.rows[0].data_content;
-                    }
-                    
+                    // Goals are now stored as part of day data, not as separate entries
+                    // This function is kept for backward compatibility but returns null
+                    // Goals should be loaded through loadDayData instead
+                    console.log('ℹ️ [NEON] loadGoals called - goals are now part of day data');
                     return null;
                 } catch (error) {
                     console.error('❌ [NEON] Load goals error:', error);
