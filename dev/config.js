@@ -5,7 +5,7 @@
 const config = {
   // Development Environment
   development: {
-    neonConnectionString: 'postgresql://neondb_owner:npg_L5ysD0JfHSFP@ep-little-base-adgfntzb-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require',
+    neonConnectionString: 'postgresql://neondb_owner:npg_L5ysD0JfHSFP@ep-curly-bird-91689233-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require',
     tableName: 'daily_david_entries_dev', // Development table
     enableDebugLogging: true,
     enableMockData: true,
@@ -15,7 +15,7 @@ const config = {
 
   // Production Environment
   production: {
-    neonConnectionString: 'postgresql://neondb_owner:npg_L5ysD0JfHSFP@ep-little-base-adgfntzb-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require',
+    neonConnectionString: 'postgresql://neondb_owner:npg_L5ysD0JfHSFP@ep-curly-bird-91689233-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require',
     tableName: 'daily_david_entries', // Production table
     enableDebugLogging: false,
     enableMockData: false,
