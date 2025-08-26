@@ -349,16 +349,8 @@
 
             async createDailyDavidEntriesTable() {
                 try {
-                    // First, drop the existing table if it has wrong structure
-                    try {
-                        await this.executeQuery('DROP TABLE IF EXISTS daily_david_entries CASCADE');
-                        console.log('🔄 [NEON] Dropped existing daily_david_entries table');
-                    } catch (dropError) {
-                        console.log('ℹ️ [NEON] No existing table to drop');
-                    }
-                    
                     const query = `
-                        CREATE TABLE daily_david_entries (
+                        CREATE TABLE IF NOT EXISTS daily_david_entries (
                             id SERIAL PRIMARY KEY,
                             date_key VARCHAR(10) NOT NULL,
                             user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -1834,6 +1826,23 @@
                             dayData = JSON.parse(dayDataRaw);
                             console.log('✅ Day data loaded from localStorage:', Object.keys(dayData).length, 'dates');
                             console.log('📅 Date keys:', Object.keys(dayData));
+                            
+                            // Extract goals from the most recent day data
+                            const dateKeys = Object.keys(dayData).sort((a, b) => new Date(b) - new Date(a));
+                            if (dateKeys.length > 0) {
+                                const mostRecentDate = dateKeys[0];
+                                const mostRecentData = dayData[mostRecentDate];
+                                
+                                if (mostRecentData?.goals) {
+                                    weeklyGoals = mostRecentData.goals.weekly || [];
+                                    monthlyGoals = mostRecentData.goals.monthly || [];
+                                    console.log('✅ Goals extracted from most recent day data:', { 
+                                        date: mostRecentDate, 
+                                        weeklyGoals: weeklyGoals.length, 
+                                        monthlyGoals: monthlyGoals.length 
+                                    });
+                                }
+                            }
                         } else {
                             console.log('⚠️ No day data in localStorage, starting fresh');
                             dayData = {};
@@ -2567,8 +2576,8 @@
                     clearTimeout(authTimeout);
                 });
 
-                // Test Neon connection and initialize database tables after authentication is complete
-                const initializeNeonAndDatabase = async () => {
+                // Test Neon connection and initialize database tables only once when app starts
+                const initializeNeonAndDatabase = React.useCallback(async () => {
                     try {
                         console.log('🚀 Testing Neon connection and initializing database...');
                         
@@ -2607,12 +2616,16 @@
                     } catch (error) {
                         console.error('❌ Neon initialization error:', error);
                     }
-                };
+                }, []);
                 
-                // Initialize Neon after a short delay to ensure auth is complete
-                setTimeout(() => {
-                    initializeNeonAndDatabase();
-                }, 1000);
+                // Initialize Neon only once when component mounts
+                React.useEffect(() => {
+                    const timer = setTimeout(() => {
+                        initializeNeonAndDatabase();
+                    }, 1000);
+                    
+                    return () => clearTimeout(timer);
+                }, [initializeNeonAndDatabase]);
 
                 // IMMEDIATE DATA RESTORATION: Force restore data after auth initialization
                 const immediateDataRestore = async () => {
