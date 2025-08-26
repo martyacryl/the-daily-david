@@ -1402,16 +1402,16 @@
                 monthlyGoals: []
             });
 
-            // Use the working useDayData hook pattern from marriage meeting tool
-            const currentDateKey = formatDateKey(currentDate);
-            const currentUserId = user ? getCurrentUserId() : null;
-            const { dayData: currentDayData, setDayData: setCurrentDayData, isLoading: dayDataLoading, error: dayDataError, manualSave } = useDayData(currentDateKey, currentUserId);
-
             // Simple setUserSpecificData - no more debugging mess
 
             const formatDateKey = (date) => {
                 return date.toISOString().split('T')[0];
             };
+
+            // Use the working useDayData hook pattern from marriage meeting tool
+            const currentDateKey = formatDateKey(currentDate);
+            const currentUserId = user ? getCurrentUserId() : null;
+            const { dayData: currentDayData, setDayData: setCurrentDayData, isLoading: dayDataLoading, error: dayDataError, manualSave } = useDayData(currentDateKey, currentUserId);
 
             const formatDateDisplay = (date) => {
                 return date.toLocaleDateString('en-US', { 
