@@ -169,8 +169,8 @@
                         // Direct object result
                         data = result;
                     } else {
-                        console.log('ℹ️ [NEON] No existing data found, returning empty structure');
-                        return this.getEmptyDayStructure();
+                        console.log('ℹ️ [NEON] No existing data found, returning null');
+                        return null;
                     }
                     
                     if (data && data.data_content) {
@@ -477,7 +477,19 @@
                         const data = await dbManager.current.loadDayData(dateKey, userId);
                         console.log('🔍 [useDayData] Loaded data from Neon:', data);
                         
-                        if (data && Object.keys(data).length > 0) {
+                        // Check if we actually have meaningful data (not just empty structure)
+                        const hasRealData = data && 
+                            Object.keys(data).length > 0 && 
+                            (data.gratitude?.some(item => item.trim() !== '') ||
+                             data.soap?.scripture?.trim() !== '' ||
+                             data.soap?.observation?.trim() !== '' ||
+                             data.soap?.application?.trim() !== '' ||
+                             data.soap?.prayer?.trim() !== '' ||
+                             data.goals?.daily?.length > 0 ||
+                             data.goals?.weekly?.length > 0 ||
+                             data.goals?.monthly?.length > 0);
+                        
+                        if (hasRealData) {
                             setDayData(data);
                             lastSaveData.current = JSON.stringify(data);
                             console.log('✅ [useDayData] Day data loaded from Neon for:', dateKey);
@@ -494,17 +506,21 @@
                                     
                                     // Also save this data to Neon for future use
                                     try {
+                                        console.log('🔄 [useDayData] Migrating localStorage data to Neon...');
                                         await dbManager.current.saveDayData(dateKey, userId, parsedData[dateKey]);
                                         console.log('✅ [useDayData] Data migrated from localStorage to Neon');
                                     } catch (saveError) {
                                         console.warn('⚠️ [useDayData] Failed to migrate localStorage data to Neon:', saveError);
+                                        // Don't fail completely if migration fails, just log the warning
                                     }
                                 } else {
+                                    console.log('ℹ️ [useDayData] No data found in localStorage for date:', dateKey);
                                     const emptyData = dbManager.current.getEmptyDayStructure();
                                     setDayData(emptyData);
                                     lastSaveData.current = JSON.stringify(emptyData);
                                 }
                             } else {
+                                console.log('ℹ️ [useDayData] No localStorage data found for user:', userId);
                                 const emptyData = dbManager.current.getEmptyDayStructure();
                                 setDayData(emptyData);
                                 lastSaveData.current = JSON.stringify(emptyData);
