@@ -4443,19 +4443,20 @@
                                                 <div className="text-sm text-gray-800 mb-1">
                                                     {goal.text}
                                                 </div>
-                                                {/* Debug: Always show category info */}
-                                                <div className="text-xs text-gray-500 mb-1">
-                                                    Debug: category = "{goal.category || 'undefined'}", hasCategory = {goal.category ? 'true' : 'false'}
-                                                </div>
                                                 {goal.category && (
-                                                    <span className={`inline-block px-2 py-1 text-xs rounded-full ${
+                                                    <span className={`inline-block px-2 py-1 text-xs rounded-full font-medium ${
                                                         goal.category === 'spiritual' ? 'bg-blue-100 text-blue-800' :
                                                         goal.category === 'personal' ? 'bg-green-100 text-green-800' :
                                                         goal.category === 'outreach' ? 'bg-purple-100 text-purple-800' :
                                                         goal.category === 'health' ? 'bg-red-100 text-red-800' :
                                                         'bg-gray-100 text-gray-800'
                                                     }`}>
-                                                        {goal.category}
+                                                        {goal.category === 'spiritual' ? 'Spiritual' :
+                                                         goal.category === 'personal' ? 'Personal' :
+                                                         goal.category === 'outreach' ? 'Outreach' :
+                                                         goal.category === 'health' ? 'Health' :
+                                                         goal.category === 'work' ? 'Work' :
+                                                         goal.category}
                                                     </span>
                                                 )}
                                             </div>
