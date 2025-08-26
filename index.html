@@ -1491,6 +1491,57 @@
             const currentUserId = user ? getCurrentUserId() : null;
             const { dayData: currentDayData, setDayData: setCurrentDayData, isLoading: dayDataLoading, error: dayDataError, manualSave } = useDayData(currentDateKey, currentUserId);
 
+            // Test Neon connection and initialize database tables only once when app starts
+            const initializeNeonAndDatabase = React.useCallback(async () => {
+                try {
+                    console.log('🚀 Testing Neon connection and initializing database...');
+                    
+                    const dbManager = new NeonDatabaseManager();
+                    const connectionOk = await dbManager.testConnection();
+                    
+                    if (connectionOk) {
+                        console.log('✅ Ready to use Neon database');
+                        
+                        // Initialize users table
+                        await dbManager.createUsersTable();
+                        
+                        // Initialize daily david entries table
+                        await dbManager.createDailyDavidEntriesTable();
+                        
+                        // Add default admin user to database if not exists
+                        const currentAdminEmail = 'admin@dailydavid.com';
+                        const existingAdmin = await dbManager.getUserByEmail(currentAdminEmail);
+                        
+                        if (!existingAdmin) {
+                            console.log('➕ Adding default admin user to database...');
+                            await dbManager.createUser(currentAdminEmail, 'Admin User', 'admin123', true);
+                            console.log('✅ Default admin user added to database');
+                            console.log('📧 Email: admin@dailydavid.com');
+                            console.log('🔑 Password: admin123');
+                        } else {
+                            console.log('✅ Default admin user already exists in database');
+                        }
+                        
+                        // No test users needed - users will be created through admin panel
+                        
+                        console.log('✅ Database initialization complete');
+                    } else {
+                        console.error('❌ Neon connection failed');
+                    }
+                } catch (error) {
+                    console.error('❌ Neon initialization error:', error);
+                }
+            }, []);
+            
+            // Initialize Neon only once when component mounts
+            React.useEffect(() => {
+                const timer = setTimeout(() => {
+                    initializeNeonAndDatabase();
+                }, 1000);
+                
+                return () => clearTimeout(timer);
+            }, [initializeNeonAndDatabase]);
+
             const formatDateDisplay = (date) => {
                 return date.toLocaleDateString('en-US', { 
                     weekday: 'long', 
@@ -2576,56 +2627,7 @@
                     clearTimeout(authTimeout);
                 });
 
-                // Test Neon connection and initialize database tables only once when app starts
-                const initializeNeonAndDatabase = React.useCallback(async () => {
-                    try {
-                        console.log('🚀 Testing Neon connection and initializing database...');
-                        
-                        const dbManager = new NeonDatabaseManager();
-                        const connectionOk = await dbManager.testConnection();
-                        
-                        if (connectionOk) {
-                            console.log('✅ Ready to use Neon database');
-                            
-                            // Initialize users table
-                            await dbManager.createUsersTable();
-                            
-                            // Initialize daily david entries table
-                            await dbManager.createDailyDavidEntriesTable();
-                            
-                            // Add default admin user to database if not exists
-                            const currentAdminEmail = 'admin@dailydavid.com';
-                            const existingAdmin = await dbManager.getUserByEmail(currentAdminEmail);
-                            
-                            if (!existingAdmin) {
-                                console.log('➕ Adding default admin user to database...');
-                                await dbManager.createUser(currentAdminEmail, 'Admin User', 'admin123', true);
-                                console.log('✅ Default admin user added to database');
-                                console.log('📧 Email: admin@dailydavid.com');
-                                console.log('🔑 Password: admin123');
-                            } else {
-                                console.log('✅ Default admin user already exists in database');
-                            }
-                            
-                            // No test users needed - users will be created through admin panel
-                            
-                            console.log('✅ Database initialization complete');
-                        } else {
-                            console.error('❌ Neon connection failed');
-                        }
-                    } catch (error) {
-                        console.error('❌ Neon initialization error:', error);
-                    }
-                }, []);
-                
-                // Initialize Neon only once when component mounts
-                React.useEffect(() => {
-                    const timer = setTimeout(() => {
-                        initializeNeonAndDatabase();
-                    }, 1000);
-                    
-                    return () => clearTimeout(timer);
-                }, [initializeNeonAndDatabase]);
+
 
                 // IMMEDIATE DATA RESTORATION: Force restore data after auth initialization
                 const immediateDataRestore = async () => {
