@@ -198,7 +198,7 @@
                             emotions: data.checkIn?.emotions || [],
                             feeling: data.checkIn?.feeling || ''
                         },
-                        gratitude: data.gratitude || ['', '', '', '', ''],
+                        gratitude: data.gratitude || ['', '', ''],
                         soap: {
                             scripture: data.soap?.scripture || '',
                             observation: data.soap?.observation || '',
@@ -275,7 +275,7 @@
                         emotions: [],
                         feeling: ''
                     },
-                    gratitude: ['', '', '', '', ''],
+                    gratitude: ['', '', ''],
                     soap: {
                         scripture: '',
                         observation: '',
@@ -2522,7 +2522,7 @@
                 }
                 
                 const newDayData = {
-                    gratitude: ['', '', '', '', ''],
+                    gratitude: ['', '', ''],
                     soap: {
                         scripture: '',
                         observation: '',
@@ -3947,7 +3947,7 @@
 
                                     {/* Gratitude Section */}
                                     <GratitudeSection 
-                                        gratitude={currentDayData?.gratitude || ['', '', '', '', '']}
+                                        gratitude={currentDayData?.gratitude || ['', '', '']}
                                         onUpdate={updateGratitude}
                                     />
 
