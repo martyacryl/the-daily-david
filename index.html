@@ -778,7 +778,7 @@
                             </div>
                         )}
                         
-                        <form onSubmit={handleSignIn} className="space-y-4">
+                        <form onSubmit={handleSignIn} className="space-y-4" autocomplete="off">
                             <input 
                                 type="email" 
                                 placeholder="Email" 
@@ -786,6 +786,7 @@
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 required
+                                autocomplete="off"
                             />
                             <input 
                                 type="password" 
@@ -794,6 +795,7 @@
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
                                 required
+                                autocomplete="off"
                             />
                             <button 
                                 type="submit"
@@ -1452,7 +1454,7 @@
                     {/* Action Buttons */}
                     <div className="text-center">
                         <button
-                            onClick={() => setCurrentView('daily')}
+                                                            onClick={() => setCurrentViewWithPersistence('daily')}
                             className="bg-primary hover:bg-green-700 text-white font-bold py-3 px-8 rounded-full shadow-lg hover:shadow-xl transition-all duration-300"
                         >
                             Start Today's Entry
@@ -1468,9 +1470,18 @@
             const [isConnected, setIsConnected] = useState(false);
             const [isLoading, setIsLoading] = useState(true);
             const [lastSaved, setLastSaved] = useState(null);
-            const [currentView, setCurrentView] = useState('landing'); // 'landing' or 'daily'
+            const [currentView, setCurrentView] = useState(() => {
+                // Load saved view from localStorage, default to 'landing'
+                const savedView = localStorage.getItem('dailyDavid_currentView');
+                return savedView || 'landing';
+            }); // 'landing' or 'daily'
             
-            // Simple setCurrentView - no more debugging mess
+            // Wrapper for setCurrentView that saves to localStorage
+            const setCurrentViewWithPersistence = (view) => {
+                setCurrentView(view);
+                localStorage.setItem('dailyDavid_currentView', view);
+            };
+            
             // Goals are now stored in userSpecificData and loaded per user
             const saveTimeoutRef = useRef(null);
             
@@ -1756,7 +1767,7 @@
                     weeklyGoals: [],
                     monthlyGoals: []
                 });
-                setCurrentView('landing');
+                                        setCurrentViewWithPersistence('landing');
                 setCurrentDate(new Date());
             };
 
@@ -3861,7 +3872,7 @@
                         {/* View Navigation */}
                         <div className="flex items-center justify-center gap-4 mb-6">
                             <button
-                                onClick={() => setCurrentView('landing')}
+                                onClick={() => setCurrentViewWithPersistence('landing')}
                                 className={`px-6 py-2 rounded-lg font-medium transition-colors ${
                                     currentView === 'landing'
                                         ? 'bg-primary text-white shadow-md'
@@ -3871,7 +3882,7 @@
                                 🏠 Dashboard
                             </button>
                             <button
-                                onClick={() => setCurrentView('daily')}
+                                onClick={() => setCurrentViewWithPersistence('daily')}
                                 className={`px-6 py-2 rounded-lg font-medium transition-colors ${
                                     currentView === 'daily'
                                         ? 'bg-primary text-white shadow-md'
@@ -3931,7 +3942,7 @@
                                     getWeeklyProgress={getWeeklyProgress}
                                     getMonthlyProgress={getMonthlyProgress}
                                     getDaysCompletedThisWeek={getDaysCompletedThisWeek}
-                                    setCurrentView={setCurrentView}
+                                    setCurrentView={setCurrentViewWithPersistence}
                                 />
                             );
                         } else if (currentView === 'daily') {
