@@ -486,14 +486,47 @@
                             throw new Error('Database connection failed');
                         }
 
-                        // Load day data
+                        // Load day data from Neon database
                         const data = await dbManager.current.loadDayData(dateKey, userId);
-                        setDayData(data);
-                        lastSaveData.current = JSON.stringify(data);
+                        console.log('🔍 [useDayData] Loaded data from Neon:', data);
                         
-                        console.log('✅ Day data initialization complete for:', dateKey);
+                        if (data && Object.keys(data).length > 0) {
+                            setDayData(data);
+                            lastSaveData.current = JSON.stringify(data);
+                            console.log('✅ [useDayData] Day data loaded from Neon for:', dateKey);
+                        } else {
+                            // No data in Neon, check localStorage as fallback
+                            const localStorageKey = `dailyDavid_dayData_${userId}`;
+                            const localStorageData = localStorage.getItem(localStorageKey);
+                            if (localStorageData) {
+                                const parsedData = JSON.parse(localStorageData);
+                                if (parsedData[dateKey]) {
+                                    console.log('🔄 [useDayData] Loading from localStorage fallback for:', dateKey);
+                                    setDayData(parsedData[dateKey]);
+                                    lastSaveData.current = JSON.stringify(parsedData[dateKey]);
+                                    
+                                    // Also save this data to Neon for future use
+                                    try {
+                                        await dbManager.current.saveDayData(dateKey, userId, parsedData[dateKey]);
+                                        console.log('✅ [useDayData] Data migrated from localStorage to Neon');
+                                    } catch (saveError) {
+                                        console.warn('⚠️ [useDayData] Failed to migrate localStorage data to Neon:', saveError);
+                                    }
+                                } else {
+                                    const emptyData = dbManager.current.getEmptyDayStructure();
+                                    setDayData(emptyData);
+                                    lastSaveData.current = JSON.stringify(emptyData);
+                                }
+                            } else {
+                                const emptyData = dbManager.current.getEmptyDayStructure();
+                                setDayData(emptyData);
+                                lastSaveData.current = JSON.stringify(emptyData);
+                            }
+                        }
+                        
+                        console.log('✅ [useDayData] Day data initialization complete for:', dateKey);
                     } catch (err) {
-                        console.error('❌ Day data initialization failed:', err);
+                        console.error('❌ [useDayData] Day data initialization failed:', err);
                         setError(err.message);
                         // Set empty structure as fallback
                         const emptyData = dbManager.current.getEmptyDayStructure();
