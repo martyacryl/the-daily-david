@@ -2325,6 +2325,9 @@
                     category: 'spiritual' // Default category for daily goals
                 };
                 
+                console.log('🎯 [addDailyGoal] Creating new goal:', newGoal);
+                console.log('🎯 [addDailyGoal] Goal type:', goalType);
+                
                 if (goalType === 'daily') {
                     // Daily goals are stored per-day - use the hook's setDayData
                     setCurrentDayData(prevData => {
@@ -4439,6 +4442,10 @@
                                             <div className="flex-1 min-w-0">
                                                 <div className="text-sm text-gray-800 mb-1">
                                                     {goal.text}
+                                                </div>
+                                                {/* Debug: Always show category info */}
+                                                <div className="text-xs text-gray-500 mb-1">
+                                                    Debug: category = "{goal.category || 'undefined'}", hasCategory = {goal.category ? 'true' : 'false'}
                                                 </div>
                                                 {goal.category && (
                                                     <span className={`inline-block px-2 py-1 text-xs rounded-full ${
