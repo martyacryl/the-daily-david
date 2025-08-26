@@ -77,8 +77,8 @@
     <script type="text/babel">
         const { useState, useEffect, useCallback, useRef, useMemo } = React;
 
-        // Initialize Neon Database - Structured approach (copied from working marriage meeting tool)
-        const neonConnectionString = 'postgresql://neondb_owner:npg_JVaULlB0w8mo@ep-soft-rice-adn6s9vn-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require';
+        // Initialize Neon Database - Using the correct Daily David database
+        const neonConnectionString = 'postgresql://neondb_owner:npg_L5ysD0JfHSFP@ep-little-base-adgfntzb-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require';
         
         // PRODUCTION TABLE NAME
         const TABLE_NAME = 'daily_david_entries';
