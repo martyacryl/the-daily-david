@@ -1454,8 +1454,22 @@
                     {/* Action Buttons */}
                     <div className="text-center">
                         <button
-                                                            onClick={() => setCurrentViewWithPersistence('daily')}
+                            type="button"
+                            onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                console.log('🚀 Start Today\'s Entry button clicked');
+                                console.log('🎯 setCurrentView function:', typeof setCurrentView);
+                                console.log('🎯 setCurrentView value:', setCurrentView);
+                                try {
+                                    setCurrentView('daily');
+                                    console.log('✅ View changed to daily');
+                                } catch (error) {
+                                    console.error('❌ Error changing view:', error);
+                                }
+                            }}
                             className="bg-primary hover:bg-green-700 text-white font-bold py-3 px-8 rounded-full shadow-lg hover:shadow-xl transition-all duration-300"
+                            autocomplete="off"
                         >
                             Start Today's Entry
                         </button>
