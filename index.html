@@ -68,6 +68,41 @@
             box-shadow: 0 8px 25px -3px rgba(0, 0, 0, 0.1);
             border-radius: 20px;
         }
+        
+        /* Slider styling for leadership ratings */
+        .slider {
+            -webkit-appearance: none;
+            appearance: none;
+            background: #e5e7eb;
+            outline: none;
+            border-radius: 8px;
+            transition: background 0.2s;
+        }
+        
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #059669;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #059669;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .slider:hover {
+            background: #d1d5db;
+        }
     </style>
 </head>
 <body class="bg-gradient-to-br from-slate-100 to-green-50 min-h-screen">
@@ -271,6 +306,14 @@
 
             getEmptyDayStructure() {
                 return {
+                    dailyIntention: '',
+                    leadershipRating: {
+                        wisdom: 5,
+                        courage: 5,
+                        patience: 5,
+                        integrity: 5
+                    },
+                    growthQuestion: '',
                     checkIn: {
                         emotions: [],
                         feeling: ''
@@ -2338,6 +2381,15 @@
                     
                     if (dayData) {
                         // Check if the day actually has meaningful data entered
+                        const hasDailyIntention = dayData.dailyIntention && 
+                            dayData.dailyIntention.trim() !== '';
+                        
+                        const hasLeadershipRating = dayData.leadershipRating && 
+                            Object.values(dayData.leadershipRating).some(rating => rating !== 5);
+                        
+                        const hasGrowthQuestion = dayData.growthQuestion && 
+                            dayData.growthQuestion.trim() !== '';
+                        
                         const hasCheckIn = dayData.checkIn && (
                             dayData.checkIn.emotions.length > 0 || 
                             dayData.checkIn.feeling.trim() !== ''
@@ -2358,23 +2410,19 @@
                             dayData.goals.daily.length > 0 &&
                             dayData.goals.daily.some(goal => goal.text.trim() !== '');
                         
-                        // Day is completed if it has at least 2 meaningful sections filled out
-                        if (hasCheckIn || hasGratitude || hasSOAP || hasDailyGoals) {
-                            const meaningfulSections = [hasCheckIn, hasGratitude, hasSOAP, hasDailyGoals]
-                                .filter(Boolean).length;
-                            
-                            if (meaningfulSections >= 2) {
-                                completedDays++;
-                                console.log(`✅ [getDaysCompletedThisWeek] Day ${dateKey} completed with ${meaningfulSections} sections:`, {
-                                    hasCheckIn, hasGratitude, hasSOAP, hasDailyGoals
-                                });
-                            } else {
-                                console.log(`⚠️ [getDaysCompletedThisWeek] Day ${dateKey} has data but only ${meaningfulSections} sections:`, {
-                                    hasCheckIn, hasGratitude, hasSOAP, hasDailyGoals
-                                });
-                            }
+                        // Day is completed if it has at least 3 meaningful sections filled out (increased from 2)
+                        const allSections = [hasDailyIntention, hasLeadershipRating, hasGrowthQuestion, hasCheckIn, hasGratitude, hasSOAP, hasDailyGoals];
+                        const meaningfulSections = allSections.filter(Boolean).length;
+                        
+                        if (meaningfulSections >= 3) {
+                            completedDays++;
+                            console.log(`✅ [getDaysCompletedThisWeek] Day ${dateKey} completed with ${meaningfulSections} sections:`, {
+                                hasDailyIntention, hasLeadershipRating, hasGrowthQuestion, hasCheckIn, hasGratitude, hasSOAP, hasDailyGoals
+                            });
                         } else {
-                            console.log(`❌ [getDaysCompletedThisWeek] Day ${dateKey} has no meaningful data`);
+                            console.log(`⚠️ [getDaysCompletedThisWeek] Day ${dateKey} has data but only ${meaningfulSections} sections:`, {
+                                hasDailyIntention, hasLeadershipRating, hasGrowthQuestion, hasCheckIn, hasGratitude, hasSOAP, hasDailyGoals
+                            });
                         }
                     }
                 }
@@ -3703,6 +3751,69 @@
                 });
             };
 
+            const updateDailyIntention = (intention) => {
+                setCurrentDayData(prevData => {
+                    if (!prevData) return prevData;
+                    
+                    const newData = {
+                        ...prevData,
+                        dailyIntention: intention
+                    };
+                    
+                    // Also update localStorage for backup
+                    if (user && user.id) {
+                        const dayDataKey = `dailyDavid_dayData_${user.id}`;
+                        const allDayData = { ...userSpecificData.dayData, [currentDateKey]: newData };
+                        localStorage.setItem(dayDataKey, JSON.stringify(allDayData));
+                    }
+                    
+                    return newData;
+                });
+            };
+
+            const updateLeadershipRating = (trait, rating) => {
+                setCurrentDayData(prevData => {
+                    if (!prevData) return prevData;
+                    
+                    const newData = {
+                        ...prevData,
+                        leadershipRating: {
+                            ...prevData.leadershipRating,
+                            [trait]: rating
+                        }
+                    };
+                    
+                    // Also update localStorage for backup
+                    if (user && user.id) {
+                        const dayDataKey = `dailyDavid_dayData_${user.id}`;
+                        const allDayData = { ...userSpecificData.dayData, [currentDateKey]: newData };
+                        localStorage.setItem(dayDataKey, JSON.stringify(allDayData));
+                    }
+                    
+                    return newData;
+                });
+            };
+
+            const updateGrowthQuestion = (question) => {
+                setCurrentDayData(prevData => {
+                    if (!prevData) return prevData;
+                    
+                    const newData = {
+                        ...prevData,
+                        growthQuestion: question
+                    };
+                    
+                    // Also update localStorage for backup
+                    if (user && user.id) {
+                        const dayDataKey = `dailyDavid_dayData_${user.id}`;
+                        const allDayData = { ...userSpecificData.dayData, [currentDateKey]: newData };
+                        localStorage.setItem(dayDataKey, JSON.stringify(allDayData));
+                    }
+                    
+                    return newData;
+                });
+            };
+
             // Removed duplicate goal functions - using addDailyGoal, updateDailyGoal, etc. instead
 
             const navigateDate = (direction) => {
@@ -4011,6 +4122,24 @@
                                         onUpdate={updateCheckIn}
                                     />
 
+                                    {/* Daily Intention Section */}
+                                    <DailyIntentionSection 
+                                        intention={currentDayData?.dailyIntention || ''}
+                                        onUpdate={updateDailyIntention}
+                                    />
+
+                                    {/* Leadership Rating Section */}
+                                    <LeadershipRatingSection 
+                                        ratings={currentDayData?.leadershipRating || { wisdom: 5, courage: 5, patience: 5, integrity: 5 }}
+                                        onUpdate={updateLeadershipRating}
+                                    />
+
+                                    {/* Growth Question Section */}
+                                    <GrowthQuestionSection 
+                                        question={currentDayData?.growthQuestion || ''}
+                                        onUpdate={updateGrowthQuestion}
+                                    />
+
                                     {/* Gratitude Section */}
                                     <GratitudeSection 
                                         gratitude={currentDayData?.gratitude || ['', '', '']}
@@ -4078,6 +4207,143 @@
                         <p className="text-gray-400 text-xs mt-2">
                             "Be strong and courageous! Do not be afraid or discouraged. For the Lord your God is with you wherever you go." - Joshua 1:9
                         </p>
+                    </div>
+                </div>
+            );
+        };
+
+        // Daily Intention Component
+        const DailyIntentionSection = ({ intention, onUpdate }) => {
+            const [localIntention, setLocalIntention] = useState(intention || '');
+
+            useEffect(() => {
+                setLocalIntention(intention || '');
+            }, [intention]);
+
+            const handleIntentionChange = (value) => {
+                setLocalIntention(value);
+                onUpdate(value);
+            };
+
+            return (
+                <div className="modern-card mb-6">
+                    <div className="bg-gradient-to-r from-slate-400 to-green-600 text-white p-6">
+                        <h3 className="font-bold text-xl">🎯 DAILY INTENTION</h3>
+                        <p className="text-white/90 text-sm mt-2">What's your main focus today?</p>
+                    </div>
+                    
+                    <div className="p-6">
+                        <textarea
+                            value={localIntention}
+                            onChange={(e) => handleIntentionChange(e.target.value)}
+                            placeholder="Set your intention for today... (e.g., 'I will lead with patience and listen more than I speak')"
+                            className="w-full text-sm border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 resize-none"
+                            rows="3"
+                        />
+                    </div>
+                </div>
+            );
+        };
+
+        // Leadership Rating Component
+        const LeadershipRatingSection = ({ ratings, onUpdate }) => {
+            const [localRatings, setLocalRatings] = useState(ratings || {});
+
+            useEffect(() => {
+                setLocalRatings(ratings || {});
+            }, [ratings]);
+
+            const handleRatingChange = (trait, rating) => {
+                const newRatings = { ...localRatings, [trait]: rating };
+                setLocalRatings(newRatings);
+                onUpdate(trait, rating);
+            };
+
+            const traits = [
+                { key: 'wisdom', label: 'Wisdom', description: 'Making wise decisions' },
+                { key: 'courage', label: 'Courage', description: 'Facing challenges boldly' },
+                { key: 'patience', label: 'Patience', description: 'Waiting and enduring' },
+                { key: 'integrity', label: 'Integrity', description: 'Living with honesty' }
+            ];
+
+            return (
+                <div className="modern-card mb-6">
+                    <div className="bg-gradient-to-r from-slate-400 to-green-600 text-white p-6">
+                        <h3 className="font-bold text-xl">👑 LEADERSHIP RATING</h3>
+                        <p className="text-white/90 text-sm mt-2">Rate yourself on key leadership traits (1-10)</p>
+                    </div>
+                    
+                    <div className="p-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {traits.map((trait) => (
+                                <div key={trait.key} className="space-y-3">
+                                    <div>
+                                        <h4 className="font-medium text-gray-900">{trait.label}</h4>
+                                        <p className="text-sm text-gray-600">{trait.description}</p>
+                                    </div>
+                                    <div className="flex items-center space-x-2">
+                                        <span className="text-sm text-gray-600">1</span>
+                                        <input
+                                            type="range"
+                                            min="1"
+                                            max="10"
+                                            value={localRatings[trait.key] || 5}
+                                            onChange={(e) => handleRatingChange(trait.key, parseInt(e.target.value))}
+                                            className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+                                        />
+                                        <span className="text-sm text-gray-600">10</span>
+                                        <span className="text-lg font-bold text-green-600 w-8 text-center">
+                                            {localRatings[trait.key] || 5}
+                                        </span>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // Growth Question Component
+        const GrowthQuestionSection = ({ question, onUpdate }) => {
+            const [localQuestion, setLocalQuestion] = useState(question || '');
+
+            useEffect(() => {
+                setLocalQuestion(question || '');
+            }, [question]);
+
+            const handleQuestionChange = (value) => {
+                setLocalQuestion(value);
+                onUpdate(value);
+            };
+
+            const dailyQuestions = [
+                "What leadership opportunity did I take today?",
+                "How did I serve my team/family today?",
+                "What did I learn about myself today?",
+                "When did I show courage today?",
+                "How did I grow in patience today?",
+                "What decision did I make that required wisdom?",
+                "How did I demonstrate integrity today?"
+            ];
+
+            const todayQuestion = dailyQuestions[new Date().getDate() % dailyQuestions.length];
+
+            return (
+                <div className="modern-card mb-6">
+                    <div className="bg-gradient-to-r from-slate-400 to-green-600 text-white p-6">
+                        <h3 className="font-bold text-xl">🌱 GROWTH QUESTION</h3>
+                        <p className="text-white/90 text-sm mt-2">Today's reflection: {todayQuestion}</p>
+                    </div>
+                    
+                    <div className="p-6">
+                        <textarea
+                            value={localQuestion}
+                            onChange={(e) => handleQuestionChange(e.target.value)}
+                            placeholder="Reflect on today's growth question..."
+                            className="w-full text-sm border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-purple-400 resize-none"
+                            rows="3"
+                        />
                     </div>
                 </div>
             );
