@@ -2538,17 +2538,18 @@
                 localStorage.setItem(dayDataKey, JSON.stringify(allDayData));
             };
 
-            const addGoal = async (goalType, text = '', category = '') => {
+            const addGoal = async (goalType, text, category) => {
                 const dateKey = formatDateKey(currentDate);
                 
                 // Use the hook's state instead of userSpecificData
                 if (!currentDayData) return;
                 
+                // Create goal with provided text and category
                 const newGoal = {
                     id: Date.now(),
-                    text,
+                    text: text,
                     completed: false,
-                    category
+                    category: category
                 };
                 
                 // Update the hook's state directly (this will auto-save to Neon)
@@ -3073,142 +3074,13 @@
                 };
             };
 
-            // Goal management functions for daily entry view
-            const addDailyGoal = (goalType) => {
-                const newGoal = {
-                    id: Date.now(),
-                    text: '',
-                    completed: false,
-                    category: 'spiritual' // Default category for daily goals
-                };
-                
-                console.log('🎯 [addDailyGoal] Creating new goal:', newGoal);
-                console.log('🎯 [addDailyGoal] Goal type:', goalType);
-                
-                if (goalType === 'daily') {
-                    // Daily goals are stored per-day - use the hook's setDayData
-                    setCurrentDayData(prevData => {
-                        if (!prevData) return prevData;
-                        
-                        const updatedData = { ...prevData };
-                        if (!updatedData.goals) updatedData.goals = {};
-                        if (!updatedData.goals[goalType]) updatedData.goals[goalType] = [];
-                        
-                        updatedData.goals[goalType].push(newGoal);
-                        
-                        // Also update localStorage for backup
-                        if (user && user.id) {
-                            const dayDataKey = `dailyDavid_dayData_${user.id}`;
-                            const allDayData = { ...userSpecificData.dayData, [currentDateKey]: updatedData };
-                            localStorage.setItem(dayDataKey, JSON.stringify(allDayData));
-                        }
-                        
-                        // Trigger debounced save to Neon database
-                        if (user && user.id) {
-                            debouncedSave(currentDateKey, updatedData);
-                        }
-                        
-                        return updatedData;
-                    });
-                } else {
-                    // Weekly and monthly goals are stored at user level
-                    const updatedGoals = goalType === 'weekly' 
-                        ? [...userSpecificData.weeklyGoals, newGoal]
-                        : [...userSpecificData.monthlyGoals, newGoal];
-                    
-                    // Save to localStorage immediately (for backup)
-                    const goalsKey = `dailyDavid_goals_${user.id}`;
-                    const goalsData = {
-                        weeklyGoals: goalType === 'weekly' ? updatedGoals : userSpecificData.weeklyGoals,
-                        monthlyGoals: goalType === 'monthly' ? updatedGoals : userSpecificData.monthlyGoals,
-                        lastUpdated: new Date().toISOString()
-                    };
-                    localStorage.setItem(goalsKey, JSON.stringify(goalsData));
-                    
-                    // Save to Neon database immediately
-                    if (user && user.id) {
-                        const dbManager = new NeonDatabaseManager();
-                        dbManager.saveGoals(user.id, goalsData).then(({ data, error }) => {
-                            if (error) {
-                                console.error('❌ Failed to save goals to Neon:', error);
-                            } else {
-                                console.log('✅ Goals saved to Neon');
-                            }
-                        });
-                    }
-                    
-                    setUserSpecificData(prev => ({
-                        ...prev,
-                        [goalType === 'weekly' ? 'weeklyGoals' : 'monthlyGoals']: updatedGoals
-                    }));
-                }
-            };
 
-            const updateDailyGoal = (goalType, goalId, newText, newCategory) => {
-                // Use the hook's setDayData for daily goals
-                setCurrentDayData(prevData => {
-                    if (!prevData || !prevData.goals || !prevData.goals[goalType]) return prevData;
-                    
-                    const updatedData = { ...prevData };
-                    const goalIndex = updatedData.goals[goalType].findIndex(g => g.id === goalId);
-                    if (goalIndex !== -1) {
-                        updatedData.goals[goalType][goalIndex].text = newText;
-                        updatedData.goals[goalType][goalIndex].category = newCategory || 'spiritual'; // Update category too
-                        
-                        // Also update localStorage for backup
-                        if (user && user.id) {
-                            const dayDataKey = `dailyDavid_dayData_${user.id}`;
-                            const allDayData = { ...userSpecificData.dayData, [currentDateKey]: updatedData };
-                            localStorage.setItem(dayDataKey, JSON.stringify(allDayData));
-                        }
-                        
-                        return updatedData;
-                    }
-                    return prevData;
-                });
-            };
 
-            const toggleDailyGoal = (goalType, goalId) => {
-                // Use the hook's setDayData for daily goals
-                setCurrentDayData(prevData => {
-                    if (!prevData || !prevData.goals || !prevData.goals[goalType]) return prevData;
-                    
-                    const updatedData = { ...prevData };
-                    const goalIndex = updatedData.goals[goalType].findIndex(g => g.id === goalId);
-                    if (goalIndex !== -1) {
-                        updatedData.goals[goalType][goalIndex].completed = !updatedData.goals[goalType][goalIndex].completed;
-                        
-                        // Also update localStorage for backup
-                        if (user && user.id) {
-                            const dayDataKey = `dailyDavid_dayData_${user.id}`;
-                            const allDayData = { ...userSpecificData.dayData, [currentDateKey]: updatedData };
-                            localStorage.setItem(dayDataKey, JSON.stringify(allDayData));
-                        }
-                        
-                        return updatedData;
-                    }
-                    return prevData;
-                });
-            };
 
-            const removeDailyGoal = (goalType, goalId) => {
-                // Use the hook's setDayData for daily goals
-                setCurrentDayData(prevData => {
-                    if (!prevData || !prevData.goals || !prevData.goals[goalType]) return prevData;
-                    
-                    const updatedData = { ...prevData };
-                    updatedData.goals[goalType] = updatedData.goals[goalType].filter(g => g.id !== goalId);
-                    
-                    // Also update localStorage for backup
-                    if (user && user.id) {
-                        const dayDataKey = `dailyDavid_dayData_${user.id}`;
-                        const allDayData = { ...userSpecificData.dayData, [currentDateKey]: updatedData };
-                        localStorage.setItem(dayDataKey, JSON.stringify(allDayData));
-                    }
-                    
-                    return updatedData;
-                });
-            };
+
+
+
+
 
             // Initialize day data
             const initializeDayData = useCallback(async () => {
@@ -4482,7 +4354,7 @@
                 });
             };
 
-            // Removed duplicate goal functions - using addDailyGoal, updateDailyGoal, etc. instead
+                            // Removed duplicate goal functions - using addGoal, updateGoal, etc. instead
 
             const navigateDate = (direction) => {
                 const newDate = new Date(currentDate);
@@ -4834,10 +4706,10 @@
                                     subtitle="Today's objectives"
                                     goalType="daily"
                                     goals={currentDayData?.goals?.daily || []}
-                                    onAdd={addDailyGoal}
-                                    onUpdate={(goalType, id, text, category) => updateDailyGoal(goalType, id, text, category)}
-                                    onToggle={toggleDailyGoal}
-                                    onRemove={removeDailyGoal}
+                                    onAdd={addGoal}
+                                    onUpdate={updateGoal}
+                                    onToggle={toggleGoal}
+                                    onRemove={removeGoal}
                                     color="blue"
                                 />
                                 
@@ -5283,18 +5155,10 @@
             const [localInputs, setLocalInputs] = useState({});
             const [editingGoal, setEditingGoal] = useState(null);
             const [editForm, setEditForm] = useState({ text: '', category: 'spiritual' });
-            
-            // Auto-edit newly added goals
-            useEffect(() => {
-                if (goals.length > 0) {
-                    const lastGoal = goals[goals.length - 1];
-                    if (lastGoal && lastGoal.text === '' && !editingGoal) {
-                        // This is a newly added goal, start editing it automatically
-                        setEditingGoal(lastGoal.id);
-                        setEditForm({ text: '', category: lastGoal.category || 'spiritual' });
-                    }
-                }
-            }, [goals, editingGoal]);
+            const [showAddForm, setShowAddForm] = useState(false);
+            const [newGoalText, setNewGoalText] = useState('');
+            const [newGoalCategory, setNewGoalCategory] = useState('spiritual');
+
 
             useEffect(() => {
                 const newLocalInputs = {};
@@ -5308,6 +5172,16 @@
                 }
             }, [goals]);
 
+            // Handle adding new goals
+            const handleAddNewGoal = () => {
+                if (newGoalText.trim()) {
+                    onAdd(goalType, newGoalText.trim(), newGoalCategory);
+                    setNewGoalText('');
+                    setNewGoalCategory('spiritual');
+                    setShowAddForm(false);
+                }
+            };
+
             const handleInputChange = (id, value) => {
                 setLocalInputs(prev => ({ ...prev, [id]: value }));
             };
@@ -5319,6 +5193,8 @@
                     onUpdate(goalType, id, localValue);
                 }
             };
+
+
 
             const startEditing = (goal) => {
                 setEditingGoal(goal.id);
@@ -5509,12 +5385,67 @@
                         </div>
 
                         <button
-                            onClick={() => onAdd(goalType)}
+                            onClick={() => setShowAddForm(true)}
                             className={`w-full py-3 border-2 border-dashed rounded-xl transition-all duration-200 flex items-center justify-center gap-2 font-medium hover:scale-[1.02] ${colors.button}`}
                         >
                             <PlusIcon />
                             Add Goal
                         </button>
+
+                        {/* Add Goal Form */}
+                        {showAddForm && (
+                            <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+                                <div className="space-y-3">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                                            Goal Text
+                                        </label>
+                                        <textarea
+                                            value={newGoalText}
+                                            onChange={(e) => setNewGoalText(e.target.value)}
+                                            placeholder={`What do you want to accomplish ${goalType === 'daily' ? 'today' : goalType === 'weekly' ? 'this week' : 'this month'}?`}
+                                            className="w-full text-sm border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 resize-none"
+                                            rows="2"
+                                            autoFocus
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                                            Category
+                                        </label>
+                                        <select
+                                            value={newGoalCategory}
+                                            onChange={(e) => setNewGoalCategory(e.target.value)}
+                                            className="w-full text-sm border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400"
+                                        >
+                                            <option value="spiritual">Spiritual</option>
+                                            <option value="personal">Personal</option>
+                                            <option value="outreach">Outreach</option>
+                                            <option value="health">Health</option>
+                                            <option value="work">Work</option>
+                                        </select>
+                                    </div>
+                                    <div className="flex space-x-2">
+                                        <button
+                                            onClick={handleAddNewGoal}
+                                            className="bg-primary hover:bg-green-700 text-white px-4 py-2 rounded-md transition-colors"
+                                        >
+                                            Add Goal
+                                        </button>
+                                        <button
+                                            onClick={() => {
+                                                setShowAddForm(false);
+                                                setNewGoalText('');
+                                                setNewGoalCategory('spiritual');
+                                            }}
+                                            className="px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+                                        >
+                                            Cancel
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
 
                         {goals.length > 0 && (
                             <div className="mt-4 pt-4 border-t border-gray-200">
