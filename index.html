@@ -2334,10 +2334,51 @@
                 let completedDays = 0;
                 for (let d = new Date(startOfWeek); d <= endOfWeek; d.setDate(d.getDate() + 1)) {
                     const dateKey = formatDateKey(d);
-                    if (userSpecificData.dayData[dateKey]) {
-                        completedDays++;
+                    const dayData = userSpecificData.dayData[dateKey];
+                    
+                    if (dayData) {
+                        // Check if the day actually has meaningful data entered
+                        const hasCheckIn = dayData.checkIn && (
+                            dayData.checkIn.emotions.length > 0 || 
+                            dayData.checkIn.feeling.trim() !== ''
+                        );
+                        
+                        const hasGratitude = dayData.gratitude && 
+                            dayData.gratitude.some(item => item.trim() !== '');
+                        
+                        const hasSOAP = dayData.soap && (
+                            dayData.soap.scripture.trim() !== '' ||
+                            dayData.soap.observation.trim() !== '' ||
+                            dayData.soap.application.trim() !== '' ||
+                            dayData.soap.prayer.trim() !== ''
+                        );
+                        
+                        const hasDailyGoals = dayData.goals && 
+                            dayData.goals.daily && 
+                            dayData.goals.daily.length > 0 &&
+                            dayData.goals.daily.some(goal => goal.text.trim() !== '');
+                        
+                        // Day is completed if it has at least 2 meaningful sections filled out
+                        if (hasCheckIn || hasGratitude || hasSOAP || hasDailyGoals) {
+                            const meaningfulSections = [hasCheckIn, hasGratitude, hasSOAP, hasDailyGoals]
+                                .filter(Boolean).length;
+                            
+                            if (meaningfulSections >= 2) {
+                                completedDays++;
+                                console.log(`✅ [getDaysCompletedThisWeek] Day ${dateKey} completed with ${meaningfulSections} sections:`, {
+                                    hasCheckIn, hasGratitude, hasSOAP, hasDailyGoals
+                                });
+                            } else {
+                                console.log(`⚠️ [getDaysCompletedThisWeek] Day ${dateKey} has data but only ${meaningfulSections} sections:`, {
+                                    hasCheckIn, hasGratitude, hasSOAP, hasDailyGoals
+                                });
+                            }
+                        } else {
+                            console.log(`❌ [getDaysCompletedThisWeek] Day ${dateKey} has no meaningful data`);
+                        }
                     }
                 }
+                console.log(`📊 [getDaysCompletedThisWeek] Week summary: ${completedDays}/7 days completed`);
                 return completedDays;
             };
 
