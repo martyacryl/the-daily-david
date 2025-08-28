@@ -3739,6 +3739,10 @@
                         isMobile: /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
                     });
                     
+                    // CRITICAL: Always force refresh from Neon for cross-device consistency
+                    console.log('🚨 AUTO-LOAD: Forcing Neon refresh for cross-device sync...');
+                    forceRefreshFromNeon();
+                    
                     // Check if we already have data
                     const hasData = Object.keys(userSpecificData.dayData || {}).length > 0 || 
                                    (userSpecificData.weeklyGoals && userSpecificData.weeklyGoals.length > 0) || 
@@ -3847,7 +3851,31 @@
                         authLoading: authLoading
                     });
                 }
-            }, [user, isAdmin, authLoading]); // Dependencies: run when user state changes
+            }, [user, isAdmin, authLoading, forceRefreshFromNeon]); // Dependencies: run when user state changes
+
+            // PERIODIC SYNC: Keep devices in sync by refreshing data every 2 minutes
+            useEffect(() => {
+                if (user && !isAdmin && !authLoading) {
+                    console.log('🔄 PERIODIC SYNC: Setting up periodic data refresh...');
+                    
+                    // Initial sync
+                    const initialSync = setTimeout(() => {
+                        console.log('🔄 PERIODIC SYNC: Running initial sync...');
+                        forceRefreshFromNeon();
+                    }, 5000); // 5 seconds after load
+                    
+                    // Periodic sync every 2 minutes
+                    const periodicSync = setInterval(() => {
+                        console.log('🔄 PERIODIC SYNC: Running periodic sync...');
+                        forceRefreshFromNeon();
+                    }, 120000); // 2 minutes
+                    
+                    return () => {
+                        clearTimeout(initialSync);
+                        clearInterval(periodicSync);
+                    };
+                }
+            }, [user, isAdmin, authLoading, forceRefreshFromNeon]);
 
             // MOBILE FALLBACK: Force data loading if dashboard still shows zeros after delay
             useEffect(() => {
