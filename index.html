@@ -754,6 +754,28 @@
                 }
             }
 
+            async changePassword(userId, newPassword) {
+                try {
+                    // In a real app, you'd hash the password
+                    // For development, we'll store it as-is (NOT recommended for production)
+                    const passwordHash = newPassword; // In production: await bcrypt.hash(newPassword, 10)
+                    
+                    const query = `
+                        UPDATE users
+                        SET password_hash = $1, updated_at = NOW()
+                        WHERE id = $2
+                        RETURNING id, email, updated_at
+                    `;
+                    
+                    const result = await this.executeQuery(query, [passwordHash, userId]);
+                    console.log('✅ [NEON] Password changed successfully:', result);
+                    return result;
+                } catch (error) {
+                    console.error('❌ [NEON] Failed to change password:', error);
+                    throw error;
+                }
+            }
+
             // Goals management methods
             async saveGoals(userId, goalsData) {
                 try {
@@ -1177,6 +1199,15 @@
             const [newUserPassword, setNewUserPassword] = useState('');
             const [newUserDisplayName, setNewUserDisplayName] = useState('');
             const [loading, setLoading] = useState(false);
+            
+            // Password management state
+            const [currentAdminPassword, setCurrentAdminPassword] = useState('');
+            const [newAdminPassword, setNewAdminPassword] = useState('');
+            const [confirmAdminPassword, setConfirmAdminPassword] = useState('');
+            const [selectedUserId, setSelectedUserId] = useState('');
+            const [newUserPasswordChange, setNewUserPasswordChange] = useState('');
+            const [confirmUserPasswordChange, setConfirmUserPasswordChange] = useState('');
+            const [passwordLoading, setPasswordLoading] = useState(false);
 
             useEffect(() => {
                 loadUsers();
@@ -1276,6 +1307,92 @@
                     alert(`❌ Failed to create user:\n\n${error.message}`);
                 } finally {
                     setLoading(false);
+                }
+            };
+
+            const handleChangeAdminPassword = async (e) => {
+                e.preventDefault();
+                
+                if (!currentAdminPassword || !newAdminPassword || !confirmAdminPassword) {
+                    alert('Please fill in all fields');
+                    return;
+                }
+                
+                if (newAdminPassword !== confirmAdminPassword) {
+                    alert('New passwords do not match');
+                    return;
+                }
+                
+                if (newAdminPassword.length < 6) {
+                    alert('New password must be at least 6 characters long');
+                    return;
+                }
+                
+                setPasswordLoading(true);
+                try {
+                    // Verify current password first
+                    const dbManager = new NeonDatabaseManager();
+                    const currentUser = await dbManager.getUserByEmail(user.email);
+                    
+                    if (!currentUser || currentUser.password_hash !== currentAdminPassword) {
+                        alert('Current password is incorrect');
+                        return;
+                    }
+                    
+                    // Change password
+                    await dbManager.changePassword(user.id, newAdminPassword);
+                    
+                    alert('✅ Admin password changed successfully!');
+                    
+                    // Reset form
+                    setCurrentAdminPassword('');
+                    setNewAdminPassword('');
+                    setConfirmAdminPassword('');
+                    
+                } catch (error) {
+                    console.error('❌ Failed to change admin password:', error);
+                    alert(`❌ Failed to change admin password:\n\n${error.message}`);
+                } finally {
+                    setPasswordLoading(false);
+                }
+            };
+
+            const handleChangeUserPassword = async (e) => {
+                e.preventDefault();
+                
+                if (!selectedUserId || !newUserPasswordChange || !confirmUserPasswordChange) {
+                    alert('Please fill in all fields');
+                    return;
+                }
+                
+                if (newUserPasswordChange !== confirmUserPasswordChange) {
+                    alert('New passwords do not match');
+                    return;
+                }
+                
+                if (newUserPasswordChange.length < 6) {
+                    alert('New password must be at least 6 characters long');
+                    return;
+                }
+                
+                setPasswordLoading(true);
+                try {
+                    // Change user password
+                    const dbManager = new NeonDatabaseManager();
+                    await dbManager.changePassword(selectedUserId, newUserPasswordChange);
+                    
+                    alert('✅ User password changed successfully!');
+                    
+                    // Reset form
+                    setSelectedUserId('');
+                    setNewUserPasswordChange('');
+                    setConfirmUserPasswordChange('');
+                    
+                } catch (error) {
+                    console.error('❌ Failed to change user password:', error);
+                    alert(`❌ Failed to change user password:\n\n${error.message}`);
+                } finally {
+                    setPasswordLoading(false);
                 }
             };
 
@@ -1408,6 +1525,97 @@
                             </div>
                         </div>
 
+                        {/* Password Management */}
+                        <div className="modern-card p-6">
+                            <h2 className="text-2xl font-bold mb-4 text-primary">Password Management</h2>
+                            
+                            {/* Change Admin Password */}
+                            <div className="mb-6">
+                                <h3 className="text-lg font-semibold mb-3 text-gray-700">Change Admin Password</h3>
+                                <form onSubmit={handleChangeAdminPassword} className="space-y-4">
+                                    <input 
+                                        type="password" 
+                                        placeholder="Current Password" 
+                                        className="w-full p-3 border rounded-lg"
+                                        value={currentAdminPassword}
+                                        onChange={(e) => setCurrentAdminPassword(e.target.value)}
+                                        required
+                                        autoComplete="current-password"
+                                    />
+                                    <input 
+                                        type="password" 
+                                        placeholder="New Password" 
+                                        className="w-full p-3 border rounded-lg"
+                                        value={newAdminPassword}
+                                        onChange={(e) => setNewAdminPassword(e.target.value)}
+                                        required
+                                        autoComplete="new-password"
+                                    />
+                                    <input 
+                                        type="password" 
+                                        placeholder="Confirm New Password" 
+                                        className="w-full p-3 border rounded-lg"
+                                        value={confirmAdminPassword}
+                                        onChange={(e) => setConfirmAdminPassword(e.target.value)}
+                                        required
+                                        autoComplete="new-password"
+                                    />
+                                    <button 
+                                        type="submit"
+                                        disabled={passwordLoading}
+                                        className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 disabled:opacity-50"
+                                    >
+                                        {passwordLoading ? 'Changing Password...' : 'Change Admin Password'}
+                                    </button>
+                                </form>
+                            </div>
+
+                            {/* Change User Password */}
+                            <div>
+                                <h3 className="text-lg font-semibold mb-3 text-gray-700">Change User Password</h3>
+                                <form onSubmit={handleChangeUserPassword} className="space-y-4">
+                                    <select 
+                                        value={selectedUserId}
+                                        onChange={(e) => setSelectedUserId(e.target.value)}
+                                        className="w-full p-3 border rounded-lg"
+                                        required
+                                    >
+                                        <option value="">Select a user...</option>
+                                        {users.map(user => (
+                                            <option key={user.id} value={user.id}>
+                                                {user.display_name} ({user.email})
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <input 
+                                        type="password" 
+                                        placeholder="New Password" 
+                                        className="w-full p-3 border rounded-lg"
+                                        value={newUserPasswordChange}
+                                        onChange={(e) => setNewUserPasswordChange(e.target.value)}
+                                        required
+                                        autoComplete="new-password"
+                                    />
+                                    <input 
+                                        type="password" 
+                                        placeholder="Confirm New Password" 
+                                        className="w-full p-3 border rounded-lg"
+                                        value={confirmUserPasswordChange}
+                                        onChange={(e) => setConfirmUserPasswordChange(e.target.value)}
+                                        required
+                                        autoComplete="new-password"
+                                    />
+                                    <button 
+                                        type="submit"
+                                        disabled={passwordLoading || !selectedUserId}
+                                        className="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 disabled:opacity-50"
+                                    >
+                                        {passwordLoading ? 'Changing Password...' : 'Change User Password'}
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+
                         {/* System Info */}
                         <div className="modern-card p-6">
                             <h2 className="text-2xl font-bold mb-4 text-primary">System Information</h2>
@@ -1415,7 +1623,9 @@
                                 <div>
                                     <span className="font-medium">Admin User:</span> {user.email}
                                 </div>
+                                <div>
                                     <span className="font-medium">Total Users:</span> {users.length}
+                                </div>
                                 <div>
                                     <span className="font-medium">Environment:</span> Development
                                 </div>
