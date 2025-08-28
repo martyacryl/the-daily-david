@@ -809,6 +809,19 @@
                         const data = await dbManager.current.loadDayData(dateKey, userId);
                         console.log('🔍 [useDayData] Loaded data from Neon:', data);
                         
+                        // Cross-device sync logging
+                        console.log('📱 [Cross-Device Debug] useDayData loading for:', {
+                            dateKey,
+                            userId,
+                            deviceInfo: {
+                                userAgent: navigator.userAgent,
+                                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                                timestamp: new Date().toISOString()
+                            },
+                            neonDataExists: !!data,
+                            neonDataKeys: data ? Object.keys(data) : []
+                        });
+                        
                         // Check if we actually have meaningful data (not just empty structure)
                         const hasRealData = data && 
                             Object.keys(data).length > 0 && 
@@ -1095,7 +1108,7 @@
                             </div>
                         )}
                         
-                        <form onSubmit={handleSignIn} className="space-y-4" autocomplete="off" data-form-type="other" data-lpignore="true">
+                        <form onSubmit={handleSignIn} className="space-y-4" autoComplete="off" data-form-type="other" data-lpignore="true">
                             <input 
                                 type="email" 
                                 placeholder="Email" 
@@ -1103,7 +1116,7 @@
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 required
-                                autocomplete="off"
+                                autoComplete="off"
                                 data-lpignore="true"
                                 data-form-type="other"
                                 data-1p-ignore="true"
@@ -1118,7 +1131,7 @@
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
                                 required
-                                autocomplete="off"
+                                autoComplete="off"
                                 data-lpignore="true"
                                 data-form-type="other"
                                 data-1p-ignore="true"
@@ -1170,29 +1183,35 @@
                 loadUsers();
             }, []);
 
-            // Prevent credential prompts on all inputs
-            useEffect(() => {
-                const inputs = document.querySelectorAll('input[type="email"], input[type="password"]');
-                inputs.forEach(input => {
-                    input.setAttribute('data-lpignore', 'true');
-                    input.setAttribute('data-form-type', 'other');
-                    input.setAttribute('data-1p-ignore', 'true');
-                    input.setAttribute('data-bwignore', 'true');
-                    input.setAttribute('data-akignore', 'true');
-                    input.setAttribute('data-dashlane-rid', 'ignore');
-                });
-            }, []);
+            // CREDENTIAL PREVENTION TEMPORARILY DISABLED TO FIX DOTS ISSUE
+            // useEffect(() => {
+            //     const adminPanel = document.querySelector('[data-admin-panel="true"]');
+            //     if (adminPanel) {
+            //         const inputs = adminPanel.querySelectorAll('input[type="email"], input[type="password"]');
+            //         inputs.forEach(input => {
+            //             input.setAttribute('data-lpignore', 'true');
+            //             input.setAttribute('data-form-type', 'other');
+            //             input.setAttribute('data-1p-ignore', 'true');
+            //             input.setAttribute('data-bwignore', 'true');
+            //             input.setAttribute('data-akignore', 'true');
+            //             input.setAttribute('data-dashlane-rid', 'ignore');
+            //     });
+            //     }
+            // }, []);
 
-            // Prevent credential prompts
-            useEffect(() => {
-                const inputs = document.querySelectorAll('input[type="email"], input[type="password"]');
-                inputs.forEach(input => {
-                    input.setAttribute('autocomplete', 'new-password');
-                    input.setAttribute('data-lpignore', 'true');
-                    input.setAttribute('data-1p-ignore', 'true');
-                    input.setAttribute('data-form-type', 'other');
-                });
-            }, []);
+            // CREDENTIAL PREVENTION TEMPORARILY DISABLED TO FIX DOTS ISSUE
+            // useEffect(() => {
+            //     const adminPanel = document.querySelector('[data-admin-panel="true"]');
+            //     if (adminPanel) {
+            //         const inputs = adminPanel.querySelectorAll('input[type="email"], input[type="password"]');
+            //         inputs.forEach(input => {
+            //             input.setAttribute('autocomplete', 'new-password');
+            //             input.setAttribute('data-lpignore', 'true');
+            //             input.setAttribute('data-1p-ignore', 'true');
+            //             input.setAttribute('data-form-type', 'other');
+            //     });
+            //     }
+            // }, []);
 
             const loadUsers = async () => {
                 try {
@@ -1262,7 +1281,7 @@
             };
 
             return (
-                <div className="container mx-auto px-4 py-8 max-w-6xl">
+                <div className="container mx-auto px-4 py-8 max-w-6xl" data-admin-panel="true">
                     <div className="flex justify-between items-center mb-8">
                         <h1 className="text-3xl font-bold text-gray-800">Admin Panel</h1>
                         <div className="flex items-center gap-3">
@@ -1319,7 +1338,7 @@
                                 </div>
                             )}
                             
-                            <form onSubmit={handleAddUser} className="space-y-4 mb-6" autocomplete="off" data-form-type="other">
+                            <form onSubmit={handleAddUser} className="space-y-4 mb-6" autoComplete="off" data-form-type="other">
                                 <input 
                                     type="email" 
                                     placeholder="User Email" 
@@ -1327,7 +1346,7 @@
                                     value={newUserEmail}
                                     onChange={(e) => setNewUserEmail(e.target.value)}
                                     required
-                                    autocomplete="off"
+                                    autoComplete="off"
                                 />
                                 <input 
                                     type="text" 
@@ -1336,7 +1355,7 @@
                                     value={newUserDisplayName}
                                     onChange={(e) => setNewUserDisplayName(e.target.value)}
                                     required
-                                    autocomplete="off"
+                                    autoComplete="off"
                                 />
                                 <input 
                                     type="text" 
@@ -1345,10 +1364,9 @@
                                     value={newUserPassword}
                                     onChange={(e) => setNewUserEmail(e.target.value)}
                                     required
-                                    autocomplete="off"
+                                    autoComplete="off"
                                     onFocus={(e) => e.target.type = 'password'}
                                     onBlur={(e) => e.target.type = 'text'}
-                                    style={{ WebkitTextSecurity: 'disc' }}
                                 />
                                 <button 
                                     type="submit"
@@ -1427,7 +1445,7 @@
         );
 
         // Landing Page Component
-        const LandingPage = ({ weeklyGoals, monthlyGoals, toggleGoal, addGoal, removeGoal, updateGoal, getWeeklyProgress, getMonthlyProgress, getDaysCompletedThisWeek, getCompletionRate, getCurrentStreak, getWeeklySummary, getHabitStrength, setCurrentView }) => {
+        const LandingPage = ({ weeklyGoals, monthlyGoals, toggleGoal, addGoal, removeGoal, updateGoal, getWeeklyProgress, getMonthlyProgress, getDaysCompletedThisWeek, getCompletionRate, getCurrentStreak, getWeeklySummary, getHabitStrength, setCurrentView, forceRefreshFromNeon }) => {
             const [newGoalText, setNewGoalText] = useState('');
             const [newGoalCategory, setNewGoalCategory] = useState('spiritual');
             const [showAddGoal, setShowAddGoal] = useState(false);
@@ -1489,6 +1507,16 @@
                         </div>
                         
                         {/* Enhanced Quick Stats */}
+                        <div className="flex justify-center mb-4">
+                            <button
+                                onClick={forceRefreshFromNeon}
+                                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors font-medium flex items-center gap-2"
+                                title="Refresh data from database for cross-device sync"
+                            >
+                                🔄 Sync Data
+                            </button>
+                        </div>
+                        
                         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mt-8">
                             <div className="bg-white p-6 rounded-xl shadow-lg border-2 border-gray-200 hover:shadow-2xl hover:border-primary transition-all duration-300 transform hover:-translate-y-2">
                                 <div className="text-4xl font-bold text-primary mb-3">
@@ -2000,7 +2028,6 @@
                                 }
                             }}
                             className="bg-primary hover:bg-green-700 text-white font-bold py-3 px-8 rounded-full shadow-lg hover:shadow-xl transition-all duration-300"
-                            autocomplete="off"
                         >
                             Start Today's Entry
                         </button>
@@ -2045,40 +2072,46 @@
                 monthlyGoals: []
             });
 
-            // Global credential prompt prevention
-            useEffect(() => {
-                const preventCredentialPrompts = () => {
-                    // Prevent on all forms
-                    const forms = document.querySelectorAll('form');
-                    forms.forEach(form => {
-                        form.setAttribute('data-form-type', 'other');
-                        form.setAttribute('data-lpignore', 'true');
-                    });
+            // Global credential prompt prevention - DISABLED to restore working sign-in form
+
+            // Force data refresh from Neon for cross-device consistency
+            const forceRefreshFromNeon = React.useCallback(async () => {
+                if (!currentUserId) return;
+                
+                try {
+                    console.log('🔄 [Cross-Device Sync] Forcing data refresh from Neon...');
+                    const dbManager = new NeonDatabaseManager();
                     
-                    // Prevent on all email and password inputs
-                    const inputs = document.querySelectorAll('input[type="email"], input[type="password"], input[autocomplete*="password"]');
-                    inputs.forEach(input => {
-                        input.setAttribute('data-lpignore', 'true');
-                        input.setAttribute('data-form-type', 'other');
-                        input.setAttribute('data-1p-ignore', 'true');
-                        input.setAttribute('data-bwignore', 'true');
-                        input.setAttribute('data-akignore', 'true');
-                        input.setAttribute('data-dashlane-rid', 'ignore');
-                    });
-                };
-                
-                // Run immediately
-                preventCredentialPrompts();
-                
-                // Run on any DOM changes (for dynamically added forms)
-                const observer = new MutationObserver(preventCredentialPrompts);
-                observer.observe(document.body, { 
-                    childList: true, 
-                    subtree: true 
-                });
-                
-                return () => observer.disconnect();
-            }, []);
+                    // Get all days for the current week
+                    const today = new Date();
+                    const startOfWeek = new Date(today);
+                    startOfWeek.setDate(today.getDate() - today.getDay());
+                    const endOfWeek = new Date(startOfWeek);
+                    endOfWeek.setDate(startOfWeek.getDate() + 6);
+                    
+                    const refreshedData = {};
+                    
+                    for (let d = new Date(startOfWeek); d <= endOfWeek; d.setDate(d.getDate() + 1)) {
+                        const dateKey = formatDateKey(d);
+                        const neonData = await dbManager.loadDayData(dateKey, currentUserId);
+                        
+                        if (neonData && Object.keys(neonData).length > 0) {
+                            refreshedData[dateKey] = neonData;
+                            console.log(`✅ [Cross-Device Sync] Refreshed data for ${dateKey}:`, neonData);
+                        }
+                    }
+                    
+                    // Update userSpecificData with fresh Neon data
+                    setUserSpecificData(prev => ({
+                        ...prev,
+                        dayData: { ...prev.dayData, ...refreshedData }
+                    }));
+                    
+                    console.log('✅ [Cross-Device Sync] Data refresh complete. Total days refreshed:', Object.keys(refreshedData).length);
+                } catch (error) {
+                    console.error('❌ [Cross-Device Sync] Failed to refresh data from Neon:', error);
+                }
+            }, [currentUserId]);
 
             // Simple setUserSpecificData - no more debugging mess
 
@@ -2096,11 +2129,15 @@
             const currentDateKey = formatDateKey(currentDate);
             const currentUserId = user ? getCurrentUserId() : null;
             
-            // Debug date handling
+            // Debug date handling and user data
             console.log('📅 [Date Debug] Current date object:', currentDate);
             console.log('📅 [Date Debug] Current date key:', currentDateKey);
             console.log('📅 [Date Debug] Local timezone offset:', currentDate.getTimezoneOffset());
             console.log('📅 [Date Debug] Device timezone:', Intl.DateTimeFormat().resolvedOptions().timeZone);
+            console.log('👤 [User Debug] Current user:', user);
+            console.log('👤 [User Debug] Current user ID:', currentUserId);
+            console.log('👤 [User Debug] Window current user:', window.currentAuthenticatedUser);
+            
             const { dayData: currentDayData, setDayData: setCurrentDayData, isLoading: dayDataLoading, error: dayDataError, manualSave } = useDayData(currentDateKey, currentUserId);
 
             // Test Neon connection and initialize database tables only once when app starts
@@ -2153,6 +2190,19 @@
                 
                 return () => clearTimeout(timer);
             }, [initializeNeonAndDatabase]);
+
+            // Force data refresh when user changes or app loads for cross-device consistency
+            React.useEffect(() => {
+                if (currentUserId && user) {
+                    console.log('🔄 [Cross-Device Sync] User authenticated, forcing data refresh...');
+                    // Small delay to ensure Neon is initialized
+                    const timer = setTimeout(() => {
+                        forceRefreshFromNeon();
+                    }, 2000);
+                    
+                    return () => clearTimeout(timer);
+                }
+            }, [currentUserId, user, forceRefreshFromNeon]);
 
 
 
@@ -2908,11 +2958,22 @@
             };
 
             const getDaysCompletedThisWeek = () => {
-                // Ensure userSpecificData is available
+                // Force data refresh from Neon database for cross-device consistency
                 if (!userSpecificData || !userSpecificData.dayData) {
                     console.log('⚠️ [getDaysCompletedThisWeek] userSpecificData not ready yet');
                     return 0;
                 }
+                
+                // Log the actual data being used for debugging cross-device sync
+                console.log('📱 [Cross-Device Debug] getDaysCompletedThisWeek using data:', {
+                    userSpecificDataKeys: Object.keys(userSpecificData.dayData),
+                    currentUserId: currentUserId,
+                    deviceInfo: {
+                        userAgent: navigator.userAgent,
+                        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                        timestamp: new Date().toISOString()
+                    }
+                });
                 
                 const today = new Date();
                 const startOfWeek = new Date(today);
@@ -3544,7 +3605,7 @@
                 // Run immediate data restoration after auth
                 setTimeout(immediateDataRestore, 200);
 
-                return () => subscription?.unsubscribe();
+                // No cleanup needed for Neon (no subscription like Supabase)
             }, []);
 
             // Clean up timeout
@@ -4824,6 +4885,7 @@
                                     getWeeklySummary={getWeeklySummary}
                                     getHabitStrength={getHabitStrength}
                                     setCurrentView={setCurrentViewWithPersistence}
+                                    forceRefreshFromNeon={forceRefreshFromNeon}
                                 />
                             );
                         } else if (currentView === 'daily') {
