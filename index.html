@@ -2956,10 +2956,19 @@
             };
 
             const getDaysCompletedThisWeek = () => {
-                // Force data refresh from Neon database for cross-device consistency
-                if (!userSpecificData || !userSpecificData.dayData) {
-                    console.log('⚠️ [getDaysCompletedThisWeek] userSpecificData not ready yet');
-                    return 0;
+                // CRITICAL: If no local data, return 0 but trigger Neon sync immediately
+                if (!userSpecificData || !userSpecificData.dayData || Object.keys(userSpecificData.dayData).length === 0) {
+                    console.log('⚠️ [getDaysCompletedThisWeek] No local data, triggering Neon sync...');
+                    
+                    // Trigger Neon sync in background (don't wait for it)
+                    if (currentUserId) {
+                        setTimeout(() => {
+                            console.log('🔄 [getDaysCompletedThisWeek] Triggering background Neon sync...');
+                            forceRefreshFromNeon();
+                        }, 100);
+                    }
+                    
+                    return 0; // Return 0 for now, will update when Neon data loads
                 }
                 
                 // Log the actual data being used for debugging cross-device sync
@@ -3052,10 +3061,19 @@
 
             // New dashboard enhancement functions
             const getCompletionRate = () => {
-                // Ensure userSpecificData is available
-                if (!userSpecificData || !userSpecificData.dayData) {
-                    console.log('⚠️ [getCompletionRate] userSpecificData not ready yet');
-                    return { overall: 0, sections: {} };
+                // CRITICAL: If no local data, return 0 but trigger Neon sync immediately
+                if (!userSpecificData || !userSpecificData.dayData || Object.keys(userSpecificData.dayData).length === 0) {
+                    console.log('⚠️ [getCompletionRate] No local data, triggering Neon sync...');
+                    
+                    // Trigger Neon sync in background (don't wait for it)
+                    if (currentUserId) {
+                        setTimeout(() => {
+                            console.log('🔄 [getCompletionRate] Triggering background Neon sync...');
+                            forceRefreshFromNeon();
+                        }, 100);
+                    }
+                    
+                    return { overall: 0, sections: {} }; // Return 0 for now, will update when Neon data loads
                 }
                 
                 const today = new Date();
@@ -3743,106 +3761,91 @@
                     console.log('🚨 AUTO-LOAD: Forcing Neon refresh for cross-device sync...');
                     forceRefreshFromNeon();
                     
-                    // Check if we already have data
-                    const hasData = Object.keys(userSpecificData.dayData || {}).length > 0 || 
-                                   (userSpecificData.weeklyGoals && userSpecificData.weeklyGoals.length > 0) || 
-                                   (userSpecificData.monthlyGoals && userSpecificData.monthlyGoals.length > 0);
+                    // Also load from localStorage as backup while Neon loads
+                    console.log('🚨 AUTO-LOAD: Loading from localStorage as backup...');
                     
-                    console.log('🚨 AUTO-LOAD: Has data check:', {
-                        dayDataLength: Object.keys(userSpecificData.dayData || {}).length,
-                        weeklyGoalsLength: userSpecificData.weeklyGoals?.length || 0,
-                        monthlyGoalsLength: userSpecificData.monthlyGoals?.length || 0,
-                        hasData: hasData
+                    const goalsKey = `dailyDavid_goals_${user.id}`;
+                    const dayDataKey = `dailyDavid_dayData_${user.id}`;
+                    const backupKey = `dailyDavid_dayData_backup_${user.id}`;
+                    const emergencyKey = `dailyDavid_dayData_emergency_${user.id}`;
+                    
+                    console.log('🚨 AUTO-LOAD: Checking localStorage keys:', {
+                        goalsKey,
+                        dayDataKey,
+                        backupKey,
+                        emergencyKey
                     });
                     
-                    if (!hasData) {
-                        console.log('🚨 AUTO-LOAD: No data found, loading from localStorage...');
+                    const goalsData = localStorage.getItem(goalsKey);
+                    const dayDataRaw = localStorage.getItem(dayDataKey);
+                    const backupData = localStorage.getItem(backupKey);
+                    const emergencyData = localStorage.getItem(emergencyKey);
+                    
+                    console.log('🚨 AUTO-LOAD: localStorage data found:', {
+                        goalsData: !!goalsData,
+                        dayDataRaw: !!dayDataRaw,
+                        backupData: !!backupData,
+                        emergencyData: !!emergencyData
+                    });
+                    
+                    if (goalsData || dayDataRaw || backupData || emergencyData) {
+                        let weeklyGoals = [];
+                        let monthlyGoals = [];
+                        let dayData = {};
                         
-                        const goalsKey = `dailyDavid_goals_${user.id}`;
-                        const dayDataKey = `dailyDavid_dayData_${user.id}`;
-                        const backupKey = `dailyDavid_dayData_backup_${user.id}`;
-                        const emergencyKey = `dailyDavid_dayData_emergency_${user.id}`;
-                        
-                        console.log('🚨 AUTO-LOAD: Checking localStorage keys:', {
-                            goalsKey,
-                            dayDataKey,
-                            backupKey,
-                            emergencyKey
-                        });
-                        
-                        const goalsData = localStorage.getItem(goalsKey);
-                        const dayDataRaw = localStorage.getItem(dayDataKey);
-                        const backupData = localStorage.getItem(backupKey);
-                        const emergencyData = localStorage.getItem(emergencyKey);
-                        
-                        console.log('🚨 AUTO-LOAD: localStorage data found:', {
-                            goalsData: !!goalsData,
-                            dayDataRaw: !!dayDataRaw,
-                            backupData: !!backupData,
-                            emergencyData: !!emergencyData
-                        });
-                        
-                        if (goalsData || dayDataRaw || backupData || emergencyData) {
-                            let weeklyGoals = [];
-                            let monthlyGoals = [];
-                            let dayData = {};
-                            
-                            if (goalsData) {
-                                try {
-                                    const parsed = JSON.parse(goalsData);
-                                    weeklyGoals = parsed.weeklyGoals || [];
-                                    monthlyGoals = parsed.monthlyGoals || [];
-                                    console.log('✅ AUTO-LOAD: Goals loaded from localStorage:', {
-                                        weeklyGoals: weeklyGoals.length,
-                                        monthlyGoals: monthlyGoals.length
-                                    });
-                                } catch (error) {
-                                    console.error('❌ Error parsing goals:', error);
-                                }
+                        if (goalsData) {
+                            try {
+                                const parsed = JSON.parse(goalsData);
+                                weeklyGoals = parsed.weeklyGoals || [];
+                                monthlyGoals = parsed.monthlyGoals || [];
+                                console.log('✅ AUTO-LOAD: Goals loaded from localStorage:', {
+                                    weeklyGoals: weeklyGoals.length,
+                                    monthlyGoals: monthlyGoals.length
+                                });
+                            } catch (error) {
+                                console.error('❌ Error parsing goals:', error);
                             }
-                            
-                            if (dayDataRaw) {
-                                try {
-                                    dayData = JSON.parse(dayDataRaw);
-                                    console.log('✅ AUTO-LOAD: Day data loaded from primary localStorage. Keys:', Object.keys(dayData));
-                                } catch (error) {
-                                    console.error('❌ Error parsing primary day data:', error);
-                                }
-                            } else if (backupData) {
-                                try {
-                                    dayData = JSON.parse(backupData);
-                                    console.log('✅ AUTO-LOAD: Day data loaded from backup localStorage. Keys:', Object.keys(dayData));
-                                } catch (error) {
-                                    console.error('❌ Error parsing backup day data:', error);
-                                }
-                            } else if (emergencyData) {
-                                try {
-                                    dayData = JSON.parse(emergencyData);
-                                    console.log('✅ AUTO-LOAD: Day data loaded from emergency localStorage. Keys:', Object.keys(dayData));
-                                } catch (error) {
-                                    console.error('❌ Error parsing emergency day data:', error);
-                                }
-                            }
-                            
-                            // Update state with loaded data
-                            console.log('🚨 AUTO-LOAD: About to update state with:', {
-                                dayDataKeys: Object.keys(dayData),
-                                weeklyGoalsLength: weeklyGoals.length,
-                                monthlyGoalsLength: monthlyGoals.length
-                            });
-                            
-                            setUserSpecificData({
-                                dayData: dayData,
-                                weeklyGoals: weeklyGoals,
-                                monthlyGoals: monthlyGoals
-                            });
-                            
-                            console.log('✅ AUTO-LOAD: Data loading complete. Day data keys:', Object.keys(dayData));
-                        } else {
-                            console.log('⚠️ AUTO-LOAD: No data found in localStorage, will load when visiting daily entries');
                         }
+                        
+                        if (dayDataRaw) {
+                            try {
+                                dayData = JSON.parse(dayDataRaw);
+                                console.log('✅ AUTO-LOAD: Day data loaded from primary localStorage. Keys:', Object.keys(dayData));
+                            } catch (error) {
+                                console.error('❌ Error parsing primary day data:', error);
+                            }
+                        } else if (backupData) {
+                            try {
+                                dayData = JSON.parse(backupData);
+                                console.log('✅ AUTO-LOAD: Day data loaded from backup localStorage. Keys:', Object.keys(dayData));
+                            } catch (error) {
+                                console.error('❌ Error parsing backup day data:', error);
+                            }
+                        } else if (emergencyData) {
+                            try {
+                                dayData = JSON.parse(emergencyData);
+                                console.log('✅ AUTO-LOAD: Day data loaded from emergency localStorage. Keys:', Object.keys(dayData));
+                            } catch (error) {
+                                console.error('❌ Error parsing emergency day data:', error);
+                            }
+                        }
+                        
+                        // Update state with loaded data
+                        console.log('🚨 AUTO-LOAD: About to update state with:', {
+                            dayDataKeys: Object.keys(dayData),
+                            weeklyGoalsLength: weeklyGoals.length,
+                            monthlyGoalsLength: monthlyGoals.length
+                        });
+                        
+                        setUserSpecificData({
+                            dayData: dayData,
+                            weeklyGoals: weeklyGoals,
+                            monthlyGoals: monthlyGoals
+                        });
+                        
+                        console.log('✅ AUTO-LOAD: Data loading complete. Day data keys:', Object.keys(dayData));
                     } else {
-                        console.log('✅ AUTO-LOAD: Data already loaded, no action needed');
+                        console.log('⚠️ AUTO-LOAD: No localStorage data found, waiting for Neon to load...');
                     }
                 } else {
                     console.log('⚠️ AUTO-LOAD: Conditions not met:', {
