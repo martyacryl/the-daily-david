@@ -1357,15 +1357,13 @@
                                     autoComplete="off"
                                 />
                                 <input 
-                                    type="text" 
+                                    type="password" 
                                     placeholder="Password" 
                                     className="w-full p-3 border rounded-lg"
                                     value={newUserPassword}
-                                    onChange={(e) => setNewUserEmail(e.target.value)}
+                                    onChange={(e) => setNewUserPassword(e.target.value)}
                                     required
-                                    autoComplete="off"
-                                    onFocus={(e) => e.target.type = 'password'}
-                                    onBlur={(e) => e.target.type = 'text'}
+                                    autoComplete="new-password"
                                 />
                                 <button 
                                     type="submit"
