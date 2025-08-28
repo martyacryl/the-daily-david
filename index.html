@@ -122,6 +122,35 @@
             position: absolute;
             top: 0;
             left: 0;
+        }
+
+        /* Prevent browser autocomplete styling and credential prompts */
+        input:-webkit-autofill,
+        input:-webkit-autofill:hover,
+        input:-webkit-autofill:focus,
+        input:-webkit-autofill:active {
+            -webkit-box-shadow: 0 0 0 30px white inset !important;
+            -webkit-text-fill-color: inherit !important;
+            transition: background-color 5000s ease-in-out 0s;
+        }
+
+        input[autocomplete="off"] {
+            background-color: white !important;
+        }
+
+        /* Additional credential prompt prevention */
+        input[type="email"][autocomplete="off"],
+        input[type="password"][autocomplete="off"] {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+        }
+
+        .modern-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
             right: 0;
             height: 4px;
             background: linear-gradient(90deg, #059669 0%, #10b981 100%);
@@ -1119,6 +1148,30 @@
                 loadUsers();
             }, []);
 
+            // Prevent credential prompts on all inputs
+            useEffect(() => {
+                const inputs = document.querySelectorAll('input[type="email"], input[type="password"]');
+                inputs.forEach(input => {
+                    input.setAttribute('data-lpignore', 'true');
+                    input.setAttribute('data-form-type', 'other');
+                    input.setAttribute('data-1p-ignore', 'true');
+                    input.setAttribute('data-bwignore', 'true');
+                    input.setAttribute('data-akignore', 'true');
+                    input.setAttribute('data-dashlane-rid', 'ignore');
+                });
+            }, []);
+
+            // Prevent credential prompts
+            useEffect(() => {
+                const inputs = document.querySelectorAll('input[type="email"], input[type="password"]');
+                inputs.forEach(input => {
+                    input.setAttribute('autocomplete', 'new-password');
+                    input.setAttribute('data-lpignore', 'true');
+                    input.setAttribute('data-1p-ignore', 'true');
+                    input.setAttribute('data-form-type', 'other');
+                });
+            }, []);
+
             const loadUsers = async () => {
                 try {
                     console.log('Loading users from Neon database...');
@@ -1144,6 +1197,13 @@
 
             const handleAddUser = async (e) => {
                 e.preventDefault();
+                
+                // Prevent credential prompts
+                e.target.querySelectorAll('input').forEach(input => {
+                    input.setAttribute('data-lpignore', 'true');
+                    input.setAttribute('data-form-type', 'other');
+                });
+                
                 if (!newUserEmail || !newUserPassword || !newUserDisplayName) return;
 
                 setLoading(true);
@@ -1237,7 +1297,7 @@
                                 </div>
                             )}
                             
-                            <form onSubmit={handleAddUser} className="space-y-4 mb-6" autocomplete="off">
+                            <form onSubmit={handleAddUser} className="space-y-4 mb-6" autocomplete="off" data-form-type="other">
                                 <input 
                                     type="email" 
                                     placeholder="User Email" 
@@ -1245,6 +1305,7 @@
                                     value={newUserEmail}
                                     onChange={(e) => setNewUserEmail(e.target.value)}
                                     required
+                                    autocomplete="off"
                                 />
                                 <input 
                                     type="text" 
@@ -1253,14 +1314,19 @@
                                     value={newUserDisplayName}
                                     onChange={(e) => setNewUserDisplayName(e.target.value)}
                                     required
+                                    autocomplete="off"
                                 />
                                 <input 
-                                    type="password" 
+                                    type="text" 
                                     placeholder="Password" 
                                     className="w-full p-3 border rounded-lg"
                                     value={newUserPassword}
-                                    onChange={(e) => setNewUserPassword(e.target.value)}
+                                    onChange={(e) => setNewUserEmail(e.target.value)}
                                     required
+                                    autocomplete="off"
+                                    onFocus={(e) => e.target.type = 'password'}
+                                    onBlur={(e) => e.target.type = 'text'}
+                                    style={{ WebkitTextSecurity: 'disc' }}
                                 />
                                 <button 
                                     type="submit"
