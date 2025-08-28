@@ -1491,22 +1491,30 @@
                         {/* Enhanced Quick Stats */}
                         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mt-8">
                             <div className="bg-white p-6 rounded-xl shadow-lg border-2 border-gray-200 hover:shadow-2xl hover:border-primary transition-all duration-300 transform hover:-translate-y-2">
-                                <div className="text-4xl font-bold text-primary mb-3">{daysCompleted}/7</div>
+                                <div className="text-4xl font-bold text-primary mb-3">
+                                    {daysCompleted !== undefined ? `${daysCompleted}/7` : '...'}
+                                </div>
                                 <div className="text-base font-semibold text-gray-700 uppercase tracking-wide">Days This Week</div>
                                 <div className="w-16 h-1.5 bg-primary rounded-full mt-4"></div>
                             </div>
                             <div className="bg-white p-6 rounded-xl shadow-lg border-2 border-gray-200 hover:shadow-2xl hover:border-primary transition-all duration-300 transform hover:-translate-y-2">
-                                <div className="text-4xl font-bold text-primary mb-3">{weeklyProgress.percentage}%</div>
+                                <div className="text-4xl font-bold text-primary mb-3">
+                                    {weeklyProgress?.percentage !== undefined ? `${weeklyProgress.percentage}%` : '...'}
+                                </div>
                                 <div className="text-base font-semibold text-gray-700 uppercase tracking-wide">Weekly Goals</div>
                                 <div className="w-16 h-1.5 bg-primary rounded-full mt-4"></div>
                             </div>
                             <div className="bg-white p-6 rounded-xl shadow-lg border-2 border-gray-200 hover:shadow-2xl hover:border-primary transition-all duration-300 transform hover:-translate-y-2">
-                                <div className="text-4xl font-bold text-primary mb-3">{monthlyProgress.percentage}%</div>
+                                <div className="text-4xl font-bold text-primary mb-3">
+                                    {monthlyProgress?.percentage !== undefined ? `${monthlyProgress.percentage}%` : '...'}
+                                </div>
                                 <div className="text-base font-semibold text-gray-700 uppercase tracking-wide">Monthly Goals</div>
                                 <div className="w-16 h-1.5 bg-primary rounded-full mt-4"></div>
                             </div>
                             <div className="bg-white p-6 rounded-xl shadow-lg border-2 border-gray-200 hover:shadow-2xl hover:border-green-600 transition-all duration-300 transform hover:-translate-y-2">
-                                <div className="text-4xl font-bold text-green-600 mb-3">{getCurrentStreak()?.current || 0} 🔥</div>
+                                <div className="text-4xl font-bold text-green-600 mb-3">
+                                    {getCurrentStreak()?.current !== undefined ? `${getCurrentStreak().current} 🔥` : '...'}
+                                </div>
                                 <div className="text-base font-semibold text-gray-700 uppercase tracking-wide">Current Streak</div>
                                 <div className="w-16 h-1.5 bg-green-600 rounded-full mt-4"></div>
                             </div>
@@ -1523,12 +1531,14 @@
                             <div className="mb-8">
                                 <div className="flex justify-between items-center mb-3">
                                     <span className="text-base font-medium text-gray-700">Overall Completion</span>
-                                    <span className="text-3xl font-bold text-primary">{getCompletionRate()?.overall || 0}%</span>
+                                    <span className="text-3xl font-bold text-primary">
+                                        {getCompletionRate()?.overall !== undefined ? `${getCompletionRate().overall}%` : '...'}
+                                    </span>
                                 </div>
                                 <div className="w-full bg-gray-200 rounded-full h-4 progress-bar">
                                     <div 
                                         className="progress-fill h-4 rounded-full"
-                                        style={{ width: `${getCompletionRate()?.overall || 0}%` }}
+                                        style={{ width: `${getCompletionRate()?.overall !== undefined ? getCompletionRate().overall : 0}%` }}
                                     ></div>
                                 </div>
                             </div>
@@ -1537,9 +1547,13 @@
                             <div className="mb-6">
                                 <div className="flex justify-between items-center mb-3">
                                     <span className="text-base font-medium text-gray-700">Habit Strength</span>
-                                    <span className="text-xl font-semibold text-green-600">{getHabitStrength()?.category || 'Building'}</span>
+                                    <span className="text-xl font-semibold text-green-600">
+                                        {getHabitStrength()?.category !== undefined ? getHabitStrength().category : '...'}
+                                    </span>
                                 </div>
-                                <div className="text-4xl font-bold text-green-600 mb-2">{getHabitStrength()?.overall || 0}/100</div>
+                                <div className="text-4xl font-bold text-green-600 mb-2">
+                                    {getHabitStrength()?.overall !== undefined ? `${getHabitStrength().overall}/100` : '...'}
+                                </div>
                                 <div className="w-16 h-1 bg-green-200 rounded-full"></div>
                             </div>
 
@@ -1589,11 +1603,15 @@
                                     <span className="text-3xl">⚡</span>
                                     <div>
                                         <div className="text-sm font-medium text-gray-600">Most Productive Day</div>
-                                        <div className="text-2xl font-bold text-primary">{getWeeklySummary()?.mvp || 'No data yet'}</div>
+                                        <div className="text-2xl font-bold text-primary">
+                                            {getWeeklySummary()?.mvp !== undefined ? getWeeklySummary().mvp : '...'}
+                                        </div>
                                     </div>
                                 </div>
                                 <div className="text-sm text-gray-600 ml-16">
-                                    Completion Rate: <span className="font-semibold text-primary">{getWeeklySummary()?.completionRate || 0}%</span>
+                                    Completion Rate: <span className="font-semibold text-primary">
+                                        {getWeeklySummary()?.completionRate !== undefined ? `${getWeeklySummary().completionRate}%` : '...'}
+                                    </span>
                                 </div>
                             </div>
 
@@ -1603,7 +1621,9 @@
                                     <span className="text-3xl">🎯</span>
                                     <div>
                                         <div className="text-sm font-medium text-gray-600">Pattern Recognition</div>
-                                        <div className="text-xl font-semibold text-green-600">{getWeeklySummary()?.pattern || 'Building consistency'}</div>
+                                        <div className="text-xl font-semibold text-green-600">
+                                            {getWeeklySummary()?.pattern !== undefined ? getWeeklySummary().pattern : '...'}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -2888,6 +2908,12 @@
             };
 
             const getDaysCompletedThisWeek = () => {
+                // Ensure userSpecificData is available
+                if (!userSpecificData || !userSpecificData.dayData) {
+                    console.log('⚠️ [getDaysCompletedThisWeek] userSpecificData not ready yet');
+                    return 0;
+                }
+                
                 const today = new Date();
                 const startOfWeek = new Date(today);
                 startOfWeek.setDate(today.getDate() - today.getDay());
@@ -2952,6 +2978,12 @@
 
             // New dashboard enhancement functions
             const getCompletionRate = () => {
+                // Ensure userSpecificData is available
+                if (!userSpecificData || !userSpecificData.dayData) {
+                    console.log('⚠️ [getCompletionRate] userSpecificData not ready yet');
+                    return { overall: 0, sections: {} };
+                }
+                
                 const today = new Date();
                 const startOfWeek = new Date(today);
                 startOfWeek.setDate(today.getDate() - today.getDay());
@@ -3046,6 +3078,12 @@
             };
 
             const getCurrentStreak = () => {
+                // Ensure userSpecificData is available
+                if (!userSpecificData || !userSpecificData.dayData) {
+                    console.log('⚠️ [getCurrentStreak] userSpecificData not ready yet');
+                    return { current: 0, best: 0 };
+                }
+                
                 const today = new Date();
                 let currentStreak = 0;
                 let bestStreak = 0;
@@ -3096,6 +3134,12 @@
             };
 
             const getWeeklySummary = () => {
+                // Ensure userSpecificData is available
+                if (!userSpecificData || !userSpecificData.dayData) {
+                    console.log('⚠️ [getWeeklySummary] userSpecificData not ready yet');
+                    return { mvp: 'No data yet', pattern: 'Building consistency', completionRate: 0 };
+                }
+                
                 const today = new Date();
                 const startOfWeek = new Date(today);
                 startOfWeek.setDate(today.getDate() - today.getDay());
@@ -3177,6 +3221,12 @@
             };
 
             const getHabitStrength = () => {
+                // Ensure userSpecificData is available
+                if (!userSpecificData || !userSpecificData.dayData) {
+                    console.log('⚠️ [getHabitStrength] userSpecificData not ready yet');
+                    return { overall: 0, category: 'Building' };
+                }
+                
                 const completionRate = getCompletionRate();
                 const overall = completionRate.overall;
                 
