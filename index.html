@@ -2985,49 +2985,64 @@
                     const dayData = userSpecificData.dayData[dateKey];
                     
                     if (dayData) {
-                        // Check if the day actually has meaningful data entered
+                        // Debug: Log the actual day data structure
+                        console.log(`🔍 [getDaysCompletedThisWeek] Checking day ${dateKey}:`, dayData);
+                        
+                        // More robust checks that handle different data structures
                         const hasDailyIntention = dayData.dailyIntention && 
+                            typeof dayData.dailyIntention === 'string' && 
                             dayData.dailyIntention.trim() !== '';
                         
                         const hasLeadershipRating = dayData.leadershipRating && 
-                            Object.values(dayData.leadershipRating).some(rating => rating !== 5);
+                            typeof dayData.leadershipRating === 'object' && 
+                            Object.values(dayData.leadershipRating).some(rating => 
+                                rating !== null && rating !== undefined && rating !== 5
+                            );
                         
                         const hasGrowthQuestion = dayData.growthQuestion && 
+                            typeof dayData.growthQuestion === 'string' && 
                             dayData.growthQuestion.trim() !== '';
                         
                         const hasCheckIn = dayData.checkIn && (
-                            dayData.checkIn.emotions.length > 0 || 
-                            dayData.checkIn.feeling.trim() !== ''
+                            (dayData.checkIn.emotions && Array.isArray(dayData.checkIn.emotions) && dayData.checkIn.emotions.length > 0) || 
+                            (dayData.checkIn.feeling && typeof dayData.checkIn.feeling === 'string' && dayData.checkIn.feeling.trim() !== '')
                         );
                         
                         const hasGratitude = dayData.gratitude && 
-                            dayData.gratitude.some(item => item.trim() !== '');
+                            Array.isArray(dayData.gratitude) && 
+                            dayData.gratitude.some(item => 
+                                item && typeof item === 'string' && item.trim() !== ''
+                            );
                         
                         const hasSOAP = dayData.soap && (
-                            dayData.soap.scripture.trim() !== '' ||
-                            dayData.soap.observation.trim() !== '' ||
-                            dayData.soap.application.trim() !== '' ||
-                            dayData.soap.prayer.trim() !== ''
+                            (dayData.soap.scripture && typeof dayData.soap.scripture === 'string' && dayData.soap.scripture.trim() !== '') ||
+                            (dayData.soap.observation && typeof dayData.soap.observation === 'string' && dayData.soap.observation.trim() !== '') ||
+                            (dayData.soap.application && typeof dayData.soap.application === 'string' && dayData.soap.application.trim() !== '') ||
+                            (dayData.soap.prayer && typeof dayData.soap.prayer === 'string' && dayData.soap.prayer.trim() !== '')
                         );
                         
                         const hasDailyGoals = dayData.goals && 
                             dayData.goals.daily && 
+                            Array.isArray(dayData.goals.daily) && 
                             dayData.goals.daily.length > 0 &&
-                            dayData.goals.daily.some(goal => goal.text.trim() !== '');
+                            dayData.goals.daily.some(goal => 
+                                goal && goal.text && typeof goal.text === 'string' && goal.text.trim() !== ''
+                            );
                         
-                        // Day is completed if it has at least 3 meaningful sections filled out (increased from 2)
+                        // Day is completed if it has at least 2 meaningful sections filled out (reduced from 3)
                         const allSections = [hasDailyIntention, hasLeadershipRating, hasGrowthQuestion, hasCheckIn, hasGratitude, hasSOAP, hasDailyGoals];
                         const meaningfulSections = allSections.filter(Boolean).length;
                         
-                        if (meaningfulSections >= 3) {
+                        console.log(`🔍 [getDaysCompletedThisWeek] Day ${dateKey} section check:`, {
+                            hasDailyIntention, hasLeadershipRating, hasGrowthQuestion, hasCheckIn, hasGratitude, hasSOAP, hasDailyGoals,
+                            meaningfulSections, required: 2
+                        });
+                        
+                        if (meaningfulSections >= 2) {
                             completedDays++;
-                            console.log(`✅ [getDaysCompletedThisWeek] Day ${dateKey} completed with ${meaningfulSections} sections:`, {
-                                hasDailyIntention, hasLeadershipRating, hasGrowthQuestion, hasCheckIn, hasGratitude, hasSOAP, hasDailyGoals
-                            });
+                            console.log(`✅ [getDaysCompletedThisWeek] Day ${dateKey} completed with ${meaningfulSections} sections`);
                         } else {
-                            console.log(`⚠️ [getDaysCompletedThisWeek] Day ${dateKey} has data but only ${meaningfulSections} sections:`, {
-                                hasDailyIntention, hasLeadershipRating, hasGrowthQuestion, hasCheckIn, hasGratitude, hasSOAP, hasDailyGoals
-                            });
+                            console.log(`⚠️ [getDaysCompletedThisWeek] Day ${dateKey} has data but only ${meaningfulSections} sections`);
                         }
                     }
                 }
@@ -3069,38 +3084,51 @@
                             let isCompleted = false;
                             switch (section) {
                                 case 'dailyIntention':
-                                    isCompleted = dayData.dailyIntention && dayData.dailyIntention.trim() !== '';
+                                    isCompleted = dayData.dailyIntention && 
+                                        typeof dayData.dailyIntention === 'string' && 
+                                        dayData.dailyIntention.trim() !== '';
                                     break;
                                 case 'leadershipRating':
                                     isCompleted = dayData.leadershipRating && 
-                                        Object.values(dayData.leadershipRating).some(rating => rating !== 5);
+                                        typeof dayData.leadershipRating === 'object' && 
+                                        Object.values(dayData.leadershipRating).some(rating => 
+                                            rating !== null && rating !== undefined && rating !== 5
+                                        );
                                     break;
                                 case 'growthQuestion':
-                                    isCompleted = dayData.growthQuestion && dayData.growthQuestion.trim() !== '';
+                                    isCompleted = dayData.growthQuestion && 
+                                        typeof dayData.growthQuestion === 'string' && 
+                                        dayData.growthQuestion.trim() !== '';
                                     break;
                                 case 'checkIn':
                                     isCompleted = dayData.checkIn && (
-                                        dayData.checkIn.emotions.length > 0 || 
-                                        dayData.checkIn.feeling.trim() !== ''
+                                        (dayData.checkIn.emotions && Array.isArray(dayData.checkIn.emotions) && dayData.checkIn.emotions.length > 0) || 
+                                        (dayData.checkIn.feeling && typeof dayData.checkIn.feeling === 'string' && dayData.checkIn.feeling.trim() !== '')
                                     );
                                     break;
                                 case 'gratitude':
                                     isCompleted = dayData.gratitude && 
-                                        dayData.gratitude.some(item => item.trim() !== '');
+                                        Array.isArray(dayData.gratitude) && 
+                                        dayData.gratitude.some(item => 
+                                            item && typeof item === 'string' && item.trim() !== ''
+                                        );
                                     break;
                                 case 'soap':
                                     isCompleted = dayData.soap && (
-                                        dayData.soap.scripture.trim() !== '' ||
-                                        dayData.soap.observation.trim() !== '' ||
-                                        dayData.soap.application.trim() !== '' ||
-                                        dayData.soap.prayer.trim() !== ''
+                                        (dayData.soap.scripture && typeof dayData.soap.scripture === 'string' && dayData.soap.scripture.trim() !== '') ||
+                                        (dayData.soap.observation && typeof dayData.soap.observation === 'string' && dayData.soap.observation.trim() !== '') ||
+                                        (dayData.soap.application && typeof dayData.soap.application === 'string' && dayData.soap.application.trim() !== '') ||
+                                        (dayData.soap.prayer && typeof dayData.soap.prayer === 'string' && dayData.soap.prayer.trim() !== '')
                                     );
                                     break;
                                 case 'dailyGoals':
                                     isCompleted = dayData.goals && 
                                         dayData.goals.daily && 
+                                        Array.isArray(dayData.goals.daily) && 
                                         dayData.goals.daily.length > 0 &&
-                                        dayData.goals.daily.some(goal => goal.text.trim() !== '');
+                                        dayData.goals.daily.some(goal => 
+                                            goal && goal.text && typeof goal.text === 'string' && goal.text.trim() !== ''
+                                        );
                                     break;
                             }
                             
