@@ -3719,6 +3719,85 @@
                 }
             }, [currentView, currentDate, currentDayData, user, isAdmin, userSpecificData.dayData, userSpecificData.weeklyGoals, userSpecificData.monthlyGoals]);
 
+            // AUTO-LOAD USER DATA: Automatically load user data when user state changes
+            useEffect(() => {
+                if (user && !isAdmin && !authLoading) {
+                    console.log('🚨 AUTO-LOAD: User authenticated, automatically loading data...');
+                    
+                    // Check if we already have data
+                    const hasData = Object.keys(userSpecificData.dayData).length > 0 || 
+                                   userSpecificData.weeklyGoals.length > 0 || 
+                                   userSpecificData.monthlyGoals.length > 0;
+                    
+                    if (!hasData) {
+                        console.log('🚨 AUTO-LOAD: No data found, loading from localStorage...');
+                        
+                        const goalsKey = `dailyDavid_goals_${user.id}`;
+                        const dayDataKey = `dailyDavid_dayData_${user.id}`;
+                        const backupKey = `dailyDavid_dayData_backup_${user.id}`;
+                        const emergencyKey = `dailyDavid_dayData_emergency_${user.id}`;
+                        
+                        const goalsData = localStorage.getItem(goalsKey);
+                        const dayDataRaw = localStorage.getItem(dayDataKey);
+                        const backupData = localStorage.getItem(backupKey);
+                        const emergencyData = localStorage.getItem(emergencyKey);
+                        
+                        if (goalsData || dayDataRaw || backupData || emergencyData) {
+                            let weeklyGoals = [];
+                            let monthlyGoals = [];
+                            let dayData = {};
+                            
+                            if (goalsData) {
+                                try {
+                                    const parsed = JSON.parse(goalsData);
+                                    weeklyGoals = parsed.weeklyGoals || [];
+                                    monthlyGoals = parsed.monthlyGoals || [];
+                                    console.log('✅ AUTO-LOAD: Goals loaded from localStorage');
+                                } catch (error) {
+                                    console.error('❌ Error parsing goals:', error);
+                                }
+                            }
+                            
+                            if (dayDataRaw) {
+                                try {
+                                    dayData = JSON.parse(dayDataRaw);
+                                    console.log('✅ AUTO-LOAD: Day data loaded from primary localStorage');
+                                } catch (error) {
+                                    console.error('❌ Error parsing primary day data:', error);
+                                }
+                            } else if (backupData) {
+                                try {
+                                    dayData = JSON.parse(backupData);
+                                    console.log('✅ AUTO-LOAD: Day data loaded from backup localStorage');
+                                } catch (error) {
+                                    console.error('❌ Error parsing backup day data:', error);
+                                }
+                            } else if (emergencyData) {
+                                try {
+                                    dayData = JSON.parse(emergencyData);
+                                    console.log('✅ AUTO-LOAD: Day data loaded from emergency localStorage');
+                                } catch (error) {
+                                    console.error('❌ Error parsing emergency day data:', error);
+                                }
+                            }
+                            
+                            // Update state with loaded data
+                            setUserSpecificData({
+                                dayData: dayData,
+                                weeklyGoals: weeklyGoals,
+                                monthlyGoals: monthlyGoals
+                            });
+                            
+                            console.log('✅ AUTO-LOAD: Data loading complete. Day data keys:', Object.keys(dayData));
+                        } else {
+                            console.log('⚠️ AUTO-LOAD: No data found in localStorage, will load when visiting daily entries');
+                        }
+                    } else {
+                        console.log('✅ AUTO-LOAD: Data already loaded, no action needed');
+                    }
+                }
+            }, [user, isAdmin, authLoading]); // Dependencies: run when user state changes
+
             // BULLETPROOF: Force restore data from localStorage whenever user changes
             useEffect(() => {
                 if (user && !isAdmin) {
