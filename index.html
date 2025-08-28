@@ -303,18 +303,16 @@
             transition: background-color 5000s ease-in-out 0s;
         }
 
-        /* Additional autocomplete prevention */
+        /* Additional autocomplete prevention - REMOVED -webkit-text-security to fix dots */
         input[autocomplete="off"] {
             background-image: none !important;
             background-color: white !important;
-            -webkit-text-security: disc;
             -webkit-appearance: none;
         }
         
-        /* Global credential prompt prevention */
+        /* Global credential prompt prevention - REMOVED -webkit-text-security to fix dots */
         form[data-form-type="other"],
         input[data-lpignore="true"] {
-            -webkit-text-security: disc;
             -webkit-appearance: none;
             background-image: none !important;
         }
