@@ -307,6 +307,16 @@
         input[autocomplete="off"] {
             background-image: none !important;
             background-color: white !important;
+            -webkit-text-security: disc;
+            -webkit-appearance: none;
+        }
+        
+        /* Global credential prompt prevention */
+        form[data-form-type="other"],
+        input[data-lpignore="true"] {
+            -webkit-text-security: disc;
+            -webkit-appearance: none;
+            background-image: none !important;
         }
 
         /* Enhanced Animations */
@@ -1085,7 +1095,7 @@
                             </div>
                         )}
                         
-                        <form onSubmit={handleSignIn} className="space-y-4" autocomplete="off">
+                        <form onSubmit={handleSignIn} className="space-y-4" autocomplete="off" data-form-type="other" data-lpignore="true">
                             <input 
                                 type="email" 
                                 placeholder="Email" 
@@ -1094,6 +1104,12 @@
                                 onChange={(e) => setEmail(e.target.value)}
                                 required
                                 autocomplete="off"
+                                data-lpignore="true"
+                                data-form-type="other"
+                                data-1p-ignore="true"
+                                data-bwignore="true"
+                                data-akignore="true"
+                                data-dashlane-rid="ignore"
                             />
                             <input 
                                 type="password" 
@@ -1103,6 +1119,12 @@
                                 onChange={(e) => setPassword(e.target.value)}
                                 required
                                 autocomplete="off"
+                                data-lpignore="true"
+                                data-form-type="other"
+                                data-1p-ignore="true"
+                                data-bwignore="true"
+                                data-akignore="true"
+                                data-dashlane-rid="ignore"
                             />
                             <button 
                                 type="submit"
@@ -2003,7 +2025,40 @@
                 monthlyGoals: []
             });
 
-
+            // Global credential prompt prevention
+            useEffect(() => {
+                const preventCredentialPrompts = () => {
+                    // Prevent on all forms
+                    const forms = document.querySelectorAll('form');
+                    forms.forEach(form => {
+                        form.setAttribute('data-form-type', 'other');
+                        form.setAttribute('data-lpignore', 'true');
+                    });
+                    
+                    // Prevent on all email and password inputs
+                    const inputs = document.querySelectorAll('input[type="email"], input[type="password"], input[autocomplete*="password"]');
+                    inputs.forEach(input => {
+                        input.setAttribute('data-lpignore', 'true');
+                        input.setAttribute('data-form-type', 'other');
+                        input.setAttribute('data-1p-ignore', 'true');
+                        input.setAttribute('data-bwignore', 'true');
+                        input.setAttribute('data-akignore', 'true');
+                        input.setAttribute('data-dashlane-rid', 'ignore');
+                    });
+                };
+                
+                // Run immediately
+                preventCredentialPrompts();
+                
+                // Run on any DOM changes (for dynamically added forms)
+                const observer = new MutationObserver(preventCredentialPrompts);
+                observer.observe(document.body, { 
+                    childList: true, 
+                    subtree: true 
+                });
+                
+                return () => observer.disconnect();
+            }, []);
 
             // Simple setUserSpecificData - no more debugging mess
 
