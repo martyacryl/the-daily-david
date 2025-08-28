@@ -3925,26 +3925,98 @@
             // PERIODIC SYNC: Keep devices in sync by refreshing data every 2 minutes
             useEffect(() => {
                 if (user && !isAdmin && !authLoading) {
-                    console.log('🔄 PERIODIC SYNC: Setting up periodic data refresh...');
+                    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+                    console.log('🔄 PERIODIC SYNC: Setting up periodic data refresh...', { isMobile });
                     
-                    // Initial sync
+                    // Initial sync - more aggressive on mobile
                     const initialSync = setTimeout(() => {
                         console.log('🔄 PERIODIC SYNC: Running initial sync...');
                         forceRefreshFromNeon();
-                    }, 5000); // 5 seconds after load
+                        
+                        // On mobile, also clear localStorage and force fresh data
+                        if (isMobile && currentUserId) {
+                            console.log('📱 MOBILE SYNC: Clearing localStorage and forcing fresh data...');
+                            const goalsKey = `dailyDavid_goals_${currentUserId}`;
+                            const dayDataKey = `dailyDavid_dayData_${currentUserId}`;
+                            const backupKey = `dailyDavid_dayData_backup_${currentUserId}`;
+                            const emergencyKey = `dailyDavid_dayData_emergency_${currentUserId}`;
+                            
+                            // Clear old data
+                            localStorage.removeItem(goalsKey);
+                            localStorage.removeItem(dayDataKey);
+                            localStorage.removeItem(backupKey);
+                            localStorage.removeItem(emergencyKey);
+                            
+                            console.log('📱 MOBILE SYNC: localStorage cleared, forcing fresh Neon load...');
+                            
+                            // Force another Neon refresh after clearing
+                            setTimeout(() => {
+                                forceRefreshFromNeon();
+                            }, 1000);
+                        }
+                    }, isMobile ? 2000 : 5000); // 2 seconds on mobile, 5 on desktop
                     
-                    // Periodic sync every 2 minutes
+                    // Periodic sync - more frequent on mobile
                     const periodicSync = setInterval(() => {
                         console.log('🔄 PERIODIC SYNC: Running periodic sync...');
                         forceRefreshFromNeon();
-                    }, 120000); // 2 minutes
+                        
+                        // On mobile, also clear localStorage periodically
+                        if (isMobile && currentUserId) {
+                            console.log('📱 MOBILE SYNC: Periodic localStorage clear...');
+                            const goalsKey = `dailyDavid_goals_${currentUserId}`;
+                            const dayDataKey = `dailyDavid_dayData_${currentUserId}`;
+                            const backupKey = `dailyDavid_dayData_backup_${currentUserId}`;
+                            const emergencyKey = `dailyDavid_dayData_emergency_${currentUserId}`;
+                            
+                            localStorage.removeItem(goalsKey);
+                            localStorage.removeItem(dayDataKey);
+                            localStorage.removeItem(backupKey);
+                            localStorage.removeItem(emergencyKey);
+                        }
+                    }, isMobile ? 60000 : 120000); // 1 minute on mobile, 2 minutes on desktop
                     
                     return () => {
                         clearTimeout(initialSync);
                         clearInterval(periodicSync);
                     };
                 }
-            }, [user, isAdmin, authLoading, forceRefreshFromNeon]);
+            }, [user, isAdmin, authLoading, forceRefreshFromNeon, currentUserId]);
+
+            // MOBILE AGGRESSIVE SYNC: Force complete data refresh on mobile devices
+            useEffect(() => {
+                if (user && !isAdmin && !authLoading && currentUserId) {
+                    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+                    
+                    if (isMobile) {
+                        console.log('📱 MOBILE AGGRESSIVE SYNC: Mobile device detected, forcing aggressive sync...');
+                        
+                        // Clear all localStorage data immediately
+                        const goalsKey = `dailyDavid_goals_${currentUserId}`;
+                        const dayDataKey = `dailyDavid_dayData_${currentUserId}`;
+                        const backupKey = `dailyDavid_dayData_backup_${currentUserId}`;
+                        const emergencyKey = `dailyDavid_dayData_emergency_${currentUserId}`;
+                        
+                        localStorage.removeItem(goalsKey);
+                        localStorage.removeItem(dayDataKey);
+                        localStorage.removeItem(backupKey);
+                        localStorage.removeItem(emergencyKey);
+                        
+                        console.log('📱 MOBILE AGGRESSIVE SYNC: localStorage cleared, forcing fresh Neon load...');
+                        
+                        // Force immediate Neon refresh
+                        setTimeout(() => {
+                            forceRefreshFromNeon();
+                        }, 500);
+                        
+                        // Force another refresh after 3 seconds
+                        setTimeout(() => {
+                            console.log('📱 MOBILE AGGRESSIVE SYNC: Second forced refresh...');
+                            forceRefreshFromNeon();
+                        }, 3000);
+                    }
+                }
+            }, [user, isAdmin, authLoading, currentUserId, forceRefreshFromNeon]);
 
             // MOBILE FALLBACK: Force data loading if dashboard still shows zeros after delay
             useEffect(() => {
