@@ -2956,15 +2956,48 @@
             };
 
             const getDaysCompletedThisWeek = () => {
-                // CRITICAL: If no local data, return 0 but trigger Neon sync immediately
+                // CRITICAL: If no local data, directly query Neon for the data we need
                 if (!userSpecificData || !userSpecificData.dayData || Object.keys(userSpecificData.dayData).length === 0) {
-                    console.log('⚠️ [getDaysCompletedThisWeek] No local data, triggering Neon sync...');
+                    console.log('⚠️ [getDaysCompletedThisWeek] No local data, directly querying Neon...');
                     
-                    // Trigger Neon sync in background (don't wait for it)
+                    // Return 0 for now, but trigger immediate Neon query
                     if (currentUserId) {
-                        setTimeout(() => {
-                            console.log('🔄 [getDaysCompletedThisWeek] Triggering background Neon sync...');
-                            forceRefreshFromNeon();
+                        // Use a more immediate approach - query Neon directly
+                        setTimeout(async () => {
+                            try {
+                                console.log('🔄 [getDaysCompletedThisWeek] Direct Neon query for week data...');
+                                const dbManager = new NeonDatabaseManager();
+                                
+                                // Get all days for the current week
+                                const today = new Date();
+                                const startOfWeek = new Date(today);
+                                startOfWeek.setDate(today.getDate() - today.getDay());
+                                const endOfWeek = new Date(startOfWeek);
+                                endOfWeek.setDate(startOfWeek.getDate() + 6);
+                                
+                                const weekData = {};
+                                
+                                for (let d = new Date(startOfWeek); d <= endOfWeek; d.setDate(d.getDate() + 1)) {
+                                    const dateKey = formatDateKey(d);
+                                    const neonData = await dbManager.loadDayData(dateKey, currentUserId);
+                                    
+                                    if (neonData && Object.keys(neonData).length > 0) {
+                                        weekData[dateKey] = neonData;
+                                        console.log(`✅ [getDaysCompletedThisWeek] Loaded ${dateKey} from Neon:`, neonData);
+                                    }
+                                }
+                                
+                                // Update state with the week data
+                                if (Object.keys(weekData).length > 0) {
+                                    setUserSpecificData(prev => ({
+                                        ...prev,
+                                        dayData: { ...prev.dayData, ...weekData }
+                                    }));
+                                    console.log('✅ [getDaysCompletedThisWeek] Week data loaded and state updated');
+                                }
+                            } catch (error) {
+                                console.error('❌ [getDaysCompletedThisWeek] Direct Neon query failed:', error);
+                            }
                         }, 100);
                     }
                     
@@ -3061,15 +3094,48 @@
 
             // New dashboard enhancement functions
             const getCompletionRate = () => {
-                // CRITICAL: If no local data, return 0 but trigger Neon sync immediately
+                // CRITICAL: If no local data, directly query Neon for the data we need
                 if (!userSpecificData || !userSpecificData.dayData || Object.keys(userSpecificData.dayData).length === 0) {
-                    console.log('⚠️ [getCompletionRate] No local data, triggering Neon sync...');
+                    console.log('⚠️ [getCompletionRate] No local data, directly querying Neon...');
                     
-                    // Trigger Neon sync in background (don't wait for it)
+                    // Return 0 for now, but trigger immediate Neon query
                     if (currentUserId) {
-                        setTimeout(() => {
-                            console.log('🔄 [getCompletionRate] Triggering background Neon sync...');
-                            forceRefreshFromNeon();
+                        // Use a more immediate approach - query Neon directly
+                        setTimeout(async () => {
+                            try {
+                                console.log('🔄 [getCompletionRate] Direct Neon query for week data...');
+                                const dbManager = new NeonDatabaseManager();
+                                
+                                // Get all days for the current week
+                                const today = new Date();
+                                const startOfWeek = new Date(today);
+                                startOfWeek.setDate(today.getDate() - today.getDay());
+                                const endOfWeek = new Date(startOfWeek);
+                                endOfWeek.setDate(startOfWeek.getDate() + 6);
+                                
+                                const weekData = {};
+                                
+                                for (let d = new Date(startOfWeek); d <= endOfWeek; d.setDate(d.getDate() + 1)) {
+                                    const dateKey = formatDateKey(d);
+                                    const neonData = await dbManager.loadDayData(dateKey, currentUserId);
+                                    
+                                    if (neonData && Object.keys(neonData).length > 0) {
+                                        weekData[dateKey] = neonData;
+                                        console.log(`✅ [getCompletionRate] Loaded ${dateKey} from Neon:`, neonData);
+                                    }
+                                }
+                                
+                                // Update state with the week data
+                                if (Object.keys(weekData).length > 0) {
+                                    setUserSpecificData(prev => ({
+                                        ...prev,
+                                        dayData: { ...prev.dayData, ...weekData }
+                                    }));
+                                    console.log('✅ [getCompletionRate] Week data loaded and state updated');
+                                }
+                            } catch (error) {
+                                console.error('❌ [getCompletionRate] Direct Neon query failed:', error);
+                            }
                         }, 100);
                     }
                     
