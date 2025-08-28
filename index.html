@@ -2111,6 +2111,42 @@
                 }
             }, [currentUserId]);
 
+            // FORCE COMPLETE DATA REFRESH: Clear all cached data and reload from Neon
+            const forceCompleteDataRefresh = React.useCallback(async () => {
+                if (!currentUserId) return;
+                
+                try {
+                    console.log('🚨 [FORCE REFRESH] Clearing ALL cached data and forcing complete refresh...');
+                    
+                    // Clear all localStorage data
+                    const goalsKey = `dailyDavid_goals_${currentUserId}`;
+                    const dayDataKey = `dailyDavid_dayData_${currentUserId}`;
+                    const backupKey = `dailyDavid_dayData_backup_${currentUserId}`;
+                    const emergencyKey = `dailyDavid_dayData_emergency_${currentUserId}`;
+                    
+                    localStorage.removeItem(goalsKey);
+                    localStorage.removeItem(dayDataKey);
+                    localStorage.removeItem(backupKey);
+                    localStorage.removeItem(emergencyKey);
+                    
+                    console.log('🚨 [FORCE REFRESH] localStorage cleared, now forcing Neon refresh...');
+                    
+                    // Clear current state
+                    setUserSpecificData({
+                        dayData: {},
+                        weeklyGoals: [],
+                        monthlyGoals: []
+                    });
+                    
+                    // Force Neon refresh
+                    await forceRefreshFromNeon();
+                    
+                    console.log('🚨 [FORCE REFRESH] Complete refresh finished');
+                } catch (error) {
+                    console.error('❌ [FORCE REFRESH] Failed to force complete refresh:', error);
+                }
+            }, [currentUserId, forceRefreshFromNeon]);
+
             // Simple setUserSpecificData - no more debugging mess
 
 
@@ -3733,7 +3769,7 @@
                 console.log('📅 Current date:', formatDateKey(currentDate));
                 console.log('📊 Current day data:', currentDayData);
                 
-                // AGGRESSIVE: When view changes to daily, immediately restore data if missing
+                // AGGRESSIVE: When view changes to daily, immediately refresh from Neon if no data
                 if (currentView === 'daily' && user && !isAdmin) {
                     console.log('🚨 VIEW CHANGE: Switched to daily view, checking data...');
                     
@@ -3742,63 +3778,10 @@
                                    userSpecificData.monthlyGoals.length > 0;
                     
                     if (!hasData) {
-                        console.log('🚨 VIEW CHANGE: No data found, restoring immediately...');
-                        
-                        const goalsKey = `dailyDavid_goals_${user.id}`;
-                        const dayDataKey = `dailyDavid_dayData_${user.id}`;
-                        const backupKey = `dailyDavid_dayData_backup_${user.id}`;
-                        const emergencyKey = `dailyDavid_dayData_emergency_${user.id}`;
-                        
-                        const goalsData = localStorage.getItem(goalsKey);
-                        const dayDataRaw = localStorage.getItem(dayDataKey);
-                        const backupData = localStorage.getItem(backupKey);
-                        const emergencyData = localStorage.getItem(emergencyKey);
-                        
-                        if (goalsData || dayDataRaw || backupData || emergencyData) {
-                            let weeklyGoals = [];
-                            let monthlyGoals = [];
-                            let dayData = {};
-                            
-                            if (goalsData) {
-                                try {
-                                    const parsed = JSON.parse(goalsData);
-                                    weeklyGoals = parsed.weeklyGoals || [];
-                                    monthlyGoals = parsed.monthlyGoals || [];
-                                } catch (error) {
-                                    console.error('❌ Error parsing goals:', error);
-                                }
-                            }
-                            
-                            if (dayDataRaw) {
-                                try {
-                                    dayData = JSON.parse(dayDataRaw);
-                                } catch (error) {
-                                    console.error('❌ Error parsing primary day data:', error);
-                                }
-                            } else if (backupData) {
-                                try {
-                                    dayData = JSON.parse(backupData);
-                                } catch (error) {
-                                    console.error('❌ Error parsing backup day data:', error);
-                                }
-                            } else if (emergencyData) {
-                                try {
-                                    dayData = JSON.parse(emergencyData);
-                                } catch (error) {
-                                    console.error('❌ Error parsing emergency day data:', error);
-                                }
-                            }
-                            
-                            setUserSpecificData({
-                                dayData: dayData,
-                                weeklyGoals: weeklyGoals,
-                                monthlyGoals: monthlyGoals
-                            });
-                            
-                            console.log('🚨 VIEW CHANGE: Data restored successfully');
-                        }
+                        console.log('🚨 VIEW CHANGE: No data found, forcing Neon refresh...');
+                        forceRefreshFromNeon();
                     } else {
-                        console.log('🚨 VIEW CHANGE: Data already exists, no restoration needed');
+                        console.log('🚨 VIEW CHANGE: Data already exists, no refresh needed');
                     }
                 }
             }, [currentView, currentDate, currentDayData, user, isAdmin, userSpecificData.dayData, userSpecificData.weeklyGoals, userSpecificData.monthlyGoals]);
@@ -3827,92 +3810,19 @@
                     console.log('🚨 AUTO-LOAD: Forcing Neon refresh for cross-device sync...');
                     forceRefreshFromNeon();
                     
-                    // Also load from localStorage as backup while Neon loads
-                    console.log('🚨 AUTO-LOAD: Loading from localStorage as backup...');
-                    
+                    // Clear any stale localStorage data to ensure fresh Neon data is used
+                    console.log('🚨 AUTO-LOAD: Clearing stale localStorage data...');
                     const goalsKey = `dailyDavid_goals_${user.id}`;
                     const dayDataKey = `dailyDavid_dayData_${user.id}`;
                     const backupKey = `dailyDavid_dayData_backup_${user.id}`;
                     const emergencyKey = `dailyDavid_dayData_emergency_${user.id}`;
                     
-                    console.log('🚨 AUTO-LOAD: Checking localStorage keys:', {
-                        goalsKey,
-                        dayDataKey,
-                        backupKey,
-                        emergencyKey
-                    });
+                    localStorage.removeItem(goalsKey);
+                    localStorage.removeItem(dayDataKey);
+                    localStorage.removeItem(backupKey);
+                    localStorage.removeItem(emergencyKey);
                     
-                    const goalsData = localStorage.getItem(goalsKey);
-                    const dayDataRaw = localStorage.getItem(dayDataKey);
-                    const backupData = localStorage.getItem(backupKey);
-                    const emergencyData = localStorage.getItem(emergencyKey);
-                    
-                    console.log('🚨 AUTO-LOAD: localStorage data found:', {
-                        goalsData: !!goalsData,
-                        dayDataRaw: !!dayDataRaw,
-                        backupData: !!backupData,
-                        emergencyData: !!emergencyData
-                    });
-                    
-                    if (goalsData || dayDataRaw || backupData || emergencyData) {
-                        let weeklyGoals = [];
-                        let monthlyGoals = [];
-                        let dayData = {};
-                        
-                        if (goalsData) {
-                            try {
-                                const parsed = JSON.parse(goalsData);
-                                weeklyGoals = parsed.weeklyGoals || [];
-                                monthlyGoals = parsed.monthlyGoals || [];
-                                console.log('✅ AUTO-LOAD: Goals loaded from localStorage:', {
-                                    weeklyGoals: weeklyGoals.length,
-                                    monthlyGoals: monthlyGoals.length
-                                });
-                            } catch (error) {
-                                console.error('❌ Error parsing goals:', error);
-                            }
-                        }
-                        
-                        if (dayDataRaw) {
-                            try {
-                                dayData = JSON.parse(dayDataRaw);
-                                console.log('✅ AUTO-LOAD: Day data loaded from primary localStorage. Keys:', Object.keys(dayData));
-                            } catch (error) {
-                                console.error('❌ Error parsing primary day data:', error);
-                            }
-                        } else if (backupData) {
-                            try {
-                                dayData = JSON.parse(backupData);
-                                console.log('✅ AUTO-LOAD: Day data loaded from backup localStorage. Keys:', Object.keys(dayData));
-                            } catch (error) {
-                                console.error('❌ Error parsing backup day data:', error);
-                            }
-                        } else if (emergencyData) {
-                            try {
-                                dayData = JSON.parse(emergencyData);
-                                console.log('✅ AUTO-LOAD: Day data loaded from emergency localStorage. Keys:', Object.keys(dayData));
-                            } catch (error) {
-                                console.error('❌ Error parsing emergency day data:', error);
-                            }
-                        }
-                        
-                        // Update state with loaded data
-                        console.log('🚨 AUTO-LOAD: About to update state with:', {
-                            dayDataKeys: Object.keys(dayData),
-                            weeklyGoalsLength: weeklyGoals.length,
-                            monthlyGoalsLength: monthlyGoals.length
-                        });
-                        
-                        setUserSpecificData({
-                            dayData: dayData,
-                            weeklyGoals: weeklyGoals,
-                            monthlyGoals: monthlyGoals
-                        });
-                        
-                        console.log('✅ AUTO-LOAD: Data loading complete. Day data keys:', Object.keys(dayData));
-                    } else {
-                        console.log('⚠️ AUTO-LOAD: No localStorage data found, waiting for Neon to load...');
-                    }
+                    console.log('✅ AUTO-LOAD: Stale data cleared, Neon refresh initiated');
                 } else {
                     console.log('⚠️ AUTO-LOAD: Conditions not met:', {
                         hasUser: !!user,
@@ -4028,180 +3938,35 @@
                                        (userSpecificData.monthlyGoals && userSpecificData.monthlyGoals.length > 0);
                         
                         if (!hasData) {
-                            console.log('🚨 MOBILE FALLBACK: Still no data after 3 seconds, forcing data load...');
-                            
-                            const goalsKey = `dailyDavid_goals_${user.id}`;
-                            const dayDataKey = `dailyDavid_dayData_${user.id}`;
-                            const backupKey = `dailyDavid_dayData_backup_${user.id}`;
-                            const emergencyKey = `dailyDavid_dayData_emergency_${user.id}`;
-                            
-                            const goalsData = localStorage.getItem(goalsKey);
-                            const dayDataRaw = localStorage.getItem(dayDataKey);
-                            const backupData = localStorage.getItem(backupKey);
-                            const emergencyData = localStorage.getItem(emergencyKey);
-                            
-                            if (goalsData || dayDataRaw || backupData || emergencyData) {
-                                let weeklyGoals = [];
-                                let monthlyGoals = [];
-                                let dayData = {};
-                                
-                                if (goalsData) {
-                                    try {
-                                        const parsed = JSON.parse(goalsData);
-                                        weeklyGoals = parsed.weeklyGoals || [];
-                                        monthlyGoals = parsed.monthlyGoals || [];
-                                    } catch (error) {
-                                        console.error('❌ Error parsing goals in fallback:', error);
-                                    }
-                                }
-                                
-                                if (dayDataRaw) {
-                                    try {
-                                        dayData = JSON.parse(dayDataRaw);
-                                    } catch (error) {
-                                        console.error('❌ Error parsing primary day data in fallback:', error);
-                                    }
-                                } else if (backupData) {
-                                    try {
-                                        dayData = JSON.parse(backupData);
-                                    } catch (error) {
-                                        console.error('❌ Error parsing backup day data in fallback:', error);
-                                    }
-                                } else if (emergencyData) {
-                                    try {
-                                        dayData = JSON.parse(emergencyData);
-                                    } catch (error) {
-                                        console.error('❌ Error parsing emergency day data in fallback:', error);
-                                    }
-                                }
-                                
-                                console.log('🚨 MOBILE FALLBACK: Forcing state update with data');
-                                setUserSpecificData({
-                                    dayData: dayData,
-                                    weeklyGoals: weeklyGoals,
-                                    monthlyGoals: monthlyGoals
-                                });
-                            }
+                            console.log('🚨 MOBILE FALLBACK: Still no data after 3 seconds, forcing Neon refresh...');
+                            forceRefreshFromNeon();
                         }
                     }, 3000); // 3 second delay
                     
                     return () => clearTimeout(fallbackTimer);
                 }
-            }, [user, isAdmin, authLoading, userSpecificData.dayData, userSpecificData.weeklyGoals, userSpecificData.monthlyGoals]);
+            }, [user, isAdmin, authLoading, userSpecificData.dayData, userSpecificData.weeklyGoals, userSpecificData.monthlyGoals, forceRefreshFromNeon]);
 
             // BULLETPROOF: Force restore data from localStorage whenever user changes
             useEffect(() => {
                 if (user && !isAdmin) {
-                    console.log('🔄 BULLETPROOF: User changed, forcing data restore from localStorage');
+                    console.log('🔄 BULLETPROOF: User changed, forcing Neon refresh for cross-device sync');
                     console.log('🔄 User ID:', user.id);
-                    console.log('🔄 Current userSpecificData state:', userSpecificData);
                     
-                    // Force restore data from localStorage
-                    const forceRestoreData = () => {
-                        try {
-                            const goalsKey = `dailyDavid_goals_${user.id}`;
-                            const dayDataKey = `dailyDavid_dayData_${user.id}`;
-                            const backupKey = `dailyDavid_dayData_backup_${user.id}`;
-                            const emergencyKey = `dailyDavid_dayData_emergency_${user.id}`;
-                            
-                            console.log('🔍 Checking localStorage keys:');
-                            console.log('🔑 Goals key:', goalsKey);
-                            console.log('🔑 Day data key:', dayDataKey);
-                            console.log('🔑 Backup key:', backupKey);
-                            console.log('🔑 Emergency key:', emergencyKey);
-                            
-                            const goalsData = localStorage.getItem(goalsKey);
-                            const dayDataRaw = localStorage.getItem(dayDataKey);
-                            const backupData = localStorage.getItem(backupKey);
-                            const emergencyData = localStorage.getItem(emergencyKey);
-                            
-                            console.log('📊 Found data in localStorage:');
-                            console.log('- Goals:', !!goalsData);
-                            console.log('- Day data (primary):', !!dayDataRaw);
-                            console.log('- Day data (backup):', !!backupData);
-                            console.log('- Day data (emergency):', !!emergencyData);
-                            
-                            if (goalsData || dayDataRaw || backupData || emergencyData) {
-                                console.log('🔄 Found data in localStorage, restoring...');
-                                
-                                let weeklyGoals = [];
-                                let monthlyGoals = [];
-                                let dayData = {};
-                                
-                                if (goalsData) {
-                                    try {
-                                        const parsed = JSON.parse(goalsData);
-                                        weeklyGoals = parsed.weeklyGoals || [];
-                                        monthlyGoals = parsed.monthlyGoals || [];
-                                        console.log('✅ Restored goals from localStorage:', { weeklyGoals, monthlyGoals });
-                                    } catch (error) {
-                                        console.error('❌ Error parsing goals:', error);
-                                    }
-                                }
-                                
-                                // Try primary key first, then backup, then emergency
-                                if (dayDataRaw) {
-                                    try {
-                                        dayData = JSON.parse(dayDataRaw);
-                                        console.log('✅ Restored day data from primary localStorage:', Object.keys(dayData).length, 'dates');
-                                        console.log('📅 Date keys found:', Object.keys(dayData));
-                                    } catch (error) {
-                                        console.error('❌ Error parsing primary day data:', error);
-                                    }
-                                } else if (backupData) {
-                                    try {
-                                        dayData = JSON.parse(backupData);
-                                        console.log('✅ Restored day data from backup localStorage:', Object.keys(dayData).length, 'dates');
-                                        console.log('📅 Date keys found:', Object.keys(dayData));
-                                    } catch (error) {
-                                        console.error('❌ Error parsing backup day data:', error);
-                                    }
-                                } else if (emergencyData) {
-                                    try {
-                                        dayData = JSON.parse(emergencyData);
-                                        console.log('✅ Restored day data from emergency localStorage:', Object.keys(dayData).length, 'dates');
-                                        console.log('📅 Date keys found:', Object.keys(dayData));
-                                    } catch (error) {
-                                        console.error('❌ Error parsing emergency day data:', error);
-                                    }
-                                }
-                                
-                                console.log('🔄 About to update userSpecificData state with:');
-                                console.log('- dayData:', dayData);
-                                console.log('- weeklyGoals:', weeklyGoals);
-                                console.log('- monthlyGoals:', monthlyGoals);
-                                
-                                // Force update state
-                                setUserSpecificData(prev => {
-                                    const newState = {
-                                        ...prev,
-                                        dayData: dayData,
-                                        weeklyGoals: weeklyGoals,
-                                        monthlyGoals: monthlyGoals
-                                    };
-                                    console.log('🔄 New state will be:', newState);
-                                    return newState;
-                                });
-                                
-                                console.log('✅ BULLETPROOF: Data restored from localStorage');
-                            } else {
-                                console.log('⚠️ No data found in any localStorage keys');
-                            }
-                        } catch (error) {
-                            console.error('❌ Error in force restore:', error);
-                        }
-                    };
+                    // Force refresh from Neon immediately
+                    forceRefreshFromNeon();
                     
-                    // Run immediately
-                    forceRestoreData();
+                    // Also refresh after a short delay to catch any race conditions
+                    setTimeout(() => {
+                        forceRefreshFromNeon();
+                    }, 1000);
                     
-                    // Also run after a short delay to catch any race conditions
-                    setTimeout(forceRestoreData, 1000);
-                    
-                    // Run again after a longer delay to ensure it sticks
-                    setTimeout(forceRestoreData, 3000);
+                    // Refresh again after a longer delay to ensure it sticks
+                    setTimeout(() => {
+                        forceRefreshFromNeon();
+                    }, 3000);
                 }
-            }, [user?.id, isAdmin]);
+            }, [user?.id, isAdmin, forceRefreshFromNeon]);
 
             // AGGRESSIVE: Restore data when data is missing (but prevent infinite loops)
             useEffect(() => {
@@ -4212,65 +3977,11 @@
                                    userSpecificData.monthlyGoals.length > 0;
                     
                     if (!hasData) {
-                        console.log('🚨 AGGRESSIVE: No data detected, restoring from localStorage');
-                        const goalsKey = `dailyDavid_goals_${user.id}`;
-                        const dayDataKey = `dailyDavid_dayData_${user.id}`;
-                        const backupKey = `dailyDavid_dayData_backup_${user.id}`;
-                        const emergencyKey = `dailyDavid_dayData_emergency_${user.id}`;
-                        
-                        const goalsData = localStorage.getItem(goalsKey);
-                        const dayDataRaw = localStorage.getItem(dayDataKey);
-                        const backupData = localStorage.getItem(backupKey);
-                        const emergencyData = localStorage.getItem(emergencyKey);
-                        
-                        if (goalsData || dayDataRaw || backupData || emergencyData) {
-                            console.log('🚨 AGGRESSIVE: Found data in localStorage, restoring immediately');
-                            
-                            let weeklyGoals = [];
-                            let monthlyGoals = [];
-                            let dayData = {};
-                            
-                            if (goalsData) {
-                                try {
-                                    const parsed = JSON.parse(goalsData);
-                                    weeklyGoals = parsed.weeklyGoals || [];
-                                    monthlyGoals = parsed.monthlyGoals || [];
-                                } catch (error) {
-                                    console.error('❌ Error parsing goals:', error);
-                                }
-                            }
-                            
-                            if (dayDataRaw) {
-                                try {
-                                    dayData = JSON.parse(dayDataRaw);
-                                } catch (error) {
-                                    console.error('❌ Error parsing primary day data:', error);
-                                }
-                            } else if (backupData) {
-                                try {
-                                    dayData = JSON.parse(backupData);
-                                } catch (error) {
-                                    console.error('❌ Error parsing backup day data:', error);
-                                }
-                            } else if (emergencyData) {
-                                try {
-                                    dayData = JSON.parse(emergencyData);
-                                } catch (error) {
-                                    console.error('❌ Error parsing emergency day data:', error);
-                                }
-                            }
-                            
-                            setUserSpecificData({
-                                dayData: dayData,
-                                weeklyGoals: weeklyGoals,
-                                monthlyGoals: monthlyGoals
-                            });
-                            
-                            console.log('🚨 AGGRESSIVE: Data restored successfully');
-                        }
+                                                console.log('🚨 AGGRESSIVE: No data detected, forcing Neon refresh');
+                        forceRefreshFromNeon();
                     }
                 }
-            }, [user?.id, isAdmin, userSpecificData.dayData, userSpecificData.weeklyGoals, userSpecificData.monthlyGoals]);
+            }, [user?.id, isAdmin, userSpecificData.dayData, userSpecificData.weeklyGoals, userSpecificData.monthlyGoals, forceRefreshFromNeon]);
 
             // EMERGENCY: Manual data restoration function
             const emergencyRestoreData = () => {
