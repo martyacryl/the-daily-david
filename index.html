@@ -1944,12 +1944,22 @@
 
 
             const formatDateKey = (date) => {
-                return date.toISOString().split('T')[0];
+                // Use local time instead of UTC to prevent timezone date shifts
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
             };
 
             // Use the working useDayData hook pattern from marriage meeting tool
             const currentDateKey = formatDateKey(currentDate);
             const currentUserId = user ? getCurrentUserId() : null;
+            
+            // Debug date handling
+            console.log('📅 [Date Debug] Current date object:', currentDate);
+            console.log('📅 [Date Debug] Current date key:', currentDateKey);
+            console.log('📅 [Date Debug] Local timezone offset:', currentDate.getTimezoneOffset());
+            console.log('📅 [Date Debug] Device timezone:', Intl.DateTimeFormat().resolvedOptions().timeZone);
             const { dayData: currentDayData, setDayData: setCurrentDayData, isLoading: dayDataLoading, error: dayDataError, manualSave } = useDayData(currentDateKey, currentUserId);
 
             // Test Neon connection and initialize database tables only once when app starts
