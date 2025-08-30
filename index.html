@@ -5116,7 +5116,21 @@
                 console.log('🚨 IMMEDIATE: Running emergency check NOW for date:', dateKey);
                 emergencyLoadGoals(dateKey);
                 
-                // Also run the existing logic as a backup
+                // CRITICAL: Check if emergencyLoadGoals already found and loaded goals
+                const currentDayData = userSpecificData.dayData[dateKey];
+                if (currentDayData && currentDayData.goals) {
+                    const hasWeeklyGoals = currentDayData.goals.weekly && currentDayData.goals.weekly.length > 0;
+                    const hasMonthlyGoals = currentDayData.goals.monthly && currentDayData.goals.monthly.length > 0;
+                    
+                    if (hasWeeklyGoals || hasMonthlyGoals) {
+                        console.log('🔄 DEBUG: Goals already loaded by emergency function, skipping backup logic');
+                        console.log('🔄 DEBUG: Current goals for date:', dateKey, currentDayData.goals);
+                        return; // Don't overwrite goals that were already loaded!
+                    }
+                }
+                
+                // Only run backup logic if no goals were found
+                console.log('🔄 DEBUG: No goals found by emergency function, running backup logic...');
                 const existingData = userSpecificData.dayData[dateKey];
                 
                 if (!existingData) {
