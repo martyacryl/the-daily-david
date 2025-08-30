@@ -3224,12 +3224,38 @@
             const emergencyLoadGoals = (dateKey) => {
                 console.log('🚨 EMERGENCY: emergencyLoadGoals called for date:', dateKey);
                 
+                // DEBUG: Check localStorage directly
+                if (user && user.id) {
+                    const dayDataKey = `dailyDavid_dayData_${user.id}`;
+                    const rawLocalStorage = localStorage.getItem(dayDataKey);
+                    console.log('🚨 EMERGENCY: Raw localStorage data:', rawLocalStorage);
+                    
+                    if (rawLocalStorage) {
+                        try {
+                            const parsedData = JSON.parse(rawLocalStorage);
+                            console.log('🚨 EMERGENCY: Parsed localStorage data:', parsedData);
+                            console.log('🚨 EMERGENCY: All dates in localStorage:', Object.keys(parsedData));
+                            
+                            // Check each date for goals
+                            Object.keys(parsedData).forEach(date => {
+                                const dayData = parsedData[date];
+                                if (dayData?.goals) {
+                                    console.log(`🚨 EMERGENCY: Date ${date} has goals:`, dayData.goals);
+                                }
+                            });
+                        } catch (e) {
+                            console.error('🚨 EMERGENCY: Failed to parse localStorage:', e);
+                        }
+                    }
+                }
+                
                 // Try to find goals from ANY available date
                 const allDates = Object.keys(userSpecificData.dayData);
                 const sortedDates = allDates.sort((a, b) => new Date(b) - new Date(a));
                 
-                console.log('🚨 EMERGENCY: All available dates:', allDates);
+                console.log('🚨 EMERGENCY: All available dates in state:', allDates);
                 console.log('🚨 EMERGENCY: Current dateKey:', dateKey);
+                console.log('🚨 EMERGENCY: userSpecificData:', userSpecificData);
                 
                 // Find ANY weekly goals from any date
                 let foundWeeklyGoals = [];
@@ -3237,6 +3263,8 @@
                 
                 for (const date of sortedDates) {
                     const dayData = userSpecificData.dayData[date];
+                    console.log(`🚨 EMERGENCY: Checking date ${date}:`, dayData);
+                    
                     if (dayData?.goals?.weekly?.length > 0 && foundWeeklyGoals.length === 0) {
                         foundWeeklyGoals = dayData.goals.weekly;
                         console.log('🚨 EMERGENCY: Found weekly goals from date:', date, foundWeeklyGoals);
@@ -3275,6 +3303,37 @@
                         }));
                         
                         console.log('🚨 EMERGENCY: Goals force-updated for date:', dateKey);
+                    }
+                } else {
+                    console.log('🚨 EMERGENCY: NO GOALS FOUND ANYWHERE! This is bad!');
+                    
+                    // LAST RESORT: Create default goals if none exist anywhere
+                    console.log('🚨 EMERGENCY: Creating default goals as last resort...');
+                    const currentDayData = userSpecificData.dayData[dateKey];
+                    if (currentDayData) {
+                        const updatedDayData = { ...currentDayData };
+                        updatedDayData.goals = {
+                            weekly: [
+                                { id: 'weekly-1', text: 'Set your weekly spiritual goal', category: 'spiritual', completed: false },
+                                { id: 'weekly-2', text: 'Set your weekly personal goal', category: 'personal', completed: false }
+                            ],
+                            monthly: [
+                                { id: 'monthly-1', text: 'Set your monthly spiritual goal', category: 'spiritual', completed: false },
+                                { id: 'monthly-2', text: 'Set your monthly personal goal', category: 'personal', completed: false }
+                            ]
+                        };
+                        
+                        // Save immediately
+                        const dayDataKey = `dailyDavid_dayData_${user.id}`;
+                        const allDayData = { ...userSpecificData.dayData, [dateKey]: updatedDayData };
+                        localStorage.setItem(dayDataKey, JSON.stringify(allDayData));
+                        
+                        setUserSpecificData(prev => ({
+                            ...prev,
+                            dayData: { ...prev.dayData, [dateKey]: updatedDayData }
+                        }));
+                        
+                        console.log('🚨 EMERGENCY: Default goals created for date:', dateKey);
                     }
                 }
             };
@@ -5036,6 +5095,10 @@
                     emergencyLoadGoals(dateKey);
                     ensureGoalsCarryOver(dateKey);
                 }, 1000);
+                
+                // IMMEDIATE: Run emergency check right now
+                console.log('🚨 IMMEDIATE: Running emergency check NOW for date:', dateKey);
+                emergencyLoadGoals(dateKey);
                 
                 // Also run the existing logic as a backup
                 const existingData = userSpecificData.dayData[dateKey];
