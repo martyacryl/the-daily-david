@@ -3220,6 +3220,65 @@
                 }
             };
 
+            // EMERGENCY FIX: Force load goals from any available source
+            const emergencyLoadGoals = (dateKey) => {
+                console.log('🚨 EMERGENCY: emergencyLoadGoals called for date:', dateKey);
+                
+                // Try to find goals from ANY available date
+                const allDates = Object.keys(userSpecificData.dayData);
+                const sortedDates = allDates.sort((a, b) => new Date(b) - new Date(a));
+                
+                console.log('🚨 EMERGENCY: All available dates:', allDates);
+                console.log('🚨 EMERGENCY: Current dateKey:', dateKey);
+                
+                // Find ANY weekly goals from any date
+                let foundWeeklyGoals = [];
+                let foundMonthlyGoals = [];
+                
+                for (const date of sortedDates) {
+                    const dayData = userSpecificData.dayData[date];
+                    if (dayData?.goals?.weekly?.length > 0 && foundWeeklyGoals.length === 0) {
+                        foundWeeklyGoals = dayData.goals.weekly;
+                        console.log('🚨 EMERGENCY: Found weekly goals from date:', date, foundWeeklyGoals);
+                    }
+                    if (dayData?.goals?.monthly?.length > 0 && foundMonthlyGoals.length === 0) {
+                        foundMonthlyGoals = dayData.goals.monthly;
+                        console.log('🚨 EMERGENCY: Found monthly goals from date:', date, foundMonthlyGoals);
+                    }
+                }
+                
+                // Force update current day with found goals
+                if (foundWeeklyGoals.length > 0 || foundMonthlyGoals.length > 0) {
+                    const currentDayData = userSpecificData.dayData[dateKey];
+                    if (currentDayData) {
+                        const updatedDayData = { ...currentDayData };
+                        updatedDayData.goals = updatedDayData.goals || {};
+                        
+                        if (foundWeeklyGoals.length > 0) {
+                            updatedDayData.goals.weekly = foundWeeklyGoals;
+                            console.log('🚨 EMERGENCY: Forced weekly goals update:', foundWeeklyGoals);
+                        }
+                        
+                        if (foundMonthlyGoals.length > 0) {
+                            updatedDayData.goals.monthly = foundMonthlyGoals;
+                            console.log('🚨 EMERGENCY: Forced monthly goals update:', foundMonthlyGoals);
+                        }
+                        
+                        // Save immediately
+                        const dayDataKey = `dailyDavid_dayData_${user.id}`;
+                        const allDayData = { ...userSpecificData.dayData, [dateKey]: updatedDayData };
+                        localStorage.setItem(dayDataKey, JSON.stringify(allDayData));
+                        
+                        setUserSpecificData(prev => ({
+                            ...prev,
+                            dayData: { ...prev.dayData, [dateKey]: updatedDayData }
+                        }));
+                        
+                        console.log('🚨 EMERGENCY: Goals force-updated for date:', dateKey);
+                    }
+                }
+            };
+
             // Progress calculation functions - now work with current day's goals
             const getWeeklyProgress = () => {
                 const weeklyGoals = currentDayData?.goals?.weekly || [];
@@ -4967,6 +5026,16 @@
                 
                 // NEW: Also ensure goals exist for new weeks/months
                 ensureGoalsExist(dateKey);
+                
+                // EMERGENCY: Force load goals from any available source
+                emergencyLoadGoals(dateKey);
+                
+                // AGGRESSIVE: Force immediate goal check and update
+                setTimeout(() => {
+                    console.log('🚨 AGGRESSIVE: Running delayed goal check for date:', dateKey);
+                    emergencyLoadGoals(dateKey);
+                    ensureGoalsCarryOver(dateKey);
+                }, 1000);
                 
                 // Also run the existing logic as a backup
                 const existingData = userSpecificData.dayData[dateKey];
