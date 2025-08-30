@@ -3307,33 +3307,49 @@
                 } else {
                     console.log('🚨 EMERGENCY: NO GOALS FOUND ANYWHERE! This is bad!');
                     
-                    // LAST RESORT: Create default goals if none exist anywhere
-                    console.log('🚨 EMERGENCY: Creating default goals as last resort...');
-                    const currentDayData = userSpecificData.dayData[dateKey];
-                    if (currentDayData) {
-                        const updatedDayData = { ...currentDayData };
-                        updatedDayData.goals = {
-                            weekly: [
-                                { id: 'weekly-1', text: 'Set your weekly spiritual goal', category: 'spiritual', completed: false },
-                                { id: 'weekly-2', text: 'Set your weekly personal goal', category: 'personal', completed: false }
-                            ],
-                            monthly: [
-                                { id: 'monthly-1', text: 'Set your monthly spiritual goal', category: 'spiritual', completed: false },
-                                { id: 'monthly-2', text: 'Set your monthly personal goal', category: 'personal', completed: false }
-                            ]
-                        };
-                        
-                        // Save immediately
-                        const dayDataKey = `dailyDavid_dayData_${user.id}`;
-                        const allDayData = { ...userSpecificData.dayData, [dateKey]: updatedDayData };
-                        localStorage.setItem(dayDataKey, JSON.stringify(allDayData));
-                        
-                        setUserSpecificData(prev => ({
-                            ...prev,
-                            dayData: { ...prev.dayData, [dateKey]: updatedDayData }
-                        }));
-                        
-                        console.log('🚨 EMERGENCY: Default goals created for date:', dateKey);
+                    // CHECK NEON DIRECTLY for goals
+                    console.log('🚨 EMERGENCY: Checking Neon database directly for goals...');
+                    if (user && user.id) {
+                        setTimeout(async () => {
+                            try {
+                                const dbManager = new NeonDatabaseManager();
+                                console.log('🚨 EMERGENCY: Querying Neon for all user data...');
+                                
+                                // Get the last 30 days of data to find goals
+                                const today = new Date();
+                                const thirtyDaysAgo = new Date(today);
+                                thirtyDaysAgo.setDate(today.getDate() - 30);
+                                
+                                let foundGoals = false;
+                                
+                                for (let d = new Date(thirtyDaysAgo); d <= today; d.setDate(d.getDate() + 1)) {
+                                    const dateKey = formatDateKey(d);
+                                    console.log(`🚨 EMERGENCY: Checking Neon for date: ${dateKey}`);
+                                    
+                                    const neonData = await dbManager.loadDayData(dateKey, user.id);
+                                    if (neonData && neonData.goals) {
+                                        console.log(`🚨 EMERGENCY: Found goals in Neon for ${dateKey}:`, neonData.goals);
+                                        
+                                        if (neonData.goals.weekly && neonData.goals.weekly.length > 0) {
+                                            console.log(`🚨 EMERGENCY: Weekly goals in Neon for ${dateKey}:`, neonData.goals.weekly);
+                                            foundGoals = true;
+                                        }
+                                        
+                                        if (neonData.goals.monthly && neonData.goals.monthly.length > 0) {
+                                            console.log(`🚨 EMERGENCY: Monthly goals in Neon for ${dateKey}:`, neonData.goals.monthly);
+                                            foundGoals = true;
+                                        }
+                                    }
+                                }
+                                
+                                if (!foundGoals) {
+                                    console.log('🚨 EMERGENCY: NO GOALS FOUND IN NEON EITHER!');
+                                }
+                                
+                            } catch (error) {
+                                console.error('🚨 EMERGENCY: Failed to query Neon:', error);
+                            }
+                        }, 500);
                     }
                 }
             };
