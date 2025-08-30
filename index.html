@@ -4,14 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Daily David (Spiritual Growth Tool)</title>
-    <!-- 
-        BUG FIX: Weekly and Monthly Goals Persistence
-        - Fixed logic that was preventing goals from carrying over to new weeks/months
-        - Weekly goals now persist Monday through Sunday
-        - Monthly goals now persist for the entire month
-        - Added automatic goal creation for new weeks/months
-        - Goals are no longer hidden on Saturday or other days
-    -->
     <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -3093,31 +3085,28 @@
                 console.log('🔄 DEBUG: Current day data goals:', currentDayData.goals);
                 console.log('🔄 DEBUG: Current day weekly goals:', currentDayData.goals?.weekly);
                 console.log('🔄 DEBUG: Current day monthly goals:', currentDayData.goals?.monthly);
-                console.log('🔄 DEBUG: Current day weekly goals length:', currentDayData.goals?.weekly?.length);
-                console.log('🔄 DEBUG: Current day monthly goals length:', currentDayData.goals?.monthly?.length);
                 
-                // Check if we need to carry over weekly/monthly goals
-                const currentDate = new Date(dateKey);
+                // ALWAYS ensure goals are available for the current week/month
                 let needsUpdate = false;
                 const updatedDayData = { ...currentDayData };
                 
-                // Find goals from other days in the same week/month
-                const allDates = Object.keys(userSpecificData.dayData);
-                const sortedDates = allDates.sort((a, b) => new Date(b) - new Date(a));
-                console.log('🔄 DEBUG: All available dates:', allDates);
-                console.log('🔄 DEBUG: Sorted dates (most recent first):', sortedDates);
+                // Ensure goals object exists
+                if (!updatedDayData.goals) {
+                    updatedDayData.goals = {};
+                    needsUpdate = true;
+                }
                 
-                // IMPROVED: Always ensure weekly goals are available for the current week
+                // ALWAYS carry over weekly goals for the current week
                 const mostRecentWeeklyGoals = getMostRecentGoals('weekly', dateKey);
                 if (mostRecentWeeklyGoals.length > 0) {
                     const currentWeeklyGoals = updatedDayData.goals.weekly || [];
-                    const weeklyGoalsNeedUpdate = currentWeeklyGoals.length !== mostRecentWeeklyGoals.length ||
-                        !currentWeeklyGoals.every((goal, index) => goal.id === mostRecentWeeklyGoals[index]?.id);
                     
-                    // FIXED: Always carry over weekly goals if they're missing or different
-                    // This ensures weekly goals persist Monday through Sunday
-                    if (weeklyGoalsNeedUpdate) {
-                        console.log('🔄 DEBUG: Weekly goals need updating, carrying over from most recent:', mostRecentWeeklyGoals);
+                    // Always update if goals are missing or different
+                    if (currentWeeklyGoals.length === 0 || 
+                        currentWeeklyGoals.length !== mostRecentWeeklyGoals.length ||
+                        !currentWeeklyGoals.every((goal, index) => goal.id === mostRecentWeeklyGoals[index]?.id)) {
+                        
+                        console.log('🔄 DEBUG: Carrying over weekly goals for current week:', mostRecentWeeklyGoals);
                         updatedDayData.goals.weekly = mostRecentWeeklyGoals.map(goal => ({
                             ...goal,
                             completed: goal.completed // Keep completion status
@@ -3126,19 +3115,17 @@
                     }
                 }
                 
-                // IMPROVED: Always ensure monthly goals are available for the current month
+                // ALWAYS carry over monthly goals for the current month
                 const mostRecentMonthlyGoals = getMostRecentGoals('monthly', dateKey);
                 if (mostRecentMonthlyGoals.length > 0) {
                     const currentMonthlyGoals = updatedDayData.goals.monthly || [];
-                    const monthlyGoalsNeedUpdate = currentMonthlyGoals.length !== mostRecentMonthlyGoals.length ||
-                        !currentMonthlyGoals.every((goal, index) => goal.id === mostRecentMonthlyGoals[index]?.id);
                     
-                    console.log('🔄 DEBUG: Monthly goals check - current:', currentMonthlyGoals.length, 'recent:', mostRecentMonthlyGoals.length, 'needUpdate:', monthlyGoalsNeedUpdate);
-                    
-                    // FIXED: Always carry over monthly goals if they're missing or different
-                    // This ensures monthly goals persist for the entire month
-                    if (monthlyGoalsNeedUpdate) {
-                        console.log('🔄 DEBUG: Updating monthly goals from', currentMonthlyGoals.length, 'to', mostRecentMonthlyGoals.length);
+                    // Always update if goals are missing or different
+                    if (currentMonthlyGoals.length === 0 || 
+                        currentMonthlyGoals.length !== mostRecentMonthlyGoals.length ||
+                        !currentMonthlyGoals.every((goal, index) => goal.id === mostRecentMonthlyGoals[index]?.id)) {
+                        
+                        console.log('🔄 DEBUG: Carrying over monthly goals for current month:', mostRecentMonthlyGoals);
                         updatedDayData.goals.monthly = mostRecentMonthlyGoals.map(goal => ({
                             ...goal,
                             completed: goal.completed // Keep completion status
@@ -3161,196 +3148,7 @@
                         dayData: { ...prev.dayData, [dateKey]: updatedDayData }
                     }));
                 } else {
-                    console.log('🔄 DEBUG: No goals need to be carried over for date:', dateKey);
-                }
-            };
-
-            // NEW: Function to ensure goals exist for new weeks/months
-            const ensureGoalsExist = (dateKey) => {
-                const currentDayData = userSpecificData.dayData[dateKey];
-                if (!currentDayData) return;
-                
-                console.log('🎯 DEBUG: ensureGoalsExist called for date:', dateKey);
-                
-                // Check if this is a new week (Monday) and we need weekly goals
-                const currentDate = new Date(dateKey);
-                const isMonday = currentDate.getDay() === 1; // Monday = 1
-                
-                // Check if this is a new month (1st of month) and we need monthly goals
-                const isFirstOfMonth = currentDate.getDate() === 1;
-                
-                let needsUpdate = false;
-                const updatedDayData = { ...currentDayData };
-                
-                // If it's Monday and no weekly goals exist, create default weekly goals
-                if (isMonday && (!updatedDayData.goals?.weekly || updatedDayData.goals.weekly.length === 0)) {
-                    console.log('🎯 DEBUG: Monday detected, creating default weekly goals');
-                    updatedDayData.goals = updatedDayData.goals || {};
-                    updatedDayData.goals.weekly = [
-                        { id: 'weekly-1', text: 'Set your weekly spiritual goal', category: 'spiritual', completed: false },
-                        { id: 'weekly-2', text: 'Set your weekly personal goal', category: 'personal', completed: false }
-                    ];
-                    needsUpdate = true;
-                }
-                
-                // If it's the 1st of month and no monthly goals exist, create default monthly goals
-                if (isFirstOfMonth && (!updatedDayData.goals?.monthly || updatedDayData.goals.monthly.length === 0)) {
-                    console.log('🎯 DEBUG: First of month detected, creating default monthly goals');
-                    updatedDayData.goals = updatedDayData.goals || {};
-                    updatedDayData.goals.monthly = [
-                        { id: 'monthly-1', text: 'Set your monthly spiritual goal', category: 'spiritual', completed: false },
-                        { id: 'monthly-2', text: 'Set your monthly personal goal', category: 'personal', completed: false }
-                    ];
-                    needsUpdate = true;
-                }
-                
-                if (needsUpdate) {
-                    console.log('🎯 DEBUG: Creating default goals for date:', dateKey);
-                    console.log('🎯 DEBUG: Updated goals:', updatedDayData.goals);
-                    
-                    // Save updated data
-                    const dayDataKey = `dailyDavid_dayData_${user.id}`;
-                    const allDayData = { ...userSpecificData.dayData, [dateKey]: updatedDayData };
-                    localStorage.setItem(dayDataKey, JSON.stringify(allDayData));
-                    
-                    setUserSpecificData(prev => ({
-                        ...prev,
-                        dayData: { ...prev.dayData, [dateKey]: updatedDayData }
-                    }));
-                }
-            };
-
-            // EMERGENCY FIX: Force load goals from any available source
-            const emergencyLoadGoals = (dateKey) => {
-                console.log('🚨 EMERGENCY: emergencyLoadGoals called for date:', dateKey);
-                
-                // DEBUG: Check localStorage directly
-                if (user && user.id) {
-                    const dayDataKey = `dailyDavid_dayData_${user.id}`;
-                    const rawLocalStorage = localStorage.getItem(dayDataKey);
-                    console.log('🚨 EMERGENCY: Raw localStorage data:', rawLocalStorage);
-                    
-                    if (rawLocalStorage) {
-                        try {
-                            const parsedData = JSON.parse(rawLocalStorage);
-                            console.log('🚨 EMERGENCY: Parsed localStorage data:', parsedData);
-                            console.log('🚨 EMERGENCY: All dates in localStorage:', Object.keys(parsedData));
-                            
-                            // Check each date for goals
-                            Object.keys(parsedData).forEach(date => {
-                                const dayData = parsedData[date];
-                                if (dayData?.goals) {
-                                    console.log(`🚨 EMERGENCY: Date ${date} has goals:`, dayData.goals);
-                                }
-                            });
-                        } catch (e) {
-                            console.error('🚨 EMERGENCY: Failed to parse localStorage:', e);
-                        }
-                    }
-                }
-                
-                // Try to find goals from ANY available date
-                const allDates = Object.keys(userSpecificData.dayData);
-                const sortedDates = allDates.sort((a, b) => new Date(b) - new Date(a));
-                
-                console.log('🚨 EMERGENCY: All available dates in state:', allDates);
-                console.log('🚨 EMERGENCY: Current dateKey:', dateKey);
-                console.log('🚨 EMERGENCY: userSpecificData:', userSpecificData);
-                
-                // Find ANY weekly goals from any date
-                let foundWeeklyGoals = [];
-                let foundMonthlyGoals = [];
-                
-                for (const date of sortedDates) {
-                    const dayData = userSpecificData.dayData[date];
-                    console.log(`🚨 EMERGENCY: Checking date ${date}:`, dayData);
-                    
-                    if (dayData?.goals?.weekly?.length > 0 && foundWeeklyGoals.length === 0) {
-                        foundWeeklyGoals = dayData.goals.weekly;
-                        console.log('🚨 EMERGENCY: Found weekly goals from date:', date, foundWeeklyGoals);
-                    }
-                    if (dayData?.goals?.monthly?.length > 0 && foundMonthlyGoals.length === 0) {
-                        foundMonthlyGoals = dayData.goals.monthly;
-                        console.log('🚨 EMERGENCY: Found monthly goals from date:', date, foundMonthlyGoals);
-                    }
-                }
-                
-                // Force update current day with found goals
-                if (foundWeeklyGoals.length > 0 || foundMonthlyGoals.length > 0) {
-                    const currentDayData = userSpecificData.dayData[dateKey];
-                    if (currentDayData) {
-                        const updatedDayData = { ...currentDayData };
-                        updatedDayData.goals = updatedDayData.goals || {};
-                        
-                        if (foundWeeklyGoals.length > 0) {
-                            updatedDayData.goals.weekly = foundWeeklyGoals;
-                            console.log('🚨 EMERGENCY: Forced weekly goals update:', foundWeeklyGoals);
-                        }
-                        
-                        if (foundMonthlyGoals.length > 0) {
-                            updatedDayData.goals.monthly = foundMonthlyGoals;
-                            console.log('🚨 EMERGENCY: Forced monthly goals update:', foundMonthlyGoals);
-                        }
-                        
-                        // Save immediately
-                        const dayDataKey = `dailyDavid_dayData_${user.id}`;
-                        const allDayData = { ...userSpecificData.dayData, [dateKey]: updatedDayData };
-                        localStorage.setItem(dayDataKey, JSON.stringify(allDayData));
-                        
-                        setUserSpecificData(prev => ({
-                            ...prev,
-                            dayData: { ...prev.dayData, [dateKey]: updatedDayData }
-                        }));
-                        
-                        console.log('🚨 EMERGENCY: Goals force-updated for date:', dateKey);
-                    }
-                } else {
-                    console.log('🚨 EMERGENCY: NO GOALS FOUND ANYWHERE! This is bad!');
-                    
-                    // CHECK NEON DIRECTLY for goals
-                    console.log('🚨 EMERGENCY: Checking Neon database directly for goals...');
-                    if (user && user.id) {
-                        setTimeout(async () => {
-                            try {
-                                const dbManager = new NeonDatabaseManager();
-                                console.log('🚨 EMERGENCY: Querying Neon for all user data...');
-                                
-                                // Get the last 30 days of data to find goals
-                                const today = new Date();
-                                const thirtyDaysAgo = new Date(today);
-                                thirtyDaysAgo.setDate(today.getDate() - 30);
-                                
-                                let foundGoals = false;
-                                
-                                for (let d = new Date(thirtyDaysAgo); d <= today; d.setDate(d.getDate() + 1)) {
-                                    const dateKey = formatDateKey(d);
-                                    console.log(`🚨 EMERGENCY: Checking Neon for date: ${dateKey}`);
-                                    
-                                    const neonData = await dbManager.loadDayData(dateKey, user.id);
-                                    if (neonData && neonData.goals) {
-                                        console.log(`🚨 EMERGENCY: Found goals in Neon for ${dateKey}:`, neonData.goals);
-                                        
-                                        if (neonData.goals.weekly && neonData.goals.weekly.length > 0) {
-                                            console.log(`🚨 EMERGENCY: Weekly goals in Neon for ${dateKey}:`, neonData.goals.weekly);
-                                            foundGoals = true;
-                                        }
-                                        
-                                        if (neonData.goals.monthly && neonData.goals.monthly.length > 0) {
-                                            console.log(`🚨 EMERGENCY: Monthly goals in Neon for ${dateKey}:`, neonData.goals.monthly);
-                                            foundGoals = true;
-                                        }
-                                    }
-                                }
-                                
-                                if (!foundGoals) {
-                                    console.log('🚨 EMERGENCY: NO GOALS FOUND IN NEON EITHER!');
-                                }
-                                
-                            } catch (error) {
-                                console.error('🚨 EMERGENCY: Failed to query Neon:', error);
-                            }
-                        }, 500);
-                    }
+                    console.log('🔄 DEBUG: Goals are already up to date for date:', dateKey);
                 }
             };
 
@@ -4359,6 +4157,18 @@
                 }
             }, [user?.id, isAdmin, userSpecificData.dayData, userSpecificData.weeklyGoals, userSpecificData.monthlyGoals, forceRefreshFromNeon]);
 
+            // CRITICAL: Ensure goals are carried over whenever the current date changes
+            useEffect(() => {
+                if (user && currentDate && userSpecificData.dayData) {
+                    const dateKey = formatDateKey(currentDate);
+                    console.log('🔄 DATE CHANGE: Current date changed to:', dateKey);
+                    console.log('🔄 DATE CHANGE: Ensuring goals are carried over...');
+                    
+                    // Always ensure goals are carried over for the new date
+                    ensureGoalsCarryOver(dateKey);
+                }
+            }, [currentDate, user, userSpecificData.dayData]);
+
             // EMERGENCY: Manual data restoration function
             const emergencyRestoreData = () => {
                 if (!user) return;
@@ -5099,38 +4909,7 @@
                 // Use our new ensureGoalsCarryOver function
                 ensureGoalsCarryOver(dateKey);
                 
-                // NEW: Also ensure goals exist for new weeks/months
-                ensureGoalsExist(dateKey);
-                
-                // EMERGENCY: Force load goals from any available source
-                emergencyLoadGoals(dateKey);
-                
-                // AGGRESSIVE: Force immediate goal check and update
-                setTimeout(() => {
-                    console.log('🚨 AGGRESSIVE: Running delayed goal check for date:', dateKey);
-                    emergencyLoadGoals(dateKey);
-                    ensureGoalsCarryOver(dateKey);
-                }, 1000);
-                
-                // IMMEDIATE: Run emergency check right now
-                console.log('🚨 IMMEDIATE: Running emergency check NOW for date:', dateKey);
-                emergencyLoadGoals(dateKey);
-                
-                // CRITICAL: Check if emergencyLoadGoals already found and loaded goals
-                const currentDayData = userSpecificData.dayData[dateKey];
-                if (currentDayData && currentDayData.goals) {
-                    const hasWeeklyGoals = currentDayData.goals.weekly && currentDayData.goals.weekly.length > 0;
-                    const hasMonthlyGoals = currentDayData.goals.monthly && currentDayData.goals.monthly.length > 0;
-                    
-                    if (hasWeeklyGoals || hasMonthlyGoals) {
-                        console.log('🔄 DEBUG: Goals already loaded by emergency function, skipping backup logic');
-                        console.log('🔄 DEBUG: Current goals for date:', dateKey, currentDayData.goals);
-                        return; // Don't overwrite goals that were already loaded!
-                    }
-                }
-                
-                // Only run backup logic if no goals were found
-                console.log('🔄 DEBUG: No goals found by emergency function, running backup logic...');
+                // Also run the existing logic as a backup
                 const existingData = userSpecificData.dayData[dateKey];
                 
                 if (!existingData) {

@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS daily_david_entries_dev (
     id BIGSERIAL PRIMARY KEY,
     date_key TEXT NOT NULL,
     user_id TEXT NOT NULL, -- Using TEXT instead of UUID for Neon compatibility
-    data JSONB NOT NULL,
+    data_content JSONB NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS daily_david_entries (
     id BIGSERIAL PRIMARY KEY,
     date_key TEXT NOT NULL,
     user_id TEXT NOT NULL, -- Using TEXT instead of UUID for Neon compatibility
-    data JSONB NOT NULL,
+    data_content JSONB NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -75,7 +75,7 @@ FROM daily_david_entries e;
 -- You may need to adjust these based on your specific Neon configuration
 
 -- 10. Insert sample data for testing (optional)
-INSERT INTO daily_david_entries_dev (date_key, user_id, data) 
+INSERT INTO daily_david_entries_dev (date_key, user_id, data_content) 
 VALUES (
     '2024-01-15', 
     'test@example.com',
