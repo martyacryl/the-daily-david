@@ -4,6 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Daily David (Spiritual Growth Tool)</title>
+    <!-- 
+        BUG FIX: Weekly and Monthly Goals Persistence
+        - Fixed logic that was preventing goals from carrying over to new weeks/months
+        - Weekly goals now persist Monday through Sunday
+        - Monthly goals now persist for the entire month
+        - Added automatic goal creation for new weeks/months
+        - Goals are no longer hidden on Saturday or other days
+    -->
     <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -3099,14 +3107,16 @@
                 console.log('🔄 DEBUG: All available dates:', allDates);
                 console.log('🔄 DEBUG: Sorted dates (most recent first):', sortedDates);
                 
-                // Check weekly goals - compare with most recent goals to see if they need updating
+                // IMPROVED: Always ensure weekly goals are available for the current week
                 const mostRecentWeeklyGoals = getMostRecentGoals('weekly', dateKey);
                 if (mostRecentWeeklyGoals.length > 0) {
                     const currentWeeklyGoals = updatedDayData.goals.weekly || [];
                     const weeklyGoalsNeedUpdate = currentWeeklyGoals.length !== mostRecentWeeklyGoals.length ||
                         !currentWeeklyGoals.every((goal, index) => goal.id === mostRecentWeeklyGoals[index]?.id);
                     
-                    if (weeklyGoalsNeedUpdate && isSameWeek(currentDate, new Date(sortedDates[0]))) {
+                    // FIXED: Always carry over weekly goals if they're missing or different
+                    // This ensures weekly goals persist Monday through Sunday
+                    if (weeklyGoalsNeedUpdate) {
                         console.log('🔄 DEBUG: Weekly goals need updating, carrying over from most recent:', mostRecentWeeklyGoals);
                         updatedDayData.goals.weekly = mostRecentWeeklyGoals.map(goal => ({
                             ...goal,
@@ -3116,7 +3126,7 @@
                     }
                 }
                 
-                // Check monthly goals - use same logic as weekly goals
+                // IMPROVED: Always ensure monthly goals are available for the current month
                 const mostRecentMonthlyGoals = getMostRecentGoals('monthly', dateKey);
                 if (mostRecentMonthlyGoals.length > 0) {
                     const currentMonthlyGoals = updatedDayData.goals.monthly || [];
@@ -3125,7 +3135,9 @@
                     
                     console.log('🔄 DEBUG: Monthly goals check - current:', currentMonthlyGoals.length, 'recent:', mostRecentMonthlyGoals.length, 'needUpdate:', monthlyGoalsNeedUpdate);
                     
-                    if (monthlyGoalsNeedUpdate && isSameMonth(currentDate, new Date(sortedDates[0]))) {
+                    // FIXED: Always carry over monthly goals if they're missing or different
+                    // This ensures monthly goals persist for the entire month
+                    if (monthlyGoalsNeedUpdate) {
                         console.log('🔄 DEBUG: Updating monthly goals from', currentMonthlyGoals.length, 'to', mostRecentMonthlyGoals.length);
                         updatedDayData.goals.monthly = mostRecentMonthlyGoals.map(goal => ({
                             ...goal,
@@ -3150,6 +3162,61 @@
                     }));
                 } else {
                     console.log('🔄 DEBUG: No goals need to be carried over for date:', dateKey);
+                }
+            };
+
+            // NEW: Function to ensure goals exist for new weeks/months
+            const ensureGoalsExist = (dateKey) => {
+                const currentDayData = userSpecificData.dayData[dateKey];
+                if (!currentDayData) return;
+                
+                console.log('🎯 DEBUG: ensureGoalsExist called for date:', dateKey);
+                
+                // Check if this is a new week (Monday) and we need weekly goals
+                const currentDate = new Date(dateKey);
+                const isMonday = currentDate.getDay() === 1; // Monday = 1
+                
+                // Check if this is a new month (1st of month) and we need monthly goals
+                const isFirstOfMonth = currentDate.getDate() === 1;
+                
+                let needsUpdate = false;
+                const updatedDayData = { ...currentDayData };
+                
+                // If it's Monday and no weekly goals exist, create default weekly goals
+                if (isMonday && (!updatedDayData.goals?.weekly || updatedDayData.goals.weekly.length === 0)) {
+                    console.log('🎯 DEBUG: Monday detected, creating default weekly goals');
+                    updatedDayData.goals = updatedDayData.goals || {};
+                    updatedDayData.goals.weekly = [
+                        { id: 'weekly-1', text: 'Set your weekly spiritual goal', category: 'spiritual', completed: false },
+                        { id: 'weekly-2', text: 'Set your weekly personal goal', category: 'personal', completed: false }
+                    ];
+                    needsUpdate = true;
+                }
+                
+                // If it's the 1st of month and no monthly goals exist, create default monthly goals
+                if (isFirstOfMonth && (!updatedDayData.goals?.monthly || updatedDayData.goals.monthly.length === 0)) {
+                    console.log('🎯 DEBUG: First of month detected, creating default monthly goals');
+                    updatedDayData.goals = updatedDayData.goals || {};
+                    updatedDayData.goals.monthly = [
+                        { id: 'monthly-1', text: 'Set your monthly spiritual goal', category: 'spiritual', completed: false },
+                        { id: 'monthly-2', text: 'Set your monthly personal goal', category: 'personal', completed: false }
+                    ];
+                    needsUpdate = true;
+                }
+                
+                if (needsUpdate) {
+                    console.log('🎯 DEBUG: Creating default goals for date:', dateKey);
+                    console.log('🎯 DEBUG: Updated goals:', updatedDayData.goals);
+                    
+                    // Save updated data
+                    const dayDataKey = `dailyDavid_dayData_${user.id}`;
+                    const allDayData = { ...userSpecificData.dayData, [dateKey]: updatedDayData };
+                    localStorage.setItem(dayDataKey, JSON.stringify(allDayData));
+                    
+                    setUserSpecificData(prev => ({
+                        ...prev,
+                        dayData: { ...prev.dayData, [dateKey]: updatedDayData }
+                    }));
                 }
             };
 
@@ -4897,6 +4964,9 @@
                 
                 // Use our new ensureGoalsCarryOver function
                 ensureGoalsCarryOver(dateKey);
+                
+                // NEW: Also ensure goals exist for new weeks/months
+                ensureGoalsExist(dateKey);
                 
                 // Also run the existing logic as a backup
                 const existingData = userSpecificData.dayData[dateKey];
