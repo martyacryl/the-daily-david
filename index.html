@@ -2547,6 +2547,141 @@
                 return { year: d.getFullYear(), week: weekNo };
             };
 
+            // Goal management functions - moved inside component scope to access currentDayData
+            const toggleGoal = async (goalType, goalId) => {
+                const dateKey = formatDateKey(currentDate);
+                
+                // Use the hook's state instead of userSpecificData
+                if (!currentDayData) return;
+                
+                // Update the hook's state directly (this will auto-save to Neon)
+                setCurrentDayData(prevData => {
+                    if (!prevData) return prevData;
+                    
+                    const updatedData = { ...prevData };
+                    if (!updatedData.goals) updatedData.goals = {};
+                    if (!updatedData.goals[goalType]) updatedData.goals[goalType] = [];
+                    
+                    const goalIndex = updatedData.goals[goalType].findIndex(g => g.id === goalId);
+                    
+                    if (goalIndex !== -1) {
+                        const newCompletedStatus = !updatedData.goals[goalType][goalIndex].completed;
+                        updatedData.goals[goalType][goalIndex].completed = newCompletedStatus;
+                        
+                        console.log('🎯 [toggleGoal] Toggled goal:', { goalType, goalId, newCompletedStatus, updatedData });
+                        
+                        // For weekly/monthly goals, sync completion status across all days in same week/month
+                        if (goalType === 'weekly' || goalType === 'monthly') {
+                            // Note: syncGoalCompletionAcrossDays still uses old state, but this is the main goal toggle
+                            // The sync function will need to be updated separately if needed
+                        }
+                        
+                        return updatedData;
+                    }
+                    
+                    return prevData;
+                });
+                
+                // Also update localStorage as backup
+                const dayDataKey = `dailyDavid_dayData_${user.id}`;
+                const allDayData = { ...userSpecificData.dayData, [dateKey]: currentDayData };
+                localStorage.setItem(dayDataKey, JSON.stringify(allDayData));
+            };
+
+            const addGoal = async (goalType, text, category) => {
+                const dateKey = formatDateKey(currentDate);
+                
+                // Use the hook's state instead of userSpecificData
+                if (!currentDayData) return;
+                
+                // Create goal with provided text and category
+                const newGoal = {
+                    id: Date.now(),
+                    text: text,
+                    completed: false,
+                    category: category
+                };
+                
+                // Update the hook's state directly (this will auto-save to Neon)
+                setCurrentDayData(prevData => {
+                    if (!prevData) return prevData;
+                    
+                    const updatedData = { ...prevData };
+                    if (!updatedData.goals) updatedData.goals = {};
+                    if (!updatedData.goals[goalType]) updatedData.goals[goalType] = [];
+                    
+                    updatedData.goals[goalType].push(newGoal);
+                    
+                    console.log('🎯 [addGoal] Added goal:', { goalType, newGoal, updatedData });
+                    return updatedData;
+                });
+                
+                // Also update localStorage as backup
+                const dayDataKey = `dailyDavid_dayData_${user.id}`;
+                const allDayData = { ...userSpecificData.dayData, [dateKey]: currentDayData };
+                localStorage.setItem(dayDataKey, JSON.stringify(allDayData));
+            };
+
+            const removeGoal = async (goalType, goalId) => {
+                const dateKey = formatDateKey(currentDate);
+                
+                // Use the hook's state instead of userSpecificData
+                if (!currentDayData) return;
+                
+                // Update the hook's state directly (this will auto-save to Neon)
+                setCurrentDayData(prevData => {
+                    if (!prevData) return prevData;
+                    
+                    const updatedData = { ...prevData };
+                    if (!updatedData.goals) updatedData.goals[goalType] = [];
+                    
+                    updatedData.goals[goalType] = updatedData.goals[goalType].filter(g => g.id !== goalId);
+                    
+                    console.log('🎯 [removeGoal] Removed goal:', { goalType, goalId, updatedData });
+                    return updatedData;
+                });
+                
+                // Also update localStorage as backup
+                const dayDataKey = `dailyDavid_dayData_${user.id}`;
+                const allDayData = { ...userSpecificData.dayData, [dateKey]: currentDayData };
+                localStorage.setItem(dayDataKey, JSON.stringify(allDayData));
+            };
+
+            const updateGoal = async (goalType, goalId, updates) => {
+                const dateKey = formatDateKey(currentDate);
+                
+                // Use the hook's state instead of userSpecificData
+                if (!currentDayData) return;
+                
+                // Update the hook's state directly (this will auto-save to Neon)
+                setCurrentDayData(prevData => {
+                    if (!prevData) return prevData;
+                    
+                    const updatedData = { ...prevData };
+                    if (!updatedData.goals) updatedData.goals = {};
+                    if (!updatedData.goals[goalType]) updatedData.goals[goalType] = [];
+                    
+                    const goalIndex = updatedData.goals[goalType].findIndex(g => g.id === goalId);
+                    
+                    if (goalIndex !== -1) {
+                        updatedData.goals[goalType][goalIndex] = {
+                            ...updatedData.goals[goalType][goalIndex],
+                            ...updates
+                        };
+                        
+                        console.log('🎯 [updateGoal] Updated goal:', { goalType, goalId, updates, updatedData });
+                        return updatedData;
+                    }
+                    
+                    return prevData;
+                });
+                
+                // Also update localStorage as backup
+                const dayDataKey = `dailyDavid_dayData_${user.id}`;
+                const allDayData = { ...userSpecificData.dayData, [dateKey]: currentDayData };
+                localStorage.setItem(dayDataKey, JSON.stringify(allDayData));
+            };
+
             // Functions moved to avoid duplication
 
             // Load day data from database and localStorage
@@ -3008,281 +3143,13 @@
                 await switchAdminToUserMode();
             };
 
-            // Goal management functions
-            const toggleGoal = async (goalType, goalId) => {
-                const dateKey = formatDateKey(currentDate);
-                
-                // Use the hook's state instead of userSpecificData
-                if (!currentDayData) return;
-                
-                // Update the hook's state directly (this will auto-save to Neon)
-                setCurrentDayData(prevData => {
-                    if (!prevData) return prevData;
-                    
-                    const updatedData = { ...prevData };
-                    if (!updatedData.goals) updatedData.goals = {};
-                    if (!updatedData.goals[goalType]) updatedData.goals[goalType] = [];
-                    
-                    const goalIndex = updatedData.goals[goalType].findIndex(g => g.id === goalId);
-                    
-                    if (goalIndex !== -1) {
-                        const newCompletedStatus = !updatedData.goals[goalType][goalIndex].completed;
-                        updatedData.goals[goalType][goalIndex].completed = newCompletedStatus;
-                        
-                        console.log('🎯 [toggleGoal] Toggled goal:', { goalType, goalId, newCompletedStatus, updatedData });
-                        
-                        // For weekly/monthly goals, sync completion status across all days in same week/month
-                        if (goalType === 'weekly' || goalType === 'monthly') {
-                            // Note: syncGoalCompletionAcrossDays still uses old state, but this is the main goal toggle
-                            // The sync function will need to be updated separately if needed
-                        }
-                        
-                        return updatedData;
-                    }
-                    
-                    return prevData;
-                });
-                
-                // Also update localStorage as backup
-                const dayDataKey = `dailyDavid_dayData_${user.id}`;
-                const allDayData = { ...userSpecificData.dayData, [dateKey]: currentDayData };
-                localStorage.setItem(dayDataKey, JSON.stringify(allDayData));
-            };
 
-            const addGoal = async (goalType, text, category) => {
-                const dateKey = formatDateKey(currentDate);
-                
-                // Use the hook's state instead of userSpecificData
-                if (!currentDayData) return;
-                
-                // Create goal with provided text and category
-                const newGoal = {
-                    id: Date.now(),
-                    text: text,
-                    completed: false,
-                    category: category
-                };
-                
-                // Update the hook's state directly (this will auto-save to Neon)
-                setCurrentDayData(prevData => {
-                    if (!prevData) return prevData;
-                    
-                    const updatedData = { ...prevData };
-                    if (!updatedData.goals) updatedData.goals = {};
-                    if (!updatedData.goals[goalType]) updatedData.goals[goalType] = [];
-                    
-                    updatedData.goals[goalType].push(newGoal);
-                    
-                    console.log('🎯 [addGoal] Added goal:', { goalType, newGoal, updatedData });
-                    return updatedData;
-                });
-                
-                // Also update localStorage as backup
-                const dayDataKey = `dailyDavid_dayData_${user.id}`;
-                const allDayData = { ...userSpecificData.dayData, [dateKey]: currentDayData };
-                localStorage.setItem(dayDataKey, JSON.stringify(allDayData));
-            };
 
-            const removeGoal = async (goalType, goalId) => {
-                const dateKey = formatDateKey(currentDate);
-                
-                // Use the hook's state instead of userSpecificData
-                if (!currentDayData) return;
-                
-                // Update the hook's state directly (this will auto-save to Neon)
-                setCurrentDayData(prevData => {
-                    if (!prevData) return prevData;
-                    
-                    const updatedData = { ...prevData };
-                    if (!updatedData.goals) updatedData.goals = {};
-                    if (!updatedData.goals[goalType]) updatedData.goals[goalType] = [];
-                    
-                    updatedData.goals[goalType] = updatedData.goals[goalType].filter(g => g.id !== goalId);
-                    
-                    console.log('🎯 [removeGoal] Removed goal:', { goalType, goalId, updatedData });
-                    return updatedData;
-                });
-                
-                // Also update localStorage as backup
-                const dayDataKey = `dailyDavid_dayData_${user.id}`;
-                const allDayData = { ...userSpecificData.dayData, [dateKey]: currentDayData };
-                localStorage.setItem(dayDataKey, JSON.stringify(allDayData));
-            };
 
-            const updateGoal = async (goalType, goalId, newText, newCategory) => {
-                const dateKey = formatDateKey(currentDate);
-                
-                // Use the hook's state instead of userSpecificData
-                if (!currentDayData) return;
-                
-                // Update the hook's state directly (this will auto-save to Neon)
-                setCurrentDayData(prevData => {
-                    if (!prevData) return prevData;
-                    
-                    const updatedData = { ...prevData };
-                    if (!updatedData.goals) updatedData.goals = {};
-                    if (!updatedData.goals[goalType]) updatedData.goals[goalType] = [];
-                    
-                    const goalIndex = updatedData.goals[goalType].findIndex(g => g.id === goalId);
-                    
-                    if (goalIndex !== -1) {
-                        updatedData.goals[goalType][goalIndex].text = newText;
-                        updatedData.goals[goalType][goalIndex].category = newCategory;
-                        
-                        console.log('🎯 [updateGoal] Updated goal:', { goalType, goalId, newText, newCategory, updatedData });
-                        return updatedData;
-                    }
-                    
-                    return prevData;
-                });
-                
-                // Also update localStorage as backup
-                const dayDataKey = `dailyDavid_dayData_${user.id}`;
-                const allDayData = { ...userSpecificData.dayData, [dateKey]: currentDayData };
-                localStorage.setItem(dayDataKey, JSON.stringify(allDayData));
-            };
 
-            // Function to sync goal completion across all days in same week/month
-            const syncGoalCompletionAcrossDays = async (goalType, goalId, completedStatus) => {
-                const allDayData = { ...userSpecificData.dayData };
-                let updated = false;
-                
-                // Get all dates that have this goal type
-                const datesWithGoals = Object.keys(allDayData).filter(dateKey => {
-                    const dayData = allDayData[dateKey];
-                    return dayData?.goals?.[goalType]?.some(g => g.id === goalId);
-                });
-                
-                // Update completion status for all days that have this goal
-                for (const dateKey of datesWithGoals) {
-                    const dayData = allDayData[dateKey];
-                    const goalIndex = dayData.goals[goalType].findIndex(g => g.id === goalId);
-                    
-                    if (goalIndex !== -1) {
-                        dayData.goals[goalType][goalIndex].completed = completedStatus;
-                        updated = true;
-                    }
-                }
-                
-                if (updated) {
-                    // Save all updated day data to localStorage
-                    const dayDataKey = `dailyDavid_dayData_${user.id}`;
-                    localStorage.setItem(dayDataKey, JSON.stringify(allDayData));
-                    
-                    // Update state
-                    setUserSpecificData(prev => ({
-                        ...prev,
-                        dayData: allDayData
-                    }));
-                }
-            };
 
-            // Simple function to ensure goals are available for the current week/month
-            const ensureGoalsAvailable = () => {
-                // This function is now much simpler - just ensure the current day data exists
-                const dateKey = formatDateKey(currentDate);
-                if (!userSpecificData.dayData[dateKey]) {
-                    const newDayData = {
-                        gratitude: ['', '', ''],
-                        soap: {
-                            scripture: '',
-                            observation: '',
-                            application: '',
-                            prayer: ''
-                        },
-                        goals: {
-                            daily: [],
-                            weekly: getCurrentWeekGoals(),
-                            monthly: getCurrentMonthGoals()
-                        }
-                    };
-                    
-                    setUserSpecificData(prev => ({
-                        ...prev,
-                        dayData: { ...prev.dayData, [dateKey]: newDayData }
-                    }));
-                }
-            };
 
-            // Simple function to get goals for the current week/month
-            const getCurrentWeekGoals = () => {
-                console.log('🔍 [getCurrentWeekGoals] Checking for weekly goals...');
-                console.log('🔍 [getCurrentWeekGoals] userSpecificData.weeklyGoals:', userSpecificData.weeklyGoals);
-                console.log('🔍 [getCurrentWeekGoals] userSpecificData.dayData keys:', Object.keys(userSpecificData.dayData));
-                
-                // Check if we have global weekly goals
-                if (userSpecificData.weeklyGoals && userSpecificData.weeklyGoals.length > 0) {
-                    console.log('✅ [getCurrentWeekGoals] Found global weekly goals:', userSpecificData.weeklyGoals);
-                    return userSpecificData.weeklyGoals;
-                }
-                
-                // Find any weekly goals from any date in the current week
-                const currentWeek = getWeekNumber(currentDate);
-                const allDates = Object.keys(userSpecificData.dayData);
-                
-                for (const dateKey of allDates) {
-                    const dayData = userSpecificData.dayData[dateKey];
-                    console.log(`🔍 [getCurrentWeekGoals] Checking ${dateKey}:`, dayData?.goals?.weekly);
-                    if (dayData?.goals?.weekly?.length > 0) {
-                        const dayWeek = getWeekNumber(new Date(dateKey));
-                        if (dayWeek.year === currentWeek.year && dayWeek.week === currentWeek.week) {
-                            console.log(`✅ [getCurrentWeekGoals] Found weekly goals in ${dateKey}:`, dayData.goals.weekly);
-                            return dayData.goals.weekly;
-                        }
-                    }
-                }
-                
-                console.log('⚠️ [getCurrentWeekGoals] No weekly goals found, returning empty array');
-                return [];
-            };
 
-            const getCurrentMonthGoals = () => {
-                console.log('🔍 [getCurrentMonthGoals] Checking for monthly goals...');
-                console.log('🔍 [getCurrentMonthGoals] userSpecificData.monthlyGoals:', userSpecificData.monthlyGoals);
-                console.log('🔍 [getCurrentMonthGoals] userSpecificData.dayData keys:', Object.keys(userSpecificData.dayData));
-                console.log('🔍 [getCurrentMonthGoals] Current date:', currentDate.toDateString());
-                console.log('🔍 [getCurrentMonthGoals] Current month/year:', currentDate.getMonth(), currentDate.getFullYear());
-                
-                // Check if we have global monthly goals
-                if (userSpecificData.monthlyGoals && userSpecificData.monthlyGoals.length > 0) {
-                    console.log('✅ [getCurrentMonthGoals] Found global monthly goals:', userSpecificData.monthlyGoals);
-                    return userSpecificData.monthlyGoals;
-                }
-                
-                // Find any monthly goals from any date in the current month
-                const currentMonth = currentDate.getMonth();
-                const currentYear = currentDate.getFullYear();
-                const allDates = Object.keys(userSpecificData.dayData);
-                
-                for (const dateKey of allDates) {
-                    const dayData = userSpecificData.dayData[dateKey];
-                    console.log(`🔍 [getCurrentMonthGoals] Checking ${dateKey}:`, dayData?.goals?.monthly);
-                    if (dayData?.goals?.monthly?.length > 0) {
-                        const dayDate = new Date(dateKey);
-                        console.log(`🔍 [getCurrentMonthGoals] Day ${dateKey} month/year:`, dayDate.getMonth(), dayDate.getFullYear());
-                        if (dayDate.getMonth() === currentMonth && dayDate.getFullYear() === currentYear) {
-                            console.log(`✅ [getCurrentMonthGoals] Found monthly goals in ${dateKey}:`, dayData.goals.monthly);
-                            return dayData.goals.monthly;
-                        }
-                    }
-                }
-                
-                console.log('⚠️ [getCurrentMonthGoals] No monthly goals found, returning empty array');
-                return [];
-            };
-
-            // Progress calculation functions - now work with current week/month goals
-            const getWeeklyProgress = () => {
-                const weeklyGoals = getCurrentWeekGoals();
-                const completed = weeklyGoals.filter(goal => goal.completed).length;
-                return { completed, total: weeklyGoals.length, percentage: weeklyGoals.length > 0 ? Math.round((completed / weeklyGoals.length) * 100) : 0 };
-            };
-
-            const getMonthlyProgress = () => {
-                const monthlyGoals = getCurrentMonthGoals();
-                const completed = monthlyGoals.filter(goal => goal.completed).length;
-                return { completed, total: monthlyGoals.length, percentage: monthlyGoals.length > 0 ? Math.round((completed / monthlyGoals.length) * 100) : 0 };
-            };
 
             const getDaysCompletedThisWeek = (viewDate = null) => {
                 console.log('🔍 [getDaysCompletedThisWeek] Function called with viewDate:', viewDate);
