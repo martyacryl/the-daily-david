@@ -1652,7 +1652,7 @@
         );
 
         // Landing Page Component
-        const LandingPage = ({ weeklyGoals, monthlyGoals, toggleGoal, addGoal, removeGoal, updateGoal, getWeeklyProgress, getMonthlyProgress, getDaysCompletedThisWeek, getCompletionRate, getCurrentStreak, getWeeklySummary, getHabitStrength, setCurrentView, forceRefreshFromNeon }) => {
+                    const LandingPage = ({ currentDate, weeklyGoals, monthlyGoals, userSpecificData, toggleGoal, addGoal, removeGoal, updateGoal, getWeeklyProgress, getMonthlyProgress, getDaysCompletedThisWeek, getCompletionRate, getCurrentStreak, getWeeklySummary, getHabitStrength, setCurrentView, forceRefreshFromNeon }) => {
             const [newGoalText, setNewGoalText] = useState('');
             const [newGoalCategory, setNewGoalCategory] = useState('spiritual');
             const [showAddGoal, setShowAddGoal] = useState(false);
@@ -1668,9 +1668,83 @@
                 </svg>
             );
 
-            const weeklyProgress = getWeeklyProgress();
-            const monthlyProgress = getMonthlyProgress();
-            const daysCompleted = getDaysCompletedThisWeek();
+            // Calculate stats immediately on every render to ensure they're always up-to-date
+            const immediateStats = {
+                daysCompleted: getDaysCompletedThisWeek(), // Always use current week, not view date
+                weeklyProgress: getWeeklyProgress(),
+                monthlyProgress: getMonthlyProgress()
+            };
+            
+            // Add debug logging to see what's happening
+            console.log('🔍 [LandingPage] immediateStats calculated:', immediateStats);
+            console.log('🔍 [LandingPage] getDaysCompletedThisWeek() result:', getDaysCompletedThisWeek());
+            console.log('🔍 [LandingPage] userSpecificData.dayData keys:', Object.keys(userSpecificData?.dayData || {}));
+            
+            const [daysCompleted, setDaysCompleted] = useState(immediateStats.daysCompleted || 0);
+            const [weeklyProgress, setWeeklyProgress] = useState(immediateStats.weeklyProgress || 0);
+            const [monthlyProgress, setMonthlyProgress] = useState(immediateStats.monthlyProgress || 0);
+
+            // Recalculate stats immediately when component mounts, when currentDate changes, or when data changes
+            useEffect(() => {
+                const recalculateStats = () => {
+                    const newDaysCompleted = getDaysCompletedThisWeek(currentDate);
+                    const newWeeklyProgress = getWeeklyProgress();
+                    const newMonthlyProgress = getMonthlyProgress();
+                    
+                    console.log('🔄 [LandingPage] Recalculating stats for date:', currentDate.toDateString(), {
+                        daysCompleted: newDaysCompleted,
+                        weeklyProgress: newWeeklyProgress,
+                        monthlyProgress: newMonthlyProgress
+                    });
+                    
+                    setDaysCompleted(newDaysCompleted);
+                    setWeeklyProgress(newWeeklyProgress);
+                    setMonthlyProgress(newMonthlyProgress);
+                };
+
+                // Calculate immediately
+                recalculateStats();
+                
+                // Set up interval to recalculate every 2 seconds (for when data loads asynchronously)
+                const interval = setInterval(recalculateStats, 2000);
+                
+                return () => clearInterval(interval);
+            }, [currentDate, getDaysCompletedThisWeek, getWeeklyProgress, getMonthlyProgress]);
+
+            // Additional effect to recalculate when weeklyGoals or monthlyGoals change (data changes)
+            useEffect(() => {
+                const recalculateStats = () => {
+                    const newDaysCompleted = getDaysCompletedThisWeek(currentDate);
+                    const newWeeklyProgress = getWeeklyProgress();
+                    const newMonthlyProgress = getMonthlyProgress();
+                    
+                    console.log('🔄 [LandingPage] Data changed, recalculating stats for date:', currentDate.toDateString(), {
+                        daysCompleted: newDaysCompleted,
+                        weeklyProgress: newWeeklyProgress,
+                        monthlyProgress: newMonthlyProgress
+                    });
+                    
+                    setDaysCompleted(newDaysCompleted);
+                    setWeeklyProgress(newWeeklyProgress);
+                    setMonthlyProgress(newMonthlyProgress);
+                };
+
+                // Recalculate when goals data changes
+                recalculateStats();
+            }, [weeklyGoals, monthlyGoals, currentDate, getDaysCompletedThisWeek, getWeeklyProgress, getMonthlyProgress]);
+
+            // Effect to reload data when currentDate changes (user navigates to different date)
+            useEffect(() => {
+                console.log('🔄 [LandingPage] Date changed, recalculating stats for week:', currentDate.toDateString());
+                // Recalculate stats immediately when date changes
+                const newDaysCompleted = getDaysCompletedThisWeek(currentDate);
+                const newWeeklyProgress = getWeeklyProgress();
+                const newMonthlyProgress = getMonthlyProgress();
+                
+                setDaysCompleted(newDaysCompleted);
+                setWeeklyProgress(newWeeklyProgress);
+                setMonthlyProgress(newMonthlyProgress);
+            }, [currentDate, getDaysCompletedThisWeek, getWeeklyProgress, getMonthlyProgress]);
 
             const handleAddGoal = (type) => {
                 if (newGoalText.trim()) {
@@ -1689,25 +1763,52 @@
                         </h1>
                         <p className="text-gray-600">Be strong and courageous. Do not be afraid; do not be discouraged, for the Lord your God will be with you wherever you go.</p>
                         
+                        {/* Debug Section */}
+                        <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                            <div className="text-sm text-yellow-800">
+                                <strong>Debug Info:</strong> 
+                                Data keys: {Object.keys(userSpecificData?.dayData || {}).length} | 
+                                Days completed: {getDaysCompletedThisWeek()} | 
+                                <button 
+                                    onClick={() => {
+                                        console.log('🔍 Manual debug trigger');
+                                        console.log('userSpecificData:', userSpecificData);
+                                        console.log('dayData keys:', Object.keys(userSpecificData?.dayData || {}));
+                                        if (user?.id) {
+                                            loadUserSpecificData(user.id, currentDate);
+                                        }
+                                    }}
+                                    className="ml-2 px-2 py-1 bg-yellow-200 text-yellow-800 rounded text-xs hover:bg-yellow-300"
+                                >
+                                    Reload Data
+                                </button>
+                            </div>
+                        </div>
+                        
                         {/* Stats Grid */}
                         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mt-8">
                             <div className="bg-white p-6 rounded-xl shadow-lg border-2 border-gray-200 hover:shadow-2xl hover:border-primary transition-all duration-300 transform hover:-translate-y-2">
                                 <div className="text-4xl font-bold text-primary mb-3">
-                                    {daysCompleted !== undefined ? `${daysCompleted}/7` : '...'}
+                                    {immediateStats.daysCompleted !== undefined ? `${immediateStats.daysCompleted}/7` : '...'}
                                 </div>
                                 <div className="text-base font-semibold text-gray-700 uppercase tracking-wide">Days This Week</div>
+                                <div className="text-sm text-gray-500 mt-2">
+                                    {Object.keys(userSpecificData?.dayData || {}).length > 0 
+                                        ? `${Object.keys(userSpecificData.dayData).length} dates loaded` 
+                                        : 'No data loaded'}
+                                </div>
                                 <div className="w-16 h-1.5 bg-primary rounded-full mt-4"></div>
                             </div>
                             <div className="bg-white p-6 rounded-xl shadow-lg border-2 border-gray-200 hover:shadow-2xl hover:border-primary transition-all duration-300 transform hover:-translate-y-2">
                                 <div className="text-4xl font-bold text-primary mb-3">
-                                    {weeklyProgress?.percentage !== undefined ? `${weeklyProgress.percentage}%` : '...'}
+                                    {immediateStats.weeklyProgress?.percentage !== undefined ? `${immediateStats.weeklyProgress.percentage}%` : '...'}
                                 </div>
                                 <div className="text-base font-semibold text-gray-700 uppercase tracking-wide">Weekly Goals</div>
                                 <div className="w-16 h-1.5 bg-primary rounded-full mt-4"></div>
                             </div>
                             <div className="bg-white p-6 rounded-xl shadow-lg border-2 border-gray-200 hover:shadow-2xl hover:border-primary transition-all duration-300 transform hover:-translate-y-2">
                                 <div className="text-4xl font-bold text-primary mb-3">
-                                    {monthlyProgress?.percentage !== undefined ? `${monthlyProgress.percentage}%` : '...'}
+                                    {immediateStats.monthlyProgress?.percentage !== undefined ? `${immediateStats.monthlyProgress.percentage}%` : '...'}
                                 </div>
                                 <div className="text-base font-semibold text-gray-700 uppercase tracking-wide">Monthly Goals</div>
                                 <div className="w-16 h-1.5 bg-primary rounded-full mt-4"></div>
@@ -1733,13 +1834,13 @@
                                 <div className="flex justify-between items-center mb-3">
                                     <span className="text-base font-medium text-gray-700">Overall Completion</span>
                                     <span className="text-3xl font-bold text-primary">
-                                        {getCompletionRate()?.overall !== undefined ? `${getCompletionRate().overall}%` : '...'}
+                                        {getCompletionRate(currentDate)?.overall !== undefined ? `${getCompletionRate(currentDate).overall}%` : '...'}
                                     </span>
                                 </div>
                                 <div className="w-full bg-gray-200 rounded-full h-4 progress-bar">
                                     <div 
                                         className="progress-fill h-4 rounded-full"
-                                        style={{ width: `${getCompletionRate()?.overall !== undefined ? getCompletionRate().overall : 0}%` }}
+                                        style={{ width: `${getCompletionRate(currentDate)?.overall !== undefined ? getCompletionRate(currentDate).overall : 0}%` }}
                                     ></div>
                                 </div>
                             </div>
@@ -1761,7 +1862,7 @@
                             {/* Section Breakdown */}
                             <div className="space-y-4">
                                 <h4 className="text-base font-semibold text-gray-800 mb-4">Section Performance</h4>
-                                {Object.entries(getCompletionRate()?.sections || {}).map(([section, percentage]) => {
+                                {Object.entries(getCompletionRate(currentDate)?.sections || {}).map(([section, percentage]) => {
                                     // Create human-readable labels for each section
                                     const sectionLabels = {
                                         dailyIntention: 'Daily Intention',
@@ -1805,13 +1906,13 @@
                                     <div>
                                         <div className="text-sm font-medium text-gray-600">Most Productive Day</div>
                                         <div className="text-2xl font-bold text-primary">
-                                            {getWeeklySummary()?.mvp !== undefined ? getWeeklySummary().mvp : '...'}
+                                            {getWeeklySummary(currentDate)?.mvp !== undefined ? getWeeklySummary(currentDate).mvp : '...'}
                                         </div>
                                     </div>
                                 </div>
                                 <div className="text-sm text-gray-600 ml-16">
                                     Completion Rate: <span className="font-semibold text-primary">
-                                        {getWeeklySummary()?.completionRate !== undefined ? `${getWeeklySummary().completionRate}%` : '...'}
+                                        {getWeeklySummary(currentDate)?.completionRate !== undefined ? `${getWeeklySummary(currentDate).completionRate}%` : '...'}
                                     </span>
                                 </div>
                             </div>
@@ -2210,6 +2311,7 @@
         };
 
         const DailyDavidApp = () => {
+            console.log('🔧 DailyDavidApp component initializing...');
             const [currentDate, setCurrentDate] = useState(new Date());
             const [dayData, setDayData] = useState({});
             const [isConnected, setIsConnected] = useState(false);
@@ -2651,7 +2753,7 @@
             };
 
                         // Function to load user-specific data - BULLETPROOF localStorage approach
-            const loadUserSpecificData = async (userId) => {
+            const loadUserSpecificData = async (userId, viewDate = null) => {
                 try {
                     console.log('🔄 BULLETPROOF: Loading user-specific data for:', userId);
                     
@@ -2695,67 +2797,91 @@
                                 monthlyGoals = parsed.monthlyGoals || [];
                                 console.log('✅ Goals loaded from localStorage:', { weeklyGoals, monthlyGoals });
                             } else {
-                                console.log('⚠️ No goals found anywhere, using defaults');
-                                weeklyGoals = [
-                                    { id: 1, text: 'Complete 5 SOAP studies this week', completed: false, category: 'spiritual' },
-                                    { id: 2, text: 'Practice gratitude daily', completed: false, category: 'personal' },
-                                    { id: 3, text: 'Read 3 chapters of scripture', completed: false, category: 'spiritual' }
-                                ];
-                                monthlyGoals = [
-                                    { id: 1, text: 'Establish daily prayer routine', completed: false, category: 'spiritual' },
-                                    { id: 2, text: 'Complete 20 SOAP studies', completed: false, category: 'spiritual' },
-                                    { id: 3, text: 'Share faith with 2 people', completed: false, category: 'outreach' }
-                                ];
+                                console.log('⚠️ No goals found anywhere, starting with empty arrays');
+                                weeklyGoals = [];
+                                monthlyGoals = [];
                             }
                         }
                     } catch (error) {
                         console.error('❌ Error loading goals from database/localStorage:', error);
-                        // Use defaults on error
-                        weeklyGoals = [
-                            { id: 1, text: 'Complete 5 SOAP studies this week', completed: false, category: 'spiritual' },
-                            { id: 2, text: 'Practice gratitude daily', completed: false, category: 'personal' },
-                            { id: 3, text: 'Read 3 chapters of scripture', completed: false, category: 'spiritual' }
-                        ];
-                        monthlyGoals = [
-                            { id: 1, text: 'Establish daily prayer routine', completed: false, category: 'spiritual' },
-                            { id: 2, text: 'Complete 20 SOAP studies', completed: false, category: 'spiritual' },
-                            { id: 3, text: 'Share faith with 2 people', completed: false, category: 'outreach' }
-                        ];
+                        // Use empty arrays on error
+                        weeklyGoals = [];
+                        monthlyGoals = [];
                     }
                     
                     // Try to load day data from database first, then localStorage as backup
                     try {
                         console.log('🔄 Trying to load day data from database...');
-                        // For now, we'll load from localStorage but in the future we can implement
-                        // batch loading from database for multiple dates
+                        
+                        // First try to load from localStorage (which should have the data)
                         const dayDataRaw = localStorage.getItem(dayDataKey);
                         if (dayDataRaw) {
                             dayData = JSON.parse(dayDataRaw);
                             console.log('✅ Day data loaded from localStorage:', Object.keys(dayData).length, 'dates');
                             console.log('📅 Date keys:', Object.keys(dayData));
+                        }
+                        
+                        // If no localStorage data, try to load from Neon for the current week
+                        if (Object.keys(dayData).length === 0) {
+                            console.log('⚠️ No localStorage data, trying Neon for current week...');
+                            const dbManager = new NeonDatabaseManager();
                             
-                            // Extract goals from the most recent day data
-                            const dateKeys = Object.keys(dayData).sort((a, b) => new Date(b) - new Date(a));
-                            if (dateKeys.length > 0) {
-                                const mostRecentDate = dateKeys[0];
-                                const mostRecentData = dayData[mostRecentDate];
-                                
-                                if (mostRecentData?.goals) {
-                                    weeklyGoals = mostRecentData.goals.weekly || [];
-                                    monthlyGoals = mostRecentData.goals.monthly || [];
-                                    console.log('✅ Goals extracted from most recent day data:', { 
-                                        date: mostRecentDate, 
-                                        weeklyGoals: weeklyGoals.length, 
-                                        monthlyGoals: monthlyGoals.length 
-                                    });
+                            // Load data for the target week (Monday-Sunday)
+                            // If no viewDate provided, always load data for the current week
+                            const targetDate = viewDate || new Date();
+                            const startOfWeek = new Date(targetDate);
+                            // Monday = 1, Tuesday = 2, ..., Sunday = 0
+                            // We want Monday to be day 1, so subtract (day - 1) to get to Monday
+                            const daysFromMonday = targetDate.getDay() === 0 ? 6 : targetDate.getDay() - 1;
+                            startOfWeek.setDate(targetDate.getDate() - daysFromMonday);
+                            const endOfWeek = new Date(startOfWeek);
+                            endOfWeek.setDate(startOfWeek.getDate() + 6);
+                            
+                            console.log(`🔍 [loadUserSpecificData] Loading data for week: ${startOfWeek.toDateString()} to ${endOfWeek.toDateString()} (target date: ${targetDate.toDateString()})`);
+                            if (!viewDate) {
+                                console.log('🔍 [loadUserSpecificData] No viewDate provided - loading data for CURRENT week (Aug 25-31)');
+                            }
+                            
+                            for (let d = new Date(startOfWeek); d <= endOfWeek; d.setDate(d.getDate() + 1)) {
+                                const dateKey = formatDateKey(d);
+                                try {
+                                    const neonData = await dbManager.loadDayData(dateKey, userId);
+                                    if (neonData && Object.keys(neonData).length > 0) {
+                                        dayData[dateKey] = neonData;
+                                        console.log(`✅ Loaded data for ${dateKey} from Neon:`, neonData);
+                                    } else {
+                                        console.log(`⚠️ No data found for ${dateKey} in Neon`);
+                                    }
+                                } catch (dayError) {
+                                    console.log(`⚠️ Error loading data for ${dateKey}:`, dayError);
                                 }
                             }
-                        } else {
-                            console.log('⚠️ No day data in localStorage, starting fresh');
-                            dayData = {};
+                            
+                            // Save Neon data to localStorage
+                            if (Object.keys(dayData).length > 0) {
+                                localStorage.setItem(dayDataKey, JSON.stringify(dayData));
+                                console.log('✅ Neon data saved to localStorage');
+                            }
+                        }
+                        
+                        // Extract goals from the most recent day data
+                        const dateKeys = Object.keys(dayData).sort((a, b) => new Date(b) - new Date(a));
+                        if (dateKeys.length > 0) {
+                            const mostRecentDate = dateKeys[0];
+                            const mostRecentData = dayData[mostRecentDate];
+                            
+                            if (mostRecentData?.goals) {
+                                weeklyGoals = weeklyGoals.length === 0 ? (mostRecentData.goals.weekly || []) : weeklyGoals;
+                                monthlyGoals = monthlyGoals.length === 0 ? (mostRecentData.goals.monthly || []) : monthlyGoals;
+                                console.log('✅ Goals extracted from most recent day data:', { 
+                                    date: mostRecentDate, 
+                                    weeklyGoals: weeklyGoals.length, 
+                                    monthlyGoals: monthlyGoals.length 
+                                });
+                            }
                         }
                     } catch (error) {
-                        console.error('❌ Error loading day data from localStorage:', error);
+                        console.error('❌ Error loading day data from database/localStorage:', error);
                         dayData = {};
                     }
                     
@@ -2778,16 +2904,8 @@
                     // Emergency fallback
                     setUserSpecificData({
                         dayData: {},
-                        weeklyGoals: [
-                            { id: 1, text: 'Complete 5 SOAP studies this week', completed: false, category: 'spiritual' },
-                            { id: 2, text: 'Practice gratitude daily', completed: false, category: 'personal' },
-                            { id: 3, text: 'Read 3 chapters of scripture', completed: false, category: 'spiritual' }
-                        ],
-                        monthlyGoals: [
-                            { id: 1, text: 'Establish daily prayer routine', completed: false, category: 'spiritual' },
-                            { id: 2, text: 'Complete 20 SOAP studies', completed: false, category: 'spiritual' },
-                            { id: 3, text: 'Share faith with 2 people', completed: false, category: 'outreach' }
-                        ]
+                        weeklyGoals: [],
+                        monthlyGoals: []
                     });
                 }
             };
@@ -2798,7 +2916,7 @@
                 
                 // ALWAYS load user data from localStorage first, regardless of same user or not
                 console.log('🔄 Loading user-specific data from localStorage...');
-                await loadUserSpecificData(userData.id);
+                await loadUserSpecificData(userData.id, currentDate);
                 
                 // Set user state after loading data
                 setUser(userData);
@@ -3088,8 +3206,13 @@
 
             // Simple function to get goals for the current week/month
             const getCurrentWeekGoals = () => {
+                console.log('🔍 [getCurrentWeekGoals] Checking for weekly goals...');
+                console.log('🔍 [getCurrentWeekGoals] userSpecificData.weeklyGoals:', userSpecificData.weeklyGoals);
+                console.log('🔍 [getCurrentWeekGoals] userSpecificData.dayData keys:', Object.keys(userSpecificData.dayData));
+                
                 // Check if we have global weekly goals
                 if (userSpecificData.weeklyGoals && userSpecificData.weeklyGoals.length > 0) {
+                    console.log('✅ [getCurrentWeekGoals] Found global weekly goals:', userSpecificData.weeklyGoals);
                     return userSpecificData.weeklyGoals;
                 }
                 
@@ -3099,20 +3222,30 @@
                 
                 for (const dateKey of allDates) {
                     const dayData = userSpecificData.dayData[dateKey];
+                    console.log(`🔍 [getCurrentWeekGoals] Checking ${dateKey}:`, dayData?.goals?.weekly);
                     if (dayData?.goals?.weekly?.length > 0) {
                         const dayWeek = getWeekNumber(new Date(dateKey));
                         if (dayWeek.year === currentWeek.year && dayWeek.week === currentWeek.week) {
+                            console.log(`✅ [getCurrentWeekGoals] Found weekly goals in ${dateKey}:`, dayData.goals.weekly);
                             return dayData.goals.weekly;
                         }
                     }
                 }
                 
+                console.log('⚠️ [getCurrentWeekGoals] No weekly goals found, returning empty array');
                 return [];
             };
 
             const getCurrentMonthGoals = () => {
+                console.log('🔍 [getCurrentMonthGoals] Checking for monthly goals...');
+                console.log('🔍 [getCurrentMonthGoals] userSpecificData.monthlyGoals:', userSpecificData.monthlyGoals);
+                console.log('🔍 [getCurrentMonthGoals] userSpecificData.dayData keys:', Object.keys(userSpecificData.dayData));
+                console.log('🔍 [getCurrentMonthGoals] Current date:', currentDate.toDateString());
+                console.log('🔍 [getCurrentMonthGoals] Current month/year:', currentDate.getMonth(), currentDate.getFullYear());
+                
                 // Check if we have global monthly goals
                 if (userSpecificData.monthlyGoals && userSpecificData.monthlyGoals.length > 0) {
+                    console.log('✅ [getCurrentMonthGoals] Found global monthly goals:', userSpecificData.monthlyGoals);
                     return userSpecificData.monthlyGoals;
                 }
                 
@@ -3123,14 +3256,18 @@
                 
                 for (const dateKey of allDates) {
                     const dayData = userSpecificData.dayData[dateKey];
+                    console.log(`🔍 [getCurrentMonthGoals] Checking ${dateKey}:`, dayData?.goals?.monthly);
                     if (dayData?.goals?.monthly?.length > 0) {
                         const dayDate = new Date(dateKey);
+                        console.log(`🔍 [getCurrentMonthGoals] Day ${dateKey} month/year:`, dayDate.getMonth(), dayDate.getFullYear());
                         if (dayDate.getMonth() === currentMonth && dayDate.getFullYear() === currentYear) {
+                            console.log(`✅ [getCurrentMonthGoals] Found monthly goals in ${dateKey}:`, dayData.goals.monthly);
                             return dayData.goals.monthly;
                         }
                     }
                 }
                 
+                console.log('⚠️ [getCurrentMonthGoals] No monthly goals found, returning empty array');
                 return [];
             };
 
@@ -3147,71 +3284,40 @@
                 return { completed, total: monthlyGoals.length, percentage: monthlyGoals.length > 0 ? Math.round((completed / monthlyGoals.length) * 100) : 0 };
             };
 
-            const getDaysCompletedThisWeek = () => {
-                // CRITICAL: If no local data, directly query Neon for the data we need
+            const getDaysCompletedThisWeek = (viewDate = null) => {
+                console.log('🔍 [getDaysCompletedThisWeek] Function called with viewDate:', viewDate);
+                console.log('🔍 [getDaysCompletedThisWeek] userSpecificData:', userSpecificData);
+                console.log('🔍 [getDaysCompletedThisWeek] userSpecificData.dayData:', userSpecificData?.dayData);
+                console.log('🔍 [getDaysCompletedThisWeek] userSpecificData.dayData keys:', Object.keys(userSpecificData?.dayData || {}));
+                
+                // If no data available, return 0
                 if (!userSpecificData || !userSpecificData.dayData || Object.keys(userSpecificData.dayData).length === 0) {
-                    console.log('⚠️ [getDaysCompletedThisWeek] No local data, directly querying Neon...');
-                    
-                    // Return 0 for now, but trigger immediate Neon query
-                    if (currentUserId) {
-                        // Use a more immediate approach - query Neon directly
-                        setTimeout(async () => {
-                            try {
-                                console.log('🔄 [getDaysCompletedThisWeek] Direct Neon query for week data...');
-                                const dbManager = new NeonDatabaseManager();
-                                
-                                // Get all days for the current week
-                                const today = new Date();
-                                const startOfWeek = new Date(today);
-                                startOfWeek.setDate(today.getDate() - today.getDay());
-                                const endOfWeek = new Date(startOfWeek);
-                                endOfWeek.setDate(startOfWeek.getDate() + 6);
-                                
-                                const weekData = {};
-                                
-                                for (let d = new Date(startOfWeek); d <= endOfWeek; d.setDate(d.getDate() + 1)) {
-                                    const dateKey = formatDateKey(d);
-                                    const neonData = await dbManager.loadDayData(dateKey, currentUserId);
-                                    
-                                    if (neonData && Object.keys(neonData).length > 0) {
-                                        weekData[dateKey] = neonData;
-                                        console.log(`✅ [getDaysCompletedThisWeek] Loaded ${dateKey} from Neon:`, neonData);
-                                    }
-                                }
-                                
-                                // Update state with the week data
-                                if (Object.keys(weekData).length > 0) {
-                                    setUserSpecificData(prev => ({
-                                        ...prev,
-                                        dayData: { ...prev.dayData, ...weekData }
-                                    }));
-                                    console.log('✅ [getDaysCompletedThisWeek] Week data loaded and state updated');
-                                }
-                            } catch (error) {
-                                console.error('❌ [getDaysCompletedThisWeek] Direct Neon query failed:', error);
-                            }
-                        }, 100);
-                    }
-                    
-                    return 0; // Return 0 for now, will update when Neon data loads
+                    console.log('❌ [getDaysCompletedThisWeek] No data available, returning 0');
+                    return 0;
                 }
                 
-                // Log the actual data being used for debugging cross-device sync
-                console.log('📱 [Cross-Device Debug] getDaysCompletedThisWeek using data:', {
-                    userSpecificDataKeys: Object.keys(userSpecificData.dayData),
-                    currentUserId: currentUserId,
-                    deviceInfo: {
-                        userAgent: navigator.userAgent,
-                        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-                        timestamp: new Date().toISOString()
-                    }
-                });
+                // For "Days This Week" dashboard card, ALWAYS use the actual current date
+                // This shows how many days you've completed THIS week, regardless of what date you're viewing
+                const targetDate = new Date(); // Always use actual current date for "Days This Week"
                 
-                const today = new Date();
-                const startOfWeek = new Date(today);
-                startOfWeek.setDate(today.getDate() - today.getDay());
+                // Simple logging for debugging
+                console.log('📱 [getDaysCompletedThisWeek] Using data with keys:', Object.keys(userSpecificData.dayData));
+                console.log('📱 [getDaysCompletedThisWeek] All date keys:', Object.keys(userSpecificData.dayData).sort());
+                console.log('📱 [getDaysCompletedThisWeek] userSpecificData object:', userSpecificData);
+                console.log('📱 [getDaysCompletedThisWeek] userSpecificData.dayData:', userSpecificData.dayData);
+                console.log('📱 [getDaysCompletedThisWeek] Target date for week calculation:', targetDate.toDateString());
+                console.log('📱 [getDaysCompletedThisWeek] NOTE: Always using actual current date for "Days This Week" dashboard card');
+                
+                // Get the start of the week for the target date (Monday)
+                const startOfWeek = new Date(targetDate);
+                // Monday = 1, Tuesday = 2, ..., Sunday = 0
+                // We want Monday to be day 1, so subtract (day - 1) to get to Monday
+                const daysFromMonday = targetDate.getDay() === 0 ? 6 : targetDate.getDay() - 1;
+                startOfWeek.setDate(targetDate.getDate() - daysFromMonday);
                 const endOfWeek = new Date(startOfWeek);
                 endOfWeek.setDate(startOfWeek.getDate() + 6);
+                
+                console.log(`📅 Week range for ${targetDate.toDateString()}: ${startOfWeek.toDateString()} to ${endOfWeek.toDateString()}`);
                 
                 let completedDays = 0;
                 for (let d = new Date(startOfWeek); d <= endOfWeek; d.setDate(d.getDate() + 1)) {
@@ -3219,65 +3325,35 @@
                     const dayData = userSpecificData.dayData[dateKey];
                     
                     if (dayData) {
-                        // Debug: Log the actual day data structure
-                        console.log(`🔍 [getDaysCompletedThisWeek] Checking day ${dateKey}:`, dayData);
-                        
-                        // More robust checks that handle different data structures
-                        const hasDailyIntention = dayData.dailyIntention && 
-                            typeof dayData.dailyIntention === 'string' && 
-                            dayData.dailyIntention.trim() !== '';
-                        
-                        const hasLeadershipRating = dayData.leadershipRating && 
-                            typeof dayData.leadershipRating === 'object' && 
-                            Object.values(dayData.leadershipRating).some(rating => 
-                                rating !== null && rating !== undefined && rating !== 5
-                            );
-                        
-                        const hasGrowthQuestion = dayData.growthQuestion && 
-                            typeof dayData.growthQuestion === 'string' && 
-                            dayData.growthQuestion.trim() !== '';
-                        
-                        const hasCheckIn = dayData.checkIn && (
-                            (dayData.checkIn.emotions && Array.isArray(dayData.checkIn.emotions) && dayData.checkIn.emotions.length > 0) || 
-                            (dayData.checkIn.feeling && typeof dayData.checkIn.feeling === 'string' && dayData.checkIn.feeling.trim() !== '')
-                        );
-                        
-                        const hasGratitude = dayData.gratitude && 
-                            Array.isArray(dayData.gratitude) && 
-                            dayData.gratitude.some(item => 
-                                item && typeof item === 'string' && item.trim() !== ''
-                            );
-                        
+                        // Check if the day has any meaningful data
+                        const hasGratitude = dayData.gratitude && Array.isArray(dayData.gratitude) && dayData.gratitude.some(item => item && item.trim() !== '');
                         const hasSOAP = dayData.soap && (
-                            (dayData.soap.scripture && typeof dayData.soap.scripture === 'string' && dayData.soap.scripture.trim() !== '') ||
-                            (dayData.soap.observation && typeof dayData.soap.observation === 'string' && dayData.soap.observation.trim() !== '') ||
-                            (dayData.soap.application && typeof dayData.soap.application === 'string' && dayData.soap.application.trim() !== '') ||
-                            (dayData.soap.prayer && typeof dayData.soap.prayer === 'string' && dayData.soap.prayer.trim() !== '')
+                            (dayData.soap.scripture && dayData.soap.scripture.trim() !== '') ||
+                            (dayData.soap.observation && dayData.soap.observation.trim() !== '') ||
+                            (dayData.soap.application && dayData.soap.application.trim() !== '') ||
+                            (dayData.soap.prayer && dayData.soap.prayer.trim() !== '')
+                        );
+                        const hasDailyGoals = dayData.goals && dayData.goals.daily && Array.isArray(dayData.goals.daily) && dayData.goals.daily.length > 0;
+                        const hasDailyIntention = dayData.dailyIntention && dayData.dailyIntention.trim() !== '';
+                        const hasGrowthQuestion = dayData.growthQuestion && dayData.growthQuestion.trim() !== '';
+                        const hasCheckIn = dayData.checkIn && (
+                            (dayData.checkIn.emotions && dayData.checkIn.emotions.length > 0) || 
+                            (dayData.checkIn.feeling && dayData.checkIn.feeling.trim() !== '')
                         );
                         
-                        const hasDailyGoals = dayData.goals && 
-                            dayData.goals.daily && 
-                            Array.isArray(dayData.goals.daily) && 
-                            dayData.goals.daily.length > 0 &&
-                            dayData.goals.daily.some(goal => 
-                                goal && goal.text && typeof goal.text === 'string' && goal.text.trim() !== ''
-                            );
+                        // Day is completed if it has at least 2 meaningful sections
+                        const completedSections = [hasGratitude, hasSOAP, hasDailyGoals, hasDailyIntention, hasGrowthQuestion, hasCheckIn].filter(Boolean).length;
                         
-                        // Day is completed if it has at least 2 meaningful sections filled out (reduced from 3)
-                        const allSections = [hasDailyIntention, hasLeadershipRating, hasGrowthQuestion, hasCheckIn, hasGratitude, hasSOAP, hasDailyGoals];
-                        const meaningfulSections = allSections.filter(Boolean).length;
-                        
-                        console.log(`🔍 [getDaysCompletedThisWeek] Day ${dateKey} section check:`, {
-                            hasDailyIntention, hasLeadershipRating, hasGrowthQuestion, hasCheckIn, hasGratitude, hasSOAP, hasDailyGoals,
-                            meaningfulSections, required: 2
-                        });
-                        
-                        if (meaningfulSections >= 2) {
+                        if (completedSections >= 2) {
                             completedDays++;
-                            console.log(`✅ [getDaysCompletedThisWeek] Day ${dateKey} completed with ${meaningfulSections} sections`);
+                            console.log(`✅ Day ${dateKey} completed with ${completedSections} sections`);
+                        } else if (completedSections > 0) {
+                            console.log(`⚠️ Day ${dateKey} has ${completedSections} sections but needs 2+ to be complete`);
                         } else {
-                            console.log(`⚠️ [getDaysCompletedThisWeek] Day ${dateKey} has data but only ${meaningfulSections} sections`);
+                            console.log(`❌ Day ${dateKey} has no meaningful data`);
                         }
+                    } else {
+                        console.log(`❌ Day ${dateKey} has no data at all`);
                     }
                 }
                 console.log(`📊 [getDaysCompletedThisWeek] Week summary: ${completedDays}/7 days completed`);
@@ -3285,7 +3361,7 @@
             };
 
             // New dashboard enhancement functions
-            const getCompletionRate = () => {
+            const getCompletionRate = (viewDate = null) => {
                 // CRITICAL: If no local data, directly query Neon for the data we need
                 if (!userSpecificData || !userSpecificData.dayData || Object.keys(userSpecificData.dayData).length === 0) {
                     console.log('⚠️ [getCompletionRate] No local data, directly querying Neon...');
@@ -3298,10 +3374,13 @@
                                 console.log('🔄 [getCompletionRate] Direct Neon query for week data...');
                                 const dbManager = new NeonDatabaseManager();
                                 
-                                // Get all days for the current week
-                                const today = new Date();
-                                const startOfWeek = new Date(today);
-                                startOfWeek.setDate(today.getDate() - today.getDay());
+                                // Get all days for the current week (Monday)
+                                const targetDate = viewDate || new Date();
+                                const startOfWeek = new Date(targetDate);
+                                // Monday = 1, Tuesday = 2, ..., Sunday = 0
+                                // We want Monday to be day 1, so subtract (day - 1) to get to Monday
+                                const daysFromMonday = targetDate.getDay() === 0 ? 6 : targetDate.getDay() - 1;
+                                startOfWeek.setDate(targetDate.getDate() - daysFromMonday);
                                 const endOfWeek = new Date(startOfWeek);
                                 endOfWeek.setDate(startOfWeek.getDate() + 6);
                                 
@@ -3334,9 +3413,12 @@
                     return { overall: 0, sections: {} }; // Return 0 for now, will update when Neon data loads
                 }
                 
-                const today = new Date();
-                const startOfWeek = new Date(today);
-                startOfWeek.setDate(today.getDate() - today.getDay());
+                const targetDate = viewDate || new Date();
+                const startOfWeek = new Date(targetDate);
+                // Monday = 1, Tuesday = 2, ..., Sunday = 0
+                // We want Monday to be day 1, so subtract (day - 1) to get to Monday
+                const daysFromMonday = targetDate.getDay() === 0 ? 6 : targetDate.getDay() - 1;
+                startOfWeek.setDate(targetDate.getDate() - daysFromMonday);
                 const endOfWeek = new Date(startOfWeek);
                 endOfWeek.setDate(startOfWeek.getDate() + 6);
                 
@@ -3459,25 +3541,11 @@
                     
                     if (dayData) {
                         // Check if day is completed (same logic as getDaysCompletedThisWeek)
-                        const hasDailyIntention = dayData.dailyIntention && dayData.dailyIntention.trim() !== '';
-                        const hasLeadershipRating = dayData.leadershipRating && 
-                            Object.values(dayData.leadershipRating).some(rating => rating !== 5);
-                        const hasGrowthQuestion = dayData.growthQuestion && dayData.growthQuestion.trim() !== '';
-                        const hasCheckIn = dayData.checkIn && (
-                            dayData.checkIn.emotions.length > 0 || dayData.checkIn.feeling.trim() !== ''
-                        );
-                        const hasGratitude = dayData.gratitude && dayData.gratitude.some(item => item.trim() !== '');
-                        const hasSOAP = dayData.soap && (
-                            dayData.soap.scripture.trim() !== '' || dayData.soap.observation.trim() !== '' ||
-                            dayData.soap.application.trim() !== '' || dayData.soap.prayer.trim() !== ''
-                        );
-                        const hasDailyGoals = dayData.goals && dayData.goals.daily && 
-                            dayData.goals.daily.length > 0 && dayData.goals.daily.some(goal => goal.text.trim() !== '');
+                        // Simple check: if the day has any meaningful data, consider it completed
+                        const hasData = dayData.gratitude || dayData.soap || dayData.dailyGoals || 
+                                       dayData.dailyIntention || dayData.growthQuestion || dayData.checkIn;
                         
-                        const allSections = [hasDailyIntention, hasLeadershipRating, hasGrowthQuestion, hasCheckIn, hasGratitude, hasSOAP, hasDailyGoals];
-                        const meaningfulSections = allSections.filter(Boolean).length;
-                        
-                        if (meaningfulSections >= 3) {
+                        if (hasData) {
                             if (d <= today) {
                                 currentStreak++;
                             }
@@ -3496,16 +3564,19 @@
                 return { current: currentStreak, best: bestStreak };
             };
 
-            const getWeeklySummary = () => {
+            const getWeeklySummary = (viewDate = null) => {
                 // Ensure userSpecificData is available
                 if (!userSpecificData || !userSpecificData.dayData) {
                     console.log('⚠️ [getWeeklySummary] userSpecificData not ready yet');
                     return { mvp: 'No data yet', pattern: 'Building consistency', completionRate: 0 };
                 }
                 
-                const today = new Date();
-                const startOfWeek = new Date(today);
-                startOfWeek.setDate(today.getDate() - today.getDay());
+                const targetDate = viewDate || new Date();
+                const startOfWeek = new Date(targetDate);
+                // Monday = 1, Tuesday = 2, ..., Sunday = 0
+                // We want Monday to be day 1, so subtract (day - 1) to get to Monday
+                const daysFromMonday = targetDate.getDay() === 0 ? 6 : targetDate.getDay() - 1;
+                startOfWeek.setDate(targetDate.getDate() - daysFromMonday);
                 const endOfWeek = new Date(startOfWeek);
                 endOfWeek.setDate(startOfWeek.getDate() + 6);
                 
@@ -3778,7 +3849,7 @@
                                         
                                         // Load user-specific data
                                         console.log('🔄 Loading user-specific data for user:', storedUser.id);
-                                        await loadUserSpecificData(storedUser.id);
+                                        await loadUserSpecificData(storedUser.id, currentDate);
                                         
                                         setAuthLoading(false);
                                         return;
@@ -5072,8 +5143,10 @@
                             console.log('🎯 VIEW RENDERING DEBUG: Rendering LandingPage');
                             return (
                                 <LandingPage 
+                                    currentDate={currentDate}
                                     weeklyGoals={getCurrentWeekGoals()}
                                     monthlyGoals={getCurrentMonthGoals()}
+                                    userSpecificData={userSpecificData}
                                     toggleGoal={toggleGoal}
                                     addGoal={addGoal}
                                     removeGoal={removeGoal}
@@ -5904,7 +5977,20 @@
             );
         };
 
-        ReactDOM.render(<DailyDavidApp />, document.getElementById('root'));
+        try {
+            console.log('🚀 Starting Daily David App...');
+            ReactDOM.render(<DailyDavidApp />, document.getElementById('root'));
+            console.log('✅ App rendered successfully');
+        } catch (error) {
+            console.error('❌ Error rendering app:', error);
+            document.getElementById('root').innerHTML = `
+                <div style="padding: 20px; color: red;">
+                    <h1>Error Loading App</h1>
+                    <p>${error.message}</p>
+                    <pre>${error.stack}</pre>
+                </div>
+            `;
+        }
     </script>
 </body>
 </html>
