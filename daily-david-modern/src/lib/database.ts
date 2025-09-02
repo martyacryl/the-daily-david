@@ -1,5 +1,5 @@
 // Database connection configuration - using API calls instead of direct connection
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001'
+const API_BASE_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '' : 'http://localhost:3001')
 
 export interface DailyEntry {
   id?: number
@@ -45,34 +45,83 @@ class DatabaseManager {
   async getDailyEntry(date: string, userId: number = 1): Promise<DailyEntry | null> {
     try {
       console.log('API: Getting daily entry for date:', date, 'user:', userId)
-      const response = await fetch(`${API_BASE_URL}/api/daily-entries?userId=${userId}&date=${date}`)
+      const response = await fetch(`${API_BASE_URL}/api/entries/${date}`)
       if (!response.ok) {
+        if (response.status === 404) {
+          return null
+        }
         throw new Error(`HTTP error! status: ${response.status}`)
       }
       const data = await response.json()
       console.log('API: Daily entry result:', data.entry)
-      return data.entry || null
+      
+      // Transform the API response to match our interface
+      if (data.entry && data.entry.data_content) {
+        const content = JSON.parse(data.entry.data_content)
+        return {
+          id: data.entry.id,
+          user_id: data.entry.user_id,
+          date: data.entry.date_key,
+          scripture: content.soap?.scripture || '',
+          observation: content.soap?.observation || '',
+          application: content.soap?.application || '',
+          prayer: content.soap?.prayer || '',
+          gratitude: content.gratitude || '',
+          goals: content.goals || '',
+          created_at: data.entry.created_at,
+          updated_at: data.entry.updated_at
+        }
+      }
+      return null
     } catch (error) {
       console.error('API: Error getting daily entry:', error)
-      throw error
+      return null
     }
   }
 
   async saveDailyEntry(entry: Omit<DailyEntry, 'id' | 'created_at' | 'updated_at'>): Promise<DailyEntry> {
     try {
       console.log('API: Saving daily entry:', entry)
-      const response = await fetch(`${API_BASE_URL}/api/daily-entries`, {
+      const response = await fetch(`${API_BASE_URL}/api/entries`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(entry),
+        body: JSON.stringify({
+          date: entry.date,
+          goals: entry.goals,
+          gratitude: entry.gratitude,
+          soap: {
+            scripture: entry.scripture,
+            observation: entry.observation,
+            application: entry.application,
+            prayer: entry.prayer
+          }
+        }),
       })
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`)
       }
       const data = await response.json()
       console.log('API: Saved daily entry:', data.entry)
+      
+      // Transform the response back to our interface
+      if (data.entry && data.entry.data_content) {
+        const content = JSON.parse(data.entry.data_content)
+        return {
+          id: data.entry.id,
+          user_id: data.entry.user_id,
+          date: data.entry.date_key,
+          scripture: content.soap?.scripture || '',
+          observation: content.soap?.observation || '',
+          application: content.soap?.application || '',
+          prayer: content.soap?.prayer || '',
+          gratitude: content.gratitude || '',
+          goals: content.goals || '',
+          created_at: data.entry.created_at,
+          updated_at: data.entry.updated_at
+        }
+      }
       return data.entry
     } catch (error) {
       console.error('API: Error saving daily entry:', error)
@@ -81,84 +130,40 @@ class DatabaseManager {
   }
 
   async updateDailyEntry(id: number, entry: Partial<DailyEntry>): Promise<DailyEntry> {
-    try {
-      console.log('API: Updating daily entry:', id, entry)
-      const response = await fetch(`${API_BASE_URL}/api/daily-entries/${id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(entry),
-      })
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
-      }
-      const data = await response.json()
-      console.log('API: Updated daily entry:', data.entry)
-      return data.entry
-    } catch (error) {
-      console.error('API: Error updating daily entry:', error)
-      throw error
-    }
+    // For now, just save as a new entry since the API doesn't have update
+    return this.saveDailyEntry(entry as Omit<DailyEntry, 'id' | 'created_at' | 'updated_at'>)
   }
 
   async getUserGoals(userId: number = 1): Promise<UserGoals | null> {
-    try {
-      console.log('API: Getting user goals for user:', userId)
-      const response = await fetch(`${API_BASE_URL}/api/user-goals?userId=${userId}`)
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
-      }
-      const data = await response.json()
-      console.log('API: User goals result:', data.goals)
-      return data.goals || null
-    } catch (error) {
-      console.error('API: Error getting user goals:', error)
-      throw error
+    // Return default goals for now since this isn't in the API
+    return {
+      id: 1,
+      user_id: userId,
+      goals: 'Set your daily goals here',
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
     }
   }
 
   async saveUserGoals(goals: Omit<UserGoals, 'id' | 'created_at' | 'updated_at'>): Promise<UserGoals> {
-    try {
-      console.log('API: Saving user goals:', goals)
-      const response = await fetch(`${API_BASE_URL}/api/user-goals`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(goals),
-      })
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
-      }
-      const data = await response.json()
-      console.log('API: Saved user goals:', data.goals)
-      return data.goals
-    } catch (error) {
-      console.error('API: Error saving user goals:', error)
-      throw error
+    // For now, just return the goals since this isn't in the API
+    return {
+      id: 1,
+      user_id: goals.user_id,
+      goals: goals.goals,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
     }
   }
 
   async updateUserGoals(id: number, goals: string): Promise<UserGoals> {
-    try {
-      console.log('API: Updating user goals:', id, goals)
-      const response = await fetch(`${API_BASE_URL}/api/user-goals/${id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ goals }),
-      })
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
-      }
-      const data = await response.json()
-      console.log('API: Updated user goals:', data.goals)
-      return data.goals
-    } catch (error) {
-      console.error('API: Error updating user goals:', error)
-      throw error
+    // For now, just return the goals since this isn't in the API
+    return {
+      id: id,
+      user_id: 1,
+      goals: goals,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
     }
   }
 
@@ -185,12 +190,16 @@ class DatabaseManager {
       const existingEntry = await this.getDailyEntry(date, userId)
       
       if (existingEntry) {
-        // Update existing entry
-        return await this.updateDailyEntry(existingEntry.id!, {
-          ...existingEntry,
-          ...data,
+        // Update existing entry by saving with merged data
+        return await this.saveDailyEntry({
           user_id: userId,
-          date
+          date,
+          scripture: data.scripture || existingEntry.scripture || '',
+          observation: data.observation || existingEntry.observation || '',
+          application: data.application || existingEntry.application || '',
+          prayer: data.prayer || existingEntry.prayer || '',
+          gratitude: data.gratitude || existingEntry.gratitude || '',
+          goals: data.goals || existingEntry.goals || ''
         })
       } else {
         // Create new entry
