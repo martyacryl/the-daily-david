@@ -95,17 +95,44 @@ export function DailyEntry() {
   useEffect(() => {
     if (!isInitialized && isAuthenticated) {
       console.log('Initializing with selectedDate:', getLocalDateString(selectedDate))
-      // Mark that we've initialized from URL if there was a URL date
-      if (dateParam) {
-        hasInitializedFromURL.current = true
-      }
       // Load data for the selected date (which is already set from URL or today)
       loadEntryForDate(selectedDate)
       setIsInitialized(true)
     }
-  }, [isInitialized, isAuthenticated, selectedDate, dateParam])
+  }, [isInitialized, isAuthenticated, selectedDate])
 
 
+
+  // Handle URL parameter changes (when URL is manually changed)
+  useEffect(() => {
+    if (isInitialized && isAuthenticated) {
+      const currentDateParam = searchParams.get('date')
+      if (currentDateParam) {
+        const parsedDate = new Date(currentDateParam)
+        if (!isNaN(parsedDate.getTime())) {
+          const currentDateString = getLocalDateString(selectedDate)
+          if (currentDateString !== currentDateParam) {
+            console.log('URL date changed, updating selectedDate from', currentDateString, 'to', currentDateParam)
+            setSelectedDate(parsedDate)
+          }
+        }
+      }
+    }
+  }, [searchParams, isInitialized, isAuthenticated])
+
+  // Keep URL and selectedDate in sync (only after initialization)
+  useEffect(() => {
+    if (isInitialized) {
+      const dateString = getLocalDateString(selectedDate)
+      const currentDateParam = searchParams.get('date')
+      
+      // Only update URL if it's different from selectedDate
+      if (currentDateParam !== dateString) {
+        console.log('Syncing URL with selectedDate:', currentDateParam, '->', dateString)
+        setSearchParams({ date: dateString })
+      }
+    }
+  }, [selectedDate, isInitialized, setSearchParams])
 
   // Load entry for the selected date when it changes (after initialization)
   useEffect(() => {
@@ -122,11 +149,7 @@ export function DailyEntry() {
     }
   }, [currentEntry])
 
-  // Update URL only when user navigates (not on initialization)
-  const updateURLForDate = (date: Date) => {
-    const dateString = getLocalDateString(date)
-    setSearchParams({ date: dateString })
-  }
+
 
 
 
@@ -229,13 +252,11 @@ export function DailyEntry() {
       newDate.setDate(newDate.getDate() + 1)
     }
     setSelectedDate(newDate)
-    updateURLForDate(newDate)
   }
 
   const goToToday = () => {
     const today = new Date()
     setSelectedDate(today)
-    updateURLForDate(today)
   }
 
   const formatDate = (date: Date) => {
