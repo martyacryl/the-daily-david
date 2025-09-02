@@ -4,6 +4,8 @@ A beautifully crafted React + TypeScript application for spiritual growth tracki
 
 ## 🚀 Quick Start
 
+### Development
+
 1. Install dependencies:
    ```bash
    npm install
@@ -14,11 +16,22 @@ A beautifully crafted React + TypeScript application for spiritual growth tracki
    npm run dev
    ```
 
-3. Open http://localhost:3001
+3. Open http://localhost:3002
 
 4. Sign in with:
-   - Email: admin@dailydavid.com
-   - Password: admin123
+   - Email: demo@dailydavid.com
+   - Password: demo123
+
+### Production Deployment
+
+This app is configured for **Vercel** deployment. See [VERCEL_DEPLOYMENT.md](./VERCEL_DEPLOYMENT.md) for complete deployment instructions.
+
+**Quick Deploy:**
+1. Go to [vercel.com/new](https://vercel.com/new)
+2. Import this repository
+3. Select the `daily-david-modern/daily-david-modern` folder
+4. Set environment variables (see deployment guide)
+5. Deploy! 🚀
 
 ## Features
 

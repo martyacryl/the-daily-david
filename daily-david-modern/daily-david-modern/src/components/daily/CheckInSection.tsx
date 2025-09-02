@@ -1,4 +1,4 @@
-import React from 'react'
+
 import { CheckInData, EmotionType } from '@/types'
 
 interface CheckInSectionProps {

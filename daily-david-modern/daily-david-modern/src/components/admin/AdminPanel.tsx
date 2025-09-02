@@ -2,17 +2,17 @@ import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Users, UserPlus, Trash2, Settings } from 'lucide-react'
 
-import { useAuthStore } from '@/stores/authStore'
-import { DatabaseManager } from '@/lib/database'
-import { User } from '@/types'
-import { Button, Card } from '@/components/ui'
+import { useAuthStore } from '../../stores/authStore'
+import { DatabaseManager } from '../../lib/database'
+import { User } from '../../types'
+import { Button, Card } from '../ui'
 
 interface AdminPanelProps {
   dbManager: DatabaseManager
 }
 
 export function AdminPanel({ dbManager }: AdminPanelProps) {
-  const { user, signOut } = useAuthStore()
+  const { user, logout } = useAuthStore()
   const [users, setUsers] = useState<User[]>([])
   const [loading, setLoading] = useState(false)
   const [newUserForm, setNewUserForm] = useState({
@@ -30,8 +30,22 @@ export function AdminPanel({ dbManager }: AdminPanelProps) {
   const loadUsers = async () => {
     try {
       setLoading(true)
-      const allUsers = await dbManager.getAllUsers()
-      setUsers(allUsers)
+      const response = await dbManager.getAllUsers()
+      if (response.success && response.data) {
+        // Convert DatabaseUser to User type
+        const convertedUsers: User[] = response.data.map(dbUser => ({
+          id: dbUser.id,
+          email: dbUser.email,
+          name: dbUser.display_name,
+          display_name: dbUser.display_name,
+          role: dbUser.is_admin ? 'admin' : 'user',
+          is_admin: dbUser.is_admin,
+          createdAt: new Date(dbUser.created_at),
+          created_at: new Date(dbUser.created_at),
+          lastLoginAt: undefined
+        }))
+        setUsers(convertedUsers)
+      }
     } catch (error) {
       console.error('Failed to load users:', error)
     } finally {
@@ -50,17 +64,32 @@ export function AdminPanel({ dbManager }: AdminPanelProps) {
     try {
       setLoading(true)
       
-      const newUser = await dbManager.createUser(
-        newUserForm.email,
-        newUserForm.displayName,
-        newUserForm.password,
-        newUserForm.isAdmin
-      )
+      const response = await dbManager.createUser({
+        email: newUserForm.email,
+        password: newUserForm.password,
+        displayName: newUserForm.displayName,
+        isAdmin: newUserForm.isAdmin
+      })
       
-      setUsers(prev => [newUser, ...prev])
-      setNewUserForm({ email: '', displayName: '', password: '', isAdmin: false })
-      
-      alert(`✅ User created successfully!\n\nEmail: ${newUser.email}\nDisplay Name: ${newUser.display_name}`)
+      if (response.success && response.data) {
+        // Convert the created user to User type
+        const newUser: User = {
+          id: response.data.id,
+          email: response.data.email,
+          name: response.data.display_name,
+          display_name: response.data.display_name,
+          role: response.data.is_admin ? 'admin' : 'user',
+          is_admin: response.data.is_admin,
+          createdAt: new Date(response.data.created_at),
+          created_at: new Date(response.data.created_at),
+          lastLoginAt: undefined
+        }
+        
+        setUsers(prev => [newUser, ...prev])
+        setNewUserForm({ email: '', displayName: '', password: '', isAdmin: false })
+        
+        alert(`✅ User created successfully!\n\nEmail: ${newUser.email}\nDisplay Name: ${newUser.display_name}`)
+      }
     } catch (error) {
       console.error('Failed to create user:', error)
       alert(`❌ Failed to create user: ${error}`)
@@ -76,13 +105,13 @@ export function AdminPanel({ dbManager }: AdminPanelProps) {
 
     try {
       setLoading(true)
-      const success = await dbManager.deleteUser(userId)
+      const response = await dbManager.deleteUser(userId)
       
-      if (success) {
+      if (response.success && response.data) {
         setUsers(prev => prev.filter(u => u.id !== userId))
         alert(`✅ User "${userName}" deleted successfully`)
       } else {
-        throw new Error('Delete operation failed')
+        throw new Error(response.error || 'Delete operation failed')
       }
     } catch (error) {
       console.error('Failed to delete user:', error)
@@ -115,7 +144,7 @@ export function AdminPanel({ dbManager }: AdminPanelProps) {
             <div className="text-sm text-gray-600">
               Logged in as: <span className="font-semibold">{user?.email}</span>
             </div>
-            <Button variant="outline" onClick={signOut}>
+                            <Button variant="outline" onClick={logout}>
               Sign Out
             </Button>
           </div>

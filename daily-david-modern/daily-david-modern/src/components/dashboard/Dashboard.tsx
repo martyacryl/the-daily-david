@@ -5,9 +5,11 @@ import { BookOpen, TrendingUp, Calendar, Target } from 'lucide-react'
 import { Card } from '../ui/Card'
 import { Button } from '../ui/Button'
 import { useAuthStore } from '../../stores/authStore'
+import { useDailyStore } from '../../stores/dailyStore'
 
 export const Dashboard: React.FC = () => {
   const { user, isAuthenticated } = useAuthStore()
+  const { goals } = useDailyStore()
 
   if (!isAuthenticated) {
     return (
@@ -55,7 +57,7 @@ export const Dashboard: React.FC = () => {
     },
     {
       title: 'Goals Completed',
-      value: '12',
+      value: `${goals.daily.filter(g => g.completed).length + goals.weekly.filter(g => g.completed).length + goals.monthly.filter(g => g.completed).length}`,
       change: '+8',
       icon: Target,
       color: 'text-orange-600',
@@ -145,9 +147,15 @@ export const Dashboard: React.FC = () => {
             <p className="text-gray-600 mb-6">
               Track your spiritual growth and achievements
             </p>
-            <Button variant="outline" size="lg" className="w-full">
-              View Analytics
-            </Button>
+            <Link to="/analytics">
+              <Button 
+                variant="outline" 
+                size="lg" 
+                className="w-full"
+              >
+                View Analytics
+              </Button>
+            </Link>
           </div>
         </Card>
       </motion.div>
@@ -177,6 +185,92 @@ export const Dashboard: React.FC = () => {
               <span className="text-xs text-gray-400 ml-auto">3 days ago</span>
             </div>
           </div>
+        </Card>
+      </motion.div>
+
+      {/* Goals Overview */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.7 }}
+        className="grid grid-cols-1 md:grid-cols-3 gap-6"
+      >
+        {/* Daily Goals */}
+        <Card className="p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-gray-900">🎯 Daily Goals</h3>
+            <span className="text-sm text-gray-500">
+              {goals.daily.filter(g => g.completed).length}/{goals.daily.length} completed
+            </span>
+          </div>
+          <div className="space-y-2">
+            {goals.daily.slice(0, 3).map((goal) => (
+              <div key={goal.id} className="flex items-center space-x-2">
+                <div className={`w-2 h-2 rounded-full ${goal.completed ? 'bg-green-500' : 'bg-gray-300'}`}></div>
+                <span className={`text-sm ${goal.completed ? 'text-gray-700' : 'text-gray-500'}`}>
+                  {goal.text}
+                </span>
+              </div>
+            ))}
+            {goals.daily.length === 0 && (
+              <div className="text-sm text-gray-500 italic">No daily goals set yet</div>
+            )}
+          </div>
+          <Link to="/daily" className="block mt-4 text-sm text-green-600 hover:text-green-700 font-medium">
+            View all daily goals →
+          </Link>
+        </Card>
+
+        {/* Weekly Goals */}
+        <Card className="p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-gray-900">📅 Weekly Goals</h3>
+            <span className="text-sm text-gray-500">
+              {goals.weekly.filter(g => g.completed).length}/{goals.weekly.length} completed
+            </span>
+          </div>
+          <div className="space-y-2">
+            {goals.weekly.slice(0, 4).map((goal) => (
+              <div key={goal.id} className="flex items-center space-x-2">
+                <div className={`w-2 h-2 rounded-full ${goal.completed ? 'bg-green-500' : 'bg-gray-300'}`}></div>
+                <span className={`text-sm ${goal.completed ? 'text-gray-700' : 'text-gray-500'}`}>
+                  {goal.text}
+                </span>
+              </div>
+            ))}
+            {goals.weekly.length === 0 && (
+              <div className="text-sm text-gray-500 italic">No weekly goals set yet</div>
+            )}
+          </div>
+          <Link to="/daily" className="block mt-4 text-sm text-green-600 hover:text-green-700 font-medium">
+            View all weekly goals →
+          </Link>
+        </Card>
+
+        {/* Monthly Goals */}
+        <Card className="p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-gray-900">🗓️ Monthly Goals</h3>
+            <span className="text-sm text-gray-500">
+              {goals.monthly.filter(g => g.completed).length}/{goals.monthly.length} completed
+            </span>
+          </div>
+          <div className="space-y-2">
+            {goals.monthly.slice(0, 2).map((goal) => (
+              <div key={goal.id} className="flex items-center space-x-2">
+                <div className={`w-2 h-2 rounded-full ${goal.completed ? 'bg-green-500' : 'bg-gray-300'}`}></div>
+                <span className={`text-sm ${goal.completed ? 'text-gray-700' : 'text-gray-500'}`}>
+                  {goal.text}
+                </span>
+              </div>
+            ))}
+            {goals.monthly.length === 0 && (
+              <div className="text-sm text-gray-500 italic">No monthly goals set yet</div>
+            )}
+          </div>
+          <Link to="/daily" className="block mt-4 text-sm text-green-600 hover:text-green-700 font-medium">
+            View all monthly goals →
+          </Link>
         </Card>
       </motion.div>
     </div>
