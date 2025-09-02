@@ -88,6 +88,14 @@ export function DailyEntry() {
     }
   }, [selectedDate, isAuthenticated])
 
+  // Debug: Monitor when currentEntry changes
+  useEffect(() => {
+    console.log('Current entry changed:', currentEntry)
+    if (currentEntry) {
+      console.log('Entry data content:', currentEntry)
+    }
+  }, [currentEntry])
+
   // Update URL when date changes - but only if it's a valid date
   useEffect(() => {
     const dateString = selectedDate.toISOString().split('T')[0]
@@ -103,11 +111,18 @@ export function DailyEntry() {
       const today = new Date()
       const dateString = today.toISOString().split('T')[0]
       
+      // Load the entry for today first
       await loadEntryByDate(dateString)
       
+      // Wait a bit for the store to update
+      await new Promise(resolve => setTimeout(resolve, 100))
+      
+      // Check if we have current entry data
       if (currentEntry && currentEntry.goals) {
+        console.log('Loading goals from current entry:', currentEntry.goals)
         setUserGoals(currentEntry.goals)
       } else {
+        console.log('No current entry found, using default goals')
         // Create default goals for new users
         const defaultGoals: UserGoals = {
           daily: [
@@ -150,10 +165,17 @@ export function DailyEntry() {
     setIsLoading(true)
     try {
       const dateString = date.toISOString().split('T')[0]
+      console.log('Loading entry for date:', dateString)
       
+      // Load the entry for the selected date
       await loadEntryByDate(dateString)
       
+      // Wait a bit for the store to update
+      await new Promise(resolve => setTimeout(resolve, 100))
+      
+      // Check if we have current entry data
       if (currentEntry) {
+        console.log('Found existing entry:', currentEntry)
         // Load existing entry data
         const entryData = currentEntry
         setDayData(prev => ({
@@ -168,9 +190,11 @@ export function DailyEntry() {
         
         // Update goals if they exist in the entry
         if (entryData.goals) {
+          console.log('Setting goals from entry:', entryData.goals)
           setUserGoals(entryData.goals)
         }
       } else {
+        console.log('No entry found for date:', dateString)
         // No entry exists for this date, start fresh
         setDayData({
           checkIn: { emotions: [], feeling: '' },

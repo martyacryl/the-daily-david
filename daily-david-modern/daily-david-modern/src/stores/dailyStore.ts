@@ -30,7 +30,7 @@ export const useDailyStore = create<DailyStore>((set, get) => ({
     try {
       set({ isLoading: true, error: null })
       
-      const result = await dbManager.createDailyEntry(entryData)
+      const result = await dbManager.get().createDailyEntry(entryData)
       
       if (result.success && result.data) {
         const newEntry: DailyEntry = {
@@ -60,7 +60,7 @@ export const useDailyStore = create<DailyStore>((set, get) => ({
     try {
       set({ isLoading: true, error: null })
       
-      const result = await dbManager.updateDailyEntry(id, updates)
+      const result = await dbManager.get().updateDailyEntry(id, updates)
       
       if (result.success && result.data) {
         const updatedEntry: DailyEntry = {
@@ -148,7 +148,7 @@ export const useDailyStore = create<DailyStore>((set, get) => ({
     try {
       set({ isLoading: true, error: null })
       
-      const result = await dbManager.getDailyEntries()
+      const result = await dbManager.get().getDailyEntries()
       
       if (result.success && result.data) {
         const formattedEntries: DailyEntry[] = result.data.map(entry => ({
@@ -206,12 +206,15 @@ export const useDailyStore = create<DailyStore>((set, get) => ({
 
   loadEntryByDate: async (date: string) => {
     try {
+      console.log('Store: Loading entry for date:', date)
       set({ isLoading: true, error: null })
       
-      const result = await dbManager.getDailyEntry(date)
+      const result = await dbManager.get().getDailyEntry(date)
+      console.log('Store: Database result:', result)
       
       if (result.success) {
         if (result.data) {
+          console.log('Store: Found entry data:', result.data)
           const formattedEntry: DailyEntry = {
             id: result.data.id || result.data.id?.toString(),
             userId: result.data.user_id || result.data.userId,
@@ -250,11 +253,13 @@ export const useDailyStore = create<DailyStore>((set, get) => ({
             updated_at: new Date(result.data.updated_at || result.data.updatedAt)
           }
           
+          console.log('Store: Setting formatted entry:', formattedEntry)
           set({ 
             currentEntry: formattedEntry,
             isLoading: false 
           })
         } else {
+          console.log('Store: No entry found for date:', date)
           // No entry found for this date
           set({ 
             currentEntry: null,
@@ -262,9 +267,11 @@ export const useDailyStore = create<DailyStore>((set, get) => ({
           })
         }
       } else {
+        console.log('Store: Database error:', result.error)
         throw new Error(result.error || 'Failed to load entry')
       }
     } catch (error) {
+      console.error('Store: Error loading entry:', error)
       set({ 
         error: error instanceof Error ? error.message : 'Failed to load entry',
         isLoading: false 
