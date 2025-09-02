@@ -25,7 +25,7 @@ interface AuthActions {
 
 type AuthStore = AuthState & AuthActions
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://thedailydavid.vercel.app'
+const API_BASE_URL = 'https://thedailydavid.vercel.app'
 
 export const useAuthStore = create<AuthStore>()((set, get) => ({
   user: null,

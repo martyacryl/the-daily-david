@@ -1,7 +1,7 @@
 import { getAuthHeaders } from '../stores/authStore'
 
 // Database connection configuration - using API calls instead of direct connection
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://thedailydavid.vercel.app'
+const API_BASE_URL = 'https://thedailydavid.vercel.app'
 
 export interface DailyEntry {
   id?: number
