@@ -19,19 +19,19 @@
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "/daily-david-modern/server/index.js"
+      "dest": "/server/index.js"
     },
     {
       "src": "/assets/(.*)",
-      "dest": "/daily-david-modern/dist/assets/$1"
+      "dest": "/dist/assets/$1"
     },
     {
       "src": "/(.*\\.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot))",
-      "dest": "/daily-david-modern/dist/$1"
+      "dest": "/dist/$1"
     },
     {
       "src": "/(.*)",
-      "dest": "/daily-david-modern/dist/index.html"
+      "dest": "/dist/index.html"
     }
   ]
 }
