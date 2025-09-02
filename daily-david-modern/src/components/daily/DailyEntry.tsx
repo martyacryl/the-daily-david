@@ -220,7 +220,7 @@ export function DailyEntry() {
   }
 
   const handleSubmit = async () => {
-    console.log('🔥 handleSubmit called')
+    console.log('handleSubmit called')
     setIsSaving(true)
     try {
       const dateString = getLocalDateString(selectedDate)
@@ -231,8 +231,8 @@ export function DailyEntry() {
         goals: userGoals
       }
       
-      console.log('🔥 Saving entry with goals:', userGoals)
-      console.log('🔥 Full entry data:', entryData)
+      console.log('Saving entry with goals:', userGoals)
+      console.log('Full entry data:', entryData)
       
       if (currentEntry && currentEntry.id) {
         // Update existing entry
@@ -288,7 +288,7 @@ export function DailyEntry() {
   }
 
   const addGoal = (type: keyof UserGoals) => {
-    console.log('🔥 Adding goal to type:', type)
+    console.log('Adding goal to type:', type)
     const newGoal: Goal = {
       id: Date.now().toString(),
       text: 'New goal',
@@ -302,7 +302,7 @@ export function DailyEntry() {
         ...prev,
         [type]: [...prev[type], newGoal]
       }
-      console.log('🔥 Updated goals:', updated)
+      console.log('Updated goals:', updated)
       return updated
     })
   }
@@ -461,7 +461,7 @@ export function DailyEntry() {
                     size="sm"
                     className="bg-blue-500 text-white hover:bg-blue-600"
                   >
-                    🔥 Add Goal 🔥
+                    + Add Goal
                   </Button>
                 </div>
                 <div className="space-y-3">
@@ -747,7 +747,7 @@ export function DailyEntry() {
                 disabled={isSaving}
                 className="px-8 py-3 text-lg bg-green-600 hover:bg-green-700"
               >
-                {isSaving ? 'Saving...' : '🔥 Save Daily Entry 🔥'}
+                {isSaving ? 'Saving...' : 'Save Daily Entry'}
               </Button>
             </motion.div>
           </div>
