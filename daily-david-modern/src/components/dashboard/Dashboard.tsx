@@ -10,12 +10,17 @@ import { DailyEntry } from '../../types'
 
 export const Dashboard: React.FC = () => {
   const { user, isAuthenticated } = useAuthStore()
-  const { goals, entries, loadEntries, isLoading } = useDailyStore()
+  const { entries, loadEntries, isLoading } = useDailyStore()
   const [stats, setStats] = useState({
     totalEntries: 0,
     currentStreak: 0,
     thisMonth: 0,
     goalsCompleted: 0
+  })
+  const [currentGoals, setCurrentGoals] = useState({
+    daily: [],
+    weekly: [],
+    monthly: []
   })
 
   useEffect(() => {
@@ -27,8 +32,9 @@ export const Dashboard: React.FC = () => {
   useEffect(() => {
     if (entries.length > 0) {
       calculateStats()
+      extractCurrentGoals()
     }
-  }, [entries, goals])
+  }, [entries])
 
   const calculateStats = () => {
     const totalEntries = entries.length
@@ -57,9 +63,15 @@ export const Dashboard: React.FC = () => {
       }
     }
 
-    const goalsCompleted = goals.daily.filter(g => g.completed).length + 
-                          goals.weekly.filter(g => g.completed).length + 
-                          goals.monthly.filter(g => g.completed).length
+    // Calculate goals completed from all entries
+    let goalsCompleted = 0
+    entries.forEach(entry => {
+      if (entry.goals) {
+        goalsCompleted += (entry.goals.daily?.filter(g => g.completed).length || 0) +
+                         (entry.goals.weekly?.filter(g => g.completed).length || 0) +
+                         (entry.goals.monthly?.filter(g => g.completed).length || 0)
+      }
+    })
 
     setStats({
       totalEntries,
@@ -67,6 +79,51 @@ export const Dashboard: React.FC = () => {
       thisMonth: monthEntries,
       goalsCompleted
     })
+  }
+
+  const extractCurrentGoals = () => {
+    // Get goals from the most recent entry, or aggregate from all entries
+    if (entries.length > 0) {
+      const mostRecentEntry = entries.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0]
+      
+      if (mostRecentEntry.goals) {
+        setCurrentGoals({
+          daily: mostRecentEntry.goals.daily || [],
+          weekly: mostRecentEntry.goals.weekly || [],
+          monthly: mostRecentEntry.goals.monthly || []
+        })
+      } else {
+        // If no goals in recent entry, aggregate from all entries
+        const allDailyGoals = []
+        const allWeeklyGoals = []
+        const allMonthlyGoals = []
+        
+        entries.forEach(entry => {
+          if (entry.goals) {
+            allDailyGoals.push(...(entry.goals.daily || []))
+            allWeeklyGoals.push(...(entry.goals.weekly || []))
+            allMonthlyGoals.push(...(entry.goals.monthly || []))
+          }
+        })
+        
+        // Remove duplicates and get unique goals
+        const uniqueDaily = allDailyGoals.filter((goal, index, self) => 
+          index === self.findIndex(g => g.text === goal.text)
+        )
+        const uniqueWeekly = allWeeklyGoals.filter((goal, index, self) => 
+          index === self.findIndex(g => g.text === goal.text)
+        )
+        const uniqueMonthly = allMonthlyGoals.filter((goal, index, self) => 
+          index === self.findIndex(g => g.text === goal.text)
+        )
+        
+        setCurrentGoals({
+          daily: uniqueDaily,
+          weekly: uniqueWeekly,
+          monthly: uniqueMonthly
+        })
+      }
+    }
   }
 
   if (!isAuthenticated) {
@@ -275,11 +332,11 @@ export const Dashboard: React.FC = () => {
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold text-gray-900">🎯 Daily Goals</h3>
             <span className="text-sm text-gray-500">
-              {goals.daily.filter(g => g.completed).length}/{goals.daily.length} completed
+              {currentGoals.daily.filter(g => g.completed).length}/{currentGoals.daily.length} completed
             </span>
           </div>
           <div className="space-y-2">
-            {goals.daily.slice(0, 3).map((goal) => (
+            {currentGoals.daily.slice(0, 3).map((goal) => (
               <div key={goal.id} className="flex items-center space-x-2">
                 <div className={`w-2 h-2 rounded-full ${goal.completed ? 'bg-green-500' : 'bg-gray-300'}`}></div>
                 <span className={`text-sm ${goal.completed ? 'text-gray-700' : 'text-gray-500'}`}>
@@ -287,7 +344,7 @@ export const Dashboard: React.FC = () => {
                 </span>
               </div>
             ))}
-            {goals.daily.length === 0 && (
+            {currentGoals.daily.length === 0 && (
               <div className="text-sm text-gray-500 italic">No daily goals set yet</div>
             )}
           </div>
@@ -301,11 +358,11 @@ export const Dashboard: React.FC = () => {
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold text-gray-900">📅 Weekly Goals</h3>
             <span className="text-sm text-gray-500">
-              {goals.weekly.filter(g => g.completed).length}/{goals.weekly.length} completed
+              {currentGoals.weekly.filter(g => g.completed).length}/{currentGoals.weekly.length} completed
             </span>
           </div>
           <div className="space-y-2">
-            {goals.weekly.slice(0, 4).map((goal) => (
+            {currentGoals.weekly.slice(0, 4).map((goal) => (
               <div key={goal.id} className="flex items-center space-x-2">
                 <div className={`w-2 h-2 rounded-full ${goal.completed ? 'bg-green-500' : 'bg-gray-300'}`}></div>
                 <span className={`text-sm ${goal.completed ? 'text-gray-700' : 'text-gray-500'}`}>
@@ -313,7 +370,7 @@ export const Dashboard: React.FC = () => {
                 </span>
               </div>
             ))}
-            {goals.weekly.length === 0 && (
+            {currentGoals.weekly.length === 0 && (
               <div className="text-sm text-gray-500 italic">No weekly goals set yet</div>
             )}
           </div>
@@ -327,11 +384,11 @@ export const Dashboard: React.FC = () => {
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold text-gray-900">🗓️ Monthly Goals</h3>
             <span className="text-sm text-gray-500">
-              {goals.monthly.filter(g => g.completed).length}/{goals.monthly.length} completed
+              {currentGoals.monthly.filter(g => g.completed).length}/{currentGoals.monthly.length} completed
             </span>
           </div>
           <div className="space-y-2">
-            {goals.monthly.slice(0, 2).map((goal) => (
+            {currentGoals.monthly.slice(0, 2).map((goal) => (
               <div key={goal.id} className="flex items-center space-x-2">
                 <div className={`w-2 h-2 rounded-full ${goal.completed ? 'bg-green-500' : 'bg-gray-300'}`}></div>
                 <span className={`text-sm ${goal.completed ? 'text-gray-700' : 'text-gray-500'}`}>
@@ -339,7 +396,7 @@ export const Dashboard: React.FC = () => {
                 </span>
               </div>
             ))}
-            {goals.monthly.length === 0 && (
+            {currentGoals.monthly.length === 0 && (
               <div className="text-sm text-gray-500 italic">No monthly goals set yet</div>
             )}
           </div>
