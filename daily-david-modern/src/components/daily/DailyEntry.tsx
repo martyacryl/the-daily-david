@@ -459,8 +459,9 @@ export function DailyEntry() {
                     onClick={() => addGoal('daily')}
                     variant="outline"
                     size="sm"
+                    className="bg-blue-500 text-white hover:bg-blue-600"
                   >
-                    + Add Goal
+                    🔥 Add Goal 🔥
                   </Button>
                 </div>
                 <div className="space-y-3">
@@ -744,9 +745,9 @@ export function DailyEntry() {
               <Button
                 onClick={handleSubmit}
                 disabled={isSaving}
-                className="px-8 py-3 text-lg"
+                className="px-8 py-3 text-lg bg-green-600 hover:bg-green-700"
               >
-                {isSaving ? 'Saving...' : 'Save Daily Entry'}
+                {isSaving ? 'Saving...' : '🔥 Save Daily Entry 🔥'}
               </Button>
             </motion.div>
           </div>
