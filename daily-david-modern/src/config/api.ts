@@ -1,11 +1,6 @@
 // API Configuration for different environments
 const getApiUrl = () => {
-  // Check if we're in development
-  if (process.env.NODE_ENV === 'development') {
-    return 'http://localhost:3003'
-  }
-  
-  // For production/Vercel, use the current domain
+  // Always use the current domain (no localhost)
   if (typeof window !== 'undefined') {
     return window.location.origin
   }
