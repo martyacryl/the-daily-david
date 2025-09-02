@@ -171,7 +171,7 @@ app.post('/api/auth/logout', (req, res) => {
 app.post('/api/entries', authenticateToken, async (req, res) => {
   try {
     const { date, goals, gratitude, soap, dailyIntention, growthQuestion, leadershipRating } = req.body
-    const userId = req.user.email
+    const userId = req.user.userId
     const dateKey = date || new Date().toISOString().split('T')[0]
 
     const client = await pool.connect()
@@ -211,7 +211,7 @@ app.post('/api/entries', authenticateToken, async (req, res) => {
 app.get('/api/entries/:date', authenticateToken, async (req, res) => {
   try {
     const { date } = req.params
-    const userId = req.user.email
+    const userId = req.user.userId
 
     const client = await pool.connect()
     
@@ -239,7 +239,7 @@ app.get('/api/entries/:date', authenticateToken, async (req, res) => {
 // Get all entries for a user
 app.get('/api/entries', authenticateToken, async (req, res) => {
   try {
-    const userId = req.user.email
+    const userId = req.user.userId
     const { limit = 30 } = req.query
 
     const client = await pool.connect()
