@@ -89,27 +89,19 @@ export function DailyEntry() {
     monthly: []
   })
 
-  // Simple: Sync selectedDate with URL
+  // Simple: Load data when URL changes
   useEffect(() => {
-    const currentDateParam = searchParams.get('date')
-    if (currentDateParam) {
-      const parsedDate = new Date(currentDateParam)
-      if (!isNaN(parsedDate.getTime())) {
-        const currentDateString = getLocalDateString(selectedDate)
-        if (currentDateString !== currentDateParam) {
-          console.log('URL sync: updating selectedDate from', currentDateString, 'to', currentDateParam)
+    if (isAuthenticated) {
+      const currentDateParam = searchParams.get('date')
+      if (currentDateParam) {
+        const parsedDate = new Date(currentDateParam)
+        if (!isNaN(parsedDate.getTime())) {
           setSelectedDate(parsedDate)
+          loadEntryForDate(parsedDate)
         }
       }
     }
-  }, [searchParams])
-
-  // Simple: Load data when selectedDate changes
-  useEffect(() => {
-    if (isAuthenticated) {
-      loadEntryForDate(selectedDate)
-    }
-  }, [selectedDate, isAuthenticated])
+  }, [searchParams, isAuthenticated])
 
   // Debug: Monitor when currentEntry changes
   useEffect(() => {
