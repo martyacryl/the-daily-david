@@ -44,18 +44,7 @@ export function DailyEntry() {
   
   // Get date from URL params or use today
   const dateParam = searchParams.get('date')
-  const [selectedDate, setSelectedDate] = useState(() => {
-    // Initialize with URL date if available, otherwise today
-    if (dateParam) {
-      const parsedDate = new Date(dateParam)
-      if (!isNaN(parsedDate.getTime())) {
-        console.log('Initializing selectedDate with URL date:', dateParam)
-        return parsedDate
-      }
-    }
-    console.log('Initializing selectedDate with today')
-    return new Date()
-  })
+  const selectedDate = dateParam ? new Date(dateParam) : new Date()
 
 
   // Local state for the day's data
@@ -96,7 +85,7 @@ export function DailyEntry() {
       if (currentDateParam) {
         const parsedDate = new Date(currentDateParam)
         if (!isNaN(parsedDate.getTime())) {
-          setSelectedDate(parsedDate)
+          console.log('URL effect: loading data for', currentDateParam)
           loadEntryForDate(parsedDate)
         }
       }
@@ -117,6 +106,7 @@ export function DailyEntry() {
 
   const loadEntryForDate = async (date: Date) => {
     const dateString = getLocalDateString(date)
+    console.log('loadEntryForDate called with date:', dateString)
     setIsLoading(true)
     
     try {
