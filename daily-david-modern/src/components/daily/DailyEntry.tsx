@@ -37,15 +37,10 @@ export function DailyEntry() {
   // Get date from URL params or use today
   const dateParam = searchParams.get('date')
   const [selectedDate, setSelectedDate] = useState(() => {
-    if (dateParam) {
-      const parsedDate = new Date(dateParam)
-      // Validate the date
-      if (!isNaN(parsedDate.getTime())) {
-        return parsedDate
-      }
-    }
+    // Always start with today, we'll sync with URL in useEffect
     return new Date()
   })
+  const [isInitialized, setIsInitialized] = useState(false)
 
   // Local state for the day's data
   const [dayData, setDayData] = useState({
@@ -79,20 +74,20 @@ export function DailyEntry() {
     monthly: []
   })
 
-  // Sync selectedDate with URL parameters
+  // Initialize date from URL parameters on component mount
   useEffect(() => {
-    const currentDateParam = searchParams.get('date')
-    if (currentDateParam) {
-      const parsedDate = new Date(currentDateParam)
-      if (!isNaN(parsedDate.getTime())) {
-        const currentDateString = selectedDate.toISOString().split('T')[0]
-        if (currentDateString !== currentDateParam) {
-          console.log('URL date changed, updating selectedDate from', currentDateString, 'to', currentDateParam)
+    if (!isInitialized) {
+      const currentDateParam = searchParams.get('date')
+      if (currentDateParam) {
+        const parsedDate = new Date(currentDateParam)
+        if (!isNaN(parsedDate.getTime())) {
+          console.log('Initializing with URL date:', currentDateParam)
           setSelectedDate(parsedDate)
         }
       }
+      setIsInitialized(true)
     }
-  }, [searchParams])
+  }, [searchParams, isInitialized])
 
   // Load user goals when component mounts
   useEffect(() => {
@@ -101,12 +96,12 @@ export function DailyEntry() {
     }
   }, [isAuthenticated, user])
 
-  // Load entry for the selected date
+  // Load entry for the selected date (only after initialization)
   useEffect(() => {
-    if (isAuthenticated) {
+    if (isAuthenticated && isInitialized) {
       loadEntryForDate(selectedDate)
     }
-  }, [selectedDate, isAuthenticated])
+  }, [selectedDate, isAuthenticated, isInitialized])
 
   // Debug: Monitor when currentEntry changes
   useEffect(() => {
@@ -116,25 +111,26 @@ export function DailyEntry() {
     }
   }, [currentEntry])
 
-  // Update URL when date changes - but only if it's different from current URL
+  // Update URL when date changes (only after initialization to prevent conflicts)
   useEffect(() => {
-    const dateString = selectedDate.toISOString().split('T')[0]
-    const currentDateParam = searchParams.get('date')
-    
-    // Only update URL if the date is different from what's in the URL
-    if (currentDateParam !== dateString) {
-      console.log('Selected date changed, updating URL from', currentDateParam, 'to', dateString)
-      setSearchParams({ date: dateString })
+    if (isInitialized) {
+      const dateString = selectedDate.toISOString().split('T')[0]
+      const currentDateParam = searchParams.get('date')
+      
+      // Only update URL if the date is different from what's in the URL
+      if (currentDateParam !== dateString) {
+        console.log('Selected date changed, updating URL from', currentDateParam, 'to', dateString)
+        setSearchParams({ date: dateString })
+      }
     }
-  }, [selectedDate, setSearchParams, searchParams])
+  }, [selectedDate, setSearchParams, searchParams, isInitialized])
 
   const loadUserGoals = async () => {
     try {
       // Load goals from the current entry or create default ones
-      const today = new Date()
-      const dateString = today.toISOString().split('T')[0]
+      const dateString = selectedDate.toISOString().split('T')[0]
       
-      // Load the entry for today first
+      // Load the entry for the selected date first
       await loadEntryByDate(dateString)
       
       // Wait a bit for the store to update
@@ -364,6 +360,16 @@ export function DailyEntry() {
     return (
       <div className="text-center py-12">
         <p className="text-gray-600">Please sign in to access your daily entry.</p>
+      </div>
+    )
+  }
+
+  // Show loading until initialization is complete
+  if (!isInitialized) {
+    return (
+      <div className="text-center py-12">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500 mx-auto"></div>
+        <p className="mt-4 text-gray-600">Initializing...</p>
       </div>
     )
   }
