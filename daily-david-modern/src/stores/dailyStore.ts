@@ -152,12 +152,12 @@ export const useDailyStore = create<DailyStore>((set, get) => ({
       
       if (result && result.length > 0) {
         const formattedEntries: DailyEntry[] = result.map(entry => ({
-          id: entry.id || entry.id?.toString(),
-          userId: entry.user_id || entry.userId,
-          user_id: entry.user_id || entry.userId,
-          date: entry.date || entry.date_key,
-          dateKey: entry.date || entry.date_key,
-          date_key: entry.date || entry.date_key,
+          id: entry.id?.toString() || Date.now().toString(),
+          userId: entry.user_id,
+          user_id: entry.user_id,
+          date: entry.date,
+          dateKey: entry.date,
+          date_key: entry.date,
           checkIn: {
             emotions: [],
             feeling: ''
@@ -169,11 +169,7 @@ export const useDailyStore = create<DailyStore>((set, get) => ({
             application: entry.application || '',
             prayer: entry.prayer || ''
           },
-          goals: {
-            daily: [],
-            weekly: [],
-            monthly: []
-          },
+          goals: typeof entry.goals === 'string' ? JSON.parse(entry.goals) : (entry.goals || { daily: [], weekly: [], monthly: [] }),
           dailyIntention: '',
           growthQuestion: '',
           leadershipRating: {
@@ -183,10 +179,10 @@ export const useDailyStore = create<DailyStore>((set, get) => ({
             integrity: 0
           },
           completed: false,
-          createdAt: new Date(entry.created_at || entry.createdAt),
-          created_at: new Date(entry.created_at || entry.createdAt),
-          updatedAt: new Date(entry.updated_at || entry.updatedAt),
-          updated_at: new Date(entry.updated_at || entry.updatedAt)
+          createdAt: new Date(entry.created_at),
+          created_at: new Date(entry.created_at),
+          updatedAt: new Date(entry.updated_at),
+          updated_at: new Date(entry.updated_at)
         }))
         
         set({ 
@@ -218,12 +214,12 @@ export const useDailyStore = create<DailyStore>((set, get) => ({
       if (result) {
         console.log('Store: Found entry data:', result)
         const formattedEntry: DailyEntry = {
-          id: result.id || result.id?.toString(),
-          userId: result.user_id || result.userId,
-          user_id: result.user_id || result.userId,
-          date: result.date || result.date_key,
-          dateKey: result.date || result.date_key,
-          date_key: result.date || result.date_key,
+          id: result.id?.toString() || Date.now().toString(),
+          userId: result.user_id,
+          user_id: result.user_id,
+          date: result.date,
+          dateKey: result.date,
+          date_key: result.date,
           checkIn: {
             emotions: [],
             feeling: ''
@@ -235,11 +231,7 @@ export const useDailyStore = create<DailyStore>((set, get) => ({
             application: result.application || '',
             prayer: result.prayer || ''
           },
-          goals: {
-            daily: [],
-            weekly: [],
-            monthly: []
-          },
+          goals: typeof result.goals === 'string' ? JSON.parse(result.goals) : (result.goals || { daily: [], weekly: [], monthly: [] }),
           dailyIntention: '',
           growthQuestion: '',
           leadershipRating: {
@@ -249,10 +241,10 @@ export const useDailyStore = create<DailyStore>((set, get) => ({
             integrity: 0
           },
           completed: false,
-          createdAt: new Date(result.created_at || result.createdAt),
-          created_at: new Date(result.created_at || result.createdAt),
-          updatedAt: new Date(result.updated_at || result.updatedAt),
-          updated_at: new Date(result.updated_at || result.updatedAt)
+          createdAt: new Date(result.created_at),
+          created_at: new Date(result.created_at),
+          updatedAt: new Date(result.updated_at),
+          updated_at: new Date(result.updated_at)
         }
         
         console.log('Store: Setting formatted entry:', formattedEntry)
