@@ -97,6 +97,7 @@ export function DailyEntry() {
       if (!isNaN(parsedDate.getTime())) {
         const currentDateString = getLocalDateString(selectedDate)
         if (currentDateString !== currentDateParam) {
+          console.log('URL sync: updating selectedDate from', currentDateString, 'to', currentDateParam)
           setSelectedDate(parsedDate)
         }
       }
@@ -212,7 +213,7 @@ export function DailyEntry() {
       newDate.setDate(newDate.getDate() + 1)
     }
     const dateString = getLocalDateString(newDate)
-    console.log('Navigating to date:', dateString)
+    console.log('Navigating to date:', dateString, 'direction:', direction)
     setSearchParams({ date: dateString })
   }
 
