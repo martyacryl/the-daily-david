@@ -57,6 +57,7 @@ export function DailyEntry() {
     return new Date()
   })
   const [isInitialized, setIsInitialized] = useState(false)
+  const loadingRef = useRef<string | null>(null)
 
   // Local state for the day's data
   const [dayData, setDayData] = useState({
@@ -130,12 +131,13 @@ export function DailyEntry() {
     const dateString = getLocalDateString(date)
     
     // Prevent multiple concurrent loads for the same date
-    if (loadingDate === dateString) {
+    if (loadingRef.current === dateString) {
       console.log('Already loading entry for date:', dateString)
       return
     }
     
-    console.log('Starting load for date:', dateString, 'current loadingDate:', loadingDate)
+    console.log('Starting load for date:', dateString, 'current loadingRef:', loadingRef.current)
+    loadingRef.current = dateString
     setLoadingDate(dateString)
     setIsLoading(true)
     
@@ -214,6 +216,7 @@ export function DailyEntry() {
       console.error('Error loading entry:', error)
     } finally {
       console.log('Clearing loading state for date:', dateString)
+      loadingRef.current = null
       setIsLoading(false)
       setLoadingDate(null)
     }
