@@ -57,7 +57,6 @@ export function DailyEntry() {
     return new Date()
   })
   const [isInitialized, setIsInitialized] = useState(false)
-  const hasInitializedFromURL = useRef(false)
 
   // Local state for the day's data
   const [dayData, setDayData] = useState({
@@ -91,21 +90,18 @@ export function DailyEntry() {
     monthly: []
   })
 
-  // Initialize and load data in a single effect to prevent race conditions
+  // Initialize and load data once when component mounts
   useEffect(() => {
     if (!isInitialized && isAuthenticated) {
       console.log('Initializing with selectedDate:', getLocalDateString(selectedDate))
-      // Load data for the selected date (which is already set from URL or today)
       loadEntryForDate(selectedDate)
       setIsInitialized(true)
     }
-  }, [isInitialized, isAuthenticated, selectedDate])
+  }, [isInitialized, isAuthenticated])
 
-
-
-  // Handle URL parameter changes (when URL is manually changed)
+  // Handle URL parameter changes and load data
   useEffect(() => {
-    if (isInitialized && isAuthenticated) {
+    if (isAuthenticated && isInitialized) {
       const currentDateParam = searchParams.get('date')
       if (currentDateParam) {
         const parsedDate = new Date(currentDateParam)
@@ -118,25 +114,12 @@ export function DailyEntry() {
         }
       }
     }
-  }, [searchParams, isInitialized, isAuthenticated])
+  }, [searchParams, isAuthenticated, isInitialized])
 
-  // Keep URL and selectedDate in sync (only after initialization)
-  useEffect(() => {
-    if (isInitialized) {
-      const dateString = getLocalDateString(selectedDate)
-      const currentDateParam = searchParams.get('date')
-      
-      // Only update URL if it's different from selectedDate
-      if (currentDateParam !== dateString) {
-        console.log('Syncing URL with selectedDate:', currentDateParam, '->', dateString)
-        setSearchParams({ date: dateString })
-      }
-    }
-  }, [selectedDate, isInitialized, setSearchParams])
-
-  // Load entry for the selected date when it changes (after initialization)
+  // Load entry when selectedDate changes (after initialization)
   useEffect(() => {
     if (isAuthenticated && isInitialized) {
+      console.log('selectedDate changed, loading entry for:', getLocalDateString(selectedDate))
       loadEntryForDate(selectedDate)
     }
   }, [selectedDate, isAuthenticated, isInitialized])
@@ -251,12 +234,16 @@ export function DailyEntry() {
     } else {
       newDate.setDate(newDate.getDate() + 1)
     }
-    setSelectedDate(newDate)
+    const dateString = getLocalDateString(newDate)
+    console.log('Navigating to date:', dateString)
+    setSearchParams({ date: dateString })
   }
 
   const goToToday = () => {
     const today = new Date()
-    setSelectedDate(today)
+    const dateString = getLocalDateString(today)
+    console.log('Going to today:', dateString)
+    setSearchParams({ date: dateString })
   }
 
   const formatDate = (date: Date) => {
