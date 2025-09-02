@@ -1,6 +1,7 @@
 {
   "version": 2,
-  "buildCommand": "cd daily-david-modern && npm run build",
-  "outputDirectory": "daily-david-modern/dist",
-  "installCommand": "cd daily-david-modern && npm install"
+  "rootDirectory": "daily-david-modern",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "installCommand": "npm install"
 }
