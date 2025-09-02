@@ -105,11 +105,12 @@ app.post('/api/auth/login', async (req, res) => {
       // Verify password - handle both bcrypt hashed and plain text passwords
       let isValidPassword = false
       
-      try {
-        // First try bcrypt comparison (for new users)
+      // Check if password_hash looks like a bcrypt hash (starts with $2b$)
+      if (user.password_hash.startsWith('$2b$')) {
+        // Use bcrypt for hashed passwords
         isValidPassword = await bcrypt.compare(password, user.password_hash)
-      } catch (bcryptError) {
-        // If bcrypt fails, try direct comparison (for existing users with plain text)
+      } else {
+        // Use direct comparison for plain text passwords
         isValidPassword = (password === user.password_hash)
       }
       
