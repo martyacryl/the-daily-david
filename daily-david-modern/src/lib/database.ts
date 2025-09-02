@@ -61,7 +61,8 @@ class DatabaseManager {
       
       // Transform the API response to match our interface
       if (data.entry && data.entry.data_content) {
-        const content = JSON.parse(data.entry.data_content)
+        // data_content is already a JavaScript object, not a JSON string
+        const content = typeof data.entry.data_content === 'string' ? JSON.parse(data.entry.data_content) : data.entry.data_content
         return {
           id: data.entry.id,
           user_id: data.entry.user_id,
@@ -72,6 +73,10 @@ class DatabaseManager {
           prayer: content.soap?.prayer || '',
           gratitude: content.gratitude || '',
           goals: content.goals || '',
+          checkIn: content.checkIn || { emotions: [], feeling: '' },
+          dailyIntention: content.dailyIntention || '',
+          growthQuestion: content.growthQuestion || '',
+          leadershipRating: content.leadershipRating || { wisdom: 0, courage: 0, patience: 0, integrity: 0 },
           created_at: data.entry.created_at,
           updated_at: data.entry.updated_at
         }
@@ -268,7 +273,8 @@ class DatabaseManager {
       // Transform the API response to match our interface
       return data.entries.map((entry: any) => {
         if (entry.data_content) {
-          const content = JSON.parse(entry.data_content)
+          // data_content is already a JavaScript object, not a JSON string
+          const content = typeof entry.data_content === 'string' ? JSON.parse(entry.data_content) : entry.data_content
           return {
             id: entry.id,
             user_id: entry.user_id,
@@ -279,6 +285,10 @@ class DatabaseManager {
             prayer: content.soap?.prayer || '',
             gratitude: content.gratitude || '',
             goals: content.goals || '',
+            checkIn: content.checkIn || { emotions: [], feeling: '' },
+            dailyIntention: content.dailyIntention || '',
+            growthQuestion: content.growthQuestion || '',
+            leadershipRating: content.leadershipRating || { wisdom: 0, courage: 0, patience: 0, integrity: 0 },
             created_at: entry.created_at,
             updated_at: entry.updated_at
           }
