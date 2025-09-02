@@ -30,7 +30,7 @@ export const useDailyStore = create<DailyStore>((set, get) => ({
     try {
       set({ isLoading: true, error: null })
       
-      const result = await dbManager.get().createDailyEntry(entryData)
+      const result = await dbManager.createDailyEntry(entryData)
       
       if (result.success && result.data) {
         const newEntry: DailyEntry = {
@@ -60,7 +60,7 @@ export const useDailyStore = create<DailyStore>((set, get) => ({
     try {
       set({ isLoading: true, error: null })
       
-      const result = await dbManager.get().updateDailyEntry(id, updates)
+      const result = await dbManager.updateDailyEntry(id, updates)
       
       if (result.success && result.data) {
         const updatedEntry: DailyEntry = {
@@ -148,7 +148,7 @@ export const useDailyStore = create<DailyStore>((set, get) => ({
     try {
       set({ isLoading: true, error: null })
       
-      const result = await dbManager.get().getDailyEntries()
+      const result = await dbManager.getDailyEntries()
       
       if (result.success && result.data) {
         const formattedEntries: DailyEntry[] = result.data.map(entry => ({
@@ -209,7 +209,7 @@ export const useDailyStore = create<DailyStore>((set, get) => ({
       console.log('Store: Loading entry for date:', date)
       set({ isLoading: true, error: null })
       
-      const result = await dbManager.get().getDailyEntry(date)
+      const result = await dbManager.getDailyEntry(date)
       console.log('Store: Database result:', result)
       
       if (result.success) {
