@@ -1,8 +1,8 @@
-// Database connection configuration - using API calls instead of direct connection
-const API_BASE_URL = import.meta.env.VITE_API_URL || (import.meta.env.MODE === 'production' ? '' : 'http://localhost:3001')
-
 // Import auth store for getting tokens
 import { getAuthHeaders } from '../stores/authStore'
+
+// Database connection configuration - using API calls instead of direct connection
+const API_BASE_URL = import.meta.env.VITE_API_URL || (import.meta.env.MODE === 'production' ? '' : 'http://localhost:3001')
 
 export interface DailyEntry {
   id?: number
