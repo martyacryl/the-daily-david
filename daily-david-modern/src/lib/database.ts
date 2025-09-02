@@ -1,7 +1,7 @@
 import { neon } from '@neondatabase/serverless'
 
 // Database connection configuration
-const sql = neon(process.env.NEON_CONNECTION_STRING!)
+const sql = neon(process.env.VITE_NEON_CONNECTION_STRING!)
 
 export interface DailyEntry {
   id?: number
