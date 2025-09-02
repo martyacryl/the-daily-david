@@ -167,6 +167,20 @@ app.post('/api/auth/logout', (req, res) => {
   res.json({ success: true, message: 'Logged out successfully' })
 })
 
+// Verify token endpoint
+app.get('/api/auth/verify', authenticateToken, (req, res) => {
+  res.json({ 
+    success: true, 
+    user: {
+      id: req.user.userId,
+      email: req.user.email,
+      name: req.user.displayName,
+      role: req.user.isAdmin ? 'admin' : 'user',
+      is_admin: req.user.isAdmin
+    }
+  })
+})
+
 // Admin routes
 app.get('/api/admin/users', authenticateToken, async (req, res) => {
   try {

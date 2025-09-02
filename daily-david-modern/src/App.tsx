@@ -12,10 +12,12 @@ import { dbManager } from './lib/database'
 import './App.css'
 
 function App() {
-  const { user, isAuthenticated } = useAuthStore()
+  const { initialize } = useAuthStore()
 
-  // Remove the initialize call since that method doesn't exist
-  // The auth store will work without it
+  // Initialize auth state on app load
+  useEffect(() => {
+    initialize()
+  }, [initialize])
 
   return (
     <Router>
