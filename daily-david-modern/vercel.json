@@ -1,6 +1,5 @@
 {
   "version": 2,
-  "name": "daily-david-modern",
   "builds": [
     {
       "src": "server/index.js",

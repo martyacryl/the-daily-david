@@ -151,31 +151,58 @@ export const useDailyStore = create<DailyStore>((set, get) => ({
       const result = await dbManager.getDailyEntries()
       
       if (result && result.length > 0) {
-        const formattedEntries: DailyEntry[] = result.map(entry => ({
-          id: entry.id?.toString() || Date.now().toString(),
-          userId: entry.user_id,
-          user_id: entry.user_id,
-          date: entry.date,
-          dateKey: entry.date,
-          date_key: entry.date,
-          checkIn: entry.checkIn || { emotions: [], feeling: '' },
-          gratitude: Array.isArray(entry.gratitude) ? entry.gratitude : (entry.gratitude ? [entry.gratitude] : []),
-          soap: {
-            scripture: entry.scripture || '',
-            observation: entry.observation || '',
-            application: entry.application || '',
-            prayer: entry.prayer || ''
-          },
-          goals: typeof entry.goals === 'string' ? JSON.parse(entry.goals) : (entry.goals || { daily: [], weekly: [], monthly: [] }),
-          dailyIntention: entry.dailyIntention || '',
-          growthQuestion: entry.growthQuestion || '',
-          leadershipRating: entry.leadershipRating || { wisdom: 0, courage: 0, patience: 0, integrity: 0 },
-          completed: false,
-          createdAt: new Date(entry.created_at),
-          created_at: new Date(entry.created_at),
-          updatedAt: new Date(entry.updated_at),
-          updated_at: new Date(entry.updated_at)
-        }))
+        const formattedEntries: DailyEntry[] = result.map((entry: any) => {
+          // Parse goals properly
+          let parsedGoals = entry.goals
+          if (typeof parsedGoals === 'string') {
+            try {
+              parsedGoals = JSON.parse(parsedGoals)
+            } catch (e) {
+              console.error('Store: Failed to parse goals string:', e)
+              parsedGoals = { daily: [], weekly: [], monthly: [] }
+            }
+          }
+          
+          // Ensure goals have the right structure
+          if (!parsedGoals || typeof parsedGoals !== 'object') {
+            parsedGoals = { daily: [], weekly: [], monthly: [] }
+          }
+          
+          return {
+            id: entry.id?.toString() || Date.now().toString(),
+            userId: entry.user_id,
+            user_id: entry.user_id,
+            date: entry.date,
+            dateKey: entry.date,
+            date_key: entry.date,
+            checkIn: entry.checkIn || { emotions: [], feeling: '' },
+            gratitude: Array.isArray(entry.gratitude) ? entry.gratitude : (entry.gratitude ? [entry.gratitude] : []),
+            soap: {
+              scripture: entry.scripture || '',
+              observation: entry.observation || '',
+              application: entry.application || '',
+              prayer: entry.prayer || ''
+            },
+            goals: parsedGoals,
+            dailyIntention: entry.dailyIntention || '',
+            growthQuestion: entry.growthQuestion || '',
+            leadershipRating: entry.leadershipRating || { wisdom: 0, courage: 0, patience: 0, integrity: 0 },
+            completed: false,
+            createdAt: new Date(entry.created_at),
+            created_at: new Date(entry.created_at),
+            updatedAt: new Date(entry.updated_at),
+            updated_at: new Date(entry.updated_at)
+          }
+        })
+        
+        console.log('Store: Formatted entries with goals:', formattedEntries.map(e => ({
+          date: e.date,
+          goalsCount: {
+            daily: e.goals?.daily?.length || 0,
+            weekly: e.goals?.weekly?.length || 0,
+            monthly: e.goals?.monthly?.length || 0
+          }
+        })))
         
         set({ 
           entries: formattedEntries,
@@ -205,6 +232,25 @@ export const useDailyStore = create<DailyStore>((set, get) => ({
       
       if (result) {
         console.log('Store: Found entry data:', result)
+        
+        // Parse goals properly
+        let parsedGoals = result.goals
+        if (typeof parsedGoals === 'string') {
+          try {
+            parsedGoals = JSON.parse(parsedGoals)
+          } catch (e) {
+            console.error('Store: Failed to parse goals string in loadEntryByDate:', e)
+            parsedGoals = { daily: [], weekly: [], monthly: [] }
+          }
+        }
+        
+        // Ensure goals have the right structure
+        if (!parsedGoals || typeof parsedGoals !== 'object') {
+          parsedGoals = { daily: [], weekly: [], monthly: [] }
+        }
+        
+        console.log('Store: Parsed goals:', parsedGoals)
+        
         const formattedEntry: DailyEntry = {
           id: result.id?.toString() || Date.now().toString(),
           userId: result.user_id,
@@ -220,7 +266,7 @@ export const useDailyStore = create<DailyStore>((set, get) => ({
             application: result.application || '',
             prayer: result.prayer || ''
           },
-          goals: typeof result.goals === 'string' ? JSON.parse(result.goals) : (result.goals || { daily: [], weekly: [], monthly: [] }),
+          goals: parsedGoals,
           dailyIntention: result.dailyIntention || '',
           growthQuestion: result.growthQuestion || '',
           leadershipRating: result.leadershipRating || { wisdom: 0, courage: 0, patience: 0, integrity: 0 },

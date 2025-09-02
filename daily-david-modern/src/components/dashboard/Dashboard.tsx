@@ -86,43 +86,97 @@ export const Dashboard: React.FC = () => {
     if (entries.length > 0) {
       const mostRecentEntry = entries.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0]
       
+      console.log('Dashboard: Most recent entry:', mostRecentEntry)
+      console.log('Dashboard: Goals from recent entry:', mostRecentEntry.goals)
+      
       if (mostRecentEntry.goals) {
-        setCurrentGoals({
-          daily: mostRecentEntry.goals.daily || [],
-          weekly: mostRecentEntry.goals.weekly || [],
-          monthly: mostRecentEntry.goals.monthly || []
-        })
-      } else {
-        // If no goals in recent entry, aggregate from all entries
-        const allDailyGoals = []
-        const allWeeklyGoals = []
-        const allMonthlyGoals = []
+        // Ensure goals are properly parsed
+        let parsedGoals = mostRecentEntry.goals
         
-        entries.forEach(entry => {
-          if (entry.goals) {
-            allDailyGoals.push(...(entry.goals.daily || []))
-            allWeeklyGoals.push(...(entry.goals.weekly || []))
-            allMonthlyGoals.push(...(entry.goals.monthly || []))
+        // If goals is a string, try to parse it
+        if (typeof parsedGoals === 'string') {
+          try {
+            parsedGoals = JSON.parse(parsedGoals)
+          } catch (e) {
+            console.error('Dashboard: Failed to parse goals string:', e)
+            parsedGoals = { daily: [], weekly: [], monthly: [] }
           }
-        })
+        }
         
-        // Remove duplicates and get unique goals
-        const uniqueDaily = allDailyGoals.filter((goal, index, self) => 
-          index === self.findIndex(g => g.text === goal.text)
-        )
-        const uniqueWeekly = allWeeklyGoals.filter((goal, index, self) => 
-          index === self.findIndex(g => g.text === goal.text)
-        )
-        const uniqueMonthly = allMonthlyGoals.filter((goal, index, self) => 
-          index === self.findIndex(g => g.text === goal.text)
-        )
-        
-        setCurrentGoals({
-          daily: uniqueDaily,
-          weekly: uniqueWeekly,
-          monthly: uniqueMonthly
-        })
+        // Ensure we have the expected structure
+        if (parsedGoals && typeof parsedGoals === 'object') {
+          setCurrentGoals({
+            daily: Array.isArray(parsedGoals.daily) ? parsedGoals.daily : [],
+            weekly: Array.isArray(parsedGoals.weekly) ? parsedGoals.weekly : [],
+            monthly: Array.isArray(parsedGoals.monthly) ? parsedGoals.monthly : []
+          })
+          return
+        }
       }
+      
+      // If no goals in recent entry or parsing failed, aggregate from all entries
+      console.log('Dashboard: Aggregating goals from all entries')
+      const allDailyGoals = []
+      const allWeeklyGoals = []
+      const allMonthlyGoals = []
+      
+      entries.forEach(entry => {
+        if (entry.goals) {
+          let entryGoals = entry.goals
+          
+          // Parse if it's a string
+          if (typeof entryGoals === 'string') {
+            try {
+              entryGoals = JSON.parse(entryGoals)
+            } catch (e) {
+              console.error('Dashboard: Failed to parse entry goals:', e)
+              return
+            }
+          }
+          
+          if (entryGoals && typeof entryGoals === 'object') {
+            if (Array.isArray(entryGoals.daily)) {
+              allDailyGoals.push(...entryGoals.daily)
+            }
+            if (Array.isArray(entryGoals.weekly)) {
+              allWeeklyGoals.push(...entryGoals.weekly)
+            }
+            if (Array.isArray(entryGoals.monthly)) {
+              allMonthlyGoals.push(...entryGoals.monthly)
+            }
+          }
+        }
+      })
+      
+      // Remove duplicates and get unique goals
+      const uniqueDaily = allDailyGoals.filter((goal, index, self) => 
+        index === self.findIndex(g => g.text === goal.text)
+      )
+      const uniqueWeekly = allWeeklyGoals.filter((goal, index, self) => 
+        index === self.findIndex(g => g.text === goal.text)
+      )
+      const uniqueMonthly = allMonthlyGoals.filter((goal, index, self) => 
+        index === self.findIndex(g => g.text === goal.text)
+      )
+      
+      console.log('Dashboard: Aggregated goals:', {
+        daily: uniqueDaily.length,
+        weekly: uniqueWeekly.length,
+        monthly: uniqueMonthly.length
+      })
+      
+      setCurrentGoals({
+        daily: uniqueDaily,
+        weekly: uniqueWeekly,
+        monthly: uniqueMonthly
+      })
+    } else {
+      console.log('Dashboard: No entries found, setting empty goals')
+      setCurrentGoals({
+        daily: [],
+        weekly: [],
+        monthly: []
+      })
     }
   }
 
