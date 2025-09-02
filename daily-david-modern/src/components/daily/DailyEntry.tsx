@@ -220,6 +220,7 @@ export function DailyEntry() {
   }
 
   const handleSubmit = async () => {
+    console.log('handleSubmit called')
     setIsSaving(true)
     try {
       const dateString = getLocalDateString(selectedDate)
@@ -231,6 +232,7 @@ export function DailyEntry() {
       }
       
       console.log('Saving entry with goals:', userGoals)
+      console.log('Full entry data:', entryData)
       
       if (currentEntry && currentEntry.id) {
         // Update existing entry
@@ -286,6 +288,7 @@ export function DailyEntry() {
   }
 
   const addGoal = (type: keyof UserGoals) => {
+    console.log('Adding goal to type:', type)
     const newGoal: Goal = {
       id: Date.now().toString(),
       text: 'New goal',
@@ -294,10 +297,14 @@ export function DailyEntry() {
       category: 'spiritual'
     }
     
-    setUserGoals(prev => ({
-      ...prev,
-      [type]: [...prev[type], newGoal]
-    }))
+    setUserGoals(prev => {
+      const updated = {
+        ...prev,
+        [type]: [...prev[type], newGoal]
+      }
+      console.log('Updated goals:', updated)
+      return updated
+    })
   }
 
   if (!isAuthenticated) {
