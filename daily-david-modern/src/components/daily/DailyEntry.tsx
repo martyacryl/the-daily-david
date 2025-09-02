@@ -105,22 +105,7 @@ export function DailyEntry() {
     }
   }, [isInitialized, isAuthenticated, selectedDate, dateParam])
 
-  // Handle URL parameter changes after initialization
-  useEffect(() => {
-    if (isInitialized && isAuthenticated) {
-      const currentDateParam = searchParams.get('date')
-      if (currentDateParam) {
-        const parsedDate = new Date(currentDateParam)
-        if (!isNaN(parsedDate.getTime())) {
-          const currentDateString = getLocalDateString(selectedDate)
-          if (currentDateString !== currentDateParam) {
-            console.log('URL date changed, updating selectedDate from', currentDateString, 'to', currentDateParam)
-            setSelectedDate(parsedDate)
-          }
-        }
-      }
-    }
-  }, [searchParams, isInitialized, isAuthenticated, selectedDate])
+
 
   // Load entry for the selected date when it changes (after initialization)
   useEffect(() => {
