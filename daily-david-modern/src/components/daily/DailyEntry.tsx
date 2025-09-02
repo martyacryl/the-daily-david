@@ -45,7 +45,15 @@ export function DailyEntry() {
   // Get date from URL params or use today
   const dateParam = searchParams.get('date')
   const [selectedDate, setSelectedDate] = useState(() => {
-    // Always start with today, we'll sync with URL in useEffect
+    // Initialize with URL date if available, otherwise today
+    if (dateParam) {
+      const parsedDate = new Date(dateParam)
+      if (!isNaN(parsedDate.getTime())) {
+        console.log('Initializing selectedDate with URL date:', dateParam)
+        return parsedDate
+      }
+    }
+    console.log('Initializing selectedDate with today')
     return new Date()
   })
   const [isInitialized, setIsInitialized] = useState(false)
@@ -85,23 +93,29 @@ export function DailyEntry() {
   // Initialize and load data in a single effect to prevent race conditions
   useEffect(() => {
     if (!isInitialized && isAuthenticated) {
+      console.log('Initializing with selectedDate:', getLocalDateString(selectedDate))
+      // Load data for the selected date (which is already set from URL or today)
+      loadEntryForDate(selectedDate)
+      setIsInitialized(true)
+    }
+  }, [isInitialized, isAuthenticated, selectedDate])
+
+  // Handle URL parameter changes after initialization
+  useEffect(() => {
+    if (isInitialized && isAuthenticated) {
       const currentDateParam = searchParams.get('date')
-      let targetDate = new Date()
-      
       if (currentDateParam) {
         const parsedDate = new Date(currentDateParam)
         if (!isNaN(parsedDate.getTime())) {
-          console.log('Initializing with URL date:', currentDateParam)
-          targetDate = parsedDate
-          setSelectedDate(parsedDate)
+          const currentDateString = getLocalDateString(selectedDate)
+          if (currentDateString !== currentDateParam) {
+            console.log('URL date changed, updating selectedDate from', currentDateString, 'to', currentDateParam)
+            setSelectedDate(parsedDate)
+          }
         }
       }
-      
-      // Load data for the target date
-      loadEntryForDate(targetDate)
-      setIsInitialized(true)
     }
-  }, [searchParams, isInitialized, isAuthenticated])
+  }, [searchParams, isInitialized, isAuthenticated, selectedDate])
 
   // Load entry for the selected date when it changes (after initialization)
   useEffect(() => {
