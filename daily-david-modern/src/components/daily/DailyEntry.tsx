@@ -74,29 +74,28 @@ export function DailyEntry() {
     monthly: []
   })
 
-  // Initialize date from URL parameters on component mount
+  // Initialize and load data in a single effect to prevent race conditions
   useEffect(() => {
-    if (!isInitialized) {
+    if (!isInitialized && isAuthenticated) {
       const currentDateParam = searchParams.get('date')
+      let targetDate = new Date()
+      
       if (currentDateParam) {
         const parsedDate = new Date(currentDateParam)
         if (!isNaN(parsedDate.getTime())) {
           console.log('Initializing with URL date:', currentDateParam)
+          targetDate = parsedDate
           setSelectedDate(parsedDate)
         }
       }
+      
+      // Load data for the target date
+      loadEntryForDate(targetDate)
       setIsInitialized(true)
     }
-  }, [searchParams, isInitialized])
+  }, [searchParams, isInitialized, isAuthenticated])
 
-  // Load user goals when component mounts
-  useEffect(() => {
-    if (isAuthenticated && user) {
-      loadUserGoals()
-    }
-  }, [isAuthenticated, user])
-
-  // Load entry for the selected date (only after initialization)
+  // Load entry for the selected date when it changes (after initialization)
   useEffect(() => {
     if (isAuthenticated && isInitialized) {
       loadEntryForDate(selectedDate)
@@ -125,60 +124,7 @@ export function DailyEntry() {
     }
   }, [selectedDate, setSearchParams, searchParams, isInitialized])
 
-  const loadUserGoals = async () => {
-    try {
-      // Load goals from the current entry or create default ones
-      const dateString = selectedDate.toISOString().split('T')[0]
-      
-      // Load the entry for the selected date first
-      await loadEntryByDate(dateString)
-      
-      // Wait a bit for the store to update
-      await new Promise(resolve => setTimeout(resolve, 100))
-      
-      // Check if we have current entry data
-      if (currentEntry && currentEntry.goals) {
-        console.log('Loading goals from current entry:', currentEntry.goals)
-        setUserGoals(currentEntry.goals)
-      } else {
-        console.log('No current entry found, using default goals')
-        // Create default goals for new users
-        const defaultGoals: UserGoals = {
-          daily: [
-            { id: '1', text: 'Read today\'s scripture', completed: false, priority: 'high', category: 'spiritual' },
-            { id: '2', text: 'Pray for family', completed: false, priority: 'medium', category: 'spiritual' }
-          ],
-          weekly: [
-            { id: '3', text: 'Attend Bible study', completed: false, priority: 'high', category: 'spiritual' },
-            { id: '4', text: 'Call a friend', completed: false, priority: 'medium', category: 'personal' }
-          ],
-          monthly: [
-            { id: '5', text: 'Read through Psalms', completed: false, priority: 'high', category: 'spiritual' },
-            { id: '6', text: 'Volunteer at church', completed: false, priority: 'medium', category: 'outreach' }
-          ]
-        }
-        setUserGoals(defaultGoals)
-      }
-    } catch (error) {
-      console.error('Error loading user goals:', error)
-      // Set default goals on error
-      const defaultGoals: UserGoals = {
-        daily: [
-          { id: '1', text: 'Read today\'s scripture', completed: false, priority: 'high', category: 'spiritual' },
-          { id: '2', text: 'Pray for family', completed: false, priority: 'medium', category: 'spiritual' }
-        ],
-        weekly: [
-          { id: '3', text: 'Attend Bible study', completed: false, priority: 'high', category: 'spiritual' },
-          { id: '4', text: 'Call a friend', completed: false, priority: 'medium', category: 'personal' }
-        ],
-        monthly: [
-          { id: '5', text: 'Read through Psalms', completed: false, priority: 'high', category: 'spiritual' },
-          { id: '6', text: 'Volunteer at church', completed: false, priority: 'medium', category: 'outreach' }
-        ]
-      }
-      setUserGoals(defaultGoals)
-    }
-  }
+
 
   const loadEntryForDate = async (date: Date) => {
     const dateString = date.toISOString().split('T')[0]
@@ -220,6 +166,24 @@ export function DailyEntry() {
         if (entryData.goals) {
           console.log('Setting goals from entry:', entryData.goals)
           setUserGoals(entryData.goals)
+        } else {
+          // Set default goals if no goals in entry
+          console.log('No goals in entry, setting default goals')
+          const defaultGoals: UserGoals = {
+            daily: [
+              { id: '1', text: 'Read today\'s scripture', completed: false, priority: 'high', category: 'spiritual' },
+              { id: '2', text: 'Pray for family', completed: false, priority: 'medium', category: 'spiritual' }
+            ],
+            weekly: [
+              { id: '3', text: 'Attend Bible study', completed: false, priority: 'high', category: 'spiritual' },
+              { id: '4', text: 'Call a friend', completed: false, priority: 'medium', category: 'personal' }
+            ],
+            monthly: [
+              { id: '5', text: 'Read through Psalms', completed: false, priority: 'high', category: 'spiritual' },
+              { id: '6', text: 'Volunteer at church', completed: false, priority: 'medium', category: 'outreach' }
+            ]
+          }
+          setUserGoals(defaultGoals)
         }
       } else {
         console.log('No entry found for date:', dateString)
@@ -232,6 +196,23 @@ export function DailyEntry() {
           growthQuestion: '',
           leadershipRating: { wisdom: 5, courage: 5, patience: 5, integrity: 5 }
         })
+        
+        // Set default goals for new entries
+        const defaultGoals: UserGoals = {
+          daily: [
+            { id: '1', text: 'Read today\'s scripture', completed: false, priority: 'high', category: 'spiritual' },
+            { id: '2', text: 'Pray for family', completed: false, priority: 'medium', category: 'spiritual' }
+          ],
+          weekly: [
+            { id: '3', text: 'Attend Bible study', completed: false, priority: 'high', category: 'spiritual' },
+            { id: '4', text: 'Call a friend', completed: false, priority: 'medium', category: 'personal' }
+          ],
+          monthly: [
+            { id: '5', text: 'Read through Psalms', completed: false, priority: 'high', category: 'spiritual' },
+            { id: '6', text: 'Volunteer at church', completed: false, priority: 'medium', category: 'outreach' }
+          ]
+        }
+        setUserGoals(defaultGoals)
       }
     } catch (error) {
       console.error('Error loading entry:', error)
