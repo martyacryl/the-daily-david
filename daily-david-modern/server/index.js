@@ -134,14 +134,14 @@ app.post('/api/auth/logout', (req, res) => {
 app.post('/api/entries', authenticateToken, async (req, res) => {
   try {
     const { date, goals, gratitude, soap, dailyIntention, growthQuestion, leadershipRating } = req.body
-    const userId = req.user.userId
+    const userId = req.user.email
     const dateKey = date || new Date().toISOString().split('T')[0]
 
     const client = await pool.connect()
     
     try {
       const result = await client.query(
-        `INSERT INTO ${process.env.NODE_ENV === 'production' ? 'daily_david_entries' : 'daily_david_entries_dev'} 
+        `INSERT INTO daily_david_entries 
          (date_key, user_id, data_content) 
          VALUES ($1, $2, $3) 
          ON CONFLICT (date_key, user_id) 
@@ -174,13 +174,13 @@ app.post('/api/entries', authenticateToken, async (req, res) => {
 app.get('/api/entries/:date', authenticateToken, async (req, res) => {
   try {
     const { date } = req.params
-    const userId = req.user.userId
+    const userId = req.user.email
 
     const client = await pool.connect()
     
     try {
       const result = await client.query(
-        `SELECT * FROM ${process.env.NODE_ENV === 'production' ? 'daily_david_entries' : 'daily_david_entries_dev'} 
+        `SELECT * FROM daily_david_entries 
          WHERE date_key = $1 AND user_id = $2`,
         [date, userId]
       )
@@ -202,14 +202,14 @@ app.get('/api/entries/:date', authenticateToken, async (req, res) => {
 // Get all entries for a user
 app.get('/api/entries', authenticateToken, async (req, res) => {
   try {
-    const userId = req.user.userId
+    const userId = req.user.email
     const { limit = 30 } = req.query
 
     const client = await pool.connect()
     
     try {
       const result = await client.query(
-        `SELECT * FROM ${process.env.NODE_ENV === 'production' ? 'daily_david_entries' : 'daily_david_entries_dev'} 
+        `SELECT * FROM daily_david_entries 
          WHERE user_id = $1 
          ORDER BY date_key DESC 
          LIMIT $2`,
