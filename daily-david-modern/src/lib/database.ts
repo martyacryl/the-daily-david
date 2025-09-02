@@ -1,14 +1,7 @@
+import { getAuthHeaders } from '../stores/authStore'
+
 // Database connection configuration - using API calls instead of direct connection
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://thedailydavid.vercel.app'
-
-// Helper function to get auth headers
-const getAuthHeaders = () => {
-  // For now, return basic headers without auth token
-  // This will be fixed once the auth system is working
-  return {
-    'Content-Type': 'application/json'
-  }
-}
 
 export interface DailyEntry {
   id?: number
