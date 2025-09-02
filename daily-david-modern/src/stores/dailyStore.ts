@@ -212,63 +212,58 @@ export const useDailyStore = create<DailyStore>((set, get) => ({
       const result = await dbManager.getDailyEntry(date)
       console.log('Store: Database result:', result)
       
-      if (result.success) {
-        if (result.data) {
-          console.log('Store: Found entry data:', result.data)
-          const formattedEntry: DailyEntry = {
-            id: result.data.id || result.data.id?.toString(),
-            userId: result.data.user_id || result.data.userId,
-            user_id: result.data.user_id || result.data.userId,
-            date: result.data.date_key || result.data.date,
-            dateKey: result.data.date_key || result.data.date,
-            date_key: result.data.date_key || result.data.date,
-            checkIn: result.data.data_content?.checkIn || {
-              emotions: [],
-              feeling: ''
-            },
-            gratitude: result.data.data_content?.gratitude || [],
-            soap: result.data.data_content?.soap || {
-              scripture: '',
-              observation: '',
-              application: '',
-              prayer: ''
-            },
-            goals: result.data.data_content?.goals || {
-              daily: [],
-              weekly: [],
-              monthly: []
-            },
-            dailyIntention: result.data.data_content?.dailyIntention || '',
-            growthQuestion: result.data.data_content?.growthQuestion || '',
-            leadershipRating: result.data.data_content?.leadershipRating || {
-              wisdom: 0,
-              courage: 0,
-              patience: 0,
-              integrity: 0
-            },
-            completed: result.data.data_content?.completed || false,
-            createdAt: new Date(result.data.created_at || result.data.createdAt),
-            created_at: new Date(result.data.created_at || result.data.createdAt),
-            updatedAt: new Date(result.data.updated_at || result.data.updatedAt),
-            updated_at: new Date(result.data.updated_at || result.data.updatedAt)
-          }
-          
-          console.log('Store: Setting formatted entry:', formattedEntry)
-          set({ 
-            currentEntry: formattedEntry,
-            isLoading: false 
-          })
-        } else {
-          console.log('Store: No entry found for date:', date)
-          // No entry found for this date
-          set({ 
-            currentEntry: null,
-            isLoading: false 
-          })
+      if (result) {
+        console.log('Store: Found entry data:', result)
+        const formattedEntry: DailyEntry = {
+          id: result.id || result.id?.toString(),
+          userId: result.user_id || result.userId,
+          user_id: result.user_id || result.userId,
+          date: result.date_key || result.date,
+          dateKey: result.date_key || result.date,
+          date_key: result.date_key || result.date,
+          checkIn: result.data_content?.checkIn || {
+            emotions: [],
+            feeling: ''
+          },
+          gratitude: result.data_content?.gratitude || [],
+          soap: result.data_content?.soap || {
+            scripture: result.scripture || '',
+            observation: result.observation || '',
+            application: result.application || '',
+            prayer: result.prayer || ''
+          },
+          goals: result.data_content?.goals || {
+            daily: [],
+            weekly: [],
+            monthly: []
+          },
+          dailyIntention: result.data_content?.dailyIntention || '',
+          growthQuestion: result.data_content?.growthQuestion || '',
+          leadershipRating: result.data_content?.leadershipRating || {
+            wisdom: 0,
+            courage: 0,
+            patience: 0,
+            integrity: 0
+          },
+          completed: result.data_content?.completed || false,
+          createdAt: new Date(result.created_at || result.createdAt),
+          created_at: new Date(result.created_at || result.createdAt),
+          updatedAt: new Date(result.updated_at || result.updatedAt),
+          updated_at: new Date(result.updated_at || result.updatedAt)
         }
+        
+        console.log('Store: Setting formatted entry:', formattedEntry)
+        set({ 
+          currentEntry: formattedEntry,
+          isLoading: false 
+        })
       } else {
-        console.log('Store: Database error:', result.error)
-        throw new Error(result.error || 'Failed to load entry')
+        console.log('Store: No entry found for date:', date)
+        // No entry found for this date
+        set({ 
+          currentEntry: null,
+          isLoading: false 
+        })
       }
     } catch (error) {
       console.error('Store: Error loading entry:', error)
