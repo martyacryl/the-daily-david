@@ -46,7 +46,9 @@ export function DailyEntry() {
   const dateParam = searchParams.get('date')
   const [selectedDate, setSelectedDate] = useState(() => {
     if (dateParam) {
-      return new Date(dateParam)
+      // Parse date in local timezone to avoid timezone issues
+      const [year, month, day] = dateParam.split('-').map(Number)
+      return new Date(year, month - 1, day)
     }
     return new Date()
   })
@@ -88,7 +90,9 @@ export function DailyEntry() {
     if (isAuthenticated) {
       const currentDateParam = searchParams.get('date')
       if (currentDateParam) {
-        const parsedDate = new Date(currentDateParam)
+        // Parse date in local timezone to avoid timezone issues
+        const [year, month, day] = currentDateParam.split('-').map(Number)
+        const parsedDate = new Date(year, month - 1, day)
         if (!isNaN(parsedDate.getTime())) {
           console.log('URL effect: Loading data for URL date:', currentDateParam, 'parsed date:', parsedDate.toDateString())
           setSelectedDate(parsedDate)
