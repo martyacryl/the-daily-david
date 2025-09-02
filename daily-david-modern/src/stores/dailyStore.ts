@@ -60,7 +60,7 @@ export const useDailyStore = create<DailyStore>((set, get) => ({
     try {
       set({ isLoading: true, error: null })
       
-      const result = await dbManager.updateDailyEntry(id, updates)
+      const result = await dbManager.updateDailyEntryWrapper(id, updates)
       
       if (result.success && result.data) {
         const updatedEntry: DailyEntry = {

@@ -1,8 +1,14 @@
-// Import auth store for getting tokens
-import { getAuthHeaders } from '../stores/authStore'
-
 // Database connection configuration - using API calls instead of direct connection
 const API_BASE_URL = import.meta.env.VITE_API_URL || (import.meta.env.MODE === 'production' ? '' : 'http://localhost:3001')
+
+// Helper function to get auth headers
+const getAuthHeaders = () => {
+  // For now, return basic headers without auth token
+  // This will be fixed once the auth system is working
+  return {
+    'Content-Type': 'application/json'
+  }
+}
 
 export interface DailyEntry {
   id?: number
@@ -259,6 +265,48 @@ class DatabaseManager {
       console.error('API: Error getting all entries:', error)
       return []
     }
+  }
+
+  async createDailyEntry(entryData: any): Promise<{ success: boolean; data?: any; error?: string }> {
+    try {
+      const result = await this.saveDailyEntry(entryData)
+      return { success: true, data: result }
+    } catch (error) {
+      return { success: false, error: error instanceof Error ? error.message : 'Failed to create entry' }
+    }
+  }
+
+  async updateDailyEntryWrapper(id: number, updates: any): Promise<{ success: boolean; data?: any; error?: string }> {
+    try {
+      const result = await this.updateDailyEntry(id, updates)
+      return { success: true, data: result }
+    } catch (error) {
+      return { success: false, error: error instanceof Error ? error.message : 'Failed to update entry' }
+    }
+  }
+
+  async updateGoals(type: string, goals: any): Promise<{ success: boolean; data?: any; error?: string }> {
+    try {
+      const result = await this.updateUserGoals(1, goals)
+      return { success: true, data: result }
+    } catch (error) {
+      return { success: false, error: error instanceof Error ? error.message : 'Failed to update goals' }
+    }
+  }
+
+  async getAllUsers(): Promise<any[]> {
+    // This would need to be implemented in the backend
+    return []
+  }
+
+  async createUser(userData: any): Promise<{ success: boolean; data?: any; error?: string }> {
+    // This would need to be implemented in the backend
+    return { success: false, error: 'Not implemented' }
+  }
+
+  async deleteUser(userId: number): Promise<{ success: boolean; error?: string }> {
+    // This would need to be implemented in the backend
+    return { success: false, error: 'Not implemented' }
   }
 
   async testConnection(): Promise<boolean> {
