@@ -315,4 +315,6 @@ export const getDatabaseManager = (): DatabaseManager => {
 }
 
 // Export as default for convenience
+export const dbManager = getDatabaseManager()
+
 export default DatabaseManager
