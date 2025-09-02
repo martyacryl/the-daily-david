@@ -29,7 +29,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
     
     try {
       // Call the backend API
-      const response = await fetch('http://localhost:3003/api/auth/login', {
+      const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -77,7 +77,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
       const token = localStorage.getItem('authToken')
       if (token) {
         // Call logout endpoint
-        await fetch('http://localhost:3003/api/auth/logout', {
+        await fetch('/api/auth/logout', {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${token}`,
