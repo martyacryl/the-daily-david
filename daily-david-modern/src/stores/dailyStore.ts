@@ -12,7 +12,7 @@ interface DailyStore extends DailyState {
   updateGoals: (type: 'daily' | 'weekly' | 'monthly', goals: Goal[]) => Promise<void>
   clearError: () => void
   loadEntries: () => Promise<void>
-  loadEntryByDate: (date: string) => Promise<void>
+  loadEntryByDate: (date: string) => Promise<DailyEntry | null>
 }
 
 export const useDailyStore = create<DailyStore>((set, get) => ({
@@ -236,6 +236,7 @@ export const useDailyStore = create<DailyStore>((set, get) => ({
           currentEntry: formattedEntry,
           isLoading: false 
         })
+        return formattedEntry
       } else {
         console.log('Store: No entry found for date:', date)
         // No entry found for this date
@@ -243,6 +244,7 @@ export const useDailyStore = create<DailyStore>((set, get) => ({
           currentEntry: null,
           isLoading: false 
         })
+        return null
       }
     } catch (error) {
       console.error('Store: Error loading entry:', error)
@@ -250,6 +252,7 @@ export const useDailyStore = create<DailyStore>((set, get) => ({
         error: error instanceof Error ? error.message : 'Failed to load entry',
         isLoading: false 
       })
+      return null
     }
   }
 }))

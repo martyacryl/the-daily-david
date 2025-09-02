@@ -150,17 +150,12 @@ export function DailyEntry() {
     try {
       console.log('Loading entry for date:', dateString)
       
-      // Load the entry for the selected date
-      await loadEntryByDate(dateString)
+      // Load the entry for the selected date and get the result directly
+      const entryData = await loadEntryByDate(dateString)
       
-      // Wait a bit for the store to update
-      await new Promise(resolve => setTimeout(resolve, 200))
-      
-      // Check if we have current entry data
-      if (currentEntry) {
-        console.log('Found existing entry:', currentEntry)
+      if (entryData) {
+        console.log('Found existing entry:', entryData)
         // Load existing entry data
-        const entryData = currentEntry
         setDayData(prev => ({
           ...prev,
           checkIn: entryData.checkIn || prev.checkIn,
