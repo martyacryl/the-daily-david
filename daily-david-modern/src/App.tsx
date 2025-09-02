@@ -11,12 +11,10 @@ import { useAuthStore } from './stores/authStore'
 import './App.css'
 
 function App() {
-  const { user, isAuthenticated, initialize } = useAuthStore()
+  const { user, isAuthenticated } = useAuthStore()
 
-  useEffect(() => {
-    // Initialize auth state from localStorage
-    initialize()
-  }, [initialize])
+  // Remove the initialize call since that method doesn't exist
+  // The auth store will work without it
 
   return (
     <Router>
