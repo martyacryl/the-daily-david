@@ -44,7 +44,12 @@ export function DailyEntry() {
   
   // Get date from URL params or use today
   const dateParam = searchParams.get('date')
-  const selectedDate = dateParam ? new Date(dateParam) : new Date()
+  const [selectedDate, setSelectedDate] = useState(() => {
+    if (dateParam) {
+      return new Date(dateParam)
+    }
+    return new Date()
+  })
 
 
   // Local state for the day's data
@@ -78,14 +83,18 @@ export function DailyEntry() {
     monthly: []
   })
 
-  // Simple: Load data when URL changes
+  // Simple: Sync selectedDate with URL and load data
   useEffect(() => {
     if (isAuthenticated) {
       const currentDateParam = searchParams.get('date')
       if (currentDateParam) {
         const parsedDate = new Date(currentDateParam)
         if (!isNaN(parsedDate.getTime())) {
-          console.log('URL effect: loading data for', currentDateParam)
+          const currentDateString = getLocalDateString(selectedDate)
+          if (currentDateString !== currentDateParam) {
+            console.log('Syncing selectedDate to URL:', currentDateParam)
+            setSelectedDate(parsedDate)
+          }
           loadEntryForDate(parsedDate)
         }
       }
