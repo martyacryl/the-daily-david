@@ -176,56 +176,87 @@ class DatabaseManager {
     }
   }
 
-  async loadDayData(date: string, userId: number = 1): Promise<{ entry: DailyEntry | null; goals: UserGoals | null }> {
+  async loadDayData(date: string, userId: string | number): Promise<any> {
     try {
       console.log('API: Loading day data for date:', date, 'user:', userId)
-      const [entry, goals] = await Promise.all([
-        this.getDailyEntry(date, userId),
-        this.getUserGoals(userId)
-      ])
-      console.log('API: Loaded day data:', { entry, goals })
-      return { entry, goals }
+      const userIdNum = typeof userId === 'string' ? parseInt(userId) : userId
+      const entry = await this.getDailyEntry(date, userIdNum)
+      
+      if (entry) {
+        // Transform the entry to match the expected format
+        return {
+          checkIn: {
+            emotions: [],
+            feeling: ''
+          },
+          gratitude: entry.gratitude ? entry.gratitude.split(', ') : ['', '', ''],
+          soap: {
+            scripture: entry.scripture || '',
+            observation: entry.observation || '',
+            application: entry.application || '',
+            prayer: entry.prayer || '',
+            thoughts: ''
+          },
+          goals: entry.goals ? JSON.parse(entry.goals) : {
+            daily: [],
+            weekly: [],
+            monthly: []
+          },
+          dailyIntention: '',
+          growthQuestion: '',
+          leadershipRating: {
+            wisdom: 5,
+            courage: 5,
+            patience: 5,
+            integrity: 5
+          }
+        }
+      }
+      return null
     } catch (error) {
       console.error('API: Error loading day data:', error)
-      throw error
+      return null
     }
   }
 
-  async saveDayData(date: string, data: Partial<DailyEntry>, userId: number = 1): Promise<DailyEntry> {
+  async saveDayData(userId: string | number, date: string, data: any): Promise<boolean> {
     try {
       console.log('API: Saving day data for date:', date, 'data:', data, 'user:', userId)
       
+      const userIdNum = typeof userId === 'string' ? parseInt(userId) : userId
+      
       // Check if entry exists
-      const existingEntry = await this.getDailyEntry(date, userId)
+      const existingEntry = await this.getDailyEntry(date, userIdNum)
       
       if (existingEntry) {
         // Update existing entry by saving with merged data
-        return await this.saveDailyEntry({
-          user_id: userId,
+        await this.saveDailyEntry({
+          user_id: userIdNum,
           date,
-          scripture: data.scripture || existingEntry.scripture || '',
-          observation: data.observation || existingEntry.observation || '',
-          application: data.application || existingEntry.application || '',
-          prayer: data.prayer || existingEntry.prayer || '',
-          gratitude: data.gratitude || existingEntry.gratitude || '',
-          goals: data.goals || existingEntry.goals || ''
+          scripture: data.soap?.scripture || existingEntry.scripture || '',
+          observation: data.soap?.observation || existingEntry.observation || '',
+          application: data.soap?.application || existingEntry.application || '',
+          prayer: data.soap?.prayer || existingEntry.prayer || '',
+          gratitude: Array.isArray(data.gratitude) ? data.gratitude.join(', ') : (data.gratitude || existingEntry.gratitude || ''),
+          goals: data.goals ? JSON.stringify(data.goals) : (existingEntry.goals || '')
         })
       } else {
         // Create new entry
-        return await this.saveDailyEntry({
-          user_id: userId,
+        await this.saveDailyEntry({
+          user_id: userIdNum,
           date,
-          scripture: data.scripture || '',
-          observation: data.observation || '',
-          application: data.application || '',
-          prayer: data.prayer || '',
-          gratitude: data.gratitude || '',
-          goals: data.goals || ''
+          scripture: data.soap?.scripture || '',
+          observation: data.soap?.observation || '',
+          application: data.soap?.application || '',
+          prayer: data.soap?.prayer || '',
+          gratitude: Array.isArray(data.gratitude) ? data.gratitude.join(', ') : (data.gratitude || ''),
+          goals: data.goals ? JSON.stringify(data.goals) : ''
         })
       }
+      return true
     } catch (error) {
       console.error('API: Error saving day data:', error)
-      throw error
+      return false
     }
   }
 
