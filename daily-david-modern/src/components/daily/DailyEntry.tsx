@@ -38,7 +38,11 @@ export function DailyEntry() {
   const dateParam = searchParams.get('date')
   const [selectedDate, setSelectedDate] = useState(() => {
     if (dateParam) {
-      return new Date(dateParam)
+      const parsedDate = new Date(dateParam)
+      // Validate the date
+      if (!isNaN(parsedDate.getTime())) {
+        return parsedDate
+      }
     }
     return new Date()
   })
@@ -68,11 +72,27 @@ export function DailyEntry() {
 
   const [isLoading, setIsLoading] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
+  const [loadingDate, setLoadingDate] = useState<string | null>(null)
   const [userGoals, setUserGoals] = useState<UserGoals>({
     daily: [],
     weekly: [],
     monthly: []
   })
+
+  // Sync selectedDate with URL parameters
+  useEffect(() => {
+    const currentDateParam = searchParams.get('date')
+    if (currentDateParam) {
+      const parsedDate = new Date(currentDateParam)
+      if (!isNaN(parsedDate.getTime())) {
+        const currentDateString = selectedDate.toISOString().split('T')[0]
+        if (currentDateString !== currentDateParam) {
+          console.log('URL date changed, updating selectedDate from', currentDateString, 'to', currentDateParam)
+          setSelectedDate(parsedDate)
+        }
+      }
+    }
+  }, [searchParams])
 
   // Load user goals when component mounts
   useEffect(() => {
@@ -96,14 +116,17 @@ export function DailyEntry() {
     }
   }, [currentEntry])
 
-  // Update URL when date changes - but only if it's a valid date
+  // Update URL when date changes - but only if it's different from current URL
   useEffect(() => {
     const dateString = selectedDate.toISOString().split('T')[0]
-    // Only update URL if we're not on the base route
-    if (window.location.pathname !== '/') {
+    const currentDateParam = searchParams.get('date')
+    
+    // Only update URL if the date is different from what's in the URL
+    if (currentDateParam !== dateString) {
+      console.log('Selected date changed, updating URL from', currentDateParam, 'to', dateString)
       setSearchParams({ date: dateString })
     }
-  }, [selectedDate, setSearchParams])
+  }, [selectedDate, setSearchParams, searchParams])
 
   const loadUserGoals = async () => {
     try {
@@ -162,16 +185,25 @@ export function DailyEntry() {
   }
 
   const loadEntryForDate = async (date: Date) => {
+    const dateString = date.toISOString().split('T')[0]
+    
+    // Prevent multiple concurrent loads for the same date
+    if (loadingDate === dateString) {
+      console.log('Already loading entry for date:', dateString)
+      return
+    }
+    
+    setLoadingDate(dateString)
     setIsLoading(true)
+    
     try {
-      const dateString = date.toISOString().split('T')[0]
       console.log('Loading entry for date:', dateString)
       
       // Load the entry for the selected date
       await loadEntryByDate(dateString)
       
       // Wait a bit for the store to update
-      await new Promise(resolve => setTimeout(resolve, 100))
+      await new Promise(resolve => setTimeout(resolve, 200))
       
       // Check if we have current entry data
       if (currentEntry) {
@@ -209,6 +241,7 @@ export function DailyEntry() {
       console.error('Error loading entry:', error)
     } finally {
       setIsLoading(false)
+      setLoadingDate(null)
     }
   }
 
