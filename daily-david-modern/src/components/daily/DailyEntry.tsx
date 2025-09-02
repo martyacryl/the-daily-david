@@ -108,7 +108,8 @@ export function DailyEntry() {
   // Simple: Load data when selectedDate changes
   useEffect(() => {
     if (isAuthenticated) {
-      console.log('Loading entry for date:', getLocalDateString(selectedDate))
+      const dateString = getLocalDateString(selectedDate)
+      console.log('useEffect triggered - Loading entry for date:', dateString)
       loadEntryForDate(selectedDate)
     }
   }, [selectedDate, isAuthenticated])
@@ -134,6 +135,7 @@ export function DailyEntry() {
       return
     }
     
+    console.log('Starting load for date:', dateString, 'current loadingDate:', loadingDate)
     setLoadingDate(dateString)
     setIsLoading(true)
     
@@ -211,6 +213,7 @@ export function DailyEntry() {
     } catch (error) {
       console.error('Error loading entry:', error)
     } finally {
+      console.log('Clearing loading state for date:', dateString)
       setIsLoading(false)
       setLoadingDate(null)
     }
