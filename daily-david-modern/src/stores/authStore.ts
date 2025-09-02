@@ -1,150 +1,114 @@
 import { create } from 'zustand'
-import { User } from '../types'
+import { persist } from 'zustand/middleware'
+
+interface User {
+  id: number
+  email: string
+  name: string
+  role: 'admin' | 'user'
+  is_admin: boolean
+}
 
 interface AuthState {
   user: User | null
+  token: string | null
   isAuthenticated: boolean
   isLoading: boolean
   error: string | null
 }
 
-interface AuthStore extends AuthState {
-  login: (email: string, password: string) => Promise<void>
-  logout: () => Promise<void>
-  setUser: (user: User) => void
+interface AuthActions {
+  login: (email: string, password: string) => Promise<boolean>
+  logout: () => void
   clearError: () => void
-  checkAuth: () => void
-  initialize: () => void
+  setLoading: (loading: boolean) => void
 }
 
-// Initialize auth state from localStorage
-const initializeAuthState = (): Partial<AuthState> => {
-  try {
-    const token = localStorage.getItem('authToken')
-    const userStr = localStorage.getItem('user')
-    
-    if (token && userStr) {
-      const user = JSON.parse(userStr)
-      return { user, isAuthenticated: true, isLoading: false }
-    }
-  } catch (error) {
-    console.error('Error parsing stored user:', error)
-    localStorage.removeItem('authToken')
-    localStorage.removeItem('user')
-  }
-  
-  return { user: null, isAuthenticated: false, isLoading: false }
-}
+type AuthStore = AuthState & AuthActions
 
-export const useAuthStore = create<AuthStore>((set, get) => {
-  const initialState = initializeAuthState()
-  return {
-    user: initialState.user || null,
-    isAuthenticated: initialState.isAuthenticated || false,
-    isLoading: initialState.isLoading || false,
-    error: null,
+const API_BASE_URL = import.meta.env.VITE_API_URL || (import.meta.env.MODE === 'production' ? '' : 'http://localhost:3001')
 
-  login: async (email: string, password: string) => {
-    set({ isLoading: true, error: null })
-    
-    try {
-      // Call the backend API
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      })
+export const useAuthStore = create<AuthStore>()(
+  persist(
+    (set, get) => ({
+      user: null,
+      token: null,
+      isAuthenticated: false,
+      isLoading: false,
+      error: null,
 
-      const data = await response.json()
+      login: async (email: string, password: string) => {
+        try {
+          set({ isLoading: true, error: null })
+          
+          const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ email, password }),
+          })
 
-      if (!response.ok) {
-        throw new Error(data.error || 'Login failed')
-      }
+          const data = await response.json()
 
-      if (data.success) {
-        const user: User = {
-          id: data.user.id.toString(),
-          email: data.user.email,
-          name: data.user.display_name || data.user.name || 'User',
-          display_name: data.user.display_name || data.user.name || 'User',
-          role: data.user.is_admin ? 'admin' : 'user',
-          is_admin: data.user.is_admin || false,
-          createdAt: new Date(data.user.created_at),
-          created_at: new Date(data.user.created_at),
-          lastLoginAt: data.user.last_login ? new Date(data.user.last_login) : undefined
+          if (data.success && data.user && data.token) {
+            set({
+              user: data.user,
+              token: data.token,
+              isAuthenticated: true,
+              isLoading: false,
+              error: null
+            })
+            return true
+          } else {
+            set({
+              error: data.error || 'Login failed',
+              isLoading: false
+            })
+            return false
+          }
+        } catch (error) {
+          set({
+            error: error instanceof Error ? error.message : 'Login failed',
+            isLoading: false
+          })
+          return false
         }
-        
-        set({ user, isAuthenticated: true, isLoading: false })
-        
-        // Store token in localStorage
-        localStorage.setItem('authToken', data.token)
-        localStorage.setItem('user', JSON.stringify(user))
-      } else {
-        throw new Error(data.error || 'Login failed')
+      },
+
+      logout: () => {
+        set({
+          user: null,
+          token: null,
+          isAuthenticated: false,
+          error: null
+        })
+      },
+
+      clearError: () => {
+        set({ error: null })
+      },
+
+      setLoading: (loading: boolean) => {
+        set({ isLoading: loading })
       }
-    } catch (error) {
-      set({ 
-        error: error instanceof Error ? error.message : 'Login failed', 
-        isLoading: false 
+    }),
+    {
+      name: 'auth-storage',
+      partialize: (state) => ({
+        user: state.user,
+        token: state.token,
+        isAuthenticated: state.isAuthenticated
       })
     }
-  },
+  )
+)
 
-  logout: async () => {
-    try {
-      const token = localStorage.getItem('authToken')
-      if (token) {
-        // Call logout endpoint
-        await fetch('/api/auth/logout', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-          },
-        })
-      }
-    } catch (error) {
-      console.error('Logout error:', error)
-    } finally {
-      // Clear local storage and state
-      localStorage.removeItem('authToken')
-      localStorage.removeItem('user')
-      set({ user: null, isAuthenticated: false, error: null })
-    }
-  },
-
-  setUser: (user: User) => {
-    set({ user, isAuthenticated: true })
-  },
-
-  clearError: () => {
-    set({ error: null })
-  },
-
-  // Check for existing authentication on app startup
-  checkAuth: () => {
-    const token = localStorage.getItem('authToken')
-    const userStr = localStorage.getItem('user')
-    
-    if (token && userStr) {
-      try {
-        const user = JSON.parse(userStr)
-        set({ user, isAuthenticated: true, isLoading: false })
-      } catch (error) {
-        console.error('Error parsing stored user:', error)
-        localStorage.removeItem('authToken')
-        localStorage.removeItem('user')
-        set({ user: null, isAuthenticated: false, isLoading: false })
-      }
-    } else {
-      set({ user: null, isAuthenticated: false, isLoading: false })
-    }
-  },
-
-  // Initialize auth state
-  initialize: () => {
-    get().checkAuth()
+// Helper function to get auth headers
+export const getAuthHeaders = () => {
+  const token = useAuthStore.getState().token
+  return {
+    'Content-Type': 'application/json',
+    ...(token && { 'Authorization': `Bearer ${token}` })
   }
-  }
-})
+}

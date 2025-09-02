@@ -150,39 +150,39 @@ export const useDailyStore = create<DailyStore>((set, get) => ({
       
       const result = await dbManager.getDailyEntries()
       
-      if (result.success && result.data) {
-        const formattedEntries: DailyEntry[] = result.data.map(entry => ({
+      if (result && result.length > 0) {
+        const formattedEntries: DailyEntry[] = result.map(entry => ({
           id: entry.id || entry.id?.toString(),
           userId: entry.user_id || entry.userId,
           user_id: entry.user_id || entry.userId,
-          date: entry.date_key || entry.date,
-          dateKey: entry.date_key || entry.date,
-          date_key: entry.date_key || entry.date,
-          checkIn: entry.data_content?.checkIn || {
+          date: entry.date || entry.date_key,
+          dateKey: entry.date || entry.date_key,
+          date_key: entry.date || entry.date_key,
+          checkIn: {
             emotions: [],
             feeling: ''
           },
-          gratitude: entry.data_content?.gratitude || [],
-          soap: entry.data_content?.soap || {
-            scripture: '',
-            observation: '',
-            application: '',
-            prayer: ''
+          gratitude: Array.isArray(entry.gratitude) ? entry.gratitude : (entry.gratitude ? [entry.gratitude] : []),
+          soap: {
+            scripture: entry.scripture || '',
+            observation: entry.observation || '',
+            application: entry.application || '',
+            prayer: entry.prayer || ''
           },
-          goals: entry.data_content?.goals || {
+          goals: {
             daily: [],
             weekly: [],
             monthly: []
           },
-          dailyIntention: entry.data_content?.dailyIntention || '',
-          growthQuestion: entry.data_content?.growthQuestion || '',
-          leadershipRating: entry.data_content?.leadershipRating || {
+          dailyIntention: '',
+          growthQuestion: '',
+          leadershipRating: {
             wisdom: 0,
             courage: 0,
             patience: 0,
             integrity: 0
           },
-          completed: entry.data_content?.completed || false,
+          completed: false,
           createdAt: new Date(entry.created_at || entry.createdAt),
           created_at: new Date(entry.created_at || entry.createdAt),
           updatedAt: new Date(entry.updated_at || entry.updatedAt),
@@ -194,7 +194,10 @@ export const useDailyStore = create<DailyStore>((set, get) => ({
           isLoading: false 
         })
       } else {
-        throw new Error(result.error || 'Failed to load entries')
+        set({ 
+          entries: [],
+          isLoading: false 
+        })
       }
     } catch (error) {
       set({ 
@@ -218,34 +221,34 @@ export const useDailyStore = create<DailyStore>((set, get) => ({
           id: result.id || result.id?.toString(),
           userId: result.user_id || result.userId,
           user_id: result.user_id || result.userId,
-          date: result.date_key || result.date,
-          dateKey: result.date_key || result.date,
-          date_key: result.date_key || result.date,
-          checkIn: result.data_content?.checkIn || {
+          date: result.date || result.date_key,
+          dateKey: result.date || result.date_key,
+          date_key: result.date || result.date_key,
+          checkIn: {
             emotions: [],
             feeling: ''
           },
-          gratitude: result.data_content?.gratitude || [],
-          soap: result.data_content?.soap || {
+          gratitude: Array.isArray(result.gratitude) ? result.gratitude : (result.gratitude ? [result.gratitude] : []),
+          soap: {
             scripture: result.scripture || '',
             observation: result.observation || '',
             application: result.application || '',
             prayer: result.prayer || ''
           },
-          goals: result.data_content?.goals || {
+          goals: {
             daily: [],
             weekly: [],
             monthly: []
           },
-          dailyIntention: result.data_content?.dailyIntention || '',
-          growthQuestion: result.data_content?.growthQuestion || '',
-          leadershipRating: result.data_content?.leadershipRating || {
+          dailyIntention: '',
+          growthQuestion: '',
+          leadershipRating: {
             wisdom: 0,
             courage: 0,
             patience: 0,
             integrity: 0
           },
-          completed: result.data_content?.completed || false,
+          completed: false,
           createdAt: new Date(result.created_at || result.createdAt),
           created_at: new Date(result.created_at || result.createdAt),
           updatedAt: new Date(result.updated_at || result.updatedAt),

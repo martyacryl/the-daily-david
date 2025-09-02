@@ -1,13 +1,8 @@
 // Database connection configuration - using API calls instead of direct connection
-console.log('Environment check:', {
-  VITE_API_URL: import.meta.env.VITE_API_URL,
-  MODE: import.meta.env.MODE,
-  PROD: import.meta.env.PROD,
-  DEV: import.meta.env.DEV
-})
-
 const API_BASE_URL = import.meta.env.VITE_API_URL || (import.meta.env.MODE === 'production' ? '' : 'http://localhost:3001')
-console.log('API_BASE_URL:', API_BASE_URL)
+
+// Import auth store for getting tokens
+import { getAuthHeaders } from '../stores/authStore'
 
 export interface DailyEntry {
   id?: number
@@ -53,7 +48,9 @@ class DatabaseManager {
   async getDailyEntry(date: string, userId: number = 1): Promise<DailyEntry | null> {
     try {
       console.log('API: Getting daily entry for date:', date, 'user:', userId)
-      const response = await fetch(`${API_BASE_URL}/api/entries/${date}`)
+      const response = await fetch(`${API_BASE_URL}/api/entries/${date}`, {
+        headers: getAuthHeaders()
+      })
       if (!response.ok) {
         if (response.status === 404) {
           return null
@@ -92,9 +89,7 @@ class DatabaseManager {
       console.log('API: Saving daily entry:', entry)
       const response = await fetch(`${API_BASE_URL}/api/entries`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: getAuthHeaders(),
         body: JSON.stringify({
           date: entry.date,
           goals: entry.goals,
@@ -225,6 +220,44 @@ class DatabaseManager {
     } catch (error) {
       console.error('API: Error saving day data:', error)
       throw error
+    }
+  }
+
+  async getDailyEntries(userId: number = 1): Promise<DailyEntry[]> {
+    try {
+      console.log('API: Getting all daily entries for user:', userId)
+      const response = await fetch(`${API_BASE_URL}/api/entries`, {
+        headers: getAuthHeaders()
+      })
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+      const data = await response.json()
+      console.log('API: All entries result:', data.entries)
+      
+      // Transform the API response to match our interface
+      return data.entries.map((entry: any) => {
+        if (entry.data_content) {
+          const content = JSON.parse(entry.data_content)
+          return {
+            id: entry.id,
+            user_id: entry.user_id,
+            date: entry.date_key,
+            scripture: content.soap?.scripture || '',
+            observation: content.soap?.observation || '',
+            application: content.soap?.application || '',
+            prayer: content.soap?.prayer || '',
+            gratitude: content.gratitude || '',
+            goals: content.goals || '',
+            created_at: entry.created_at,
+            updated_at: entry.updated_at
+          }
+        }
+        return null
+      }).filter(Boolean)
+    } catch (error) {
+      console.error('API: Error getting all entries:', error)
+      return []
     }
   }
 
