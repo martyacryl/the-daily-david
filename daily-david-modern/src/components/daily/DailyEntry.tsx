@@ -143,23 +143,13 @@ export function DailyEntry() {
           console.log('Setting goals from entry:', entryData.goals)
           setUserGoals(entryData.goals)
         } else {
-          // Set default goals if no goals in entry
-          console.log('No goals in entry, setting default goals')
-          const defaultGoals: UserGoals = {
-            daily: [
-              { id: '1', text: 'Read today\'s scripture', completed: false, priority: 'high', category: 'spiritual' },
-              { id: '2', text: 'Pray for family', completed: false, priority: 'medium', category: 'spiritual' }
-            ],
-            weekly: [
-              { id: '3', text: 'Attend Bible study', completed: false, priority: 'high', category: 'spiritual' },
-              { id: '4', text: 'Call a friend', completed: false, priority: 'medium', category: 'personal' }
-            ],
-            monthly: [
-              { id: '5', text: 'Read through Psalms', completed: false, priority: 'high', category: 'spiritual' },
-              { id: '6', text: 'Volunteer at church', completed: false, priority: 'medium', category: 'outreach' }
-            ]
-          }
-          setUserGoals(defaultGoals)
+          // Start with empty goals if no goals in entry
+          console.log('No goals in entry, starting with empty goals')
+          setUserGoals({
+            daily: [],
+            weekly: [],
+            monthly: []
+          })
         }
       } else {
         console.log('No entry found for date:', dateString)
@@ -173,22 +163,12 @@ export function DailyEntry() {
           leadershipRating: { wisdom: 5, courage: 5, patience: 5, integrity: 5 }
         })
         
-        // Set default goals for new entries
-        const defaultGoals: UserGoals = {
-          daily: [
-            { id: '1', text: 'Read today\'s scripture', completed: false, priority: 'high', category: 'spiritual' },
-            { id: '2', text: 'Pray for family', completed: false, priority: 'medium', category: 'spiritual' }
-          ],
-          weekly: [
-            { id: '3', text: 'Attend Bible study', completed: false, priority: 'high', category: 'spiritual' },
-            { id: '4', text: 'Call a friend', completed: false, priority: 'medium', category: 'personal' }
-          ],
-          monthly: [
-            { id: '5', text: 'Read through Psalms', completed: false, priority: 'high', category: 'spiritual' },
-            { id: '6', text: 'Volunteer at church', completed: false, priority: 'medium', category: 'outreach' }
-          ]
-        }
-        setUserGoals(defaultGoals)
+        // Start with empty goals for new entries
+        setUserGoals({
+          daily: [],
+          weekly: [],
+          monthly: []
+        })
       }
     } catch (error) {
       console.error('Error loading entry:', error)
@@ -249,6 +229,8 @@ export function DailyEntry() {
         ...dayData,
         goals: userGoals
       }
+      
+      console.log('Saving entry with goals:', userGoals)
       
       if (currentEntry && currentEntry.id) {
         // Update existing entry
