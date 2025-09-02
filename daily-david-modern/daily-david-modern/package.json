@@ -3,6 +3,7 @@
   "private": true,
   "version": "2.0.0",
   "type": "module",
+  "comment": "FORCE VERCEL REBUILD - $(date)",
   "scripts": {
     "dev": "vite --port 3002",
     "build": "vite build",
