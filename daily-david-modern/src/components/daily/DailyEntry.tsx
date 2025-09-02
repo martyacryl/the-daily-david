@@ -112,6 +112,13 @@ export function DailyEntry() {
             setSelectedDate(parsedDate)
           }
         }
+      } else {
+        // If no date in URL, set to today
+        const today = new Date()
+        const todayString = getLocalDateString(today)
+        console.log('No date in URL, setting to today:', todayString)
+        setSelectedDate(today)
+        setSearchParams({ date: todayString })
       }
     }
   }, [searchParams, isAuthenticated, isInitialized])
@@ -236,6 +243,7 @@ export function DailyEntry() {
     }
     const dateString = getLocalDateString(newDate)
     console.log('Navigating to date:', dateString)
+    setSelectedDate(newDate)
     setSearchParams({ date: dateString })
   }
 
@@ -243,6 +251,7 @@ export function DailyEntry() {
     const today = new Date()
     const dateString = getLocalDateString(today)
     console.log('Going to today:', dateString)
+    setSelectedDate(today)
     setSearchParams({ date: dateString })
   }
 
