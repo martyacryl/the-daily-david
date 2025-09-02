@@ -1,5 +1,5 @@
 // Database connection configuration - using API calls instead of direct connection
-const API_BASE_URL = import.meta.env.VITE_API_URL || (import.meta.env.MODE === 'production' ? '' : 'http://localhost:3001')
+const API_BASE_URL = import.meta.env.VITE_API_URL || ''
 
 // Helper function to get auth headers
 const getAuthHeaders = () => {
