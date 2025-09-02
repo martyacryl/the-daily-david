@@ -90,7 +90,7 @@ export function DailyEntry() {
       if (currentDateParam) {
         const parsedDate = new Date(currentDateParam)
         if (!isNaN(parsedDate.getTime())) {
-          console.log('Loading data for URL date:', currentDateParam)
+          console.log('URL effect: Loading data for URL date:', currentDateParam, 'parsed date:', parsedDate.toDateString())
           setSelectedDate(parsedDate)
           loadEntryForDate(parsedDate)
         }
@@ -195,20 +195,21 @@ export function DailyEntry() {
 
   const navigateToDate = (direction: 'prev' | 'next') => {
     const newDate = new Date(selectedDate)
+    console.log('Current selectedDate:', selectedDate.toDateString(), 'direction:', direction)
     if (direction === 'prev') {
       newDate.setDate(newDate.getDate() - 1)
     } else {
       newDate.setDate(newDate.getDate() + 1)
     }
     const dateString = getLocalDateString(newDate)
-    console.log('Navigating to date:', dateString, 'direction:', direction)
+    console.log('Navigating to date:', dateString, 'new date object:', newDate.toDateString())
     setSearchParams({ date: dateString })
   }
 
   const goToToday = () => {
     const today = new Date()
     const dateString = getLocalDateString(today)
-    console.log('Going to today:', dateString)
+    console.log('Going to today:', dateString, 'actual date:', today.toDateString())
     setSearchParams({ date: dateString })
   }
 
