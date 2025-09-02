@@ -167,6 +167,33 @@ app.post('/api/auth/logout', (req, res) => {
   res.json({ success: true, message: 'Logged out successfully' })
 })
 
+// Admin routes
+app.get('/api/admin/users', authenticateToken, async (req, res) => {
+  try {
+    // Check if user is admin
+    if (!req.user.isAdmin) {
+      return res.status(403).json({ success: false, error: 'Admin access required' })
+    }
+
+    const client = await pool.connect()
+    
+    try {
+      const result = await client.query(
+        `SELECT id, email, display_name, is_admin, created_at 
+         FROM users 
+         ORDER BY created_at DESC`
+      )
+      
+      res.json({ success: true, users: result.rows })
+    } finally {
+      client.release()
+    }
+  } catch (error) {
+    console.error('Get users error:', error)
+    res.status(500).json({ success: false, error: 'Failed to get users' })
+  }
+})
+
 // Daily entries routes
 app.post('/api/entries', authenticateToken, async (req, res) => {
   try {

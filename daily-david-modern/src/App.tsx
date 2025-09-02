@@ -8,6 +8,7 @@ import { AdminPanel } from './components/admin/AdminPanel'
 import { ProgressAnalytics } from './components/dashboard/ProgressAnalytics'
 import { LoginForm } from './components/auth/LoginForm'
 import { useAuthStore } from './stores/authStore'
+import { dbManager } from './lib/database'
 import './App.css'
 
 function App() {
@@ -24,7 +25,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Dashboard />} />
             <Route path="/daily" element={<DailyEntry />} />
-            <Route path="/admin" element={<AdminPanel dbManager={null as any} />} />
+            <Route path="/admin" element={<AdminPanel dbManager={dbManager} />} />
             <Route path="/analytics" element={<ProgressAnalytics />} />
             <Route path="/login" element={<LoginForm />} />
           </Routes>

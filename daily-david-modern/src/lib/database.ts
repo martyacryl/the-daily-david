@@ -328,9 +328,25 @@ class DatabaseManager {
     }
   }
 
-  async getAllUsers(): Promise<any[]> {
-    // This would need to be implemented in the backend
-    return []
+  async getAllUsers(): Promise<{ success: boolean; data?: any[]; error?: string }> {
+    try {
+      console.log('API: Getting all users')
+      const response = await fetch(`${API_BASE_URL}/api/admin/users`, {
+        headers: getAuthHeaders()
+      })
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+      
+      const data = await response.json()
+      console.log('API: All users result:', data.users)
+      
+      return { success: true, data: data.users || [] }
+    } catch (error) {
+      console.error('API: Error getting all users:', error)
+      return { success: false, error: error instanceof Error ? error.message : 'Failed to get users' }
+    }
   }
 
   async createUser(userData: any): Promise<{ success: boolean; data?: any; error?: string }> {
