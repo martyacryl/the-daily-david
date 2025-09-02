@@ -5,8 +5,13 @@ const getApiUrl = () => {
     return 'http://localhost:3003'
   }
   
-  // For production, use Vercel environment variables
-  return process.env.VITE_API_URL || 'https://your-backend-domain.com'
+  // For production/Vercel, use the current domain
+  if (typeof window !== 'undefined') {
+    return window.location.origin
+  }
+  
+  // Fallback for SSR
+  return 'https://thedailydavid.vercel.app'
 }
 
 export const API_BASE_URL = getApiUrl()
