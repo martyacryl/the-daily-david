@@ -1,7 +1,23 @@
 {
   "version": 2,
-  "rootDirectory": "daily-david-modern",
-  "buildCommand": "npm run build",
-  "outputDirectory": "dist",
-  "installCommand": "npm install"
+  "builds": [
+    {
+      "src": "daily-david-modern/server/index.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "daily-david-modern/package.json",
+      "use": "@vercel/static-build"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/server/index.js"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
+  ]
 }
