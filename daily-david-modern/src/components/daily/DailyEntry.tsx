@@ -13,6 +13,14 @@ import { Button } from '../ui/Button'
 import { Textarea } from '../ui/Textarea'
 import { Goal, GoalsByType, CheckInData, SOAPData, LeadershipRating, EmotionType } from '../../types'
 
+// Helper function to get local date string (YYYY-MM-DD)
+function getLocalDateString(date: Date): string {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
 interface UserGoals {
   daily: Goal[]
   weekly: Goal[]
@@ -113,7 +121,8 @@ export function DailyEntry() {
   // Update URL when date changes (only after initialization to prevent conflicts)
   useEffect(() => {
     if (isInitialized) {
-      const dateString = selectedDate.toISOString().split('T')[0]
+      const dateString = getLocalDateString(selectedDate)
+      
       const currentDateParam = searchParams.get('date')
       
       // Only update URL if the date is different from what's in the URL
@@ -127,7 +136,7 @@ export function DailyEntry() {
 
 
   const loadEntryForDate = async (date: Date) => {
-    const dateString = date.toISOString().split('T')[0]
+    const dateString = getLocalDateString(date)
     
     // Prevent multiple concurrent loads for the same date
     if (loadingDate === dateString) {
@@ -261,7 +270,7 @@ export function DailyEntry() {
   const handleSubmit = async () => {
     setIsSaving(true)
     try {
-      const dateString = selectedDate.toISOString().split('T')[0]
+      const dateString = getLocalDateString(selectedDate)
       
       // Include goals in the submission
       const entryData = {

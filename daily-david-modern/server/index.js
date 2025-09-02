@@ -23,6 +23,14 @@ const pool = new Pool({
 // JWT secret
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production'
 
+// Helper function to get local date string (YYYY-MM-DD)
+function getLocalDateString(date = new Date()) {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
 // Simple middleware to verify JWT token
 const authenticateToken = async (req, res, next) => {
   const authHeader = req.headers['authorization']
@@ -213,7 +221,7 @@ app.post('/api/entries', authenticateToken, async (req, res) => {
   try {
     const { date, goals, gratitude, soap, dailyIntention, growthQuestion, leadershipRating } = req.body
     const userId = req.user.userId
-    const dateKey = date || new Date().toISOString().split('T')[0]
+    const dateKey = date || getLocalDateString()
 
     const client = await pool.connect()
     
