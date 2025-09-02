@@ -220,7 +220,7 @@ export function DailyEntry() {
   }
 
   const handleSubmit = async () => {
-    console.log('handleSubmit called')
+    console.log('🔥 handleSubmit called')
     setIsSaving(true)
     try {
       const dateString = getLocalDateString(selectedDate)
@@ -231,8 +231,8 @@ export function DailyEntry() {
         goals: userGoals
       }
       
-      console.log('Saving entry with goals:', userGoals)
-      console.log('Full entry data:', entryData)
+      console.log('🔥 Saving entry with goals:', userGoals)
+      console.log('🔥 Full entry data:', entryData)
       
       if (currentEntry && currentEntry.id) {
         // Update existing entry
@@ -288,7 +288,7 @@ export function DailyEntry() {
   }
 
   const addGoal = (type: keyof UserGoals) => {
-    console.log('Adding goal to type:', type)
+    console.log('🔥 Adding goal to type:', type)
     const newGoal: Goal = {
       id: Date.now().toString(),
       text: 'New goal',
@@ -302,7 +302,7 @@ export function DailyEntry() {
         ...prev,
         [type]: [...prev[type], newGoal]
       }
-      console.log('Updated goals:', updated)
+      console.log('🔥 Updated goals:', updated)
       return updated
     })
   }
