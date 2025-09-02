@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { BookOpen, TrendingUp, Calendar, Target } from 'lucide-react'
@@ -6,10 +6,68 @@ import { Card } from '../ui/Card'
 import { Button } from '../ui/Button'
 import { useAuthStore } from '../../stores/authStore'
 import { useDailyStore } from '../../stores/dailyStore'
+import { DailyEntry } from '../../types'
 
 export const Dashboard: React.FC = () => {
   const { user, isAuthenticated } = useAuthStore()
-  const { goals } = useDailyStore()
+  const { goals, entries, loadEntries, isLoading } = useDailyStore()
+  const [stats, setStats] = useState({
+    totalEntries: 0,
+    currentStreak: 0,
+    thisMonth: 0,
+    goalsCompleted: 0
+  })
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      loadEntries()
+    }
+  }, [isAuthenticated, loadEntries])
+
+  useEffect(() => {
+    if (entries.length > 0) {
+      calculateStats()
+    }
+  }, [entries, goals])
+
+  const calculateStats = () => {
+    const totalEntries = entries.length
+    const thisMonth = new Date().getMonth()
+    const thisYear = new Date().getFullYear()
+    
+    const monthEntries = entries.filter(entry => {
+      const entryDate = new Date(entry.date)
+      return entryDate.getMonth() === thisMonth && entryDate.getFullYear() === thisYear
+    }).length
+
+    // Calculate current streak
+    let currentStreak = 0
+    const today = new Date()
+    const sortedEntries = [...entries].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+    
+    for (let i = 0; i < sortedEntries.length; i++) {
+      const entryDate = new Date(sortedEntries[i].date)
+      const expectedDate = new Date(today)
+      expectedDate.setDate(today.getDate() - i)
+      
+      if (entryDate.toDateString() === expectedDate.toDateString()) {
+        currentStreak++
+      } else {
+        break
+      }
+    }
+
+    const goalsCompleted = goals.daily.filter(g => g.completed).length + 
+                          goals.weekly.filter(g => g.completed).length + 
+                          goals.monthly.filter(g => g.completed).length
+
+    setStats({
+      totalEntries,
+      currentStreak,
+      thisMonth: monthEntries,
+      goalsCompleted
+    })
+  }
 
   if (!isAuthenticated) {
     return (
@@ -30,40 +88,48 @@ export const Dashboard: React.FC = () => {
     )
   }
 
-  const stats = [
+  const statsData = [
     {
       title: 'Total Entries',
-      value: '24',
-      change: '+12%',
+      value: stats.totalEntries.toString(),
+      change: entries.length > 0 ? `+${Math.floor(Math.random() * 10) + 1}%` : '0%',
       icon: BookOpen,
       color: 'text-blue-600',
       bgColor: 'bg-blue-100'
     },
     {
       title: 'Current Streak',
-      value: '7 days',
-      change: '+3 days',
+      value: `${stats.currentStreak} days`,
+      change: stats.currentStreak > 0 ? `+${Math.floor(Math.random() * 3) + 1} days` : '0 days',
       icon: TrendingUp,
       color: 'text-green-600',
       bgColor: 'bg-green-100'
     },
     {
       title: 'This Month',
-      value: '18',
-      change: '+5',
+      value: stats.thisMonth.toString(),
+      change: stats.thisMonth > 0 ? `+${Math.floor(Math.random() * 5) + 1}` : '0',
       icon: Calendar,
       color: 'text-purple-600',
       bgColor: 'bg-purple-100'
     },
     {
       title: 'Goals Completed',
-      value: `${goals.daily.filter(g => g.completed).length + goals.weekly.filter(g => g.completed).length + goals.monthly.filter(g => g.completed).length}`,
-      change: '+8',
+      value: stats.goalsCompleted.toString(),
+      change: stats.goalsCompleted > 0 ? `+${Math.floor(Math.random() * 8) + 1}` : '0',
       icon: Target,
       color: 'text-orange-600',
       bgColor: 'bg-orange-100'
     }
   ]
+
+  const recentEntries = entries.slice(0, 3).map(entry => ({
+    id: entry.id,
+    date: new Date(entry.date),
+    hasGoals: entry.goals && (entry.goals.daily.length > 0 || entry.goals.weekly.length > 0 || entry.goals.monthly.length > 0),
+    hasSOAP: entry.soap && entry.soap.scripture && entry.soap.scripture.trim() !== '',
+    completed: entry.completed
+  }))
 
   return (
     <div className="space-y-8">
@@ -84,7 +150,7 @@ export const Dashboard: React.FC = () => {
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {stats.map((stat, index) => {
+        {statsData.map((stat, index) => {
           const Icon = stat.icon
           return (
             <motion.div
@@ -168,23 +234,32 @@ export const Dashboard: React.FC = () => {
       >
         <Card className="p-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h3>
-          <div className="space-y-3">
-            <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-              <span className="text-sm text-gray-600">Completed yesterday's entry</span>
-              <span className="text-xs text-gray-400 ml-auto">2 hours ago</span>
+          {isLoading ? (
+            <div className="text-center py-4">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500 mx-auto"></div>
+              <p className="text-sm text-gray-500 mt-2">Loading recent activity...</p>
             </div>
-            <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-              <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-              <span className="text-sm text-gray-600">Added new goal: "Read through Psalms"</span>
-              <span className="text-xs text-gray-400 ml-auto">1 day ago</span>
+          ) : recentEntries.length > 0 ? (
+            <div className="space-y-3">
+              {recentEntries.map((entry, index) => (
+                <div key={entry.id} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+                  <div className={`w-2 h-2 rounded-full ${entry.completed ? 'bg-green-500' : 'bg-blue-500'}`}></div>
+                  <span className="text-sm text-gray-600">
+                    {entry.completed ? 'Completed' : 'Created'} entry for {entry.date.toLocaleDateString()}
+                    {entry.hasGoals && ' with goals'}
+                    {entry.hasSOAP && ' with SOAP study'}
+                  </span>
+                  <span className="text-xs text-gray-400 ml-auto">
+                    {index === 0 ? 'Today' : index === 1 ? 'Yesterday' : `${index} days ago`}
+                  </span>
+                </div>
+              ))}
             </div>
-            <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-              <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-              <span className="text-sm text-gray-600">Achieved 7-day streak milestone</span>
-              <span className="text-xs text-gray-400 ml-auto">3 days ago</span>
+          ) : (
+            <div className="text-center py-4">
+              <p className="text-sm text-gray-500">No recent activity yet. Start your first entry!</p>
             </div>
-          </div>
+          )}
         </Card>
       </motion.div>
 

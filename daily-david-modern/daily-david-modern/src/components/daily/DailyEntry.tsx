@@ -11,10 +11,27 @@ import { GratitudeSection } from './GraditudeSection'
 import { SOAPSection } from './SOAPSection'
 import { Button } from '../ui/Button'
 import { Textarea } from '../ui/Textarea'
+import { Goal, GoalsByType, CheckInData, SOAPData, LeadershipRating, EmotionType } from '../../types'
+
+interface UserGoals {
+  daily: Goal[]
+  weekly: Goal[]
+  monthly: Goal[]
+}
 
 export function DailyEntry() {
-  const { isAuthenticated } = useAuthStore()
-  const { goals, updateGoals } = useDailyStore()
+  const { isAuthenticated, user } = useAuthStore()
+  const { 
+    goals, 
+    updateGoals, 
+    setCurrentEntry, 
+    currentEntry, 
+    loadEntryByDate,
+    createEntry,
+    updateEntry,
+    isLoading: storeLoading,
+    error: storeError
+  } = useDailyStore()
   const [searchParams, setSearchParams] = useSearchParams()
   
   // Get date from URL params or use today
@@ -29,7 +46,7 @@ export function DailyEntry() {
   // Local state for the day's data
   const [dayData, setDayData] = useState({
     checkIn: {
-      emotions: [],
+      emotions: [] as EmotionType[],
       feeling: ''
     },
     gratitude: ['Family', 'Health', 'Faith'],
@@ -51,6 +68,18 @@ export function DailyEntry() {
 
   const [isLoading, setIsLoading] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
+  const [userGoals, setUserGoals] = useState<UserGoals>({
+    daily: [],
+    weekly: [],
+    monthly: []
+  })
+
+  // Load user goals when component mounts
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      loadUserGoals()
+    }
+  }, [isAuthenticated, user])
 
   // Load entry for the selected date
   useEffect(() => {
@@ -59,44 +88,98 @@ export function DailyEntry() {
     }
   }, [selectedDate, isAuthenticated])
 
-  // Update URL when date changes
+  // Update URL when date changes - but only if it's a valid date
   useEffect(() => {
     const dateString = selectedDate.toISOString().split('T')[0]
-    setSearchParams({ date: dateString })
+    // Only update URL if we're not on the base route
+    if (window.location.pathname !== '/') {
+      setSearchParams({ date: dateString })
+    }
   }, [selectedDate, setSearchParams])
+
+  const loadUserGoals = async () => {
+    try {
+      // Load goals from the current entry or create default ones
+      const today = new Date()
+      const dateString = today.toISOString().split('T')[0]
+      
+      await loadEntryByDate(dateString)
+      
+      if (currentEntry && currentEntry.goals) {
+        setUserGoals(currentEntry.goals)
+      } else {
+        // Create default goals for new users
+        const defaultGoals: UserGoals = {
+          daily: [
+            { id: '1', text: 'Read today\'s scripture', completed: false, priority: 'high', category: 'spiritual' },
+            { id: '2', text: 'Pray for family', completed: false, priority: 'medium', category: 'spiritual' }
+          ],
+          weekly: [
+            { id: '3', text: 'Attend Bible study', completed: false, priority: 'high', category: 'spiritual' },
+            { id: '4', text: 'Call a friend', completed: false, priority: 'medium', category: 'personal' }
+          ],
+          monthly: [
+            { id: '5', text: 'Read through Psalms', completed: false, priority: 'high', category: 'spiritual' },
+            { id: '6', text: 'Volunteer at church', completed: false, priority: 'medium', category: 'outreach' }
+          ]
+        }
+        setUserGoals(defaultGoals)
+      }
+    } catch (error) {
+      console.error('Error loading user goals:', error)
+      // Set default goals on error
+      const defaultGoals: UserGoals = {
+        daily: [
+          { id: '1', text: 'Read today\'s scripture', completed: false, priority: 'high', category: 'spiritual' },
+          { id: '2', text: 'Pray for family', completed: false, priority: 'medium', category: 'spiritual' }
+        ],
+        weekly: [
+          { id: '3', text: 'Attend Bible study', completed: false, priority: 'high', category: 'spiritual' },
+          { id: '4', text: 'Call a friend', completed: false, priority: 'medium', category: 'personal' }
+        ],
+        monthly: [
+          { id: '5', text: 'Read through Psalms', completed: false, priority: 'high', category: 'spiritual' },
+          { id: '6', text: 'Volunteer at church', completed: false, priority: 'medium', category: 'outreach' }
+        ]
+      }
+      setUserGoals(defaultGoals)
+    }
+  }
 
   const loadEntryForDate = async (date: Date) => {
     setIsLoading(true)
     try {
       const dateString = date.toISOString().split('T')[0]
-      const token = localStorage.getItem('authToken')
       
-      const response = await fetch(`/api/entries/${dateString}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
+      await loadEntryByDate(dateString)
+      
+      if (currentEntry) {
+        // Load existing entry data
+        const entryData = currentEntry
+        setDayData(prev => ({
+          ...prev,
+          checkIn: entryData.checkIn || prev.checkIn,
+          gratitude: entryData.gratitude || prev.gratitude,
+          soap: entryData.soap || prev.soap,
+          dailyIntention: entryData.dailyIntention || prev.dailyIntention,
+          growthQuestion: entryData.growthQuestion || prev.growthQuestion,
+          leadershipRating: entryData.leadershipRating || prev.leadershipRating
+        }))
+        
+        // Update goals if they exist in the entry
+        if (entryData.goals) {
+          setUserGoals(entryData.goals)
         }
-      })
-
-      if (response.ok) {
-        const data = await response.json()
-        if (data.success && data.entry) {
-          // Load existing entry data
-          const entryData = data.entry.data_content
-          setDayData(prev => ({
-            ...prev,
-            ...entryData
-          }))
-        } else {
-          // No entry exists for this date, start fresh
-          setDayData({
-            checkIn: { emotions: [], feeling: '' },
-            gratitude: ['Family', 'Health', 'Faith'],
-            soap: { scripture: '', observation: '', application: '', prayer: '' },
-            dailyIntention: '',
-            growthQuestion: '',
-            leadershipRating: { wisdom: 5, courage: 5, patience: 5, integrity: 5 }
-          })
-        }
+      } else {
+        // No entry exists for this date, start fresh
+        setDayData({
+          checkIn: { emotions: [], feeling: '' },
+          gratitude: ['Family', 'Health', 'Faith'],
+          soap: { scripture: '', observation: '', application: '', prayer: '' },
+          dailyIntention: '',
+          growthQuestion: '',
+          leadershipRating: { wisdom: 5, courage: 5, patience: 5, integrity: 5 }
+        })
       }
     } catch (error) {
       console.error('Error loading entry:', error)
@@ -144,31 +227,41 @@ export function DailyEntry() {
   const handleSubmit = async () => {
     setIsSaving(true)
     try {
-      const token = localStorage.getItem('authToken')
       const dateString = selectedDate.toISOString().split('T')[0]
       
-      const response = await fetch('/api/entries', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          date: dateString,
-          ...dayData
-        })
-      })
-
-      if (response.ok) {
-        const data = await response.json()
-        if (data.success) {
-          alert('Daily entry saved successfully!')
-        } else {
-          alert('Failed to save entry')
-        }
-      } else {
-        alert('Failed to save entry')
+      // Include goals in the submission
+      const entryData = {
+        ...dayData,
+        goals: userGoals
       }
+      
+      if (currentEntry && currentEntry.id) {
+        // Update existing entry
+        await updateEntry(currentEntry.id, {
+          date: dateString,
+          dateKey: dateString,
+          date_key: dateString,
+          userId: user?.id || '',
+          user_id: user?.id || '',
+          ...entryData,
+          completed: true
+        })
+      } else {
+        // Create new entry
+        await createEntry({
+          date: dateString,
+          dateKey: dateString,
+          date_key: dateString,
+          userId: user?.id || '',
+          user_id: user?.id || '',
+          ...entryData,
+          completed: true,
+          created_at: new Date(),
+          updated_at: new Date()
+        })
+      }
+      
+      alert('Daily entry saved successfully!')
     } catch (error) {
       console.error('Error saving entry:', error)
       alert('Error saving entry')
@@ -177,25 +270,62 @@ export function DailyEntry() {
     }
   }
 
-  const handleGoalEdit = (type: 'daily' | 'weekly' | 'monthly', index: number, field: string, value: any) => {
-    if (!goals || !goals[type]) return
-    
-    const updatedGoals = [...goals[type]]
-    updatedGoals[index] = { ...updatedGoals[index], [field]: value }
-    updateGoals(type, updatedGoals)
+  const handleGoalEdit = (type: keyof UserGoals, index: number, field: keyof Goal, value: any) => {
+    setUserGoals(prev => {
+      const updatedGoals = [...prev[type]]
+      updatedGoals[index] = { ...updatedGoals[index], [field]: value }
+      return {
+        ...prev,
+        [type]: updatedGoals
+      }
+    })
   }
 
-  const handleGoalDelete = (type: 'daily' | 'weekly' | 'monthly', index: number) => {
-    if (!goals || !goals[type]) return
+  const handleGoalDelete = (type: keyof UserGoals, index: number) => {
+    setUserGoals(prev => ({
+      ...prev,
+      [type]: prev[type].filter((_, i) => i !== index)
+    }))
+  }
+
+  const addGoal = (type: keyof UserGoals) => {
+    const newGoal: Goal = {
+      id: Date.now().toString(),
+      text: 'New goal',
+      completed: false,
+      priority: 'medium',
+      category: 'spiritual'
+    }
     
-    const updatedGoals = goals[type].filter((_, i) => i !== index)
-    updateGoals(type, updatedGoals)
+    setUserGoals(prev => ({
+      ...prev,
+      [type]: [...prev[type], newGoal]
+    }))
   }
 
   if (!isAuthenticated) {
     return (
       <div className="text-center py-12">
         <p className="text-gray-600">Please sign in to access your daily entry.</p>
+      </div>
+    )
+  }
+
+  // Show store error if any
+  if (storeError) {
+    return (
+      <div className="text-center py-12">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-6 max-w-md mx-auto">
+          <h3 className="text-lg font-semibold text-red-800 mb-2">Error</h3>
+          <p className="text-red-600">{storeError}</p>
+          <Button 
+            onClick={() => window.location.reload()} 
+            className="mt-4"
+            variant="outline"
+          >
+            Retry
+          </Button>
+        </div>
       </div>
     )
   }
@@ -263,7 +393,7 @@ export function DailyEntry() {
         </div>
       </motion.div>
 
-      {isLoading ? (
+      {(isLoading || storeLoading) ? (
         <div className="text-center py-12">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500 mx-auto"></div>
           <p className="mt-4 text-gray-600">Loading entry...</p>
@@ -315,12 +445,21 @@ export function DailyEntry() {
             >
               {/* Daily Goals */}
               <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-200">
-                <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-                  🎯 Daily Goals
-                </h3>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+                    🎯 Daily Goals
+                  </h3>
+                  <Button
+                    onClick={() => addGoal('daily')}
+                    variant="outline"
+                    size="sm"
+                  >
+                    + Add Goal
+                  </Button>
+                </div>
                 <div className="space-y-3">
-                  {goals?.daily?.map((goal, index) => (
-                    <div key={index} className="p-4 bg-gray-50 rounded-lg space-y-3">
+                  {userGoals.daily.map((goal, index) => (
+                    <div key={goal.id} className="p-4 bg-gray-50 rounded-lg space-y-3">
                       <div className="flex items-center space-x-3">
                         <input
                           type="checkbox"
@@ -347,7 +486,7 @@ export function DailyEntry() {
                       <div className="flex items-center space-x-4">
                         <select
                           value={goal.priority}
-                          onChange={(e) => handleGoalEdit('daily', index, 'priority', e.target.value)}
+                          onChange={(e) => handleGoalEdit('daily', index, 'priority', e.target.value as Goal['priority'])}
                           className="px-3 py-1 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent"
                         >
                           <option value="low">Low</option>
@@ -356,13 +495,14 @@ export function DailyEntry() {
                         </select>
                         <select
                           value={goal.category}
-                          onChange={(e) => handleGoalEdit('daily', index, 'category', e.target.value)}
+                          onChange={(e) => handleGoalEdit('daily', index, 'category', e.target.value as Goal['category'])}
                           className="px-3 py-1 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent"
                         >
                           <option value="spiritual">Spiritual</option>
                           <option value="personal">Personal</option>
-                          <option value="professional">Professional</option>
+                          <option value="outreach">Outreach</option>
                           <option value="health">Health</option>
+                          <option value="work">Work</option>
                         </select>
                       </div>
                     </div>
@@ -372,12 +512,21 @@ export function DailyEntry() {
 
               {/* Weekly Goals */}
               <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-200">
-                <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-                  📅 Weekly Goals
-                </h3>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+                    📅 Weekly Goals
+                  </h3>
+                  <Button
+                    onClick={() => addGoal('weekly')}
+                    variant="outline"
+                    size="sm"
+                  >
+                    + Add Goal
+                  </Button>
+                </div>
                 <div className="space-y-3">
-                  {goals?.weekly?.map((goal, index) => (
-                    <div key={index} className="p-4 bg-gray-50 rounded-lg space-y-3">
+                  {userGoals.weekly.map((goal, index) => (
+                    <div key={goal.id} className="p-4 bg-gray-50 rounded-lg space-y-3">
                       <div className="flex items-center space-x-3">
                         <input
                           type="checkbox"
@@ -404,7 +553,7 @@ export function DailyEntry() {
                       <div className="flex items-center space-x-4">
                         <select
                           value={goal.priority}
-                          onChange={(e) => handleGoalEdit('weekly', index, 'priority', e.target.value)}
+                          onChange={(e) => handleGoalEdit('weekly', index, 'priority', e.target.value as Goal['priority'])}
                           className="px-3 py-1 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent"
                         >
                           <option value="low">Low</option>
@@ -413,13 +562,14 @@ export function DailyEntry() {
                         </select>
                         <select
                           value={goal.category}
-                          onChange={(e) => handleGoalEdit('weekly', index, 'category', e.target.value)}
+                          onChange={(e) => handleGoalEdit('weekly', index, 'category', e.target.value as Goal['category'])}
                           className="px-3 py-1 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent"
                         >
                           <option value="spiritual">Spiritual</option>
                           <option value="personal">Personal</option>
-                          <option value="professional">Professional</option>
+                          <option value="outreach">Outreach</option>
                           <option value="health">Health</option>
+                          <option value="work">Work</option>
                         </select>
                       </div>
                     </div>
@@ -429,12 +579,21 @@ export function DailyEntry() {
 
               {/* Monthly Goals */}
               <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-200">
-                <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-                  🗓️ Monthly Goals
-                </h3>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+                    🗓️ Monthly Goals
+                  </h3>
+                  <Button
+                    onClick={() => addGoal('monthly')}
+                    variant="outline"
+                    size="sm"
+                  >
+                    + Add Goal
+                  </Button>
+                </div>
                 <div className="space-y-3">
-                  {goals?.monthly?.map((goal, index) => (
-                    <div key={index} className="p-4 bg-gray-50 rounded-lg space-y-3">
+                  {userGoals.monthly.map((goal, index) => (
+                    <div key={goal.id} className="p-4 bg-gray-50 rounded-lg space-y-3">
                       <div className="flex items-center space-x-3">
                         <input
                           type="checkbox"
@@ -461,7 +620,7 @@ export function DailyEntry() {
                       <div className="flex items-center space-x-4">
                         <select
                           value={goal.priority}
-                          onChange={(e) => handleGoalEdit('monthly', index, 'priority', e.target.value)}
+                          onChange={(e) => handleGoalEdit('monthly', index, 'priority', e.target.value as Goal['priority'])}
                           className="px-3 py-1 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent"
                         >
                           <option value="low">Low</option>
@@ -470,13 +629,14 @@ export function DailyEntry() {
                         </select>
                         <select
                           value={goal.category}
-                          onChange={(e) => handleGoalEdit('monthly', index, 'category', e.target.value)}
+                          onChange={(e) => handleGoalEdit('monthly', index, 'category', e.target.value as Goal['category'])}
                           className="px-3 py-1 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent"
                         >
                           <option value="spiritual">Spiritual</option>
                           <option value="personal">Personal</option>
-                          <option value="professional">Professional</option>
+                          <option value="outreach">Outreach</option>
                           <option value="health">Health</option>
+                          <option value="work">Work</option>
                         </select>
                       </div>
                     </div>

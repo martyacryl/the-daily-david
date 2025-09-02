@@ -1,28 +1,48 @@
 import { create } from 'zustand'
-import { AuthState, User } from '../types'
+import { User } from '../types'
+
+interface AuthState {
+  user: User | null
+  isAuthenticated: boolean
+  isLoading: boolean
+  error: string | null
+}
 
 interface AuthStore extends AuthState {
   login: (email: string, password: string) => Promise<void>
-  logout: () => void
+  logout: () => Promise<void>
   setUser: (user: User) => void
   clearError: () => void
+  checkAuth: () => void
+  initialize: () => void
 }
 
-export const useAuthStore = create<AuthStore>((set) => ({
-  user: {
-    id: 'demo-user-123',
-    email: 'demo@dailydavid.com',
-    name: 'Demo User',
-    display_name: 'Demo User',
-    role: 'user' as const,
-    is_admin: false,
-    createdAt: new Date(),
-    created_at: new Date(),
-    lastLoginAt: new Date()
-  },
-  isAuthenticated: true,
-  isLoading: false,
-  error: null,
+// Initialize auth state from localStorage
+const initializeAuthState = (): Partial<AuthState> => {
+  try {
+    const token = localStorage.getItem('authToken')
+    const userStr = localStorage.getItem('user')
+    
+    if (token && userStr) {
+      const user = JSON.parse(userStr)
+      return { user, isAuthenticated: true, isLoading: false }
+    }
+  } catch (error) {
+    console.error('Error parsing stored user:', error)
+    localStorage.removeItem('authToken')
+    localStorage.removeItem('user')
+  }
+  
+  return { user: null, isAuthenticated: false, isLoading: false }
+}
+
+export const useAuthStore = create<AuthStore>((set, get) => {
+  const initialState = initializeAuthState()
+  return {
+    user: initialState.user || null,
+    isAuthenticated: initialState.isAuthenticated || false,
+    isLoading: initialState.isLoading || false,
+    error: null,
 
   login: async (email: string, password: string) => {
     set({ isLoading: true, error: null })
@@ -115,7 +135,16 @@ export const useAuthStore = create<AuthStore>((set) => ({
         console.error('Error parsing stored user:', error)
         localStorage.removeItem('authToken')
         localStorage.removeItem('user')
+        set({ user: null, isAuthenticated: false, isLoading: false })
       }
+    } else {
+      set({ user: null, isAuthenticated: false, isLoading: false })
     }
+  },
+
+  // Initialize auth state
+  initialize: () => {
+    get().checkAuth()
   }
-}))
+  }
+})

@@ -11,24 +11,12 @@ import { useAuthStore } from './stores/authStore'
 import './App.css'
 
 function App() {
-  const { user, isAuthenticated } = useAuthStore()
+  const { user, isAuthenticated, initialize } = useAuthStore()
 
   useEffect(() => {
-    // Check for existing authentication on app startup
-    const token = localStorage.getItem('authToken')
-    const userStr = localStorage.getItem('user')
-    
-    if (token && userStr) {
-      try {
-        const user = JSON.parse(userStr)
-        // User is already authenticated
-      } catch (error) {
-        console.error('Error parsing stored user:', error)
-        localStorage.removeItem('authToken')
-        localStorage.removeItem('user')
-      }
-    }
-  }, [])
+    // Initialize auth state from localStorage
+    initialize()
+  }, [initialize])
 
   return (
     <Router>
