@@ -318,4 +318,3 @@ export const getDatabaseManager = (): DatabaseManager => {
 export const dbManager = getDatabaseManager()
 
 export default DatabaseManager
-// FORCE REBUILD Mon Sep  1 23:09:42 MDT 2025
