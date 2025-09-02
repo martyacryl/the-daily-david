@@ -158,10 +158,7 @@ export const useDailyStore = create<DailyStore>((set, get) => ({
           date: entry.date,
           dateKey: entry.date,
           date_key: entry.date,
-          checkIn: {
-            emotions: [],
-            feeling: ''
-          },
+          checkIn: entry.checkIn || { emotions: [], feeling: '' },
           gratitude: Array.isArray(entry.gratitude) ? entry.gratitude : (entry.gratitude ? [entry.gratitude] : []),
           soap: {
             scripture: entry.scripture || '',
@@ -170,14 +167,9 @@ export const useDailyStore = create<DailyStore>((set, get) => ({
             prayer: entry.prayer || ''
           },
           goals: typeof entry.goals === 'string' ? JSON.parse(entry.goals) : (entry.goals || { daily: [], weekly: [], monthly: [] }),
-          dailyIntention: '',
-          growthQuestion: '',
-          leadershipRating: {
-            wisdom: 0,
-            courage: 0,
-            patience: 0,
-            integrity: 0
-          },
+          dailyIntention: entry.dailyIntention || '',
+          growthQuestion: entry.growthQuestion || '',
+          leadershipRating: entry.leadershipRating || { wisdom: 0, courage: 0, patience: 0, integrity: 0 },
           completed: false,
           createdAt: new Date(entry.created_at),
           created_at: new Date(entry.created_at),
@@ -220,10 +212,7 @@ export const useDailyStore = create<DailyStore>((set, get) => ({
           date: result.date,
           dateKey: result.date,
           date_key: result.date,
-          checkIn: {
-            emotions: [],
-            feeling: ''
-          },
+          checkIn: result.checkIn || { emotions: [], feeling: '' },
           gratitude: Array.isArray(result.gratitude) ? result.gratitude : (result.gratitude ? [result.gratitude] : []),
           soap: {
             scripture: result.scripture || '',
@@ -232,14 +221,9 @@ export const useDailyStore = create<DailyStore>((set, get) => ({
             prayer: result.prayer || ''
           },
           goals: typeof result.goals === 'string' ? JSON.parse(result.goals) : (result.goals || { daily: [], weekly: [], monthly: [] }),
-          dailyIntention: '',
-          growthQuestion: '',
-          leadershipRating: {
-            wisdom: 0,
-            courage: 0,
-            patience: 0,
-            integrity: 0
-          },
+          dailyIntention: result.dailyIntention || '',
+          growthQuestion: result.growthQuestion || '',
+          leadershipRating: result.leadershipRating || { wisdom: 0, courage: 0, patience: 0, integrity: 0 },
           completed: false,
           createdAt: new Date(result.created_at),
           created_at: new Date(result.created_at),
