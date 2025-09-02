@@ -318,15 +318,7 @@ export function DailyEntry() {
     )
   }
 
-  // Show loading until initialization is complete
-  if (!isInitialized) {
-    return (
-      <div className="text-center py-12">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500 mx-auto"></div>
-        <p className="mt-4 text-gray-600">Initializing...</p>
-      </div>
-    )
-  }
+
 
   // Show store error if any
   if (storeError) {
