@@ -1,6 +1,11 @@
 import { neon } from '@neondatabase/serverless'
 
 // Database connection configuration
+console.log('Environment check:', {
+  VITE_NEON_CONNECTION_STRING: process.env.VITE_NEON_CONNECTION_STRING ? 'SET' : 'NOT SET',
+  NODE_ENV: process.env.NODE_ENV
+})
+
 const sql = neon(process.env.VITE_NEON_CONNECTION_STRING!)
 
 export interface DailyEntry {
