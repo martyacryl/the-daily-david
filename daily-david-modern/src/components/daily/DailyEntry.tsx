@@ -56,8 +56,7 @@ export function DailyEntry() {
     console.log('Initializing selectedDate with today')
     return new Date()
   })
-  const [isInitialized, setIsInitialized] = useState(false)
-  const loadingRef = useRef<string | null>(null)
+
 
   // Local state for the day's data
   const [dayData, setDayData] = useState({
@@ -84,33 +83,15 @@ export function DailyEntry() {
 
   const [isLoading, setIsLoading] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
-  const [loadingDate, setLoadingDate] = useState<string | null>(null)
   const [userGoals, setUserGoals] = useState<UserGoals>({
     daily: [],
     weekly: [],
     monthly: []
   })
 
-  // Simple: Sync selectedDate with URL
-  useEffect(() => {
-    const currentDateParam = searchParams.get('date')
-    if (currentDateParam) {
-      const parsedDate = new Date(currentDateParam)
-      if (!isNaN(parsedDate.getTime())) {
-        const currentDateString = getLocalDateString(selectedDate)
-        if (currentDateString !== currentDateParam) {
-          console.log('Syncing selectedDate with URL:', currentDateString, '->', currentDateParam)
-          setSelectedDate(parsedDate)
-        }
-      }
-    }
-  }, [searchParams])
-
-  // Simple: Load data when selectedDate changes
+  // Simple: Load data when component mounts or selectedDate changes
   useEffect(() => {
     if (isAuthenticated) {
-      const dateString = getLocalDateString(selectedDate)
-      console.log('useEffect triggered - Loading entry for date:', dateString)
       loadEntryForDate(selectedDate)
     }
   }, [selectedDate, isAuthenticated])
@@ -129,16 +110,6 @@ export function DailyEntry() {
 
   const loadEntryForDate = async (date: Date) => {
     const dateString = getLocalDateString(date)
-    
-    // Prevent multiple concurrent loads for the same date
-    if (loadingRef.current === dateString) {
-      console.log('Already loading entry for date:', dateString)
-      return
-    }
-    
-    console.log('Starting load for date:', dateString, 'current loadingRef:', loadingRef.current)
-    loadingRef.current = dateString
-    setLoadingDate(dateString)
     setIsLoading(true)
     
     try {
@@ -215,10 +186,7 @@ export function DailyEntry() {
     } catch (error) {
       console.error('Error loading entry:', error)
     } finally {
-      console.log('Clearing loading state for date:', dateString)
-      loadingRef.current = null
       setIsLoading(false)
-      setLoadingDate(null)
     }
   }
 
