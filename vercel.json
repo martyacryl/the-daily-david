@@ -1,8 +1,5 @@
 {
   "version": 2,
-  "buildCommand": "cd daily-david-modern && npm run build",
-  "outputDirectory": "daily-david-modern/dist",
-  "installCommand": "cd daily-david-modern && npm install",
   "builds": [
     {
       "src": "daily-david-modern/server/index.js",
@@ -10,10 +7,7 @@
     },
     {
       "src": "daily-david-modern/package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "dist"
-      }
+      "use": "@vercel/static-build"
     }
   ],
   "routes": [
@@ -22,16 +16,8 @@
       "dest": "/server/index.js"
     },
     {
-      "src": "/assets/(.*)",
-      "dest": "/dist/assets/$1"
-    },
-    {
-      "src": "/(.*\\.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot))",
-      "dest": "/dist/$1"
-    },
-    {
       "src": "/(.*)",
-      "dest": "/dist/index.html"
+      "dest": "/index.html"
     }
   ]
 }
