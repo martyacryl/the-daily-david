@@ -1,5 +1,13 @@
 // Database connection configuration - using API calls instead of direct connection
-const API_BASE_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '' : 'http://localhost:3001')
+console.log('Environment check:', {
+  VITE_API_URL: import.meta.env.VITE_API_URL,
+  MODE: import.meta.env.MODE,
+  PROD: import.meta.env.PROD,
+  DEV: import.meta.env.DEV
+})
+
+const API_BASE_URL = import.meta.env.VITE_API_URL || (import.meta.env.MODE === 'production' ? '' : 'http://localhost:3001')
+console.log('API_BASE_URL:', API_BASE_URL)
 
 export interface DailyEntry {
   id?: number
