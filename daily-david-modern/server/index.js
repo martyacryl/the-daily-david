@@ -54,6 +54,43 @@ app.get('/api/health', async (req, res) => {
   }
 })
 
+// Debug endpoint to see database structure
+app.get('/api/debug/tables', async (req, res) => {
+  try {
+    const client = await pool.connect()
+    
+    try {
+      // Get table info
+      const tablesResult = await client.query(`
+        SELECT table_name 
+        FROM information_schema.tables 
+        WHERE table_schema = 'public' 
+        AND table_name LIKE '%daily%'
+        ORDER BY table_name
+      `)
+      
+      // Get sample data from daily_david_entries
+      const sampleResult = await client.query(`
+        SELECT user_id, date_key, created_at 
+        FROM daily_david_entries 
+        ORDER BY created_at DESC 
+        LIMIT 5
+      `)
+      
+      res.json({ 
+        success: true, 
+        tables: tablesResult.rows,
+        sample_entries: sampleResult.rows
+      })
+    } finally {
+      client.release()
+    }
+  } catch (error) {
+    console.error('Debug error:', error)
+    res.status(500).json({ success: false, error: error.message })
+  }
+})
+
 // Simple login endpoint
 app.post('/api/auth/login', async (req, res) => {
   try {
