@@ -136,9 +136,8 @@ export function DailyEntry() {
   // Listen for auto-save triggers from child components
   useEffect(() => {
     const handleAutoSave = async () => {
-      console.log('Auto-save triggered from child component')
       if (currentEntry && currentEntry.id) {
-        // Silent save without UI updates
+        // Direct API call - no state updates, no UI changes
         try {
           const dateString = getLocalDateString(selectedDate)
           const entryData = {
@@ -146,16 +145,28 @@ export function DailyEntry() {
             goals: userGoals
           }
           
-          await updateEntry(currentEntry.id, {
-            date: dateString,
-            dateKey: dateString,
-            date_key: dateString,
-            userId: user?.id || '',
-            user_id: user?.id || '',
-            ...entryData,
-            completed: true
+          // Call the API directly without going through the store
+          const response = await fetch('https://thedailydavid.vercel.app/api/entries', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${localStorage.getItem('token')}`
+            },
+            body: JSON.stringify({
+              date: dateString,
+              goals: entryData.goals,
+              gratitude: entryData.gratitude,
+              soap: entryData.soap,
+              dailyIntention: entryData.dailyIntention,
+              growthQuestion: entryData.growthQuestion,
+              leadershipRating: entryData.leadershipRating,
+              checkIn: entryData.checkIn
+            })
           })
-          console.log('Auto-save completed silently')
+          
+          if (response.ok) {
+            console.log('Auto-save completed silently')
+          }
         } catch (error) {
           console.error('Auto-save error:', error)
         }
@@ -164,7 +175,7 @@ export function DailyEntry() {
 
     window.addEventListener('triggerSave', handleAutoSave)
     return () => window.removeEventListener('triggerSave', handleAutoSave)
-  }, [currentEntry, dayData, userGoals, selectedDate, user, updateEntry])
+  }, [currentEntry, dayData, userGoals, selectedDate])
 
 
 
