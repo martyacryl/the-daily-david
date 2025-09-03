@@ -89,7 +89,7 @@ class BibleService {
         return {
           id: data.data.id,
           reference: data.data.reference,
-          content: data.data.content,
+          content: this.cleanHtmlContent(data.data.content),
           copyright: data.data.copyright || 'Bible'
         };
       } else {
@@ -119,7 +119,7 @@ class BibleService {
         return data.data?.verses?.map((verse: any) => ({
           id: verse.id,
           reference: verse.reference,
-          content: verse.content,
+          content: this.cleanHtmlContent(verse.content),
           copyright: verse.copyright || 'Bible'
         })) || [];
       } else {
@@ -288,6 +288,30 @@ class BibleService {
   // Generate YouVersion deep link
   generateYouVersionLink(verseId: string): string {
     return `youversion://bible?reference=${verseId}`;
+  }
+
+  // Clean HTML content from API.Bible response
+  private cleanHtmlContent(htmlContent: string): string {
+    if (!htmlContent) return '';
+    
+    // Remove HTML tags and clean up the content
+    let cleaned = htmlContent
+      // Remove all HTML tags
+      .replace(/<[^>]*>/g, '')
+      // Clean up verse numbers and formatting
+      .replace(/\d+\s*/g, '')
+      // Add spaces between sentences/verses
+      .replace(/\.([A-Z])/g, '. $1')
+      // Remove extra whitespace and normalize
+      .replace(/\s+/g, ' ')
+      .trim();
+    
+    // If the content is too short or empty, return the original
+    if (cleaned.length < 10) {
+      return htmlContent.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
+    }
+    
+    return cleaned;
   }
 }
 
