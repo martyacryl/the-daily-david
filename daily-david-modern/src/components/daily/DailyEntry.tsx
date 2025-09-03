@@ -133,6 +133,19 @@ export function DailyEntry() {
     }
   }, [currentEntry])
 
+  // Listen for auto-save triggers from child components
+  useEffect(() => {
+    const handleAutoSave = () => {
+      console.log('Auto-save triggered from child component')
+      if (currentEntry && currentEntry.id) {
+        handleSubmit()
+      }
+    }
+
+    window.addEventListener('triggerSave', handleAutoSave)
+    return () => window.removeEventListener('triggerSave', handleAutoSave)
+  }, [currentEntry])
+
 
 
 

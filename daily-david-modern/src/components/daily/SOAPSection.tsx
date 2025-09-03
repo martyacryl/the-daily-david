@@ -32,6 +32,10 @@ export function SOAPSection({ soap, onUpdate }: SOAPSectionProps) {
     // Only update if there's actually a change
     if (localSOAP[field] !== soap[field]) {
       onUpdate(localSOAP)
+      // Trigger auto-save by calling the parent's save function
+      // We need to access the save function from the parent component
+      // For now, we'll use a custom event to trigger save
+      window.dispatchEvent(new CustomEvent('triggerSave'))
     }
   }
 
