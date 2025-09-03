@@ -79,6 +79,7 @@ export function DailyEntry() {
 
   const [isLoading, setIsLoading] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
+  const [isAutoSaving, setIsAutoSaving] = useState(false)
   const [userGoals, setUserGoals] = useState<UserGoals>({
     daily: [],
     weekly: [],
@@ -111,7 +112,7 @@ export function DailyEntry() {
   // Debug: Monitor when currentEntry changes
   useEffect(() => {
     console.log('Current entry changed:', currentEntry)
-    if (currentEntry) {
+    if (currentEntry && !isAutoSaving) {
       console.log('Entry data content:', currentEntry)
       
       // Update UI with loaded data
@@ -131,13 +132,13 @@ export function DailyEntry() {
         setUserGoals(currentEntry.goals)
       }
     }
-  }, [currentEntry])
+  }, [currentEntry, isAutoSaving])
 
   // Listen for auto-save triggers from child components
   useEffect(() => {
     const handleAutoSave = async () => {
-      if (currentEntry && currentEntry.id) {
-        // Direct API call to avoid store state updates that cause re-renders
+      if (currentEntry && currentEntry.id && !isAutoSaving) {
+        setIsAutoSaving(true)
         try {
           const dateString = getLocalDateString(selectedDate)
           const entryData = {
@@ -145,47 +146,29 @@ export function DailyEntry() {
             goals: userGoals
           }
           
-          // Get token from auth store without triggering re-renders
-          const token = useAuthStore.getState().token
-          
-          if (!token) {
-            console.error('No auth token for auto-save')
-            return
-          }
-          
-          // Direct API call - completely bypasses store
-          const response = await fetch('https://thedailydavid.vercel.app/api/entries', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify({
-              date: dateString,
-              goals: entryData.goals,
-              gratitude: entryData.gratitude,
-              soap: entryData.soap,
-              dailyIntention: entryData.dailyIntention,
-              growthQuestion: entryData.growthQuestion,
-              leadershipRating: entryData.leadershipRating,
-              checkIn: entryData.checkIn
-            })
+          // Use the store method - it handles auth properly
+          await updateEntry(currentEntry.id, {
+            date: dateString,
+            dateKey: dateString,
+            date_key: dateString,
+            userId: user?.id || '',
+            user_id: user?.id || '',
+            ...entryData,
+            completed: true
           })
           
-          if (response.ok) {
-            console.log('Auto-save completed silently - no store updates')
-          } else {
-            console.error('Auto-save failed:', response.status)
-          }
+          console.log('Auto-save completed silently')
         } catch (error) {
           console.error('Auto-save error:', error)
+        } finally {
+          setIsAutoSaving(false)
         }
       }
     }
 
     window.addEventListener('triggerSave', handleAutoSave)
     return () => window.removeEventListener('triggerSave', handleAutoSave)
-  }, [currentEntry, dayData, userGoals, selectedDate])
+  }, [currentEntry, dayData, userGoals, selectedDate, updateEntry, user, isAutoSaving])
 
 
 
