@@ -32,16 +32,24 @@ export function CheckInSection({ checkIn, onUpdate }: CheckInSectionProps) {
   }
 
   const handleEmotionBlur = () => {
+    console.log('CheckIn: Emotion blur triggered')
+    console.log('CheckIn: Local emotions:', localEmotions)
+    console.log('CheckIn: Current checkIn emotions:', checkIn.emotions)
+    
     // Only update if there's actually a change
     if (JSON.stringify(localEmotions) !== JSON.stringify(checkIn.emotions)) {
+      console.log('CheckIn: Emotions changed, updating...')
       onUpdate({
         ...checkIn,
         emotions: localEmotions
       })
       // Trigger auto-save
       setTimeout(() => {
+        console.log('CheckIn: Triggering auto-save...')
         window.dispatchEvent(new CustomEvent('triggerSave'))
       }, 100)
+    } else {
+      console.log('CheckIn: No emotion changes detected')
     }
   }
 
@@ -56,16 +64,24 @@ export function CheckInSection({ checkIn, onUpdate }: CheckInSectionProps) {
   }
 
   const handleFeelingBlur = () => {
+    console.log('CheckIn: Feeling blur triggered')
+    console.log('CheckIn: Local feeling:', localFeeling)
+    console.log('CheckIn: Current checkIn feeling:', checkIn.feeling)
+    
     // Only update if there's actually a change
     if (localFeeling !== checkIn.feeling) {
+      console.log('CheckIn: Feeling changed, updating...')
       onUpdate({
         ...checkIn,
         feeling: localFeeling
       })
       // Trigger auto-save
       setTimeout(() => {
+        console.log('CheckIn: Triggering auto-save for feeling...')
         window.dispatchEvent(new CustomEvent('triggerSave'))
       }, 100)
+    } else {
+      console.log('CheckIn: No feeling changes detected')
     }
   }
 
