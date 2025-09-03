@@ -65,10 +65,7 @@ export const BibleIntegration: React.FC<BibleIntegrationProps> = ({
     }
   };
 
-  const handleYouVersionLink = (verse: BibleVerse) => {
-    const link = bibleService.generateYouVersionLink(verse.id);
-    window.open(link, '_blank');
-  };
+
 
   return (
     <Card className="p-6">
@@ -161,13 +158,7 @@ export const BibleIntegration: React.FC<BibleIntegrationProps> = ({
                       >
                         Select for SOAP
                       </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleYouVersionLink(verse)}
-                      >
-                        Open in YouVersion
-                      </Button>
+
                     </div>
                   </div>
                   <p className="text-gray-700 italic mb-2">"{verse.content}"</p>

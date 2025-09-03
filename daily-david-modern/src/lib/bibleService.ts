@@ -358,10 +358,7 @@ class BibleService {
     };
   }
 
-  // Generate YouVersion deep link
-  generateYouVersionLink(verseId: string): string {
-    return `youversion://bible?reference=${verseId}`;
-  }
+
 
   // Clean HTML content from API.Bible response
   private cleanHtmlContent(htmlContent: string): string {
