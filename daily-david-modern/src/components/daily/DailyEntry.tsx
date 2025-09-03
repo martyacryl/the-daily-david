@@ -137,7 +137,7 @@ export function DailyEntry() {
   useEffect(() => {
     const handleAutoSave = async () => {
       if (currentEntry && currentEntry.id) {
-        // Direct API call - no state updates, no UI changes
+        // Use the store's updateEntry method which handles authentication properly
         try {
           const dateString = getLocalDateString(selectedDate)
           const entryData = {
@@ -145,28 +145,18 @@ export function DailyEntry() {
             goals: userGoals
           }
           
-          // Call the API directly without going through the store
-          const response = await fetch('https://thedailydavid.vercel.app/api/entries', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${localStorage.getItem('token')}`
-            },
-            body: JSON.stringify({
-              date: dateString,
-              goals: entryData.goals,
-              gratitude: entryData.gratitude,
-              soap: entryData.soap,
-              dailyIntention: entryData.dailyIntention,
-              growthQuestion: entryData.growthQuestion,
-              leadershipRating: entryData.leadershipRating,
-              checkIn: entryData.checkIn
-            })
+          // Use the store method instead of direct API call
+          await updateEntry(currentEntry.id, {
+            date: dateString,
+            dateKey: dateString,
+            date_key: dateString,
+            userId: user?.id || '',
+            user_id: user?.id || '',
+            ...entryData,
+            completed: true
           })
           
-          if (response.ok) {
-            console.log('Auto-save completed silently')
-          }
+          console.log('Auto-save completed silently')
         } catch (error) {
           console.error('Auto-save error:', error)
         }
@@ -175,7 +165,7 @@ export function DailyEntry() {
 
     window.addEventListener('triggerSave', handleAutoSave)
     return () => window.removeEventListener('triggerSave', handleAutoSave)
-  }, [currentEntry, dayData, userGoals, selectedDate])
+  }, [currentEntry, dayData, userGoals, selectedDate, updateEntry, user])
 
 
 
