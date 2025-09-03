@@ -20,6 +20,9 @@ export interface ReadingPlan {
   name: string;
   description: string;
   duration: number;
+  titles?: string[];
+  themes?: string[];
+  verses?: string[];
 }
 
 export interface DevotionDay {
@@ -118,25 +121,109 @@ class BibleService {
         id: 'warrior-psalms',
         name: 'Warrior Psalms',
         description: '30 days of Psalms focused on strength, courage, and leadership',
-        duration: 30
+        duration: 30,
+        titles: [
+          'The Warrior\'s Strength',
+          'Courage in Battle',
+          'Stand Strong',
+          'God Our Fortress',
+          'Divine Protection'
+        ],
+        themes: [
+          'Finding strength in God during spiritual battles',
+          'Courage to face life\'s challenges with faith',
+          'Standing firm in your convictions',
+          'Trusting God as your ultimate refuge',
+          'Resting in God\'s protection and care'
+        ],
+        verses: [
+          'PSA.18.1-PSA.18.3',
+          'PSA.27.1-PSA.27.3',
+          'PSA.31.24',
+          'PSA.46.1-PSA.46.3',
+          'PSA.91.1-PSA.91.4'
+        ]
       },
       {
         id: 'leadership-proverbs',
         name: 'Leadership Proverbs',
         description: 'Daily wisdom from Proverbs for godly leadership',
-        duration: 31
+        duration: 31,
+        titles: [
+          'Divine Planning',
+          'Iron Sharpens Iron',
+          'Vision & Leadership',
+          'Speak Up for Justice',
+          'Diligent Work'
+        ],
+        themes: [
+          'Planning your path while trusting God\'s direction',
+          'The importance of godly friendships and accountability',
+          'Leading with vision and purpose',
+          'Using your voice to defend the vulnerable',
+          'The value of hard work and diligence'
+        ],
+        verses: [
+          'PRO.16.9',
+          'PRO.27.17',
+          'PRO.29.18',
+          'PRO.31.8-PRO.31.9',
+          'PRO.14.23'
+        ]
       },
       {
         id: 'courage-joshua',
         name: 'Courage & Conquest',
         description: 'Study Joshua and Judges for lessons in courage and faith',
-        duration: 24
+        duration: 24,
+        titles: [
+          'Be Strong and Courageous',
+          'Crossing the Jordan',
+          'The Battle of Jericho',
+          'Standing Firm',
+          'Victory Through Faith'
+        ],
+        themes: [
+          'God\'s command to be strong and courageous',
+          'Trusting God to lead you through impossible situations',
+          'Following God\'s unconventional battle plans',
+          'Standing firm when others fall away',
+          'Victory comes through faith, not strength'
+        ],
+        verses: [
+          'JOS.1.9',
+          'JOS.3.15-JOS.3.17',
+          'JOS.6.20',
+          'JOS.24.15',
+          'JOS.21.45'
+        ]
       },
       {
         id: 'strength-isaiah',
         name: 'Strength in Isaiah',
         description: 'Isaiah\'s messages of strength and hope for men',
-        duration: 66
+        duration: 66,
+        titles: [
+          'Wings Like Eagles',
+          'The Lord is My Strength',
+          'Fear Not',
+          'God\'s Power',
+          'Everlasting Strength'
+        ],
+        themes: [
+          'Soaring above life\'s challenges with God\'s strength',
+          'Finding strength in the Lord when you feel weak',
+          'Overcoming fear through God\'s presence',
+          'Experiencing God\'s mighty power in your life',
+          'Drawing from God\'s inexhaustible strength'
+        ],
+        verses: [
+          'ISA.40.31',
+          'ISA.12.2',
+          'ISA.41.10',
+          'ISA.40.29',
+          'ISA.26.4'
+        ]
       }
     ];
   }
