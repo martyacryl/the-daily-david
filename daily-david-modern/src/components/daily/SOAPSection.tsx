@@ -35,7 +35,9 @@ export function SOAPSection({ soap, onUpdate }: SOAPSectionProps) {
       // Trigger auto-save by calling the parent's save function
       // We need to access the save function from the parent component
       // For now, we'll use a custom event to trigger save
-      window.dispatchEvent(new CustomEvent('triggerSave'))
+      setTimeout(() => {
+        window.dispatchEvent(new CustomEvent('triggerSave'))
+      }, 100)
     }
   }
 

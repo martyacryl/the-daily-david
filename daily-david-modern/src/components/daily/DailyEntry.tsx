@@ -79,7 +79,6 @@ export function DailyEntry() {
 
   const [isLoading, setIsLoading] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
-  const [isAutoSaving, setIsAutoSaving] = useState(false)
   const [userGoals, setUserGoals] = useState<UserGoals>({
     daily: [],
     weekly: [],
@@ -109,66 +108,66 @@ export function DailyEntry() {
     }
   }, [searchParams, isAuthenticated])
 
-  // Debug: Monitor when currentEntry changes
-  useEffect(() => {
-    console.log('Current entry changed:', currentEntry)
-    if (currentEntry && !isAutoSaving) {
-      console.log('Entry data content:', currentEntry)
+  // Ref to track current entry ID for auto-save
+  const currentEntryIdRef = useRef<string | null>(null)
+
+  // REMOVED: useEffect that watches currentEntry - this was causing re-renders
+
+  // Direct API auto-save function that bypasses the store
+  const autoSaveToAPI = async (entryData: any) => {
+    if (!user?.id || !currentEntryIdRef.current) return
+    
+    try {
+      const dateString = getLocalDateString(selectedDate)
+      const token = useAuthStore.getState().token
       
-      // Update UI with loaded data
-      setDayData(prev => ({
-        ...prev,
-        checkIn: currentEntry.checkIn || prev.checkIn,
-        gratitude: currentEntry.gratitude || prev.gratitude,
-        soap: currentEntry.soap || prev.soap,
-        dailyIntention: currentEntry.dailyIntention || prev.dailyIntention,
-        growthQuestion: currentEntry.growthQuestion || prev.growthQuestion,
-        leadershipRating: currentEntry.leadershipRating || prev.leadershipRating
-      }))
-      
-      // Update goals if they exist in the entry
-      if (currentEntry.goals) {
-        console.log('Setting goals from currentEntry:', currentEntry.goals)
-        setUserGoals(currentEntry.goals)
+      if (!token) {
+        console.error('No auth token for auto-save')
+        return
       }
+      
+      // Correct API call
+      const response = await fetch('https://thedailydavid.vercel.app/api/entries', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          date: dateString,
+          goals: entryData.goals,
+          gratitude: entryData.gratitude,
+          soap: entryData.soap,
+          dailyIntention: entryData.dailyIntention,
+          growthQuestion: entryData.growthQuestion,
+          leadershipRating: entryData.leadershipRating,
+          checkIn: entryData.checkIn
+        })
+      })
+      
+      if (!response.ok) {
+        throw new Error('Failed to auto-save')
+      }
+      
+      console.log('Auto-save completed silently via direct API')
+    } catch (error) {
+      console.error('Auto-save error:', error)
     }
-  }, [currentEntry, isAutoSaving])
+  }
 
   // Listen for auto-save triggers from child components
   useEffect(() => {
     const handleAutoSave = async () => {
-      if (currentEntry && currentEntry.id && !isAutoSaving) {
-        setIsAutoSaving(true)
-        try {
-          const dateString = getLocalDateString(selectedDate)
-          const entryData = {
-            ...dayData,
-            goals: userGoals
-          }
-          
-          // Use the store method - it handles auth properly
-          await updateEntry(currentEntry.id, {
-            date: dateString,
-            dateKey: dateString,
-            date_key: dateString,
-            userId: user?.id || '',
-            user_id: user?.id || '',
-            ...entryData,
-            completed: true
-          })
-          
-          console.log('Auto-save completed silently')
-        } catch (error) {
-          console.error('Auto-save error:', error)
-        } finally {
-          setIsAutoSaving(false)
-        }
+      const entryData = {
+        ...dayData,
+        goals: userGoals
       }
+      await autoSaveToAPI(entryData)
     }
 
     window.addEventListener('triggerSave', handleAutoSave)
     return () => window.removeEventListener('triggerSave', handleAutoSave)
-  }, [currentEntry, dayData, userGoals, selectedDate, updateEntry, user, isAutoSaving])
+  }, [dayData, userGoals, selectedDate, user])
 
 
 
@@ -187,6 +186,9 @@ export function DailyEntry() {
       
       if (entryData) {
         console.log('Found existing entry:', entryData)
+        // Store entry ID for auto-save
+        currentEntryIdRef.current = entryData.id
+        
         // Load existing entry data
         setDayData(prev => ({
           ...prev,
@@ -214,6 +216,8 @@ export function DailyEntry() {
       } else {
         console.log('No entry found for date:', dateString)
         // No entry exists for this date, start fresh
+        currentEntryIdRef.current = null
+        
         setDayData({
           checkIn: { emotions: [], feeling: '' },
           gratitude: ['Family', 'Health', 'Faith'],
@@ -340,7 +344,9 @@ export function DailyEntry() {
     })
     
     // Auto-save when goal changes
-    window.dispatchEvent(new CustomEvent('triggerSave'))
+    setTimeout(() => {
+      window.dispatchEvent(new CustomEvent('triggerSave'))
+    }, 100) // Small delay to ensure state is updated
   }
 
   const handleGoalDelete = (type: keyof UserGoals, index: number) => {
@@ -350,7 +356,9 @@ export function DailyEntry() {
     }))
     
     // Auto-save when goal is deleted
-    window.dispatchEvent(new CustomEvent('triggerSave'))
+    setTimeout(() => {
+      window.dispatchEvent(new CustomEvent('triggerSave'))
+    }, 100)
   }
 
   const addGoal = (type: keyof UserGoals) => {
@@ -373,7 +381,9 @@ export function DailyEntry() {
     })
     
     // Auto-save when goal is added
-    window.dispatchEvent(new CustomEvent('triggerSave'))
+    setTimeout(() => {
+      window.dispatchEvent(new CustomEvent('triggerSave'))
+    }, 100)
   }
 
   if (!isAuthenticated) {
@@ -508,7 +518,9 @@ export function DailyEntry() {
                 onChange={(e) => handleUpdate('dailyIntention', e.target.value)}
                 onBlur={() => {
                   // Auto-save when user finishes typing
-                  window.dispatchEvent(new CustomEvent('triggerSave'))
+                  setTimeout(() => {
+                    window.dispatchEvent(new CustomEvent('triggerSave'))
+                  }, 100)
                 }}
                 placeholder="Set your intention for today... (e.g., 'I will lead with patience and listen more than I speak')"
                 rows={3}
@@ -551,6 +563,11 @@ export function DailyEntry() {
                           type="text"
                           value={goal.text}
                           onChange={(e) => handleGoalEdit('daily', index, 'text', e.target.value)}
+                          onBlur={() => {
+                            setTimeout(() => {
+                              window.dispatchEvent(new CustomEvent('triggerSave'))
+                            }, 100)
+                          }}
                           className={`flex-1 px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent ${
                             goal.completed ? 'line-through text-gray-500 bg-gray-100' : 'text-gray-700'
                           }`}
@@ -618,6 +635,11 @@ export function DailyEntry() {
                           type="text"
                           value={goal.text}
                           onChange={(e) => handleGoalEdit('weekly', index, 'text', e.target.value)}
+                          onBlur={() => {
+                            setTimeout(() => {
+                              window.dispatchEvent(new CustomEvent('triggerSave'))
+                            }, 100)
+                          }}
                           className={`flex-1 px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent ${
                             goal.completed ? 'line-through text-gray-500 bg-gray-100' : 'text-gray-700'
                           }`}
@@ -685,6 +707,11 @@ export function DailyEntry() {
                           type="text"
                           value={goal.text}
                           onChange={(e) => handleGoalEdit('monthly', index, 'text', e.target.value)}
+                          onBlur={() => {
+                            setTimeout(() => {
+                              window.dispatchEvent(new CustomEvent('triggerSave'))
+                            }, 100)
+                          }}
                           className={`flex-1 px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent ${
                             goal.completed ? 'line-through text-gray-500 bg-gray-100' : 'text-gray-700'
                           }`}
@@ -767,7 +794,9 @@ export function DailyEntry() {
                 onChange={(e) => handleUpdate('growthQuestion', e.target.value)}
                 onBlur={() => {
                   // Auto-save when user finishes typing
-                  window.dispatchEvent(new CustomEvent('triggerSave'))
+                  setTimeout(() => {
+                    window.dispatchEvent(new CustomEvent('triggerSave'))
+                  }, 100)
                 }}
                 placeholder="Ask yourself a question that will help you grow... (e.g., 'How can I show more patience today?')"
                 rows={3}
@@ -804,7 +833,9 @@ export function DailyEntry() {
                       })}
                       onMouseUp={() => {
                         // Auto-save when user finishes adjusting slider
-                        window.dispatchEvent(new CustomEvent('triggerSave'))
+                        setTimeout(() => {
+                          window.dispatchEvent(new CustomEvent('triggerSave'))
+                        }, 100)
                       }}
                       className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
                     />

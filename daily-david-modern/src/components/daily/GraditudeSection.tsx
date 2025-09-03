@@ -23,7 +23,9 @@ export function GratitudeSection({ gratitude, onUpdate }: GratitudeSectionProps)
     if (localGratitude[index] !== gratitude[index]) {
       onUpdate(localGratitude)
       // Trigger auto-save
-      window.dispatchEvent(new CustomEvent('triggerSave'))
+      setTimeout(() => {
+        window.dispatchEvent(new CustomEvent('triggerSave'))
+      }, 100)
     }
   }
 

@@ -28,7 +28,9 @@ export function CheckInSection({ checkIn, onUpdate }: CheckInSectionProps) {
     })
     
     // Auto-save when emotion changes
-    window.dispatchEvent(new CustomEvent('triggerSave'))
+    setTimeout(() => {
+      window.dispatchEvent(new CustomEvent('triggerSave'))
+    }, 100)
   }
 
   const [localFeeling, setLocalFeeling] = useState(checkIn.feeling || '')
@@ -49,7 +51,9 @@ export function CheckInSection({ checkIn, onUpdate }: CheckInSectionProps) {
         feeling: localFeeling
       })
       // Trigger auto-save
-      window.dispatchEvent(new CustomEvent('triggerSave'))
+      setTimeout(() => {
+        window.dispatchEvent(new CustomEvent('triggerSave'))
+      }, 100)
     }
   }
 
