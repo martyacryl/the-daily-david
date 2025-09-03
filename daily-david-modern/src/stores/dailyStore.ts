@@ -265,6 +265,16 @@ export const useDailyStore = create<DailyStore>((set, get) => ({
         console.log('Store: Raw result:', result)
         console.log('Store: Available fields in result:', Object.keys(result))
         
+        // DEBUG: Check if checkIn data is in individual columns
+        console.log('Store: result.checkIn field:', result.checkIn)
+        console.log('Store: result.emotions field:', result.emotions)
+        console.log('Store: result.feeling field:', result.feeling)
+        
+        // DEBUG: Check if checkIn data is in data_content
+        console.log('Store: dataContent.checkIn:', dataContent.checkIn)
+        console.log('Store: dataContent.emotions:', dataContent.emotions)
+        console.log('Store: dataContent.feeling:', dataContent.feeling)
+        
         // Parse checkIn from individual columns if not in data_content
         let checkInData = dataContent.checkIn || result.checkIn || { emotions: [], feeling: '' }
         if (typeof checkInData === 'string') {
