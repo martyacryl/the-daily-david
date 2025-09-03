@@ -168,6 +168,9 @@ export const useDailyStore = create<DailyStore>((set, get) => ({
             parsedGoals = { daily: [], weekly: [], monthly: [] }
           }
           
+          // Extract data from data_content field (JSONB)
+          const dataContent = entry.data_content || {}
+          
           return {
             id: entry.id?.toString() || Date.now().toString(),
             userId: entry.user_id,
@@ -175,19 +178,22 @@ export const useDailyStore = create<DailyStore>((set, get) => ({
             date: entry.date,
             dateKey: entry.date,
             date_key: entry.date,
-            checkIn: entry.checkIn || { emotions: [], feeling: '' },
-            gratitude: Array.isArray(entry.gratitude) ? entry.gratitude : (entry.gratitude ? [entry.gratitude] : []),
+            checkIn: dataContent.checkIn || entry.checkIn || { emotions: [], feeling: '' },
+            gratitude: Array.isArray(dataContent.gratitude) ? dataContent.gratitude : 
+                      Array.isArray(entry.gratitude) ? entry.gratitude : 
+                      (dataContent.gratitude ? [dataContent.gratitude] : 
+                       entry.gratitude ? [entry.gratitude] : []),
             soap: {
-              scripture: entry.scripture || '',
-              observation: entry.observation || '',
-              application: entry.application || '',
-              prayer: entry.prayer || ''
+              scripture: dataContent.soap?.scripture || entry.scripture || '',
+              observation: dataContent.soap?.observation || entry.observation || '',
+              application: dataContent.soap?.application || entry.application || '',
+              prayer: dataContent.soap?.prayer || entry.prayer || ''
             },
             goals: parsedGoals,
-            dailyIntention: entry.dailyIntention || '',
-            growthQuestion: entry.growthQuestion || '',
-            leadershipRating: entry.leadershipRating || { wisdom: 0, courage: 0, patience: 0, integrity: 0 },
-            completed: false,
+            dailyIntention: dataContent.dailyIntention || entry.dailyIntention || '',
+            growthQuestion: dataContent.growthQuestion || entry.growthQuestion || '',
+            leadershipRating: dataContent.leadershipRating || entry.leadershipRating || { wisdom: 0, courage: 0, patience: 0, integrity: 0 },
+            completed: dataContent.completed || entry.completed || false,
             createdAt: new Date(entry.created_at),
             created_at: new Date(entry.created_at),
             updatedAt: new Date(entry.updated_at),
@@ -251,6 +257,10 @@ export const useDailyStore = create<DailyStore>((set, get) => ({
         
         console.log('Store: Parsed goals:', parsedGoals)
         
+        // Extract data from data_content field (JSONB)
+        const dataContent = result.data_content || {}
+        console.log('Store: Data content:', dataContent)
+        
         const formattedEntry: DailyEntry = {
           id: result.id?.toString() || Date.now().toString(),
           userId: result.user_id,
@@ -258,19 +268,22 @@ export const useDailyStore = create<DailyStore>((set, get) => ({
           date: result.date,
           dateKey: result.date,
           date_key: result.date,
-          checkIn: result.checkIn || { emotions: [], feeling: '' },
-          gratitude: Array.isArray(result.gratitude) ? result.gratitude : (result.gratitude ? [result.gratitude] : []),
+          checkIn: dataContent.checkIn || result.checkIn || { emotions: [], feeling: '' },
+          gratitude: Array.isArray(dataContent.gratitude) ? dataContent.gratitude : 
+                    Array.isArray(result.gratitude) ? result.gratitude : 
+                    (dataContent.gratitude ? [dataContent.gratitude] : 
+                     result.gratitude ? [result.gratitude] : []),
           soap: {
-            scripture: result.scripture || '',
-            observation: result.observation || '',
-            application: result.application || '',
-            prayer: result.prayer || ''
+            scripture: dataContent.soap?.scripture || result.scripture || '',
+            observation: dataContent.soap?.observation || result.observation || '',
+            application: dataContent.soap?.application || result.application || '',
+            prayer: dataContent.soap?.prayer || result.prayer || ''
           },
           goals: parsedGoals,
-          dailyIntention: result.dailyIntention || '',
-          growthQuestion: result.growthQuestion || '',
-          leadershipRating: result.leadershipRating || { wisdom: 0, courage: 0, patience: 0, integrity: 0 },
-          completed: false,
+          dailyIntention: dataContent.dailyIntention || result.dailyIntention || '',
+          growthQuestion: dataContent.growthQuestion || result.growthQuestion || '',
+          leadershipRating: dataContent.leadershipRating || result.leadershipRating || { wisdom: 0, courage: 0, patience: 0, integrity: 0 },
+          completed: dataContent.completed || result.completed || false,
           createdAt: new Date(result.created_at),
           created_at: new Date(result.created_at),
           updatedAt: new Date(result.updated_at),
