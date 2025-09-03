@@ -9,11 +9,14 @@ export const Header: React.FC = () => {
   const { user, isAuthenticated, logout } = useAuthStore()
   const location = useLocation()
 
-  const navItems = [
+  const allNavItems = [
     { path: '/', label: 'Dashboard', icon: BarChart3 },
-    { path: '/daily#goals', label: 'Daily Entry', icon: BookOpen },
-    { path: '/admin', label: 'Admin', icon: Settings }
+    { path: '/daily', label: 'Daily Entry', icon: BookOpen },
+    { path: '/admin', label: 'Admin', icon: Settings, adminOnly: true }
   ]
+
+  // Filter nav items based on user role
+  const navItems = allNavItems.filter(item => !item.adminOnly || user?.is_admin)
 
   const handleLogout = () => {
     logout()

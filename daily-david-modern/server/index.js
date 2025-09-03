@@ -322,27 +322,88 @@ app.get('/api/entries', authenticateToken, async (req, res) => {
   }
 })
 
-// Admin routes
-app.get('/api/admin/users', authenticateToken, async (req, res) => {
+// Create user endpoint
+app.post('/api/admin/users', authenticateToken, async (req, res) => {
   try {
+    // Check if user is admin
     if (!req.user.isAdmin) {
       return res.status(403).json({ success: false, error: 'Admin access required' })
+    }
+
+    const { email, password, displayName, isAdmin } = req.body
+
+    if (!email || !password || !displayName) {
+      return res.status(400).json({ success: false, error: 'Email, password, and display name are required' })
+    }
+
+    const client = await pool.connect()
+    
+    try {
+      // Check if user already exists
+      const existingUser = await client.query(
+        'SELECT id FROM users WHERE email = $1',
+        [email]
+      )
+
+      if (existingUser.rows.length > 0) {
+        return res.status(400).json({ success: false, error: 'User with this email already exists' })
+      }
+
+      // Hash password
+      const hashedPassword = await bcrypt.hash(password, 10)
+
+      // Create user
+      const result = await client.query(
+        `INSERT INTO users (email, password_hash, display_name, is_admin) 
+         VALUES ($1, $2, $3, $4) 
+         RETURNING id, email, display_name, is_admin, created_at`,
+        [email, hashedPassword, displayName, isAdmin || false]
+      )
+
+      res.json({ success: true, user: result.rows[0] })
+    } finally {
+      client.release()
+    }
+  } catch (error) {
+    console.error('Create user error:', error)
+    res.status(500).json({ success: false, error: 'Failed to create user' })
+  }
+})
+
+// Delete user endpoint
+app.delete('/api/admin/users/:id', authenticateToken, async (req, res) => {
+  try {
+    // Check if user is admin
+    if (!req.user.isAdmin) {
+      return res.status(403).json({ success: false, error: 'Admin access required' })
+    }
+
+    const { id } = req.params
+
+    // Prevent admin from deleting themselves
+    if (parseInt(id) === req.user.userId) {
+      return res.status(400).json({ success: false, error: 'Cannot delete your own account' })
     }
 
     const client = await pool.connect()
     
     try {
       const result = await client.query(
-        'SELECT id, email, display_name, is_admin, created_at FROM users ORDER BY created_at DESC'
+        'DELETE FROM users WHERE id = $1 RETURNING id, email, display_name',
+        [id]
       )
 
-      res.json({ success: true, users: result.rows })
+      if (result.rows.length === 0) {
+        return res.status(404).json({ success: false, error: 'User not found' })
+      }
+
+      res.json({ success: true, user: result.rows[0] })
     } finally {
       client.release()
     }
   } catch (error) {
-    console.error('Get users error:', error)
-    res.status(500).json({ success: false, error: 'Failed to fetch users' })
+    console.error('Delete user error:', error)
+    res.status(500).json({ success: false, error: 'Failed to delete user' })
   }
 })
 

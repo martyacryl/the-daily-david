@@ -112,6 +112,14 @@ class DatabaseManager {
       }
       
       console.log('API: Request body for save:', requestBody)
+      console.log('API: CheckIn data being saved:', {
+        checkIn: entry.checkIn,
+        checkInType: typeof entry.checkIn,
+        emotions: entry.checkIn?.emotions,
+        emotionsType: typeof entry.checkIn?.emotions,
+        emotionsIsArray: Array.isArray(entry.checkIn?.emotions),
+        feeling: entry.checkIn?.feeling
+      })
       
       const response = await fetch(`${API_BASE_URL}/api/entries`, {
         method: 'POST',
@@ -375,14 +383,51 @@ class DatabaseManager {
     }
   }
 
-  async createUser(userData: any): Promise<{ success: boolean; data?: any; error?: string }> {
-    // This would need to be implemented in the backend
-    return { success: false, error: 'Not implemented' }
+  async createUser(userData: { email: string; password: string; displayName: string; isAdmin: boolean }): Promise<{ success: boolean; data?: any; error?: string }> {
+    try {
+      console.log('API: Creating user:', userData.email)
+      const response = await fetch(`${API_BASE_URL}/api/admin/users`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(userData)
+      })
+      
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || `HTTP error! status: ${response.status}`)
+      }
+      
+      const data = await response.json()
+      console.log('API: User created:', data.user)
+      
+      return { success: true, data: data.user }
+    } catch (error) {
+      console.error('API: Error creating user:', error)
+      return { success: false, error: error instanceof Error ? error.message : 'Failed to create user' }
+    }
   }
 
-  async deleteUser(userId: number): Promise<{ success: boolean; error?: string }> {
-    // This would need to be implemented in the backend
-    return { success: false, error: 'Not implemented' }
+  async deleteUser(userId: string): Promise<{ success: boolean; data?: any; error?: string }> {
+    try {
+      console.log('API: Deleting user:', userId)
+      const response = await fetch(`${API_BASE_URL}/api/admin/users/${userId}`, {
+        method: 'DELETE',
+        headers: getAuthHeaders()
+      })
+      
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || `HTTP error! status: ${response.status}`)
+      }
+      
+      const data = await response.json()
+      console.log('API: User deleted:', data.user)
+      
+      return { success: true, data: data.user }
+    } catch (error) {
+      console.error('API: Error deleting user:', error)
+      return { success: false, error: error instanceof Error ? error.message : 'Failed to delete user' }
+    }
   }
 
   async testConnection(): Promise<boolean> {

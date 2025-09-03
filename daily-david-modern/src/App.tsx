@@ -4,7 +4,7 @@ import { useEffect } from 'react'
 import { Header } from './components/layout/Header'
 import { Dashboard } from './components/dashboard/Dashboard'
 import { DailyEntry } from './components/daily/DailyEntry'
-import { AdminPanel } from './components/admin/AdminPanel'
+import { ProtectedAdminRoute } from './components/admin/ProtectedAdminRoute'
 import { ProgressAnalytics } from './components/dashboard/ProgressAnalytics'
 import { LoginForm } from './components/auth/LoginForm'
 import { useAuthStore } from './stores/authStore'
@@ -27,7 +27,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Dashboard />} />
             <Route path="/daily" element={<DailyEntry />} />
-            <Route path="/admin" element={<AdminPanel dbManager={dbManager} />} />
+            <Route path="/admin" element={<ProtectedAdminRoute dbManager={dbManager} />} />
             <Route path="/analytics" element={<ProgressAnalytics />} />
             <Route path="/login" element={<LoginForm />} />
           </Routes>
