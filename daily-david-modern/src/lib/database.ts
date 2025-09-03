@@ -126,7 +126,9 @@ class DatabaseManager {
       
       // Transform the response back to our interface
       if (data.entry && data.entry.data_content) {
-        const content = JSON.parse(data.entry.data_content)
+        // data_content is already a JavaScript object, not a JSON string
+        const content = typeof data.entry.data_content === 'string' ? JSON.parse(data.entry.data_content) : data.entry.data_content
+        
         return {
           id: data.entry.id,
           user_id: data.entry.user_id,
