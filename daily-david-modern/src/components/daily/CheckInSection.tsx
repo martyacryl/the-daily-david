@@ -40,49 +40,14 @@ export function CheckInSection({ checkIn, onUpdate }: CheckInSectionProps) {
     console.log('CheckIn: Emotion toggled:', emotion)
     console.log('CheckIn: New emotions:', newEmotions)
     
-    // Update parent immediately with new emotions
-    const updatedCheckIn = {
-      ...checkIn,
-      emotions: newEmotions
-    }
-    
-    onUpdate(updatedCheckIn)
-    
-    // Trigger auto-save after a brief delay
-    setTimeout(() => {
-      console.log('CheckIn: Triggering auto-save for emotions...')
-      window.dispatchEvent(new CustomEvent('triggerSave'))
-    }, 100)
+    // Update parent immediately with new emotions - SIMPLIFIED APPROACH
+    onUpdate({ emotions: newEmotions, feeling: localFeeling })
   }
 
   const handleFeelingChange = (value: string) => {
     setLocalFeeling(value)
-  }
-
-  const handleFeelingBlur = () => {
-    console.log('CheckIn: Feeling blur triggered')
-    console.log('CheckIn: Local feeling:', localFeeling)
-    console.log('CheckIn: Current feeling:', checkIn.feeling)
-    
-    // Only update if there's actually a change (same pattern as GratitudeSection)
-    if (localFeeling !== checkIn.feeling) {
-      console.log('CheckIn: Feeling changed, updating...')
-      
-      const updatedCheckIn = {
-        ...checkIn,
-        feeling: localFeeling
-      }
-      
-      onUpdate(updatedCheckIn)
-      
-      // Trigger auto-save after update
-      setTimeout(() => {
-        console.log('CheckIn: Triggering auto-save for feeling...')
-        window.dispatchEvent(new CustomEvent('triggerSave'))
-      }, 100)
-    } else {
-      console.log('CheckIn: No feeling changes detected')
-    }
+    // Update parent immediately on change - SIMPLIFIED APPROACH
+    onUpdate({ emotions: localEmotions, feeling: value })
   }
 
   return (
@@ -136,7 +101,6 @@ export function CheckInSection({ checkIn, onUpdate }: CheckInSectionProps) {
         <textarea
           value={localFeeling}
           onChange={(e) => handleFeelingChange(e.target.value)}
-          onBlur={handleFeelingBlur}
           placeholder="Describe how you're feeling today..."
           className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors duration-200 resize-none"
           rows={3}

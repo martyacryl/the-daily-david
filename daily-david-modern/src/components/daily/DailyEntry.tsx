@@ -123,6 +123,16 @@ export function DailyEntry() {
         return
       }
       
+      console.log('DailyEntry: Auto-save entryData:', entryData)
+      console.log('DailyEntry: CheckIn data in entryData:', {
+        checkIn: entryData.checkIn,
+        checkInType: typeof entryData.checkIn,
+        emotions: entryData.checkIn?.emotions,
+        emotionsType: typeof entryData.checkIn?.emotions,
+        emotionsIsArray: Array.isArray(entryData.checkIn?.emotions),
+        feeling: entryData.checkIn?.feeling
+      })
+      
       // Correct API call - this will create or update the entry
       const response = await fetch('https://thedailydavid.vercel.app/api/entries', {
         method: 'POST',
@@ -286,10 +296,23 @@ export function DailyEntry() {
 
   const handleUpdate = (section: string, data: any) => {
     console.log(`Updating ${section}:`, data)
-    setDayData(prev => ({
-      ...prev,
-      [section]: data
-    }))
+    setDayData(prev => {
+      const newData = {
+        ...prev,
+        [section]: data
+      }
+      
+      // Trigger auto-save directly - SIMPLIFIED APPROACH
+      setTimeout(() => {
+        const entryData = {
+          ...newData,
+          goals: userGoals
+        }
+        autoSaveToAPI(entryData)
+      }, 100)
+      
+      return newData
+    })
   }
 
   const handleSubmit = async () => {
