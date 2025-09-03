@@ -257,12 +257,34 @@ export const useDailyStore = create<DailyStore>((set, get) => ({
         
         console.log('Store: Parsed goals:', parsedGoals)
         
-        // Extract data from data_content field (JSONB)
+        // Extract data from data_content field (JSONB) or individual columns
         const dataContent = result.data_content || {}
         console.log('Store: Data content:', dataContent)
         console.log('Store: Data content type:', typeof dataContent)
         console.log('Store: Data content keys:', Object.keys(dataContent))
         console.log('Store: Raw result:', result)
+        
+        // Parse checkIn from individual columns if not in data_content
+        let checkInData = dataContent.checkIn || result.checkIn || { emotions: [], feeling: '' }
+        if (typeof checkInData === 'string') {
+          try {
+            checkInData = JSON.parse(checkInData)
+          } catch (e) {
+            console.error('Store: Failed to parse checkIn string:', e)
+            checkInData = { emotions: [], feeling: '' }
+          }
+        }
+        
+        // Parse leadershipRating from individual columns if not in data_content
+        let leadershipRatingData = dataContent.leadershipRating || result.leadershipRating || { wisdom: 0, courage: 0, patience: 0, integrity: 0 }
+        if (typeof leadershipRatingData === 'string') {
+          try {
+            leadershipRatingData = JSON.parse(leadershipRatingData)
+          } catch (e) {
+            console.error('Store: Failed to parse leadershipRating string:', e)
+            leadershipRatingData = { wisdom: 0, courage: 0, patience: 0, integrity: 0 }
+          }
+        }
         
         const formattedEntry: DailyEntry = {
           id: result.id?.toString() || Date.now().toString(),
@@ -271,7 +293,7 @@ export const useDailyStore = create<DailyStore>((set, get) => ({
           date: result.date,
           dateKey: result.date,
           date_key: result.date,
-          checkIn: dataContent.checkIn || result.checkIn || { emotions: [], feeling: '' },
+          checkIn: checkInData,
           gratitude: Array.isArray(dataContent.gratitude) ? dataContent.gratitude : 
                     Array.isArray(result.gratitude) ? result.gratitude : 
                     (dataContent.gratitude ? [dataContent.gratitude] : 
@@ -285,7 +307,7 @@ export const useDailyStore = create<DailyStore>((set, get) => ({
           goals: parsedGoals,
           dailyIntention: dataContent.dailyIntention || result.dailyIntention || '',
           growthQuestion: dataContent.growthQuestion || result.growthQuestion || '',
-          leadershipRating: dataContent.leadershipRating || result.leadershipRating || { wisdom: 0, courage: 0, patience: 0, integrity: 0 },
+          leadershipRating: leadershipRatingData,
           completed: dataContent.completed || result.completed || false,
           createdAt: new Date(result.created_at),
           created_at: new Date(result.created_at),
