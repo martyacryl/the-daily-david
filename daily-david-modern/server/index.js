@@ -240,7 +240,7 @@ app.post('/api/entries', authenticateToken, async (req, res) => {
          (date_key, user_id, data_content) 
          VALUES ($1, $2, $3) 
          ON CONFLICT (date_key, user_id) 
-         DO UPDATE SET data_content = $3, updated_at = NOW()
+         DO UPDATE SET data_content = $3
          RETURNING *`,
         [
           dateKey,
