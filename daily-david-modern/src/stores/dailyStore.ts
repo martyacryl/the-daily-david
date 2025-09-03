@@ -267,6 +267,10 @@ export const useDailyStore = create<DailyStore>((set, get) => ({
         
         // DEBUG: Check if checkIn data is in individual columns
         console.log('Store: result.checkIn field:', result.checkIn)
+        console.log('Store: result.checkIn type:', typeof result.checkIn)
+        console.log('Store: result.checkIn keys:', result.checkIn ? Object.keys(result.checkIn) : 'null')
+        console.log('Store: result.checkIn.emotions:', result.checkIn?.emotions)
+        console.log('Store: result.checkIn.feeling:', result.checkIn?.feeling)
         console.log('Store: result.emotions field:', result.emotions)
         console.log('Store: result.feeling field:', result.feeling)
         
