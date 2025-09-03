@@ -276,6 +276,21 @@ export const useDailyStore = create<DailyStore>((set, get) => ({
           }
         }
         
+        // Ensure checkInData has the proper structure
+        if (!checkInData || typeof checkInData !== 'object') {
+          checkInData = { emotions: [], feeling: '' }
+        }
+        
+        // Ensure emotions is an array
+        if (!Array.isArray(checkInData.emotions)) {
+          checkInData.emotions = []
+        }
+        
+        // Ensure feeling is a string
+        if (typeof checkInData.feeling !== 'string') {
+          checkInData.feeling = ''
+        }
+        
         // Parse leadershipRating from individual columns if not in data_content
         let leadershipRatingData = dataContent.leadershipRating || result.leadershipRating || { wisdom: 0, courage: 0, patience: 0, integrity: 0 }
         if (typeof leadershipRatingData === 'string') {
@@ -289,6 +304,13 @@ export const useDailyStore = create<DailyStore>((set, get) => ({
         
         console.log('Store: Parsed checkInData:', checkInData)
         console.log('Store: Parsed leadershipRatingData:', leadershipRatingData)
+        console.log('Store: Final checkInData structure:', {
+          emotions: checkInData.emotions,
+          emotionsType: typeof checkInData.emotions,
+          emotionsIsArray: Array.isArray(checkInData.emotions),
+          feeling: checkInData.feeling,
+          feelingType: typeof checkInData.feeling
+        })
         
         const formattedEntry: DailyEntry = {
           id: result.id?.toString() || Date.now().toString(),
