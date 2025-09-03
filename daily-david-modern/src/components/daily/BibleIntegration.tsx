@@ -5,7 +5,6 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Card } from '../ui/Card';
 import { Button } from '../ui/Button';
-import { Input } from '../ui/Input';
 import { bibleService, BibleVersion, BibleVerse, ReadingPlan } from '../../lib/bibleService';
 
 interface BibleIntegrationProps {
@@ -17,13 +16,12 @@ export const BibleIntegration: React.FC<BibleIntegrationProps> = ({
   onVerseSelect, 
   selectedVerse 
 }) => {
-  const [activeTab, setActiveTab] = useState<'search' | 'plans'>('search');
+
   const [bibleVersions, setBibleVersions] = useState<BibleVersion[]>([]);
   const [selectedBible, setSelectedBible] = useState<string>('de4e12af7f28f599-02');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState<BibleVerse[]>([]);
+
   const [readingPlans, setReadingPlans] = useState<ReadingPlan[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
   const [selectedPlan, setSelectedPlan] = useState<any>(null);
 
@@ -42,28 +40,14 @@ export const BibleIntegration: React.FC<BibleIntegrationProps> = ({
     setReadingPlans(plans);
   };
 
-  const handleSearch = async () => {
-    if (!searchQuery.trim()) return;
-    
-    setIsLoading(true);
-    const results = await bibleService.searchVerses(selectedBible, searchQuery);
-    setSearchResults(results);
-    setIsLoading(false);
-  };
+
 
   const handleVerseSelect = (verse: BibleVerse) => {
     console.log('Selecting verse:', verse);
     onVerseSelect(verse);
   };
 
-  const handleTabChange = (tab: 'search' | 'plans') => {
-    setActiveTab(tab);
-    // Clear search results when switching tabs
-    if (tab === 'search') {
-      setSearchResults([]);
-      setSearchQuery('');
-    }
-  };
+
 
 
 
@@ -76,29 +60,7 @@ export const BibleIntegration: React.FC<BibleIntegrationProps> = ({
         
 
         
-        {/* Tab Navigation */}
-        <div className="flex space-x-1 mb-4">
-          <button
-            onClick={() => handleTabChange('search')}
-            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-              activeTab === 'search'
-                ? 'bg-blue-500 text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
-          >
-            🔍 Search Scripture
-          </button>
-          <button
-            onClick={() => handleTabChange('plans')}
-            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-              activeTab === 'plans'
-                ? 'bg-blue-500 text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
-          >
-            📚 Reading Plans
-          </button>
-        </div>
+
 
         {/* Bible Version Selector */}
         <div className="mb-4">
@@ -119,59 +81,7 @@ export const BibleIntegration: React.FC<BibleIntegrationProps> = ({
         </div>
       </div>
 
-      {/* Search Tab */}
-      {activeTab === 'search' && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="space-y-4"
-        >
-          <div className="flex space-x-2">
-            <Input
-              placeholder="Search for verses (e.g., 'love', 'faith', 'John 3:16')"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-              className="flex-1"
-            />
-            <Button onClick={handleSearch} disabled={isLoading}>
-              {isLoading ? 'Searching...' : 'Search'}
-            </Button>
-          </div>
-
-          {/* Search Results */}
-          {searchResults.length > 0 && (
-            <div className="space-y-3">
-              <h4 className="font-medium text-gray-900">Search Results:</h4>
-              {searchResults.map((verse) => (
-                <div
-                  key={verse.id}
-                  className="p-4 border border-gray-200 rounded-lg hover:border-blue-300 transition-colors"
-                >
-                  <div className="flex justify-between items-start mb-2">
-                    <h5 className="font-medium text-blue-600">{verse.reference}</h5>
-                    <div className="flex space-x-2">
-                      <Button
-                        size="sm"
-                        onClick={() => handleVerseSelect(verse)}
-                        className="bg-blue-500 hover:bg-blue-600"
-                      >
-                        Select for SOAP
-                      </Button>
-
-                    </div>
-                  </div>
-                  <p className="text-gray-700 italic mb-2">"{verse.content}"</p>
-                  <p className="text-xs text-gray-500">{verse.copyright}</p>
-                </div>
-              ))}
-            </div>
-          )}
-        </motion.div>
-      )}
-
-      {/* Reading Plans Tab */}
-      {activeTab === 'plans' && (
+      {/* Reading Plans */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -239,7 +149,6 @@ export const BibleIntegration: React.FC<BibleIntegrationProps> = ({
             ))}
           </div>
         </motion.div>
-      )}
 
       {/* Selected Verse Display */}
       {selectedVerse && (
