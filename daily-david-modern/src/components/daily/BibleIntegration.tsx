@@ -25,6 +25,7 @@ export const BibleIntegration: React.FC<BibleIntegrationProps> = ({
   const [searchResults, setSearchResults] = useState<BibleVerse[]>([]);
   const [readingPlans, setReadingPlans] = useState<ReadingPlan[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
 
   useEffect(() => {
     loadBibleVersions();
@@ -51,7 +52,17 @@ export const BibleIntegration: React.FC<BibleIntegrationProps> = ({
   };
 
   const handleVerseSelect = (verse: BibleVerse) => {
+    console.log('Selecting verse:', verse);
     onVerseSelect(verse);
+  };
+
+  const handleTabChange = (tab: 'search' | 'plans') => {
+    setActiveTab(tab);
+    // Clear search results when switching tabs
+    if (tab === 'search') {
+      setSearchResults([]);
+      setSearchQuery('');
+    }
   };
 
   const handleYouVersionLink = (verse: BibleVerse) => {
@@ -69,7 +80,7 @@ export const BibleIntegration: React.FC<BibleIntegrationProps> = ({
         {/* Tab Navigation */}
         <div className="flex space-x-1 mb-4">
           <button
-            onClick={() => setActiveTab('search')}
+            onClick={() => handleTabChange('search')}
             className={`px-4 py-2 rounded-lg font-medium transition-colors ${
               activeTab === 'search'
                 ? 'bg-blue-500 text-white'
@@ -79,7 +90,7 @@ export const BibleIntegration: React.FC<BibleIntegrationProps> = ({
             🔍 Search Scripture
           </button>
           <button
-            onClick={() => setActiveTab('plans')}
+            onClick={() => handleTabChange('plans')}
             className={`px-4 py-2 rounded-lg font-medium transition-colors ${
               activeTab === 'plans'
                 ? 'bg-blue-500 text-white'
@@ -199,15 +210,28 @@ export const BibleIntegration: React.FC<BibleIntegrationProps> = ({
                     <Button
                       size="sm"
                       onClick={async () => {
-                        // Load today's devotion from the plan
-                        const devotion = await bibleService.getTodaysDevotion(plan.id);
-                        if (devotion && devotion.verses.length > 0) {
-                          handleVerseSelect(devotion.verses[0]);
+                        setLoadingPlan(plan.id);
+                        try {
+                          console.log('Loading devotion for plan:', plan.id);
+                          const devotion = await bibleService.getTodaysDevotion(plan.id);
+                          console.log('Devotion loaded:', devotion);
+                          if (devotion && devotion.verses.length > 0) {
+                            handleVerseSelect(devotion.verses[0]);
+                          } else {
+                            console.error('No devotion found for plan:', plan.id);
+                            alert('No devotion found for this plan. Please try again.');
+                          }
+                        } catch (error) {
+                          console.error('Error loading devotion:', error);
+                          alert('Error loading devotion. Please try again.');
+                        } finally {
+                          setLoadingPlan(null);
                         }
                       }}
-                      className="bg-blue-500 hover:bg-blue-600"
+                      disabled={loadingPlan === plan.id}
+                      className="bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400"
                     >
-                      Today's Devotion
+                      {loadingPlan === plan.id ? 'Loading...' : 'Today\'s Devotion'}
                     </Button>
                     <Button
                       size="sm"
@@ -234,7 +258,25 @@ export const BibleIntegration: React.FC<BibleIntegrationProps> = ({
           animate={{ opacity: 1, y: 0 }}
           className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg"
         >
-          <h4 className="font-medium text-blue-900 mb-2">Selected for SOAP Study:</h4>
+          <div className="flex justify-between items-start mb-2">
+            <h4 className="font-medium text-blue-900">Selected for SOAP Study:</h4>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => {
+                console.log('Clearing selection');
+                onVerseSelect({
+                  id: '',
+                  reference: '',
+                  content: '',
+                  copyright: ''
+                });
+              }}
+              className="text-blue-600 border-blue-300 hover:bg-blue-100"
+            >
+              Clear Selection
+            </Button>
+          </div>
           <p className="font-medium text-blue-800">{selectedVerse.reference}</p>
           <p className="text-blue-700 italic mt-2">"{selectedVerse.content}"</p>
           <p className="text-xs text-blue-600 mt-2">{selectedVerse.copyright}</p>

@@ -43,9 +43,10 @@ export function SOAPSection({ soap, onUpdate }: SOAPSectionProps) {
   }
 
   const handleVerseSelect = (verse: any) => {
+    console.log('SOAP: Received verse selection:', verse);
     const newSOAP = { 
       ...localSOAP, 
-      scripture: `${verse.reference} - ${verse.content}` 
+      scripture: verse.reference && verse.content ? `${verse.reference} - ${verse.content}` : '' 
     }
     setLocalSOAP(newSOAP)
     onUpdate(newSOAP)
@@ -91,7 +92,7 @@ export function SOAPSection({ soap, onUpdate }: SOAPSectionProps) {
       {/* Bible Integration Component */}
       <BibleIntegration 
         onVerseSelect={handleVerseSelect}
-        selectedVerse={localSOAP.scripture ? {
+        selectedVerse={localSOAP.scripture && localSOAP.scripture.includes(' - ') ? {
           id: 'selected',
           reference: localSOAP.scripture.split(' - ')[0] || '',
           content: localSOAP.scripture.split(' - ')[1] || '',
