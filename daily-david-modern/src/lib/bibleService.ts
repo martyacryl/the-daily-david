@@ -35,7 +35,9 @@ class BibleService {
   private defaultBibleId = 'de4e12af7f28f599-02'; // ESV Bible ID
 
   constructor(apiKey?: string) {
-    this.apiKey = apiKey || '';
+    // TODO: Replace with your actual API.Bible API key
+    // Get your free API key at: https://scripture.api.bible/
+    this.apiKey = apiKey || 'YOUR_API_KEY_HERE';
   }
 
   // Get available Bible versions
@@ -74,13 +76,8 @@ class BibleService {
   // Get a specific verse
   async getVerse(bibleId: string, verseId: string): Promise<BibleVerse | null> {
     if (!this.apiKey) {
-      // Return mock data for demo
-      return {
-        id: verseId,
-        reference: 'John 3:16',
-        content: 'For God so loved the world, that he gave his only Son, that whoever believes in him should not perish but have eternal life.',
-        copyright: 'ESV Bible'
-      };
+      console.warn('No API key provided. Please get an API key from API.Bible to use real scripture data.');
+      return null;
     }
 
     try {
@@ -96,32 +93,21 @@ class BibleService {
           content: data.data.content,
           copyright: data.data.copyright || 'Bible'
         };
+      } else {
+        console.error('API.Bible error:', response.status, response.statusText);
+        return null;
       }
     } catch (error) {
-      console.error('Error fetching verse:', error);
+      console.error('Error fetching verse from API.Bible:', error);
+      return null;
     }
-    
-    return null;
   }
 
   // Search for verses
   async searchVerses(bibleId: string, query: string): Promise<BibleVerse[]> {
     if (!this.apiKey) {
-      // Return mock search results
-      return [
-        {
-          id: 'JHN.3.16',
-          reference: 'John 3:16',
-          content: 'For God so loved the world, that he gave his only Son, that whoever believes in him should not perish but have eternal life.',
-          copyright: 'ESV Bible'
-        },
-        {
-          id: 'ROM.8.28',
-          reference: 'Romans 8:28',
-          content: 'And we know that for those who love God all things work together for good, for those who are called according to his purpose.',
-          copyright: 'ESV Bible'
-        }
-      ];
+      console.warn('No API key provided. Please get an API key from API.Bible to search scripture.');
+      return [];
     }
 
     try {
@@ -137,12 +123,14 @@ class BibleService {
           content: verse.content,
           copyright: verse.copyright || 'Bible'
         })) || [];
+      } else {
+        console.error('API.Bible search error:', response.status, response.statusText);
+        return [];
       }
     } catch (error) {
       console.error('Error searching verses:', error);
+      return [];
     }
-    
-    return [];
   }
 
   // Get reading plans (Note: API.Bible doesn't provide reading plans)
@@ -180,8 +168,9 @@ class BibleService {
 
   // Get today's devotion from a custom reading plan
   async getTodaysDevotion(planId: string): Promise<DevotionDay | null> {
-    const today = new Date();
-    const dayOfYear = Math.floor((today - new Date(today.getFullYear(), 0, 0)) / (1000 * 60 * 60 * 24));
+    // Use a simple counter that increments each time to simulate different days
+    const now = new Date();
+    const timeBasedIndex = Math.floor(now.getTime() / (1000 * 60 * 60 * 24)) % 5; // Changes every day
     
     // Custom manly devotional tracks using API.Bible scripture
     const devotionPlans = {
@@ -230,13 +219,59 @@ class BibleService {
           'Using your voice to defend the vulnerable',
           'The value of hard work and diligence'
         ]
+      },
+      'courage-joshua': {
+        verses: [
+          'JOS.1.9',           // Joshua 1:9 - Be strong and courageous
+          'JOS.1.6',           // Joshua 1:6 - Be strong and courageous
+          'JOS.1.7',           // Joshua 1:7 - Be strong and very courageous
+          'JOS.1.8',           // Joshua 1:8 - Keep this Book of the Law
+          'JOS.1.5'            // Joshua 1:5 - I will never leave you
+        ],
+        titles: [
+          'Be Strong and Courageous',
+          'God\'s Command to Joshua',
+          'Very Courageous',
+          'Meditate on God\'s Word',
+          'God\'s Promise'
+        ],
+        themes: [
+          'God\'s command to be strong and courageous in all circumstances',
+          'The foundation of courage is trust in God\'s presence',
+          'Courage comes from obedience to God\'s commands',
+          'Strength comes from meditating on God\'s Word',
+          'God\'s promise to never leave or forsake us'
+        ]
+      },
+      'strength-isaiah': {
+        verses: [
+          'ISA.40.31',         // Isaiah 40:31 - Those who hope in the Lord
+          'ISA.41.10',         // Isaiah 41:10 - Do not fear
+          'ISA.43.2',          // Isaiah 43:2 - When you pass through waters
+          'ISA.54.17',         // Isaiah 54:17 - No weapon formed against you
+          'ISA.26.3'           // Isaiah 26:3 - Perfect peace
+        ],
+        titles: [
+          'Renewed Strength',
+          'Do Not Fear',
+          'Through the Waters',
+          'No Weapon Formed',
+          'Perfect Peace'
+        ],
+        themes: [
+          'Those who hope in the Lord will renew their strength',
+          'God\'s command to not fear because He is with us',
+          'God\'s promise to be with us through trials',
+          'No weapon formed against us will prosper',
+          'Perfect peace comes from trusting in God'
+        ]
       }
     };
 
     const plan = devotionPlans[planId as keyof typeof devotionPlans];
     if (!plan) return null;
 
-    const dayIndex = dayOfYear % plan.verses.length;
+    const dayIndex = timeBasedIndex % plan.verses.length;
     const verseId = plan.verses[dayIndex];
     
     // Get the actual verse from API.Bible
@@ -244,7 +279,7 @@ class BibleService {
     if (!verse) return null;
 
     return {
-      date: today.toISOString().split('T')[0],
+      date: now.toISOString().split('T')[0],
       verses: [verse],
       title: plan.titles[dayIndex],
       content: plan.themes[dayIndex]
