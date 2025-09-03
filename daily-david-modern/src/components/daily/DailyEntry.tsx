@@ -98,6 +98,12 @@ export function DailyEntry() {
           setSelectedDate(parsedDate)
           loadEntryForDate(parsedDate)
         }
+      } else {
+        // No date param, load today's data
+        const today = new Date()
+        console.log('URL effect: No date param, loading today:', today.toDateString())
+        setSelectedDate(today)
+        loadEntryForDate(today)
       }
     }
   }, [searchParams, isAuthenticated])
@@ -107,6 +113,23 @@ export function DailyEntry() {
     console.log('Current entry changed:', currentEntry)
     if (currentEntry) {
       console.log('Entry data content:', currentEntry)
+      
+      // Update UI with loaded data
+      setDayData(prev => ({
+        ...prev,
+        checkIn: currentEntry.checkIn || prev.checkIn,
+        gratitude: currentEntry.gratitude || prev.gratitude,
+        soap: currentEntry.soap || prev.soap,
+        dailyIntention: currentEntry.dailyIntention || prev.dailyIntention,
+        growthQuestion: currentEntry.growthQuestion || prev.growthQuestion,
+        leadershipRating: currentEntry.leadershipRating || prev.leadershipRating
+      }))
+      
+      // Update goals if they exist in the entry
+      if (currentEntry.goals) {
+        console.log('Setting goals from currentEntry:', currentEntry.goals)
+        setUserGoals(currentEntry.goals)
+      }
     }
   }, [currentEntry])
 
