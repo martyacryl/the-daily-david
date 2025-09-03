@@ -260,6 +260,9 @@ export const useDailyStore = create<DailyStore>((set, get) => ({
         // Extract data from data_content field (JSONB)
         const dataContent = result.data_content || {}
         console.log('Store: Data content:', dataContent)
+        console.log('Store: Data content type:', typeof dataContent)
+        console.log('Store: Data content keys:', Object.keys(dataContent))
+        console.log('Store: Raw result:', result)
         
         const formattedEntry: DailyEntry = {
           id: result.id?.toString() || Date.now().toString(),
