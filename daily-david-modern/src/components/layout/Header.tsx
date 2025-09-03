@@ -11,7 +11,7 @@ export const Header: React.FC = () => {
 
   const navItems = [
     { path: '/', label: 'Dashboard', icon: BarChart3 },
-    { path: '/daily', label: 'Daily Entry', icon: BookOpen },
+    { path: '/daily#goals', label: 'Daily Entry', icon: BookOpen },
     { path: '/admin', label: 'Admin', icon: Settings }
   ]
 

@@ -105,6 +105,23 @@ export function DailyEntry() {
     }
   }, [searchParams, isAuthenticated])
 
+  // Auto-scroll to goals section if hash is present
+  useEffect(() => {
+    const hash = window.location.hash
+    if (hash === '#goals') {
+      // Small delay to ensure the component is fully rendered
+      setTimeout(() => {
+        const goalsSection = document.getElementById('goals-section')
+        if (goalsSection) {
+          goalsSection.scrollIntoView({ 
+            behavior: 'smooth',
+            block: 'start'
+          })
+        }
+      }, 500)
+    }
+  }, [selectedDate]) // Re-run when date changes
+
   // Ref to track current entry ID for auto-save
   const currentEntryIdRef = useRef<string | null>(null)
 
@@ -584,6 +601,7 @@ export function DailyEntry() {
 
             {/* Goals Section */}
             <motion.div
+              id="goals-section"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}

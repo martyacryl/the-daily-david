@@ -305,7 +305,7 @@ export const Dashboard: React.FC = () => {
             <p className="text-gray-600 mb-6">
               Begin your daily SOAP study and reflection
             </p>
-            <Link to="/daily">
+            <Link to="/daily#goals">
               <Button size="lg" className="w-full">
                 Create Entry
               </Button>
