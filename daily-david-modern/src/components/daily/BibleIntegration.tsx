@@ -215,7 +215,7 @@ export const BibleIntegration: React.FC<BibleIntegrationProps> = ({
                         setLoadingPlan(plan.id);
                         try {
                           console.log('Loading devotion for plan:', plan.id);
-                          const devotion = await bibleService.getTodaysDevotion(plan.id);
+                          const devotion = await bibleService.getTodaysDevotion(plan.id, selectedBible);
                           console.log('Devotion loaded:', devotion);
                           if (devotion && devotion.verses.length > 0) {
                             handleVerseSelect(devotion.verses[0]);
@@ -279,7 +279,12 @@ export const BibleIntegration: React.FC<BibleIntegrationProps> = ({
               Clear Selection
             </Button>
           </div>
-          <p className="font-medium text-blue-800">{selectedVerse.reference}</p>
+          <div className="flex items-center gap-2 mb-2">
+            <p className="font-medium text-blue-800">{selectedVerse.reference}</p>
+            <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
+              {bibleVersions.find(v => v.id === selectedBible)?.abbreviation || 'Bible'}
+            </span>
+          </div>
           <p className="text-blue-700 italic mt-2">"{selectedVerse.content}"</p>
           <p className="text-xs text-blue-600 mt-2">{selectedVerse.copyright}</p>
         </motion.div>
