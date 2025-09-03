@@ -362,7 +362,7 @@ export function ProgressAnalytics() {
       <div className="space-y-8">
         <div className="text-center">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">Progress Analytics</h1>
-          <p className="text-xl text-gray-600">"Examine yourselves to see whether you are in the faith" - 2 Corinthians 13:5</p>
+          <p className="text-xl text-gray-600">"But grow in the grace and knowledge of our Lord and Savior Jesus Christ" - 2 Peter 3:18</p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {[1, 2, 3, 4].map((i) => (
@@ -386,7 +386,7 @@ export function ProgressAnalytics() {
         className="text-center"
       >
         <h1 className="text-4xl font-bold text-gray-900 mb-4">Progress Analytics</h1>
-        <p className="text-xl text-gray-600">"Examine yourselves to see whether you are in the faith" - 2 Corinthians 13:5</p>
+        <p className="text-xl text-gray-600">"But grow in the grace and knowledge of our Lord and Savior Jesus Christ" - 2 Peter 3:18</p>
       </motion.div>
 
       {/* Key Metrics */}
