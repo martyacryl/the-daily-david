@@ -135,16 +135,36 @@ export function DailyEntry() {
 
   // Listen for auto-save triggers from child components
   useEffect(() => {
-    const handleAutoSave = () => {
+    const handleAutoSave = async () => {
       console.log('Auto-save triggered from child component')
       if (currentEntry && currentEntry.id) {
-        handleSubmit()
+        // Silent save without UI updates
+        try {
+          const dateString = getLocalDateString(selectedDate)
+          const entryData = {
+            ...dayData,
+            goals: userGoals
+          }
+          
+          await updateEntry(currentEntry.id, {
+            date: dateString,
+            dateKey: dateString,
+            date_key: dateString,
+            userId: user?.id || '',
+            user_id: user?.id || '',
+            ...entryData,
+            completed: true
+          })
+          console.log('Auto-save completed silently')
+        } catch (error) {
+          console.error('Auto-save error:', error)
+        }
       }
     }
 
     window.addEventListener('triggerSave', handleAutoSave)
     return () => window.removeEventListener('triggerSave', handleAutoSave)
-  }, [currentEntry])
+  }, [currentEntry, dayData, userGoals, selectedDate, user, updateEntry])
 
 
 
@@ -296,10 +316,10 @@ export function DailyEntry() {
         })
       }
       
-      alert('Daily entry saved successfully!')
+      // Silent save - no alert needed
     } catch (error) {
       console.error('Error saving entry:', error)
-      alert('Error saving entry')
+      // Silent error - just log it
     } finally {
       setIsSaving(false)
     }
@@ -475,9 +495,7 @@ export function DailyEntry() {
                 onChange={(e) => handleUpdate('dailyIntention', e.target.value)}
                 onBlur={() => {
                   // Auto-save when user finishes typing
-                  if (currentEntry && currentEntry.id) {
-                    handleSubmit()
-                  }
+                  window.dispatchEvent(new CustomEvent('triggerSave'))
                 }}
                 placeholder="Set your intention for today... (e.g., 'I will lead with patience and listen more than I speak')"
                 rows={3}
@@ -736,9 +754,7 @@ export function DailyEntry() {
                 onChange={(e) => handleUpdate('growthQuestion', e.target.value)}
                 onBlur={() => {
                   // Auto-save when user finishes typing
-                  if (currentEntry && currentEntry.id) {
-                    handleSubmit()
-                  }
+                  window.dispatchEvent(new CustomEvent('triggerSave'))
                 }}
                 placeholder="Ask yourself a question that will help you grow... (e.g., 'How can I show more patience today?')"
                 rows={3}
@@ -775,9 +791,7 @@ export function DailyEntry() {
                       })}
                       onMouseUp={() => {
                         // Auto-save when user finishes adjusting slider
-                        if (currentEntry && currentEntry.id) {
-                          handleSubmit()
-                        }
+                        window.dispatchEvent(new CustomEvent('triggerSave'))
                       }}
                       className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
                     />
