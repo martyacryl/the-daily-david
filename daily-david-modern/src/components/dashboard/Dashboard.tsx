@@ -330,7 +330,7 @@ export const Dashboard: React.FC = () => {
           Welcome back, {user?.name}! 👋
         </h1>
         <p className="text-xl text-gray-600">
-          "Let us not grow weary in doing good" - Galatians 6:9
+          "Be watchful, stand firm in the faith, act like men, be strong" - 1 Corinthians 16:13
         </p>
       </motion.div>
 
