@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { SOAPData } from '@/types'
+import { BibleIntegration } from './BibleIntegration'
 
 interface SOAPSectionProps {
   soap: SOAPData
@@ -41,6 +42,19 @@ export function SOAPSection({ soap, onUpdate }: SOAPSectionProps) {
     }
   }
 
+  const handleVerseSelect = (verse: any) => {
+    const newSOAP = { 
+      ...localSOAP, 
+      scripture: `${verse.reference} - ${verse.content}` 
+    }
+    setLocalSOAP(newSOAP)
+    onUpdate(newSOAP)
+    // Trigger auto-save
+    setTimeout(() => {
+      window.dispatchEvent(new CustomEvent('triggerSave'))
+    }, 100)
+  }
+
   const soapSections = [
     {
       key: 'scripture' as keyof SOAPData,
@@ -73,18 +87,31 @@ export function SOAPSection({ soap, onUpdate }: SOAPSectionProps) {
   ]
 
   return (
-    <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-200">
-      <div className="text-center mb-8">
-        <h3 className="text-2xl font-bold text-gray-800 mb-2">
-          S.O.A.P. Bible Study
-        </h3>
-        <p className="text-gray-600 text-lg">
-          Scripture • Observation • Application • Prayer
-        </p>
-        <div className="mt-2 text-sm text-gray-500">
-          "All Scripture is God-breathed and is useful for teaching, rebuking, correcting and training in righteousness" - 2 Timothy 3:16
+    <div className="space-y-6">
+      {/* Bible Integration Component */}
+      <BibleIntegration 
+        onVerseSelect={handleVerseSelect}
+        selectedVerse={localSOAP.scripture ? {
+          id: 'selected',
+          reference: localSOAP.scripture.split(' - ')[0] || '',
+          content: localSOAP.scripture.split(' - ')[1] || '',
+          copyright: 'Bible'
+        } : undefined}
+      />
+
+      {/* SOAP Study Form */}
+      <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-200">
+        <div className="text-center mb-8">
+          <h3 className="text-2xl font-bold text-gray-800 mb-2">
+            S.O.A.P. Bible Study
+          </h3>
+          <p className="text-gray-600 text-lg">
+            Scripture • Observation • Application • Prayer
+          </p>
+          <div className="mt-2 text-sm text-gray-500">
+            "All Scripture is God-breathed and is useful for teaching, rebuking, correcting and training in righteousness" - 2 Timothy 3:16
+          </div>
         </div>
-      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {soapSections.map((section) => (
@@ -106,6 +133,7 @@ export function SOAPSection({ soap, onUpdate }: SOAPSectionProps) {
             />
           </div>
         ))}
+        </div>
       </div>
     </div>
   )
