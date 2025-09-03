@@ -137,7 +137,7 @@ export function DailyEntry() {
   useEffect(() => {
     const handleAutoSave = async () => {
       if (currentEntry && currentEntry.id) {
-        // Use the store's updateEntry method which handles authentication properly
+        // Direct API call to avoid store state updates that cause re-renders
         try {
           const dateString = getLocalDateString(selectedDate)
           const entryData = {
@@ -145,18 +145,38 @@ export function DailyEntry() {
             goals: userGoals
           }
           
-          // Use the store method instead of direct API call
-          await updateEntry(currentEntry.id, {
-            date: dateString,
-            dateKey: dateString,
-            date_key: dateString,
-            userId: user?.id || '',
-            user_id: user?.id || '',
-            ...entryData,
-            completed: true
+          // Get token from auth store without triggering re-renders
+          const token = useAuthStore.getState().token
+          
+          if (!token) {
+            console.error('No auth token for auto-save')
+            return
+          }
+          
+          // Direct API call - completely bypasses store
+          const response = await fetch('https://thedailydavid.vercel.app/api/entries', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+              date: dateString,
+              goals: entryData.goals,
+              gratitude: entryData.gratitude,
+              soap: entryData.soap,
+              dailyIntention: entryData.dailyIntention,
+              growthQuestion: entryData.growthQuestion,
+              leadershipRating: entryData.leadershipRating,
+              checkIn: entryData.checkIn
+            })
           })
           
-          console.log('Auto-save completed silently')
+          if (response.ok) {
+            console.log('Auto-save completed silently - no store updates')
+          } else {
+            console.error('Auto-save failed:', response.status)
+          }
         } catch (error) {
           console.error('Auto-save error:', error)
         }
@@ -165,7 +185,7 @@ export function DailyEntry() {
 
     window.addEventListener('triggerSave', handleAutoSave)
     return () => window.removeEventListener('triggerSave', handleAutoSave)
-  }, [currentEntry, dayData, userGoals, selectedDate, updateEntry, user])
+  }, [currentEntry, dayData, userGoals, selectedDate])
 
 
 
