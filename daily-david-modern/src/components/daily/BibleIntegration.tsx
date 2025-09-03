@@ -307,15 +307,15 @@ export const BibleIntegration: React.FC<BibleIntegrationProps> = ({
               <div className="mb-4">
                 <h4 className="font-semibold text-gray-900 mb-2">Plan Overview:</h4>
                 <p className="text-sm text-gray-600">
-                  This {selectedPlan.title.toLowerCase()} plan includes {selectedPlan.verses.length} carefully selected verses 
-                  that will guide you through {selectedPlan.description.toLowerCase()}.
+                  This {selectedPlan.title?.toLowerCase() || 'devotional'} plan includes {selectedPlan.verses?.length || 0} carefully selected verses 
+                  that will guide you through {selectedPlan.description?.toLowerCase() || 'spiritual growth'}.
                 </p>
               </div>
 
               <div className="mb-4">
                 <h4 className="font-semibold text-gray-900 mb-2">All Verses in This Plan:</h4>
                 <div className="grid grid-cols-1 gap-2 max-h-60 overflow-y-auto">
-                  {selectedPlan.verses.map((verseId: string, index: number) => (
+                  {selectedPlan.verses?.length > 0 ? selectedPlan.verses.map((verseId: string, index: number) => (
                     <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded">
                       <span className="text-sm font-medium text-gray-700">
                         Day {index + 1}: {verseId}
@@ -338,7 +338,9 @@ export const BibleIntegration: React.FC<BibleIntegrationProps> = ({
                         Select
                       </Button>
                     </div>
-                  ))}
+                  )) : (
+                    <p className="text-gray-500 text-sm p-4 text-center">No verses available in this plan.</p>
+                  )}
                 </div>
               </div>
 
