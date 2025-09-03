@@ -320,6 +320,7 @@ export const useDailyStore = create<DailyStore>((set, get) => ({
         }
         
         console.log('Store: Setting formatted entry:', formattedEntry)
+        console.log('Store: Setting isLoading to false')
         set({ 
           currentEntry: formattedEntry,
           isLoading: false 
@@ -328,6 +329,7 @@ export const useDailyStore = create<DailyStore>((set, get) => ({
       } else {
         console.log('Store: No entry found for date:', date)
         // No entry found for this date
+        console.log('Store: Setting isLoading to false (no entry found)')
         set({ 
           currentEntry: null,
           isLoading: false 
@@ -336,6 +338,7 @@ export const useDailyStore = create<DailyStore>((set, get) => ({
       }
     } catch (error) {
       console.error('Store: Error loading entry:', error)
+      console.log('Store: Setting isLoading to false (error)')
       set({ 
         error: error instanceof Error ? error.message : 'Failed to load entry',
         isLoading: false 

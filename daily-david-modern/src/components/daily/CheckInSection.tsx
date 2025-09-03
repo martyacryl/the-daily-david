@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react'
-import { CheckInData, EmotionType } from '@/types'
+import { CheckInData, EmotionType } from '../../types'
 
 interface CheckInSectionProps {
   checkIn: CheckInData
@@ -17,11 +17,18 @@ export function CheckInSection({ checkIn, onUpdate }: CheckInSectionProps) {
     { key: 'tender', label: 'Tender' }
   ]
 
+  // Local state for emotions - initialize from props
   const [localEmotions, setLocalEmotions] = useState(checkIn.emotions || [])
+  const [localFeeling, setLocalFeeling] = useState(checkIn.feeling || '')
 
+  // Update local state when props change (on page load/navigation)
   useEffect(() => {
     setLocalEmotions(checkIn.emotions || [])
   }, [checkIn.emotions])
+
+  useEffect(() => {
+    setLocalFeeling(checkIn.feeling || '')
+  }, [checkIn.feeling])
 
   const handleEmotionToggle = (emotion: EmotionType) => {
     const newEmotions = localEmotions.includes(emotion)
@@ -32,31 +39,24 @@ export function CheckInSection({ checkIn, onUpdate }: CheckInSectionProps) {
     
     console.log('CheckIn: Emotion toggled:', emotion)
     console.log('CheckIn: New emotions:', newEmotions)
-    console.log('CheckIn: Calling onUpdate with:', { ...checkIn, emotions: newEmotions })
     
-    // Update immediately and trigger auto-save
-    onUpdate({
+    // Update parent immediately with new emotions
+    const updatedCheckIn = {
       ...checkIn,
       emotions: newEmotions
-    })
+    }
     
-    // Trigger auto-save
+    onUpdate(updatedCheckIn)
+    
+    // Trigger auto-save after a brief delay
     setTimeout(() => {
-      console.log('CheckIn: Triggering auto-save...')
+      console.log('CheckIn: Triggering auto-save for emotions...')
       window.dispatchEvent(new CustomEvent('triggerSave'))
     }, 100)
   }
 
-
-
-  const [localFeeling, setLocalFeeling] = useState(checkIn.feeling || '')
-
-  useEffect(() => {
-    setLocalFeeling(checkIn.feeling || '')
-  }, [checkIn.feeling])
-
-  const handleFeelingChange = (feeling: string) => {
-    setLocalFeeling(feeling)
+  const handleFeelingChange = (value: string) => {
+    setLocalFeeling(value)
   }
 
   const handleFeelingBlur = () => {
@@ -64,14 +64,18 @@ export function CheckInSection({ checkIn, onUpdate }: CheckInSectionProps) {
     console.log('CheckIn: Local feeling:', localFeeling)
     console.log('CheckIn: Current feeling:', checkIn.feeling)
     
-    // Only update if there's actually a change
+    // Only update if there's actually a change (same pattern as GratitudeSection)
     if (localFeeling !== checkIn.feeling) {
       console.log('CheckIn: Feeling changed, updating...')
-      onUpdate({
+      
+      const updatedCheckIn = {
         ...checkIn,
         feeling: localFeeling
-      })
-      // Trigger auto-save
+      }
+      
+      onUpdate(updatedCheckIn)
+      
+      // Trigger auto-save after update
       setTimeout(() => {
         console.log('CheckIn: Triggering auto-save for feeling...')
         window.dispatchEvent(new CustomEvent('triggerSave'))
