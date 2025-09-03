@@ -152,20 +152,27 @@ export function DailyEntry() {
         })
       })
       
+      console.log('Auto-save response status:', response.status)
+      console.log('Auto-save response ok:', response.ok)
+      
       if (!response.ok) {
-        throw new Error('Failed to auto-save')
+        const errorText = await response.text()
+        console.error('Auto-save failed:', response.status, response.statusText, errorText)
+        throw new Error(`Auto-save failed: ${response.status} ${response.statusText}`)
       }
+      
+      const result = await response.json()
+      console.log('Auto-save response data:', result)
       
       // If this was a new entry, get the ID from the response and store it
       if (!currentEntryIdRef.current) {
-        const result = await response.json()
         if (result.success && result.data && result.data.id) {
           currentEntryIdRef.current = result.data.id.toString()
           console.log('Auto-save: Stored new entry ID:', currentEntryIdRef.current)
         }
       }
       
-      console.log('Auto-save completed silently via direct API')
+      console.log('Auto-save completed successfully via direct API')
     } catch (error) {
       console.error('Auto-save error:', error)
     }
