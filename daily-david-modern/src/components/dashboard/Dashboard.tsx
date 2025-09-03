@@ -305,7 +305,7 @@ export const Dashboard: React.FC = () => {
             <p className="text-gray-600 mb-6">
               Begin your daily SOAP study and reflection
             </p>
-            <Link to="/daily#goals">
+            <Link to="/daily">
               <Button size="lg" className="w-full">
                 Create Entry
               </Button>
@@ -402,7 +402,7 @@ export const Dashboard: React.FC = () => {
               <div className="text-sm text-gray-500 italic">No daily goals set yet</div>
             )}
           </div>
-          <Link to="/daily" className="block mt-4 text-sm text-green-600 hover:text-green-700 font-medium">
+          <Link to="/daily#goals" className="block mt-4 text-sm text-green-600 hover:text-green-700 font-medium">
             View all daily goals →
           </Link>
         </Card>
@@ -428,7 +428,7 @@ export const Dashboard: React.FC = () => {
               <div className="text-sm text-gray-500 italic">No weekly goals set yet</div>
             )}
           </div>
-          <Link to="/daily" className="block mt-4 text-sm text-green-600 hover:text-green-700 font-medium">
+          <Link to="/daily#goals" className="block mt-4 text-sm text-green-600 hover:text-green-700 font-medium">
             View all weekly goals →
           </Link>
         </Card>
@@ -454,7 +454,7 @@ export const Dashboard: React.FC = () => {
               <div className="text-sm text-gray-500 italic">No monthly goals set yet</div>
             )}
           </div>
-          <Link to="/daily" className="block mt-4 text-sm text-green-600 hover:text-green-700 font-medium">
+          <Link to="/daily#goals" className="block mt-4 text-sm text-green-600 hover:text-green-700 font-medium">
             View all monthly goals →
           </Link>
         </Card>
