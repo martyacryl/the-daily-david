@@ -313,33 +313,22 @@ export const BibleIntegration: React.FC<BibleIntegrationProps> = ({
               </div>
 
               <div className="mb-4">
-                <h4 className="font-semibold text-gray-900 mb-2">All Verses in This Plan:</h4>
-                <div className="grid grid-cols-1 gap-2 max-h-60 overflow-y-auto">
-                  {selectedPlan.verses?.length > 0 ? selectedPlan.verses.map((verseId: string, index: number) => (
-                    <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded">
-                      <span className="text-sm font-medium text-gray-700">
-                        Day {index + 1}: {verseId}
-                      </span>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={async () => {
-                          try {
-                            const verse = await bibleService.getVerse(selectedBible, verseId);
-                            if (verse) {
-                              onVerseSelect(verse);
-                              setSelectedPlan(null);
-                            }
-                          } catch (error) {
-                            console.error('Error loading verse:', error);
-                          }
-                        }}
-                      >
-                        Select
-                      </Button>
+                <h4 className="font-semibold text-gray-900 mb-2">Daily Themes:</h4>
+                <div className="space-y-2 max-h-60 overflow-y-auto">
+                  {selectedPlan.titles?.length > 0 ? selectedPlan.titles.map((title: string, index: number) => (
+                    <div key={index} className="p-3 bg-gray-50 rounded-lg">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <h5 className="font-medium text-gray-900 text-sm">Day {index + 1}: {title}</h5>
+                          {selectedPlan.themes?.[index] && (
+                            <p className="text-xs text-gray-600 mt-1">{selectedPlan.themes[index]}</p>
+                          )}
+                        </div>
+                        <span className="text-xs text-gray-400 ml-2">Day {index + 1}</span>
+                      </div>
                     </div>
                   )) : (
-                    <p className="text-gray-500 text-sm p-4 text-center">No verses available in this plan.</p>
+                    <p className="text-gray-500 text-sm p-4 text-center">Plan details are being loaded...</p>
                   )}
                 </div>
               </div>
