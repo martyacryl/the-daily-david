@@ -374,7 +374,7 @@ function generateHeatmapDays(entries: DailyEntry[]) {
     }
     
     days.push({
-      day: date.getDate(),
+      day: `${date.getMonth() + 1}/${date.getDate()}`,
       hasEntry: !!entry,
       intensity,
       tooltip
@@ -754,7 +754,7 @@ export function ProgressAnalytics() {
               {generateHeatmapDays(entries).map((day, index) => (
                 <div
                   key={index}
-                  className={`aspect-square rounded-sm text-xs flex items-center justify-center ${
+                  className={`aspect-square rounded-sm text-xs flex items-center justify-center font-medium ${
                     day.hasEntry 
                       ? day.intensity === 'high' 
                         ? 'bg-green-600 text-white' 
