@@ -263,6 +263,7 @@ export const useDailyStore = create<DailyStore>((set, get) => ({
         console.log('Store: Data content type:', typeof dataContent)
         console.log('Store: Data content keys:', Object.keys(dataContent))
         console.log('Store: Raw result:', result)
+        console.log('Store: Available fields in result:', Object.keys(result))
         
         // Parse checkIn from individual columns if not in data_content
         let checkInData = dataContent.checkIn || result.checkIn || { emotions: [], feeling: '' }
@@ -285,6 +286,9 @@ export const useDailyStore = create<DailyStore>((set, get) => ({
             leadershipRatingData = { wisdom: 0, courage: 0, patience: 0, integrity: 0 }
           }
         }
+        
+        console.log('Store: Parsed checkInData:', checkInData)
+        console.log('Store: Parsed leadershipRatingData:', leadershipRatingData)
         
         const formattedEntry: DailyEntry = {
           id: result.id?.toString() || Date.now().toString(),
