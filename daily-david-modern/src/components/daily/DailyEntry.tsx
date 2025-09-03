@@ -460,6 +460,12 @@ export function DailyEntry() {
               <Textarea
                 value={dayData.dailyIntention}
                 onChange={(e) => handleUpdate('dailyIntention', e.target.value)}
+                onBlur={() => {
+                  // Auto-save when user finishes typing
+                  if (currentEntry && currentEntry.id) {
+                    handleSubmit()
+                  }
+                }}
                 placeholder="Set your intention for today... (e.g., 'I will lead with patience and listen more than I speak')"
                 rows={3}
               />
@@ -715,6 +721,12 @@ export function DailyEntry() {
               <Textarea
                 value={dayData.growthQuestion}
                 onChange={(e) => handleUpdate('growthQuestion', e.target.value)}
+                onBlur={() => {
+                  // Auto-save when user finishes typing
+                  if (currentEntry && currentEntry.id) {
+                    handleSubmit()
+                  }
+                }}
                 placeholder="Ask yourself a question that will help you grow... (e.g., 'How can I show more patience today?')"
                 rows={3}
               />
@@ -748,6 +760,12 @@ export function DailyEntry() {
                         ...dayData.leadershipRating,
                         [trait]: parseInt(e.target.value)
                       })}
+                      onMouseUp={() => {
+                        // Auto-save when user finishes adjusting slider
+                        if (currentEntry && currentEntry.id) {
+                          handleSubmit()
+                        }
+                      }}
                       className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
                     />
                     <div className="text-center text-sm font-medium text-gray-600">
