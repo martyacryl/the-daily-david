@@ -12,10 +12,10 @@ export const Dashboard: React.FC = () => {
   const { user, isAuthenticated } = useAuthStore()
   const { entries, loadEntries, isLoading } = useDailyStore()
   const [stats, setStats] = useState({
-    totalEntries: 0,
     currentStreak: 0,
+    thisWeek: 0,
     thisMonth: 0,
-    goalsCompleted: 0
+    completionRate: 0
   })
   const [currentGoals, setCurrentGoals] = useState({
     daily: [],
@@ -37,7 +37,6 @@ export const Dashboard: React.FC = () => {
   }, [entries])
 
   const calculateStats = () => {
-    const totalEntries = entries.length
     const thisMonth = new Date().getMonth()
     const thisYear = new Date().getFullYear()
     
@@ -46,39 +45,116 @@ export const Dashboard: React.FC = () => {
       return entryDate.getMonth() === thisMonth && entryDate.getFullYear() === thisYear
     }).length
 
-    // Calculate current streak
-    let currentStreak = 0
-    const today = new Date()
+    // Calculate current streak (improved logic)
+    const currentStreak = calculateCurrentStreak(entries)
+    
+    // Calculate this week's progress
+    const thisWeek = calculateThisWeekProgress(entries)
+
+    // Calculate completion rate (percentage of days with entries vs total days since first entry)
+    const completionRate = calculateCompletionRate(entries)
+
+    setStats({
+      currentStreak,
+      thisWeek,
+      thisMonth: monthEntries,
+      completionRate
+    })
+  }
+
+  const calculateCurrentStreak = (entries: DailyEntry[]) => {
+    if (entries.length === 0) return 0
+    
+    // Sort entries by date (newest first)
     const sortedEntries = [...entries].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+    
+    let streak = 0
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    
+    // Check if today has an entry
+    const todayEntry = sortedEntries.find(entry => {
+      const entryDate = new Date(entry.date)
+      entryDate.setHours(0, 0, 0, 0)
+      return entryDate.getTime() === today.getTime()
+    })
+    
+    if (!todayEntry) {
+      // If no entry today, check if yesterday had an entry
+      const yesterday = new Date(today)
+      yesterday.setDate(yesterday.getDate() - 1)
+      
+      const yesterdayEntry = sortedEntries.find(entry => {
+        const entryDate = new Date(entry.date)
+        entryDate.setHours(0, 0, 0, 0)
+        return entryDate.getTime() === yesterday.getTime()
+      })
+      
+      if (!yesterdayEntry) return 0
+    }
+    
+    // Count consecutive days with entries
+    let currentDate = new Date(today)
+    if (!todayEntry) {
+      currentDate.setDate(currentDate.getDate() - 1)
+    }
     
     for (let i = 0; i < sortedEntries.length; i++) {
       const entryDate = new Date(sortedEntries[i].date)
-      const expectedDate = new Date(today)
-      expectedDate.setDate(today.getDate() - i)
+      entryDate.setHours(0, 0, 0, 0)
       
-      if (entryDate.toDateString() === expectedDate.toDateString()) {
-        currentStreak++
-      } else {
+      if (entryDate.getTime() === currentDate.getTime()) {
+        streak++
+        currentDate.setDate(currentDate.getDate() - 1)
+      } else if (entryDate.getTime() < currentDate.getTime()) {
         break
       }
     }
+    
+    return streak
+  }
 
-    // Calculate goals completed from all entries
-    let goalsCompleted = 0
-    entries.forEach(entry => {
-      if (entry.goals) {
-        goalsCompleted += (entry.goals.daily?.filter(g => g.completed).length || 0) +
-                         (entry.goals.weekly?.filter(g => g.completed).length || 0) +
-                         (entry.goals.monthly?.filter(g => g.completed).length || 0)
-      }
+  const calculateThisWeekProgress = (entries: DailyEntry[]) => {
+    const now = new Date()
+    const startOfWeek = new Date(now)
+    startOfWeek.setDate(now.getDate() - now.getDay()) // Sunday
+    startOfWeek.setHours(0, 0, 0, 0)
+    
+    const endOfWeek = new Date(startOfWeek)
+    endOfWeek.setDate(startOfWeek.getDate() + 6) // Saturday
+    endOfWeek.setHours(23, 59, 59, 999)
+    
+    const weekEntries = entries.filter(entry => {
+      const entryDate = new Date(entry.date)
+      return entryDate >= startOfWeek && entryDate <= endOfWeek
     })
+    
+    return weekEntries.length
+  }
 
-    setStats({
-      totalEntries,
-      currentStreak,
-      thisMonth: monthEntries,
-      goalsCompleted
-    })
+  const calculateCompletionRate = (entries: DailyEntry[]) => {
+    if (entries.length === 0) return 0
+    
+    // Find the earliest entry date
+    const earliestEntry = entries.reduce((earliest, entry) => {
+      const entryDate = new Date(entry.date)
+      return entryDate < earliest ? entryDate : earliest
+    }, new Date(entries[0].date))
+    
+    // Calculate total days from first entry to today
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    const totalDays = Math.ceil((today.getTime() - earliestEntry.getTime()) / (1000 * 60 * 60 * 24)) + 1
+    
+    // Count unique days with entries
+    const uniqueDays = new Set(entries.map(entry => {
+      const entryDate = new Date(entry.date)
+      entryDate.setHours(0, 0, 0, 0)
+      return entryDate.getTime()
+    })).size
+    
+    // Calculate completion rate as percentage
+    return Math.round((uniqueDays / totalDays) * 100)
   }
 
   const extractCurrentGoals = () => {
@@ -201,33 +277,33 @@ export const Dashboard: React.FC = () => {
 
   const statsData = [
     {
-      title: 'Total Entries',
-      value: stats.totalEntries.toString(),
-      change: entries.length > 0 ? `+${Math.floor(Math.random() * 10) + 1}%` : '0%',
-      icon: BookOpen,
-      color: 'text-blue-600',
-      bgColor: 'bg-blue-100'
-    },
-    {
       title: 'Current Streak',
       value: `${stats.currentStreak} days`,
-      change: stats.currentStreak > 0 ? `+${Math.floor(Math.random() * 3) + 1} days` : '0 days',
+      change: stats.currentStreak > 0 ? `Keep it going!` : 'Start your streak',
       icon: TrendingUp,
       color: 'text-green-600',
       bgColor: 'bg-green-100'
     },
     {
+      title: 'This Week',
+      value: `${stats.thisWeek}/7 days`,
+      change: stats.thisWeek > 0 ? `${Math.round((stats.thisWeek / 7) * 100)}% complete` : '0% complete',
+      icon: Calendar,
+      color: 'text-blue-600',
+      bgColor: 'bg-blue-100'
+    },
+    {
       title: 'This Month',
       value: stats.thisMonth.toString(),
       change: stats.thisMonth > 0 ? `+${Math.floor(Math.random() * 5) + 1}` : '0',
-      icon: Calendar,
+      icon: BookOpen,
       color: 'text-purple-600',
       bgColor: 'bg-purple-100'
     },
     {
-      title: 'Goals Completed',
-      value: stats.goalsCompleted.toString(),
-      change: stats.goalsCompleted > 0 ? `+${Math.floor(Math.random() * 8) + 1}` : '0',
+      title: 'Completion Rate',
+      value: `${stats.completionRate}%`,
+      change: stats.completionRate > 0 ? `${stats.completionRate >= 80 ? 'Excellent!' : stats.completionRate >= 60 ? 'Good progress' : 'Keep going'}` : 'Start your journey',
       icon: Target,
       color: 'text-orange-600',
       bgColor: 'bg-orange-100'
