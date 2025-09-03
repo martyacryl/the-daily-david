@@ -345,6 +345,9 @@ export function DailyEntry() {
         [type]: updatedGoals
       }
     })
+    
+    // Auto-save when goal changes
+    window.dispatchEvent(new CustomEvent('triggerSave'))
   }
 
   const handleGoalDelete = (type: keyof UserGoals, index: number) => {
@@ -352,6 +355,9 @@ export function DailyEntry() {
       ...prev,
       [type]: prev[type].filter((_, i) => i !== index)
     }))
+    
+    // Auto-save when goal is deleted
+    window.dispatchEvent(new CustomEvent('triggerSave'))
   }
 
   const addGoal = (type: keyof UserGoals) => {
@@ -372,6 +378,9 @@ export function DailyEntry() {
       console.log('Updated goals:', updated)
       return updated
     })
+    
+    // Auto-save when goal is added
+    window.dispatchEvent(new CustomEvent('triggerSave'))
   }
 
   if (!isAuthenticated) {

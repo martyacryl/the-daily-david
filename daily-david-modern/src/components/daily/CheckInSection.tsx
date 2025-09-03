@@ -1,4 +1,5 @@
 
+import { useState, useEffect } from 'react'
 import { CheckInData, EmotionType } from '@/types'
 
 interface CheckInSectionProps {
@@ -25,13 +26,31 @@ export function CheckInSection({ checkIn, onUpdate }: CheckInSectionProps) {
       ...checkIn,
       emotions: newEmotions
     })
+    
+    // Auto-save when emotion changes
+    window.dispatchEvent(new CustomEvent('triggerSave'))
   }
 
+  const [localFeeling, setLocalFeeling] = useState(checkIn.feeling || '')
+
+  useEffect(() => {
+    setLocalFeeling(checkIn.feeling || '')
+  }, [checkIn.feeling])
+
   const handleFeelingChange = (feeling: string) => {
-    onUpdate({
-      ...checkIn,
-      feeling
-    })
+    setLocalFeeling(feeling)
+  }
+
+  const handleFeelingBlur = () => {
+    // Only update if there's actually a change
+    if (localFeeling !== checkIn.feeling) {
+      onUpdate({
+        ...checkIn,
+        feeling: localFeeling
+      })
+      // Trigger auto-save
+      window.dispatchEvent(new CustomEvent('triggerSave'))
+    }
   }
 
   return (
@@ -83,8 +102,9 @@ export function CheckInSection({ checkIn, onUpdate }: CheckInSectionProps) {
           How are you feeling? (optional)
         </label>
         <textarea
-          value={checkIn.feeling || ''}
+          value={localFeeling}
           onChange={(e) => handleFeelingChange(e.target.value)}
+          onBlur={handleFeelingBlur}
           placeholder="Describe how you're feeling today..."
           className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors duration-200 resize-none"
           rows={3}
