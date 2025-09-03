@@ -544,19 +544,10 @@ export function DailyEntry() {
         <div className="text-center py-12">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500 mx-auto"></div>
           <p className="mt-4 text-gray-600">Loading entry...</p>
-          <p className="mt-2 text-sm text-gray-500">isLoading: {isLoading.toString()}, storeLoading: {storeLoading.toString()}</p>
         </div>
       ) : (
         <>
-          {/* Debug Info */}
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-            <h4 className="font-semibold text-blue-800 mb-2">Debug Info:</h4>
-            <p className="text-sm text-blue-700">Selected Date: {selectedDate.toDateString()}</p>
-            <p className="text-sm text-blue-700">Day Data: {JSON.stringify(dayData, null, 2)}</p>
-            <p className="text-sm text-blue-700">User Goals: {JSON.stringify(userGoals, null, 2)}</p>
-            <p className="text-sm text-blue-700">Current Entry: {currentEntry ? 'Found' : 'Not found'}</p>
-          </div>
-          
+
           {/* Daily Entry Sections */}
           <div className="space-y-8">
             
