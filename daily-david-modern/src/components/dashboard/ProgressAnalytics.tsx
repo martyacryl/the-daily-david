@@ -305,6 +305,85 @@ function calculateLeadershipScores(entries: DailyEntry[]) {
   }
 }
 
+function calculateDisciplinePercentage(entries: DailyEntry[], discipline: string): number {
+  if (entries.length === 0) return 0
+  
+  let totalDays = entries.length
+  let daysWithDiscipline = 0
+  
+  entries.forEach(entry => {
+    let hasDiscipline = false
+    
+    switch (discipline) {
+      case 'soap':
+        hasDiscipline = !!(entry.scripture || entry.observation || entry.application || entry.prayer)
+        break
+      case 'prayer':
+        hasDiscipline = !!entry.prayer
+        break
+      case 'gratitude':
+        hasDiscipline = !!entry.gratitude
+        break
+      case 'goals':
+        hasDiscipline = !!(entry.goals && entry.goals !== '')
+        break
+    }
+    
+    if (hasDiscipline) {
+      daysWithDiscipline++
+    }
+  })
+  
+  return Math.round((daysWithDiscipline / totalDays) * 100)
+}
+
+function generateHeatmapDays(entries: DailyEntry[]) {
+  const days = []
+  const today = new Date()
+  
+  // Generate last 30 days
+  for (let i = 29; i >= 0; i--) {
+    const date = new Date(today)
+    date.setDate(date.getDate() - i)
+    
+    const dateString = date.toISOString().split('T')[0]
+    const entry = entries.find(e => e.date === dateString)
+    
+    let intensity = 'none'
+    let tooltip = `${date.toLocaleDateString()}: No activity`
+    
+    if (entry) {
+      const activities = [
+        !!(entry.scripture || entry.observation || entry.application || entry.prayer),
+        !!entry.gratitude,
+        !!(entry.goals && entry.goals !== ''),
+        !!entry.dailyIntention,
+        !!entry.growthQuestion
+      ].filter(Boolean).length
+      
+      if (activities >= 4) {
+        intensity = 'high'
+        tooltip = `${date.toLocaleDateString()}: High activity (${activities} areas)`
+      } else if (activities >= 2) {
+        intensity = 'medium'
+        tooltip = `${date.toLocaleDateString()}: Medium activity (${activities} areas)`
+      } else if (activities >= 1) {
+        intensity = 'low'
+        tooltip = `${date.toLocaleDateString()}: Low activity (${activities} areas)`
+      }
+    }
+    
+    days.push({
+      day: date.getDate(),
+      hasEntry: !!entry,
+      intensity,
+      tooltip
+    })
+  }
+  
+  return days
+}
+
 export function ProgressAnalytics() {
   const { entries, loadEntries, isLoading } = useDailyStore()
   const { isAuthenticated } = useAuthStore()
@@ -569,11 +648,42 @@ export function ProgressAnalytics() {
           <h3 className="text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
             📈 Goal Achievement Trends
           </h3>
-          <div className="h-64 flex items-center justify-center">
-            <div className="text-center text-gray-500">
-              <div className="text-4xl mb-2">📊</div>
-              <p>Goal trends chart coming soon...</p>
-              <p className="text-sm">Daily, Weekly, Monthly completion rates over time</p>
+          <div className="h-64 flex items-end space-x-2">
+            {data.monthlyProgress.slice(-6).map((month, index) => {
+              const maxGoals = Math.max(...data.monthlyProgress.map(m => m.goals), 1)
+              const maxEntries = Math.max(...data.monthlyProgress.map(m => m.entries), 1)
+              
+              return (
+                <div key={month.month} className="flex-1 flex flex-col items-center space-y-2">
+                  <div className="w-full bg-gray-100 rounded-t-lg relative h-48">
+                    {/* Daily Goals Bar */}
+                    <div
+                      className="absolute bottom-0 w-full bg-blue-500 rounded-t-lg transition-all duration-500"
+                      style={{ height: `${(month.goals / maxGoals) * 200}px` }}
+                    ></div>
+                    {/* Entries Bar */}
+                    <div
+                      className="absolute bottom-0 w-full bg-green-500 rounded-t-lg transition-all duration-500 opacity-80"
+                      style={{ height: `${(month.entries / maxEntries) * 180}px` }}
+                    ></div>
+                  </div>
+                  <span className="text-sm font-medium text-gray-700">{month.month}</span>
+                  <div className="text-xs text-gray-500 text-center">
+                    <div>Goals: {month.goals}</div>
+                    <div>Entries: {month.entries}</div>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+          <div className="flex justify-center space-x-6 mt-4 text-sm text-gray-600">
+            <div className="flex items-center space-x-2">
+              <div className="w-3 h-3 bg-blue-500 rounded"></div>
+              <span>Goals Set</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <div className="w-3 h-3 bg-green-500 rounded"></div>
+              <span>Entries Made</span>
             </div>
           </div>
         </Card>
@@ -584,38 +694,46 @@ export function ProgressAnalytics() {
             🎯 Spiritual Disciplines Health Check
           </h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {[
-              { name: 'SOAP Study', value: 75, color: 'text-blue-600' },
-              { name: 'Prayer', value: 60, color: 'text-green-600' },
-              { name: 'Gratitude', value: 85, color: 'text-purple-600' },
-              { name: 'Goals', value: 70, color: 'text-orange-600' }
-            ].map((discipline) => (
-              <div key={discipline.name} className="text-center">
-                <div className="relative w-20 h-20 mx-auto mb-2">
-                  <svg className="w-20 h-20 transform -rotate-90" viewBox="0 0 36 36">
-                    <path
-                      d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                      fill="none"
-                      stroke="#e5e7eb"
-                      strokeWidth="2"
-                    />
-                    <path
-                      d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeDasharray={`${discipline.value}, 100`}
-                      strokeLinecap="round"
-                      className={discipline.color}
-                    />
-                  </svg>
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="text-sm font-bold text-gray-900">{discipline.value}%</span>
+            {(() => {
+              // Calculate real discipline percentages from entries
+              const soapPercentage = calculateDisciplinePercentage(entries, 'soap')
+              const prayerPercentage = calculateDisciplinePercentage(entries, 'prayer')
+              const gratitudePercentage = calculateDisciplinePercentage(entries, 'gratitude')
+              const goalsPercentage = calculateDisciplinePercentage(entries, 'goals')
+              
+              return [
+                { name: 'SOAP Study', value: soapPercentage, color: 'text-blue-600' },
+                { name: 'Prayer', value: prayerPercentage, color: 'text-green-600' },
+                { name: 'Gratitude', value: gratitudePercentage, color: 'text-purple-600' },
+                { name: 'Goals', value: goalsPercentage, color: 'text-orange-600' }
+              ].map((discipline) => (
+                <div key={discipline.name} className="text-center">
+                  <div className="relative w-20 h-20 mx-auto mb-2">
+                    <svg className="w-20 h-20 transform -rotate-90" viewBox="0 0 36 36">
+                      <path
+                        d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                        fill="none"
+                        stroke="#e5e7eb"
+                        strokeWidth="2"
+                      />
+                      <path
+                        d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeDasharray={`${discipline.value}, 100`}
+                        strokeLinecap="round"
+                        className={discipline.color}
+                      />
+                    </svg>
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <span className="text-sm font-bold text-gray-900">{discipline.value}%</span>
+                    </div>
                   </div>
+                  <p className="text-sm font-medium text-gray-700">{discipline.name}</p>
                 </div>
-                <p className="text-sm font-medium text-gray-700">{discipline.name}</p>
-              </div>
-            ))}
+              ))
+            })()}
           </div>
         </Card>
 
@@ -624,11 +742,42 @@ export function ProgressAnalytics() {
           <h3 className="text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
             📅 30-Day Spiritual Activity Heatmap
           </h3>
-          <div className="flex items-center justify-center h-32">
-            <div className="text-center text-gray-500">
-              <div className="text-4xl mb-2">🗓️</div>
-              <p>Activity heatmap coming soon...</p>
-              <p className="text-sm">Visual calendar showing your spiritual consistency</p>
+          <div className="space-y-4">
+            <div className="grid grid-cols-7 gap-1 text-xs">
+              {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day) => (
+                <div key={day} className="text-center text-gray-500 font-medium p-2">
+                  {day}
+                </div>
+              ))}
+            </div>
+            <div className="grid grid-cols-7 gap-1">
+              {generateHeatmapDays(entries).map((day, index) => (
+                <div
+                  key={index}
+                  className={`aspect-square rounded-sm text-xs flex items-center justify-center ${
+                    day.hasEntry 
+                      ? day.intensity === 'high' 
+                        ? 'bg-green-600 text-white' 
+                        : day.intensity === 'medium'
+                        ? 'bg-green-400 text-white'
+                        : 'bg-green-200 text-gray-700'
+                      : 'bg-gray-100 text-gray-400'
+                  }`}
+                  title={day.tooltip}
+                >
+                  {day.day}
+                </div>
+              ))}
+            </div>
+            <div className="flex justify-between text-xs text-gray-500">
+              <span>Less</span>
+              <div className="flex space-x-1">
+                <div className="w-3 h-3 bg-gray-100 rounded-sm"></div>
+                <div className="w-3 h-3 bg-green-200 rounded-sm"></div>
+                <div className="w-3 h-3 bg-green-400 rounded-sm"></div>
+                <div className="w-3 h-3 bg-green-600 rounded-sm"></div>
+              </div>
+              <span>More</span>
             </div>
           </div>
         </Card>
