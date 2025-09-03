@@ -29,29 +29,20 @@ export function CheckInSection({ checkIn, onUpdate }: CheckInSectionProps) {
       : [...localEmotions, emotion]
     
     setLocalEmotions(newEmotions)
+    
+    // Update immediately and trigger auto-save
+    onUpdate({
+      ...checkIn,
+      emotions: newEmotions
+    })
+    
+    // Trigger auto-save
+    setTimeout(() => {
+      window.dispatchEvent(new CustomEvent('triggerSave'))
+    }, 100)
   }
 
-  const handleEmotionBlur = () => {
-    console.log('CheckIn: Emotion blur triggered')
-    console.log('CheckIn: Local emotions:', localEmotions)
-    console.log('CheckIn: Current checkIn emotions:', checkIn.emotions)
-    
-    // Only update if there's actually a change
-    if (JSON.stringify(localEmotions) !== JSON.stringify(checkIn.emotions)) {
-      console.log('CheckIn: Emotions changed, updating...')
-      onUpdate({
-        ...checkIn,
-        emotions: localEmotions
-      })
-      // Trigger auto-save
-      setTimeout(() => {
-        console.log('CheckIn: Triggering auto-save...')
-        window.dispatchEvent(new CustomEvent('triggerSave'))
-      }, 100)
-    } else {
-      console.log('CheckIn: No emotion changes detected')
-    }
-  }
+
 
   const [localFeeling, setLocalFeeling] = useState(checkIn.feeling || '')
 
@@ -64,24 +55,16 @@ export function CheckInSection({ checkIn, onUpdate }: CheckInSectionProps) {
   }
 
   const handleFeelingBlur = () => {
-    console.log('CheckIn: Feeling blur triggered')
-    console.log('CheckIn: Local feeling:', localFeeling)
-    console.log('CheckIn: Current checkIn feeling:', checkIn.feeling)
-    
     // Only update if there's actually a change
     if (localFeeling !== checkIn.feeling) {
-      console.log('CheckIn: Feeling changed, updating...')
       onUpdate({
         ...checkIn,
         feeling: localFeeling
       })
       // Trigger auto-save
       setTimeout(() => {
-        console.log('CheckIn: Triggering auto-save for feeling...')
         window.dispatchEvent(new CustomEvent('triggerSave'))
       }, 100)
-    } else {
-      console.log('CheckIn: No feeling changes detected')
     }
   }
 
@@ -99,7 +82,7 @@ export function CheckInSection({ checkIn, onUpdate }: CheckInSectionProps) {
         <h4 className="text-sm font-medium text-gray-700 mb-3">
           Select your emotions:
         </h4>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3" onBlur={handleEmotionBlur}>
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
           {emotionOptions.map((emotion) => (
             <label 
               key={emotion.key} 
