@@ -478,7 +478,11 @@ export const Dashboard: React.FC = () => {
               <div className="text-sm text-gray-500 italic">No daily goals set yet</div>
             )}
           </div>
-          <Link to="/daily#goals" className="block mt-4 text-sm text-green-600 hover:text-green-700 font-medium">
+          <Link 
+            to="/daily#goals" 
+            className="block mt-4 text-sm text-green-600 hover:text-green-700 font-medium"
+            onClick={() => sessionStorage.setItem('scrollToGoals', 'true')}
+          >
             View all daily goals →
           </Link>
         </Card>
@@ -504,7 +508,11 @@ export const Dashboard: React.FC = () => {
               <div className="text-sm text-gray-500 italic">No weekly goals set yet</div>
             )}
           </div>
-          <Link to="/daily#goals" className="block mt-4 text-sm text-green-600 hover:text-green-700 font-medium">
+          <Link 
+            to="/daily#goals" 
+            className="block mt-4 text-sm text-green-600 hover:text-green-700 font-medium"
+            onClick={() => sessionStorage.setItem('scrollToGoals', 'true')}
+          >
             View all weekly goals →
           </Link>
         </Card>
@@ -530,7 +538,11 @@ export const Dashboard: React.FC = () => {
               <div className="text-sm text-gray-500 italic">No monthly goals set yet</div>
             )}
           </div>
-          <Link to="/daily#goals" className="block mt-4 text-sm text-green-600 hover:text-green-700 font-medium">
+          <Link 
+            to="/daily#goals" 
+            className="block mt-4 text-sm text-green-600 hover:text-green-700 font-medium"
+            onClick={() => sessionStorage.setItem('scrollToGoals', 'true')}
+          >
             View all monthly goals →
           </Link>
         </Card>

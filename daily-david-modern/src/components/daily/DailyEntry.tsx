@@ -105,20 +105,31 @@ export function DailyEntry() {
     }
   }, [searchParams, isAuthenticated])
 
-  // Auto-scroll to goals section if hash is present
+  // Auto-scroll to goals section only when coming from dashboard goals links
   useEffect(() => {
     const hash = window.location.hash
     if (hash === '#goals') {
-      // Small delay to ensure the component is fully rendered
-      setTimeout(() => {
-        const goalsSection = document.getElementById('goals-section')
-        if (goalsSection) {
-          goalsSection.scrollIntoView({ 
-            behavior: 'smooth',
-            block: 'start'
-          })
-        }
-      }, 500)
+      // Check if we came from dashboard goals links using session storage
+      const fromDashboardGoals = sessionStorage.getItem('scrollToGoals')
+      
+      if (fromDashboardGoals === 'true') {
+        // Small delay to ensure the component is fully rendered
+        setTimeout(() => {
+          const goalsSection = document.getElementById('goals-section')
+          if (goalsSection) {
+            goalsSection.scrollIntoView({ 
+              behavior: 'smooth',
+              block: 'start'
+            })
+          }
+        }, 500)
+        
+        // Clear the session storage flag
+        sessionStorage.removeItem('scrollToGoals')
+      }
+      
+      // Clear the hash after processing to prevent re-scrolling on page refresh
+      window.history.replaceState(null, '', window.location.pathname + window.location.search)
     }
   }, [selectedDate]) // Re-run when date changes
 
