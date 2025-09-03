@@ -1,9 +1,329 @@
 import { motion } from 'framer-motion'
 import { TrendingUp, Target, Award, Clock, Heart, Zap } from 'lucide-react'
 import { Card } from '../ui/Card'
+import { useDailyStore } from '../../stores/dailyStore'
+import { useAuthStore } from '../../stores/authStore'
+import { useEffect, useState } from 'react'
+import { DailyEntry } from '../../types'
+
+interface AnalyticsData {
+  currentStreak: number
+  longestStreak: number
+  totalEntries: number
+  completionRate: number
+  goalCompletion: {
+    daily: { completed: number, total: number, percentage: number }
+    weekly: { completed: number, total: number, percentage: number }
+    monthly: { completed: number, total: number, percentage: number }
+  }
+  categoryBreakdown: Array<{ category: string, count: number, color: string }>
+  monthlyProgress: Array<{ month: string, entries: number, goals: number }>
+  leadershipScores: {
+    wisdom: number
+    courage: number
+    patience: number
+    integrity: number
+  }
+}
+
+function calculateAnalytics(entries: DailyEntry[]): AnalyticsData {
+  if (entries.length === 0) {
+    return {
+      currentStreak: 0,
+      longestStreak: 0,
+      totalEntries: 0,
+      completionRate: 0,
+      goalCompletion: {
+        daily: { completed: 0, total: 0, percentage: 0 },
+        weekly: { completed: 0, total: 0, percentage: 0 },
+        monthly: { completed: 0, total: 0, percentage: 0 }
+      },
+      categoryBreakdown: [],
+      monthlyProgress: [],
+      leadershipScores: { wisdom: 0, courage: 0, patience: 0, integrity: 0 }
+    }
+  }
+
+  // Calculate streaks
+  const { currentStreak, longestStreak } = calculateStreaks(entries)
+  
+  // Calculate completion rate
+  const completionRate = calculateCompletionRate(entries)
+  
+  // Calculate goal completion
+  const goalCompletion = calculateGoalCompletion(entries)
+  
+  // Calculate category breakdown
+  const categoryBreakdown = calculateCategoryBreakdown(entries)
+  
+  // Calculate monthly progress
+  const monthlyProgress = calculateMonthlyProgress(entries)
+  
+  // Calculate leadership scores
+  const leadershipScores = calculateLeadershipScores(entries)
+
+  return {
+    currentStreak,
+    longestStreak,
+    totalEntries: entries.length,
+    completionRate,
+    goalCompletion,
+    categoryBreakdown,
+    monthlyProgress,
+    leadershipScores
+  }
+}
+
+function calculateStreaks(entries: DailyEntry[]): { currentStreak: number, longestStreak: number } {
+  if (entries.length === 0) return { currentStreak: 0, longestStreak: 0 }
+
+  // Sort entries by date (newest first)
+  const sortedEntries = [...entries].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+  
+  // Calculate current streak
+  let currentStreak = 0
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  
+  // Check if today has an entry
+  const todayEntry = sortedEntries.find(entry => {
+    const entryDate = new Date(entry.date)
+    entryDate.setHours(0, 0, 0, 0)
+    return entryDate.getTime() === today.getTime()
+  })
+  
+  if (!todayEntry) {
+    // If no entry today, check if yesterday had an entry
+    const yesterday = new Date(today)
+    yesterday.setDate(yesterday.getDate() - 1)
+    
+    const yesterdayEntry = sortedEntries.find(entry => {
+      const entryDate = new Date(entry.date)
+      entryDate.setHours(0, 0, 0, 0)
+      return entryDate.getTime() === yesterday.getTime()
+    })
+    
+    if (!yesterdayEntry) return { currentStreak: 0, longestStreak: 0 }
+  }
+  
+  // Count consecutive days with entries
+  let currentDate = new Date(today)
+  if (!todayEntry) {
+    currentDate.setDate(currentDate.getDate() - 1)
+  }
+  
+  for (let i = 0; i < sortedEntries.length; i++) {
+    const entryDate = new Date(sortedEntries[i].date)
+    entryDate.setHours(0, 0, 0, 0)
+    
+    if (entryDate.getTime() === currentDate.getTime()) {
+      currentStreak++
+      currentDate.setDate(currentDate.getDate() - 1)
+    } else if (entryDate.getTime() < currentDate.getTime()) {
+      break
+    }
+  }
+
+  // Calculate longest streak
+  let longestStreak = 0
+  let tempStreak = 0
+  let lastDate: Date | null = null
+
+  for (const entry of sortedEntries) {
+    const entryDate = new Date(entry.date)
+    entryDate.setHours(0, 0, 0, 0)
+    
+    if (lastDate === null) {
+      tempStreak = 1
+    } else {
+      const daysDiff = Math.floor((lastDate.getTime() - entryDate.getTime()) / (1000 * 60 * 60 * 24))
+      if (daysDiff === 1) {
+        tempStreak++
+      } else {
+        longestStreak = Math.max(longestStreak, tempStreak)
+        tempStreak = 1
+      }
+    }
+    lastDate = entryDate
+  }
+  longestStreak = Math.max(longestStreak, tempStreak)
+
+  return { currentStreak, longestStreak }
+}
+
+function calculateCompletionRate(entries: DailyEntry[]): number {
+  if (entries.length === 0) return 0
+  
+  // Find the earliest entry date
+  const earliestEntry = entries.reduce((earliest, entry) => {
+    const entryDate = new Date(entry.date)
+    return entryDate < earliest ? entryDate : earliest
+  }, new Date(entries[0].date))
+  
+  // Calculate total days from first entry to today
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  const totalDays = Math.ceil((today.getTime() - earliestEntry.getTime()) / (1000 * 60 * 60 * 24)) + 1
+  
+  // Count unique days with entries
+  const uniqueDays = new Set(entries.map(entry => {
+    const entryDate = new Date(entry.date)
+    entryDate.setHours(0, 0, 0, 0)
+    return entryDate.getTime()
+  })).size
+  
+  // Calculate completion rate as percentage
+  return Math.round((uniqueDays / totalDays) * 100)
+}
+
+function calculateGoalCompletion(entries: DailyEntry[]) {
+  let dailyCompleted = 0, dailyTotal = 0
+  let weeklyCompleted = 0, weeklyTotal = 0
+  let monthlyCompleted = 0, monthlyTotal = 0
+
+  entries.forEach(entry => {
+    if (entry.goals) {
+      // Daily goals
+      if (entry.goals.daily) {
+        dailyTotal += entry.goals.daily.length
+        dailyCompleted += entry.goals.daily.filter(g => g.completed).length
+      }
+      
+      // Weekly goals
+      if (entry.goals.weekly) {
+        weeklyTotal += entry.goals.weekly.length
+        weeklyCompleted += entry.goals.weekly.filter(g => g.completed).length
+      }
+      
+      // Monthly goals
+      if (entry.goals.monthly) {
+        monthlyTotal += entry.goals.monthly.length
+        monthlyCompleted += entry.goals.monthly.filter(g => g.completed).length
+      }
+    }
+  })
+
+  return {
+    daily: {
+      completed: dailyCompleted,
+      total: dailyTotal,
+      percentage: dailyTotal > 0 ? Math.round((dailyCompleted / dailyTotal) * 100) : 0
+    },
+    weekly: {
+      completed: weeklyCompleted,
+      total: weeklyTotal,
+      percentage: weeklyTotal > 0 ? Math.round((weeklyCompleted / weeklyTotal) * 100) : 0
+    },
+    monthly: {
+      completed: monthlyCompleted,
+      total: monthlyTotal,
+      percentage: monthlyTotal > 0 ? Math.round((monthlyCompleted / monthlyTotal) * 100) : 0
+    }
+  }
+}
+
+function calculateCategoryBreakdown(entries: DailyEntry[]) {
+  const categoryCount: { [key: string]: number } = {}
+  
+  entries.forEach(entry => {
+    if (entry.goals) {
+      const allGoals = [
+        ...(entry.goals.daily || []),
+        ...(entry.goals.weekly || []),
+        ...(entry.goals.monthly || [])
+      ]
+      
+      allGoals.forEach(goal => {
+        const category = goal.category || 'Other'
+        categoryCount[category] = (categoryCount[category] || 0) + 1
+      })
+    }
+  })
+
+  const colors = ['bg-blue-500', 'bg-green-500', 'bg-purple-500', 'bg-orange-500', 'bg-pink-500', 'bg-indigo-500']
+  
+  return Object.entries(categoryCount)
+    .map(([category, count], index) => ({
+      category,
+      count,
+      color: colors[index % colors.length]
+    }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 6) // Top 6 categories
+}
+
+function calculateMonthlyProgress(entries: DailyEntry[]) {
+  const monthlyData: { [key: string]: { entries: number, goals: number } } = {}
+  
+  entries.forEach(entry => {
+    const entryDate = new Date(entry.date)
+    const monthKey = entryDate.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
+    
+    if (!monthlyData[monthKey]) {
+      monthlyData[monthKey] = { entries: 0, goals: 0 }
+    }
+    
+    monthlyData[monthKey].entries++
+    
+    if (entry.goals) {
+      const totalGoals = (entry.goals.daily?.length || 0) + 
+                        (entry.goals.weekly?.length || 0) + 
+                        (entry.goals.monthly?.length || 0)
+      monthlyData[monthKey].goals += totalGoals
+    }
+  })
+
+  return Object.entries(monthlyData)
+    .map(([month, data]) => ({ month, ...data }))
+    .sort((a, b) => new Date(a.month).getTime() - new Date(b.month).getTime())
+    .slice(-6) // Last 6 months
+}
+
+function calculateLeadershipScores(entries: DailyEntry[]) {
+  let wisdomSum = 0, courageSum = 0, patienceSum = 0, integritySum = 0
+  let count = 0
+
+  entries.forEach(entry => {
+    if (entry.leadershipRating) {
+      wisdomSum += entry.leadershipRating.wisdom || 0
+      courageSum += entry.leadershipRating.courage || 0
+      patienceSum += entry.leadershipRating.patience || 0
+      integritySum += entry.leadershipRating.integrity || 0
+      count++
+    }
+  })
+
+  if (count === 0) {
+    return { wisdom: 0, courage: 0, patience: 0, integrity: 0 }
+  }
+
+  return {
+    wisdom: Math.round((wisdomSum / count) * 10) / 10,
+    courage: Math.round((courageSum / count) * 10) / 10,
+    patience: Math.round((patienceSum / count) * 10) / 10,
+    integrity: Math.round((integritySum / count) * 10) / 10
+  }
+}
 
 export function ProgressAnalytics() {
-  // Mock data - replace with actual data from store/database
+  const { entries, loadEntries, isLoading } = useDailyStore()
+  const { isAuthenticated } = useAuthStore()
+  const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(null)
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      loadEntries()
+    }
+  }, [isAuthenticated, loadEntries])
+
+  useEffect(() => {
+    if (entries.length > 0) {
+      const data = calculateAnalytics(entries)
+      setAnalyticsData(data)
+    }
+  }, [entries])
+
+  // Mock data fallback - replace with actual data from store/database
   const mockData = {
     currentStreak: 7,
     longestStreak: 23,
@@ -34,6 +354,29 @@ export function ProgressAnalytics() {
     }
   }
 
+  // Use real data if available, otherwise fallback to mock data
+  const data = analyticsData || mockData
+
+  if (isLoading) {
+    return (
+      <div className="space-y-8">
+        <div className="text-center">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">Progress Analytics</h1>
+          <p className="text-xl text-gray-600">Loading your data...</p>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {[1, 2, 3, 4].map((i) => (
+            <Card key={i} className="p-6 animate-pulse">
+              <div className="w-12 h-12 bg-gray-200 rounded-full mx-auto mb-4"></div>
+              <div className="h-8 bg-gray-200 rounded mb-2"></div>
+              <div className="h-4 bg-gray-200 rounded"></div>
+            </Card>
+          ))}
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-8">
       {/* Header */}
@@ -57,7 +400,7 @@ export function ProgressAnalytics() {
             <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
               <Zap className="w-6 h-6 text-white" />
             </div>
-            <h3 className="text-2xl font-bold text-gray-900">{mockData.currentStreak}</h3>
+            <h3 className="text-2xl font-bold text-gray-900">{data.currentStreak}</h3>
             <p className="text-sm text-gray-600">Current Streak</p>
             <p className="text-xs text-green-600 mt-1">🔥 Keep it up!</p>
           </Card>
@@ -72,7 +415,7 @@ export function ProgressAnalytics() {
             <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
               <Target className="w-6 h-6 text-white" />
             </div>
-            <h3 className="text-2xl font-bold text-gray-900">{mockData.totalEntries}</h3>
+            <h3 className="text-2xl font-bold text-gray-900">{data.totalEntries}</h3>
             <p className="text-sm text-gray-600">Total Entries</p>
             <p className="text-xs text-blue-600 mt-1">📝 Consistent!</p>
           </Card>
@@ -87,7 +430,7 @@ export function ProgressAnalytics() {
             <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
               <Award className="w-6 h-6 text-white" />
             </div>
-            <h3 className="text-2xl font-bold text-gray-900">{mockData.longestStreak}</h3>
+            <h3 className="text-2xl font-bold text-gray-900">{data.longestStreak}</h3>
             <p className="text-sm text-gray-600">Longest Streak</p>
             <p className="text-xs text-purple-600 mt-1">🏆 Personal best!</p>
           </Card>
@@ -102,7 +445,7 @@ export function ProgressAnalytics() {
             <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-full flex items-center justify-center mx-auto mb-4">
               <TrendingUp className="w-6 h-6 text-white" />
             </div>
-            <h3 className="text-2xl font-bold text-gray-900">78%</h3>
+            <h3 className="text-2xl font-bold text-gray-900">{data.completionRate}%</h3>
             <p className="text-sm text-gray-600">Overall Progress</p>
             <p className="text-xs text-orange-600 mt-1">📈 Growing!</p>
           </Card>
@@ -121,19 +464,19 @@ export function ProgressAnalytics() {
               🎯 Goal Completion Rates
             </h3>
             <div className="space-y-4">
-              {Object.entries(mockData.goalCompletion).map(([type, data]) => (
+              {Object.entries(data.goalCompletion).map(([type, goalData]) => (
                 <div key={type} className="space-y-2">
                   <div className="flex justify-between text-sm">
                     <span className="font-medium text-gray-700 capitalize">{type} Goals</span>
-                    <span className="text-gray-600">{data.completed}/{data.total}</span>
+                    <span className="text-gray-600">{goalData.completed}/{goalData.total}</span>
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-3">
                     <div
                       className="bg-gradient-to-r from-green-400 to-green-600 h-3 rounded-full transition-all duration-500"
-                      style={{ width: `${data.percentage}%` }}
+                      style={{ width: `${goalData.percentage}%` }}
                     ></div>
                   </div>
-                  <div className="text-right text-sm text-gray-500">{data.percentage}%</div>
+                  <div className="text-right text-sm text-gray-500">{goalData.percentage}%</div>
                 </div>
               ))}
             </div>
@@ -150,7 +493,7 @@ export function ProgressAnalytics() {
               📊 Category Breakdown
             </h3>
             <div className="space-y-4">
-              {mockData.categoryBreakdown.map((category) => (
+              {data.categoryBreakdown.map((category) => (
                 <div key={category.category} className="flex items-center space-x-3">
                   <div className={`w-4 h-4 rounded-full ${category.color}`}></div>
                   <span className="flex-1 text-sm text-gray-700">{category.category}</span>
@@ -158,7 +501,7 @@ export function ProgressAnalytics() {
                   <div className="w-20 bg-gray-200 rounded-full h-2">
                     <div
                       className={`${category.color} h-2 rounded-full transition-all duration-500`}
-                      style={{ width: `${(category.count / 45) * 100}%` }}
+                      style={{ width: `${(category.count / Math.max(...data.categoryBreakdown.map(c => c.count))) * 100}%` }}
                     ></div>
                   </div>
                 </div>
@@ -179,7 +522,7 @@ export function ProgressAnalytics() {
             👑 Leadership Growth Tracker
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {Object.entries(mockData.leadershipScores).map(([trait, score]) => (
+            {Object.entries(data.leadershipScores).map(([trait, score]) => (
               <div key={trait} className="text-center">
                 <h4 className="font-medium text-gray-900 capitalize mb-2">{trait}</h4>
                 <div className="relative">
@@ -225,16 +568,16 @@ export function ProgressAnalytics() {
             📈 Monthly Progress
           </h3>
           <div className="h-64 flex items-end space-x-4">
-            {mockData.monthlyProgress.map((month) => (
+            {data.monthlyProgress.map((month) => (
               <div key={month.month} className="flex-1 flex flex-col items-center space-y-2">
                 <div className="w-full bg-gray-100 rounded-t-lg relative">
                   <div
                     className="bg-gradient-to-t from-green-500 to-green-600 rounded-t-lg transition-all duration-500"
-                    style={{ height: `${(month.entries / 18) * 200}px` }}
+                    style={{ height: `${Math.max(month.entries, 1) / Math.max(...data.monthlyProgress.map(m => m.entries), 1) * 200}px` }}
                   ></div>
                   <div
                     className="absolute bottom-0 w-full bg-blue-500 rounded-t-lg transition-all duration-500"
-                    style={{ height: `${(month.goals / 18) * 200}px` }}
+                    style={{ height: `${Math.max(month.goals, 1) / Math.max(...data.monthlyProgress.map(m => m.goals), 1) * 200}px` }}
                   ></div>
                 </div>
                 <span className="text-sm font-medium text-gray-700">{month.month}</span>
@@ -275,8 +618,13 @@ export function ProgressAnalytics() {
                   <TrendingUp className="w-4 h-4 text-green-600" />
                 </div>
                 <div>
-                  <h4 className="font-medium text-gray-900">Strong Spiritual Focus</h4>
-                  <p className="text-sm text-gray-600">Your spiritual goals are consistently completed. Consider adding more health and family goals for balance.</p>
+                  <h4 className="font-medium text-gray-900">Goal Completion Analysis</h4>
+                  <p className="text-sm text-gray-600">
+                    {data.goalCompletion.daily.percentage > 70 
+                      ? `Excellent daily goal completion at ${data.goalCompletion.daily.percentage}%!`
+                      : `Daily goals at ${data.goalCompletion.daily.percentage}% - room for improvement.`
+                    }
+                  </p>
                 </div>
               </div>
               <div className="flex items-start space-x-3">
@@ -284,8 +632,13 @@ export function ProgressAnalytics() {
                   <Clock className="w-4 h-4 text-blue-600" />
                 </div>
                 <div>
-                  <h4 className="font-medium text-gray-900">Consistent Streak</h4>
-                  <p className="text-sm text-gray-600">You're on a 7-day streak! Try to maintain this momentum for the next milestone.</p>
+                  <h4 className="font-medium text-gray-900">Streak Performance</h4>
+                  <p className="text-sm text-gray-600">
+                    {data.currentStreak > 0 
+                      ? `You're on a ${data.currentStreak}-day streak! Your longest was ${data.longestStreak} days.`
+                      : `Start a new streak today! Your longest was ${data.longestStreak} days.`
+                    }
+                  </p>
                 </div>
               </div>
             </div>
@@ -295,8 +648,13 @@ export function ProgressAnalytics() {
                   <Target className="w-4 h-4 text-yellow-600" />
                 </div>
                 <div>
-                  <h4 className="font-medium text-gray-900">Monthly Goals Need Attention</h4>
-                  <p className="text-sm text-gray-600">Only 50% of monthly goals are completed. Break them down into smaller weekly tasks.</p>
+                  <h4 className="font-medium text-gray-900">Monthly Goal Focus</h4>
+                  <p className="text-sm text-gray-600">
+                    {data.goalCompletion.monthly.percentage > 60 
+                      ? `Great monthly goal completion at ${data.goalCompletion.monthly.percentage}%!`
+                      : `Monthly goals at ${data.goalCompletion.monthly.percentage}% - consider breaking them into smaller weekly tasks.`
+                    }
+                  </p>
                 </div>
               </div>
               <div className="flex items-start space-x-3">
@@ -305,7 +663,12 @@ export function ProgressAnalytics() {
                 </div>
                 <div>
                   <h4 className="font-medium text-gray-900">Leadership Growth</h4>
-                  <p className="text-sm text-gray-600">Your integrity score is excellent (9.1). Focus on patience (6.8) for balanced growth.</p>
+                  <p className="text-sm text-gray-600">
+                    {data.leadershipScores.integrity > 8 
+                      ? `Excellent integrity (${data.leadershipScores.integrity})! Focus on ${Object.entries(data.leadershipScores).reduce((lowest, [trait, score]) => score < data.leadershipScores[lowest as keyof typeof data.leadershipScores] ? trait : lowest, 'wisdom')} for balanced growth.`
+                      : `Keep working on all leadership traits. Current average: ${((data.leadershipScores.wisdom + data.leadershipScores.courage + data.leadershipScores.patience + data.leadershipScores.integrity) / 4).toFixed(1)}/10`
+                    }
+                  </p>
                 </div>
               </div>
             </div>
