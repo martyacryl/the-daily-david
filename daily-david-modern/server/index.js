@@ -68,27 +68,36 @@ app.get('/api/debug/tables', async (req, res) => {
     const client = await pool.connect()
     
     try {
-      // Get table info
+      // Get all tables
       const tablesResult = await client.query(`
         SELECT table_name 
         FROM information_schema.tables 
         WHERE table_schema = 'public' 
-        AND table_name LIKE '%daily%'
         ORDER BY table_name
       `)
       
       // Get sample data from daily_david_entries
-      const sampleResult = await client.query(`
-        SELECT user_id, date_key, created_at 
+      const dailyEntriesResult = await client.query(`
+        SELECT user_id, date_key, created_at, data_content 
         FROM daily_david_entries 
         ORDER BY created_at DESC 
         LIMIT 5
       `)
       
+      // Check if there are other potential entry tables
+      const otherTablesResult = await client.query(`
+        SELECT table_name 
+        FROM information_schema.tables 
+        WHERE table_schema = 'public' 
+        AND table_name LIKE '%entry%'
+        ORDER BY table_name
+      `)
+      
       res.json({ 
         success: true, 
-        tables: tablesResult.rows,
-        sample_entries: sampleResult.rows
+        all_tables: tablesResult.rows,
+        daily_david_entries: dailyEntriesResult.rows,
+        potential_entry_tables: otherTablesResult.rows
       })
     } finally {
       client.release()
