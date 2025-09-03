@@ -557,46 +557,122 @@ export function ProgressAnalytics() {
         </Card>
       </motion.div>
 
-      {/* Monthly Progress Chart */}
+      {/* Spiritual Growth Command Center */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.8 }}
+        className="space-y-8"
       >
+        {/* Section 1: Goal Achievement Trends */}
         <Card className="p-6">
           <h3 className="text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
-            📈 Monthly Progress
+            📈 Goal Achievement Trends
           </h3>
-          <div className="h-64 flex items-end space-x-4">
-            {data.monthlyProgress.map((month) => (
-              <div key={month.month} className="flex-1 flex flex-col items-center space-y-2">
-                <div className="w-full bg-gray-100 rounded-t-lg relative">
-                  <div
-                    className="bg-gradient-to-t from-green-500 to-green-600 rounded-t-lg transition-all duration-500"
-                    style={{ height: `${Math.max(month.entries, 1) / Math.max(...data.monthlyProgress.map(m => m.entries), 1) * 200}px` }}
-                  ></div>
-                  <div
-                    className="absolute bottom-0 w-full bg-blue-500 rounded-t-lg transition-all duration-500"
-                    style={{ height: `${Math.max(month.goals, 1) / Math.max(...data.monthlyProgress.map(m => m.goals), 1) * 200}px` }}
-                  ></div>
+          <div className="h-64 flex items-center justify-center">
+            <div className="text-center text-gray-500">
+              <div className="text-4xl mb-2">📊</div>
+              <p>Goal trends chart coming soon...</p>
+              <p className="text-sm">Daily, Weekly, Monthly completion rates over time</p>
+            </div>
+          </div>
+        </Card>
+
+        {/* Section 2: Spiritual Disciplines Progress Rings */}
+        <Card className="p-6">
+          <h3 className="text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
+            🎯 Spiritual Disciplines Health Check
+          </h3>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {[
+              { name: 'SOAP Study', value: 75, color: 'text-blue-600' },
+              { name: 'Prayer', value: 60, color: 'text-green-600' },
+              { name: 'Gratitude', value: 85, color: 'text-purple-600' },
+              { name: 'Goals', value: 70, color: 'text-orange-600' }
+            ].map((discipline) => (
+              <div key={discipline.name} className="text-center">
+                <div className="relative w-20 h-20 mx-auto mb-2">
+                  <svg className="w-20 h-20 transform -rotate-90" viewBox="0 0 36 36">
+                    <path
+                      d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                      fill="none"
+                      stroke="#e5e7eb"
+                      strokeWidth="2"
+                    />
+                    <path
+                      d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeDasharray={`${discipline.value}, 100`}
+                      strokeLinecap="round"
+                      className={discipline.color}
+                    />
+                  </svg>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <span className="text-sm font-bold text-gray-900">{discipline.value}%</span>
+                  </div>
                 </div>
-                <span className="text-sm font-medium text-gray-700">{month.month}</span>
-                <div className="text-xs text-gray-500 text-center">
-                  <div>Entries: {month.entries}</div>
-                  <div>Goals: {month.goals}</div>
-                </div>
+                <p className="text-sm font-medium text-gray-700">{discipline.name}</p>
               </div>
             ))}
           </div>
-          <div className="flex justify-center space-x-6 mt-4 text-sm text-gray-600">
-            <div className="flex items-center space-x-2">
-              <div className="w-3 h-3 bg-green-500 rounded"></div>
-              <span>Entries</span>
+        </Card>
+
+        {/* Section 3: Habit Consistency Heatmap */}
+        <Card className="p-6">
+          <h3 className="text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
+            📅 30-Day Spiritual Activity Heatmap
+          </h3>
+          <div className="flex items-center justify-center h-32">
+            <div className="text-center text-gray-500">
+              <div className="text-4xl mb-2">🗓️</div>
+              <p>Activity heatmap coming soon...</p>
+              <p className="text-sm">Visual calendar showing your spiritual consistency</p>
             </div>
-            <div className="flex items-center space-x-2">
-              <div className="w-3 h-3 bg-blue-500 rounded"></div>
-              <span>Goals</span>
-            </div>
+          </div>
+        </Card>
+
+        {/* Section 4: Leadership Growth Tracker */}
+        <Card className="p-6">
+          <h3 className="text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
+            👑 Leadership Growth Tracker
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {Object.entries(data.leadershipScores).map(([trait, score]) => (
+              <div key={trait} className="text-center">
+                <h4 className="font-medium text-gray-900 capitalize mb-2">{trait}</h4>
+                <div className="relative">
+                  <svg className="w-20 h-20 mx-auto" viewBox="0 0 36 36">
+                    <path
+                      d="M18 2.0845
+                        a 15.9155 15.9155 0 0 1 0 31.831
+                        a 15.9155 15.9155 0 0 1 0 -31.831"
+                      fill="none"
+                      stroke="#e5e7eb"
+                      strokeWidth="2"
+                    />
+                    <path
+                      d="M18 2.0845
+                        a 15.9155 15.9155 0 0 1 0 31.831
+                        a 15.9155 15.9155 0 0 1 0 -31.831"
+                      fill="none"
+                      stroke="#10b981"
+                      strokeWidth="2"
+                      strokeDasharray={`${score * 10}, 100`}
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <span className="text-lg font-bold text-gray-900">{score}</span>
+                  </div>
+                </div>
+                <p className="text-sm text-gray-600 mt-2">/ 10</p>
+                <div className="mt-2">
+                  <span className="text-xs text-green-600">↗ +0.2</span>
+                </div>
+              </div>
+            ))}
           </div>
         </Card>
       </motion.div>
