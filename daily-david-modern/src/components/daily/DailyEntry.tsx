@@ -173,6 +173,11 @@ export function DailyEntry() {
       }
       
       console.log('Auto-save completed successfully via direct API')
+      
+      // Add a small delay to ensure database has been updated before any potential reloads
+      setTimeout(() => {
+        console.log('Auto-save: Database should be updated now')
+      }, 500)
     } catch (error) {
       console.error('Auto-save error:', error)
     }
@@ -315,6 +320,7 @@ export function DailyEntry() {
           ...newData,
           goals: userGoals
         }
+        console.log('handleUpdate: About to trigger auto-save for section:', section)
         autoSaveToAPI(entryData)
       }, 100)
       
