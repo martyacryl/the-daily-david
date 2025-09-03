@@ -41,35 +41,11 @@ class BibleService {
 
   // Get available Bible versions
   async getBibleVersions(): Promise<BibleVersion[]> {
-    if (!this.apiKey) {
-      // Return mock data for demo
-      return [
-        { id: 'de4e12af7f28f599-02', name: 'English Standard Version', language: 'English', abbreviation: 'ESV' },
-        { id: '65eec8e0b60e656b-01', name: 'New International Version', language: 'English', abbreviation: 'NIV' },
-        { id: 'de4e12af7f28f599-01', name: 'King James Version', language: 'English', abbreviation: 'KJV' },
-        { id: '65eec8e0b60e656b-02', name: 'New Living Translation', language: 'English', abbreviation: 'NLT' }
-      ];
-    }
-
-    try {
-      const response = await fetch(`${this.baseUrl}/bibles`, {
-        headers: { 'api-key': this.apiKey }
-      });
-      
-      if (response.ok) {
-        const data = await response.json();
-        return data.data?.map((bible: any) => ({
-          id: bible.id,
-          name: bible.name,
-          language: bible.language?.name || 'Unknown',
-          abbreviation: bible.abbreviation || bible.name.split(' ')[0]
-        })) || [];
-      }
-    } catch (error) {
-      console.error('Error fetching Bible versions:', error);
-    }
-    
-    return [];
+    // Return only ESV and NIV for now
+    return [
+      { id: 'de4e12af7f28f599-02', name: 'English Standard Version', language: 'English', abbreviation: 'ESV' },
+      { id: '65eec8e0b60e656b-01', name: 'New International Version', language: 'English', abbreviation: 'NIV' }
+    ];
   }
 
   // Get a specific verse
