@@ -740,7 +740,7 @@ export function ProgressAnalytics() {
         {/* Section 3: Habit Consistency Heatmap */}
         <Card className="p-6">
           <h3 className="text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
-            📅 30-Day Spiritual Activity Heatmap
+            📅 Last 30 Days Spiritual Activity Heatmap
           </h3>
           <div className="space-y-4">
             <div className="grid grid-cols-7 gap-1 text-xs">
