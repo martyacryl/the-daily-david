@@ -91,24 +91,32 @@ class DatabaseManager {
   async saveDailyEntry(entry: Omit<DailyEntry, 'id' | 'created_at' | 'updated_at'>): Promise<DailyEntry> {
     try {
       console.log('API: Saving daily entry:', entry)
+      
+      // Handle different data structures - entry might be the full dayData object
+      const soapData = entry.soap || {
+        scripture: entry.scripture || '',
+        observation: entry.observation || '',
+        application: entry.application || '',
+        prayer: entry.prayer || ''
+      }
+      
+      const requestBody = {
+        date: entry.date,
+        goals: entry.goals,
+        gratitude: entry.gratitude,
+        soap: soapData,
+        dailyIntention: entry.dailyIntention || '',
+        growthQuestion: entry.growthQuestion || '',
+        leadershipRating: entry.leadershipRating || { wisdom: 0, courage: 0, patience: 0, integrity: 0 },
+        checkIn: entry.checkIn || { emotions: [], feeling: '' }
+      }
+      
+      console.log('API: Request body for save:', requestBody)
+      
       const response = await fetch(`${API_BASE_URL}/api/entries`, {
         method: 'POST',
         headers: getAuthHeaders(),
-        body: JSON.stringify({
-          date: entry.date,
-          goals: entry.goals,
-          gratitude: entry.gratitude,
-          soap: {
-            scripture: entry.scripture,
-            observation: entry.observation,
-            application: entry.application,
-            prayer: entry.prayer
-          },
-          dailyIntention: entry.dailyIntention,
-          growthQuestion: entry.growthQuestion,
-          leadershipRating: entry.leadershipRating,
-          checkIn: entry.checkIn
-        }),
+        body: JSON.stringify(requestBody),
       })
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`)
