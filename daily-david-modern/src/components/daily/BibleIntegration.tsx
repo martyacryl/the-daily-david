@@ -77,15 +77,7 @@ export const BibleIntegration: React.FC<BibleIntegrationProps> = ({
           📖 Scripture Selection
         </h3>
         
-        {/* API Key Notice */}
-        <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-          <p className="text-sm text-yellow-800">
-            <strong>Setup Required:</strong> To use real scripture data, you need an API.Bible key. 
-            <a href="https://scripture.api.bible/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline ml-1">
-              Get your free API key here →
-            </a>
-          </p>
-        </div>
+
         
         {/* Tab Navigation */}
         <div className="flex space-x-1 mb-4">

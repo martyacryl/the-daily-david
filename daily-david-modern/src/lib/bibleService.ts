@@ -35,9 +35,8 @@ class BibleService {
   private defaultBibleId = 'de4e12af7f28f599-02'; // ESV Bible ID
 
   constructor(apiKey?: string) {
-    // TODO: Replace with your actual API.Bible API key
-    // Get your free API key at: https://scripture.api.bible/
-    this.apiKey = apiKey || 'YOUR_API_KEY_HERE';
+    // API.Bible API key for The Daily David app
+    this.apiKey = apiKey || '580329b134bf13e4305a57695080195b';
   }
 
   // Get available Bible versions
