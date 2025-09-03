@@ -312,6 +312,12 @@ export const useDailyStore = create<DailyStore>((set, get) => ({
           feelingType: typeof checkInData.feeling
         })
         
+        // DEBUG: Log the exact checkIn data being set
+        console.log('Store: Setting checkIn data in formatted entry:', checkInData)
+        console.log('Store: checkInData.emotions specifically:', checkInData.emotions)
+        console.log('Store: checkInData.emotions length:', checkInData.emotions?.length)
+        console.log('Store: checkInData.emotions contents:', JSON.stringify(checkInData.emotions))
+        
         const formattedEntry: DailyEntry = {
           id: result.id?.toString() || Date.now().toString(),
           userId: result.user_id,

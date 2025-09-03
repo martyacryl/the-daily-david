@@ -23,10 +23,18 @@ export function CheckInSection({ checkIn, onUpdate }: CheckInSectionProps) {
 
   // Update local state when props change (on page load/navigation)
   useEffect(() => {
+    console.log('CheckIn: useEffect for emotions triggered')
+    console.log('CheckIn: Received checkIn.emotions:', checkIn.emotions)
+    console.log('CheckIn: checkIn.emotions type:', typeof checkIn.emotions)
+    console.log('CheckIn: checkIn.emotions isArray:', Array.isArray(checkIn.emotions))
+    console.log('CheckIn: Setting localEmotions to:', checkIn.emotions || [])
     setLocalEmotions(checkIn.emotions || [])
   }, [checkIn.emotions])
 
   useEffect(() => {
+    console.log('CheckIn: useEffect for feeling triggered')
+    console.log('CheckIn: Received checkIn.feeling:', checkIn.feeling)
+    console.log('CheckIn: Setting localFeeling to:', checkIn.feeling || '')
     setLocalFeeling(checkIn.feeling || '')
   }, [checkIn.feeling])
 
