@@ -103,7 +103,11 @@ class DatabaseManager {
             observation: entry.observation,
             application: entry.application,
             prayer: entry.prayer
-          }
+          },
+          dailyIntention: entry.dailyIntention,
+          growthQuestion: entry.growthQuestion,
+          leadershipRating: entry.leadershipRating,
+          checkIn: entry.checkIn
         }),
       })
       if (!response.ok) {
@@ -125,6 +129,10 @@ class DatabaseManager {
           prayer: content.soap?.prayer || '',
           gratitude: content.gratitude || '',
           goals: content.goals || '',
+          checkIn: content.checkIn || { emotions: [], feeling: '' },
+          dailyIntention: content.dailyIntention || '',
+          growthQuestion: content.growthQuestion || '',
+          leadershipRating: content.leadershipRating || { wisdom: 0, courage: 0, patience: 0, integrity: 0 },
           created_at: data.entry.created_at,
           updated_at: data.entry.updated_at
         }
@@ -236,7 +244,11 @@ class DatabaseManager {
           application: data.soap?.application || existingEntry.application || '',
           prayer: data.soap?.prayer || existingEntry.prayer || '',
           gratitude: Array.isArray(data.gratitude) ? data.gratitude.join(', ') : (data.gratitude || existingEntry.gratitude || ''),
-          goals: data.goals ? JSON.stringify(data.goals) : (existingEntry.goals || '')
+          goals: data.goals ? JSON.stringify(data.goals) : (existingEntry.goals || ''),
+          checkIn: data.checkIn || existingEntry.checkIn || { emotions: [], feeling: '' },
+          dailyIntention: data.dailyIntention || existingEntry.dailyIntention || '',
+          growthQuestion: data.growthQuestion || existingEntry.growthQuestion || '',
+          leadershipRating: data.leadershipRating || existingEntry.leadershipRating || { wisdom: 0, courage: 0, patience: 0, integrity: 0 }
         })
       } else {
         // Create new entry
@@ -248,7 +260,11 @@ class DatabaseManager {
           application: data.soap?.application || '',
           prayer: data.soap?.prayer || '',
           gratitude: Array.isArray(data.gratitude) ? data.gratitude.join(', ') : (data.gratitude || ''),
-          goals: data.goals ? JSON.stringify(data.goals) : ''
+          goals: data.goals ? JSON.stringify(data.goals) : '',
+          checkIn: data.checkIn || { emotions: [], feeling: '' },
+          dailyIntention: data.dailyIntention || '',
+          growthQuestion: data.growthQuestion || '',
+          leadershipRating: data.leadershipRating || { wisdom: 0, courage: 0, patience: 0, integrity: 0 }
         })
       }
       return true
