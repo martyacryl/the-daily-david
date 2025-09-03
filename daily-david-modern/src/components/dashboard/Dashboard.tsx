@@ -263,8 +263,7 @@ export const Dashboard: React.FC = () => {
           Welcome to The Daily David
         </h1>
         <p className="text-gray-600 mb-8 max-w-2xl mx-auto">
-          A modern spiritual growth and discipleship tracking platform. 
-          Sign in to start your daily spiritual journey.
+          "I have fought the good fight, I have finished the race, I have kept the faith" - 2 Timothy 4:7
         </p>
         <Link to="/login">
           <Button size="lg">
@@ -331,7 +330,7 @@ export const Dashboard: React.FC = () => {
           Welcome back, {user?.name}! 👋
         </h1>
         <p className="text-xl text-gray-600">
-          Continue your spiritual growth journey today
+          "Let us not grow weary in doing good" - Galatians 6:9
         </p>
       </motion.div>
 

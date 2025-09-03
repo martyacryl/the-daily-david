@@ -362,7 +362,7 @@ export function ProgressAnalytics() {
       <div className="space-y-8">
         <div className="text-center">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">Progress Analytics</h1>
-          <p className="text-xl text-gray-600">Loading your data...</p>
+          <p className="text-xl text-gray-600">"Examine yourselves to see whether you are in the faith" - 2 Corinthians 13:5</p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {[1, 2, 3, 4].map((i) => (
@@ -386,7 +386,7 @@ export function ProgressAnalytics() {
         className="text-center"
       >
         <h1 className="text-4xl font-bold text-gray-900 mb-4">Progress Analytics</h1>
-        <p className="text-xl text-gray-600">Track your spiritual journey and growth patterns</p>
+        <p className="text-xl text-gray-600">"Examine yourselves to see whether you are in the faith" - 2 Corinthians 13:5</p>
       </motion.div>
 
       {/* Key Metrics */}
@@ -608,9 +608,12 @@ export function ProgressAnalytics() {
         transition={{ delay: 0.9 }}
       >
         <Card className="p-6">
-          <h3 className="text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
-            💡 Insights & Recommendations
-          </h3>
+                      <h3 className="text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
+              💡 Insights & Recommendations
+            </h3>
+            <p className="text-sm text-gray-600 mb-4 text-center italic">
+              "For the Lord gives wisdom; from his mouth come knowledge and understanding" - Proverbs 2:6
+            </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-4">
               <div className="flex items-start space-x-3">
