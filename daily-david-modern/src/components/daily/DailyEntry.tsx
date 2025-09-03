@@ -115,7 +115,7 @@ export function DailyEntry() {
 
   // Direct API auto-save function that bypasses the store
   const autoSaveToAPI = async (entryData: any) => {
-    if (!user?.id || !currentEntryIdRef.current) return
+    if (!user?.id) return
     
     try {
       const dateString = getLocalDateString(selectedDate)
@@ -126,7 +126,7 @@ export function DailyEntry() {
         return
       }
       
-      // Correct API call
+      // Correct API call - this will create or update the entry
       const response = await fetch('https://thedailydavid.vercel.app/api/entries', {
         method: 'POST',
         headers: {
@@ -147,6 +147,15 @@ export function DailyEntry() {
       
       if (!response.ok) {
         throw new Error('Failed to auto-save')
+      }
+      
+      // If this was a new entry, get the ID from the response and store it
+      if (!currentEntryIdRef.current) {
+        const result = await response.json()
+        if (result.success && result.data && result.data.id) {
+          currentEntryIdRef.current = result.data.id.toString()
+          console.log('Auto-save: Stored new entry ID:', currentEntryIdRef.current)
+        }
       }
       
       console.log('Auto-save completed silently via direct API')

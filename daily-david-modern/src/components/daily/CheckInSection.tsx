@@ -17,20 +17,32 @@ export function CheckInSection({ checkIn, onUpdate }: CheckInSectionProps) {
     { key: 'tender', label: 'Tender' }
   ]
 
+  const [localEmotions, setLocalEmotions] = useState(checkIn.emotions || [])
+
+  useEffect(() => {
+    setLocalEmotions(checkIn.emotions || [])
+  }, [checkIn.emotions])
+
   const handleEmotionToggle = (emotion: EmotionType) => {
-    const newEmotions = checkIn.emotions.includes(emotion)
-      ? checkIn.emotions.filter(e => e !== emotion)
-      : [...checkIn.emotions, emotion]
+    const newEmotions = localEmotions.includes(emotion)
+      ? localEmotions.filter(e => e !== emotion)
+      : [...localEmotions, emotion]
     
-    onUpdate({
-      ...checkIn,
-      emotions: newEmotions
-    })
-    
-    // Auto-save when emotion changes
-    setTimeout(() => {
-      window.dispatchEvent(new CustomEvent('triggerSave'))
-    }, 100)
+    setLocalEmotions(newEmotions)
+  }
+
+  const handleEmotionBlur = () => {
+    // Only update if there's actually a change
+    if (JSON.stringify(localEmotions) !== JSON.stringify(checkIn.emotions)) {
+      onUpdate({
+        ...checkIn,
+        emotions: localEmotions
+      })
+      // Trigger auto-save
+      setTimeout(() => {
+        window.dispatchEvent(new CustomEvent('triggerSave'))
+      }, 100)
+    }
   }
 
   const [localFeeling, setLocalFeeling] = useState(checkIn.feeling || '')
@@ -71,26 +83,26 @@ export function CheckInSection({ checkIn, onUpdate }: CheckInSectionProps) {
         <h4 className="text-sm font-medium text-gray-700 mb-3">
           Select your emotions:
         </h4>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3" onBlur={handleEmotionBlur}>
           {emotionOptions.map((emotion) => (
             <label 
               key={emotion.key} 
               className="flex items-center space-x-3 cursor-pointer p-3 rounded-lg border-2 transition-all duration-200 hover:bg-gray-50"
               style={{
-                borderColor: checkIn.emotions.includes(emotion.key) ? '#10b981' : '#e5e7eb',
-                backgroundColor: checkIn.emotions.includes(emotion.key) ? '#ecfdf5' : 'transparent'
+                borderColor: localEmotions.includes(emotion.key) ? '#10b981' : '#e5e7eb',
+                backgroundColor: localEmotions.includes(emotion.key) ? '#ecfdf5' : 'transparent'
               }}
             >
               <input
                 type="checkbox"
-                checked={checkIn.emotions.includes(emotion.key)}
+                checked={localEmotions.includes(emotion.key)}
                 onChange={() => handleEmotionToggle(emotion.key)}
                 className="w-4 h-4 text-green-600 border-2 border-gray-300 rounded focus:ring-green-500 focus:ring-2"
               />
               <span 
                 className="font-medium"
                 style={{
-                  color: checkIn.emotions.includes(emotion.key) ? '#059669' : '#4b5563'
+                  color: localEmotions.includes(emotion.key) ? '#059669' : '#4b5563'
                 }}
               >
                 {emotion.label}
