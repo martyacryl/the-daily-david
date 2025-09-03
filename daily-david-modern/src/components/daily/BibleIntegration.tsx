@@ -6,7 +6,6 @@ import { motion } from 'framer-motion';
 import { Card } from '../ui/Card';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
-import { Textarea } from '../ui/Textarea';
 import { bibleService, BibleVersion, BibleVerse, ReadingPlan } from '../../lib/bibleService';
 
 interface BibleIntegrationProps {
@@ -26,6 +25,7 @@ export const BibleIntegration: React.FC<BibleIntegrationProps> = ({
   const [readingPlans, setReadingPlans] = useState<ReadingPlan[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
+  const [selectedPlan, setSelectedPlan] = useState<any>(null);
 
   useEffect(() => {
     loadBibleVersions();
@@ -238,10 +238,7 @@ export const BibleIntegration: React.FC<BibleIntegrationProps> = ({
                     <Button
                       size="sm"
                       variant="outline"
-                      onClick={() => {
-                        // This would show the full plan details
-                        console.log('View plan details:', plan.id);
-                      }}
+                      onClick={() => setSelectedPlan(plan)}
                     >
                       View Plan
                     </Button>
@@ -288,6 +285,93 @@ export const BibleIntegration: React.FC<BibleIntegrationProps> = ({
           <p className="text-blue-700 italic mt-2">"{selectedVerse.content}"</p>
           <p className="text-xs text-blue-600 mt-2">{selectedVerse.copyright}</p>
         </motion.div>
+      )}
+
+      {/* Plan Details Modal */}
+      {selectedPlan && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[80vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-xl font-bold text-gray-900">{selectedPlan.title}</h3>
+                <button
+                  onClick={() => setSelectedPlan(null)}
+                  className="text-gray-500 hover:text-gray-700 text-2xl"
+                >
+                  ×
+                </button>
+              </div>
+              
+              <p className="text-gray-600 mb-4">{selectedPlan.description}</p>
+              
+              <div className="mb-4">
+                <h4 className="font-semibold text-gray-900 mb-2">Plan Overview:</h4>
+                <p className="text-sm text-gray-600">
+                  This {selectedPlan.title.toLowerCase()} plan includes {selectedPlan.verses.length} carefully selected verses 
+                  that will guide you through {selectedPlan.description.toLowerCase()}.
+                </p>
+              </div>
+
+              <div className="mb-4">
+                <h4 className="font-semibold text-gray-900 mb-2">All Verses in This Plan:</h4>
+                <div className="grid grid-cols-1 gap-2 max-h-60 overflow-y-auto">
+                  {selectedPlan.verses.map((verseId: string, index: number) => (
+                    <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded">
+                      <span className="text-sm font-medium text-gray-700">
+                        Day {index + 1}: {verseId}
+                      </span>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={async () => {
+                          try {
+                            const verse = await bibleService.getVerse(selectedBible, verseId);
+                            if (verse) {
+                              onVerseSelect(verse);
+                              setSelectedPlan(null);
+                            }
+                          } catch (error) {
+                            console.error('Error loading verse:', error);
+                          }
+                        }}
+                      >
+                        Select
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex justify-end space-x-2">
+                <Button
+                  variant="outline"
+                  onClick={() => setSelectedPlan(null)}
+                >
+                  Close
+                </Button>
+                <Button
+                  onClick={async () => {
+                    try {
+                      setLoadingPlan(selectedPlan.id);
+                      const devotion = await bibleService.getTodaysDevotion(selectedPlan.id, selectedBible);
+                      if (devotion) {
+                        onVerseSelect(devotion.verses[0]);
+                        setSelectedPlan(null);
+                      }
+                    } catch (error) {
+                      console.error('Error loading today\'s devotion:', error);
+                    } finally {
+                      setLoadingPlan(null);
+                    }
+                  }}
+                  disabled={loadingPlan === selectedPlan.id}
+                >
+                  {loadingPlan === selectedPlan.id ? 'Loading...' : 'Get Today\'s Devotion'}
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </Card>
   );
