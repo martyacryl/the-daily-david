@@ -367,14 +367,13 @@ function generateHeatmapDays(entries: DailyEntry[]) {
     
     if (entry) {
       const activities = [
-        !!(entry.scripture || entry.observation || entry.application || entry.prayer),
+        !!(entry.soap && (entry.soap.scripture?.trim() || entry.soap.observation?.trim() || entry.soap.application?.trim() || entry.soap.prayer?.trim())),
         !!entry.gratitude,
         !!(entry.goals && entry.goals !== ''),
-        !!entry.dailyIntention,
-        !!entry.growthQuestion
+        !!entry.dailyIntention
       ].filter(Boolean).length
       
-      if (activities >= 4) {
+      if (activities >= 3) {
         intensity = 'high'
         tooltip = `${date.toLocaleDateString()}: High activity (${activities} areas)`
       } else if (activities >= 2) {

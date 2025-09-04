@@ -65,7 +65,6 @@ export function DailyEntry() {
       prayer: ''
     },
     dailyIntention: '',
-    growthQuestion: '',
     leadershipRating: {
       wisdom: 5,
       courage: 5,
@@ -174,7 +173,6 @@ export function DailyEntry() {
           gratitude: entryData.gratitude,
           soap: entryData.soap,
           dailyIntention: entryData.dailyIntention,
-          growthQuestion: entryData.growthQuestion,
           leadershipRating: entryData.leadershipRating,
           checkIn: entryData.checkIn
         })
@@ -252,7 +250,6 @@ export function DailyEntry() {
           gratitude: entryData.gratitude || prev.gratitude,
           soap: entryData.soap || prev.soap,
           dailyIntention: entryData.dailyIntention || prev.dailyIntention,
-          growthQuestion: entryData.growthQuestion || prev.growthQuestion,
           leadershipRating: entryData.leadershipRating || prev.leadershipRating
         }))
         
@@ -279,7 +276,6 @@ export function DailyEntry() {
           gratitude: ['Family', 'Health', 'Faith'],
           soap: { scripture: '', observation: '', application: '', prayer: '' },
           dailyIntention: '',
-          growthQuestion: '',
           leadershipRating: { wisdom: 5, courage: 5, patience: 5, integrity: 5 }
         })
         
@@ -851,38 +847,12 @@ export function DailyEntry() {
               />
             </motion.div>
 
-            {/* Growth Question Section */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6 }}
-              className="bg-white rounded-xl p-6 shadow-lg border border-gray-200"
-            >
-              <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-                🌱 Growth Question
-              </h3>
-              <p className="text-gray-600 text-sm mb-4">
-                What question will guide your growth today?
-              </p>
-              <Textarea
-                value={dayData.growthQuestion}
-                onChange={(e) => handleUpdate('growthQuestion', e.target.value)}
-                onBlur={() => {
-                  // Auto-save when user finishes typing
-                  setTimeout(() => {
-                    window.dispatchEvent(new CustomEvent('triggerSave'))
-                  }, 100)
-                }}
-                placeholder="Ask yourself a question that will help you grow... (e.g., 'How can I show more patience today?')"
-                rows={3}
-              />
-            </motion.div>
 
             {/* Leadership Rating Section */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.7 }}
+              transition={{ delay: 0.6 }}
               className="bg-white rounded-xl p-6 shadow-lg border border-gray-200"
             >
               <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
