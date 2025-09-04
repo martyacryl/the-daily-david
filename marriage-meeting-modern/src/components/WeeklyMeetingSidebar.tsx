@@ -7,8 +7,7 @@ import {
   Heart, 
   ShoppingCart, 
   AlertTriangle,
-  ChevronRight,
-  Plus
+  ChevronRight
 } from 'lucide-react'
 import { Card } from './ui/Card'
 import { Button } from './ui/Button'
@@ -144,16 +143,6 @@ export const WeeklyMeetingSidebar: React.FC<WeeklyMeetingSidebarProps> = ({
         })}
       </nav>
 
-      {/* Sidebar Footer */}
-      <div className="p-4 border-t border-gray-200">
-        <Button 
-          className="w-full bg-gradient-to-r from-slate-500 to-purple-500 hover:from-slate-600 hover:to-purple-600"
-          onClick={() => onSectionChange('schedule')}
-        >
-          <Plus className="w-4 h-4 mr-2" />
-          Quick Add
-        </Button>
-      </div>
     </div>
   )
 }
