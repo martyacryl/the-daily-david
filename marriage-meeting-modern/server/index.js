@@ -107,7 +107,7 @@ app.post('/api/auth/login', async (req, res) => {
 app.get('/api/marriage-weeks', authenticateToken, async (req, res) => {
   try {
     const result = await pool.query(
-      'SELECT * FROM marriage_meetings WHERE user_id = $1 ORDER BY week_key DESC',
+      'SELECT * FROM marriage_meetings_dev WHERE user_id = $1 ORDER BY week_key DESC',
       [req.user.id]
     )
 
@@ -123,7 +123,7 @@ app.get('/api/marriage-weeks/:weekKey', authenticateToken, async (req, res) => {
     const { weekKey } = req.params
 
     const result = await pool.query(
-      'SELECT * FROM marriage_meetings WHERE user_id = $1 AND week_key = $2',
+      'SELECT * FROM marriage_meetings_dev WHERE user_id = $1 AND week_key = $2',
       [req.user.id, weekKey]
     )
 
@@ -153,7 +153,7 @@ app.post('/api/marriage-weeks', authenticateToken, async (req, res) => {
 
     // Upsert marriage meeting week
     const result = await pool.query(
-      `INSERT INTO marriage_meetings (user_id, week_key, data_content, created_at, updated_at)
+      `INSERT INTO marriage_meetings_dev (user_id, week_key, data_content, created_at, updated_at)
        VALUES ($1, $2, $3, NOW(), NOW())
        ON CONFLICT (user_id, week_key)
        DO UPDATE SET 

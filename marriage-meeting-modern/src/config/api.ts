@@ -21,5 +21,5 @@ export const ENV_CONFIG = {
 export const NEON_CONFIG = {
   connectionString: import.meta.env.VITE_NEON_CONNECTION_STRING || 
     'postgresql://neondb_owner:npg_JVaULlB0w8mo@ep-soft-rice-adn6s9vn-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require',
-  tableName: import.meta.env.VITE_TABLE_NAME || 'marriage_meetings'
+  tableName: import.meta.env.VITE_TABLE_NAME || 'marriage_meetings_dev'
 }

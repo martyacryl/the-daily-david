@@ -35,7 +35,7 @@ NEON_CONNECTION_STRING=postgresql://neondb_owner:npg_JVaULlB0w8mo@ep-soft-rice-a
 # Frontend Environment Variables
 VITE_API_URL=https://your-app-name.vercel.app
 VITE_NEON_CONNECTION_STRING=postgresql://neondb_owner:npg_JVaULlB0w8mo@ep-soft-rice-adn6s9vn-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
-VITE_TABLE_NAME=marriage_meetings
+VITE_TABLE_NAME=marriage_meetings_dev
 VITE_DEBUG_LOGGING=false
 
 # Backend Environment Variables
