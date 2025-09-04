@@ -28,6 +28,18 @@ export interface ListItem {
   completed: boolean
 }
 
+// Task Item Structure with Timeline
+export interface TaskItem {
+  id: number
+  text: string
+  completed: boolean
+  dueDate?: string // ISO date string (YYYY-MM-DD)
+  priority: 'low' | 'medium' | 'high'
+  estimatedDuration?: number // in minutes
+  category?: string
+  notes?: string
+}
+
 // Goal Item Structure with Timeframe
 export interface GoalItem {
   id: number
@@ -44,7 +56,7 @@ export interface MarriageMeetingWeek {
   user_id: string
   week_key: string // Format: 'YYYY-MM-DD' (Monday of week)
   schedule: WeeklySchedule
-  todos: ListItem[]
+  todos: TaskItem[] // Updated to use TaskItem with timeline features
   prayers: ListItem[]
   goals: GoalItem[] // Updated to use GoalItem with timeframes
   grocery: ListItem[]
@@ -57,7 +69,7 @@ export interface MarriageMeetingWeek {
 // Raw data structure as stored in database
 export interface WeekData {
   schedule: WeeklySchedule
-  todos: ListItem[]
+  todos: TaskItem[] // Updated to use TaskItem with timeline features
   prayers: ListItem[]
   goals: GoalItem[] // Updated to use GoalItem with timeframes
   grocery: ListItem[]

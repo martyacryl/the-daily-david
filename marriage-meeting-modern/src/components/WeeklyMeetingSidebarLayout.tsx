@@ -229,6 +229,7 @@ export const WeeklyMeetingSidebarLayout: React.FC = () => {
             onToggleListItem={toggleListItem}
             onRemoveListItem={removeListItem}
             onUpdateGoals={updateGoals}
+            onUpdateTasks={updateTasks}
           />
         </div>
       </div>

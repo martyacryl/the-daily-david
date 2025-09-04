@@ -4,13 +4,14 @@ import { Calendar, Target, CheckSquare, Heart, ShoppingCart, AlertTriangle } fro
 import { Card } from './ui/Card'
 import { Button } from './ui/Button'
 import { GoalsSection } from './GoalsSection'
-import { ListItem, GoalItem, DayName } from '../types/marriageTypes'
+import { TasksSection } from './TasksSection'
+import { ListItem, GoalItem, TaskItem, DayName } from '../types/marriageTypes'
 
 interface WeeklyMeetingContentProps {
   activeSection: string
   weekData: {
     schedule: any
-    todos: ListItem[]
+    todos: TaskItem[]
     prayers: ListItem[]
     goals: GoalItem[]
     grocery: ListItem[]
@@ -24,6 +25,7 @@ interface WeeklyMeetingContentProps {
   onToggleListItem: (listType: string, id: number) => void
   onRemoveListItem: (listType: string, id: number) => void
   onUpdateGoals: (goals: GoalItem[]) => void
+  onUpdateTasks: (tasks: TaskItem[]) => void
 }
 
 export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
@@ -36,7 +38,8 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
   onAddListItem,
   onToggleListItem,
   onRemoveListItem,
-  onUpdateGoals
+  onUpdateGoals,
+  onUpdateTasks
 }) => {
   const days: DayName[] = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 
@@ -201,6 +204,10 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
     </motion.div>
   )
 
+  const renderTasksSection = () => (
+    <TasksSection tasks={weekData.todos} onUpdate={onUpdateTasks} />
+  )
+
   const renderContent = () => {
     switch (activeSection) {
       case 'schedule':
@@ -208,7 +215,7 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
       case 'goals':
         return renderGoalsSection()
       case 'todos':
-        return renderListSection('todos', 'Tasks', CheckSquare, 'orange', weekData.todos)
+        return renderTasksSection()
       case 'prayers':
         return renderListSection('prayers', 'Prayers', Heart, 'purple', weekData.prayers)
       case 'grocery':

@@ -7,6 +7,7 @@ import { MarriageMeetingTool } from './components/MarriageMeetingTool'
 import { LoginForm } from './components/LoginForm'
 import { Dashboard } from './components/dashboard/Dashboard'
 import { ProgressAnalytics } from './components/dashboard/ProgressAnalytics'
+import { WeeklyReview } from './components/WeeklyReview'
 import { Header } from './components/layout/Header'
 import { LoadingSpinner } from './components/ui/LoadingSpinner'
 
@@ -45,6 +46,7 @@ function App() {
           <Route path="/" element={<Dashboard />} />
           <Route path="/weekly" element={<MarriageMeetingTool />} />
           <Route path="/analytics" element={<ProgressAnalytics />} />
+          <Route path="/review" element={<WeeklyReview onBack={() => window.history.back()} />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </div>

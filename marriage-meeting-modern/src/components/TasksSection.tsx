@@ -1,0 +1,315 @@
+import React, { useState } from 'react'
+import { motion } from 'framer-motion'
+import { 
+  CheckSquare, 
+  Plus, 
+  Calendar, 
+  Clock, 
+  Flag, 
+  Tag,
+  FileText,
+  AlertCircle
+} from 'lucide-react'
+import { Card } from './ui/Card'
+import { Button } from './ui/Button'
+import { TaskItem } from '../types/marriageTypes'
+
+interface TasksSectionProps {
+  tasks: TaskItem[]
+  onUpdate: (tasks: TaskItem[]) => void
+}
+
+export const TasksSection: React.FC<TasksSectionProps> = ({ tasks, onUpdate }) => {
+  const [editingTask, setEditingTask] = useState<number | null>(null)
+  const [newTask, setNewTask] = useState<Partial<TaskItem>>({
+    text: '',
+    priority: 'medium',
+    dueDate: '',
+    estimatedDuration: 30,
+    category: '',
+    notes: ''
+  })
+
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'high': return 'text-red-600 bg-red-100'
+      case 'medium': return 'text-yellow-600 bg-yellow-100'
+      case 'low': return 'text-green-600 bg-green-100'
+      default: return 'text-gray-600 bg-gray-100'
+    }
+  }
+
+  const getPriorityIcon = (priority: string) => {
+    switch (priority) {
+      case 'high': return '🔴'
+      case 'medium': return '🟡'
+      case 'low': return '🟢'
+      default: return '⚪'
+    }
+  }
+
+  const isOverdue = (dueDate: string) => {
+    if (!dueDate) return false
+    return new Date(dueDate) < new Date()
+  }
+
+  const formatDuration = (minutes: number) => {
+    if (minutes < 60) return `${minutes}m`
+    const hours = Math.floor(minutes / 60)
+    const remainingMinutes = minutes % 60
+    return remainingMinutes > 0 ? `${hours}h ${remainingMinutes}m` : `${hours}h`
+  }
+
+  const addTask = () => {
+    if (!newTask.text?.trim()) return
+
+    const task: TaskItem = {
+      id: Date.now(),
+      text: newTask.text,
+      completed: false,
+      priority: newTask.priority || 'medium',
+      dueDate: newTask.dueDate || undefined,
+      estimatedDuration: newTask.estimatedDuration || 30,
+      category: newTask.category || undefined,
+      notes: newTask.notes || undefined
+    }
+
+    onUpdate([...tasks, task])
+    setNewTask({
+      text: '',
+      priority: 'medium',
+      dueDate: '',
+      estimatedDuration: 30,
+      category: '',
+      notes: ''
+    })
+  }
+
+  const updateTask = (id: number, updates: Partial<TaskItem>) => {
+    onUpdate(tasks.map(task => 
+      task.id === id ? { ...task, ...updates } : task
+    ))
+  }
+
+  const toggleTask = (id: number) => {
+    updateTask(id, { completed: !tasks.find(t => t.id === id)?.completed })
+  }
+
+  const removeTask = (id: number) => {
+    onUpdate(tasks.filter(task => task.id !== id))
+  }
+
+  const sortedTasks = [...tasks].sort((a, b) => {
+    // Sort by priority first (high, medium, low)
+    const priorityOrder = { high: 3, medium: 2, low: 1 }
+    const aPriority = priorityOrder[a.priority] || 0
+    const bPriority = priorityOrder[b.priority] || 0
+    
+    if (aPriority !== bPriority) return bPriority - aPriority
+    
+    // Then by due date
+    if (a.dueDate && b.dueDate) {
+      return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()
+    }
+    if (a.dueDate) return -1
+    if (b.dueDate) return 1
+    
+    return 0
+  })
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, x: 20 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ duration: 0.3 }}
+    >
+      <Card className="p-8">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="p-3 bg-orange-100 rounded-lg">
+            <CheckSquare className="w-6 h-6 text-orange-600" />
+          </div>
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900">Tasks</h2>
+            <p className="text-gray-600">Plan and track your tasks with timelines</p>
+          </div>
+        </div>
+
+        {/* Add New Task Form */}
+        <div className="bg-gray-50 rounded-lg p-6 mb-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Add New Task</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="md:col-span-2">
+              <input
+                type="text"
+                value={newTask.text}
+                onChange={(e) => setNewTask({ ...newTask, text: e.target.value })}
+                placeholder="What needs to be done?"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Priority</label>
+              <select
+                value={newTask.priority}
+                onChange={(e) => setNewTask({ ...newTask, priority: e.target.value as 'low' | 'medium' | 'high' })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+              >
+                <option value="low">🟢 Low</option>
+                <option value="medium">🟡 Medium</option>
+                <option value="high">🔴 High</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Due Date</label>
+              <input
+                type="date"
+                value={newTask.dueDate}
+                onChange={(e) => setNewTask({ ...newTask, dueDate: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Duration (minutes)</label>
+              <input
+                type="number"
+                value={newTask.estimatedDuration}
+                onChange={(e) => setNewTask({ ...newTask, estimatedDuration: parseInt(e.target.value) || 30 })}
+                min="5"
+                step="5"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+              <input
+                type="text"
+                value={newTask.category}
+                onChange={(e) => setNewTask({ ...newTask, category: e.target.value })}
+                placeholder="e.g., Work, Home, Health"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+              />
+            </div>
+          </div>
+          
+          <div className="mt-4">
+            <label className="block text-sm font-medium text-gray-700 mb-1">Notes</label>
+            <textarea
+              value={newTask.notes}
+              onChange={(e) => setNewTask({ ...newTask, notes: e.target.value })}
+              placeholder="Additional details..."
+              rows={2}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+            />
+          </div>
+
+          <Button
+            onClick={addTask}
+            className="mt-4 bg-orange-600 hover:bg-orange-700"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Add Task
+          </Button>
+        </div>
+
+        {/* Tasks List */}
+        <div className="space-y-4">
+          {sortedTasks.map((task) => (
+            <motion.div
+              key={task.id}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className={`p-4 bg-white border rounded-lg hover:shadow-sm transition-all ${
+                task.completed ? 'border-green-200 bg-green-50' : 'border-gray-200'
+              } ${isOverdue(task.dueDate || '') && !task.completed ? 'border-red-200 bg-red-50' : ''}`}
+            >
+              <div className="flex items-start gap-4">
+                <button
+                  onClick={() => toggleTask(task.id)}
+                  className={`w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 mt-1 ${
+                    task.completed
+                      ? 'bg-orange-500 border-orange-500 text-white'
+                      : 'border-gray-300 hover:border-gray-400'
+                  }`}
+                >
+                  {task.completed && '✓'}
+                </button>
+
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-2">
+                    <input
+                      type="text"
+                      value={task.text}
+                      onChange={(e) => updateTask(task.id, { text: e.target.value })}
+                      className={`flex-1 bg-transparent border-none outline-none text-lg ${
+                        task.completed ? 'line-through text-gray-500' : 'text-gray-800'
+                      }`}
+                    />
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${getPriorityColor(task.priority)}`}>
+                      {getPriorityIcon(task.priority)} {task.priority}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-4 text-sm text-gray-600">
+                    {task.dueDate && (
+                      <div className={`flex items-center gap-1 ${
+                        isOverdue(task.dueDate) && !task.completed ? 'text-red-600' : ''
+                      }`}>
+                        <Calendar className="w-4 h-4" />
+                        {new Date(task.dueDate).toLocaleDateString()}
+                        {isOverdue(task.dueDate) && !task.completed && (
+                          <AlertCircle className="w-4 h-4 text-red-500" />
+                        )}
+                      </div>
+                    )}
+                    
+                    {task.estimatedDuration && (
+                      <div className="flex items-center gap-1">
+                        <Clock className="w-4 h-4" />
+                        {formatDuration(task.estimatedDuration)}
+                      </div>
+                    )}
+                    
+                    {task.category && (
+                      <div className="flex items-center gap-1">
+                        <Tag className="w-4 h-4" />
+                        {task.category}
+                      </div>
+                    )}
+                  </div>
+
+                  {task.notes && (
+                    <div className="mt-2 text-sm text-gray-600 flex items-start gap-1">
+                      <FileText className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                      <span>{task.notes}</span>
+                    </div>
+                  )}
+                </div>
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => removeTask(task.id)}
+                  className="text-red-600 hover:bg-red-50 border-red-200 flex-shrink-0"
+                >
+                  ×
+                </Button>
+              </div>
+            </motion.div>
+          ))}
+          
+          {tasks.length === 0 && (
+            <div className="text-center py-12 text-gray-500">
+              <CheckSquare className="w-12 h-12 mx-auto mb-4 text-gray-400" />
+              <p className="text-lg">No tasks yet</p>
+              <p className="text-sm">Add your first task above to get started</p>
+            </div>
+          )}
+        </div>
+      </Card>
+    </motion.div>
+  )
+}

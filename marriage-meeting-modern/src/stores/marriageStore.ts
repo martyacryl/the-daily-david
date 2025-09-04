@@ -2,7 +2,7 @@
 // Manages marriage meeting week data
 
 import { create } from 'zustand'
-import { MarriageMeetingWeek, WeekData, ListItem, WeeklySchedule, DayName, ListType, GoalItem } from '../types/marriageTypes'
+import { MarriageMeetingWeek, WeekData, ListItem, WeeklySchedule, DayName, ListType, GoalItem, TaskItem } from '../types/marriageTypes'
 import { dbManager } from '../lib/database'
 
 interface MarriageState {
@@ -26,6 +26,7 @@ interface MarriageState {
   toggleListItem: (listType: ListType, id: number) => void
   removeListItem: (listType: ListType, id: number) => void
   updateGoals: (goals: GoalItem[]) => void
+  updateTasks: (tasks: TaskItem[]) => void
   setLoading: (loading: boolean) => void
   setError: (error: string | null) => void
   setLastSaved: (date: Date) => void
@@ -42,7 +43,7 @@ const createEmptyWeekData = (): WeekData => ({
     Saturday: [''],
     Sunday: ['']
   },
-  todos: [],
+  todos: [] as TaskItem[],
   prayers: [],
   goals: [], // Now uses GoalItem[] structure
   grocery: [],
@@ -101,12 +102,31 @@ export const useMarriageStore = create<MarriageState>((set, get) => ({
             priority: 'medium' as const
           }
         }) || []
+
+        // Migrate old todos to new TaskItem structure if needed
+        const migratedTodos = week.todos?.map((todo: any) => {
+          // If todo already has priority, it's already migrated
+          if (todo.priority) {
+            return todo
+          }
+          // Migrate old ListItem to new TaskItem structure
+          return {
+            id: todo.id,
+            text: todo.text,
+            completed: todo.completed,
+            priority: 'medium' as const, // Default to medium priority
+            dueDate: undefined,
+            estimatedDuration: 30, // Default 30 minutes
+            category: undefined,
+            notes: undefined
+          }
+        }) || []
         
         set({ 
           currentWeek: week,
           weekData: {
             schedule: week.schedule,
-            todos: week.todos,
+            todos: migratedTodos,
             prayers: week.prayers,
             goals: migratedGoals,
             grocery: week.grocery,
@@ -279,14 +299,23 @@ export const useMarriageStore = create<MarriageState>((set, get) => ({
     })
   },
 
-  updateGoals: (goals: GoalItem[]) => {
-    set((state) => ({
-      weekData: {
-        ...state.weekData,
-        goals
-      }
-    }))
-  },
+      updateGoals: (goals: GoalItem[]) => {
+      set((state) => ({
+        weekData: {
+          ...state.weekData,
+          goals
+        }
+      }))
+    },
+
+    updateTasks: (tasks: TaskItem[]) => {
+      set((state) => ({
+        weekData: {
+          ...state.weekData,
+          todos: tasks
+        }
+      }))
+    },
 
   setLoading: (loading: boolean) => {
     set({ isLoading: loading })
