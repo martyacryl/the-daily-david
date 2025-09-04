@@ -17,7 +17,7 @@ import {
 import { Card } from './ui/Card'
 import { Button } from './ui/Button'
 import { WeekData, TaskItem, GoalItem, ListItem } from '../types/marriageTypes'
-import { DatabaseManager } from '../lib/database'
+import { useMarriageStore } from '../stores/marriageStore'
 
 interface WeeklyReviewProps {
   onBack: () => void
@@ -46,45 +46,35 @@ interface ReviewInsights {
 }
 
 export const WeeklyReview: React.FC<WeeklyReviewProps> = ({ onBack }) => {
-  const [currentWeekData, setCurrentWeekData] = useState<WeekData | null>(null)
-  const [previousWeekData, setPreviousWeekData] = useState<WeekData | null>(null)
+  const { weekData, loadWeekData } = useMarriageStore()
   const [insights, setInsights] = useState<ReviewInsights | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    loadWeekData()
+    loadReviewData()
   }, [])
 
-  const loadWeekData = async () => {
+  useEffect(() => {
+    if (weekData && !insights) {
+      generateInsights(weekData)
+      setIsLoading(false)
+    }
+  }, [weekData, insights])
+
+  const loadReviewData = async () => {
     setIsLoading(true)
     try {
-      const today = new Date()
-      const currentWeekKey = DatabaseManager.formatWeekKey(today)
-      const previousWeek = new Date(today)
-      previousWeek.setDate(today.getDate() - 7)
-      const previousWeekKey = DatabaseManager.formatWeekKey(previousWeek)
-
-      // Load current and previous week data
-      const [currentWeek, previousWeekData] = await Promise.all([
-        DatabaseManager.getMarriageMeetingWeekByDate(currentWeekKey),
-        DatabaseManager.getMarriageMeetingWeekByDate(previousWeekKey)
-      ])
-
-      if (currentWeek) {
-        setCurrentWeekData(currentWeek)
-      }
-
-      if (previousWeekData) {
-        setPreviousWeekData(previousWeekData)
-        generateInsights(previousWeekData)
+      // Use the current week data from the store
+      if (weekData) {
+        generateInsights(weekData)
       } else {
-        // If no previous week data, use current week
-        if (currentWeek) {
-          generateInsights(currentWeek)
-        }
+        // If no current week data, try to load it
+        const today = new Date()
+        const weekKey = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`
+        await loadWeekData(weekKey)
       }
     } catch (error) {
-      console.error('Error loading week data:', error)
+      console.error('Error loading review data:', error)
     } finally {
       setIsLoading(false)
     }
