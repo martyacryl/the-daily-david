@@ -1,0 +1,371 @@
+import React, { useState, useEffect } from 'react'
+import { motion } from 'framer-motion'
+import { 
+  Cloud, 
+  Sun, 
+  CloudRain, 
+  CloudSnow, 
+  Wind, 
+  Droplets, 
+  Eye, 
+  Thermometer,
+  MapPin,
+  RefreshCw,
+  AlertCircle
+} from 'lucide-react'
+import { Card } from './ui/Card'
+import { Button } from './ui/Button'
+
+interface WeatherData {
+  current: {
+    temp: number
+    feels_like: number
+    humidity: number
+    description: string
+    icon: string
+    wind_speed: number
+    visibility: number
+  }
+  location: {
+    name: string
+    country: string
+  }
+  forecast: Array<{
+    date: string
+    day: string
+    temp_max: number
+    temp_min: number
+    description: string
+    icon: string
+    precipitation: number
+  }>
+}
+
+interface WeatherSectionProps {
+  className?: string
+}
+
+export const WeatherSection: React.FC<WeatherSectionProps> = ({ className = '' }) => {
+  const [weather, setWeather] = useState<WeatherData | null>(null)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [location, setLocation] = useState<{ lat: number; lon: number } | null>(null)
+
+  // Get weather icon component
+  const getWeatherIcon = (iconCode: string, size: string = 'w-6 h-6') => {
+    const iconMap: { [key: string]: React.ComponentType<{ className?: string }> } = {
+      '01d': Sun,    // clear sky day
+      '01n': Sun,    // clear sky night
+      '02d': Cloud,  // few clouds day
+      '02n': Cloud,  // few clouds night
+      '03d': Cloud,  // scattered clouds
+      '03n': Cloud,  // scattered clouds
+      '04d': Cloud,  // broken clouds
+      '04n': Cloud,  // broken clouds
+      '09d': CloudRain, // shower rain
+      '09n': CloudRain, // shower rain
+      '10d': CloudRain, // rain day
+      '10n': CloudRain, // rain night
+      '11d': CloudRain, // thunderstorm
+      '11n': CloudRain, // thunderstorm
+      '13d': CloudSnow, // snow
+      '13n': CloudSnow, // snow
+      '50d': Cloud,  // mist
+      '50n': Cloud,  // mist
+    }
+    
+    const IconComponent = iconMap[iconCode] || Cloud
+    return <IconComponent className={size} />
+  }
+
+  // Get location from browser
+  const getCurrentLocation = (): Promise<{ lat: number; lon: number }> => {
+    return new Promise((resolve, reject) => {
+      if (!navigator.geolocation) {
+        reject(new Error('Geolocation is not supported by this browser'))
+        return
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          resolve({
+            lat: position.coords.latitude,
+            lon: position.coords.longitude
+          })
+        },
+        (error) => {
+          reject(error)
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 300000 // 5 minutes
+        }
+      )
+    })
+  }
+
+  // Fetch weather data
+  const fetchWeather = async (lat: number, lon: number) => {
+    setLoading(true)
+    setError(null)
+
+    try {
+      // Using OpenWeatherMap API (free tier)
+      // You'll need to get a free API key from https://openweathermap.org/api
+      const API_KEY = import.meta.env.VITE_OPENWEATHER_API_KEY || 'demo_key'
+      
+      if (API_KEY === 'demo_key') {
+        // Demo data for development
+        setWeather({
+          current: {
+            temp: 72,
+            feels_like: 75,
+            humidity: 65,
+            description: 'Partly cloudy',
+            icon: '02d',
+            wind_speed: 8,
+            visibility: 10
+          },
+          location: {
+            name: 'Your City',
+            country: 'US'
+          },
+          forecast: [
+            { date: '2024-01-15', day: 'Mon', temp_max: 75, temp_min: 60, description: 'Sunny', icon: '01d', precipitation: 0 },
+            { date: '2024-01-16', day: 'Tue', temp_max: 78, temp_min: 62, description: 'Partly cloudy', icon: '02d', precipitation: 10 },
+            { date: '2024-01-17', day: 'Wed', temp_max: 70, temp_min: 55, description: 'Light rain', icon: '10d', precipitation: 60 },
+            { date: '2024-01-18', day: 'Thu', temp_max: 68, temp_min: 52, description: 'Cloudy', icon: '04d', precipitation: 20 },
+            { date: '2024-01-19', day: 'Fri', temp_max: 73, temp_min: 58, description: 'Clear', icon: '01d', precipitation: 0 }
+          ]
+        })
+        setLoading(false)
+        return
+      }
+
+      // Real API call
+      const response = await fetch(
+        `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=imperial`
+      )
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch weather data')
+      }
+
+      const currentData = await response.json()
+
+      // Fetch 5-day forecast
+      const forecastResponse = await fetch(
+        `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=imperial`
+      )
+      
+      if (!forecastResponse.ok) {
+        throw new Error('Failed to fetch forecast data')
+      }
+
+      const forecastData = await forecastResponse.json()
+
+      // Process forecast data (group by day and get daily max/min)
+      const dailyForecast = forecastData.list.reduce((acc: any, item: any) => {
+        const date = new Date(item.dt * 1000).toISOString().split('T')[0]
+        const day = new Date(item.dt * 1000).toLocaleDateString('en-US', { weekday: 'short' })
+        
+        if (!acc[date]) {
+          acc[date] = {
+            date,
+            day,
+            temp_max: item.main.temp_max,
+            temp_min: item.main.temp_min,
+            description: item.weather[0].description,
+            icon: item.weather[0].icon,
+            precipitation: item.pop * 100
+          }
+        } else {
+          acc[date].temp_max = Math.max(acc[date].temp_max, item.main.temp_max)
+          acc[date].temp_min = Math.min(acc[date].temp_min, item.main.temp_min)
+        }
+        
+        return acc
+      }, {})
+
+      const forecast = Object.values(dailyForecast).slice(0, 5)
+
+      setWeather({
+        current: {
+          temp: Math.round(currentData.main.temp),
+          feels_like: Math.round(currentData.main.feels_like),
+          humidity: currentData.main.humidity,
+          description: currentData.weather[0].description,
+          icon: currentData.weather[0].icon,
+          wind_speed: Math.round(currentData.wind.speed),
+          visibility: Math.round((currentData.visibility || 10000) / 1609.34) // Convert meters to miles
+        },
+        location: {
+          name: currentData.name,
+          country: currentData.sys.country
+        },
+        forecast: forecast as any[]
+      })
+
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to fetch weather data')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Load weather on component mount
+  useEffect(() => {
+    const loadWeather = async () => {
+      try {
+        const coords = await getCurrentLocation()
+        setLocation(coords)
+        await fetchWeather(coords.lat, coords.lon)
+      } catch (err) {
+        setError('Unable to get your location. Please enable location access.')
+      }
+    }
+
+    loadWeather()
+  }, [])
+
+  // Refresh weather
+  const handleRefresh = async () => {
+    if (location) {
+      await fetchWeather(location.lat, location.lon)
+    }
+  }
+
+  if (loading && !weather) {
+    return (
+      <Card className={`p-6 ${className}`}>
+        <div className="flex items-center justify-center py-8">
+          <RefreshCw className="w-6 h-6 animate-spin text-blue-600 mr-2" />
+          <span className="text-gray-600">Loading weather...</span>
+        </div>
+      </Card>
+    )
+  }
+
+  if (error && !weather) {
+    return (
+      <Card className={`p-6 ${className}`}>
+        <div className="flex items-center gap-3 text-red-600">
+          <AlertCircle className="w-5 h-5" />
+          <span className="text-sm">{error}</span>
+        </div>
+      </Card>
+    )
+  }
+
+  if (!weather) return null
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.2 }}
+      className={className}
+    >
+      <Card className="p-6 bg-gradient-to-br from-blue-50 to-cyan-50 border-blue-200">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <MapPin className="w-5 h-5 text-blue-600" />
+            <h3 className="text-lg font-semibold text-gray-900">
+              {weather.location.name}, {weather.location.country}
+            </h3>
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleRefresh}
+            disabled={loading}
+            className="text-blue-600 border-blue-200 hover:bg-blue-50"
+          >
+            <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+          </Button>
+        </div>
+
+        {/* Current Weather */}
+        <div className="mb-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="text-4xl">
+                {getWeatherIcon(weather.current.icon, 'w-12 h-12')}
+              </div>
+              <div>
+                <div className="text-3xl font-bold text-gray-900">
+                  {weather.current.temp}°F
+                </div>
+                <div className="text-gray-600 capitalize">
+                  {weather.current.description}
+                </div>
+                <div className="text-sm text-gray-500">
+                  Feels like {weather.current.feels_like}°F
+                </div>
+              </div>
+            </div>
+            
+            <div className="text-right space-y-1">
+              <div className="flex items-center gap-2 text-sm text-gray-600">
+                <Droplets className="w-4 h-4" />
+                {weather.current.humidity}%
+              </div>
+              <div className="flex items-center gap-2 text-sm text-gray-600">
+                <Wind className="w-4 h-4" />
+                {weather.current.wind_speed} mph
+              </div>
+              <div className="flex items-center gap-2 text-sm text-gray-600">
+                <Eye className="w-4 h-4" />
+                {weather.current.visibility} mi
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Weekly Forecast */}
+        <div>
+          <h4 className="text-sm font-medium text-gray-700 mb-3">5-Day Forecast</h4>
+          <div className="grid grid-cols-5 gap-2">
+            {weather.forecast.map((day, index) => (
+              <div key={index} className="text-center">
+                <div className="text-xs font-medium text-gray-600 mb-1">
+                  {day.day}
+                </div>
+                <div className="text-lg mb-1">
+                  {getWeatherIcon(day.icon, 'w-6 h-6 mx-auto')}
+                </div>
+                <div className="text-sm font-semibold text-gray-900">
+                  {day.temp_max}°
+                </div>
+                <div className="text-xs text-gray-500">
+                  {day.temp_min}°
+                </div>
+                {day.precipitation > 30 && (
+                  <div className="text-xs text-blue-600 mt-1">
+                    {Math.round(day.precipitation)}%
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Planning Tips */}
+        <div className="mt-4 p-3 bg-white/50 rounded-lg">
+          <div className="text-xs text-gray-600">
+            <strong>Planning tip:</strong> {
+              weather.forecast.some(day => day.precipitation > 50) 
+                ? "Rain expected this week - plan indoor activities and errands accordingly"
+                : weather.current.temp > 80
+                ? "Hot weather ahead - stay hydrated and plan outdoor activities for early morning/evening"
+                : weather.current.temp < 50
+                ? "Cool weather - perfect for outdoor activities and cozy indoor plans"
+                : "Great weather for outdoor activities and errands this week"
+            }
+          </div>
+        </div>
+      </Card>
+    </motion.div>
+  )
+}

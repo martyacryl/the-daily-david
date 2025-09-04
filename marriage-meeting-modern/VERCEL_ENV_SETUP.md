@@ -24,6 +24,9 @@ PORT=3000
 
 # CORS Configuration
 CORS_ORIGIN=https://thedailydavid-eg7oljvud-martyacryls-projects.vercel.app
+
+# Weather API (Optional - for weather section)
+VITE_OPENWEATHER_API_KEY=your-openweather-api-key-here
 ```
 
 ### **Important Notes:**

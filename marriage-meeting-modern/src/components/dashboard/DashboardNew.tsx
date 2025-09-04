@@ -22,6 +22,7 @@ import {
 } from 'lucide-react'
 import { Card } from '../ui/Card'
 import { Button } from '../ui/Button'
+import { WeatherSection } from '../WeatherSection'
 import { useAuthStore } from '../../stores/authStore'
 import { useMarriageStore } from '../../stores/marriageStore'
 import { MarriageMeetingWeek, GoalItem, ListItem } from '../../types/marriageTypes'
@@ -272,6 +273,11 @@ export const DashboardNew: React.FC = () => {
             </Link>
           </div>
         </motion.div>
+
+        {/* Weather Section */}
+        <div className="mb-8">
+          <WeatherSection />
+        </div>
 
         {/* Priority Actions */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
