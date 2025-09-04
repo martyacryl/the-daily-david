@@ -62,18 +62,18 @@ psql 'postgresql://neondb_owner:npg_JVaULlB0w8mo@ep-soft-rice-adn6s9vn-pooler.c-
 \i setup_marriage_database.sql
 ```
 
-3. **Create Admin User:**
+3. **Admin User Already Exists:**
 ```sql
--- Insert your admin user (replace with your details)
-INSERT INTO users (email, display_name, password_hash, is_admin, created_at)
-VALUES (
-  'your-email@example.com',
-  'Your Name',
-  '$2a$10$your-hashed-password-here',
-  true,
-  NOW()
-);
+-- Admin user is already set up in the database
+-- Email: stjohnashlynn@gmail.com
+-- Password: admin123
+-- Role: Admin (is_admin = true)
 ```
+
+**Login Credentials:**
+- **Email:** `stjohnashlynn@gmail.com`
+- **Password:** `admin123`
+- **Role:** Admin (full access to all features)
 
 ### **Step 5: Deploy**
 
@@ -121,11 +121,14 @@ VALUES (
 
 1. **Visit your Vercel URL**
 2. **Try to sign in** (should redirect to login)
-3. **Sign in with admin credentials**
+3. **Sign in with admin credentials:**
+   - **Email:** `stjohnashlynn@gmail.com`
+   - **Password:** `admin123`
 4. **Test weekly planning features**
 5. **Test list management**
 6. **Test week navigation**
 7. **Verify auto-save works**
+8. **Test admin panel** (should be accessible with admin user)
 
 ## 🎯 **Next Steps After Deployment**
 
