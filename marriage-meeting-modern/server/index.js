@@ -107,7 +107,7 @@ app.post('/api/auth/login', async (req, res) => {
 app.get('/api/marriage-weeks', authenticateToken, async (req, res) => {
   try {
     const result = await pool.query(
-      'SELECT * FROM marriage_meetings_dev WHERE user_id = $1 ORDER BY week_key DESC',
+      'SELECT * FROM marriage_meetings WHERE user_id = $1 ORDER BY week_key DESC',
       [req.user.id]
     )
 
@@ -122,16 +122,26 @@ app.get('/api/marriage-weeks/:weekKey', authenticateToken, async (req, res) => {
   try {
     const { weekKey } = req.params
 
+    console.log('Server: Fetching marriage week data for:', { weekKey, userId: req.user.id })
+
     const result = await pool.query(
-      'SELECT * FROM marriage_meetings_dev WHERE user_id = $1 AND week_key = $2',
+      'SELECT * FROM marriage_meetings WHERE user_id = $1 AND week_key = $2',
       [req.user.id, weekKey]
     )
 
     if (result.rows.length === 0) {
+      console.log('Server: No marriage week data found for:', { weekKey, userId: req.user.id })
       return res.status(404).json({ error: 'Marriage meeting week not found' })
     }
 
-    res.json(result.rows[0])
+    const data = result.rows[0]
+    console.log('Server: Found marriage week data:', {
+      weekKey: data.week_key,
+      goalsCount: data.data_content?.goals?.length || 0,
+      goals: data.data_content?.goals
+    })
+
+    res.json(data)
   } catch (error) {
     console.error('Error fetching marriage week:', error)
     res.status(500).json({ error: 'Internal server error' })
@@ -141,6 +151,13 @@ app.get('/api/marriage-weeks/:weekKey', authenticateToken, async (req, res) => {
 app.post('/api/marriage-weeks', authenticateToken, async (req, res) => {
   try {
     const { week_key, user_id, data_content } = req.body
+
+    console.log('Server: Saving marriage week data:', {
+      week_key,
+      user_id,
+      goalsCount: data_content?.goals?.length || 0,
+      goals: data_content?.goals
+    })
 
     if (!week_key || !user_id || !data_content) {
       return res.status(400).json({ error: 'Missing required fields' })
@@ -153,7 +170,7 @@ app.post('/api/marriage-weeks', authenticateToken, async (req, res) => {
 
     // Upsert marriage meeting week
     const result = await pool.query(
-      `INSERT INTO marriage_meetings_dev (user_id, week_key, data_content, created_at, updated_at)
+      `INSERT INTO marriage_meetings (user_id, week_key, data_content, created_at, updated_at)
        VALUES ($1, $2, $3, NOW(), NOW())
        ON CONFLICT (user_id, week_key)
        DO UPDATE SET 
@@ -163,6 +180,7 @@ app.post('/api/marriage-weeks', authenticateToken, async (req, res) => {
       [user_id, week_key, JSON.stringify(data_content)]
     )
 
+    console.log('Server: Successfully saved marriage week data')
     res.json(result.rows[0])
   } catch (error) {
     console.error('Error saving marriage week:', error)
