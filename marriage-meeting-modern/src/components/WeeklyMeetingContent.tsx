@@ -112,7 +112,11 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
     </motion.div>
   )
 
-  const renderListSection = (type: string, title: string, icon: React.ComponentType<{ className?: string }>, color: string, items: ListItem[]) => (
+  const renderListSection = (type: string, title: string, icon: React.ComponentType<{ className?: string }>, color: string, items: ListItem[]) => {
+    // Special handling for accountability section
+    const isAccountability = type === 'unconfessedSin'
+    
+    return (
     <motion.div
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
@@ -127,6 +131,11 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
             <div>
               <h2 className="text-2xl font-bold text-gray-900">{title}</h2>
               <p className="text-gray-600">{items.length} items</p>
+              {isAccountability && (
+                <p className="text-sm text-gray-500 mt-1">
+                  Areas for growth, confession, or accountability
+                </p>
+              )}
             </div>
           </div>
           <Button
@@ -134,7 +143,7 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
             onClick={() => onAddListItem(type, '')}
             className={`text-${color}-600 border-${color}-200 hover:bg-${color}-50`}
           >
-            + Add {title.slice(0, -1)}
+            + Add {isAccountability ? 'Action' : title.slice(0, -1)}
           </Button>
         </div>
 
@@ -158,7 +167,7 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
                 className={`flex-1 bg-transparent border-none outline-none text-lg ${
                   item.completed ? 'line-through text-gray-500' : 'text-gray-800'
                 }`}
-                placeholder={`Add a ${title.slice(0, -1).toLowerCase()}...`}
+                placeholder={isAccountability ? 'Add an area for growth or accountability...' : `Add a ${title.slice(0, -1).toLowerCase()}...`}
               />
               <Button
                 variant="outline"
@@ -175,13 +184,24 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
             <div className="text-center py-12 text-gray-500">
               {React.createElement(icon, { className: "w-12 h-12 mx-auto mb-4 text-gray-400" })}
               <p className="text-lg">No {title.toLowerCase()} yet</p>
-              <p className="text-sm">Click "Add {title.slice(0, -1)}" to get started</p>
+              <p className="text-sm">
+                {isAccountability 
+                  ? 'Click "Add Action" to identify areas for growth or accountability'
+                  : `Click "Add ${title.slice(0, -1)}" to get started`
+                }
+              </p>
+              {isAccountability && (
+                <div className="mt-4 text-xs text-gray-400 max-w-md mx-auto">
+                  <p>Examples: "Be more patient with family", "Confess anger issues", "Seek accountability for spending"</p>
+                </div>
+              )}
             </div>
           )}
         </div>
       </Card>
     </motion.div>
-  )
+    )
+  }
 
   const renderGoalsSection = () => (
     <motion.div
