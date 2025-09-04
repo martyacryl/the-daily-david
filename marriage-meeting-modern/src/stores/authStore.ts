@@ -1,129 +1,164 @@
 // Marriage Meeting Tool - Authentication Store
-// Manages user authentication state
+// Manages user authentication state (matches Daily David approach)
 
 import { create } from 'zustand'
-import { User } from '../types/marriageTypes'
-import { dbManager } from '../lib/database'
+import { persist } from 'zustand/middleware'
+
+interface User {
+  id: string
+  email: string
+  name: string
+  role: 'admin' | 'user'
+  is_admin: boolean
+}
 
 interface AuthState {
   user: User | null
+  token: string | null
   isAuthenticated: boolean
   isLoading: boolean
   error: string | null
 
   // Actions
-  login: (email: string, password: string) => Promise<void>
+  login: (email: string, password: string) => Promise<boolean>
   logout: () => void
-  checkAuth: () => Promise<void>
+  clearError: () => void
   setLoading: (loading: boolean) => void
-  setError: (error: string | null) => void
+  initialize: () => Promise<void>
 }
 
-export const useAuthStore = create<AuthState>((set, get) => ({
-  // Initial state
-  user: null,
-  isAuthenticated: false,
-  isLoading: false,
-  error: null,
+type AuthStore = AuthState & {
+  login: (email: string, password: string) => Promise<boolean>
+  logout: () => void
+  clearError: () => void
+  setLoading: (loading: boolean) => void
+  initialize: () => Promise<void>
+}
 
-  // Actions
-  login: async (email: string, password: string) => {
-    set({ isLoading: true, error: null })
-    
-    try {
-      console.log('Auth: Attempting login for:', email)
-      
-      const result = await dbManager.authenticateUser(email, password)
-      
-      // Store user data and token
-      localStorage.setItem('user', JSON.stringify(result.user))
-      localStorage.setItem('auth_token', result.token)
-      
-      set({ 
-        user: result.user,
-        isAuthenticated: true,
-        error: null
-      })
-      
-      console.log('Auth: Login successful for:', result.user.email)
-    } catch (error) {
-      console.error('Auth: Login failed:', error)
-      set({ 
-        error: error instanceof Error ? error.message : 'Login failed',
-        isAuthenticated: false,
-        user: null
-      })
-    } finally {
-      set({ isLoading: false })
-    }
-  },
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001'
 
-  logout: () => {
-    console.log('Auth: Logging out user')
-    
-    // Clear stored data
-    localStorage.removeItem('user')
-    localStorage.removeItem('auth_token')
-    
-    set({ 
+export const useAuthStore = create<AuthStore>()(
+  persist(
+    (set, get) => ({
       user: null,
+      token: null,
       isAuthenticated: false,
-      error: null
-    })
-  },
+      isLoading: false,
+      error: null,
 
-  checkAuth: async () => {
-    set({ isLoading: true })
-    
-    try {
-      const storedUser = localStorage.getItem('user')
-      const storedToken = localStorage.getItem('auth_token')
-      
-      if (storedUser && storedToken) {
-        const user = JSON.parse(storedUser)
-        
-        // Verify token is still valid (basic check)
-        if (user.id && user.email) {
-          set({ 
-            user,
-            isAuthenticated: true,
-            error: null
+      login: async (email: string, password: string) => {
+        try {
+          set({ isLoading: true, error: null })
+          
+          console.log('Auth: Attempting login for:', email)
+          
+          const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ email, password }),
           })
-          console.log('Auth: User authenticated from storage:', user.email)
-        } else {
-          // Invalid stored data, clear it
-          localStorage.removeItem('user')
-          localStorage.removeItem('auth_token')
-          set({ 
-            user: null,
-            isAuthenticated: false,
-            error: null
+
+          const data = await response.json()
+
+          if (data.user && data.token) {
+            set({
+              user: data.user,
+              token: data.token,
+              isAuthenticated: true,
+              isLoading: false,
+              error: null
+            })
+            console.log('Auth: Login successful for:', data.user.email)
+            return true
+          } else {
+            set({
+              error: data.error || 'Login failed',
+              isLoading: false
+            })
+            console.error('Auth: Login failed:', data.error)
+            return false
+          }
+        } catch (error) {
+          set({
+            error: error instanceof Error ? error.message : 'Login failed',
+            isLoading: false
           })
+          console.error('Auth: Login failed:', error)
+          return false
         }
-      } else {
-        set({ 
+      },
+
+      logout: () => {
+        set({
           user: null,
+          token: null,
           isAuthenticated: false,
           error: null
         })
+      },
+
+      clearError: () => {
+        set({ error: null })
+      },
+
+      setLoading: (loading: boolean) => {
+        set({ isLoading: loading })
+      },
+
+      initialize: async () => {
+        const { token } = get()
+        if (token) {
+          try {
+            // Verify token is still valid by making a test request
+            const response = await fetch(`${API_BASE_URL}/api/auth/verify`, {
+              headers: {
+                'Authorization': `Bearer ${token}`
+              }
+            })
+            
+            if (response.ok) {
+              const data = await response.json()
+              set({
+                user: data.user,
+                isAuthenticated: true
+              })
+            } else {
+              // Token is invalid, clear it
+              set({
+                user: null,
+                token: null,
+                isAuthenticated: false
+              })
+            }
+          } catch (error) {
+            // Token verification failed, clear it
+            set({
+              user: null,
+              token: null,
+              isAuthenticated: false
+            })
+          }
+        }
       }
-    } catch (error) {
-      console.error('Auth: Error checking authentication:', error)
-      set({ 
-        error: 'Authentication check failed',
-        user: null,
-        isAuthenticated: false
+    }),
+    {
+      name: 'auth-storage',
+      partialize: (state) => ({ 
+        user: state.user, 
+        token: state.token, 
+        isAuthenticated: state.isAuthenticated 
       })
-    } finally {
-      set({ isLoading: false })
     }
-  },
+  )
+)
 
-  setLoading: (loading: boolean) => {
-    set({ isLoading: loading })
-  },
-
-  setError: (error: string | null) => {
-    set({ error })
+// Helper function to get auth headers
+export const getAuthHeaders = () => {
+  const token = useAuthStore.getState().token
+  return {
+    'Content-Type': 'application/json',
+    ...(token && { 'Authorization': `Bearer ${token}` })
   }
-}))
+}

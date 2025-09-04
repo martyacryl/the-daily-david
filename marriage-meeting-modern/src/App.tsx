@@ -8,12 +8,12 @@ import { LoginForm } from './components/LoginForm'
 import { LoadingSpinner } from './components/ui/LoadingSpinner'
 
 function App() {
-  const { isAuthenticated, isLoading, checkAuth } = useAuthStore()
+  const { isAuthenticated, isLoading, initialize } = useAuthStore()
 
   // Check authentication on app load
   useEffect(() => {
-    checkAuth()
-  }, [checkAuth])
+    initialize()
+  }, [initialize])
 
   if (isLoading) {
     return (
