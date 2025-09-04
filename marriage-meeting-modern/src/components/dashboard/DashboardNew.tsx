@@ -74,6 +74,9 @@ export const DashboardNew: React.FC = () => {
 
     console.log('Dashboard: Calculating insights from weekData:', weekData)
 
+    // Get current date for calculations
+    const now = new Date()
+
     // Calculate urgent todos (incomplete, high priority)
     // Calculate urgent todos with enhanced task data
     const allTodos = weekData.todos || []
@@ -110,7 +113,6 @@ export const DashboardNew: React.FC = () => {
     }, {} as Record<string, number>)
 
     // Calculate overdue goals (incomplete goals past their timeframe)
-    const now = new Date()
     const overdueGoals = (weekData.goals || []).filter(goal => {
       if (goal.completed) return false
       
