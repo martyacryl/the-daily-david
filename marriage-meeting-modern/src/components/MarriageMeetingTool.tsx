@@ -10,6 +10,7 @@ import { DayName, ListType } from '../types/marriageTypes'
 import { Card } from './ui/Card'
 import { Button } from './ui/Button'
 import { LoadingSpinner } from './ui/LoadingSpinner'
+import { GoalsSection } from './GoalsSection'
 
 // Weekly Schedule Component
 const WeeklySchedule: React.FC<{
@@ -198,7 +199,8 @@ export const MarriageMeetingTool: React.FC = () => {
     updateListItem,
     addListItem,
     toggleListItem,
-    removeListItem
+    removeListItem,
+    updateGoals
   } = useMarriageStore()
 
   const [isSaving, setIsSaving] = useState(false)
@@ -367,15 +369,11 @@ export const MarriageMeetingTool: React.FC = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
+            className="md:col-span-2 lg:col-span-3"
           >
-            <ListSection
-              title="Goals"
-              listType="goals"
-              items={weekData.goals}
-              onUpdate={updateListItem}
-              onAdd={addListItem}
-              onToggle={toggleListItem}
-              onRemove={removeListItem}
+            <GoalsSection
+              goals={weekData.goals}
+              onUpdate={updateGoals}
             />
           </motion.div>
 

@@ -6,7 +6,7 @@ import { Card } from '../ui/Card'
 import { Button } from '../ui/Button'
 import { useAuthStore } from '../../stores/authStore'
 import { useMarriageStore } from '../../stores/marriageStore'
-import { MarriageMeetingWeek } from '../../types/marriageTypes'
+import { MarriageMeetingWeek, GoalItem } from '../../types/marriageTypes'
 import { DatabaseManager } from '../../lib/database'
 
 export const Dashboard: React.FC = () => {
@@ -21,7 +21,7 @@ export const Dashboard: React.FC = () => {
   const [currentGoals, setCurrentGoals] = useState({
     todos: [],
     prayers: [],
-    goals: []
+    goals: [] as GoalItem[]
   })
 
   useEffect(() => {
@@ -206,35 +206,61 @@ export const Dashboard: React.FC = () => {
           </motion.div>
         </div>
 
-        {/* Current Goals */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.5 }}
-          >
-            <Card className="p-6">
-              <h3 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                <Target className="w-5 h-5 text-slate-600" />
-                Current Goals
-              </h3>
-              <div className="space-y-2">
-                {currentGoals.goals.slice(0, 3).map((goal, index) => (
-                  <div key={index} className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-slate-500 rounded-full"></div>
-                    <span className="text-gray-700">{goal.text}</span>
+        {/* Goals by Timeframe */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-6">
+          {[
+            { timeframe: 'monthly' as const, label: 'Monthly Goals', color: 'blue', icon: Calendar },
+            { timeframe: '1year' as const, label: '1 Year Goals', color: 'green', icon: Target },
+            { timeframe: '5year' as const, label: '5 Year Goals', color: 'orange', icon: TrendingUp },
+            { timeframe: '10year' as const, label: '10 Year Goals', color: 'purple', icon: Users }
+          ].map(({ timeframe, label, color, icon: IconComponent }, index) => {
+            const timeframeGoals = currentGoals.goals.filter(goal => goal.timeframe === timeframe)
+            const completedGoals = timeframeGoals.filter(goal => goal.completed)
+            
+            return (
+              <motion.div
+                key={timeframe}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 + index * 0.1 }}
+              >
+                <Card className="p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                      <IconComponent className={`w-5 h-5 text-${color}-600`} />
+                      {label}
+                    </h3>
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium bg-${color}-100 text-${color}-800`}>
+                      {completedGoals.length}/{timeframeGoals.length}
+                    </span>
                   </div>
-                ))}
-                {currentGoals.goals.length === 0 && (
-                  <p className="text-gray-500 text-sm">No goals set for this week</p>
-                )}
-              </div>
-              <Link to="/weekly" className="text-slate-600 text-sm font-medium mt-4 block">
-                View all goals →
-              </Link>
-            </Card>
-          </motion.div>
+                  <div className="space-y-2">
+                    {timeframeGoals.slice(0, 2).map((goal, goalIndex) => (
+                      <div key={goalIndex} className="flex items-center gap-2">
+                        <div className={`w-2 h-2 rounded-full ${goal.completed ? `bg-${color}-500` : 'bg-gray-300'}`}></div>
+                        <span className={`text-gray-700 text-sm ${goal.completed ? 'line-through' : ''}`}>
+                          {goal.text}
+                        </span>
+                      </div>
+                    ))}
+                    {timeframeGoals.length === 0 && (
+                      <p className="text-gray-500 text-sm">No {label.toLowerCase()} set</p>
+                    )}
+                    {timeframeGoals.length > 2 && (
+                      <p className="text-gray-500 text-xs">+{timeframeGoals.length - 2} more</p>
+                    )}
+                  </div>
+                  <Link to="/weekly" className={`text-${color}-600 text-sm font-medium mt-4 block`}>
+                    View all {label.toLowerCase()} →
+                  </Link>
+                </Card>
+              </motion.div>
+            )
+          })}
+        </div>
 
+        {/* Prayer Requests and To-Dos */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}

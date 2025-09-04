@@ -2,7 +2,7 @@
 // Manages marriage meeting week data
 
 import { create } from 'zustand'
-import { MarriageMeetingWeek, WeekData, ListItem, WeeklySchedule, DayName, ListType } from '../types/marriageTypes'
+import { MarriageMeetingWeek, WeekData, ListItem, WeeklySchedule, DayName, ListType, GoalItem } from '../types/marriageTypes'
 import { dbManager } from '../lib/database'
 
 interface MarriageState {
@@ -25,6 +25,7 @@ interface MarriageState {
   addListItem: (listType: ListType, text: string) => void
   toggleListItem: (listType: ListType, id: number) => void
   removeListItem: (listType: ListType, id: number) => void
+  updateGoals: (goals: GoalItem[]) => void
   setLoading: (loading: boolean) => void
   setError: (error: string | null) => void
   setLastSaved: (date: Date) => void
@@ -258,6 +259,15 @@ export const useMarriageStore = create<MarriageState>((set, get) => ({
         }
       }
     })
+  },
+
+  updateGoals: (goals: GoalItem[]) => {
+    set((state) => ({
+      weekData: {
+        ...state.weekData,
+        goals
+      }
+    }))
   },
 
   setLoading: (loading: boolean) => {

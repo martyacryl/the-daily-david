@@ -28,6 +28,16 @@ export interface ListItem {
   completed: boolean
 }
 
+// Goal Item Structure with Timeframe
+export interface GoalItem {
+  id: number
+  text: string
+  completed: boolean
+  timeframe: 'monthly' | '1year' | '5year' | '10year'
+  description?: string
+  priority?: 'low' | 'medium' | 'high'
+}
+
 // Marriage Meeting Week Data Structure
 export interface MarriageMeetingWeek {
   id?: string
@@ -36,7 +46,7 @@ export interface MarriageMeetingWeek {
   schedule: WeeklySchedule
   todos: ListItem[]
   prayers: ListItem[]
-  goals: ListItem[]
+  goals: GoalItem[] // Updated to use GoalItem with timeframes
   grocery: ListItem[]
   unconfessedSin: ListItem[]
   weeklyWinddown: ListItem[]
@@ -49,7 +59,7 @@ export interface WeekData {
   schedule: WeeklySchedule
   todos: ListItem[]
   prayers: ListItem[]
-  goals: ListItem[]
+  goals: GoalItem[] // Updated to use GoalItem with timeframes
   grocery: ListItem[]
   unconfessedSin: ListItem[]
   weeklyWinddown: ListItem[]
