@@ -5,6 +5,9 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { useAuthStore } from './stores/authStore'
 import { MarriageMeetingTool } from './components/MarriageMeetingTool'
 import { LoginForm } from './components/LoginForm'
+import { Dashboard } from './components/dashboard/Dashboard'
+import { ProgressAnalytics } from './components/dashboard/ProgressAnalytics'
+import { Header } from './components/layout/Header'
 import { LoadingSpinner } from './components/ui/LoadingSpinner'
 
 function App() {
@@ -23,18 +26,25 @@ function App() {
     )
   }
 
+  if (!isAuthenticated) {
+    return (
+      <Router>
+        <Routes>
+          <Route path="/login" element={<LoginForm />} />
+          <Route path="*" element={<Navigate to="/login" replace />} />
+        </Routes>
+      </Router>
+    )
+  }
+
   return (
     <Router>
       <div className="App">
+        <Header />
         <Routes>
-          <Route 
-            path="/login" 
-            element={!isAuthenticated ? <LoginForm /> : <Navigate to="/" replace />} 
-          />
-          <Route 
-            path="/" 
-            element={isAuthenticated ? <MarriageMeetingTool /> : <Navigate to="/login" replace />} 
-          />
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/weekly" element={<MarriageMeetingTool />} />
+          <Route path="/analytics" element={<ProgressAnalytics />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </div>
