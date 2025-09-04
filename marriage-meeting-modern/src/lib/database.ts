@@ -9,7 +9,7 @@ import {
   CreateUserFormData 
 } from '../types/marriageTypes'
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001'
+const API_BASE_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '' : 'http://localhost:3001')
 
 export class DatabaseManager {
   private baseUrl: string
@@ -39,6 +39,9 @@ export class DatabaseManager {
 
   // Marriage Meeting Week Operations
   async saveMarriageMeetingWeek(week: MarriageMeetingWeek): Promise<void> {
+    const token = this.getAuthToken()
+    console.log('API: Saving marriage week for:', week.week_key, 'with token:', token ? 'present' : 'missing')
+    
     const requestBody = {
       week_key: week.week_key,
       user_id: week.user_id,
@@ -59,15 +62,20 @@ export class DatabaseManager {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${this.getAuthToken()}`,
+        'Authorization': `Bearer ${token}`,
       },
       body: JSON.stringify(requestBody),
     })
 
+    console.log('API: Save response status:', response.status)
+
     if (!response.ok) {
       const error = await response.text()
+      console.error('API: Save error response:', error)
       throw new Error(`Failed to save marriage meeting week: ${error}`)
     }
+
+    console.log('API: Successfully saved week data')
   }
 
   async getMarriageMeetingWeeks(): Promise<MarriageMeetingWeek[]> {
@@ -88,22 +96,30 @@ export class DatabaseManager {
   }
 
   async getMarriageMeetingWeekByDate(weekKey: string): Promise<MarriageMeetingWeek | null> {
+    const token = this.getAuthToken()
+    console.log('API: Getting marriage week for:', weekKey, 'with token:', token ? 'present' : 'missing')
+    
     const response = await fetch(`${this.baseUrl}/api/marriage-weeks/${weekKey}`, {
       method: 'GET',
       headers: {
-        'Authorization': `Bearer ${this.getAuthToken()}`,
+        'Authorization': `Bearer ${token}`,
       },
     })
 
+    console.log('API: Response status:', response.status)
+
     if (!response.ok) {
       if (response.status === 404) {
+        console.log('API: Week not found, returning null')
         return null
       }
       const error = await response.text()
+      console.error('API: Error response:', error)
       throw new Error(`Failed to fetch marriage meeting week: ${error}`)
     }
 
     const result = await response.json()
+    console.log('API: Successfully fetched week data')
     return this.transformDatabaseResult(result)
   }
 
@@ -185,8 +201,17 @@ export class DatabaseManager {
   }
 
   private getAuthToken(): string {
-    // Get token from localStorage or auth store
-    return localStorage.getItem('auth_token') || ''
+    // Get token from auth store
+    try {
+      const authData = localStorage.getItem('auth-storage')
+      if (authData) {
+        const parsed = JSON.parse(authData)
+        return parsed.state?.token || ''
+      }
+    } catch (error) {
+      console.error('Error getting auth token:', error)
+    }
+    return ''
   }
 
   // Helper method to format week key (Monday of the week)

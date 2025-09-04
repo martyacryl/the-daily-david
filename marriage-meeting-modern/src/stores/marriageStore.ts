@@ -111,9 +111,20 @@ export const useMarriageStore = create<MarriageState>((set, get) => ({
       console.log('Store: Saving week data for:', weekKey)
       
       const { currentDate } = get()
-      const user = JSON.parse(localStorage.getItem('user') || '{}')
       
-      if (!user.id) {
+      // Get user from auth store
+      let user = null
+      try {
+        const authData = localStorage.getItem('auth-storage')
+        if (authData) {
+          const parsed = JSON.parse(authData)
+          user = parsed.state?.user
+        }
+      } catch (error) {
+        console.error('Error getting user from auth store:', error)
+      }
+      
+      if (!user?.id) {
         throw new Error('User not authenticated')
       }
 
