@@ -585,7 +585,7 @@ export function DailyEntry() {
                 🎯 Daily Intention
               </h3>
               <p className="text-gray-600 text-sm mb-4">
-                What's your main focus for today?
+                How do you intend to take action, accomplish your goals, and act like a Man of God?
               </p>
               <Textarea
                 value={dayData.dailyIntention}
