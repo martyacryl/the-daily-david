@@ -5,7 +5,7 @@ import { motion } from 'framer-motion'
 import { Calendar, Users, Heart, CheckCircle, Clock, Save } from 'lucide-react'
 import { useAuthStore } from '../stores/authStore'
 import { useMarriageStore } from '../stores/marriageStore'
-import { dbManager } from '../lib/database'
+import { dbManager, DatabaseManager } from '../lib/database'
 import { DayName, ListType } from '../types/marriageTypes'
 import { Card } from './ui/Card'
 import { Button } from './ui/Button'
@@ -206,7 +206,7 @@ export const MarriageMeetingTool: React.FC = () => {
   // Load week data when date changes
   useEffect(() => {
     if (isAuthenticated && user) {
-      const weekKey = dbManager.formatWeekKey(currentDate)
+      const weekKey = DatabaseManager.formatWeekKey(currentDate)
       loadWeekData(weekKey)
     }
   }, [currentDate, isAuthenticated, user, loadWeekData])
@@ -217,7 +217,7 @@ export const MarriageMeetingTool: React.FC = () => {
       const saveTimeout = setTimeout(async () => {
         setIsSaving(true)
         try {
-          const weekKey = dbManager.formatWeekKey(currentDate)
+          const weekKey = DatabaseManager.formatWeekKey(currentDate)
           await saveWeekData(weekKey, weekData)
         } catch (error) {
           console.error('Auto-save failed:', error)
