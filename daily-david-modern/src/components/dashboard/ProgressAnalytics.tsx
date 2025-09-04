@@ -369,7 +369,7 @@ function generateHeatmapDays(entries: DailyEntry[]) {
       const activities = [
         !!(entry.soap && (entry.soap.scripture?.trim() || entry.soap.observation?.trim() || entry.soap.application?.trim() || entry.soap.prayer?.trim())),
         !!entry.gratitude,
-        !!(entry.goals && entry.goals !== ''),
+        !!(entry.goals && (entry.goals.daily?.length > 0 || entry.goals.weekly?.length > 0 || entry.goals.monthly?.length > 0)),
         !!entry.dailyIntention
       ].filter(Boolean).length
       
@@ -419,6 +419,7 @@ export function ProgressAnalytics() {
     currentStreak: 7,
     longestStreak: 23,
     totalEntries: 45,
+    completionRate: 78,
     goalCompletion: {
       daily: { completed: 12, total: 15, percentage: 80 },
       weekly: { completed: 8, total: 12, percentage: 67 },
@@ -480,12 +481,91 @@ export function ProgressAnalytics() {
         <p className="text-xl text-gray-600">"But grow in the grace and knowledge of our Lord and Savior Jesus Christ" - 2 Peter 3:18</p>
       </motion.div>
 
+      {/* Insights & Recommendations */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+        className="mb-8"
+      >
+        <Card className="p-6">
+          <h3 className="text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
+            💡 Insights & Recommendations
+          </h3>
+          <p className="text-sm text-gray-600 mb-4 text-center italic">
+            "For the Lord gives wisdom; from his mouth come knowledge and understanding" - Proverbs 2:6
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-4">
+              <div className="flex items-start space-x-3">
+                <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
+                  <TrendingUp className="w-4 h-4 text-green-600" />
+                </div>
+                <div>
+                  <h4 className="font-medium text-gray-900">Goal Completion Analysis</h4>
+                  <p className="text-sm text-gray-600">
+                    {data.goalCompletion.daily.percentage > 70 
+                      ? `Excellent daily goal completion at ${data.goalCompletion.daily.percentage}%!`
+                      : `Daily goals at ${data.goalCompletion.daily.percentage}% - room for improvement.`
+                    }
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-start space-x-3">
+                <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                  <Clock className="w-4 h-4 text-blue-600" />
+                </div>
+                <div>
+                  <h4 className="font-medium text-gray-900">Streak Performance</h4>
+                  <p className="text-sm text-gray-600">
+                    {data.currentStreak > 0 
+                      ? `You're on a ${data.currentStreak}-day streak! Your longest was ${data.longestStreak} days.`
+                      : `Start a new streak today! Your longest was ${data.longestStreak} days.`
+                    }
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div className="space-y-4">
+              <div className="flex items-start space-x-3">
+                <div className="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center flex-shrink-0">
+                  <Target className="w-4 h-4 text-yellow-600" />
+                </div>
+                <div>
+                  <h4 className="font-medium text-gray-900">Monthly Goal Focus</h4>
+                  <p className="text-sm text-gray-600">
+                    {data.goalCompletion.monthly.percentage > 60 
+                      ? `Great monthly goal completion at ${data.goalCompletion.monthly.percentage}%!`
+                      : `Monthly goals at ${data.goalCompletion.monthly.percentage}% - consider breaking them into smaller weekly tasks.`
+                    }
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-start space-x-3">
+                <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0">
+                  <Heart className="w-4 h-4 text-purple-600" />
+                </div>
+                <div>
+                  <h4 className="font-medium text-gray-900">Leadership Growth</h4>
+                  <p className="text-sm text-gray-600">
+                    {data.leadershipScores.integrity > 8 
+                      ? `Excellent integrity (${data.leadershipScores.integrity})! Focus on ${Object.entries(data.leadershipScores).reduce((lowest, [trait, score]) => score < data.leadershipScores[lowest as keyof typeof data.leadershipScores] ? trait : lowest, 'wisdom')} for balanced growth.`
+                      : `Keep working on all leadership traits. Current average: ${((data.leadershipScores.wisdom + data.leadershipScores.courage + data.leadershipScores.patience + data.leadershipScores.integrity) / 4).toFixed(1)}/10`
+                    }
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </Card>
+      </motion.div>
+
       {/* Key Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
+          transition={{ delay: 0.5 }}
         >
           <Card className="p-6 text-center">
             <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -500,7 +580,7 @@ export function ProgressAnalytics() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
+          transition={{ delay: 0.5 }}
         >
           <Card className="p-6 text-center">
             <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -515,7 +595,7 @@ export function ProgressAnalytics() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
+          transition={{ delay: 0.5 }}
         >
           <Card className="p-6 text-center">
             <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -530,7 +610,7 @@ export function ProgressAnalytics() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
+          transition={{ delay: 0.5 }}
         >
           <Card className="p-6 text-center">
             <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -661,7 +741,7 @@ export function ProgressAnalytics() {
             📈 Goal Achievement Trends
           </h3>
           <div className="h-64 flex items-end space-x-2">
-            {data.monthlyProgress.slice(-6).map((month, index) => {
+            {data.monthlyProgress.slice(-6).map((month) => {
               const maxGoals = Math.max(...data.monthlyProgress.map(m => m.goals), 1)
               const maxEntries = Math.max(...data.monthlyProgress.map(m => m.entries), 1)
               
@@ -838,83 +918,6 @@ export function ProgressAnalytics() {
         </Card>
       </motion.div>
 
-      {/* Insights & Recommendations */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.9 }}
-      >
-        <Card className="p-6">
-                      <h3 className="text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
-              💡 Insights & Recommendations
-            </h3>
-            <p className="text-sm text-gray-600 mb-4 text-center italic">
-              "For the Lord gives wisdom; from his mouth come knowledge and understanding" - Proverbs 2:6
-            </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-4">
-              <div className="flex items-start space-x-3">
-                <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
-                  <TrendingUp className="w-4 h-4 text-green-600" />
-                </div>
-                <div>
-                  <h4 className="font-medium text-gray-900">Goal Completion Analysis</h4>
-                  <p className="text-sm text-gray-600">
-                    {data.goalCompletion.daily.percentage > 70 
-                      ? `Excellent daily goal completion at ${data.goalCompletion.daily.percentage}%!`
-                      : `Daily goals at ${data.goalCompletion.daily.percentage}% - room for improvement.`
-                    }
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-start space-x-3">
-                <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                  <Clock className="w-4 h-4 text-blue-600" />
-                </div>
-                <div>
-                  <h4 className="font-medium text-gray-900">Streak Performance</h4>
-                  <p className="text-sm text-gray-600">
-                    {data.currentStreak > 0 
-                      ? `You're on a ${data.currentStreak}-day streak! Your longest was ${data.longestStreak} days.`
-                      : `Start a new streak today! Your longest was ${data.longestStreak} days.`
-                    }
-                  </p>
-                </div>
-              </div>
-            </div>
-            <div className="space-y-4">
-              <div className="flex items-start space-x-3">
-                <div className="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center flex-shrink-0">
-                  <Target className="w-4 h-4 text-yellow-600" />
-                </div>
-                <div>
-                  <h4 className="font-medium text-gray-900">Monthly Goal Focus</h4>
-                  <p className="text-sm text-gray-600">
-                    {data.goalCompletion.monthly.percentage > 60 
-                      ? `Great monthly goal completion at ${data.goalCompletion.monthly.percentage}%!`
-                      : `Monthly goals at ${data.goalCompletion.monthly.percentage}% - consider breaking them into smaller weekly tasks.`
-                    }
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-start space-x-3">
-                <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0">
-                  <Heart className="w-4 h-4 text-purple-600" />
-                </div>
-                <div>
-                  <h4 className="font-medium text-gray-900">Leadership Growth</h4>
-                  <p className="text-sm text-gray-600">
-                    {data.leadershipScores.integrity > 8 
-                      ? `Excellent integrity (${data.leadershipScores.integrity})! Focus on ${Object.entries(data.leadershipScores).reduce((lowest, [trait, score]) => score < data.leadershipScores[lowest as keyof typeof data.leadershipScores] ? trait : lowest, 'wisdom')} for balanced growth.`
-                      : `Keep working on all leadership traits. Current average: ${((data.leadershipScores.wisdom + data.leadershipScores.courage + data.leadershipScores.patience + data.leadershipScores.integrity) / 4).toFixed(1)}/10`
-                    }
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </Card>
-      </motion.div>
     </div>
   )
 }
