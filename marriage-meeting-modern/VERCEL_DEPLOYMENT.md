@@ -39,13 +39,13 @@ VITE_TABLE_NAME=marriage_meetings
 VITE_DEBUG_LOGGING=false
 
 # Backend Environment Variables
-JWT_SECRET=your-super-secure-jwt-secret-key-here
+JWT_SECRET=2935c07237e2b8c3c791ad16d1241ad8b61bcd8cb9b342f716a826be96f45ce82dc8fc1cfb1c77261da8280507c4848a4ad6c1ae4ae28f2d6019b8bed64a2741
 NODE_ENV=production
 ```
 
 **Important Notes:**
 - Replace `your-app-name` with your actual Vercel app name
-- Generate a secure JWT secret (32+ characters)
+- JWT secret is already generated and included above (128 characters, cryptographically secure)
 - Set `VITE_DEBUG_LOGGING=false` for production
 
 ### **Step 4: Database Setup**
