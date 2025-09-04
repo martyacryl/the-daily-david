@@ -1,141 +1,146 @@
-# Vercel Deployment Guide for The Daily David Modern App
+# Vercel Deployment Guide - Marriage Meeting Tool
 
-## Why Vercel?
+## 🚀 **Complete Vercel Setup Instructions**
 
-- **Full-stack support**: Handles both React frontend and Node.js backend
-- **Free tier**: 100GB bandwidth/month, serverless functions, edge functions
-- **Automatic scaling**: Scales to zero when not in use, scales up automatically
-- **Git integration**: Deploys automatically on git push
-- **Global CDN**: Edge functions for better performance
+### **Step 1: Create Vercel Project**
 
-## Prerequisites
+1. **Go to Vercel Dashboard**
+   - Visit [vercel.com](https://vercel.com)
+   - Sign in to your account
 
-1. **Vercel Account**: Sign up at [vercel.com](https://vercel.com)
-2. **GitHub Integration**: Connect your GitHub account to Vercel
-3. **Environment Variables**: Set up your Neon database connection
+2. **Import Project**
+   - Click "New Project"
+   - Select "Import Git Repository"
+   - Choose your `marriage-meeting-tool` repository
+   - Click "Import"
 
-## Deployment Steps
+### **Step 2: Configure Project Settings**
 
-### 1. Install Vercel CLI (Optional but Recommended)
+**Project Configuration:**
+- **Project Name**: `marriage-meeting-tool` (or your preferred name)
+- **Framework Preset**: `Vite`
+- **Root Directory**: `marriage-meeting-modern`
+- **Build Command**: `npm run build`
+- **Output Directory**: `dist`
+- **Install Command**: `npm install`
 
-```bash
-npm i -g vercel
-```
+### **Step 3: Environment Variables**
 
-### 2. Set Up Environment Variables
-
-In your Vercel dashboard, set these environment variables:
+Add these environment variables in Vercel Dashboard:
 
 ```env
-NEON_CONNECTION_STRING=postgresql://neondb_owner:npg_L5ysD0JfHSFP@ep-little-base-adgfntzb-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
-JWT_SECRET=your-super-secure-jwt-secret-key
+# Database Configuration
+NEON_CONNECTION_STRING=postgresql://neondb_owner:npg_JVaULlB0w8mo@ep-soft-rice-adn6s9vn-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+# Frontend Environment Variables
+VITE_API_URL=https://your-app-name.vercel.app
+VITE_NEON_CONNECTION_STRING=postgresql://neondb_owner:npg_JVaULlB0w8mo@ep-soft-rice-adn6s9vn-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+VITE_TABLE_NAME=marriage_meetings
+VITE_DEBUG_LOGGING=false
+
+# Backend Environment Variables
+JWT_SECRET=your-super-secure-jwt-secret-key-here
 NODE_ENV=production
 ```
 
-### 3. Deploy via Vercel Dashboard (Recommended)
+**Important Notes:**
+- Replace `your-app-name` with your actual Vercel app name
+- Generate a secure JWT secret (32+ characters)
+- Set `VITE_DEBUG_LOGGING=false` for production
 
-1. Go to [vercel.com/new](https://vercel.com/new)
-2. Import your GitHub repository
-3. Select the `daily-david-modern/daily-david-modern` folder
-4. Vercel will automatically detect the configuration
-5. Click "Deploy"
+### **Step 4: Database Setup**
 
-### 4. Deploy via CLI (Alternative)
+Before deploying, set up your database:
 
+1. **Connect to Neon Database:**
 ```bash
-cd daily-david-modern/daily-david-modern
-vercel
+psql 'postgresql://neondb_owner:npg_JVaULlB0w8mo@ep-soft-rice-adn6s9vn-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require'
 ```
 
-Follow the prompts to link to your Vercel project.
-
-### 5. Automatic Deployments
-
-Once connected, every push to your main branch will automatically deploy to Vercel.
-
-## Project Structure for Vercel
-
-```
-daily-david-modern/
-├── api/
-│   └── index.js          # Vercel serverless function entry point
-├── server/
-│   └── index.js          # Express server logic
-├── src/                  # React frontend
-├── vercel.json           # Vercel configuration
-├── vercel-build.json     # Build configuration
-└── package.json          # Dependencies and scripts
+2. **Run Database Setup:**
+```sql
+\i setup_marriage_database.sql
 ```
 
-## Configuration Files
-
-### vercel.json
-- Routes API calls to the serverless function
-- Serves static files from the React build
-- Configures function timeouts
-
-### vercel-build.json
-- Specifies build command and output directory
-- Ensures proper build process
-
-## API Endpoints
-
-Your Express server endpoints will be available at:
-- `/api/auth/login` - User authentication
-- `/api/health` - Health check
-- `/api/admin/users` - Admin user management
-- `/api/setup` - Initial setup
-
-## Frontend Configuration
-
-The React app will be served from the root path, with API calls automatically routed to your serverless function.
-
-## Monitoring and Scaling
-
-- **Function Logs**: View in Vercel dashboard
-- **Performance**: Monitor function execution times
-- **Scaling**: Automatic based on demand
-- **Edge Functions**: Global CDN distribution
-
-## Troubleshooting
-
-### Common Issues
-
-1. **Environment Variables**: Ensure all required env vars are set
-2. **Database Connection**: Verify Neon connection string
-3. **Build Errors**: Check build logs in Vercel dashboard
-4. **Function Timeouts**: Increase maxDuration in vercel.json if needed
-
-### Debug Commands
-
-```bash
-# View function logs
-vercel logs
-
-# Test locally
-vercel dev
-
-# Check deployment status
-vercel ls
+3. **Create Admin User:**
+```sql
+-- Insert your admin user (replace with your details)
+INSERT INTO users (email, display_name, password_hash, is_admin, created_at)
+VALUES (
+  'your-email@example.com',
+  'Your Name',
+  '$2a$10$your-hashed-password-here',
+  true,
+  NOW()
+);
 ```
 
-## Cost Optimization
+### **Step 5: Deploy**
 
-- **Free Tier**: 100GB bandwidth/month
-- **Serverless**: Pay only for actual usage
-- **Edge Functions**: Global performance without extra cost
-- **Auto-scaling**: Scales to zero when not in use
+1. **Click "Deploy"** in Vercel Dashboard
+2. **Wait for build** to complete
+3. **Test the deployment** at your Vercel URL
 
-## Next Steps
+### **Step 6: Post-Deployment Setup**
 
-1. Deploy to Vercel
-2. Test all API endpoints
-3. Verify database connections
-4. Set up custom domain (optional)
-5. Configure monitoring and alerts
+1. **Update API URL** in environment variables to match your Vercel domain
+2. **Test authentication** by signing in
+3. **Create additional users** through admin panel
+4. **Test all features** to ensure everything works
 
-## Support
+## 🔧 **Troubleshooting**
 
-- **Vercel Docs**: [vercel.com/docs](https://vercel.com/docs)
-- **Community**: [github.com/vercel/vercel/discussions](https://github.com/vercel/vercel/discussions)
-- **Discord**: [vercel.com/chat](https://vercel.com/chat)
+### **Common Issues:**
+
+1. **Build Fails**
+   - Check that `Root Directory` is set to `marriage-meeting-modern`
+   - Verify all dependencies are in package.json
+
+2. **API Routes Not Working**
+   - Ensure `vercel.json` is in the root of `marriage-meeting-modern`
+   - Check that server dependencies are installed
+
+3. **Database Connection Issues**
+   - Verify `NEON_CONNECTION_STRING` is correct
+   - Check that database tables exist
+
+4. **Authentication Issues**
+   - Verify `JWT_SECRET` is set
+   - Check that users exist in database
+
+### **Environment Variables Checklist:**
+
+- [ ] `NEON_CONNECTION_STRING` - Database connection
+- [ ] `VITE_API_URL` - Your Vercel app URL
+- [ ] `VITE_NEON_CONNECTION_STRING` - Database connection for frontend
+- [ ] `VITE_TABLE_NAME` - Database table name
+- [ ] `JWT_SECRET` - Secure random string
+- [ ] `NODE_ENV` - Set to "production"
+
+## 📱 **Testing Your Deployment**
+
+1. **Visit your Vercel URL**
+2. **Try to sign in** (should redirect to login)
+3. **Sign in with admin credentials**
+4. **Test weekly planning features**
+5. **Test list management**
+6. **Test week navigation**
+7. **Verify auto-save works**
+
+## 🎯 **Next Steps After Deployment**
+
+1. **Set up custom domain** (optional)
+2. **Configure SSL** (automatic with Vercel)
+3. **Set up monitoring** and analytics
+4. **Create user accounts** for couples
+5. **Test on mobile devices**
+
+## 📞 **Support**
+
+If you encounter issues:
+1. Check Vercel deployment logs
+2. Verify environment variables
+3. Test database connection
+4. Check browser console for errors
+
+Your Marriage Meeting Tool should now be live and ready to use! 🎉
