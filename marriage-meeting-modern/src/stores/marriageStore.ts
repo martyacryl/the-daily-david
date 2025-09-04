@@ -78,7 +78,11 @@ export const useMarriageStore = create<MarriageState>((set, get) => ({
       const week = await dbManager.getMarriageMeetingWeekByDate(weekKey)
       
       if (week) {
-        console.log('Store: Found existing week data')
+        console.log('Store: Found existing week data:', {
+          weekKey: week.week_key,
+          goalsCount: week.goals?.length || 0,
+          goals: week.goals
+        })
         set({ 
           currentWeek: week,
           weekData: {

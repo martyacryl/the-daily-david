@@ -7,6 +7,7 @@ import { Button } from '../ui/Button'
 import { useAuthStore } from '../../stores/authStore'
 import { useMarriageStore } from '../../stores/marriageStore'
 import { MarriageMeetingWeek } from '../../types/marriageTypes'
+import { DatabaseManager } from '../../lib/database'
 
 export const Dashboard: React.FC = () => {
   const { user, isAuthenticated } = useAuthStore()
@@ -27,7 +28,8 @@ export const Dashboard: React.FC = () => {
     if (isAuthenticated) {
       // Load current week data
       const today = new Date()
-      const weekKey = getWeekKey(today)
+      const weekKey = DatabaseManager.formatWeekKey(today)
+      console.log('Dashboard: Loading week data for key:', weekKey)
       loadWeekData(weekKey)
     }
   }, [isAuthenticated, loadWeekData])
@@ -39,13 +41,6 @@ export const Dashboard: React.FC = () => {
     }
   }, [weekData])
 
-  const getWeekKey = (date: Date): string => {
-    const d = new Date(date)
-    const day = d.getDay()
-    const diff = d.getDate() - day + (day === 0 ? -6 : 1) // Adjust when day is Sunday
-    const monday = new Date(d.setDate(diff))
-    return monday.toISOString().split('T')[0]
-  }
 
   const calculateStats = () => {
     if (!weekData) return
@@ -72,7 +67,17 @@ export const Dashboard: React.FC = () => {
   }
 
   const extractCurrentGoals = () => {
-    if (!weekData) return
+    if (!weekData) {
+      console.log('Dashboard: No weekData available')
+      return
+    }
+
+    console.log('Dashboard: Extracting goals from weekData:', {
+      todos: weekData.todos?.length || 0,
+      prayers: weekData.prayers?.length || 0,
+      goals: weekData.goals?.length || 0,
+      goalsData: weekData.goals
+    })
 
     setCurrentGoals({
       todos: weekData.todos || [],
