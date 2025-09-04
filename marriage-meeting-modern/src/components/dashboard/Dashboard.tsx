@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
-import { Heart, TrendingUp, Calendar, Target, Users, CheckCircle } from 'lucide-react'
+import { Mountain, TrendingUp, Calendar, Target, Users, CheckCircle } from 'lucide-react'
 import { Card } from '../ui/Card'
 import { Button } from '../ui/Button'
 import { useAuthStore } from '../../stores/authStore'
@@ -100,9 +100,9 @@ export const Dashboard: React.FC = () => {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-pink-50 to-purple-50">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-purple-50">
         <Card className="p-8 text-center">
-          <Heart className="w-16 h-16 text-pink-500 mx-auto mb-4" />
+          <Mountain className="w-16 h-16 text-slate-500 mx-auto mb-4" />
           <h1 className="text-2xl font-bold text-gray-900 mb-4">Welcome to Marriage Meeting Tool</h1>
           <p className="text-gray-600 mb-6">{getScripture()}</p>
           <Link to="/login">
@@ -114,7 +114,7 @@ export const Dashboard: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-50 to-purple-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-purple-50">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <motion.div
@@ -128,7 +128,7 @@ export const Dashboard: React.FC = () => {
           <p className="text-lg text-gray-600 mb-4">{getScripture()}</p>
           <div className="flex justify-center gap-4">
             <Link to="/weekly">
-              <Button className="bg-pink-600 hover:bg-pink-700">
+              <Button className="bg-slate-600 hover:bg-slate-700">
                 <Calendar className="w-4 h-4 mr-2" />
                 Weekly Planning
               </Button>
@@ -150,8 +150,8 @@ export const Dashboard: React.FC = () => {
             transition={{ delay: 0.1 }}
           >
             <Card className="p-6 text-center">
-              <div className="w-12 h-12 bg-pink-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Calendar className="w-6 h-6 text-pink-600" />
+              <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Calendar className="w-6 h-6 text-slate-600" />
               </div>
               <h3 className="text-2xl font-bold text-gray-900">{stats.totalWeeks}</h3>
               <p className="text-gray-600">Total Weeks</p>
@@ -210,13 +210,13 @@ export const Dashboard: React.FC = () => {
           >
             <Card className="p-6">
               <h3 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                <Target className="w-5 h-5 text-pink-600" />
+                <Target className="w-5 h-5 text-slate-600" />
                 Current Goals
               </h3>
               <div className="space-y-2">
                 {currentGoals.goals.slice(0, 3).map((goal, index) => (
                   <div key={index} className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-pink-500 rounded-full"></div>
+                    <div className="w-2 h-2 bg-slate-500 rounded-full"></div>
                     <span className="text-gray-700">{goal.text}</span>
                   </div>
                 ))}
@@ -224,7 +224,7 @@ export const Dashboard: React.FC = () => {
                   <p className="text-gray-500 text-sm">No goals set for this week</p>
                 )}
               </div>
-              <Link to="/weekly" className="text-pink-600 text-sm font-medium mt-4 block">
+              <Link to="/weekly" className="text-slate-600 text-sm font-medium mt-4 block">
                 View all goals →
               </Link>
             </Card>

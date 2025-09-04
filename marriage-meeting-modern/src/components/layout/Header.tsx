@@ -1,7 +1,7 @@
 import React from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Heart, Home, BarChart3, Calendar, LogOut, User } from 'lucide-react'
+import { Mountain, Home, BarChart3, Calendar, LogOut, User } from 'lucide-react'
 import { useAuthStore } from '../../stores/authStore'
 import { Button } from '../ui/Button'
 
@@ -27,8 +27,8 @@ export const Header: React.FC = () => {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-pink-500 to-purple-600 rounded-full flex items-center justify-center">
-              <Heart className="w-5 h-5 text-white" />
+            <div className="w-8 h-8 bg-gradient-to-br from-slate-400 to-purple-400 rounded-full flex items-center justify-center">
+              <Mountain className="w-5 h-5 text-white" />
             </div>
             <span className="text-xl font-bold text-gray-900">Marriage Meeting Tool</span>
           </Link>
@@ -43,7 +43,7 @@ export const Header: React.FC = () => {
                   to={item.path}
                   className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                     isActive(item.path)
-                      ? 'bg-pink-100 text-pink-700'
+                      ? 'bg-slate-100 text-slate-700'
                       : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
                   }`}
                 >
@@ -83,7 +83,7 @@ export const Header: React.FC = () => {
                   to={item.path}
                   className={`flex flex-col items-center gap-1 px-3 py-2 rounded-lg text-xs font-medium transition-colors ${
                     isActive(item.path)
-                      ? 'bg-pink-100 text-pink-700'
+                      ? 'bg-slate-100 text-slate-700'
                       : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
                   }`}
                 >

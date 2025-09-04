@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Heart, Lock, Mail } from 'lucide-react'
+import { Mountain, Lock, Mail } from 'lucide-react'
 import { useAuthStore } from '../stores/authStore'
 import { Card } from './ui/Card'
 import { Button } from './ui/Button'
@@ -21,7 +21,7 @@ export const LoginForm: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-pink-50 to-purple-50">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-purple-50">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -30,8 +30,8 @@ export const LoginForm: React.FC = () => {
       >
         <Card className="p-8">
           <div className="text-center mb-8">
-            <div className="w-16 h-16 bg-gradient-to-br from-pink-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Heart className="w-8 h-8 text-white" />
+            <div className="w-16 h-16 bg-gradient-to-br from-slate-400 to-purple-400 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Mountain className="w-8 h-8 text-white" />
             </div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Marriage Meeting Tool</h1>
             <p className="text-gray-600">

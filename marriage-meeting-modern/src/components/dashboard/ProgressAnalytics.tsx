@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
-import { Heart, TrendingUp, Calendar, Target, Users, CheckCircle, BarChart3 } from 'lucide-react'
+import { Mountain, TrendingUp, Calendar, Target, Users, CheckCircle, BarChart3 } from 'lucide-react'
 import { Card } from '../ui/Card'
 import { Button } from '../ui/Button'
 import { useAuthStore } from '../../stores/authStore'
@@ -88,9 +88,9 @@ export const ProgressAnalytics: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-pink-50 to-purple-50">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-purple-50">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-600 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-slate-600 mx-auto mb-4"></div>
           <p className="text-gray-600">Loading analytics...</p>
         </div>
       </div>
@@ -98,7 +98,7 @@ export const ProgressAnalytics: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-50 to-purple-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-purple-50">
       <div className="container mx-auto px-4 py-8">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -118,8 +118,8 @@ export const ProgressAnalytics: React.FC = () => {
             transition={{ delay: 0.1 }}
           >
             <Card className="p-6 text-center">
-              <div className="w-12 h-12 bg-pink-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Target className="w-6 h-6 text-pink-600" />
+              <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Target className="w-6 h-6 text-slate-600" />
               </div>
               <h3 className="text-2xl font-bold text-gray-900">{analyticsData.completionRate}%</h3>
               <p className="text-gray-600">Completion Rate</p>
@@ -146,8 +146,8 @@ export const ProgressAnalytics: React.FC = () => {
             transition={{ delay: 0.3 }}
           >
             <Card className="p-6 text-center">
-              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Heart className="w-6 h-6 text-blue-600" />
+              <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Mountain className="w-6 h-6 text-slate-600" />
               </div>
               <h3 className="text-2xl font-bold text-gray-900">{analyticsData.prayerConsistency}%</h3>
               <p className="text-gray-600">Prayer Consistency</p>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
-import { Mail, Lock, LogIn, Eye, EyeOff } from 'lucide-react'
+import { Mail, Lock, LogIn, Eye, EyeOff, Mountain } from 'lucide-react'
 import { useAuthStore } from '../../stores/authStore'
 import { LoginFormData } from '../../types'
 import { Button } from '../ui'
@@ -95,8 +95,8 @@ export function LoginForm({ onSuccess, onError }: LoginFormProps) {
             transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
             className="inline-block"
           >
-            <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mb-4 mx-auto">
-              <span className="text-white text-2xl font-bold">DD</span>
+            <div className="w-16 h-16 bg-gradient-to-br from-slate-400 to-purple-400 rounded-full flex items-center justify-center mb-4 mx-auto">
+              <Mountain className="w-8 h-8 text-white" />
             </div>
           </motion.div>
           <h1 className="text-2xl font-bold text-gray-900 mb-2">
@@ -195,7 +195,7 @@ export function LoginForm({ onSuccess, onError }: LoginFormProps) {
           <Button
             type="submit"
             disabled={isLoading}
-            className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold rounded-lg hover:from-blue-600 hover:to-purple-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-gradient-to-r from-slate-500 to-purple-500 text-white font-semibold rounded-lg hover:from-slate-600 hover:to-purple-600 focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isLoading ? (
               <>

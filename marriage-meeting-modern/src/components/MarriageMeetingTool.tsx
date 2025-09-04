@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { Calendar, Users, Heart, CheckCircle, Clock, Save } from 'lucide-react'
+import { Calendar, Users, Mountain, CheckCircle, Clock, Save } from 'lucide-react'
 import { useAuthStore } from '../stores/authStore'
 import { useMarriageStore } from '../stores/marriageStore'
 import { dbManager, DatabaseManager } from '../lib/database'
