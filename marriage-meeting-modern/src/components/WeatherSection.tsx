@@ -50,6 +50,8 @@ export const WeatherSection: React.FC<WeatherSectionProps> = ({ className = '' }
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [location, setLocation] = useState<{ lat: number; lon: number } | null>(null)
+  const [manualLocation, setManualLocation] = useState('')
+  const [showManualInput, setShowManualInput] = useState(false)
 
   // Get weather icon component
   const getWeatherIcon = (iconCode: string, size: string = 'w-6 h-6') => {
@@ -222,12 +224,122 @@ export const WeatherSection: React.FC<WeatherSectionProps> = ({ className = '' }
         setLocation(coords)
         await fetchWeather(coords.lat, coords.lon)
       } catch (err) {
-        setError('Unable to get your location. Please enable location access.')
+        setError('Unable to get your location. Please enable location access or enter your city manually.')
+        setShowManualInput(true)
       }
     }
 
     loadWeather()
   }, [])
+
+  // Fetch weather by city name
+  const fetchWeatherByCity = async (cityName: string) => {
+    setLoading(true)
+    setError(null)
+
+    try {
+      const API_KEY = import.meta.env.VITE_OPENWEATHER_API_KEY || 'demo_key'
+      
+      if (API_KEY === 'demo_key') {
+        // Demo data for development
+        setWeather({
+          current: {
+            temp: 72,
+            feels_like: 75,
+            humidity: 65,
+            description: 'Partly cloudy',
+            icon: '02d',
+            wind_speed: 8,
+            visibility: 10
+          },
+          location: {
+            name: cityName || 'Your City',
+            country: 'US'
+          },
+          forecast: [
+            { date: '2024-01-15', day: 'Mon', temp_max: 75, temp_min: 60, description: 'Sunny', icon: '01d', precipitation: 0 },
+            { date: '2024-01-16', day: 'Tue', temp_max: 78, temp_min: 62, description: 'Partly cloudy', icon: '02d', precipitation: 10 },
+            { date: '2024-01-17', day: 'Wed', temp_max: 70, temp_min: 55, description: 'Light rain', icon: '10d', precipitation: 60 },
+            { date: '2024-01-18', day: 'Thu', temp_max: 68, temp_min: 52, description: 'Cloudy', icon: '04d', precipitation: 20 },
+            { date: '2024-01-19', day: 'Fri', temp_max: 73, temp_min: 58, description: 'Clear', icon: '01d', precipitation: 0 }
+          ]
+        })
+        setLoading(false)
+        return
+      }
+
+      // Real API call by city name
+      const response = await fetch(
+        `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(cityName)}&appid=${API_KEY}&units=imperial`
+      )
+      
+      if (!response.ok) {
+        throw new Error('City not found. Please check the spelling.')
+      }
+
+      const currentData = await response.json()
+
+      // Fetch 5-day forecast by city
+      const forecastResponse = await fetch(
+        `https://api.openweathermap.org/data/2.5/forecast?q=${encodeURIComponent(cityName)}&appid=${API_KEY}&units=imperial`
+      )
+      
+      if (!forecastResponse.ok) {
+        throw new Error('Failed to fetch forecast data')
+      }
+
+      const forecastData = await forecastResponse.json()
+
+      // Process forecast data (same as before)
+      const dailyForecast = forecastData.list.reduce((acc: any, item: any) => {
+        const date = new Date(item.dt * 1000).toISOString().split('T')[0]
+        const day = new Date(item.dt * 1000).toLocaleDateString('en-US', { weekday: 'short' })
+        
+        if (!acc[date]) {
+          acc[date] = {
+            date,
+            day,
+            temp_max: item.main.temp_max,
+            temp_min: item.main.temp_min,
+            description: item.weather[0].description,
+            icon: item.weather[0].icon,
+            precipitation: item.pop * 100
+          }
+        } else {
+          acc[date].temp_max = Math.max(acc[date].temp_max, item.main.temp_max)
+          acc[date].temp_min = Math.min(acc[date].temp_min, item.main.temp_min)
+        }
+        
+        return acc
+      }, {})
+
+      const forecast = Object.values(dailyForecast).slice(0, 5)
+
+      setWeather({
+        current: {
+          temp: Math.round(currentData.main.temp),
+          feels_like: Math.round(currentData.main.feels_like),
+          humidity: currentData.main.humidity,
+          description: currentData.weather[0].description,
+          icon: currentData.weather[0].icon,
+          wind_speed: Math.round(currentData.wind.speed),
+          visibility: Math.round((currentData.visibility || 10000) / 1609.34)
+        },
+        location: {
+          name: currentData.name,
+          country: currentData.sys.country
+        },
+        forecast: forecast as any[]
+      })
+
+      setShowManualInput(false)
+
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to fetch weather data')
+    } finally {
+      setLoading(false)
+    }
+  }
 
   // Refresh weather
   const handleRefresh = async () => {
@@ -250,9 +362,41 @@ export const WeatherSection: React.FC<WeatherSectionProps> = ({ className = '' }
   if (error && !weather) {
     return (
       <Card className={`p-6 ${className}`}>
-        <div className="flex items-center gap-3 text-red-600">
-          <AlertCircle className="w-5 h-5" />
-          <span className="text-sm">{error}</span>
+        <div className="space-y-4">
+          <div className="flex items-center gap-3 text-red-600">
+            <AlertCircle className="w-5 h-5" />
+            <span className="text-sm">{error}</span>
+          </div>
+          
+          {showManualInput && (
+            <div className="space-y-3">
+              <p className="text-sm text-gray-600">Enter your city name to get weather data:</p>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={manualLocation}
+                  onChange={(e) => setManualLocation(e.target.value)}
+                  placeholder="e.g., New York, London, Tokyo"
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter' && manualLocation.trim()) {
+                      fetchWeatherByCity(manualLocation.trim())
+                    }
+                  }}
+                />
+                <Button
+                  onClick={() => fetchWeatherByCity(manualLocation.trim())}
+                  disabled={!manualLocation.trim() || loading}
+                  className="bg-blue-600 hover:bg-blue-700"
+                >
+                  Get Weather
+                </Button>
+              </div>
+              <p className="text-xs text-gray-500">
+                Try: "City, State" or "City, Country" format
+              </p>
+            </div>
+          )}
         </div>
       </Card>
     )
