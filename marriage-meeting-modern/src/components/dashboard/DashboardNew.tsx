@@ -46,11 +46,9 @@ export const DashboardNew: React.FC = () => {
     meetingStreak: 0,
     growthAreas: [] as string[],
     recentAchievements: [] as GoalItem[],
-    // Enhanced task insights
-    totalEstimatedTime: 0,
+    // Quick reminders
     overdueTasks: [] as any[],
-    highPriorityTasks: [] as any[],
-    tasksByCategory: {} as Record<string, number>
+    highPriorityTasks: [] as any[]
   })
 
   useEffect(() => {
@@ -102,15 +100,9 @@ export const DashboardNew: React.FC = () => {
     
     const urgentTodos = sortedTodos.slice(0, 3)
     
-    // Calculate task insights
-    const totalEstimatedTime = allTodos.reduce((total, todo) => total + (todo.estimatedDuration || 0), 0)
+    // Calculate quick reminders
     const overdueTasks = incompleteTodos.filter(todo => todo.dueDate && new Date(todo.dueDate) < now)
     const highPriorityTasks = incompleteTodos.filter(todo => todo.priority === 'high')
-    const tasksByCategory = incompleteTodos.reduce((acc, todo) => {
-      const category = todo.category || 'Uncategorized'
-      acc[category] = (acc[category] || 0) + 1
-      return acc
-    }, {} as Record<string, number>)
 
     // Calculate overdue goals (incomplete goals past their timeframe)
     const overdueGoals = (weekData.goals || []).filter(goal => {
@@ -182,11 +174,9 @@ export const DashboardNew: React.FC = () => {
       meetingStreak,
       growthAreas,
       recentAchievements,
-      // Enhanced task insights
-      totalEstimatedTime,
+      // Quick reminders
       overdueTasks,
-      highPriorityTasks,
-      tasksByCategory
+      highPriorityTasks
     })
   }
 
@@ -372,72 +362,43 @@ export const DashboardNew: React.FC = () => {
           </motion.div>
         </div>
 
-        {/* Task Insights */}
-        {(insights.totalEstimatedTime > 0 || insights.overdueTasks.length > 0 || insights.highPriorityTasks.length > 0) && (
+        {/* Quick Reminders */}
+        {(insights.overdueTasks.length > 0 || insights.highPriorityTasks.length > 0) && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
             className="mb-8"
           >
-            <Card className="p-6">
+            <Card className="p-6 bg-gradient-to-r from-amber-50 to-orange-50 border-amber-200">
               <h3 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                <Clock className="w-5 h-5 text-blue-600" />
-                Task Insights
+                <AlertTriangle className="w-5 h-5 text-amber-600" />
+                Quick Reminders
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {/* Total Time Commitment */}
-                {insights.totalEstimatedTime > 0 && (
-                  <div className="text-center">
-                    <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                      <Clock className="w-6 h-6 text-blue-600" />
-                    </div>
-                    <h4 className="font-semibold text-gray-900 mb-1">Total Time</h4>
-                    <p className="text-2xl font-bold text-blue-600">
-                      {Math.round(insights.totalEstimatedTime / 60)}h {insights.totalEstimatedTime % 60}m
-                    </p>
-                    <p className="text-sm text-gray-600">Estimated for all tasks</p>
-                  </div>
-                )}
-
-                {/* Overdue Tasks */}
+              <div className="space-y-3">
                 {insights.overdueTasks.length > 0 && (
-                  <div className="text-center">
-                    <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                      <AlertTriangle className="w-6 h-6 text-red-600" />
+                  <div className="flex items-center gap-3 p-3 bg-red-50 rounded-lg border border-red-200">
+                    <AlertTriangle className="w-5 h-5 text-red-600 flex-shrink-0" />
+                    <div>
+                      <p className="font-medium text-red-800">
+                        {insights.overdueTasks.length} task{insights.overdueTasks.length > 1 ? 's' : ''} overdue
+                      </p>
+                      <p className="text-sm text-red-600">Check your task list to catch up</p>
                     </div>
-                    <h4 className="font-semibold text-gray-900 mb-1">Overdue</h4>
-                    <p className="text-2xl font-bold text-red-600">{insights.overdueTasks.length}</p>
-                    <p className="text-sm text-gray-600">Tasks past due date</p>
                   </div>
                 )}
-
-                {/* High Priority Tasks */}
                 {insights.highPriorityTasks.length > 0 && (
-                  <div className="text-center">
-                    <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                      <Zap className="w-6 h-6 text-orange-600" />
+                  <div className="flex items-center gap-3 p-3 bg-orange-50 rounded-lg border border-orange-200">
+                    <Zap className="w-5 h-5 text-orange-600 flex-shrink-0" />
+                    <div>
+                      <p className="font-medium text-orange-800">
+                        {insights.highPriorityTasks.length} high priority task{insights.highPriorityTasks.length > 1 ? 's' : ''} need attention
+                      </p>
+                      <p className="text-sm text-orange-600">Focus on these first today</p>
                     </div>
-                    <h4 className="font-semibold text-gray-900 mb-1">High Priority</h4>
-                    <p className="text-2xl font-bold text-orange-600">{insights.highPriorityTasks.length}</p>
-                    <p className="text-sm text-gray-600">Urgent tasks to focus on</p>
                   </div>
                 )}
               </div>
-
-              {/* Task Categories */}
-              {Object.keys(insights.tasksByCategory).length > 0 && (
-                <div className="mt-6 pt-6 border-t border-gray-200">
-                  <h4 className="font-semibold text-gray-900 mb-3">Tasks by Category</h4>
-                  <div className="flex flex-wrap gap-2">
-                    {Object.entries(insights.tasksByCategory).map(([category, count]) => (
-                      <span key={category} className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm">
-                        {category}: {count}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
             </Card>
           </motion.div>
         )}
