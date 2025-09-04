@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Calendar, ChevronLeft, ChevronRight, RotateCcw } from 'lucide-react'
+import { useSearchParams } from 'react-router-dom'
 import { Button } from './ui/Button'
 import { LoadingSpinner } from './ui/LoadingSpinner'
 import { WeeklyMeetingSidebar } from './WeeklyMeetingSidebar'
@@ -103,8 +104,17 @@ export const WeeklyMeetingSidebarLayout: React.FC = () => {
     updateGoals
   } = useMarriageStore()
 
+  const [searchParams] = useSearchParams()
   const [activeSection, setActiveSection] = useState('schedule')
   const [isSaving, setIsSaving] = useState(false)
+
+  // Handle section parameter from URL
+  useEffect(() => {
+    const section = searchParams.get('section')
+    if (section && ['schedule', 'goals', 'todos', 'prayers', 'grocery', 'unconfessed'].includes(section)) {
+      setActiveSection(section)
+    }
+  }, [searchParams])
 
   // Load week data when date changes
   useEffect(() => {
@@ -166,7 +176,7 @@ export const WeeklyMeetingSidebarLayout: React.FC = () => {
   }
 
   return (
-    <div className="h-screen bg-gradient-to-br from-slate-50 to-purple-50 flex flex-col">
+    <div className="h-screen bg-gradient-to-br from-slate-50 to-purple-50 flex flex-col pt-16">
       {/* Header with Week Navigation */}
       <WeekNavigation
         currentDate={currentDate}

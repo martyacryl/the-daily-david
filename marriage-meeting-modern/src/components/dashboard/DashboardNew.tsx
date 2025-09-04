@@ -181,7 +181,7 @@ export const DashboardNew: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-purple-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-purple-50 pt-16">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <motion.div
@@ -261,7 +261,7 @@ export const DashboardNew: React.FC = () => {
                   <p className="text-gray-500 text-sm">No urgent todos</p>
                 )}
               </div>
-              <Link to="/weekly" className="text-orange-600 text-sm font-medium mt-4 block">
+              <Link to="/weekly?section=todos" className="text-orange-600 text-sm font-medium mt-4 block">
                 View All Todos →
               </Link>
             </Card>
@@ -288,7 +288,7 @@ export const DashboardNew: React.FC = () => {
                   <p className="text-gray-500 text-sm">No overdue goals</p>
                 )}
               </div>
-              <Link to="/weekly" className="text-red-600 text-sm font-medium mt-4 block">
+              <Link to="/weekly?section=goals" className="text-red-600 text-sm font-medium mt-4 block">
                 View All Goals →
               </Link>
             </Card>
@@ -318,7 +318,7 @@ export const DashboardNew: React.FC = () => {
                   <p className="text-gray-500 text-sm">No unanswered prayers</p>
                 )}
               </div>
-              <Link to="/weekly" className="text-purple-600 text-sm font-medium mt-4 block">
+              <Link to="/weekly?section=prayers" className="text-purple-600 text-sm font-medium mt-4 block">
                 View All Prayers →
               </Link>
             </Card>
@@ -345,7 +345,7 @@ export const DashboardNew: React.FC = () => {
                   <p className="text-gray-500 text-sm">All items addressed</p>
                 )}
               </div>
-              <Link to="/weekly" className="text-yellow-600 text-sm font-medium mt-4 block">
+              <Link to="/weekly?section=unconfessed" className="text-yellow-600 text-sm font-medium mt-4 block">
                 View All Items →
               </Link>
             </Card>
