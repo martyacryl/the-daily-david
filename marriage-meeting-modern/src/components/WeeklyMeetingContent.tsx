@@ -5,6 +5,7 @@ import { Card } from './ui/Card'
 import { Button } from './ui/Button'
 import { GoalsSection } from './GoalsSection'
 import { TasksSection } from './TasksSection'
+import { GroceryErrandsSection } from './GroceryErrandsSection'
 import { ListItem, GoalItem, TaskItem, DayName } from '../types/marriageTypes'
 
 interface WeeklyMeetingContentProps {
@@ -26,6 +27,7 @@ interface WeeklyMeetingContentProps {
   onRemoveListItem: (listType: string, id: number) => void
   onUpdateGoals: (goals: GoalItem[]) => void
   onUpdateTasks: (tasks: TaskItem[]) => void
+  onUpdateGrocery: (grocery: any[]) => void
 }
 
 export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
@@ -39,7 +41,8 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
   onToggleListItem,
   onRemoveListItem,
   onUpdateGoals,
-  onUpdateTasks
+  onUpdateTasks,
+  onUpdateGrocery
 }) => {
   const days: DayName[] = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 
@@ -228,6 +231,10 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
     <TasksSection tasks={weekData.todos} onUpdate={onUpdateTasks} />
   )
 
+  const renderGroceryErrandsSection = () => (
+    <GroceryErrandsSection items={weekData.grocery} onUpdate={onUpdateGrocery} />
+  )
+
   const renderContent = () => {
     switch (activeSection) {
       case 'schedule':
@@ -239,7 +246,7 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
       case 'prayers':
         return renderListSection('prayers', 'Prayers', Heart, 'purple', weekData.prayers)
       case 'grocery':
-        return renderListSection('grocery', 'Grocery', ShoppingCart, 'teal', weekData.grocery)
+        return renderGroceryErrandsSection()
       case 'unconfessed':
         return renderListSection('unconfessedSin', 'Accountability', AlertTriangle, 'red', weekData.unconfessedSin)
       default:

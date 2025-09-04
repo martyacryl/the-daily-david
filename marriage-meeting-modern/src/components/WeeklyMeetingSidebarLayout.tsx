@@ -102,7 +102,8 @@ export const WeeklyMeetingSidebarLayout: React.FC = () => {
     toggleListItem,
     removeListItem,
     updateGoals,
-    updateTasks
+    updateTasks,
+    updateGrocery
   } = useMarriageStore()
 
   const [searchParams] = useSearchParams()
@@ -231,6 +232,7 @@ export const WeeklyMeetingSidebarLayout: React.FC = () => {
             onRemoveListItem={removeListItem}
             onUpdateGoals={updateGoals}
             onUpdateTasks={updateTasks}
+            onUpdateGrocery={updateGrocery}
           />
         </div>
       </div>

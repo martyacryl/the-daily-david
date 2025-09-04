@@ -17,7 +17,8 @@ import {
   Zap,
   Flame,
   Award,
-  BookOpen
+  BookOpen,
+  ShoppingCart
 } from 'lucide-react'
 import { Card } from '../ui/Card'
 import { Button } from '../ui/Button'
@@ -397,6 +398,46 @@ export const DashboardNew: React.FC = () => {
                       <p className="text-sm text-orange-600">Focus on these first today</p>
                     </div>
                   </div>
+                )}
+              </div>
+            </Card>
+          </motion.div>
+        )}
+
+        {/* Grocery & Errands */}
+        {(weekData.grocery && weekData.grocery.length > 0) && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="mb-8"
+          >
+            <Card className="p-6 bg-gradient-to-r from-green-50 to-teal-50 border-green-200">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
+                  <ShoppingCart className="w-5 h-5 text-green-600" />
+                  Grocery & Errands
+                </h3>
+                <Link to="/weekly?section=grocery" className="text-green-600 text-sm font-medium">
+                  View All →
+                </Link>
+              </div>
+              <div className="space-y-2">
+                {weekData.grocery.slice(0, 5).map((item, index) => (
+                  <div key={index} className="flex items-center gap-3 p-2 bg-white rounded-lg">
+                    <div className={`w-2 h-2 rounded-full ${
+                      item.completed ? 'bg-green-500' : 'bg-gray-300'
+                    }`}></div>
+                    <span className={`flex-1 ${item.completed ? 'line-through text-gray-500' : 'text-gray-800'}`}>
+                      {item.text}
+                    </span>
+                    {item.completed && <CheckCircle className="w-4 h-4 text-green-500" />}
+                  </div>
+                ))}
+                {weekData.grocery.length > 5 && (
+                  <p className="text-sm text-gray-600 text-center">
+                    +{weekData.grocery.length - 5} more items
+                  </p>
                 )}
               </div>
             </Card>

@@ -27,6 +27,7 @@ interface MarriageState {
   removeListItem: (listType: ListType, id: number) => void
   updateGoals: (goals: GoalItem[]) => void
   updateTasks: (tasks: TaskItem[]) => void
+  updateGrocery: (grocery: any[]) => void
   setLoading: (loading: boolean) => void
   setError: (error: string | null) => void
   setLastSaved: (date: Date) => void
@@ -313,6 +314,15 @@ export const useMarriageStore = create<MarriageState>((set, get) => ({
         weekData: {
           ...state.weekData,
           todos: tasks
+        }
+      }))
+    },
+
+    updateGrocery: (grocery: any[]) => {
+      set((state) => ({
+        weekData: {
+          ...state.weekData,
+          grocery: grocery
         }
       }))
     },
