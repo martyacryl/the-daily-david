@@ -44,14 +44,14 @@ const createEmptyWeekData = (): WeekData => ({
   },
   todos: [],
   prayers: [],
-  goals: [],
+  goals: [], // Now uses GoalItem[] structure
   grocery: [],
   unconfessedSin: [],
   weeklyWinddown: []
 })
 
 // Helper function to get next ID for list items
-const getNextId = (items: ListItem[]): number => {
+const getNextId = (items: (ListItem | GoalItem)[]): number => {
   if (items.length === 0) return 1
   return Math.max(...items.map(item => item.id)) + 1
 }
@@ -84,13 +84,31 @@ export const useMarriageStore = create<MarriageState>((set, get) => ({
           goalsCount: week.goals?.length || 0,
           goals: week.goals
         })
+        
+        // Migrate old goals to new structure if needed
+        const migratedGoals = week.goals?.map((goal: any) => {
+          // If goal already has timeframe, it's already migrated
+          if (goal.timeframe) {
+            return goal
+          }
+          // Migrate old ListItem to new GoalItem structure
+          return {
+            id: goal.id,
+            text: goal.text,
+            completed: goal.completed,
+            timeframe: 'monthly' as const, // Default to monthly for existing goals
+            description: '',
+            priority: 'medium' as const
+          }
+        }) || []
+        
         set({ 
           currentWeek: week,
           weekData: {
             schedule: week.schedule,
             todos: week.todos,
             prayers: week.prayers,
-            goals: week.goals,
+            goals: migratedGoals,
             grocery: week.grocery,
             unconfessedSin: week.unconfessedSin,
             weeklyWinddown: week.weeklyWinddown
