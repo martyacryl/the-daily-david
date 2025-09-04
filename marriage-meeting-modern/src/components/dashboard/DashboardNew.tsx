@@ -32,7 +32,7 @@ export const DashboardNew: React.FC = () => {
   
   // New actionable insights state
   const [insights, setInsights] = useState({
-    urgentTodos: [] as ListItem[],
+    urgentTodos: [] as any[],
     overdueGoals: [] as GoalItem[],
     unansweredPrayers: [] as ListItem[],
     unconfessedItems: [] as ListItem[],
@@ -45,7 +45,12 @@ export const DashboardNew: React.FC = () => {
     consistencyScore: 0,
     meetingStreak: 0,
     growthAreas: [] as string[],
-    recentAchievements: [] as GoalItem[]
+    recentAchievements: [] as GoalItem[],
+    // Enhanced task insights
+    totalEstimatedTime: 0,
+    overdueTasks: [] as any[],
+    highPriorityTasks: [] as any[],
+    tasksByCategory: {} as Record<string, number>
   })
 
   useEffect(() => {
@@ -70,7 +75,39 @@ export const DashboardNew: React.FC = () => {
     console.log('Dashboard: Calculating insights from weekData:', weekData)
 
     // Calculate urgent todos (incomplete, high priority)
-    const urgentTodos = (weekData.todos || []).filter(todo => !todo.completed).slice(0, 3)
+    // Calculate urgent todos with enhanced task data
+    const allTodos = weekData.todos || []
+    const incompleteTodos = allTodos.filter(todo => !todo.completed)
+    
+    // Sort by priority (high first) and due date
+    const sortedTodos = incompleteTodos.sort((a, b) => {
+      const priorityOrder = { high: 3, medium: 2, low: 1 }
+      const aPriority = priorityOrder[a.priority] || 0
+      const bPriority = priorityOrder[b.priority] || 0
+      
+      if (aPriority !== bPriority) return bPriority - aPriority
+      
+      // If same priority, sort by due date (earliest first)
+      if (a.dueDate && b.dueDate) {
+        return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()
+      }
+      if (a.dueDate) return -1
+      if (b.dueDate) return 1
+      
+      return 0
+    })
+    
+    const urgentTodos = sortedTodos.slice(0, 3)
+    
+    // Calculate task insights
+    const totalEstimatedTime = allTodos.reduce((total, todo) => total + (todo.estimatedDuration || 0), 0)
+    const overdueTasks = incompleteTodos.filter(todo => todo.dueDate && new Date(todo.dueDate) < now)
+    const highPriorityTasks = incompleteTodos.filter(todo => todo.priority === 'high')
+    const tasksByCategory = incompleteTodos.reduce((acc, todo) => {
+      const category = todo.category || 'Uncategorized'
+      acc[category] = (acc[category] || 0) + 1
+      return acc
+    }, {} as Record<string, number>)
 
     // Calculate overdue goals (incomplete goals past their timeframe)
     const now = new Date()
@@ -142,7 +179,12 @@ export const DashboardNew: React.FC = () => {
       consistencyScore,
       meetingStreak,
       growthAreas,
-      recentAchievements
+      recentAchievements,
+      // Enhanced task insights
+      totalEstimatedTime,
+      overdueTasks,
+      highPriorityTasks,
+      tasksByCategory
     })
   }
 
@@ -250,11 +292,44 @@ export const DashboardNew: React.FC = () => {
                 <Zap className="w-5 h-5 text-orange-600" />
                 Priority Actions
               </h3>
-              <div className="space-y-2">
+              <div className="space-y-3">
                 {insights.urgentTodos.map((todo, index) => (
-                  <div key={index} className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
-                    <span className="text-gray-700">{todo.text}</span>
+                  <div key={index} className="flex items-start gap-3 p-3 bg-orange-50 rounded-lg">
+                    <div className={`w-3 h-3 rounded-full mt-1 ${
+                      todo.priority === 'high' ? 'bg-red-500' : 
+                      todo.priority === 'medium' ? 'bg-yellow-500' : 'bg-green-500'
+                    }`}></div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-gray-800 font-medium">{todo.text}</p>
+                      <div className="flex items-center gap-3 mt-1 text-sm text-gray-600">
+                        {todo.priority && (
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                            todo.priority === 'high' ? 'bg-red-100 text-red-700' :
+                            todo.priority === 'medium' ? 'bg-yellow-100 text-yellow-700' :
+                            'bg-green-100 text-green-700'
+                          }`}>
+                            {todo.priority}
+                          </span>
+                        )}
+                        {todo.estimatedDuration && (
+                          <span className="flex items-center gap-1">
+                            <Clock className="w-3 h-3" />
+                            {todo.estimatedDuration}m
+                          </span>
+                        )}
+                        {todo.dueDate && (
+                          <span className={`flex items-center gap-1 ${
+                            new Date(todo.dueDate) < new Date() ? 'text-red-600' : 'text-gray-600'
+                          }`}>
+                            <Calendar className="w-3 h-3" />
+                            {new Date(todo.dueDate).toLocaleDateString()}
+                          </span>
+                        )}
+                        {todo.category && (
+                          <span className="text-gray-500">• {todo.category}</span>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 ))}
                 {insights.urgentTodos.length === 0 && (
@@ -294,6 +369,76 @@ export const DashboardNew: React.FC = () => {
             </Card>
           </motion.div>
         </div>
+
+        {/* Task Insights */}
+        {(insights.totalEstimatedTime > 0 || insights.overdueTasks.length > 0 || insights.highPriorityTasks.length > 0) && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="mb-8"
+          >
+            <Card className="p-6">
+              <h3 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <Clock className="w-5 h-5 text-blue-600" />
+                Task Insights
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {/* Total Time Commitment */}
+                {insights.totalEstimatedTime > 0 && (
+                  <div className="text-center">
+                    <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                      <Clock className="w-6 h-6 text-blue-600" />
+                    </div>
+                    <h4 className="font-semibold text-gray-900 mb-1">Total Time</h4>
+                    <p className="text-2xl font-bold text-blue-600">
+                      {Math.round(insights.totalEstimatedTime / 60)}h {insights.totalEstimatedTime % 60}m
+                    </p>
+                    <p className="text-sm text-gray-600">Estimated for all tasks</p>
+                  </div>
+                )}
+
+                {/* Overdue Tasks */}
+                {insights.overdueTasks.length > 0 && (
+                  <div className="text-center">
+                    <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                      <AlertTriangle className="w-6 h-6 text-red-600" />
+                    </div>
+                    <h4 className="font-semibold text-gray-900 mb-1">Overdue</h4>
+                    <p className="text-2xl font-bold text-red-600">{insights.overdueTasks.length}</p>
+                    <p className="text-sm text-gray-600">Tasks past due date</p>
+                  </div>
+                )}
+
+                {/* High Priority Tasks */}
+                {insights.highPriorityTasks.length > 0 && (
+                  <div className="text-center">
+                    <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                      <Zap className="w-6 h-6 text-orange-600" />
+                    </div>
+                    <h4 className="font-semibold text-gray-900 mb-1">High Priority</h4>
+                    <p className="text-2xl font-bold text-orange-600">{insights.highPriorityTasks.length}</p>
+                    <p className="text-sm text-gray-600">Urgent tasks to focus on</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Task Categories */}
+              {Object.keys(insights.tasksByCategory).length > 0 && (
+                <div className="mt-6 pt-6 border-t border-gray-200">
+                  <h4 className="font-semibold text-gray-900 mb-3">Tasks by Category</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {Object.entries(insights.tasksByCategory).map(([category, count]) => (
+                      <span key={category} className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm">
+                        {category}: {count}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </Card>
+          </motion.div>
+        )}
 
         {/* Prayer Requests and Needs Attention */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
