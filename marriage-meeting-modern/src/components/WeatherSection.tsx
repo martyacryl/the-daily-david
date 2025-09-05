@@ -80,7 +80,7 @@ export const WeatherSection: React.FC<WeatherSectionProps> = ({ className = '' }
     return <IconComponent className={size} />
   }
 
-  // Get location from browser
+  // Get location from browser with better mobile support
   const getCurrentLocation = (): Promise<{ lat: number; lon: number }> => {
     return new Promise((resolve, reject) => {
       if (!navigator.geolocation) {
@@ -96,11 +96,25 @@ export const WeatherSection: React.FC<WeatherSectionProps> = ({ className = '' }
           })
         },
         (error) => {
-          reject(error)
+          console.error('Geolocation error:', error)
+          // More specific error messages for mobile
+          let errorMessage = 'Unable to get your location'
+          switch (error.code) {
+            case error.PERMISSION_DENIED:
+              errorMessage = 'Location access denied. Please enable location permissions in your browser settings.'
+              break
+            case error.POSITION_UNAVAILABLE:
+              errorMessage = 'Location information unavailable. Please try again.'
+              break
+            case error.TIMEOUT:
+              errorMessage = 'Location request timed out. Please try again.'
+              break
+          }
+          reject(new Error(errorMessage))
         },
         {
-          enableHighAccuracy: true,
-          timeout: 10000,
+          enableHighAccuracy: false, // Use less accurate but faster location for mobile
+          timeout: 15000, // Longer timeout for mobile
           maximumAge: 300000 // 5 minutes
         }
       )
@@ -350,10 +364,10 @@ export const WeatherSection: React.FC<WeatherSectionProps> = ({ className = '' }
 
   if (loading && !weather) {
     return (
-      <Card className={`p-6 ${className}`}>
-        <div className="flex items-center justify-center py-8">
-          <RefreshCw className="w-6 h-6 animate-spin text-blue-600 mr-2" />
-          <span className="text-gray-600">Loading weather...</span>
+      <Card className={`p-4 sm:p-6 ${className}`}>
+        <div className="flex items-center justify-center py-6 sm:py-8">
+          <RefreshCw className="w-5 h-5 sm:w-6 sm:h-6 animate-spin text-blue-600 mr-2" />
+          <span className="text-sm sm:text-base text-gray-600">Loading weather...</span>
         </div>
       </Card>
     )
@@ -361,23 +375,25 @@ export const WeatherSection: React.FC<WeatherSectionProps> = ({ className = '' }
 
   if (error && !weather) {
     return (
-      <Card className={`p-6 ${className}`}>
+      <Card className={`p-4 sm:p-6 ${className}`}>
         <div className="space-y-4">
-          <div className="flex items-center gap-3 text-red-600">
-            <AlertCircle className="w-5 h-5" />
-            <span className="text-sm">{error}</span>
+          <div className="flex items-start gap-3 text-red-600">
+            <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
+            <div className="min-w-0 flex-1">
+              <span className="text-sm block">{error}</span>
+            </div>
           </div>
           
           {showManualInput && (
             <div className="space-y-3">
               <p className="text-sm text-gray-600">Enter your city name to get weather data:</p>
-              <div className="flex gap-2">
+              <div className="flex flex-col sm:flex-row gap-2">
                 <input
                   type="text"
                   value={manualLocation}
                   onChange={(e) => setManualLocation(e.target.value)}
                   placeholder="e.g., New York, London, Tokyo"
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                   onKeyPress={(e) => {
                     if (e.key === 'Enter' && manualLocation.trim()) {
                       fetchWeatherByCity(manualLocation.trim())
@@ -387,9 +403,9 @@ export const WeatherSection: React.FC<WeatherSectionProps> = ({ className = '' }
                 <Button
                   onClick={() => fetchWeatherByCity(manualLocation.trim())}
                   disabled={!manualLocation.trim() || loading}
-                  className="bg-blue-600 hover:bg-blue-700"
+                  className="bg-blue-600 hover:bg-blue-700 px-4 py-2 text-sm"
                 >
-                  Get Weather
+                  {loading ? 'Loading...' : 'Get Weather'}
                 </Button>
               </div>
               <p className="text-xs text-gray-500">
@@ -411,11 +427,11 @@ export const WeatherSection: React.FC<WeatherSectionProps> = ({ className = '' }
       transition={{ delay: 0.2 }}
       className={className}
     >
-      <Card className="p-4 bg-gradient-to-r from-blue-50 to-cyan-50 border-blue-200">
+      <Card className="p-3 sm:p-4 bg-gradient-to-r from-blue-50 to-cyan-50 border-blue-200">
         <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2">
-            <MapPin className="w-4 h-4 text-blue-600" />
-            <h3 className="text-sm font-medium text-gray-900">
+          <div className="flex items-center gap-2 min-w-0 flex-1">
+            <MapPin className="w-4 h-4 text-blue-600 flex-shrink-0" />
+            <h3 className="text-sm font-medium text-gray-900 truncate">
               {weather.location.name}
             </h3>
           </div>
@@ -424,49 +440,51 @@ export const WeatherSection: React.FC<WeatherSectionProps> = ({ className = '' }
             size="sm"
             onClick={handleRefresh}
             disabled={loading}
-            className="text-blue-600 border-blue-200 hover:bg-blue-50 p-1 h-6 w-6"
+            className="text-blue-600 border-blue-200 hover:bg-blue-50 p-1 h-6 w-6 flex-shrink-0 ml-2"
           >
             <RefreshCw className={`w-3 h-3 ${loading ? 'animate-spin' : ''}`} />
           </Button>
         </div>
 
-        {/* Current Weather - Compact */}
+        {/* Current Weather - Mobile Optimized */}
         <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-3">
-            <div className="text-2xl">
-              {getWeatherIcon(weather.current.icon, 'w-8 h-8')}
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+            <div className="text-lg sm:text-2xl flex-shrink-0">
+              {getWeatherIcon(weather.current.icon, 'w-6 h-6 sm:w-8 sm:h-8')}
             </div>
-            <div>
-              <div className="text-xl font-bold text-gray-900">
+            <div className="min-w-0 flex-1">
+              <div className="text-lg sm:text-xl font-bold text-gray-900">
                 {weather.current.temp}°F
               </div>
-              <div className="text-xs text-gray-600 capitalize">
+              <div className="text-xs text-gray-600 capitalize truncate">
                 {weather.current.description}
               </div>
             </div>
           </div>
           
-          <div className="text-right text-xs text-gray-600 space-y-1">
+          <div className="text-right text-xs text-gray-600 space-y-1 flex-shrink-0 ml-2">
             <div className="flex items-center gap-1">
               <Droplets className="w-3 h-3" />
-              {weather.current.humidity}%
+              <span className="hidden sm:inline">{weather.current.humidity}%</span>
+              <span className="sm:hidden">{weather.current.humidity}%</span>
             </div>
             <div className="flex items-center gap-1">
               <Wind className="w-3 h-3" />
-              {weather.current.wind_speed} mph
+              <span className="hidden sm:inline">{weather.current.wind_speed} mph</span>
+              <span className="sm:hidden">{weather.current.wind_speed}</span>
             </div>
           </div>
         </div>
 
-        {/* Weekly Forecast - Compact */}
-        <div className="grid grid-cols-5 gap-1">
+        {/* Weekly Forecast - Mobile Optimized */}
+        <div className="grid grid-cols-5 gap-1 sm:gap-2">
           {weather.forecast.map((day, index) => (
             <div key={index} className="text-center">
-              <div className="text-xs font-medium text-gray-600 mb-1">
+              <div className="text-xs font-medium text-gray-600 mb-1 truncate">
                 {day.day}
               </div>
               <div className="mb-1">
-                {getWeatherIcon(day.icon, 'w-4 h-4 mx-auto')}
+                {getWeatherIcon(day.icon, 'w-3 h-3 sm:w-4 sm:h-4 mx-auto')}
               </div>
               <div className="text-xs font-semibold text-gray-900">
                 {day.temp_max}°
