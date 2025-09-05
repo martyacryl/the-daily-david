@@ -108,7 +108,10 @@ export const useMarriageStore = create<MarriageState>((set, get) => ({
         const migratedTodos = week.todos?.map((todo: any) => {
           // If todo already has priority, it's already migrated
           if (todo.priority) {
-            return todo
+            return {
+              ...todo,
+              assignedTo: todo.assignedTo || 'both' // Add default assignment if missing
+            }
           }
           // Migrate old ListItem to new TaskItem structure
           return {
@@ -119,7 +122,8 @@ export const useMarriageStore = create<MarriageState>((set, get) => ({
             dueDate: undefined,
             estimatedDuration: 30, // Default 30 minutes
             category: undefined,
-            notes: undefined
+            notes: undefined,
+            assignedTo: 'both' as const // Default to both partners
           }
         }) || []
         
