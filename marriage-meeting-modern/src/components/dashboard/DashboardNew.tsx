@@ -218,7 +218,7 @@ export const DashboardNew: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-purple-50 pt-16">
-      <div className="container mx-auto px-3 sm:px-4 py-6 sm:py-8">
+      <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-8 max-w-7xl">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -238,9 +238,9 @@ export const DashboardNew: React.FC = () => {
           transition={{ delay: 0.1 }}
           className="mb-6"
         >
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
             <Link to="/weekly">
-              <Card className="p-3 sm:p-4 text-center hover:shadow-lg transition-shadow cursor-pointer">
+              <Card className="p-2 sm:p-4 text-center hover:shadow-lg transition-shadow cursor-pointer">
                 <div className="w-8 h-8 sm:w-10 sm:h-10 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-2">
                   <Plus className="w-4 h-4 sm:w-5 sm:h-5 text-slate-600" />
                 </div>
@@ -248,7 +248,7 @@ export const DashboardNew: React.FC = () => {
               </Card>
             </Link>
             <Link to="/weekly?section=schedule">
-              <Card className="p-3 sm:p-4 text-center hover:shadow-lg transition-shadow cursor-pointer">
+              <Card className="p-2 sm:p-4 text-center hover:shadow-lg transition-shadow cursor-pointer">
                 <div className="w-8 h-8 sm:w-10 sm:h-10 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-2">
                   <BookOpen className="w-4 h-4 sm:w-5 sm:h-5 text-slate-600" />
                 </div>
@@ -256,7 +256,7 @@ export const DashboardNew: React.FC = () => {
               </Card>
             </Link>
             <Link to="/review">
-              <Card className="p-3 sm:p-4 text-center hover:shadow-lg transition-shadow cursor-pointer">
+              <Card className="p-2 sm:p-4 text-center hover:shadow-lg transition-shadow cursor-pointer">
                 <div className="w-8 h-8 sm:w-10 sm:h-10 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-2">
                   <Eye className="w-4 h-4 sm:w-5 sm:h-5 text-slate-600" />
                 </div>
@@ -264,7 +264,7 @@ export const DashboardNew: React.FC = () => {
               </Card>
             </Link>
             <Link to="/analytics">
-              <Card className="p-3 sm:p-4 text-center hover:shadow-lg transition-shadow cursor-pointer">
+              <Card className="p-2 sm:p-4 text-center hover:shadow-lg transition-shadow cursor-pointer">
                 <div className="w-8 h-8 sm:w-10 sm:h-10 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-2">
                   <BarChart3 className="w-4 h-4 sm:w-5 sm:h-5 text-slate-600" />
                 </div>
@@ -280,27 +280,27 @@ export const DashboardNew: React.FC = () => {
         </div>
 
         {/* Priority Actions */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 mb-4 sm:mb-6">
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.2 }}
           >
-            <Card className="p-4 sm:p-6">
+            <Card className="p-3 sm:p-6">
               <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
                 <Zap className="w-4 h-4 sm:w-5 sm:h-5 text-orange-600" />
                 Priority Actions
               </h3>
               <div className="space-y-3">
                 {insights.urgentTodos.map((todo, index) => (
-                  <div key={index} className="flex items-start gap-3 p-3 bg-orange-50 rounded-lg">
+                  <div key={index} className="flex items-start gap-2 p-2 sm:p-3 bg-orange-50 rounded-lg">
                     <div className={`w-3 h-3 rounded-full mt-1 ${
                       todo.priority === 'high' ? 'bg-red-500' : 
                       todo.priority === 'medium' ? 'bg-yellow-500' : 'bg-green-500'
                     }`}></div>
                     <div className="flex-1 min-w-0">
                       <p className="text-gray-800 font-medium">{todo.text}</p>
-                      <div className="flex items-center gap-3 mt-1 text-sm text-gray-600">
+                      <div className="flex items-center gap-2 mt-1 text-xs sm:text-sm text-gray-600 flex-wrap">
                         {todo.priority && (
                           <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                             todo.priority === 'high' ? 'bg-red-100 text-red-700' :
@@ -346,7 +346,7 @@ export const DashboardNew: React.FC = () => {
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.3 }}
           >
-            <Card className="p-6">
+            <Card className="p-3 sm:p-6">
               <h3 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
                 <Clock className="w-5 h-5 text-red-600" />
                 Overdue Items
@@ -451,13 +451,13 @@ export const DashboardNew: React.FC = () => {
         )}
 
         {/* Prayer Requests and Needs Attention */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-6 mb-6 sm:mb-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
           >
-            <Card className="p-6">
+            <Card className="p-3 sm:p-6">
               <h3 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
                 <Heart className="w-5 h-5 text-purple-600" />
                 Prayer Requests
@@ -484,7 +484,7 @@ export const DashboardNew: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 }}
           >
-            <Card className="p-6">
+            <Card className="p-3 sm:p-6">
               <h3 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
                 <AlertTriangle className="w-5 h-5 text-yellow-600" />
                 Needs Attention
@@ -519,7 +519,7 @@ export const DashboardNew: React.FC = () => {
               <Target className="w-5 h-5 text-slate-600" />
               Goal Progress by Timeframe
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6">
               {[
                 { timeframe: 'monthly' as const, label: 'Monthly Goals', color: 'blue', icon: Calendar },
                 { timeframe: '1year' as const, label: '1 Year Goals', color: 'green', icon: Target },
@@ -550,13 +550,13 @@ export const DashboardNew: React.FC = () => {
         </motion.div>
 
         {/* Insights & Trends */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-6">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.7 }}
           >
-            <Card className="p-6">
+            <Card className="p-3 sm:p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
                 <Award className="w-5 h-5 text-slate-600" />
                 Consistency Score
@@ -573,7 +573,7 @@ export const DashboardNew: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.8 }}
           >
-            <Card className="p-6">
+            <Card className="p-3 sm:p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
                 <Flame className="w-5 h-5 text-orange-600" />
                 Meeting Streak
@@ -590,7 +590,7 @@ export const DashboardNew: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.9 }}
           >
-            <Card className="p-6">
+            <Card className="p-3 sm:p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
                 <TrendingUp className="w-5 h-5 text-green-600" />
                 Growth Areas

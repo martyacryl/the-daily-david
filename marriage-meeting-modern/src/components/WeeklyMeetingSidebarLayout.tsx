@@ -37,12 +37,12 @@ const WeekNavigation: React.FC<WeekNavigationProps> = ({
   }
 
   return (
-    <div className="bg-white border-b border-gray-200 px-4 sm:px-8 py-3 sm:py-4">
+    <div className="bg-white border-b border-gray-200 px-2 sm:px-8 py-2 sm:py-4">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2 sm:gap-4">
+        <div className="flex items-center gap-1 sm:gap-4">
           <div className="flex items-center gap-2">
             <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-slate-600" />
-            <span className="text-sm sm:text-lg font-semibold text-gray-900">
+            <span className="text-xs sm:text-lg font-semibold text-gray-900">
               Week of {formatWeekRange(currentDate)}
             </span>
           </div>
@@ -178,9 +178,9 @@ export const WeeklyMeetingSidebarLayout: React.FC = () => {
   }
 
   return (
-    <div className="h-screen bg-gradient-to-br from-slate-50 to-purple-50 flex flex-col pt-16">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-purple-50 flex flex-col pt-16">
       {/* Header with Week Navigation */}
-      <div className="px-3 sm:px-8">
+      <div className="px-2 sm:px-8">
         <WeekNavigation
           currentDate={currentDate}
           onPreviousWeek={handlePreviousWeek}
@@ -191,20 +191,20 @@ export const WeeklyMeetingSidebarLayout: React.FC = () => {
 
       {/* Error Display */}
       {error && (
-        <div className="mx-3 sm:mx-8 mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+        <div className="mx-2 sm:mx-8 mt-2 p-2 sm:p-4 bg-red-50 border border-red-200 rounded-lg">
           <p className="text-red-800 text-sm sm:text-base">{error}</p>
         </div>
       )}
 
       {/* Save Status */}
       {isSaving && (
-        <div className="mx-3 sm:mx-8 mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+        <div className="mx-2 sm:mx-8 mt-2 p-2 sm:p-3 bg-blue-50 border border-blue-200 rounded-lg">
           <p className="text-blue-800 text-sm">Saving changes...</p>
         </div>
       )}
 
       {lastSaved && !isSaving && (
-        <div className="mx-3 sm:mx-8 mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+        <div className="mx-2 sm:mx-8 mt-2 p-2 sm:p-3 bg-green-50 border border-green-200 rounded-lg">
           <p className="text-green-800 text-sm">
             Auto-saved {lastSaved.toLocaleTimeString()}
           </p>
@@ -212,7 +212,7 @@ export const WeeklyMeetingSidebarLayout: React.FC = () => {
       )}
 
       {/* Main Content Area */}
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
         {/* Sidebar */}
         <WeeklyMeetingSidebar
           activeSection={activeSection}

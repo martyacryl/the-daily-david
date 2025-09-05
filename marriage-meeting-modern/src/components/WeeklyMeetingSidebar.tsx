@@ -84,15 +84,15 @@ export const WeeklyMeetingSidebar: React.FC<WeeklyMeetingSidebarProps> = ({
   ]
 
   return (
-    <div className="w-64 bg-white border-r border-gray-200 h-full flex flex-col">
+    <div className="w-full lg:w-64 bg-white border-r border-gray-200 h-full flex flex-col">
       {/* Sidebar Header */}
-      <div className="p-6 border-b border-gray-200">
-        <h2 className="text-lg font-semibold text-gray-900">Meeting Sections</h2>
-        <p className="text-sm text-gray-500 mt-1">Navigate between sections</p>
+      <div className="p-3 sm:p-6 border-b border-gray-200">
+        <h2 className="text-sm sm:text-lg font-semibold text-gray-900">Meeting Sections</h2>
+        <p className="text-xs sm:text-sm text-gray-500 mt-1">Navigate between sections</p>
       </div>
 
       {/* Sidebar Navigation */}
-      <nav className="flex-1 p-4 space-y-2">
+      <nav className="flex-1 p-2 sm:p-4 space-y-1 sm:space-y-2">
         {sidebarItems.map((item) => {
           const IconComponent = item.icon
           const isActive = activeSection === item.id
@@ -101,7 +101,7 @@ export const WeeklyMeetingSidebar: React.FC<WeeklyMeetingSidebarProps> = ({
             <motion.button
               key={item.id}
               onClick={() => onSectionChange(item.id)}
-              className={`w-full flex items-center justify-between p-3 rounded-lg text-left transition-all duration-200 ${
+              className={`w-full flex items-center justify-between p-2 sm:p-3 rounded-lg text-left transition-all duration-200 ${
                 isActive
                   ? `bg-${item.color}-50 border border-${item.color}-200 text-${item.color}-700`
                   : 'hover:bg-gray-50 text-gray-700'
@@ -109,19 +109,19 @@ export const WeeklyMeetingSidebar: React.FC<WeeklyMeetingSidebarProps> = ({
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
             >
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 sm:gap-3">
                 <div className={`p-2 rounded-lg ${
                   isActive 
                     ? `bg-${item.color}-100` 
                     : 'bg-gray-100'
                 }`}>
-                  <IconComponent className={`w-4 h-4 ${
+                  <IconComponent className={`w-3 h-3 sm:w-4 sm:h-4 ${
                     isActive 
                       ? `text-${item.color}-600` 
                       : 'text-gray-500'
                   }`} />
                 </div>
-                <span className="font-medium">{item.label}</span>
+                <span className="font-medium text-xs sm:text-sm">{item.label}</span>
               </div>
               
               <div className="flex items-center gap-2">
@@ -134,7 +134,7 @@ export const WeeklyMeetingSidebar: React.FC<WeeklyMeetingSidebarProps> = ({
                     {item.count}
                   </span>
                 )}
-                <ChevronRight className={`w-4 h-4 transition-transform ${
+                <ChevronRight className={`w-3 h-3 sm:w-4 sm:h-4 transition-transform ${
                   isActive ? 'rotate-90' : ''
                 }`} />
               </div>
