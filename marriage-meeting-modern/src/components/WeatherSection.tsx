@@ -445,10 +445,10 @@ export const WeatherSection: React.FC<WeatherSectionProps> = ({ className = '' }
 
   if (loading && !weather) {
     return (
-      <Card className={`p-4 sm:p-6 ${className}`}>
-        <div className="flex items-center justify-center py-6 sm:py-8">
-          <RefreshCw className="w-5 h-5 sm:w-6 sm:h-6 animate-spin text-blue-600 mr-2" />
-          <span className="text-sm sm:text-base text-gray-600">Loading weather...</span>
+      <Card className={`p-2 ${className}`}>
+        <div className="flex items-center justify-center py-2">
+          <RefreshCw className="w-3 h-3 animate-spin text-blue-600 mr-1" />
+          <span className="text-xs text-gray-600">Loading...</span>
         </div>
       </Card>
     )
@@ -456,25 +456,25 @@ export const WeatherSection: React.FC<WeatherSectionProps> = ({ className = '' }
 
   if (error && !weather) {
     return (
-      <Card className={`p-4 sm:p-6 ${className}`}>
-        <div className="space-y-4">
-          <div className="flex items-start gap-3 text-red-600">
-            <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
+      <Card className={`p-2 ${className}`}>
+        <div className="space-y-2">
+          <div className="flex items-start gap-2 text-red-600">
+            <AlertCircle className="w-3 h-3 flex-shrink-0 mt-0.5" />
             <div className="min-w-0 flex-1">
-              <span className="text-sm block">{error}</span>
+              <span className="text-xs block">{error}</span>
             </div>
           </div>
           
           {showManualInput && (
-            <div className="space-y-3">
-              <p className="text-sm text-gray-600">Enter your city name to get weather data:</p>
-              <div className="flex flex-col sm:flex-row gap-2">
+            <div className="space-y-2">
+              <p className="text-xs text-gray-600">Enter your city name:</p>
+              <div className="flex flex-col sm:flex-row gap-1">
                 <input
                   type="text"
                   value={manualLocation}
                   onChange={(e) => setManualLocation(e.target.value)}
                   placeholder="e.g., New York, London, Tokyo"
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                  className="flex-1 px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-transparent text-xs"
                   onKeyPress={(e) => {
                     if (e.key === 'Enter' && manualLocation.trim()) {
                       fetchWeatherByCity(manualLocation.trim())
@@ -484,7 +484,7 @@ export const WeatherSection: React.FC<WeatherSectionProps> = ({ className = '' }
                 <Button
                   onClick={() => fetchWeatherByCity(manualLocation.trim())}
                   disabled={!manualLocation.trim() || loading}
-                  className="bg-blue-600 hover:bg-blue-700 px-4 py-2 text-sm"
+                  className="bg-blue-600 hover:bg-blue-700 px-2 py-1 text-xs"
                 >
                   {loading ? 'Loading...' : 'Get Weather'}
                 </Button>
@@ -508,12 +508,12 @@ export const WeatherSection: React.FC<WeatherSectionProps> = ({ className = '' }
       transition={{ delay: 0.2 }}
       className={className}
     >
-      <Card className="p-2 sm:p-4 bg-gradient-to-r from-blue-50 to-cyan-50 border-blue-200">
-        {/* Header - Very Compact */}
-        <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center gap-1 min-w-0 flex-1">
-            <MapPin className="w-3 h-3 sm:w-4 sm:h-4 text-blue-600 flex-shrink-0" />
-            <h3 className="text-xs sm:text-sm font-medium text-gray-900 truncate">
+      <Card className="p-1.5 sm:p-2 bg-gradient-to-r from-blue-50 to-cyan-50 border-blue-200">
+        {/* Header - Ultra Slim */}
+        <div className="flex items-center justify-between mb-1">
+          <div className="flex items-center gap-0.5 min-w-0 flex-1">
+            <MapPin className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-blue-600 flex-shrink-0" />
+            <h3 className="text-xs font-medium text-gray-900 truncate">
               {weather.location.name}
             </h3>
           </div>
@@ -522,20 +522,20 @@ export const WeatherSection: React.FC<WeatherSectionProps> = ({ className = '' }
             size="sm"
             onClick={handleRefresh}
             disabled={loading}
-            className="text-blue-600 border-blue-200 hover:bg-blue-50 p-1 h-5 w-5 flex-shrink-0 ml-1"
+            className="text-blue-600 border-blue-200 hover:bg-blue-50 p-0.5 h-4 w-4 flex-shrink-0 ml-1"
           >
-            <RefreshCw className={`w-2 h-2 sm:w-3 sm:h-3 ${loading ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`w-2 h-2 ${loading ? 'animate-spin' : ''}`} />
           </Button>
         </div>
 
-        {/* Current Weather - Ultra Compact */}
-        <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center gap-1 sm:gap-2 min-w-0 flex-1">
+        {/* Current Weather - Ultra Slim */}
+        <div className="flex items-center justify-between mb-1">
+          <div className="flex items-center gap-1 min-w-0 flex-1">
             <div className="flex-shrink-0">
-              {getWeatherIcon(weather.current.icon, 'w-4 h-4 sm:w-6 sm:h-6')}
+              {getWeatherIcon(weather.current.icon, 'w-3 h-3 sm:w-4 sm:h-4')}
             </div>
             <div className="min-w-0 flex-1">
-              <div className="text-sm sm:text-lg font-bold text-gray-900">
+              <div className="text-sm sm:text-base font-bold text-gray-900">
                 {weather.current.temp}°F
               </div>
               <div className="text-xs text-gray-600 capitalize truncate">
@@ -545,26 +545,26 @@ export const WeatherSection: React.FC<WeatherSectionProps> = ({ className = '' }
           </div>
           
           <div className="text-right text-xs text-gray-600 flex-shrink-0 ml-1">
-            <div className="flex items-center gap-1">
-              <Droplets className="w-2 h-2 sm:w-3 sm:h-3" />
+            <div className="flex items-center gap-0.5">
+              <Droplets className="w-2 h-2" />
               <span>{weather.current.humidity}%</span>
             </div>
-            <div className="flex items-center gap-1">
-              <Wind className="w-2 h-2 sm:w-3 sm:h-3" />
+            <div className="flex items-center gap-0.5">
+              <Wind className="w-2 h-2" />
               <span>{weather.current.wind_speed}</span>
             </div>
           </div>
         </div>
 
-        {/* Weekly Forecast - Ultra Compact */}
-        <div className="grid grid-cols-5 gap-0.5 sm:gap-1">
+        {/* Weekly Forecast - Ultra Slim */}
+        <div className="grid grid-cols-5 gap-0">
           {weather.forecast.map((day, index) => (
             <div key={index} className="text-center">
               <div className="text-xs font-medium text-gray-600 mb-0.5 truncate">
                 {day.day}
               </div>
               <div className="mb-0.5">
-                {getWeatherIcon(day.icon, 'w-3 h-3 sm:w-4 sm:h-4 mx-auto')}
+                {getWeatherIcon(day.icon, 'w-2.5 h-2.5 sm:w-3 sm:h-3 mx-auto')}
               </div>
               <div className="text-xs font-semibold text-gray-900">
                 {day.temp_max}°
