@@ -411,12 +411,12 @@ export const WeatherSection: React.FC<WeatherSectionProps> = ({ className = '' }
       transition={{ delay: 0.2 }}
       className={className}
     >
-      <Card className="p-6 bg-gradient-to-br from-blue-50 to-cyan-50 border-blue-200">
-        <div className="flex items-center justify-between mb-4">
+      <Card className="p-4 bg-gradient-to-r from-blue-50 to-cyan-50 border-blue-200">
+        <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
-            <MapPin className="w-5 h-5 text-blue-600" />
-            <h3 className="text-lg font-semibold text-gray-900">
-              {weather.location.name}, {weather.location.country}
+            <MapPin className="w-4 h-4 text-blue-600" />
+            <h3 className="text-sm font-medium text-gray-900">
+              {weather.location.name}
             </h3>
           </div>
           <Button
@@ -424,90 +424,63 @@ export const WeatherSection: React.FC<WeatherSectionProps> = ({ className = '' }
             size="sm"
             onClick={handleRefresh}
             disabled={loading}
-            className="text-blue-600 border-blue-200 hover:bg-blue-50"
+            className="text-blue-600 border-blue-200 hover:bg-blue-50 p-1 h-6 w-6"
           >
-            <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`w-3 h-3 ${loading ? 'animate-spin' : ''}`} />
           </Button>
         </div>
 
-        {/* Current Weather */}
-        <div className="mb-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="text-4xl">
-                {getWeatherIcon(weather.current.icon, 'w-12 h-12')}
+        {/* Current Weather - Compact */}
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-3">
+            <div className="text-2xl">
+              {getWeatherIcon(weather.current.icon, 'w-8 h-8')}
+            </div>
+            <div>
+              <div className="text-xl font-bold text-gray-900">
+                {weather.current.temp}°F
               </div>
-              <div>
-                <div className="text-3xl font-bold text-gray-900">
-                  {weather.current.temp}°F
-                </div>
-                <div className="text-gray-600 capitalize">
-                  {weather.current.description}
-                </div>
-                <div className="text-sm text-gray-500">
-                  Feels like {weather.current.feels_like}°F
-                </div>
+              <div className="text-xs text-gray-600 capitalize">
+                {weather.current.description}
               </div>
             </div>
-            
-            <div className="text-right space-y-1">
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                <Droplets className="w-4 h-4" />
-                {weather.current.humidity}%
-              </div>
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                <Wind className="w-4 h-4" />
-                {weather.current.wind_speed} mph
-              </div>
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                <Eye className="w-4 h-4" />
-                {weather.current.visibility} mi
-              </div>
+          </div>
+          
+          <div className="text-right text-xs text-gray-600 space-y-1">
+            <div className="flex items-center gap-1">
+              <Droplets className="w-3 h-3" />
+              {weather.current.humidity}%
+            </div>
+            <div className="flex items-center gap-1">
+              <Wind className="w-3 h-3" />
+              {weather.current.wind_speed} mph
             </div>
           </div>
         </div>
 
-        {/* Weekly Forecast */}
-        <div>
-          <h4 className="text-sm font-medium text-gray-700 mb-3">5-Day Forecast</h4>
-          <div className="grid grid-cols-5 gap-2">
-            {weather.forecast.map((day, index) => (
-              <div key={index} className="text-center">
-                <div className="text-xs font-medium text-gray-600 mb-1">
-                  {day.day}
-                </div>
-                <div className="text-lg mb-1">
-                  {getWeatherIcon(day.icon, 'w-6 h-6 mx-auto')}
-                </div>
-                <div className="text-sm font-semibold text-gray-900">
-                  {day.temp_max}°
-                </div>
-                <div className="text-xs text-gray-500">
-                  {day.temp_min}°
-                </div>
-                {day.precipitation > 30 && (
-                  <div className="text-xs text-blue-600 mt-1">
-                    {Math.round(day.precipitation)}%
-                  </div>
-                )}
+        {/* Weekly Forecast - Compact */}
+        <div className="grid grid-cols-5 gap-1">
+          {weather.forecast.map((day, index) => (
+            <div key={index} className="text-center">
+              <div className="text-xs font-medium text-gray-600 mb-1">
+                {day.day}
               </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Planning Tips */}
-        <div className="mt-4 p-3 bg-white/50 rounded-lg">
-          <div className="text-xs text-gray-600">
-            <strong>Planning tip:</strong> {
-              weather.forecast.some(day => day.precipitation > 50) 
-                ? "Rain expected this week - plan indoor activities and errands accordingly"
-                : weather.current.temp > 80
-                ? "Hot weather ahead - stay hydrated and plan outdoor activities for early morning/evening"
-                : weather.current.temp < 50
-                ? "Cool weather - perfect for outdoor activities and cozy indoor plans"
-                : "Great weather for outdoor activities and errands this week"
-            }
-          </div>
+              <div className="mb-1">
+                {getWeatherIcon(day.icon, 'w-4 h-4 mx-auto')}
+              </div>
+              <div className="text-xs font-semibold text-gray-900">
+                {day.temp_max}°
+              </div>
+              <div className="text-xs text-gray-500">
+                {day.temp_min}°
+              </div>
+              {day.precipitation > 30 && (
+                <div className="text-xs text-blue-600">
+                  {Math.round(day.precipitation)}%
+                </div>
+              )}
+            </div>
+          ))}
         </div>
       </Card>
     </motion.div>

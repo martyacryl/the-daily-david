@@ -218,7 +218,7 @@ export const DashboardNew: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-purple-50 pt-16">
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-3 sm:px-4 py-6 sm:py-8">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -236,59 +236,59 @@ export const DashboardNew: React.FC = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="mb-8"
+          className="mb-6"
         >
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             <Link to="/weekly">
-              <Card className="p-4 text-center hover:shadow-lg transition-shadow cursor-pointer">
-                <div className="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                  <Plus className="w-5 h-5 text-slate-600" />
+              <Card className="p-3 sm:p-4 text-center hover:shadow-lg transition-shadow cursor-pointer">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                  <Plus className="w-4 h-4 sm:w-5 sm:h-5 text-slate-600" />
                 </div>
-                <h3 className="font-semibold text-gray-800 text-sm">Add Goal</h3>
+                <h3 className="font-semibold text-gray-800 text-xs sm:text-sm">Add Goal</h3>
               </Card>
             </Link>
             <Link to="/weekly?section=schedule">
-              <Card className="p-4 text-center hover:shadow-lg transition-shadow cursor-pointer">
-                <div className="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                  <BookOpen className="w-5 h-5 text-slate-600" />
+              <Card className="p-3 sm:p-4 text-center hover:shadow-lg transition-shadow cursor-pointer">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                  <BookOpen className="w-4 h-4 sm:w-5 sm:h-5 text-slate-600" />
                 </div>
-                <h3 className="font-semibold text-gray-800 text-sm">Start Meeting</h3>
+                <h3 className="font-semibold text-gray-800 text-xs sm:text-sm">Start Meeting</h3>
               </Card>
             </Link>
             <Link to="/review">
-              <Card className="p-4 text-center hover:shadow-lg transition-shadow cursor-pointer">
-                <div className="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                  <Eye className="w-5 h-5 text-slate-600" />
+              <Card className="p-3 sm:p-4 text-center hover:shadow-lg transition-shadow cursor-pointer">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                  <Eye className="w-4 h-4 sm:w-5 sm:h-5 text-slate-600" />
                 </div>
-                <h3 className="font-semibold text-gray-800 text-sm">Review Last Week</h3>
+                <h3 className="font-semibold text-gray-800 text-xs sm:text-sm">Review Last Week</h3>
               </Card>
             </Link>
             <Link to="/analytics">
-              <Card className="p-4 text-center hover:shadow-lg transition-shadow cursor-pointer">
-                <div className="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                  <BarChart3 className="w-5 h-5 text-slate-600" />
+              <Card className="p-3 sm:p-4 text-center hover:shadow-lg transition-shadow cursor-pointer">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                  <BarChart3 className="w-4 h-4 sm:w-5 sm:h-5 text-slate-600" />
                 </div>
-                <h3 className="font-semibold text-gray-800 text-sm">Full Analytics</h3>
+                <h3 className="font-semibold text-gray-800 text-xs sm:text-sm">Full Analytics</h3>
               </Card>
             </Link>
           </div>
         </motion.div>
 
         {/* Weather Section */}
-        <div className="mb-8">
+        <div className="mb-6">
           <WeatherSection />
         </div>
 
         {/* Priority Actions */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.2 }}
           >
-            <Card className="p-6">
-              <h3 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                <Zap className="w-5 h-5 text-orange-600" />
+            <Card className="p-4 sm:p-6">
+              <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <Zap className="w-4 h-4 sm:w-5 sm:h-5 text-orange-600" />
                 Priority Actions
               </h3>
               <div className="space-y-3">
