@@ -134,8 +134,8 @@ export const MountainRangeCrossIcon: React.FC<IconProps> = ({
   )
 }
 
-// Sword icon - modern outline style
-export const SwordIcon: React.FC<IconProps> = ({ 
+// Crossed swords icon - modern outline style
+export const CrossedSwordsIcon: React.FC<IconProps> = ({ 
   className = "w-6 h-6", 
   size = 24 
 }) => {
@@ -151,15 +151,19 @@ export const SwordIcon: React.FC<IconProps> = ({
       strokeLinejoin="round"
       className={className}
     >
-      {/* Sword blade */}
-      <path d="M12 2l0 16" />
-      {/* Cross guard */}
-      <path d="M8 6l8 0" />
-      {/* Sword handle */}
-      <path d="M10 6l0 12" />
-      <path d="M14 6l0 12" />
-      {/* Pommel */}
-      <circle cx="12" cy="20" r="2" />
+      {/* First sword - diagonal */}
+      <path d="M6 4l8 8" />
+      <path d="M8 6l6 0" />
+      <path d="M9 6l0 6" />
+      <path d="M13 6l0 6" />
+      <circle cx="11" cy="14" r="1.5" />
+      
+      {/* Second sword - diagonal opposite */}
+      <path d="M18 4l-8 8" />
+      <path d="M16 6l-6 0" />
+      <path d="M15 6l0 6" />
+      <path d="M11 6l0 6" />
+      <circle cx="13" cy="14" r="1.5" />
     </svg>
   )
 }
