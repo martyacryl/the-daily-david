@@ -1,8 +1,8 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
-import { Link, useSearchParams } from 'react-router-dom'
-import { ArrowLeft, ChevronLeft, ChevronRight, Calendar } from 'lucide-react'
+import { useSearchParams } from 'react-router-dom'
+import { ChevronLeft, ChevronRight, Calendar } from 'lucide-react'
 
 import { useAuthStore } from '../../stores/authStore'
 import { useDailyStore } from '../../stores/dailyStore'
@@ -492,15 +492,6 @@ export function DailyEntry() {
   return (
     <div className="space-y-8">
       {/* Back Button */}
-      <motion.div
-        initial={{ opacity: 0, x: -20 }}
-        animate={{ opacity: 1, x: 0 }}
-      >
-        <Link to="/" className="inline-flex items-center gap-2 mb-6 text-green-200 hover:text-white">
-          <ArrowLeft className="w-4 h-4" />
-          Back to Dashboard
-        </Link>
-      </motion.div>
 
       {/* Date Navigation */}
       <motion.div
