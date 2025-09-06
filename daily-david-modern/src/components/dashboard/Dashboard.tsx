@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
-import { BookOpen, TrendingUp, Calendar, Target } from 'lucide-react'
+import { Crown, Trophy, Calendar, Target, BookOpen, Flame, Trees, Mountain } from 'lucide-react'
+import { MountainCrossIcon, CompassCrossIcon } from '../icons/WesternIcons'
 import { Card } from '../ui/Card'
 import { Button } from '../ui/Button'
 import { useAuthStore } from '../../stores/authStore'
@@ -258,15 +259,18 @@ export const Dashboard: React.FC = () => {
 
   if (!isAuthenticated) {
     return (
-      <div className="text-center py-20">
-        <h1 className="text-3xl font-bold text-gray-900 mb-4">
+      <div className="text-center py-20 relative z-10">
+        <div className="mb-8">
+          <Mountain className="w-16 h-16 text-slate-400 mx-auto mb-4" />
+        </div>
+        <h1 className="text-4xl font-bold text-white mb-4">
           Welcome to The Daily David
         </h1>
-        <p className="text-gray-600 mb-8 max-w-2xl mx-auto">
+        <p className="text-green-200 mb-8 max-w-2xl mx-auto text-lg">
           "I have fought the good fight, I have finished the race, I have kept the faith" - 2 Timothy 4:7
         </p>
         <Link to="/login">
-          <Button size="lg">
+          <Button size="lg" className="bg-slate-700 hover:bg-slate-600 text-white">
             Get Started
           </Button>
         </Link>
@@ -279,15 +283,15 @@ export const Dashboard: React.FC = () => {
       title: 'Current Streak',
       value: `${stats.currentStreak} days`,
       change: stats.currentStreak > 0 ? `Keep it going!` : 'Start your streak',
-      icon: TrendingUp,
-      color: 'text-green-600',
-      bgColor: 'bg-green-100'
+      icon: Flame,
+      color: 'text-slate-600',
+      bgColor: 'bg-slate-200'
     },
     {
       title: 'This Week',
       value: `${stats.thisWeek}/7 days`,
       change: stats.thisWeek > 0 ? `${Math.round((stats.thisWeek / 7) * 100)}% complete` : '0% complete',
-      icon: Calendar,
+      icon: CompassCrossIcon,
       color: 'text-blue-600',
       bgColor: 'bg-blue-100'
     },
@@ -295,7 +299,7 @@ export const Dashboard: React.FC = () => {
       title: 'This Month',
       value: stats.thisMonth.toString(),
       change: stats.thisMonth > 0 ? `+${Math.floor(Math.random() * 5) + 1}` : '0',
-      icon: BookOpen,
+      icon: MountainCrossIcon,
       color: 'text-purple-600',
       bgColor: 'bg-purple-100'
     },
@@ -303,9 +307,9 @@ export const Dashboard: React.FC = () => {
       title: 'Completion Rate',
       value: `${stats.completionRate}%`,
       change: stats.completionRate > 0 ? `${stats.completionRate >= 80 ? 'Excellent!' : stats.completionRate >= 60 ? 'Good progress' : 'Keep going'}` : 'Start your journey',
-      icon: Target,
-      color: 'text-orange-600',
-      bgColor: 'bg-orange-100'
+      icon: Trophy,
+      color: 'text-yellow-600',
+      bgColor: 'bg-yellow-100'
     }
   ]
 
@@ -318,7 +322,7 @@ export const Dashboard: React.FC = () => {
   }))
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 relative z-10">
       {/* Welcome Section */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -326,10 +330,14 @@ export const Dashboard: React.FC = () => {
         transition={{ duration: 0.5 }}
         className="text-center"
       >
-        <h1 className="text-4xl font-bold text-gray-900 mb-4">
-          Welcome back, {user?.name}! 👋
-        </h1>
-        <p className="text-xl text-gray-600">
+        <div className="flex items-center justify-center mb-4">
+          <Mountain className="w-8 h-8 text-slate-400 mr-3" />
+          <h1 className="text-4xl font-bold text-white">
+            Welcome back, {user?.name}!
+          </h1>
+          <Mountain className="w-8 h-8 text-slate-400 ml-3" />
+        </div>
+        <p className="text-xl text-green-200">
           "Be watchful, stand firm in the faith, act like men, be strong" - 1 Corinthians 16:13
         </p>
       </motion.div>
@@ -345,15 +353,15 @@ export const Dashboard: React.FC = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
             >
-              <Card className="p-6">
+              <Card className="p-6 bg-slate-800/80 backdrop-blur-sm border-slate-700">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-gray-600">{stat.title}</p>
-                    <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
-                    <p className="text-sm text-green-600 font-medium">{stat.change}</p>
+                    <p className="text-sm font-medium text-green-200">{stat.title}</p>
+                    <p className="text-2xl font-bold text-white">{stat.value}</p>
+                    <p className="text-sm text-slate-400 font-medium">{stat.change}</p>
                   </div>
-                  <div className={`p-3 rounded-full ${stat.bgColor}`}>
-                    <Icon className={`w-6 h-6 ${stat.color}`} />
+                  <div className="p-3 rounded-full bg-slate-700/50">
+                    <Icon className="w-6 h-6 text-slate-400" />
                   </div>
                 </div>
               </Card>
@@ -369,41 +377,41 @@ export const Dashboard: React.FC = () => {
         transition={{ duration: 0.5, delay: 0.4 }}
         className="grid grid-cols-1 md:grid-cols-2 gap-6"
       >
-        <Card className="p-8">
+        <Card className="p-8 bg-slate-800/80 backdrop-blur-sm border-slate-700">
           <div className="text-center">
-            <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
+            <div className="w-16 h-16 bg-gradient-to-br from-slate-700 to-slate-800 rounded-full flex items-center justify-center mx-auto mb-4">
               <BookOpen className="w-8 h-8 text-white" />
             </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">
+            <h3 className="text-xl font-semibold text-white mb-2">
               Start Today's Entry
             </h3>
-            <p className="text-gray-600 mb-6">
+            <p className="text-green-200 mb-6">
               Begin your daily SOAP study and reflection
             </p>
             <Link to="/daily">
-              <Button size="lg" className="w-full">
+              <Button size="lg" className="w-full bg-slate-700 hover:bg-slate-600 text-white">
                 Create Entry
               </Button>
             </Link>
           </div>
         </Card>
 
-        <Card className="p-8">
+        <Card className="p-8 bg-slate-800/80 backdrop-blur-sm border-slate-700">
           <div className="text-center">
-            <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
-              <TrendingUp className="w-8 h-8 text-white" />
+            <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-blue-700 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Trees className="w-8 h-8 text-white" />
             </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">
+            <h3 className="text-xl font-semibold text-white mb-2">
               View Progress
             </h3>
-            <p className="text-gray-600 mb-6">
+            <p className="text-green-200 mb-6">
               Track your spiritual growth and achievements
             </p>
             <Link to="/analytics">
               <Button 
                 variant="outline" 
                 size="lg" 
-                className="w-full"
+                className="w-full border-slate-600 text-green-200 hover:bg-slate-700"
               >
                 View Analytics
               </Button>
@@ -418,24 +426,27 @@ export const Dashboard: React.FC = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.6 }}
       >
-        <Card className="p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h3>
+        <Card className="p-6 bg-slate-800/80 backdrop-blur-sm border-slate-700">
+          <div className="flex items-center mb-4">
+            <Mountain className="w-5 h-5 text-slate-400 mr-2" />
+            <h3 className="text-lg font-semibold text-white">Recent Activity</h3>
+          </div>
           {isLoading ? (
             <div className="text-center py-4">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500 mx-auto"></div>
-              <p className="text-sm text-gray-500 mt-2">Loading recent activity...</p>
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-slate-400 mx-auto"></div>
+              <p className="text-sm text-green-300 mt-2">Loading recent activity...</p>
             </div>
           ) : recentEntries.length > 0 ? (
             <div className="space-y-3">
               {recentEntries.map((entry, index) => (
-                <div key={entry.id} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                  <div className={`w-2 h-2 rounded-full ${entry.completed ? 'bg-green-500' : 'bg-blue-500'}`}></div>
-                  <span className="text-sm text-gray-600">
+                <div key={entry.id} className="flex items-center space-x-3 p-3 bg-slate-700/50 rounded-lg">
+                  <div className={`w-2 h-2 rounded-full ${entry.completed ? 'bg-slate-400' : 'bg-slate-500'}`}></div>
+                  <span className="text-sm text-green-200">
                     {entry.completed ? 'Completed' : 'Created'} entry for {entry.date.toLocaleDateString()}
                     {entry.hasGoals && ' with goals'}
                     {entry.hasSOAP && ' with SOAP study'}
                   </span>
-                  <span className="text-xs text-gray-400 ml-auto">
+                  <span className="text-xs text-green-300 ml-auto">
                     {index === 0 ? 'Today' : index === 1 ? 'Yesterday' : `${index} days ago`}
                   </span>
                 </div>
@@ -443,7 +454,7 @@ export const Dashboard: React.FC = () => {
             </div>
           ) : (
             <div className="text-center py-4">
-              <p className="text-sm text-gray-500">No recent activity yet. Start your first entry!</p>
+              <p className="text-sm text-green-300">No recent activity yet. Start your first entry!</p>
             </div>
           )}
         </Card>
@@ -457,29 +468,32 @@ export const Dashboard: React.FC = () => {
         className="grid grid-cols-1 md:grid-cols-3 gap-6"
       >
         {/* Daily Goals */}
-        <Card className="p-6">
+        <Card className="p-6 bg-slate-800/80 backdrop-blur-sm border-slate-700">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900">🎯 Daily Goals</h3>
-            <span className="text-sm text-gray-500">
+            <div className="flex items-center space-x-2">
+              <Target className="w-5 h-5 text-slate-400" />
+              <h3 className="text-lg font-semibold text-white">Daily Goals</h3>
+            </div>
+            <span className="text-sm text-green-200">
               {currentGoals.daily.filter(g => g.completed).length}/{currentGoals.daily.length} completed
             </span>
           </div>
           <div className="space-y-2">
             {currentGoals.daily.slice(0, 3).map((goal) => (
               <div key={goal.id} className="flex items-center space-x-2">
-                <div className={`w-2 h-2 rounded-full ${goal.completed ? 'bg-green-500' : 'bg-gray-300'}`}></div>
-                <span className={`text-sm ${goal.completed ? 'text-gray-700' : 'text-gray-500'}`}>
+                <div className={`w-2 h-2 rounded-full ${goal.completed ? 'bg-slate-400' : 'bg-slate-500'}`}></div>
+                <span className={`text-sm ${goal.completed ? 'text-white' : 'text-green-300'}`}>
                   {goal.text}
                 </span>
               </div>
             ))}
             {currentGoals.daily.length === 0 && (
-              <div className="text-sm text-gray-500 italic">No daily goals set yet</div>
+              <div className="text-sm text-green-400 italic">No daily goals set yet</div>
             )}
           </div>
           <Link 
             to="/daily#goals" 
-            className="block mt-4 text-sm text-green-600 hover:text-green-700 font-medium"
+            className="block mt-4 text-sm text-slate-400 hover:text-slate-300 font-medium"
             onClick={() => sessionStorage.setItem('scrollToGoals', 'true')}
           >
             View all daily goals →
@@ -487,29 +501,32 @@ export const Dashboard: React.FC = () => {
         </Card>
 
         {/* Weekly Goals */}
-        <Card className="p-6">
+        <Card className="p-6 bg-slate-800/80 backdrop-blur-sm border-slate-700">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900">📅 Weekly Goals</h3>
-            <span className="text-sm text-gray-500">
+            <div className="flex items-center space-x-2">
+              <Calendar className="w-5 h-5 text-blue-500" />
+              <h3 className="text-lg font-semibold text-white">Weekly Goals</h3>
+            </div>
+            <span className="text-sm text-green-200">
               {currentGoals.weekly.filter(g => g.completed).length}/{currentGoals.weekly.length} completed
             </span>
           </div>
           <div className="space-y-2">
             {currentGoals.weekly.slice(0, 4).map((goal) => (
               <div key={goal.id} className="flex items-center space-x-2">
-                <div className={`w-2 h-2 rounded-full ${goal.completed ? 'bg-green-500' : 'bg-gray-300'}`}></div>
-                <span className={`text-sm ${goal.completed ? 'text-gray-700' : 'text-gray-500'}`}>
+                <div className={`w-2 h-2 rounded-full ${goal.completed ? 'bg-slate-400' : 'bg-slate-500'}`}></div>
+                <span className={`text-sm ${goal.completed ? 'text-white' : 'text-green-300'}`}>
                   {goal.text}
                 </span>
               </div>
             ))}
             {currentGoals.weekly.length === 0 && (
-              <div className="text-sm text-gray-500 italic">No weekly goals set yet</div>
+              <div className="text-sm text-green-400 italic">No weekly goals set yet</div>
             )}
           </div>
           <Link 
             to="/daily#goals" 
-            className="block mt-4 text-sm text-green-600 hover:text-green-700 font-medium"
+            className="block mt-4 text-sm text-blue-500 hover:text-blue-400 font-medium"
             onClick={() => sessionStorage.setItem('scrollToGoals', 'true')}
           >
             View all weekly goals →
@@ -517,29 +534,32 @@ export const Dashboard: React.FC = () => {
         </Card>
 
         {/* Monthly Goals */}
-        <Card className="p-6">
+        <Card className="p-6 bg-slate-800/80 backdrop-blur-sm border-slate-700">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900">🗓️ Monthly Goals</h3>
-            <span className="text-sm text-gray-500">
+            <div className="flex items-center space-x-2">
+              <Crown className="w-5 h-5 text-slate-400" />
+              <h3 className="text-lg font-semibold text-white">Monthly Goals</h3>
+            </div>
+            <span className="text-sm text-green-200">
               {currentGoals.monthly.filter(g => g.completed).length}/{currentGoals.monthly.length} completed
             </span>
           </div>
           <div className="space-y-2">
             {currentGoals.monthly.slice(0, 2).map((goal) => (
               <div key={goal.id} className="flex items-center space-x-2">
-                <div className={`w-2 h-2 rounded-full ${goal.completed ? 'bg-green-500' : 'bg-gray-300'}`}></div>
-                <span className={`text-sm ${goal.completed ? 'text-gray-700' : 'text-gray-500'}`}>
+                <div className={`w-2 h-2 rounded-full ${goal.completed ? 'bg-slate-400' : 'bg-slate-500'}`}></div>
+                <span className={`text-sm ${goal.completed ? 'text-white' : 'text-green-300'}`}>
                   {goal.text}
                 </span>
               </div>
             ))}
             {currentGoals.monthly.length === 0 && (
-              <div className="text-sm text-gray-500 italic">No monthly goals set yet</div>
+              <div className="text-sm text-green-400 italic">No monthly goals set yet</div>
             )}
           </div>
           <Link 
             to="/daily#goals" 
-            className="block mt-4 text-sm text-green-600 hover:text-green-700 font-medium"
+            className="block mt-4 text-sm text-slate-400 hover:text-slate-300 font-medium"
             onClick={() => sessionStorage.setItem('scrollToGoals', 'true')}
           >
             View all monthly goals →

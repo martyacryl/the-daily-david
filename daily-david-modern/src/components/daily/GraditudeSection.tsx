@@ -30,12 +30,12 @@ export function GratitudeSection({ gratitude, onUpdate }: GratitudeSectionProps)
   }
 
   return (
-    <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-200">
+    <div className="bg-slate-800/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-slate-700">
       <div className="text-center mb-6">
-        <h3 className="text-xl font-bold text-gray-800 mb-2 flex items-center justify-center gap-2">
+        <h3 className="text-xl font-bold text-white mb-2 flex items-center justify-center gap-2">
           🙏 Daily Gratitude
         </h3>
-        <p className="text-gray-600">
+        <p className="text-green-200">
           "Give thanks in all circumstances" - 1 Thessalonians 5:18
         </p>
       </div>
@@ -50,7 +50,7 @@ export function GratitudeSection({ gratitude, onUpdate }: GratitudeSectionProps)
               value={item}
               onChange={(e) => handleInputChange(index, e.target.value)}
               onBlur={() => handleInputBlur(index)}
-              className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors duration-200 resize-none"
+              className="w-full pl-12 pr-4 py-3 border-2 border-slate-600/50 rounded-lg bg-slate-700/60 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-slate-500 transition-colors duration-200 resize-none"
               placeholder="I'm grateful for..."
               rows={2}
               onInput={(e) => {

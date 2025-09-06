@@ -101,26 +101,26 @@ export function SOAPSection({ soap, onUpdate }: SOAPSectionProps) {
       />
 
       {/* SOAP Study Form */}
-      <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-200">
+      <div className="bg-slate-800/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-slate-700">
         <div className="text-center mb-8">
-          <h3 className="text-2xl font-bold text-gray-800 mb-2">
+          <h3 className="text-2xl font-bold text-white mb-2">
             S.O.A.P. Bible Study
           </h3>
-          <p className="text-gray-600 text-lg">
+          <p className="text-green-200 text-lg">
             Scripture • Observation • Application • Prayer
           </p>
-          <div className="mt-2 text-sm text-gray-500">
+          <div className="mt-2 text-sm text-green-300">
             "All Scripture is God-breathed and is useful for teaching, rebuking, correcting and training in righteousness" - 2 Timothy 3:16
           </div>
         </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {soapSections.map((section) => (
-          <div key={section.key} className="border-l-4 border-l-green-500 bg-gray-50 rounded-r-lg p-4">
-            <h4 className="font-bold text-lg mb-2 text-gray-800">
+          <div key={section.key} className="border-l-4 border-l-green-500 bg-slate-700/50 rounded-r-lg p-4">
+            <h4 className="font-bold text-lg mb-2 text-white">
               {section.title}
             </h4>
-            <p className="text-gray-600 text-sm mb-4">
+            <p className="text-green-200 text-sm mb-4">
               {section.subtitle}
             </p>
             
@@ -128,7 +128,7 @@ export function SOAPSection({ soap, onUpdate }: SOAPSectionProps) {
               value={localSOAP[section.key] || ''}
               onChange={(e) => handleInputChange(section.key, e.target.value)}
               onBlur={() => handleInputBlur(section.key)}
-              className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors duration-200 resize-none"
+              className="w-full px-4 py-3 border-2 border-slate-600/50 rounded-lg bg-slate-700/60 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-slate-500 transition-colors duration-200 resize-none"
               placeholder={section.placeholder}
               rows={4}
             />

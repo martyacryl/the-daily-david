@@ -458,7 +458,7 @@ export function DailyEntry() {
   if (!isAuthenticated) {
     return (
       <div className="text-center py-12">
-        <p className="text-gray-600">Please sign in to access your daily entry.</p>
+        <p className="text-green-200">Please sign in to access your daily entry.</p>
       </div>
     )
   }
@@ -469,9 +469,9 @@ export function DailyEntry() {
   if (storeError) {
     return (
       <div className="text-center py-12">
-        <div className="bg-red-50 border border-red-200 rounded-lg p-6 max-w-md mx-auto">
-          <h3 className="text-lg font-semibold text-red-800 mb-2">Error</h3>
-          <p className="text-red-600">{storeError}</p>
+        <div className="bg-red-900/20 border border-red-700 rounded-lg p-6 max-w-md mx-auto">
+          <h3 className="text-lg font-semibold text-red-400 mb-2">Error</h3>
+          <p className="text-red-300">{storeError}</p>
           <Button 
             onClick={() => window.location.reload()} 
             className="mt-4"
@@ -491,7 +491,7 @@ export function DailyEntry() {
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
       >
-        <Link to="/" className="inline-flex items-center gap-2 mb-6 text-gray-600 hover:text-gray-900">
+        <Link to="/" className="inline-flex items-center gap-2 mb-6 text-green-200 hover:text-white">
           <ArrowLeft className="w-4 h-4" />
           Back to Dashboard
         </Link>
@@ -501,11 +501,11 @@ export function DailyEntry() {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-white rounded-xl p-6 shadow-lg border border-gray-200"
+        className="bg-slate-800/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-slate-700"
       >
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
-            <Calendar className="w-6 h-6" />
+          <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+            <Calendar className="w-6 h-6 text-amber-500" />
             Daily Entry
           </h2>
           <Button
@@ -528,11 +528,11 @@ export function DailyEntry() {
           </Button>
           
           <div className="text-center">
-            <div className="text-lg font-semibold text-gray-800">
+            <div className="text-lg font-semibold text-white">
               {formatDate(selectedDate)}
             </div>
             {isToday(selectedDate) && (
-              <div className="text-sm text-green-600 font-medium">Today</div>
+              <div className="text-sm text-amber-500 font-medium">Today</div>
             )}
           </div>
           
@@ -549,8 +549,8 @@ export function DailyEntry() {
 
       {(isLoading || storeLoading) ? (
         <div className="text-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading entry...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-500 mx-auto"></div>
+          <p className="mt-4 text-green-200">Loading entry...</p>
         </div>
       ) : (
         <>
@@ -575,12 +575,12 @@ export function DailyEntry() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className="bg-white rounded-xl p-6 shadow-lg border border-gray-200"
+              className="bg-slate-800/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-slate-700"
             >
-              <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+              <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
                 🎯 Daily Intention
               </h3>
-              <p className="text-gray-600 text-sm mb-4">
+              <p className="text-green-200 text-sm mb-4">
                 How do you intend to take action, accomplish your goals, and act like a Man of God?
               </p>
               <Textarea
@@ -606,9 +606,9 @@ export function DailyEntry() {
               className="space-y-6"
             >
               {/* Daily Goals */}
-              <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-200">
+              <div className="bg-slate-800/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-slate-700">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+                  <h3 className="text-xl font-bold text-white flex items-center gap-2">
                     🎯 Daily Goals
                   </h3>
                   <Button
@@ -622,7 +622,7 @@ export function DailyEntry() {
                 </div>
                 <div className="space-y-3">
                   {userGoals.daily.map((goal, index) => (
-                    <div key={goal.id} className="p-4 bg-gray-50 rounded-lg space-y-3">
+                    <div key={goal.id} className="p-4 bg-slate-700/50 rounded-lg space-y-3">
                       <div className="flex items-center space-x-3">
                         <input
                           type="checkbox"
@@ -639,14 +639,14 @@ export function DailyEntry() {
                               window.dispatchEvent(new CustomEvent('triggerSave'))
                             }, 100)
                           }}
-                          className={`flex-1 px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent ${
-                            goal.completed ? 'line-through text-gray-500 bg-gray-100' : 'text-gray-700'
+                          className={`flex-1 px-3 py-2 border border-slate-600/50 rounded-md bg-slate-700/60 focus:ring-2 focus:ring-slate-500 focus:border-transparent ${
+                            goal.completed ? 'line-through text-slate-300 bg-slate-600/30' : 'text-white'
                           }`}
                           placeholder="Enter goal text"
                         />
                         <button
                           onClick={() => handleGoalDelete('daily', index)}
-                          className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-md transition-colors"
+                          className="p-2 text-red-400 hover:text-red-300 hover:bg-red-900/30 rounded-md transition-colors"
                         >
                           🗑️
                         </button>
@@ -655,7 +655,7 @@ export function DailyEntry() {
                         <select
                           value={goal.priority}
                           onChange={(e) => handleGoalEdit('daily', index, 'priority', e.target.value as Goal['priority'])}
-                          className="px-3 py-1 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                          className="px-3 py-1 text-sm border border-slate-600/50 rounded-md bg-slate-700/60 text-white focus:ring-2 focus:ring-slate-500 focus:border-transparent"
                         >
                           <option value="low">Low</option>
                           <option value="medium">Medium</option>
@@ -664,7 +664,7 @@ export function DailyEntry() {
                         <select
                           value={goal.category}
                           onChange={(e) => handleGoalEdit('daily', index, 'category', e.target.value as Goal['category'])}
-                          className="px-3 py-1 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                          className="px-3 py-1 text-sm border border-slate-600/50 rounded-md bg-slate-700/60 text-white focus:ring-2 focus:ring-slate-500 focus:border-transparent"
                         >
                           <option value="spiritual">Spiritual</option>
                           <option value="personal">Personal</option>
@@ -679,9 +679,9 @@ export function DailyEntry() {
               </div>
 
               {/* Weekly Goals */}
-              <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-200">
+              <div className="bg-slate-800/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-slate-700">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+                  <h3 className="text-xl font-bold text-white flex items-center gap-2">
                     📅 Weekly Goals
                   </h3>
                   <Button
@@ -694,7 +694,7 @@ export function DailyEntry() {
                 </div>
                 <div className="space-y-3">
                   {userGoals.weekly.map((goal, index) => (
-                    <div key={goal.id} className="p-4 bg-gray-50 rounded-lg space-y-3">
+                    <div key={goal.id} className="p-4 bg-slate-700/50 rounded-lg space-y-3">
                       <div className="flex items-center space-x-3">
                         <input
                           type="checkbox"
@@ -711,14 +711,14 @@ export function DailyEntry() {
                               window.dispatchEvent(new CustomEvent('triggerSave'))
                             }, 100)
                           }}
-                          className={`flex-1 px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent ${
-                            goal.completed ? 'line-through text-gray-500 bg-gray-100' : 'text-gray-700'
+                          className={`flex-1 px-3 py-2 border border-slate-600/50 rounded-md bg-slate-700/60 focus:ring-2 focus:ring-slate-500 focus:border-transparent ${
+                            goal.completed ? 'line-through text-slate-300 bg-slate-600/30' : 'text-white'
                           }`}
                           placeholder="Enter goal text"
                         />
                         <button
                           onClick={() => handleGoalDelete('weekly', index)}
-                          className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-md transition-colors"
+                          className="p-2 text-red-400 hover:text-red-300 hover:bg-red-900/30 rounded-md transition-colors"
                         >
                           🗑️
                         </button>
@@ -727,7 +727,7 @@ export function DailyEntry() {
                         <select
                           value={goal.priority}
                           onChange={(e) => handleGoalEdit('weekly', index, 'priority', e.target.value as Goal['priority'])}
-                          className="px-3 py-1 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                          className="px-3 py-1 text-sm border border-slate-600/50 rounded-md bg-slate-700/60 text-white focus:ring-2 focus:ring-slate-500 focus:border-transparent"
                         >
                           <option value="low">Low</option>
                           <option value="medium">Medium</option>
@@ -736,7 +736,7 @@ export function DailyEntry() {
                         <select
                           value={goal.category}
                           onChange={(e) => handleGoalEdit('weekly', index, 'category', e.target.value as Goal['category'])}
-                          className="px-3 py-1 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                          className="px-3 py-1 text-sm border border-slate-600/50 rounded-md bg-slate-700/60 text-white focus:ring-2 focus:ring-slate-500 focus:border-transparent"
                         >
                           <option value="spiritual">Spiritual</option>
                           <option value="personal">Personal</option>
@@ -751,9 +751,9 @@ export function DailyEntry() {
               </div>
 
               {/* Monthly Goals */}
-              <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-200">
+              <div className="bg-slate-800/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-slate-700">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+                  <h3 className="text-xl font-bold text-white flex items-center gap-2">
                     🗓️ Monthly Goals
                   </h3>
                   <Button
@@ -766,7 +766,7 @@ export function DailyEntry() {
                 </div>
                 <div className="space-y-3">
                   {userGoals.monthly.map((goal, index) => (
-                    <div key={goal.id} className="p-4 bg-gray-50 rounded-lg space-y-3">
+                    <div key={goal.id} className="p-4 bg-slate-700/50 rounded-lg space-y-3">
                       <div className="flex items-center space-x-3">
                         <input
                           type="checkbox"
@@ -783,14 +783,14 @@ export function DailyEntry() {
                               window.dispatchEvent(new CustomEvent('triggerSave'))
                             }, 100)
                           }}
-                          className={`flex-1 px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent ${
-                            goal.completed ? 'line-through text-gray-500 bg-gray-100' : 'text-gray-700'
+                          className={`flex-1 px-3 py-2 border border-slate-600/50 rounded-md bg-slate-700/60 focus:ring-2 focus:ring-slate-500 focus:border-transparent ${
+                            goal.completed ? 'line-through text-slate-300 bg-slate-600/30' : 'text-white'
                           }`}
                           placeholder="Enter goal text"
                         />
                         <button
                           onClick={() => handleGoalDelete('monthly', index)}
-                          className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-md transition-colors"
+                          className="p-2 text-red-400 hover:text-red-300 hover:bg-red-900/30 rounded-md transition-colors"
                         >
                           🗑️
                         </button>
@@ -799,7 +799,7 @@ export function DailyEntry() {
                         <select
                           value={goal.priority}
                           onChange={(e) => handleGoalEdit('monthly', index, 'priority', e.target.value as Goal['priority'])}
-                          className="px-3 py-1 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                          className="px-3 py-1 text-sm border border-slate-600/50 rounded-md bg-slate-700/60 text-white focus:ring-2 focus:ring-slate-500 focus:border-transparent"
                         >
                           <option value="low">Low</option>
                           <option value="medium">Medium</option>
@@ -808,7 +808,7 @@ export function DailyEntry() {
                         <select
                           value={goal.category}
                           onChange={(e) => handleGoalEdit('monthly', index, 'category', e.target.value as Goal['category'])}
-                          className="px-3 py-1 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                          className="px-3 py-1 text-sm border border-slate-600/50 rounded-md bg-slate-700/60 text-white focus:ring-2 focus:ring-slate-500 focus:border-transparent"
                         >
                           <option value="spiritual">Spiritual</option>
                           <option value="personal">Personal</option>
@@ -853,18 +853,18 @@ export function DailyEntry() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6 }}
-              className="bg-white rounded-xl p-6 shadow-lg border border-gray-200"
+              className="bg-slate-800/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-slate-700"
             >
-              <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+              <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
                 ⭐ Leadership Rating
               </h3>
-              <p className="text-gray-600 text-sm mb-4">
+              <p className="text-green-200 text-sm mb-4">
                 Rate yourself on these leadership qualities today (1-10)
               </p>
               <div className="grid grid-cols-2 gap-4">
                 {Object.entries(dayData.leadershipRating).map(([trait, rating]) => (
                   <div key={trait} className="space-y-2">
-                    <label className="block text-sm font-medium text-gray-700 capitalize">
+                    <label className="block text-sm font-medium text-green-200 capitalize">
                       {trait}
                     </label>
                     <input
@@ -882,9 +882,9 @@ export function DailyEntry() {
                           window.dispatchEvent(new CustomEvent('triggerSave'))
                         }, 100)
                       }}
-                      className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+                      className="w-full h-2 bg-slate-600/50 rounded-lg appearance-none cursor-pointer slider"
                     />
-                    <div className="text-center text-sm font-medium text-gray-600">
+                    <div className="text-center text-sm font-medium text-green-200">
                       {rating}/10
                     </div>
                   </div>

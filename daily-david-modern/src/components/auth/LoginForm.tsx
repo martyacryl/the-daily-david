@@ -87,7 +87,7 @@ export function LoginForm({ onSuccess, onError }: LoginFormProps) {
       transition={{ duration: 0.5 }}
       className="w-full max-w-md mx-auto"
     >
-      <div className="bg-white rounded-xl shadow-xl p-8 border border-gray-200">
+      <div className="bg-slate-800/90 backdrop-blur-sm rounded-xl shadow-xl p-8 border border-slate-700">
         <div className="text-center mb-8">
           <motion.div
             initial={{ scale: 0 }}
@@ -95,14 +95,14 @@ export function LoginForm({ onSuccess, onError }: LoginFormProps) {
             transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
             className="inline-block"
           >
-            <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mb-4 mx-auto">
+            <div className="w-16 h-16 bg-gradient-to-br from-amber-600 to-amber-700 rounded-full flex items-center justify-center mb-4 mx-auto">
               <span className="text-white text-2xl font-bold">DD</span>
             </div>
           </motion.div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">
+          <h1 className="text-2xl font-bold text-white mb-2">
             Welcome Back
           </h1>
-          <p className="text-gray-600">
+          <p className="text-slate-300">
             "Run with endurance the race set before you" - Hebrews 12:1
           </p>
         </div>
@@ -110,12 +110,12 @@ export function LoginForm({ onSuccess, onError }: LoginFormProps) {
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Email Field */}
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="email" className="block text-sm font-medium text-slate-200 mb-2">
               Email Address
             </label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Mail className="h-5 w-5 text-gray-400" />
+                <Mail className="h-5 w-5 text-slate-400" />
               </div>
               <input
                 id="email"
@@ -125,27 +125,28 @@ export function LoginForm({ onSuccess, onError }: LoginFormProps) {
                 value={formData.email}
                 onChange={(e) => handleInputChange('email', e.target.value)}
                 className={`
-                  w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors
-                  ${validationErrors.email ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300'}
-                  ${isLoading ? 'bg-gray-50 cursor-not-allowed' : 'bg-white'}
+                  w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-slate-500 transition-colors
+                  ${validationErrors.email ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : 'border-slate-600/50'}
+                  ${isLoading ? 'bg-slate-600/50 cursor-not-allowed' : 'bg-slate-700/60'}
+                  text-white placeholder-slate-400
                 `}
                 placeholder="Enter your email"
                 disabled={isLoading}
               />
             </div>
             {validationErrors.email && (
-              <p className="mt-2 text-sm text-red-600">{validationErrors.email}</p>
+              <p className="mt-2 text-sm text-red-400">{validationErrors.email}</p>
             )}
           </div>
 
           {/* Password Field */}
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="password" className="block text-sm font-medium text-slate-200 mb-2">
               Password
             </label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Lock className="h-5 w-5 text-gray-400" />
+                <Lock className="h-5 w-5 text-slate-400" />
               </div>
               <input
                 id="password"
@@ -155,9 +156,10 @@ export function LoginForm({ onSuccess, onError }: LoginFormProps) {
                 value={formData.password}
                 onChange={(e) => handleInputChange('password', e.target.value)}
                 className={`
-                  w-full pl-10 pr-12 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors
-                  ${validationErrors.password ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300'}
-                  ${isLoading ? 'bg-gray-50 cursor-not-allowed' : 'bg-white'}
+                  w-full pl-10 pr-12 py-3 border rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-slate-500 transition-colors
+                  ${validationErrors.password ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : 'border-slate-600/50'}
+                  ${isLoading ? 'bg-slate-600/50 cursor-not-allowed' : 'bg-slate-700/60'}
+                  text-white placeholder-slate-400
                 `}
                 placeholder="Enter your password"
                 disabled={isLoading}
@@ -169,14 +171,14 @@ export function LoginForm({ onSuccess, onError }: LoginFormProps) {
                 disabled={isLoading}
               >
                 {showPassword ? (
-                  <EyeOff className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                  <EyeOff className="h-5 w-5 text-slate-400 hover:text-slate-300" />
                 ) : (
-                  <Eye className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                  <Eye className="h-5 w-5 text-slate-400 hover:text-slate-300" />
                 )}
               </button>
             </div>
             {validationErrors.password && (
-              <p className="mt-2 text-sm text-red-600">{validationErrors.password}</p>
+              <p className="mt-2 text-sm text-red-400">{validationErrors.password}</p>
             )}
           </div>
 
@@ -185,9 +187,9 @@ export function LoginForm({ onSuccess, onError }: LoginFormProps) {
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="p-4 rounded-lg bg-red-50 border border-red-200"
+              className="p-4 rounded-lg bg-red-900/20 border border-red-500/50"
             >
-              <p className="text-sm text-red-600 text-center">{error}</p>
+              <p className="text-sm text-red-400 text-center">{error}</p>
             </motion.div>
           )}
 
@@ -212,14 +214,14 @@ export function LoginForm({ onSuccess, onError }: LoginFormProps) {
         </form>
 
         {/* Demo Credentials */}
-        <div className="mt-8 pt-6 border-t border-gray-200">
+        <div className="mt-8 pt-6 border-t border-slate-600/50">
           <div className="text-center">
-            <p className="text-sm text-gray-600 mb-3">Demo Credentials:</p>
-            <div className="bg-gray-50 rounded-lg p-3 text-left">
-              <p className="text-xs text-gray-700 mb-1">
+            <p className="text-sm text-slate-300 mb-3">Demo Credentials:</p>
+            <div className="bg-slate-700/50 rounded-lg p-3 text-left">
+              <p className="text-xs text-slate-200 mb-1">
                 <strong>Admin:</strong> davidadmin@davidadmin.com / davidadmin
               </p>
-              <p className="text-xs text-gray-700">
+              <p className="text-xs text-slate-200">
                 <strong>User:</strong> david@davidapp.com / david123
               </p>
             </div>

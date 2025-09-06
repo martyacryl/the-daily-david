@@ -1,7 +1,7 @@
 import React from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { BookOpen, BarChart3, Settings, LogOut } from 'lucide-react'
+import { BookOpen, BarChart3, Settings, LogOut, Mountain } from 'lucide-react'
 import { useAuthStore } from '../../stores/authStore'
 import { Button } from '../ui/Button'
 
@@ -24,7 +24,7 @@ export const Header: React.FC = () => {
 
   return (
     <motion.header 
-      className="bg-white border-b border-gray-200 shadow-sm"
+      className="bg-slate-800/90 backdrop-blur-sm border-b border-slate-700 shadow-lg"
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
@@ -33,10 +33,10 @@ export const Header: React.FC = () => {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-green-600 to-green-700 rounded-lg flex items-center justify-center">
-              <BookOpen className="w-5 h-5 text-white" />
+            <div className="w-8 h-8 bg-gradient-to-br from-amber-600 to-amber-700 rounded-lg flex items-center justify-center">
+              <Mountain className="w-5 h-5 text-white" />
             </div>
-            <span className="text-xl font-bold text-gray-900">Daily David</span>
+            <span className="text-xl font-bold text-white">Daily David</span>
           </Link>
 
           {/* Navigation */}
@@ -52,8 +52,8 @@ export const Header: React.FC = () => {
                     to={item.path}
                     className={`flex items-center space-x-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                       isActive
-                        ? 'bg-green-100 text-green-700'
-                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                        ? 'bg-amber-600/20 text-amber-400'
+                        : 'text-green-200 hover:text-white hover:bg-green-700/50'
                     }`}
                   >
                     <Icon className="w-4 h-4" />
@@ -68,7 +68,7 @@ export const Header: React.FC = () => {
           <div className="flex items-center space-x-4">
             {isAuthenticated ? (
               <>
-                <span className="text-sm text-gray-700 hidden md:block">
+                <span className="text-sm text-green-200 hidden md:block">
                   Welcome, {user?.name}
                 </span>
                 <Button
