@@ -57,7 +57,7 @@ export function DailyEntry() {
       emotions: [] as EmotionType[],
       feeling: ''
     },
-    gratitude: ['Family', 'Health', 'Faith'],
+    gratitude: ['', '', ''],
     soap: {
       scripture: '',
       observation: '',
@@ -273,7 +273,7 @@ export function DailyEntry() {
         
         setDayData({
           checkIn: { emotions: [], feeling: '' },
-          gratitude: ['Family', 'Health', 'Faith'],
+          gratitude: ['', '', ''],
           soap: { scripture: '', observation: '', application: '', prayer: '' },
           dailyIntention: '',
           leadershipRating: { wisdom: 5, courage: 5, patience: 5, integrity: 5 }
