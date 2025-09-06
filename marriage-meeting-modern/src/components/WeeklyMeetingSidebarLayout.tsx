@@ -178,7 +178,7 @@ export const WeeklyMeetingSidebarLayout: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-purple-50 flex flex-col pt-16">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-purple-50 flex flex-col pt-20 sm:pt-16">
       {/* Header with Week Navigation */}
       <div className="px-2 sm:px-8">
         <WeekNavigation
