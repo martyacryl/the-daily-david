@@ -134,7 +134,7 @@ export const MountainRangeCrossIcon: React.FC<IconProps> = ({
   )
 }
 
-// Cross icon - clean and simple
+// Cross icon - actual cross design
 export const CrossIcon: React.FC<IconProps> = ({ 
   className = "w-6 h-6", 
   size = 24 
@@ -151,10 +151,10 @@ export const CrossIcon: React.FC<IconProps> = ({
       strokeLinejoin="round"
       className={className}
     >
-      {/* Vertical line */}
+      {/* Vertical line - longer */}
       <path d="M12 2v20" />
-      {/* Horizontal line */}
-      <path d="M2 12h20" />
+      {/* Horizontal line - shorter, positioned higher */}
+      <path d="M6 10h12" />
     </svg>
   )
 }
