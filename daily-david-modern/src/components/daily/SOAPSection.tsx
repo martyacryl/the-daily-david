@@ -119,12 +119,14 @@ export function SOAPSection({ soap, onUpdate }: SOAPSectionProps) {
         </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {soapSections.map((section) => (
-          <div key={section.key} className="border-l-4 border-l-green-500 bg-slate-700/50 rounded-r-lg p-4">
-            <h4 className="font-bold text-lg mb-2 text-white flex items-center gap-2">
-              <section.icon className="w-5 h-5 text-slate-400" />
-              {section.title}
-            </h4>
+        {soapSections.map((section) => {
+          const IconComponent = section.icon
+          return (
+            <div key={section.key} className="border-l-4 border-l-green-500 bg-slate-700/50 rounded-r-lg p-4">
+              <h4 className="font-bold text-lg mb-2 text-white flex items-center gap-2">
+                <IconComponent className="w-5 h-5 text-slate-400" />
+                {section.title}
+              </h4>
             <p className="text-green-200 text-sm mb-4">
               {section.subtitle}
             </p>
@@ -138,7 +140,8 @@ export function SOAPSection({ soap, onUpdate }: SOAPSectionProps) {
               rows={4}
             />
           </div>
-        ))}
+          )
+        })}
         </div>
       </div>
     </div>
