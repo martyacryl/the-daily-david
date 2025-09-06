@@ -7,7 +7,7 @@ import { Card } from '../ui/Card'
 import { Button } from '../ui/Button'
 import { useAuthStore } from '../../stores/authStore'
 import { useDailyStore } from '../../stores/dailyStore'
-import { DailyEntry } from '../../types'
+import { DailyEntry, Goal } from '../../types'
 
 export const Dashboard: React.FC = () => {
   const { user, isAuthenticated } = useAuthStore()
@@ -18,7 +18,11 @@ export const Dashboard: React.FC = () => {
     thisMonth: 0,
     completionRate: 0
   })
-  const [currentGoals, setCurrentGoals] = useState({
+  const [currentGoals, setCurrentGoals] = useState<{
+    daily: Goal[]
+    weekly: Goal[]
+    monthly: Goal[]
+  }>({
     daily: [],
     weekly: [],
     monthly: []
@@ -159,81 +163,63 @@ export const Dashboard: React.FC = () => {
   }
 
   const extractCurrentGoals = () => {
-    // Get goals from the most recent entry, or aggregate from all entries
+    console.log('Dashboard: Extracting goals from', entries.length, 'entries')
+    
     if (entries.length > 0) {
+      // Get goals from the most recent entry first
       const mostRecentEntry = entries.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0]
       
       console.log('Dashboard: Most recent entry:', mostRecentEntry)
       console.log('Dashboard: Goals from recent entry:', mostRecentEntry.goals)
       
-      if (mostRecentEntry.goals) {
-        // Ensure goals are properly parsed
-        let parsedGoals = mostRecentEntry.goals
+      if (mostRecentEntry.goals && mostRecentEntry.goals.daily && mostRecentEntry.goals.weekly && mostRecentEntry.goals.monthly) {
+        // Use goals from the most recent entry
+        const goals = mostRecentEntry.goals
+        console.log('Dashboard: Using goals from recent entry:', {
+          daily: goals.daily?.length || 0,
+          weekly: goals.weekly?.length || 0,
+          monthly: goals.monthly?.length || 0
+        })
         
-        // If goals is a string, try to parse it
-        if (typeof parsedGoals === 'string') {
-          try {
-            parsedGoals = JSON.parse(parsedGoals)
-          } catch (e) {
-            console.error('Dashboard: Failed to parse goals string:', e)
-            parsedGoals = { daily: [], weekly: [], monthly: [] }
-          }
-        }
-        
-        // Ensure we have the expected structure
-        if (parsedGoals && typeof parsedGoals === 'object') {
-          setCurrentGoals({
-            daily: Array.isArray(parsedGoals.daily) ? parsedGoals.daily : [],
-            weekly: Array.isArray(parsedGoals.weekly) ? parsedGoals.weekly : [],
-            monthly: Array.isArray(parsedGoals.monthly) ? parsedGoals.monthly : []
-          })
-          return
-        }
+        setCurrentGoals({
+          daily: Array.isArray(goals.daily) ? goals.daily : [],
+          weekly: Array.isArray(goals.weekly) ? goals.weekly : [],
+          monthly: Array.isArray(goals.monthly) ? goals.monthly : []
+        })
+        return
       }
       
-      // If no goals in recent entry or parsing failed, aggregate from all entries
+      // If no goals in recent entry, aggregate from all entries
       console.log('Dashboard: Aggregating goals from all entries')
-      const allDailyGoals = []
-      const allWeeklyGoals = []
-      const allMonthlyGoals = []
+      const allDailyGoals: Goal[] = []
+      const allWeeklyGoals: Goal[] = []
+      const allMonthlyGoals: Goal[] = []
       
       entries.forEach(entry => {
         if (entry.goals) {
-          let entryGoals = entry.goals
+          const goals = entry.goals
           
-          // Parse if it's a string
-          if (typeof entryGoals === 'string') {
-            try {
-              entryGoals = JSON.parse(entryGoals)
-            } catch (e) {
-              console.error('Dashboard: Failed to parse entry goals:', e)
-              return
-            }
+          if (Array.isArray(goals.daily)) {
+            allDailyGoals.push(...goals.daily)
           }
-          
-          if (entryGoals && typeof entryGoals === 'object') {
-            if (Array.isArray(entryGoals.daily)) {
-              allDailyGoals.push(...entryGoals.daily)
-            }
-            if (Array.isArray(entryGoals.weekly)) {
-              allWeeklyGoals.push(...entryGoals.weekly)
-            }
-            if (Array.isArray(entryGoals.monthly)) {
-              allMonthlyGoals.push(...entryGoals.monthly)
-            }
+          if (Array.isArray(goals.weekly)) {
+            allWeeklyGoals.push(...goals.weekly)
+          }
+          if (Array.isArray(goals.monthly)) {
+            allMonthlyGoals.push(...goals.monthly)
           }
         }
       })
       
       // Remove duplicates and get unique goals
       const uniqueDaily = allDailyGoals.filter((goal, index, self) => 
-        index === self.findIndex(g => g.text === goal.text)
+        index === self.findIndex(g => g.id === goal.id || g.text === goal.text)
       )
       const uniqueWeekly = allWeeklyGoals.filter((goal, index, self) => 
-        index === self.findIndex(g => g.text === goal.text)
+        index === self.findIndex(g => g.id === goal.id || g.text === goal.text)
       )
       const uniqueMonthly = allMonthlyGoals.filter((goal, index, self) => 
-        index === self.findIndex(g => g.text === goal.text)
+        index === self.findIndex(g => g.id === goal.id || g.text === goal.text)
       )
       
       console.log('Dashboard: Aggregated goals:', {
