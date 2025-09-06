@@ -799,10 +799,10 @@ export function ProgressAnalytics() {
               const goalsPercentage = calculateDisciplinePercentage(entries, 'goals')
               
               return [
-                { name: 'SOAP Study', value: soapPercentage, color: 'text-slate-300' },
-                { name: 'Prayer', value: prayerPercentage, color: 'text-slate-300' },
-                { name: 'Gratitude', value: gratitudePercentage, color: 'text-slate-300' },
-                { name: 'Goals', value: goalsPercentage, color: 'text-slate-400' }
+                { name: 'SOAP Study', value: soapPercentage, color: 'text-green-500' },
+                { name: 'Prayer', value: prayerPercentage, color: 'text-green-500' },
+                { name: 'Gratitude', value: gratitudePercentage, color: 'text-green-500' },
+                { name: 'Goals', value: goalsPercentage, color: 'text-green-600' }
               ].map((discipline) => (
                 <div key={discipline.name} className="text-center">
                   <div className="relative w-20 h-20 mx-auto mb-2">
