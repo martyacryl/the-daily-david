@@ -740,47 +740,86 @@ export function ProgressAnalytics() {
         transition={{ delay: 0.8 }}
         className="space-y-8"
       >
-        {/* Section 1: Goal Achievement Trends */}
+        {/* Section 1: Goal Completion Trends */}
         <Card className="p-6">
           <h3 className="text-xl font-semibold text-white mb-6 flex items-center gap-2">
-            📈 Goal Achievement Trends
+            📈 Goal Completion Trends
           </h3>
-          <div className="h-64 flex items-end space-x-2">
-            {data.monthlyProgress.slice(-6).map((month) => {
-              const maxGoals = Math.max(...data.monthlyProgress.map(m => m.goals), 1)
-              const maxEntries = Math.max(...data.monthlyProgress.map(m => m.entries), 1)
-              
-              return (
-                <div key={month.month} className="flex-1 flex flex-col items-center space-y-2">
-                  <div className="w-full bg-slate-700 rounded-t-lg relative h-48">
-                    {/* Daily Goals Bar */}
-                    <div
-                      className="absolute bottom-0 w-full bg-blue-500 rounded-t-lg transition-all duration-500"
-                      style={{ height: `${(month.goals / maxGoals) * 200}px` }}
-                    ></div>
-                    {/* Entries Bar */}
-                    <div
-                      className="absolute bottom-0 w-full bg-green-500 rounded-t-lg transition-all duration-500 opacity-80"
-                      style={{ height: `${(month.entries / maxEntries) * 180}px` }}
-                    ></div>
-                  </div>
-                  <span className="text-sm font-medium text-slate-200">{month.month}</span>
-                  <div className="text-xs text-slate-400 text-center">
-                    <div>Goals: {month.goals}</div>
-                    <div>Entries: {month.entries}</div>
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-          <div className="flex justify-center space-x-6 mt-4 text-sm text-slate-300">
-            <div className="flex items-center space-x-2">
-              <div className="w-3 h-3 bg-blue-500 rounded"></div>
-              <span>Goals Set</span>
+          <div className="space-y-4">
+            {/* Weekly Goal Completion Chart */}
+            <div>
+              <h4 className="text-sm font-medium text-slate-300 mb-3">Weekly Goal Completion Rate</h4>
+              <div className="h-32 flex items-end space-x-1">
+                {data.monthlyProgress.slice(-6).map((month, index) => {
+                  // Calculate completion rate (simplified for demo)
+                  const completionRate = Math.min(100, (month.entries / 7) * 100) // Assuming 7 entries per week
+                  
+                  return (
+                    <div key={month.month} className="flex-1 flex flex-col items-center space-y-1">
+                      <div className="w-full bg-slate-700 rounded-t-lg relative h-24">
+                        <div
+                          className="absolute bottom-0 w-full bg-gradient-to-t from-green-600 to-green-500 rounded-t-lg transition-all duration-500"
+                          style={{ height: `${completionRate}%` }}
+                        ></div>
+                        <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 text-xs font-medium text-slate-300">
+                          {Math.round(completionRate)}%
+                        </div>
+                      </div>
+                      <span className="text-xs font-medium text-slate-400">{month.month}</span>
+                    </div>
+                  )
+                })}
+              </div>
             </div>
-            <div className="flex items-center space-x-2">
-              <div className="w-3 h-3 bg-green-500 rounded"></div>
-              <span>Entries Made</span>
+            
+            {/* Goal Type Breakdown */}
+            <div className="grid grid-cols-3 gap-4 mt-6">
+              <div className="text-center p-3 bg-slate-800/50 rounded-lg">
+                <div className="text-2xl font-bold text-green-500">
+                  {data.goalCompletion.daily.percentage}%
+                </div>
+                <div className="text-xs text-slate-300">Daily Goals</div>
+                <div className="text-xs text-slate-400 mt-1">
+                  {data.goalCompletion.daily.completed}/{data.goalCompletion.daily.total} completed
+                </div>
+              </div>
+              <div className="text-center p-3 bg-slate-800/50 rounded-lg">
+                <div className="text-2xl font-bold text-green-500">
+                  {data.goalCompletion.weekly.percentage}%
+                </div>
+                <div className="text-xs text-slate-300">Weekly Goals</div>
+                <div className="text-xs text-slate-400 mt-1">
+                  {data.goalCompletion.weekly.completed}/{data.goalCompletion.weekly.total} completed
+                </div>
+              </div>
+              <div className="text-center p-3 bg-slate-800/50 rounded-lg">
+                <div className="text-2xl font-bold text-green-500">
+                  {data.goalCompletion.monthly.percentage}%
+                </div>
+                <div className="text-xs text-slate-300">Monthly Goals</div>
+                <div className="text-xs text-slate-400 mt-1">
+                  {data.goalCompletion.monthly.completed}/{data.goalCompletion.monthly.total} completed
+                </div>
+              </div>
+            </div>
+            
+            {/* Actionable Insights */}
+            <div className="mt-6 p-4 bg-slate-800/30 rounded-lg border border-slate-700">
+              <h4 className="text-sm font-medium text-slate-200 mb-2">💡 Insights & Recommendations</h4>
+              <div className="text-xs text-slate-300 space-y-1">
+                {data.goalCompletion.daily.percentage < 50 && (
+                  <div>• Focus on smaller, daily goals to build momentum</div>
+                )}
+                {data.goalCompletion.weekly.percentage > 70 && (
+                  <div>• Great weekly progress! Consider adding monthly challenges</div>
+                )}
+                {data.goalCompletion.monthly.percentage < 30 && (
+                  <div>• Break down monthly goals into weekly milestones</div>
+                )}
+                {data.goalCompletion.daily.percentage > 80 && (
+                  <div>• Excellent daily consistency! Keep up the great work</div>
+                )}
+              </div>
             </div>
           </div>
         </Card>
