@@ -436,7 +436,7 @@ export const Dashboard: React.FC = () => {
           {isLoading ? (
             <div className="text-center py-4">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-slate-400 mx-auto"></div>
-              <p className="text-sm text-green-300 mt-2">Loading recent activity...</p>
+              <p className="text-sm text-slate-300 mt-2">Loading recent activity...</p>
             </div>
           ) : recentEntries.length > 0 ? (
             <div className="space-y-3">
@@ -448,7 +448,7 @@ export const Dashboard: React.FC = () => {
                     {entry.hasGoals && ' with goals'}
                     {entry.hasSOAP && ' with SOAP study'}
                   </span>
-                  <span className="text-xs text-green-300 ml-auto">
+                  <span className="text-xs text-slate-300 ml-auto">
                     {index === 0 ? 'Today' : index === 1 ? 'Yesterday' : `${index} days ago`}
                   </span>
                 </div>
@@ -456,7 +456,7 @@ export const Dashboard: React.FC = () => {
             </div>
           ) : (
             <div className="text-center py-4">
-              <p className="text-sm text-green-300">No recent activity yet. Start your first entry!</p>
+              <p className="text-sm text-slate-300">No recent activity yet. Start your first entry!</p>
             </div>
           )}
         </Card>
@@ -476,7 +476,7 @@ export const Dashboard: React.FC = () => {
               <Target className="w-5 h-5 text-slate-400" />
               <h3 className="text-lg font-semibold text-white">Daily Goals</h3>
             </div>
-            <span className="text-sm text-green-200">
+            <span className="text-sm text-slate-300">
               {currentGoals.daily.filter(g => g.completed).length}/{currentGoals.daily.length} completed
             </span>
           </div>
@@ -484,18 +484,18 @@ export const Dashboard: React.FC = () => {
             {currentGoals.daily.slice(0, 3).map((goal) => (
               <div key={goal.id} className="flex items-center space-x-2">
                 <div className={`w-2 h-2 rounded-full ${goal.completed ? 'bg-green-500' : 'bg-slate-500'}`}></div>
-                <span className={`text-sm ${goal.completed ? 'line-through text-slate-300 bg-slate-600/30 px-2 py-1 rounded' : 'text-green-300'}`}>
+                <span className={`text-sm ${goal.completed ? 'line-through text-slate-300 bg-slate-600/30 px-2 py-1 rounded' : 'text-slate-300'}`}>
                   {goal.text}
                 </span>
               </div>
             ))}
             {currentGoals.daily.length === 0 && (
-              <div className="text-sm text-green-400 italic">No daily goals set yet</div>
+              <div className="text-sm text-slate-400 italic">No daily goals set yet</div>
             )}
           </div>
           <Link 
             to="/daily#goals" 
-            className="block mt-4 text-sm text-green-400 hover:text-green-300 font-medium"
+            className="block mt-4 text-sm text-slate-400 hover:text-slate-300 font-medium"
             onClick={() => sessionStorage.setItem('scrollToGoals', 'true')}
           >
             View all daily goals →
@@ -509,7 +509,7 @@ export const Dashboard: React.FC = () => {
               <Calendar className="w-5 h-5 text-blue-500" />
               <h3 className="text-lg font-semibold text-white">Weekly Goals</h3>
             </div>
-            <span className="text-sm text-green-200">
+            <span className="text-sm text-slate-300">
               {currentGoals.weekly.filter(g => g.completed).length}/{currentGoals.weekly.length} completed
             </span>
           </div>
@@ -517,18 +517,18 @@ export const Dashboard: React.FC = () => {
             {currentGoals.weekly.slice(0, 4).map((goal) => (
               <div key={goal.id} className="flex items-center space-x-2">
                 <div className={`w-2 h-2 rounded-full ${goal.completed ? 'bg-green-500' : 'bg-slate-500'}`}></div>
-                <span className={`text-sm ${goal.completed ? 'line-through text-slate-300 bg-slate-600/30 px-2 py-1 rounded' : 'text-green-300'}`}>
+                <span className={`text-sm ${goal.completed ? 'line-through text-slate-300 bg-slate-600/30 px-2 py-1 rounded' : 'text-slate-300'}`}>
                   {goal.text}
                 </span>
               </div>
             ))}
             {currentGoals.weekly.length === 0 && (
-              <div className="text-sm text-green-400 italic">No weekly goals set yet</div>
+              <div className="text-sm text-slate-400 italic">No weekly goals set yet</div>
             )}
           </div>
           <Link 
             to="/daily#goals" 
-            className="block mt-4 text-sm text-green-400 hover:text-green-300 font-medium"
+            className="block mt-4 text-sm text-slate-400 hover:text-slate-300 font-medium"
             onClick={() => sessionStorage.setItem('scrollToGoals', 'true')}
           >
             View all weekly goals →
@@ -542,7 +542,7 @@ export const Dashboard: React.FC = () => {
               <Crown className="w-5 h-5 text-slate-400" />
               <h3 className="text-lg font-semibold text-white">Monthly Goals</h3>
             </div>
-            <span className="text-sm text-green-200">
+            <span className="text-sm text-slate-300">
               {currentGoals.monthly.filter(g => g.completed).length}/{currentGoals.monthly.length} completed
             </span>
           </div>
@@ -550,18 +550,18 @@ export const Dashboard: React.FC = () => {
             {currentGoals.monthly.slice(0, 2).map((goal) => (
               <div key={goal.id} className="flex items-center space-x-2">
                 <div className={`w-2 h-2 rounded-full ${goal.completed ? 'bg-green-500' : 'bg-slate-500'}`}></div>
-                <span className={`text-sm ${goal.completed ? 'line-through text-slate-300 bg-slate-600/30 px-2 py-1 rounded' : 'text-green-300'}`}>
+                <span className={`text-sm ${goal.completed ? 'line-through text-slate-300 bg-slate-600/30 px-2 py-1 rounded' : 'text-slate-300'}`}>
                   {goal.text}
                 </span>
               </div>
             ))}
             {currentGoals.monthly.length === 0 && (
-              <div className="text-sm text-green-400 italic">No monthly goals set yet</div>
+              <div className="text-sm text-slate-400 italic">No monthly goals set yet</div>
             )}
           </div>
           <Link 
             to="/daily#goals" 
-            className="block mt-4 text-sm text-green-400 hover:text-green-300 font-medium"
+            className="block mt-4 text-sm text-slate-400 hover:text-slate-300 font-medium"
             onClick={() => sessionStorage.setItem('scrollToGoals', 'true')}
           >
             View all monthly goals →
