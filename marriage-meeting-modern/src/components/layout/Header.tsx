@@ -30,7 +30,7 @@ export const Header: React.FC = () => {
             <div className="w-8 h-8 bg-gradient-to-br from-slate-400 to-purple-400 rounded-full flex items-center justify-center">
               <Mountain className="w-5 h-5 text-white" />
             </div>
-            <span className="text-lg sm:text-xl font-bold text-gray-900">Marriage Meeting Tool</span>
+            <span className="text-lg sm:text-xl font-bold text-gray-900">Marriage Huddle</span>
           </Link>
 
           {/* Navigation */}

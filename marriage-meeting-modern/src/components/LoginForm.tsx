@@ -33,7 +33,7 @@ export const LoginForm: React.FC = () => {
             <div className="w-16 h-16 bg-gradient-to-br from-slate-400 to-purple-400 rounded-full flex items-center justify-center mx-auto mb-4">
               <Mountain className="w-8 h-8 text-white" />
             </div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Marriage Meeting Tool</h1>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">Marriage Huddle</h1>
             <p className="text-gray-600">
               "Two are better than one, because they have a good return for their labor" - Ecclesiastes 4:9
             </p>
