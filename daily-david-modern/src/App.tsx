@@ -30,7 +30,7 @@ function App() {
           <div className="absolute bottom-0 right-0 w-full h-56 bg-gradient-to-t from-green-700 to-transparent transform -translate-x-32"></div>
         </div>
         <Header />
-        <main className="container mx-auto px-4 py-8">
+        <main className="container mx-auto px-4 py-8 pt-24">
           <Routes>
             <Route path="/" element={<Dashboard />} />
             <Route path="/daily" element={<DailyEntry />} />

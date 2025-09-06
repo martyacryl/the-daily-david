@@ -401,6 +401,11 @@ export function ProgressAnalytics() {
   const { isAuthenticated } = useAuthStore()
   const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(null)
 
+  // Scroll to top when component mounts
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }, [])
+
   useEffect(() => {
     if (isAuthenticated) {
       loadEntries()

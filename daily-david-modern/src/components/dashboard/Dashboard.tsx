@@ -255,7 +255,15 @@ export const Dashboard: React.FC = () => {
         <p className="text-green-200 mb-8 max-w-2xl mx-auto text-lg">
           "I have fought the good fight, I have finished the race, I have kept the faith" - 2 Timothy 4:7
         </p>
-        <Link to="/login">
+        <Link 
+          to="/login"
+          onClick={() => {
+            // Scroll to top when navigating to login
+            setTimeout(() => {
+              window.scrollTo({ top: 0, behavior: 'smooth' })
+            }, 100)
+          }}
+        >
           <Button size="lg" className="bg-slate-700 hover:bg-slate-600 text-white">
             Get Started
           </Button>
@@ -374,7 +382,15 @@ export const Dashboard: React.FC = () => {
             <p className="text-green-200 mb-6">
               Begin your daily SOAP study and reflection
             </p>
-            <Link to="/daily">
+            <Link 
+              to="/daily" 
+              onClick={() => {
+                // Scroll to top when navigating to daily entry
+                setTimeout(() => {
+                  window.scrollTo({ top: 0, behavior: 'smooth' })
+                }, 100)
+              }}
+            >
               <Button size="lg" className="w-full bg-slate-700 hover:bg-slate-600 text-white">
                 Create Entry
               </Button>

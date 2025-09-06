@@ -24,7 +24,7 @@ export const Header: React.FC = () => {
 
   return (
     <motion.header 
-      className="bg-slate-800/90 backdrop-blur-sm border-b border-slate-700 shadow-lg"
+      className="fixed top-0 left-0 right-0 z-50 bg-slate-800/90 backdrop-blur-sm border-b border-slate-700 shadow-lg"
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}

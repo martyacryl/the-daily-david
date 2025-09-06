@@ -393,6 +393,11 @@ export function DailyEntry() {
         })
       }
       
+      // Scroll to top after saving
+      setTimeout(() => {
+        window.scrollTo({ top: 0, behavior: 'smooth' })
+      }, 100)
+      
       // Silent save - no alert needed
     } catch (error) {
       console.error('Error saving entry:', error)
