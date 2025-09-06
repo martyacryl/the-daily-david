@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { Crown, Trophy, Calendar, Target, BookOpen, Flame, Trees, Mountain } from 'lucide-react'
-import { MountainCrossIcon, CompassCrossIcon, CrossedSwordsIcon, ShieldIcon } from '../icons/WesternIcons'
+import { MountainCrossIcon, CompassCrossIcon, CrossIcon, ShieldIcon } from '../icons/WesternIcons'
 import { Card } from '../ui/Card'
 import { Button } from '../ui/Button'
 import { useAuthStore } from '../../stores/authStore'
@@ -331,7 +331,7 @@ export const Dashboard: React.FC = () => {
         className="text-center"
       >
         <div className="flex items-center justify-center mb-4">
-          <CrossedSwordsIcon className="w-8 h-8 text-slate-400 mr-3" />
+          <CrossIcon className="w-8 h-8 text-slate-400 mr-3" />
           <h1 className="text-4xl font-bold text-white">
             Welcome back, {user?.name}!
           </h1>
