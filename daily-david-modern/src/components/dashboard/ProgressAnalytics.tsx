@@ -453,15 +453,15 @@ export function ProgressAnalytics() {
     return (
       <div className="space-y-8">
         <div className="text-center">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">Progress Analytics</h1>
-          <p className="text-xl text-gray-600">"But grow in the grace and knowledge of our Lord and Savior Jesus Christ" - 2 Peter 3:18</p>
+          <h1 className="text-4xl font-bold text-white mb-4">Progress Analytics</h1>
+          <p className="text-xl text-slate-300">"But grow in the grace and knowledge of our Lord and Savior Jesus Christ" - 2 Peter 3:18</p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {[1, 2, 3, 4].map((i) => (
             <Card key={i} className="p-6 animate-pulse">
-              <div className="w-12 h-12 bg-gray-200 rounded-full mx-auto mb-4"></div>
-              <div className="h-8 bg-gray-200 rounded mb-2"></div>
-              <div className="h-4 bg-gray-200 rounded"></div>
+              <div className="w-12 h-12 bg-slate-600 rounded-full mx-auto mb-4"></div>
+              <div className="h-8 bg-slate-600 rounded mb-2"></div>
+              <div className="h-4 bg-slate-600 rounded"></div>
             </Card>
           ))}
         </div>
@@ -477,8 +477,8 @@ export function ProgressAnalytics() {
         animate={{ opacity: 1, y: 0 }}
         className="text-center"
       >
-        <h1 className="text-4xl font-bold text-gray-900 mb-4">Progress Analytics</h1>
-        <p className="text-xl text-gray-600">"But grow in the grace and knowledge of our Lord and Savior Jesus Christ" - 2 Peter 3:18</p>
+        <h1 className="text-4xl font-bold text-white mb-4">Progress Analytics</h1>
+        <p className="text-xl text-slate-300">"But grow in the grace and knowledge of our Lord and Savior Jesus Christ" - 2 Peter 3:18</p>
       </motion.div>
 
       {/* Insights & Recommendations */}
@@ -489,21 +489,21 @@ export function ProgressAnalytics() {
         className="mb-8"
       >
         <Card className="p-6">
-          <h3 className="text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
+          <h3 className="text-xl font-semibold text-white mb-6 flex items-center gap-2">
             💡 Insights & Recommendations
           </h3>
-          <p className="text-sm text-gray-600 mb-4 text-center italic">
+          <p className="text-sm text-slate-300 mb-4 text-center italic">
             "For the Lord gives wisdom; from his mouth come knowledge and understanding" - Proverbs 2:6
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-4">
               <div className="flex items-start space-x-3">
-                <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
-                  <TrendingUp className="w-4 h-4 text-green-600" />
+                <div className="w-8 h-8 bg-slate-700 rounded-full flex items-center justify-center flex-shrink-0">
+                  <TrendingUp className="w-4 h-4 text-slate-300" />
                 </div>
                 <div>
-                  <h4 className="font-medium text-gray-900">Goal Completion Analysis</h4>
-                  <p className="text-sm text-gray-600">
+                  <h4 className="font-medium text-white">Goal Completion Analysis</h4>
+                  <p className="text-sm text-slate-300">
                     {data.goalCompletion.daily.percentage > 70 
                       ? `Excellent daily goal completion at ${data.goalCompletion.daily.percentage}%!`
                       : `Daily goals at ${data.goalCompletion.daily.percentage}% - room for improvement.`
@@ -512,12 +512,12 @@ export function ProgressAnalytics() {
                 </div>
               </div>
               <div className="flex items-start space-x-3">
-                <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                  <Clock className="w-4 h-4 text-blue-600" />
+                <div className="w-8 h-8 bg-slate-700 rounded-full flex items-center justify-center flex-shrink-0">
+                  <Clock className="w-4 h-4 text-slate-300" />
                 </div>
                 <div>
-                  <h4 className="font-medium text-gray-900">Streak Performance</h4>
-                  <p className="text-sm text-gray-600">
+                  <h4 className="font-medium text-white">Streak Performance</h4>
+                  <p className="text-sm text-slate-300">
                     {data.currentStreak > 0 
                       ? `You're on a ${data.currentStreak}-day streak! Your longest was ${data.longestStreak} days.`
                       : `Start a new streak today! Your longest was ${data.longestStreak} days.`
@@ -528,12 +528,12 @@ export function ProgressAnalytics() {
             </div>
             <div className="space-y-4">
               <div className="flex items-start space-x-3">
-                <div className="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center flex-shrink-0">
-                  <Target className="w-4 h-4 text-yellow-600" />
+                <div className="w-8 h-8 bg-slate-700 rounded-full flex items-center justify-center flex-shrink-0">
+                  <Target className="w-4 h-4 text-slate-300" />
                 </div>
                 <div>
-                  <h4 className="font-medium text-gray-900">Monthly Goal Focus</h4>
-                  <p className="text-sm text-gray-600">
+                  <h4 className="font-medium text-white">Monthly Goal Focus</h4>
+                  <p className="text-sm text-slate-300">
                     {data.goalCompletion.monthly.percentage > 60 
                       ? `Great monthly goal completion at ${data.goalCompletion.monthly.percentage}%!`
                       : `Monthly goals at ${data.goalCompletion.monthly.percentage}% - consider breaking them into smaller weekly tasks.`
@@ -542,12 +542,12 @@ export function ProgressAnalytics() {
                 </div>
               </div>
               <div className="flex items-start space-x-3">
-                <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0">
-                  <Heart className="w-4 h-4 text-purple-600" />
+                <div className="w-8 h-8 bg-slate-700 rounded-full flex items-center justify-center flex-shrink-0">
+                  <Heart className="w-4 h-4 text-slate-300" />
                 </div>
                 <div>
-                  <h4 className="font-medium text-gray-900">Leadership Growth</h4>
-                  <p className="text-sm text-gray-600">
+                  <h4 className="font-medium text-white">Leadership Growth</h4>
+                  <p className="text-sm text-slate-300">
                     {data.leadershipScores.integrity > 8 
                       ? `Excellent integrity (${data.leadershipScores.integrity})! Focus on ${Object.entries(data.leadershipScores).reduce((lowest, [trait, score]) => score < data.leadershipScores[lowest as keyof typeof data.leadershipScores] ? trait : lowest, 'wisdom')} for balanced growth.`
                       : `Keep working on all leadership traits. Current average: ${((data.leadershipScores.wisdom + data.leadershipScores.courage + data.leadershipScores.patience + data.leadershipScores.integrity) / 4).toFixed(1)}/10`
@@ -571,9 +571,9 @@ export function ProgressAnalytics() {
             <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
               <Zap className="w-6 h-6 text-white" />
             </div>
-            <h3 className="text-2xl font-bold text-gray-900">{data.currentStreak}</h3>
-            <p className="text-sm text-gray-600">Current Streak</p>
-            <p className="text-xs text-green-600 mt-1">🔥 Keep it up!</p>
+            <h3 className="text-2xl font-bold text-white">{data.currentStreak}</h3>
+            <p className="text-sm text-slate-300">Current Streak</p>
+            <p className="text-xs text-slate-300 mt-1">🔥 Keep it up!</p>
           </Card>
         </motion.div>
 
@@ -586,9 +586,9 @@ export function ProgressAnalytics() {
             <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
               <Target className="w-6 h-6 text-white" />
             </div>
-            <h3 className="text-2xl font-bold text-gray-900">{data.totalEntries}</h3>
-            <p className="text-sm text-gray-600">Total Entries</p>
-            <p className="text-xs text-blue-600 mt-1">📝 Consistent!</p>
+            <h3 className="text-2xl font-bold text-white">{data.totalEntries}</h3>
+            <p className="text-sm text-slate-300">Total Entries</p>
+            <p className="text-xs text-slate-300 mt-1">📝 Consistent!</p>
           </Card>
         </motion.div>
 
@@ -601,9 +601,9 @@ export function ProgressAnalytics() {
             <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
               <Award className="w-6 h-6 text-white" />
             </div>
-            <h3 className="text-2xl font-bold text-gray-900">{data.longestStreak}</h3>
-            <p className="text-sm text-gray-600">Longest Streak</p>
-            <p className="text-xs text-purple-600 mt-1">🏆 Personal best!</p>
+            <h3 className="text-2xl font-bold text-white">{data.longestStreak}</h3>
+            <p className="text-sm text-slate-300">Longest Streak</p>
+            <p className="text-xs text-slate-300 mt-1">🏆 Personal best!</p>
           </Card>
         </motion.div>
 
@@ -616,9 +616,9 @@ export function ProgressAnalytics() {
             <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-full flex items-center justify-center mx-auto mb-4">
               <TrendingUp className="w-6 h-6 text-white" />
             </div>
-            <h3 className="text-2xl font-bold text-gray-900">{data.completionRate}%</h3>
-            <p className="text-sm text-gray-600">Overall Progress</p>
-            <p className="text-xs text-orange-600 mt-1">📈 Growing!</p>
+            <h3 className="text-2xl font-bold text-white">{data.completionRate}%</h3>
+            <p className="text-sm text-slate-300">Overall Progress</p>
+            <p className="text-xs text-slate-400 mt-1">📈 Growing!</p>
           </Card>
         </motion.div>
       </div>
@@ -631,23 +631,23 @@ export function ProgressAnalytics() {
           transition={{ delay: 0.5 }}
         >
           <Card className="p-6">
-            <h3 className="text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
+            <h3 className="text-xl font-semibold text-white mb-6 flex items-center gap-2">
               🎯 Goal Completion Rates
             </h3>
             <div className="space-y-4">
               {Object.entries(data.goalCompletion).map(([type, goalData]) => (
                 <div key={type} className="space-y-2">
                   <div className="flex justify-between text-sm">
-                    <span className="font-medium text-gray-700 capitalize">{type} Goals</span>
-                    <span className="text-gray-600">{goalData.completed}/{goalData.total}</span>
+                    <span className="font-medium text-slate-200 capitalize">{type} Goals</span>
+                    <span className="text-slate-300">{goalData.completed}/{goalData.total}</span>
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-3">
+                  <div className="w-full bg-slate-600 rounded-full h-3">
                     <div
-                      className="bg-gradient-to-r from-green-400 to-green-600 h-3 rounded-full transition-all duration-500"
+                      className="bg-gradient-to-r from-slate-400 to-slate-500 h-3 rounded-full transition-all duration-500"
                       style={{ width: `${goalData.percentage}%` }}
                     ></div>
                   </div>
-                  <div className="text-right text-sm text-gray-500">{goalData.percentage}%</div>
+                  <div className="text-right text-sm text-slate-400">{goalData.percentage}%</div>
                 </div>
               ))}
             </div>
@@ -660,16 +660,16 @@ export function ProgressAnalytics() {
           transition={{ delay: 0.6 }}
         >
           <Card className="p-6">
-            <h3 className="text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
+            <h3 className="text-xl font-semibold text-white mb-6 flex items-center gap-2">
               📊 Category Breakdown
             </h3>
             <div className="space-y-4">
               {data.categoryBreakdown.map((category) => (
                 <div key={category.category} className="flex items-center space-x-3">
                   <div className={`w-4 h-4 rounded-full ${category.color}`}></div>
-                  <span className="flex-1 text-sm text-gray-700">{category.category}</span>
-                  <span className="text-sm font-medium text-gray-900">{category.count}</span>
-                  <div className="w-20 bg-gray-200 rounded-full h-2">
+                  <span className="flex-1 text-sm text-slate-200">{category.category}</span>
+                  <span className="text-sm font-medium text-white">{category.count}</span>
+                  <div className="w-20 bg-slate-600 rounded-full h-2">
                     <div
                       className={`${category.color} h-2 rounded-full transition-all duration-500`}
                       style={{ width: `${(category.count / Math.max(...data.categoryBreakdown.map(c => c.count))) * 100}%` }}
@@ -689,13 +689,13 @@ export function ProgressAnalytics() {
         transition={{ delay: 0.7 }}
       >
         <Card className="p-6">
-          <h3 className="text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
+          <h3 className="text-xl font-semibold text-white mb-6 flex items-center gap-2">
             👑 Leadership Growth Tracker
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {Object.entries(data.leadershipScores).map(([trait, score]) => (
               <div key={trait} className="text-center">
-                <h4 className="font-medium text-gray-900 capitalize mb-2">{trait}</h4>
+                <h4 className="font-medium text-white capitalize mb-2">{trait}</h4>
                 <div className="relative">
                   <svg className="w-20 h-20 mx-auto" viewBox="0 0 36 36">
                     <path
@@ -718,10 +718,10 @@ export function ProgressAnalytics() {
                     />
                   </svg>
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="text-lg font-bold text-gray-900">{score}</span>
+                    <span className="text-lg font-bold text-white">{score}</span>
                   </div>
                 </div>
-                <p className="text-sm text-gray-600 mt-2">/ 10</p>
+                <p className="text-sm text-slate-300 mt-2">/ 10</p>
               </div>
             ))}
           </div>
@@ -737,7 +737,7 @@ export function ProgressAnalytics() {
       >
         {/* Section 1: Goal Achievement Trends */}
         <Card className="p-6">
-          <h3 className="text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
+          <h3 className="text-xl font-semibold text-white mb-6 flex items-center gap-2">
             📈 Goal Achievement Trends
           </h3>
           <div className="h-64 flex items-end space-x-2">
@@ -747,7 +747,7 @@ export function ProgressAnalytics() {
               
               return (
                 <div key={month.month} className="flex-1 flex flex-col items-center space-y-2">
-                  <div className="w-full bg-gray-100 rounded-t-lg relative h-48">
+                  <div className="w-full bg-slate-700 rounded-t-lg relative h-48">
                     {/* Daily Goals Bar */}
                     <div
                       className="absolute bottom-0 w-full bg-blue-500 rounded-t-lg transition-all duration-500"
@@ -759,8 +759,8 @@ export function ProgressAnalytics() {
                       style={{ height: `${(month.entries / maxEntries) * 180}px` }}
                     ></div>
                   </div>
-                  <span className="text-sm font-medium text-gray-700">{month.month}</span>
-                  <div className="text-xs text-gray-500 text-center">
+                  <span className="text-sm font-medium text-slate-200">{month.month}</span>
+                  <div className="text-xs text-slate-400 text-center">
                     <div>Goals: {month.goals}</div>
                     <div>Entries: {month.entries}</div>
                   </div>
@@ -768,7 +768,7 @@ export function ProgressAnalytics() {
               )
             })}
           </div>
-          <div className="flex justify-center space-x-6 mt-4 text-sm text-gray-600">
+          <div className="flex justify-center space-x-6 mt-4 text-sm text-slate-300">
             <div className="flex items-center space-x-2">
               <div className="w-3 h-3 bg-blue-500 rounded"></div>
               <span>Goals Set</span>
@@ -782,7 +782,7 @@ export function ProgressAnalytics() {
 
         {/* Section 2: Spiritual Disciplines Progress Rings */}
         <Card className="p-6">
-          <h3 className="text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
+          <h3 className="text-xl font-semibold text-white mb-6 flex items-center gap-2">
             🎯 Spiritual Disciplines Health Check
           </h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
@@ -794,10 +794,10 @@ export function ProgressAnalytics() {
               const goalsPercentage = calculateDisciplinePercentage(entries, 'goals')
               
               return [
-                { name: 'SOAP Study', value: soapPercentage, color: 'text-blue-600' },
-                { name: 'Prayer', value: prayerPercentage, color: 'text-green-600' },
-                { name: 'Gratitude', value: gratitudePercentage, color: 'text-purple-600' },
-                { name: 'Goals', value: goalsPercentage, color: 'text-orange-600' }
+                { name: 'SOAP Study', value: soapPercentage, color: 'text-slate-300' },
+                { name: 'Prayer', value: prayerPercentage, color: 'text-slate-300' },
+                { name: 'Gratitude', value: gratitudePercentage, color: 'text-slate-300' },
+                { name: 'Goals', value: goalsPercentage, color: 'text-slate-400' }
               ].map((discipline) => (
                 <div key={discipline.name} className="text-center">
                   <div className="relative w-20 h-20 mx-auto mb-2">
@@ -819,10 +819,10 @@ export function ProgressAnalytics() {
                       />
                     </svg>
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <span className="text-sm font-bold text-gray-900">{discipline.value}%</span>
+                      <span className="text-sm font-bold text-white">{discipline.value}%</span>
                     </div>
                   </div>
-                  <p className="text-sm font-medium text-gray-700">{discipline.name}</p>
+                  <p className="text-sm font-medium text-slate-200">{discipline.name}</p>
                 </div>
               ))
             })()}
@@ -831,13 +831,13 @@ export function ProgressAnalytics() {
 
         {/* Section 3: Habit Consistency Heatmap */}
         <Card className="p-6">
-          <h3 className="text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
+          <h3 className="text-xl font-semibold text-white mb-6 flex items-center gap-2">
             📅 Last 30 Days Spiritual Activity Heatmap
           </h3>
           <div className="space-y-4">
             <div className="grid grid-cols-7 gap-1 text-xs">
               {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day) => (
-                <div key={day} className="text-center text-gray-500 font-medium p-2">
+                <div key={day} className="text-center text-slate-400 font-medium p-2">
                   {day}
                 </div>
               ))}
@@ -852,8 +852,8 @@ export function ProgressAnalytics() {
                         ? 'bg-green-600 text-white' 
                         : day.intensity === 'medium'
                         ? 'bg-green-400 text-white'
-                        : 'bg-green-200 text-gray-700'
-                      : 'bg-gray-100 text-gray-400'
+                        : 'bg-slate-500 text-white'
+                      : 'bg-slate-700 text-gray-400'
                   }`}
                   title={day.tooltip}
                 >
@@ -861,11 +861,11 @@ export function ProgressAnalytics() {
                 </div>
               ))}
             </div>
-            <div className="flex justify-between text-xs text-gray-500">
+            <div className="flex justify-between text-xs text-slate-400">
               <span>Less</span>
               <div className="flex space-x-1">
-                <div className="w-3 h-3 bg-gray-100 rounded-sm"></div>
-                <div className="w-3 h-3 bg-green-200 rounded-sm"></div>
+                <div className="w-3 h-3 bg-slate-700 rounded-sm"></div>
+                <div className="w-3 h-3 bg-slate-500 rounded-sm"></div>
                 <div className="w-3 h-3 bg-green-400 rounded-sm"></div>
                 <div className="w-3 h-3 bg-green-600 rounded-sm"></div>
               </div>
@@ -876,13 +876,13 @@ export function ProgressAnalytics() {
 
         {/* Section 4: Leadership Growth Tracker */}
         <Card className="p-6">
-          <h3 className="text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
+          <h3 className="text-xl font-semibold text-white mb-6 flex items-center gap-2">
             👑 Leadership Growth Tracker
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {Object.entries(data.leadershipScores).map(([trait, score]) => (
               <div key={trait} className="text-center">
-                <h4 className="font-medium text-gray-900 capitalize mb-2">{trait}</h4>
+                <h4 className="font-medium text-white capitalize mb-2">{trait}</h4>
                 <div className="relative">
                   <svg className="w-20 h-20 mx-auto" viewBox="0 0 36 36">
                     <path
@@ -905,12 +905,12 @@ export function ProgressAnalytics() {
                     />
                   </svg>
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="text-lg font-bold text-gray-900">{score}</span>
+                    <span className="text-lg font-bold text-white">{score}</span>
                   </div>
                 </div>
-                <p className="text-sm text-gray-600 mt-2">/ 10</p>
+                <p className="text-sm text-slate-300 mt-2">/ 10</p>
                 <div className="mt-2">
-                  <span className="text-xs text-green-600">↗ +0.2</span>
+                  <span className="text-xs text-slate-300">↗ +0.2</span>
                 </div>
               </div>
             ))}
