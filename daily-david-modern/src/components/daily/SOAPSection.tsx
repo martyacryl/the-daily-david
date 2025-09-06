@@ -68,7 +68,8 @@ export function SOAPSection({ soap, onUpdate }: SOAPSectionProps) {
     },
     {
       key: 'observation' as keyof SOAPData,
-      title: '👁️ Observation',
+      title: 'Observation',
+      icon: Lightbulb,
       subtitle: 'What does the passage say?',
       placeholder: 'What do you notice about this passage? What stands out? What context is important?',
       color: 'blue'
@@ -124,7 +125,7 @@ export function SOAPSection({ soap, onUpdate }: SOAPSectionProps) {
           return (
             <div key={section.key} className="border-l-4 border-l-green-500 bg-slate-700/50 rounded-r-lg p-4">
               <h4 className="font-bold text-lg mb-2 text-white flex items-center gap-2">
-                <IconComponent className="w-5 h-5 text-slate-400" />
+                {IconComponent && <IconComponent className="w-5 h-5 text-slate-400" />}
                 {section.title}
               </h4>
             <p className="text-green-200 text-sm mb-4">
