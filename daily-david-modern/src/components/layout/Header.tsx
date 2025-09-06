@@ -1,13 +1,14 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { BookOpen, BarChart3, Settings, LogOut, Mountain, TrendingUp } from 'lucide-react'
+import { BookOpen, BarChart3, Settings, LogOut, Mountain, TrendingUp, Menu, X } from 'lucide-react'
 import { useAuthStore } from '../../stores/authStore'
 import { Button } from '../ui/Button'
 
 export const Header: React.FC = () => {
   const { user, isAuthenticated, logout } = useAuthStore()
   const location = useLocation()
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   const allNavItems = [
     { path: '/', label: 'Dashboard', icon: BarChart3 },
@@ -65,6 +66,16 @@ export const Header: React.FC = () => {
             </nav>
           )}
 
+          {/* Mobile Menu Button */}
+          {isAuthenticated && (
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="md:hidden p-2 text-green-200 hover:text-white hover:bg-green-700/50 rounded-lg transition-colors"
+            >
+              {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
+          )}
+
           {/* User Menu */}
           <div className="flex items-center space-x-4">
             {isAuthenticated ? (
@@ -92,6 +103,41 @@ export const Header: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Mobile Menu Dropdown */}
+      {isAuthenticated && isMobileMenuOpen && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          className="md:hidden bg-slate-800/95 backdrop-blur-sm border-b border-slate-700 shadow-lg"
+        >
+          <div className="container mx-auto px-4 py-4">
+            <nav className="flex flex-col space-y-2">
+              {navItems.map((item) => {
+                const Icon = item.icon
+                const isActive = location.pathname === item.path
+                
+                return (
+                  <Link
+                    key={item.path}
+                    to={item.path}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className={`flex items-center space-x-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
+                      isActive
+                        ? 'bg-amber-600/20 text-amber-400'
+                        : 'text-green-200 hover:text-white hover:bg-green-700/50'
+                    }`}
+                  >
+                    <Icon className="w-5 h-5" />
+                    <span>{item.label}</span>
+                  </Link>
+                )
+              })}
+            </nav>
+          </div>
+        </motion.div>
+      )}
     </motion.header>
   )
 }
