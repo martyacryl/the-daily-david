@@ -483,8 +483,8 @@ export const Dashboard: React.FC = () => {
           <div className="space-y-2">
             {currentGoals.daily.slice(0, 3).map((goal) => (
               <div key={goal.id} className="flex items-center space-x-2">
-                <div className={`w-2 h-2 rounded-full ${goal.completed ? 'bg-slate-400' : 'bg-slate-500'}`}></div>
-                <span className={`text-sm ${goal.completed ? 'text-white' : 'text-green-300'}`}>
+                <div className={`w-2 h-2 rounded-full ${goal.completed ? 'bg-green-500' : 'bg-slate-500'}`}></div>
+                <span className={`text-sm ${goal.completed ? 'line-through text-slate-300 bg-slate-600/30 px-2 py-1 rounded' : 'text-green-300'}`}>
                   {goal.text}
                 </span>
               </div>
@@ -495,7 +495,7 @@ export const Dashboard: React.FC = () => {
           </div>
           <Link 
             to="/daily#goals" 
-            className="block mt-4 text-sm text-slate-400 hover:text-slate-300 font-medium"
+            className="block mt-4 text-sm text-green-400 hover:text-green-300 font-medium"
             onClick={() => sessionStorage.setItem('scrollToGoals', 'true')}
           >
             View all daily goals →
@@ -516,8 +516,8 @@ export const Dashboard: React.FC = () => {
           <div className="space-y-2">
             {currentGoals.weekly.slice(0, 4).map((goal) => (
               <div key={goal.id} className="flex items-center space-x-2">
-                <div className={`w-2 h-2 rounded-full ${goal.completed ? 'bg-slate-400' : 'bg-slate-500'}`}></div>
-                <span className={`text-sm ${goal.completed ? 'text-white' : 'text-green-300'}`}>
+                <div className={`w-2 h-2 rounded-full ${goal.completed ? 'bg-green-500' : 'bg-slate-500'}`}></div>
+                <span className={`text-sm ${goal.completed ? 'line-through text-slate-300 bg-slate-600/30 px-2 py-1 rounded' : 'text-green-300'}`}>
                   {goal.text}
                 </span>
               </div>
@@ -528,7 +528,7 @@ export const Dashboard: React.FC = () => {
           </div>
           <Link 
             to="/daily#goals" 
-            className="block mt-4 text-sm text-blue-500 hover:text-blue-400 font-medium"
+            className="block mt-4 text-sm text-green-400 hover:text-green-300 font-medium"
             onClick={() => sessionStorage.setItem('scrollToGoals', 'true')}
           >
             View all weekly goals →
@@ -549,8 +549,8 @@ export const Dashboard: React.FC = () => {
           <div className="space-y-2">
             {currentGoals.monthly.slice(0, 2).map((goal) => (
               <div key={goal.id} className="flex items-center space-x-2">
-                <div className={`w-2 h-2 rounded-full ${goal.completed ? 'bg-slate-400' : 'bg-slate-500'}`}></div>
-                <span className={`text-sm ${goal.completed ? 'text-white' : 'text-green-300'}`}>
+                <div className={`w-2 h-2 rounded-full ${goal.completed ? 'bg-green-500' : 'bg-slate-500'}`}></div>
+                <span className={`text-sm ${goal.completed ? 'line-through text-slate-300 bg-slate-600/30 px-2 py-1 rounded' : 'text-green-300'}`}>
                   {goal.text}
                 </span>
               </div>
@@ -561,7 +561,7 @@ export const Dashboard: React.FC = () => {
           </div>
           <Link 
             to="/daily#goals" 
-            className="block mt-4 text-sm text-slate-400 hover:text-slate-300 font-medium"
+            className="block mt-4 text-sm text-green-400 hover:text-green-300 font-medium"
             onClick={() => sessionStorage.setItem('scrollToGoals', 'true')}
           >
             View all monthly goals →

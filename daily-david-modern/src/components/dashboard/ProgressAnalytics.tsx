@@ -648,7 +648,7 @@ export function ProgressAnalytics() {
                   </div>
                   <div className="w-full bg-slate-600 rounded-full h-3">
                     <div
-                      className="bg-gradient-to-r from-slate-400 to-slate-500 h-3 rounded-full transition-all duration-500"
+                      className="bg-gradient-to-r from-green-500 to-green-600 h-3 rounded-full transition-all duration-500"
                       style={{ width: `${goalData.percentage}%` }}
                     ></div>
                   </div>
