@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { SOAPData } from '@/types'
 import { BibleIntegration } from './BibleIntegration'
+import { BookOpen, Target, Heart, Lightbulb } from 'lucide-react'
 
 interface SOAPSectionProps {
   soap: SOAPData
@@ -59,7 +60,8 @@ export function SOAPSection({ soap, onUpdate }: SOAPSectionProps) {
   const soapSections = [
     {
       key: 'scripture' as keyof SOAPData,
-      title: '📖 Scripture',
+      title: 'Scripture',
+      icon: BookOpen,
       subtitle: 'Today\'s Bible passage',
       placeholder: 'Enter the Bible verse or passage you\'re studying today...',
       color: 'green'
@@ -73,14 +75,16 @@ export function SOAPSection({ soap, onUpdate }: SOAPSectionProps) {
     },
     {
       key: 'application' as keyof SOAPData,
-      title: '🎯 Application',
+      title: 'Application',
+      icon: Target,
       subtitle: 'How does this apply to your life?',
       placeholder: 'How can you apply this passage to your life today? What changes will you make?',
       color: 'purple'
     },
     {
       key: 'prayer' as keyof SOAPData,
-      title: '🙏 Prayer',
+      title: 'Prayer',
+      icon: Heart,
       subtitle: 'Your response to God',
       placeholder: 'How will you pray based on this passage? What are you asking God for?',
       color: 'orange'
@@ -117,7 +121,8 @@ export function SOAPSection({ soap, onUpdate }: SOAPSectionProps) {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {soapSections.map((section) => (
           <div key={section.key} className="border-l-4 border-l-green-500 bg-slate-700/50 rounded-r-lg p-4">
-            <h4 className="font-bold text-lg mb-2 text-white">
+            <h4 className="font-bold text-lg mb-2 text-white flex items-center gap-2">
+              <section.icon className="w-5 h-5 text-slate-400" />
               {section.title}
             </h4>
             <p className="text-green-200 text-sm mb-4">

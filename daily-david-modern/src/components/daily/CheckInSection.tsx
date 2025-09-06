@@ -1,6 +1,7 @@
 
 import { useState, useEffect } from 'react'
 import { CheckInData, EmotionType } from '../../types'
+import { Heart } from 'lucide-react'
 
 interface CheckInSectionProps {
   checkIn: CheckInData
@@ -61,7 +62,8 @@ export function CheckInSection({ checkIn, onUpdate }: CheckInSectionProps) {
   return (
     <div className="bg-slate-800/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-slate-700">
       <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-        💭 Check In
+        <Heart className="w-5 h-5 text-slate-400" />
+        Check In
       </h3>
       <p className="text-green-200 text-sm mb-6">
         How are you feeling today?

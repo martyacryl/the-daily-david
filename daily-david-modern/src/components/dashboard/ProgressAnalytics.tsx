@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { TrendingUp, Target, Award, Clock, Heart, Zap } from 'lucide-react'
+import { TrendingUp, Target, Award, Clock, Heart, Zap, BarChart3, Lightbulb, Activity, BookOpen, CheckCircle } from 'lucide-react'
 import { Card } from '../ui/Card'
 import { useDailyStore } from '../../stores/dailyStore'
 import { useAuthStore } from '../../stores/authStore'
@@ -637,7 +637,8 @@ export function ProgressAnalytics() {
         >
           <Card className="p-6">
             <h3 className="text-xl font-semibold text-white mb-6 flex items-center gap-2">
-              🎯 Goal Completion Rates
+              <Target className="w-4 h-4 text-slate-400" />
+              Goal Completion Rates
             </h3>
             <div className="space-y-4">
               {Object.entries(data.goalCompletion).map(([type, goalData]) => (
@@ -666,7 +667,8 @@ export function ProgressAnalytics() {
         >
           <Card className="p-6">
             <h3 className="text-xl font-semibold text-white mb-6 flex items-center gap-2">
-              📊 Category Breakdown
+              <BarChart3 className="w-4 h-4 text-slate-400" />
+              Category Breakdown
             </h3>
             <div className="space-y-4">
               {data.categoryBreakdown.map((category) => (
@@ -743,7 +745,8 @@ export function ProgressAnalytics() {
         {/* Section 1: Goal Completion Trends */}
         <Card className="p-6">
           <h3 className="text-xl font-semibold text-white mb-6 flex items-center gap-2">
-            📈 Goal Completion Trends
+            <TrendingUp className="w-5 h-5 text-slate-400" />
+            Goal Completion Trends
           </h3>
           <div className="space-y-4">
             {/* Weekly Goal Completion Chart */}
@@ -805,7 +808,10 @@ export function ProgressAnalytics() {
             
             {/* Actionable Insights */}
             <div className="mt-6 p-4 bg-slate-800/30 rounded-lg border border-slate-700">
-              <h4 className="text-sm font-medium text-slate-200 mb-2">💡 Insights & Recommendations</h4>
+              <h4 className="text-sm font-medium text-slate-200 mb-2 flex items-center gap-2">
+                <Lightbulb className="w-4 h-4 text-slate-400" />
+                Insights & Recommendations
+              </h4>
               <div className="text-xs text-slate-300 space-y-1">
                 {data.goalCompletion.daily.percentage < 50 && (
                   <div>• Focus on smaller, daily goals to build momentum</div>
@@ -827,7 +833,8 @@ export function ProgressAnalytics() {
         {/* Section 2: Spiritual Disciplines Progress Rings */}
         <Card className="p-6">
           <h3 className="text-xl font-semibold text-white mb-6 flex items-center gap-2">
-            🎯 Spiritual Disciplines Health Check
+            <Target className="w-5 h-5 text-slate-400" />
+            Spiritual Disciplines Health Check
           </h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {(() => {

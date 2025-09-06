@@ -2,7 +2,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { useSearchParams } from 'react-router-dom'
-import { ChevronLeft, ChevronRight, Calendar } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Calendar, Target, Star, Heart, BookOpen, Lightbulb, Zap } from 'lucide-react'
 
 import { useAuthStore } from '../../stores/authStore'
 import { useDailyStore } from '../../stores/dailyStore'
@@ -574,7 +574,8 @@ export function DailyEntry() {
               className="bg-slate-800/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-slate-700"
             >
               <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                🎯 Daily Intention
+                <Target className="w-5 h-5 text-slate-400" />
+                Daily Intention
               </h3>
               <p className="text-green-200 text-sm mb-4">
                 How do you intend to take action, accomplish your goals, and act like a Man of God?
@@ -605,7 +606,8 @@ export function DailyEntry() {
               <div className="bg-slate-800/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-slate-700">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                    🎯 Daily Goals
+                    <Target className="w-4 h-4 text-slate-400" />
+                    Daily Goals
                   </h3>
                   <Button
                     onClick={() => addGoal('daily')}
@@ -852,7 +854,8 @@ export function DailyEntry() {
               className="bg-slate-800/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-slate-700"
             >
               <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                ⭐ Leadership Rating
+                <Star className="w-5 h-5 text-slate-400" />
+                Leadership Rating
               </h3>
               <p className="text-green-200 text-sm mb-4">
                 Rate yourself on these leadership qualities today (1-10)

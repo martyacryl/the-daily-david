@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import { Card } from '../ui/Card';
 import { Button } from '../ui/Button';
 import { bibleService, BibleVersion, BibleVerse, ReadingPlan } from '../../lib/bibleService';
+import { BookOpen, Target, Zap } from 'lucide-react';
 
 interface BibleIntegrationProps {
   onVerseSelect: (verse: BibleVerse) => void;
@@ -55,7 +56,8 @@ export const BibleIntegration: React.FC<BibleIntegrationProps> = ({
     <Card className="p-6">
       <div className="mb-6">
         <h3 className="text-xl font-semibold text-white mb-4">
-          📖 Scripture Selection
+          <BookOpen className="w-5 h-5 text-slate-400" />
+          Scripture Selection
         </h3>
         
 
@@ -104,9 +106,9 @@ export const BibleIntegration: React.FC<BibleIntegrationProps> = ({
                     </div>
                     <p className="text-sm text-green-200 mb-3">{plan.description}</p>
                     <div className="flex items-center gap-4 text-xs text-green-300">
-                      <span>📖 Scripture-based</span>
-                      <span>🎯 Manly themes</span>
-                      <span>💪 Strength & courage</span>
+                      <span className="flex items-center gap-1"><BookOpen className="w-4 h-4 text-slate-400" /> Scripture-based</span>
+                      <span className="flex items-center gap-1"><Target className="w-4 h-4 text-slate-400" /> Manly themes</span>
+                      <span className="flex items-center gap-1"><Zap className="w-4 h-4 text-slate-400" /> Strength & courage</span>
                     </div>
                   </div>
                   <div className="flex flex-col gap-2 ml-4">
