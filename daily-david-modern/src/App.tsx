@@ -24,17 +24,17 @@ function App() {
       {/* Updated theme - slate/dark green */}
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-green-950 to-slate-900 relative overflow-hidden">
         {/* Topographic map overlay */}
-        <div className="absolute inset-0 opacity-5">
+        <div className="absolute inset-0 opacity-20">
           <svg width="100%" height="100%" className="absolute inset-0">
             <defs>
               <pattern id="topographic" x="0" y="0" width="200" height="200" patternUnits="userSpaceOnUse">
-                <path d="M0,100 Q50,50 100,100 T200,100" stroke="white" strokeWidth="1" fill="none" opacity="0.3"/>
-                <path d="M0,80 Q50,30 100,80 T200,80" stroke="white" strokeWidth="1" fill="none" opacity="0.2"/>
-                <path d="M0,120 Q50,70 100,120 T200,120" stroke="white" strokeWidth="1" fill="none" opacity="0.2"/>
-                <path d="M0,60 Q50,10 100,60 T200,60" stroke="white" strokeWidth="1" fill="none" opacity="0.1"/>
-                <path d="M0,140 Q50,90 100,140 T200,140" stroke="white" strokeWidth="1" fill="none" opacity="0.1"/>
-                <path d="M0,40 Q50,-10 100,40 T200,40" stroke="white" strokeWidth="1" fill="none" opacity="0.05"/>
-                <path d="M0,160 Q50,110 100,160 T200,160" stroke="white" strokeWidth="1" fill="none" opacity="0.05"/>
+                <path d="M0,100 Q50,50 100,100 T200,100" stroke="white" strokeWidth="1.5" fill="none" opacity="0.8"/>
+                <path d="M0,80 Q50,30 100,80 T200,80" stroke="white" strokeWidth="1.2" fill="none" opacity="0.6"/>
+                <path d="M0,120 Q50,70 100,120 T200,120" stroke="white" strokeWidth="1.2" fill="none" opacity="0.6"/>
+                <path d="M0,60 Q50,10 100,60 T200,60" stroke="white" strokeWidth="1" fill="none" opacity="0.4"/>
+                <path d="M0,140 Q50,90 100,140 T200,140" stroke="white" strokeWidth="1" fill="none" opacity="0.4"/>
+                <path d="M0,40 Q50,-10 100,40 T200,40" stroke="white" strokeWidth="0.8" fill="none" opacity="0.3"/>
+                <path d="M0,160 Q50,110 100,160 T200,160" stroke="white" strokeWidth="0.8" fill="none" opacity="0.3"/>
               </pattern>
             </defs>
             <rect width="100%" height="100%" fill="url(#topographic)"/>
