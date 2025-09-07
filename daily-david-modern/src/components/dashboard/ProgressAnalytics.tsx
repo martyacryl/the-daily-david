@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { TrendingUp, Target, Award, Clock, Heart, Zap, BarChart3, Lightbulb, Activity, BookOpen, CheckCircle } from 'lucide-react'
+import { TrendingUp, Target, Award, Clock, Heart, BarChart3, Lightbulb, Flame, FileText, Trophy, TrendingUp as TrendingUpIcon, Calendar } from 'lucide-react'
 import { Card } from '../ui/Card'
 import { useDailyStore } from '../../stores/dailyStore'
 import { useAuthStore } from '../../stores/authStore'
@@ -495,7 +495,8 @@ export function ProgressAnalytics() {
       >
         <Card className="p-6">
           <h3 className="text-xl font-semibold text-white mb-6 flex items-center gap-2">
-            💡 Insights & Recommendations
+            <Lightbulb className="w-5 h-5 text-slate-400" />
+            Insights & Recommendations
           </h3>
           <p className="text-sm text-slate-300 mb-4 text-center italic">
             "For the Lord gives wisdom; from his mouth come knowledge and understanding" - Proverbs 2:6
@@ -573,12 +574,12 @@ export function ProgressAnalytics() {
           transition={{ delay: 0.5 }}
         >
           <Card className="p-6 text-center">
-            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Zap className="w-6 h-6 text-white" />
+            <div className="w-12 h-12 bg-slate-700 rounded-full flex items-center justify-center mx-auto mb-4 border border-slate-600">
+              <Flame className="w-6 h-6 text-slate-300" />
             </div>
             <h3 className="text-2xl font-bold text-white">{data.currentStreak}</h3>
             <p className="text-sm text-slate-300">Current Streak</p>
-            <p className="text-xs text-slate-300 mt-1">🔥 Keep it up!</p>
+            <p className="text-xs text-slate-400 mt-1">Keep it up!</p>
           </Card>
         </motion.div>
 
@@ -588,12 +589,12 @@ export function ProgressAnalytics() {
           transition={{ delay: 0.5 }}
         >
           <Card className="p-6 text-center">
-            <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Target className="w-6 h-6 text-white" />
+            <div className="w-12 h-12 bg-slate-700 rounded-full flex items-center justify-center mx-auto mb-4 border border-slate-600">
+              <FileText className="w-6 h-6 text-slate-300" />
             </div>
             <h3 className="text-2xl font-bold text-white">{data.totalEntries}</h3>
             <p className="text-sm text-slate-300">Total Entries</p>
-            <p className="text-xs text-slate-300 mt-1">📝 Consistent!</p>
+            <p className="text-xs text-slate-400 mt-1">Consistent!</p>
           </Card>
         </motion.div>
 
@@ -603,12 +604,12 @@ export function ProgressAnalytics() {
           transition={{ delay: 0.5 }}
         >
           <Card className="p-6 text-center">
-            <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Award className="w-6 h-6 text-white" />
+            <div className="w-12 h-12 bg-slate-700 rounded-full flex items-center justify-center mx-auto mb-4 border border-slate-600">
+              <Trophy className="w-6 h-6 text-slate-300" />
             </div>
             <h3 className="text-2xl font-bold text-white">{data.longestStreak}</h3>
             <p className="text-sm text-slate-300">Longest Streak</p>
-            <p className="text-xs text-slate-300 mt-1">🏆 Personal best!</p>
+            <p className="text-xs text-slate-400 mt-1">Personal best!</p>
           </Card>
         </motion.div>
 
@@ -618,12 +619,12 @@ export function ProgressAnalytics() {
           transition={{ delay: 0.5 }}
         >
           <Card className="p-6 text-center">
-            <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-full flex items-center justify-center mx-auto mb-4">
-              <TrendingUp className="w-6 h-6 text-white" />
+            <div className="w-12 h-12 bg-slate-700 rounded-full flex items-center justify-center mx-auto mb-4 border border-slate-600">
+              <TrendingUpIcon className="w-6 h-6 text-slate-300" />
             </div>
             <h3 className="text-2xl font-bold text-white">{data.completionRate}%</h3>
             <p className="text-sm text-slate-300">Overall Progress</p>
-            <p className="text-xs text-slate-400 mt-1">📈 Growing!</p>
+            <p className="text-xs text-slate-400 mt-1">Growing!</p>
           </Card>
         </motion.div>
       </div>
@@ -697,7 +698,8 @@ export function ProgressAnalytics() {
       >
         <Card className="p-6">
           <h3 className="text-xl font-semibold text-white mb-6 flex items-center gap-2">
-            👑 Leadership Growth Tracker
+            <Award className="w-5 h-5 text-slate-400" />
+            Leadership Growth Tracker
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {Object.entries(data.leadershipScores).map(([trait, score]) => (
@@ -753,7 +755,7 @@ export function ProgressAnalytics() {
             <div>
               <h4 className="text-sm font-medium text-slate-300 mb-3">Weekly Goal Completion Rate</h4>
               <div className="h-32 flex items-end space-x-1">
-                {data.monthlyProgress.slice(-6).map((month, index) => {
+                {data.monthlyProgress.slice(-6).map((month) => {
                   // Calculate completion rate (simplified for demo)
                   const completionRate = Math.min(100, (month.entries / 7) * 100) // Assuming 7 entries per week
                   
@@ -883,7 +885,8 @@ export function ProgressAnalytics() {
         {/* Section 3: Habit Consistency Heatmap */}
         <Card className="p-6">
           <h3 className="text-xl font-semibold text-white mb-6 flex items-center gap-2">
-            📅 Last 30 Days Spiritual Activity Heatmap
+            <Calendar className="w-5 h-5 text-slate-400" />
+            Last 30 Days Spiritual Activity Heatmap
           </h3>
           <div className="space-y-4">
             <div className="grid grid-cols-7 gap-1 text-xs">
@@ -928,7 +931,8 @@ export function ProgressAnalytics() {
         {/* Section 4: Leadership Growth Tracker */}
         <Card className="p-6">
           <h3 className="text-xl font-semibold text-white mb-6 flex items-center gap-2">
-            👑 Leadership Growth Tracker
+            <Award className="w-5 h-5 text-slate-400" />
+            Leadership Growth Tracker
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {Object.entries(data.leadershipScores).map(([trait, score]) => (
