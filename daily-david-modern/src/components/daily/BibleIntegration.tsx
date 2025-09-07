@@ -96,22 +96,22 @@ export const BibleIntegration: React.FC<BibleIntegrationProps> = ({
                 key={plan.id}
                 className="p-4 border border-slate-600/50 rounded-lg bg-slate-700/50 hover:border-slate-500 transition-colors"
               >
-                <div className="flex justify-between items-start">
+                <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4">
                   <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-2">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-2">
                       <h5 className="font-medium text-white">{plan.name}</h5>
-                      <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
+                      <span className="px-2 py-1 bg-slate-600 text-slate-200 text-xs rounded-full w-fit">
                         {plan.duration} days
                       </span>
                     </div>
-                    <p className="text-sm text-green-200 mb-3">{plan.description}</p>
-                    <div className="flex items-center gap-4 text-xs text-green-300">
+                    <p className="text-sm text-slate-300 mb-3">{plan.description}</p>
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-xs text-slate-400">
                       <span className="flex items-center gap-1"><BookOpen className="w-4 h-4 text-slate-400" /> Scripture-based</span>
                       <span className="flex items-center gap-1"><Target className="w-4 h-4 text-slate-400" /> Manly themes</span>
                       <span className="flex items-center gap-1"><Zap className="w-4 h-4 text-slate-400" /> Strength & courage</span>
                     </div>
                   </div>
-                  <div className="flex flex-col gap-2 ml-4">
+                  <div className="flex flex-col gap-2 md:ml-4">
                     <Button
                       size="sm"
                       onClick={async () => {
