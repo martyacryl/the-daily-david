@@ -294,19 +294,19 @@ export function DailyEntry() {
 
   // Helper function to extract goals for current time periods
   const extractGoalsForTimePeriods = (selectedDate: Date, allEntries: any[], currentGoals: UserGoals): UserGoals => {
-    const now = new Date()
-    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+    // Use the selected date, not today's date
+    const targetDate = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate())
     
-    // Calculate time periods - Monday to Sunday week
-    const startOfWeek = new Date(today)
-    const dayOfWeek = today.getDay() // 0 = Sunday, 1 = Monday, etc.
+    // Calculate time periods - Monday to Sunday week based on selected date
+    const startOfWeek = new Date(targetDate)
+    const dayOfWeek = targetDate.getDay() // 0 = Sunday, 1 = Monday, etc.
     const daysToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek // Adjust for Monday start
-    startOfWeek.setDate(today.getDate() + daysToMonday)
+    startOfWeek.setDate(targetDate.getDate() + daysToMonday)
     
-    const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1)
+    const startOfMonth = new Date(targetDate.getFullYear(), targetDate.getMonth(), 1)
     
-    console.log('Time periods for goal extraction:', {
-      today: today.toISOString(),
+    console.log('Time periods for goal extraction (using selected date):', {
+      selectedDate: targetDate.toISOString(),
       startOfWeek: startOfWeek.toISOString(),
       startOfMonth: startOfMonth.toISOString()
     })
@@ -319,10 +319,11 @@ export function DailyEntry() {
     allEntries.forEach(entry => {
       if (entry.goals) {
         const entryDate = new Date(entry.date)
+        entryDate.setHours(0, 0, 0, 0) // Normalize to start of day
         const goals = entry.goals
         
-        // Weekly goals: from entries this week
-        if (entryDate >= startOfWeek && Array.isArray(goals.weekly)) {
+        // Weekly goals: from entries in the same week as selected date
+        if (entryDate >= startOfWeek && entryDate <= targetDate && Array.isArray(goals.weekly)) {
           goals.weekly.forEach(goal => {
             if (!currentWeeklyGoals.find(g => g.id === goal.id || g.text === goal.text)) {
               currentWeeklyGoals.push(goal)
@@ -330,8 +331,8 @@ export function DailyEntry() {
           })
         }
         
-        // Monthly goals: from entries this month
-        if (entryDate >= startOfMonth && Array.isArray(goals.monthly)) {
+        // Monthly goals: from entries in the same month as selected date
+        if (entryDate >= startOfMonth && entryDate <= targetDate && Array.isArray(goals.monthly)) {
           goals.monthly.forEach(goal => {
             if (!currentMonthlyGoals.find(g => g.id === goal.id || g.text === goal.text)) {
               currentMonthlyGoals.push(goal)
