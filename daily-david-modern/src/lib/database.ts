@@ -13,6 +13,7 @@ export interface DailyEntry {
   prayer: string
   gratitude: string
   goals: string
+  deletedGoalIds?: string[]
   created_at?: string
   updated_at?: string
 }
@@ -77,6 +78,7 @@ class DatabaseManager {
           dailyIntention: content.dailyIntention || '',
           growthQuestion: content.growthQuestion || '',
           leadershipRating: content.leadershipRating || { wisdom: 0, courage: 0, patience: 0, integrity: 0 },
+          deletedGoalIds: content.deletedGoalIds || [],
           created_at: data.entry.created_at,
           updated_at: data.entry.updated_at
         }
@@ -108,7 +110,8 @@ class DatabaseManager {
         dailyIntention: entry.dailyIntention || '',
         growthQuestion: entry.growthQuestion || '',
         leadershipRating: entry.leadershipRating || { wisdom: 0, courage: 0, patience: 0, integrity: 0 },
-        checkIn: entry.checkIn || { emotions: [], feeling: '' }
+        checkIn: entry.checkIn || { emotions: [], feeling: '' },
+        deletedGoalIds: entry.deletedGoalIds || []
       }
       
       console.log('API: Request body for save:', requestBody)
@@ -151,6 +154,7 @@ class DatabaseManager {
           dailyIntention: content.dailyIntention || '',
           growthQuestion: content.growthQuestion || '',
           leadershipRating: content.leadershipRating || { wisdom: 0, courage: 0, patience: 0, integrity: 0 },
+          deletedGoalIds: content.deletedGoalIds || [],
           created_at: data.entry.created_at,
           updated_at: data.entry.updated_at
         }
@@ -266,7 +270,8 @@ class DatabaseManager {
           checkIn: data.checkIn || existingEntry.checkIn || { emotions: [], feeling: '' },
           dailyIntention: data.dailyIntention || existingEntry.dailyIntention || '',
           growthQuestion: data.growthQuestion || existingEntry.growthQuestion || '',
-          leadershipRating: data.leadershipRating || existingEntry.leadershipRating || { wisdom: 0, courage: 0, patience: 0, integrity: 0 }
+          leadershipRating: data.leadershipRating || existingEntry.leadershipRating || { wisdom: 0, courage: 0, patience: 0, integrity: 0 },
+          deletedGoalIds: data.deletedGoalIds || existingEntry.deletedGoalIds || []
         })
       } else {
         // Create new entry
@@ -282,7 +287,8 @@ class DatabaseManager {
           checkIn: data.checkIn || { emotions: [], feeling: '' },
           dailyIntention: data.dailyIntention || '',
           growthQuestion: data.growthQuestion || '',
-          leadershipRating: data.leadershipRating || { wisdom: 0, courage: 0, patience: 0, integrity: 0 }
+          leadershipRating: data.leadershipRating || { wisdom: 0, courage: 0, patience: 0, integrity: 0 },
+          deletedGoalIds: data.deletedGoalIds || []
         })
       }
       return true
