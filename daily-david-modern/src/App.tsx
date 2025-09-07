@@ -21,7 +21,7 @@ function App() {
 
   return (
     <Router>
-      {/* Updated theme - slate/dark green */}
+      {/* Updated theme - slate/dark green - force deployment */}
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-green-950 to-slate-900 relative overflow-hidden">
         
         {/* Mountain silhouette background */}
