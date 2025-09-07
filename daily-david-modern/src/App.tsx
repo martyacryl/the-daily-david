@@ -23,40 +23,43 @@ function App() {
     <Router>
       {/* Updated theme - slate/dark green */}
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-green-950 to-slate-900 relative overflow-hidden">
-        {/* Mountain Topographic Map Overlay */}
-        <div className="absolute inset-0 opacity-12">
+        {/* Authentic Colorado Mountain Topographic Overlay */}
+        <div className="absolute inset-0 opacity-10">
           <svg width="100%" height="100%" className="absolute inset-0">
             <defs>
-              <pattern id="topographic" x="0" y="0" width="300" height="300" patternUnits="userSpaceOnUse">
-                {/* Main mountain peak - tight concentric contours */}
-                <path d="M150,150 C140,140 130,130 120,150 C130,170 140,160 150,150 Z" stroke="white" strokeWidth="0.8" fill="none" opacity="0.4"/>
-                <path d="M150,150 C145,145 140,140 135,150 C140,160 145,155 150,150 Z" stroke="white" strokeWidth="1" fill="none" opacity="0.5"/>
-                <path d="M150,150 C148,148 146,146 144,150 C146,154 148,152 150,150 Z" stroke="white" strokeWidth="1.2" fill="none" opacity="0.6"/>
+              <pattern id="topographic" x="0" y="0" width="400" height="400" patternUnits="userSpaceOnUse">
+                {/* Main peak - Longs Peak style with realistic contour spacing */}
+                <path d="M200,200 C190,180 180,160 170,200 C180,240 190,220 200,200 Z" stroke="white" strokeWidth="0.6" fill="none" opacity="0.3"/>
+                <path d="M200,200 C195,190 190,180 185,200 C190,220 195,210 200,200 Z" stroke="white" strokeWidth="0.8" fill="none" opacity="0.4"/>
+                <path d="M200,200 C198,195 196,190 194,200 C196,210 198,205 200,200 Z" stroke="white" strokeWidth="1" fill="none" opacity="0.5"/>
                 
-                {/* Secondary peak - smaller, tighter */}
-                <path d="M220,180 C210,170 200,160 190,180 C200,200 210,190 220,180 Z" stroke="white" strokeWidth="0.6" fill="none" opacity="0.3"/>
-                <path d="M220,180 C215,175 210,170 205,180 C210,190 215,185 220,180 Z" stroke="white" strokeWidth="0.8" fill="none" opacity="0.4"/>
+                {/* Secondary peak - Maroon Bells style */}
+                <path d="M280,160 C270,140 260,120 250,160 C260,200 270,180 280,160 Z" stroke="white" strokeWidth="0.5" fill="none" opacity="0.25"/>
+                <path d="M280,160 C275,150 270,140 265,160 C270,180 275,170 280,160 Z" stroke="white" strokeWidth="0.7" fill="none" opacity="0.3"/>
+                <path d="M280,160 C278,155 276,150 274,160 C276,170 278,165 280,160 Z" stroke="white" strokeWidth="0.9" fill="none" opacity="0.35"/>
                 
-                {/* Third peak - even tighter */}
-                <path d="M80,200 C75,195 70,190 65,200 C70,210 75,205 80,200 Z" stroke="white" strokeWidth="0.5" fill="none" opacity="0.3"/>
-                <path d="M80,200 C78,198 76,196 74,200 C76,204 78,202 80,200 Z" stroke="white" strokeWidth="0.7" fill="none" opacity="0.4"/>
+                {/* Third peak - Pikes Peak style */}
+                <path d="M120,240 C110,220 100,200 90,240 C100,280 110,260 120,240 Z" stroke="white" strokeWidth="0.5" fill="none" opacity="0.25"/>
+                <path d="M120,240 C115,230 110,220 105,240 C110,260 115,250 120,240 Z" stroke="white" strokeWidth="0.7" fill="none" opacity="0.3"/>
                 
-                {/* Ridge lines - tighter and more mountain-like */}
-                <path d="M50,120 C100,100 150,80 200,120 C250,160 280,140 300,120" stroke="white" strokeWidth="0.6" fill="none" opacity="0.25"/>
-                <path d="M50,120 C75,110 100,100 125,120 C100,140 75,130 50,120" stroke="white" strokeWidth="0.8" fill="none" opacity="0.3"/>
+                {/* Ridge lines - Continental Divide style */}
+                <path d="M50,180 C100,160 150,140 200,180 C250,220 300,200 350,180" stroke="white" strokeWidth="0.4" fill="none" opacity="0.2"/>
+                <path d="M50,180 C75,170 100,160 125,180 C100,200 75,190 50,180" stroke="white" strokeWidth="0.6" fill="none" opacity="0.25"/>
                 
-                {/* Valley contours - tighter */}
-                <path d="M120,250 C130,240 140,230 150,250 C140,270 130,260 120,250 Z" stroke="white" strokeWidth="0.4" fill="none" opacity="0.2"/>
-                <path d="M120,250 C125,245 130,240 135,250 C130,260 125,255 120,250 Z" stroke="white" strokeWidth="0.6" fill="none" opacity="0.25"/>
+                {/* Valley contours - Arkansas River Valley style */}
+                <path d="M150,300 C160,280 170,260 180,300 C170,340 160,320 150,300 Z" stroke="white" strokeWidth="0.3" fill="none" opacity="0.15"/>
+                <path d="M150,300 C155,290 160,280 165,300 C160,320 155,310 150,300 Z" stroke="white" strokeWidth="0.5" fill="none" opacity="0.2"/>
                 
-                {/* Additional tight elevation contours */}
-                <path d="M250,100 C240,90 230,80 220,100 C230,120 240,110 250,100 Z" stroke="white" strokeWidth="0.4" fill="none" opacity="0.2"/>
-                <path d="M180,220 C175,215 170,210 165,220 C170,230 175,225 180,220 Z" stroke="white" strokeWidth="0.4" fill="none" opacity="0.2"/>
+                {/* Additional mountain contours - Sawatch Range style */}
+                <path d="M320,220 C310,200 300,180 290,220 C300,260 310,240 320,220 Z" stroke="white" strokeWidth="0.4" fill="none" opacity="0.2"/>
+                <path d="M80,120 C70,100 60,80 50,120 C60,160 70,140 80,120 Z" stroke="white" strokeWidth="0.4" fill="none" opacity="0.2"/>
                 
-                {/* Tight contour lines for realistic mountain terrain */}
-                <path d="M0,150 C50,140 100,130 150,150 C200,170 250,160 300,150" stroke="white" strokeWidth="0.3" fill="none" opacity="0.15"/>
-                <path d="M0,180 C50,170 100,160 150,180 C200,200 250,190 300,180" stroke="white" strokeWidth="0.3" fill="none" opacity="0.15"/>
-                <path d="M0,120 C50,110 100,100 150,120 C200,140 250,130 300,120" stroke="white" strokeWidth="0.3" fill="none" opacity="0.15"/>
+                {/* Elevation contour lines - realistic spacing */}
+                <path d="M0,200 C50,190 100,180 150,200 C200,220 250,210 300,200 C350,190 400,180 400,200" stroke="white" strokeWidth="0.3" fill="none" opacity="0.1"/>
+                <path d="M0,160 C50,150 100,140 150,160 C200,180 250,170 300,160 C350,150 400,140 400,160" stroke="white" strokeWidth="0.3" fill="none" opacity="0.1"/>
+                <path d="M0,240 C50,230 100,220 150,240 C200,260 250,250 300,240 C350,230 400,220 400,240" stroke="white" strokeWidth="0.3" fill="none" opacity="0.1"/>
+                <path d="M0,120 C50,110 100,100 150,120 C200,140 250,130 300,120 C350,110 400,100 400,120" stroke="white" strokeWidth="0.3" fill="none" opacity="0.1"/>
+                <path d="M0,280 C50,270 100,260 150,280 C200,300 250,290 300,280 C350,270 400,260 400,280" stroke="white" strokeWidth="0.3" fill="none" opacity="0.1"/>
               </pattern>
             </defs>
             <rect width="100%" height="100%" fill="url(#topographic)"/>
