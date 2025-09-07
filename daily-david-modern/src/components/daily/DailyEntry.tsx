@@ -1,5 +1,5 @@
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { motion } from 'framer-motion'
 import { useSearchParams } from 'react-router-dom'
 import { ChevronLeft, ChevronRight, Calendar, Target, Star } from 'lucide-react'
@@ -80,6 +80,9 @@ export function DailyEntry() {
     weekly: [],
     monthly: []
   })
+  
+  // Track deleted goals to prevent them from being re-added
+  const [deletedGoalIds, setDeletedGoalIds] = useState<Set<string>>(new Set())
 
   // Load data when URL changes
   useEffect(() => {
@@ -174,7 +177,8 @@ export function DailyEntry() {
           soap: entryData.soap,
           dailyIntention: entryData.dailyIntention,
           leadershipRating: entryData.leadershipRating,
-          checkIn: entryData.checkIn
+          checkIn: entryData.checkIn,
+          deletedGoalIds: Array.from(deletedGoalIds)
         })
       })
       
@@ -224,7 +228,7 @@ export function DailyEntry() {
   }, [dayData, userGoals, selectedDate, user])
 
   // Simple goal extraction - just use current entry goals and add weekly/monthly from all entries
-  const extractCurrentGoals = (entries: any[], currentEntryGoals: UserGoals, selectedDate: Date) => {
+  const extractCurrentGoals = useCallback((entries: any[], currentEntryGoals: UserGoals, selectedDate: Date) => {
     console.log('extractCurrentGoals called with', entries.length, 'entries')
     // Start with current entry goals
     const result = {
@@ -271,22 +275,25 @@ export function DailyEntry() {
           return
         }
         
-        // Add weekly goals from this week
+        // Daily goals should only come from the current entry, not from other entries
+        // (This is already handled by the current entry goals at the start)
+        
+        // Add weekly goals from this week (but not if they were deleted)
         if (entryDate >= startOfWeek && Array.isArray(entry.goals.weekly)) {
           entry.goals.weekly.forEach((goal: Goal) => {
             const goalId = goal.id || goal.text
-            if (!weeklyGoalIds.has(goalId)) {
+            if (!weeklyGoalIds.has(goalId) && !deletedGoalIds.has(goalId)) {
               result.weekly.push(goal)
               weeklyGoalIds.add(goalId)
             }
           })
         }
         
-        // Add monthly goals from this month
+        // Add monthly goals from this month (but not if they were deleted)
         if (entryDate >= startOfMonth && Array.isArray(entry.goals.monthly)) {
           entry.goals.monthly.forEach((goal: Goal) => {
             const goalId = goal.id || goal.text
-            if (!monthlyGoalIds.has(goalId)) {
+            if (!monthlyGoalIds.has(goalId) && !deletedGoalIds.has(goalId)) {
               result.monthly.push(goal)
               monthlyGoalIds.add(goalId)
             }
@@ -296,7 +303,7 @@ export function DailyEntry() {
     })
     
     return result
-  }
+  }, [deletedGoalIds])
 
 
 
@@ -336,6 +343,11 @@ export function DailyEntry() {
         // Start with goals from current entry
         const currentGoals = entryData.goals || { daily: [], weekly: [], monthly: [] }
         
+        // Load deleted goals from the entry
+        if (entryData.deletedGoalIds && Array.isArray(entryData.deletedGoalIds)) {
+          setDeletedGoalIds(new Set(entryData.deletedGoalIds))
+        }
+        
         // Extract weekly and monthly goals from all entries in current time periods
         const extractedGoals = extractCurrentGoals(allEntries, currentGoals, date)
         setUserGoals(extractedGoals)
@@ -343,6 +355,9 @@ export function DailyEntry() {
         console.log('No entry found for date:', dateString)
         // No entry exists for this date, start fresh
         currentEntryIdRef.current = null
+        
+        // Reset deleted goals for new entries
+        setDeletedGoalIds(new Set())
         
         setDayData({
           checkIn: { emotions: [], feeling: '' },
@@ -496,6 +511,12 @@ export function DailyEntry() {
   }
 
   const handleGoalDelete = (type: keyof UserGoals, index: number) => {
+    const goalToDelete = userGoals[type][index]
+    const goalId = goalToDelete.id || goalToDelete.text
+    
+    // Add to deleted goals set
+    setDeletedGoalIds(prev => new Set([...prev, goalId]))
+    
     setUserGoals(prev => ({
       ...prev,
       [type]: prev[type].filter((_, i) => i !== index)

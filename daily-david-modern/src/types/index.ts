@@ -80,6 +80,7 @@ export interface User {
     growthQuestion?: string
     leadershipRating?: LeadershipRating
     leadershipTraits?: LeadershipTrait[]
+    deletedGoalIds?: string[]
     
     // Status
     completed: boolean
@@ -100,6 +101,7 @@ export interface User {
     dailyIntention?: string
     growthQuestion?: string
     leadershipRating?: LeadershipRating
+    deletedGoalIds?: string[]
     [key: string]: any
   }
   
