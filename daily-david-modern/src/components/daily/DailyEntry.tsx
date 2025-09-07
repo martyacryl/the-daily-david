@@ -238,6 +238,10 @@ export function DailyEntry() {
       // Load the entry for the selected date and get the result directly
       const entryData = await loadEntryByDate(dateString)
       
+      // Load all entries to extract weekly and monthly goals
+      const { getDailyEntries } = useDailyStore.getState()
+      const allEntries = await getDailyEntries()
+      
       if (entryData) {
         console.log('Found existing entry:', entryData)
         // Store entry ID for auto-save
@@ -253,19 +257,13 @@ export function DailyEntry() {
           leadershipRating: entryData.leadershipRating || prev.leadershipRating
         }))
         
-        // Update goals if they exist in the entry
-        if (entryData.goals) {
-          console.log('Setting goals from entry:', entryData.goals)
-          setUserGoals(entryData.goals)
-        } else {
-          // Start with empty goals if no goals in entry
-          console.log('No goals in entry, starting with empty goals')
-          setUserGoals({
-            daily: [],
-            weekly: [],
-            monthly: []
-          })
-        }
+        // Start with goals from current entry
+        const currentGoals = entryData.goals || { daily: [], weekly: [], monthly: [] }
+        console.log('Current entry goals:', currentGoals)
+        
+        // Extract weekly and monthly goals from all entries in current time periods
+        const extractedGoals = extractGoalsForTimePeriods(date, allEntries, currentGoals)
+        setUserGoals(extractedGoals)
       } else {
         console.log('No entry found for date:', dateString)
         // No entry exists for this date, start fresh
@@ -279,12 +277,10 @@ export function DailyEntry() {
           leadershipRating: { wisdom: 5, courage: 5, patience: 5, integrity: 5 }
         })
         
-        // Start with empty goals for new entries
-        setUserGoals({
-          daily: [],
-          weekly: [],
-          monthly: []
-        })
+        // Extract weekly and monthly goals from all entries, start with empty daily goals
+        const emptyGoals = { daily: [], weekly: [], monthly: [] }
+        const extractedGoals = extractGoalsForTimePeriods(date, allEntries, emptyGoals)
+        setUserGoals(extractedGoals)
       }
       
       console.log('loadEntryForDate completed successfully')
@@ -293,6 +289,68 @@ export function DailyEntry() {
     } finally {
       console.log('Setting isLoading to false')
       setIsLoading(false)
+    }
+  }
+
+  // Helper function to extract goals for current time periods
+  const extractGoalsForTimePeriods = (selectedDate: Date, allEntries: any[], currentGoals: UserGoals): UserGoals => {
+    const now = new Date()
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+    
+    // Calculate time periods - Monday to Sunday week
+    const startOfWeek = new Date(today)
+    const dayOfWeek = today.getDay() // 0 = Sunday, 1 = Monday, etc.
+    const daysToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek // Adjust for Monday start
+    startOfWeek.setDate(today.getDate() + daysToMonday)
+    
+    const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1)
+    
+    console.log('Time periods for goal extraction:', {
+      today: today.toISOString(),
+      startOfWeek: startOfWeek.toISOString(),
+      startOfMonth: startOfMonth.toISOString()
+    })
+    
+    const currentDailyGoals: Goal[] = [...currentGoals.daily]
+    const currentWeeklyGoals: Goal[] = []
+    const currentMonthlyGoals: Goal[] = []
+    
+    // Get all goals from entries within their respective time periods
+    allEntries.forEach(entry => {
+      if (entry.goals) {
+        const entryDate = new Date(entry.date)
+        const goals = entry.goals
+        
+        // Weekly goals: from entries this week
+        if (entryDate >= startOfWeek && Array.isArray(goals.weekly)) {
+          goals.weekly.forEach(goal => {
+            if (!currentWeeklyGoals.find(g => g.id === goal.id || g.text === goal.text)) {
+              currentWeeklyGoals.push(goal)
+            }
+          })
+        }
+        
+        // Monthly goals: from entries this month
+        if (entryDate >= startOfMonth && Array.isArray(goals.monthly)) {
+          goals.monthly.forEach(goal => {
+            if (!currentMonthlyGoals.find(g => g.id === goal.id || g.text === goal.text)) {
+              currentMonthlyGoals.push(goal)
+            }
+          })
+        }
+      }
+    })
+    
+    console.log('Extracted goals by time period:', {
+      daily: currentDailyGoals.length,
+      weekly: currentWeeklyGoals.length,
+      monthly: currentMonthlyGoals.length
+    })
+    
+    return {
+      daily: currentDailyGoals,
+      weekly: currentWeeklyGoals,
+      monthly: currentMonthlyGoals
     }
   }
 
