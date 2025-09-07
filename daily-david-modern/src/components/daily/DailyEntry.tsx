@@ -223,6 +223,78 @@ export function DailyEntry() {
     return () => window.removeEventListener('triggerSave', handleAutoSave)
   }, [dayData, userGoals, selectedDate, user])
 
+  // Use the EXACT same logic as Dashboard but with selected date
+  const extractCurrentGoals = (entries: any[], currentEntryGoals: UserGoals, selectedDate: Date) => {
+    console.log('DailyEntry: Extracting goals from', entries.length, 'entries for date:', selectedDate.toISOString())
+    
+    if (entries.length > 0) {
+      // Use the selected date, not today's date
+      const targetDate = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate())
+      
+      // Calculate time periods - Monday to Sunday week based on selected date
+      const startOfWeek = new Date(targetDate)
+      const dayOfWeek = targetDate.getDay() // 0 = Sunday, 1 = Monday, etc.
+      const daysToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek // Adjust for Monday start
+      startOfWeek.setDate(targetDate.getDate() + daysToMonday)
+      
+      const startOfMonth = new Date(targetDate.getFullYear(), targetDate.getMonth(), 1)
+      
+      console.log('Time periods:', {
+        targetDate: targetDate.toISOString(),
+        startOfWeek: startOfWeek.toISOString(),
+        startOfMonth: startOfMonth.toISOString()
+      })
+      
+      const currentDailyGoals: Goal[] = [...currentEntryGoals.daily]
+      const currentWeeklyGoals: Goal[] = []
+      const currentMonthlyGoals: Goal[] = []
+      
+      // Get all goals from entries within their respective time periods
+      entries.forEach(entry => {
+        if (entry.goals) {
+          const entryDate = new Date(entry.date)
+          const goals = entry.goals
+          
+          // Daily goals: from the selected date's entry (already in currentEntryGoals)
+          // No need to add more daily goals, just use what's already there
+          
+          // Weekly goals: from entries this week
+          if (entryDate >= startOfWeek && Array.isArray(goals.weekly)) {
+            goals.weekly.forEach(goal => {
+              if (!currentWeeklyGoals.find(g => g.id === goal.id || g.text === goal.text)) {
+                currentWeeklyGoals.push(goal)
+              }
+            })
+          }
+          
+          // Monthly goals: from entries this month
+          if (entryDate >= startOfMonth && Array.isArray(goals.monthly)) {
+            goals.monthly.forEach(goal => {
+              if (!currentMonthlyGoals.find(g => g.id === goal.id || g.text === goal.text)) {
+                currentMonthlyGoals.push(goal)
+              }
+            })
+          }
+        }
+      })
+      
+      console.log('Current goals by time period:', {
+        daily: currentDailyGoals.length,
+        weekly: currentWeeklyGoals.length,
+        monthly: currentMonthlyGoals.length
+      })
+      
+      return {
+        daily: currentDailyGoals,
+        weekly: currentWeeklyGoals,
+        monthly: currentMonthlyGoals
+      }
+    } else {
+      console.log('DailyEntry: No entries found, using current entry goals')
+      return currentEntryGoals
+    }
+  }
+
 
 
 
@@ -298,77 +370,6 @@ export function DailyEntry() {
     }
   }
 
-  // Use the EXACT same logic as Dashboard but with selected date
-  const extractCurrentGoals = (entries: any[], currentEntryGoals: UserGoals, selectedDate: Date) => {
-    console.log('DailyEntry: Extracting goals from', entries.length, 'entries for date:', selectedDate.toISOString())
-    
-    if (entries.length > 0) {
-      // Use the selected date, not today's date
-      const targetDate = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate())
-      
-      // Calculate time periods - Monday to Sunday week based on selected date
-      const startOfWeek = new Date(targetDate)
-      const dayOfWeek = targetDate.getDay() // 0 = Sunday, 1 = Monday, etc.
-      const daysToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek // Adjust for Monday start
-      startOfWeek.setDate(targetDate.getDate() + daysToMonday)
-      
-      const startOfMonth = new Date(targetDate.getFullYear(), targetDate.getMonth(), 1)
-      
-      console.log('Time periods:', {
-        targetDate: targetDate.toISOString(),
-        startOfWeek: startOfWeek.toISOString(),
-        startOfMonth: startOfMonth.toISOString()
-      })
-      
-      const currentDailyGoals: Goal[] = [...currentEntryGoals.daily]
-      const currentWeeklyGoals: Goal[] = []
-      const currentMonthlyGoals: Goal[] = []
-      
-      // Get all goals from entries within their respective time periods
-      entries.forEach(entry => {
-        if (entry.goals) {
-          const entryDate = new Date(entry.date)
-          const goals = entry.goals
-          
-          // Daily goals: from the selected date's entry (already in currentEntryGoals)
-          // No need to add more daily goals, just use what's already there
-          
-          // Weekly goals: from entries this week
-          if (entryDate >= startOfWeek && Array.isArray(goals.weekly)) {
-            goals.weekly.forEach(goal => {
-              if (!currentWeeklyGoals.find(g => g.id === goal.id || g.text === goal.text)) {
-                currentWeeklyGoals.push(goal)
-              }
-            })
-          }
-          
-          // Monthly goals: from entries this month
-          if (entryDate >= startOfMonth && Array.isArray(goals.monthly)) {
-            goals.monthly.forEach(goal => {
-              if (!currentMonthlyGoals.find(g => g.id === goal.id || g.text === goal.text)) {
-                currentMonthlyGoals.push(goal)
-              }
-            })
-          }
-        }
-      })
-      
-      console.log('Current goals by time period:', {
-        daily: currentDailyGoals.length,
-        weekly: currentWeeklyGoals.length,
-        monthly: currentMonthlyGoals.length
-      })
-      
-      return {
-        daily: currentDailyGoals,
-        weekly: currentWeeklyGoals,
-        monthly: currentMonthlyGoals
-      }
-    } else {
-      console.log('DailyEntry: No entries found, using current entry goals')
-      return currentEntryGoals
-    }
-  }
 
   const navigateToDate = (direction: 'prev' | 'next') => {
     const newDate = new Date(selectedDate)
