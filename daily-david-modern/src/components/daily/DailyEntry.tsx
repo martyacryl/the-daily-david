@@ -252,8 +252,37 @@ export function DailyEntry() {
       // Get all goals from entries within their respective time periods
       entries.forEach(entry => {
         if (entry.goals) {
-          const entryDate = new Date(entry.date)
+          // Parse the date string properly - handle both YYYY-MM-DD and other formats
+          let entryDate: Date
+          if (typeof entry.date === 'string') {
+            // If it's a string like "2024-09-06", parse it correctly
+            if (entry.date.includes('-')) {
+              const [year, month, day] = entry.date.split('-').map(Number)
+              entryDate = new Date(year, month - 1, day) // month is 0-indexed
+            } else {
+              entryDate = new Date(entry.date)
+            }
+          } else {
+            entryDate = new Date(entry.date)
+          }
+
+          // Set time to start of day for accurate comparison
+          entryDate.setHours(0, 0, 0, 0)
+
           const goals = entry.goals
+          
+          console.log('Processing entry:', {
+            originalDate: entry.date,
+            parsedDate: entryDate.toISOString(),
+            startOfWeek: startOfWeek.toISOString(),
+            startOfMonth: startOfMonth.toISOString(),
+            isInWeek: entryDate >= startOfWeek,
+            isInMonth: entryDate >= startOfMonth,
+            hasWeeklyGoals: Array.isArray(goals.weekly),
+            hasMonthlyGoals: Array.isArray(goals.monthly),
+            weeklyGoalsCount: goals.weekly?.length || 0,
+            monthlyGoalsCount: goals.monthly?.length || 0
+          })
           
           // Daily goals: from the selected date's entry (already in currentEntryGoals)
           // No need to add more daily goals, just use what's already there
