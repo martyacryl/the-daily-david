@@ -248,9 +248,27 @@ export function DailyEntry() {
     const monthlyGoalIds = new Set(result.monthly.map(g => g.id || g.text))
     
     entries.forEach(entry => {
-      if (entry.goals && entry.date !== selectedDate.toISOString().split('T')[0]) {
-        const entryDate = new Date(entry.date)
+      if (entry.goals) {
+        // Parse entry date properly
+        let entryDate: Date
+        if (typeof entry.date === 'string') {
+          if (entry.date.includes('-')) {
+            const [year, month, day] = entry.date.split('-').map(Number)
+            entryDate = new Date(year, month - 1, day)
+          } else {
+            entryDate = new Date(entry.date)
+          }
+        } else {
+          entryDate = new Date(entry.date)
+        }
         entryDate.setHours(0, 0, 0, 0)
+        
+        // Skip if this is the current entry (we already have its goals)
+        const currentDateString = selectedDate.toISOString().split('T')[0]
+        const entryDateString = entryDate.toISOString().split('T')[0]
+        if (entryDateString === currentDateString) {
+          return
+        }
         
         // Add weekly goals from this week
         if (entryDate >= startOfWeek && Array.isArray(entry.goals.weekly)) {
