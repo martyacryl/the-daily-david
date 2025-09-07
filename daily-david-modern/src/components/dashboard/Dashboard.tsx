@@ -122,11 +122,13 @@ export const Dashboard: React.FC = () => {
   const calculateThisWeekProgress = (entries: DailyEntry[]) => {
     const now = new Date()
     const startOfWeek = new Date(now)
-    startOfWeek.setDate(now.getDate() - now.getDay()) // Sunday
+    const dayOfWeek = now.getDay() // 0 = Sunday, 1 = Monday, etc.
+    const daysToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek // Adjust for Monday start
+    startOfWeek.setDate(now.getDate() + daysToMonday)
     startOfWeek.setHours(0, 0, 0, 0)
     
     const endOfWeek = new Date(startOfWeek)
-    endOfWeek.setDate(startOfWeek.getDate() + 6) // Saturday
+    endOfWeek.setDate(startOfWeek.getDate() + 6) // Sunday
     endOfWeek.setHours(23, 59, 59, 999)
     
     console.log('Weekly calculation:', {
@@ -203,9 +205,11 @@ export const Dashboard: React.FC = () => {
       const now = new Date()
       const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
       
-      // Calculate time periods
+      // Calculate time periods - Monday to Sunday week
       const startOfWeek = new Date(today)
-      startOfWeek.setDate(today.getDate() - today.getDay()) // Sunday
+      const dayOfWeek = today.getDay() // 0 = Sunday, 1 = Monday, etc.
+      const daysToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek // Adjust for Monday start
+      startOfWeek.setDate(today.getDate() + daysToMonday)
       
       const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1)
       
