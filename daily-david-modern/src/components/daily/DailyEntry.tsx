@@ -223,123 +223,60 @@ export function DailyEntry() {
     return () => window.removeEventListener('triggerSave', handleAutoSave)
   }, [dayData, userGoals, selectedDate, user])
 
-  // Extract all open goals from the time period, prioritizing most recent completion status
+  // Simple goal extraction - just use current entry goals and add weekly/monthly from all entries
   const extractCurrentGoals = (entries: any[], currentEntryGoals: UserGoals, selectedDate: Date) => {
-    console.log('DailyEntry: Extracting goals from', entries.length, 'entries for date:', selectedDate.toISOString())
-    
-    if (entries.length > 0) {
-      // Use the selected date, not today's date
-      const targetDate = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate())
-      
-      // Calculate time periods - Monday to Sunday week based on selected date
-      const startOfWeek = new Date(targetDate)
-      const dayOfWeek = targetDate.getDay() // 0 = Sunday, 1 = Monday, etc.
-      const daysToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek // Adjust for Monday start
-      startOfWeek.setDate(targetDate.getDate() + daysToMonday)
-      
-      const startOfMonth = new Date(targetDate.getFullYear(), targetDate.getMonth(), 1)
-      
-      console.log('Time periods:', {
-        targetDate: targetDate.toISOString(),
-        startOfWeek: startOfWeek.toISOString(),
-        startOfMonth: startOfMonth.toISOString()
-      })
-      
-      // Start with daily goals from current entry
-      const currentDailyGoals: Goal[] = [...currentEntryGoals.daily]
-      
-      // For weekly and monthly goals, collect ALL goals from the time period
-      // and track their completion status (most recent completion status wins)
-      const weeklyGoalMap = new Map<string, Goal>()
-      const monthlyGoalMap = new Map<string, Goal>()
-      
-      // Sort entries by date (most recent first) to prioritize latest completion status
-      const sortedEntries = [...entries].sort((a, b) => {
-        const dateA = new Date(a.date)
-        const dateB = new Date(b.date)
-        return dateB.getTime() - dateA.getTime()
-      })
-      
-      // Get all goals from entries within their respective time periods
-      sortedEntries.forEach(entry => {
-        if (entry.goals) {
-          // Parse the date string properly - handle both YYYY-MM-DD and other formats
-          let entryDate: Date
-          if (typeof entry.date === 'string') {
-            // If it's a string like "2024-09-06", parse it correctly
-            if (entry.date.includes('-')) {
-              const [year, month, day] = entry.date.split('-').map(Number)
-              entryDate = new Date(year, month - 1, day) // month is 0-indexed
-            } else {
-              entryDate = new Date(entry.date)
-            }
-          } else {
-            entryDate = new Date(entry.date)
-          }
-
-          // Set time to start of day for accurate comparison
-          entryDate.setHours(0, 0, 0, 0)
-
-          const goals = entry.goals
-          
-          console.log('Processing entry:', {
-            originalDate: entry.date,
-            parsedDate: entryDate.toISOString(),
-            startOfWeek: startOfWeek.toISOString(),
-            startOfMonth: startOfMonth.toISOString(),
-            isInWeek: entryDate >= startOfWeek,
-            isInMonth: entryDate >= startOfMonth,
-            hasWeeklyGoals: Array.isArray(goals.weekly),
-            hasMonthlyGoals: Array.isArray(goals.monthly),
-            weeklyGoalsCount: goals.weekly?.length || 0,
-            monthlyGoalsCount: goals.monthly?.length || 0
-          })
-          
-          // Weekly goals: from entries this week
-          if (entryDate >= startOfWeek && Array.isArray(goals.weekly)) {
-            goals.weekly.forEach(goal => {
-              const goalKey = goal.id || goal.text
-              // Only add if we haven't seen this goal before (most recent status wins)
-              if (!weeklyGoalMap.has(goalKey)) {
-                weeklyGoalMap.set(goalKey, goal)
-              }
-            })
-          }
-          
-          // Monthly goals: from entries this month
-          if (entryDate >= startOfMonth && Array.isArray(goals.monthly)) {
-            goals.monthly.forEach(goal => {
-              const goalKey = goal.id || goal.text
-              // Only add if we haven't seen this goal before (most recent status wins)
-              if (!monthlyGoalMap.has(goalKey)) {
-                monthlyGoalMap.set(goalKey, goal)
-              }
-            })
-          }
-        }
-      })
-      
-      // Convert maps to arrays
-      const currentWeeklyGoals: Goal[] = Array.from(weeklyGoalMap.values())
-      const currentMonthlyGoals: Goal[] = Array.from(monthlyGoalMap.values())
-      
-      console.log('Current goals by time period:', {
-        daily: currentDailyGoals.length,
-        weekly: currentWeeklyGoals.length,
-        monthly: currentMonthlyGoals.length,
-        weeklyGoals: currentWeeklyGoals.map(g => ({ text: g.text, completed: g.completed })),
-        monthlyGoals: currentMonthlyGoals.map(g => ({ text: g.text, completed: g.completed }))
-      })
-      
-      return {
-        daily: currentDailyGoals,
-        weekly: currentWeeklyGoals,
-        monthly: currentMonthlyGoals
-      }
-    } else {
-      console.log('DailyEntry: No entries found, using current entry goals')
-      return currentEntryGoals
+    // Start with current entry goals
+    const result = {
+      daily: [...currentEntryGoals.daily],
+      weekly: [...currentEntryGoals.weekly],
+      monthly: [...currentEntryGoals.monthly]
     }
+    
+    // Add weekly and monthly goals from other entries in the same time period
+    const targetDate = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate())
+    
+    // Calculate time periods
+    const startOfWeek = new Date(targetDate)
+    const dayOfWeek = targetDate.getDay()
+    const daysToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek
+    startOfWeek.setDate(targetDate.getDate() + daysToMonday)
+    
+    const startOfMonth = new Date(targetDate.getFullYear(), targetDate.getMonth(), 1)
+    
+    // Collect unique goals from other entries
+    const weeklyGoalIds = new Set(result.weekly.map(g => g.id || g.text))
+    const monthlyGoalIds = new Set(result.monthly.map(g => g.id || g.text))
+    
+    entries.forEach(entry => {
+      if (entry.goals && entry.date !== selectedDate.toISOString().split('T')[0]) {
+        const entryDate = new Date(entry.date)
+        entryDate.setHours(0, 0, 0, 0)
+        
+        // Add weekly goals from this week
+        if (entryDate >= startOfWeek && Array.isArray(entry.goals.weekly)) {
+          entry.goals.weekly.forEach(goal => {
+            const goalId = goal.id || goal.text
+            if (!weeklyGoalIds.has(goalId)) {
+              result.weekly.push(goal)
+              weeklyGoalIds.add(goalId)
+            }
+          })
+        }
+        
+        // Add monthly goals from this month
+        if (entryDate >= startOfMonth && Array.isArray(entry.goals.monthly)) {
+          entry.goals.monthly.forEach(goal => {
+            const goalId = goal.id || goal.text
+            if (!monthlyGoalIds.has(goalId)) {
+              result.monthly.push(goal)
+              monthlyGoalIds.add(goalId)
+            }
+          })
+        }
+      }
+    })
+    
+    return result
   }
 
 
@@ -378,23 +315,10 @@ export function DailyEntry() {
         
         // Start with goals from current entry
         const currentGoals = entryData.goals || { daily: [], weekly: [], monthly: [] }
-        console.log('Current entry goals:', currentGoals)
-        console.log('About to call extractCurrentGoals with:', {
-          date: date.toISOString(),
-          allEntriesLength: allEntries.length,
-          currentGoals: currentGoals
-        })
         
         // Extract weekly and monthly goals from all entries in current time periods
-        try {
-          const extractedGoals = extractCurrentGoals(allEntries, currentGoals, date)
-          console.log('extractCurrentGoals returned:', extractedGoals)
-          setUserGoals(extractedGoals)
-        } catch (error) {
-          console.error('Error in extractCurrentGoals:', error)
-          // Fallback to just using current entry goals
-          setUserGoals(currentGoals)
-        }
+        const extractedGoals = extractCurrentGoals(allEntries, currentGoals, date)
+        setUserGoals(extractedGoals)
       } else {
         console.log('No entry found for date:', dateString)
         // No entry exists for this date, start fresh
@@ -410,15 +334,8 @@ export function DailyEntry() {
         
         // Extract weekly and monthly goals from all entries, start with empty daily goals
         const emptyGoals = { daily: [], weekly: [], monthly: [] }
-        try {
-          const extractedGoals = extractCurrentGoals(allEntries, emptyGoals, date)
-          console.log('extractCurrentGoals returned (no entry):', extractedGoals)
-          setUserGoals(extractedGoals)
-        } catch (error) {
-          console.error('Error in extractCurrentGoals (no entry):', error)
-          // Fallback to empty goals
-          setUserGoals(emptyGoals)
-        }
+        const extractedGoals = extractCurrentGoals(allEntries, emptyGoals, date)
+        setUserGoals(extractedGoals)
       }
       
       console.log('loadEntryForDate completed successfully')
