@@ -129,11 +129,22 @@ export const Dashboard: React.FC = () => {
     endOfWeek.setDate(startOfWeek.getDate() + 6) // Saturday
     endOfWeek.setHours(23, 59, 59, 999)
     
-    const weekEntries = entries.filter(entry => {
-      const entryDate = new Date(entry.date)
-      return entryDate >= startOfWeek && entryDate <= endOfWeek
+    console.log('Weekly calculation:', {
+      startOfWeek: startOfWeek.toISOString(),
+      endOfWeek: endOfWeek.toISOString(),
+      totalEntries: entries.length
     })
     
+    const weekEntries = entries.filter(entry => {
+      const entryDate = new Date(entry.date)
+      const isInWeek = entryDate >= startOfWeek && entryDate <= endOfWeek
+      if (isInWeek) {
+        console.log('Entry in week:', entry.date, entryDate.toISOString())
+      }
+      return isInWeek
+    })
+    
+    console.log('Week entries count:', weekEntries.length)
     return weekEntries.length
   }
 
@@ -189,44 +200,53 @@ export const Dashboard: React.FC = () => {
         return
       }
       
-      // If no goals in recent entry, aggregate from all entries
+      // Always aggregate from all entries to get comprehensive goal list
       console.log('Dashboard: Aggregating goals from all entries')
       const allDailyGoals: Goal[] = []
       const allWeeklyGoals: Goal[] = []
       const allMonthlyGoals: Goal[] = []
       
-      entries.forEach(entry => {
+      // Sort entries by date (newest first) to prioritize recent goals
+      const sortedEntries = [...entries].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+      
+      sortedEntries.forEach(entry => {
         if (entry.goals) {
           const goals = entry.goals
           
           if (Array.isArray(goals.daily)) {
-            allDailyGoals.push(...goals.daily)
+            goals.daily.forEach(goal => {
+              // Only add if not already present (prioritize newer entries)
+              if (!allDailyGoals.find(g => g.id === goal.id || g.text === goal.text)) {
+                allDailyGoals.push(goal)
+              }
+            })
           }
           if (Array.isArray(goals.weekly)) {
-            allWeeklyGoals.push(...goals.weekly)
+            goals.weekly.forEach(goal => {
+              if (!allWeeklyGoals.find(g => g.id === goal.id || g.text === goal.text)) {
+                allWeeklyGoals.push(goal)
+              }
+            })
           }
           if (Array.isArray(goals.monthly)) {
-            allMonthlyGoals.push(...goals.monthly)
+            goals.monthly.forEach(goal => {
+              if (!allMonthlyGoals.find(g => g.id === goal.id || g.text === goal.text)) {
+                allMonthlyGoals.push(goal)
+              }
+            })
           }
         }
       })
       
-      // Remove duplicates and get unique goals
-      const uniqueDaily = allDailyGoals.filter((goal, index, self) => 
-        index === self.findIndex(g => g.id === goal.id || g.text === goal.text)
-      )
-      const uniqueWeekly = allWeeklyGoals.filter((goal, index, self) => 
-        index === self.findIndex(g => g.id === goal.id || g.text === goal.text)
-      )
-      const uniqueMonthly = allMonthlyGoals.filter((goal, index, self) => 
-        index === self.findIndex(g => g.id === goal.id || g.text === goal.text)
-      )
-      
       console.log('Dashboard: Aggregated goals:', {
-        daily: uniqueDaily.length,
-        weekly: uniqueWeekly.length,
-        monthly: uniqueMonthly.length
+        daily: allDailyGoals.length,
+        weekly: allWeeklyGoals.length,
+        monthly: allMonthlyGoals.length
       })
+      
+      const uniqueDaily = allDailyGoals
+      const uniqueWeekly = allWeeklyGoals
+      const uniqueMonthly = allMonthlyGoals
       
       setCurrentGoals({
         daily: uniqueDaily,
