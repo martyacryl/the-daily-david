@@ -225,7 +225,7 @@ export function DailyEntry() {
 
   // Simple goal extraction - just use current entry goals and add weekly/monthly from all entries
   const extractCurrentGoals = (entries: any[], currentEntryGoals: UserGoals, selectedDate: Date) => {
-    console.log('extractCurrentGoals called with', entries.length, 'entries')
+    console.log('*** NEW VERSION *** extractCurrentGoals called with', entries.length, 'entries')
     // Start with current entry goals
     const result = {
       daily: [...currentEntryGoals.daily],
@@ -336,9 +336,9 @@ export function DailyEntry() {
         const currentGoals = entryData.goals || { daily: [], weekly: [], monthly: [] }
         
         // Extract weekly and monthly goals from all entries in current time periods
-        console.log('About to call extractCurrentGoals with', allEntries.length, 'entries')
+        console.log('*** NEW VERSION DEPLOYED *** About to call extractCurrentGoals with', allEntries.length, 'entries')
         const extractedGoals = extractCurrentGoals(allEntries, currentGoals, date)
-        console.log('extractCurrentGoals returned:', extractedGoals)
+        console.log('*** NEW VERSION *** extractCurrentGoals returned:', extractedGoals)
         setUserGoals(extractedGoals)
       } else {
         console.log('No entry found for date:', dateString)
