@@ -24,7 +24,7 @@ function App() {
       {/* Updated theme - slate/dark green */}
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-green-950 to-slate-900 relative overflow-hidden">
         {/* Authentic Colorado Mountain Topographic Overlay */}
-        <div className="absolute inset-0 opacity-10">
+        <div className="absolute inset-0 opacity-20">
           <svg width="100%" height="100%" className="absolute inset-0">
             <defs>
               <pattern id="topographic" x="0" y="0" width="400" height="400" patternUnits="userSpaceOnUse">
