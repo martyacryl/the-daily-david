@@ -132,15 +132,38 @@ export const Dashboard: React.FC = () => {
     console.log('Weekly calculation:', {
       startOfWeek: startOfWeek.toISOString(),
       endOfWeek: endOfWeek.toISOString(),
-      totalEntries: entries.length
+      totalEntries: entries.length,
+      today: now.toISOString()
     })
     
     const weekEntries = entries.filter(entry => {
-      const entryDate = new Date(entry.date)
-      const isInWeek = entryDate >= startOfWeek && entryDate <= endOfWeek
-      if (isInWeek) {
-        console.log('Entry in week:', entry.date, entryDate.toISOString())
+      // Parse the date string properly - handle both YYYY-MM-DD and other formats
+      let entryDate: Date
+      if (typeof entry.date === 'string') {
+        // If it's a string like "2024-09-06", parse it correctly
+        if (entry.date.includes('-')) {
+          const [year, month, day] = entry.date.split('-').map(Number)
+          entryDate = new Date(year, month - 1, day) // month is 0-indexed
+        } else {
+          entryDate = new Date(entry.date)
+        }
+      } else {
+        entryDate = new Date(entry.date)
       }
+      
+      // Set time to start of day for accurate comparison
+      entryDate.setHours(0, 0, 0, 0)
+      
+      const isInWeek = entryDate >= startOfWeek && entryDate <= endOfWeek
+      
+      console.log('Entry check:', {
+        originalDate: entry.date,
+        parsedDate: entryDate.toISOString(),
+        startOfWeek: startOfWeek.toISOString(),
+        endOfWeek: endOfWeek.toISOString(),
+        isInWeek: isInWeek
+      })
+      
       return isInWeek
     })
     
