@@ -223,7 +223,7 @@ export function DailyEntry() {
     return () => window.removeEventListener('triggerSave', handleAutoSave)
   }, [dayData, userGoals, selectedDate, user])
 
-  // Use the EXACT same logic as Dashboard but with selected date
+  // Extract all open goals from the time period, prioritizing most recent completion status
   const extractCurrentGoals = (entries: any[], currentEntryGoals: UserGoals, selectedDate: Date) => {
     console.log('DailyEntry: Extracting goals from', entries.length, 'entries for date:', selectedDate.toISOString())
     
@@ -245,12 +245,23 @@ export function DailyEntry() {
         startOfMonth: startOfMonth.toISOString()
       })
       
+      // Start with daily goals from current entry
       const currentDailyGoals: Goal[] = [...currentEntryGoals.daily]
-      const currentWeeklyGoals: Goal[] = []
-      const currentMonthlyGoals: Goal[] = []
+      
+      // For weekly and monthly goals, collect ALL goals from the time period
+      // and track their completion status (most recent completion status wins)
+      const weeklyGoalMap = new Map<string, Goal>()
+      const monthlyGoalMap = new Map<string, Goal>()
+      
+      // Sort entries by date (most recent first) to prioritize latest completion status
+      const sortedEntries = [...entries].sort((a, b) => {
+        const dateA = new Date(a.date)
+        const dateB = new Date(b.date)
+        return dateB.getTime() - dateA.getTime()
+      })
       
       // Get all goals from entries within their respective time periods
-      entries.forEach(entry => {
+      sortedEntries.forEach(entry => {
         if (entry.goals) {
           // Parse the date string properly - handle both YYYY-MM-DD and other formats
           let entryDate: Date
@@ -284,14 +295,13 @@ export function DailyEntry() {
             monthlyGoalsCount: goals.monthly?.length || 0
           })
           
-          // Daily goals: from the selected date's entry (already in currentEntryGoals)
-          // No need to add more daily goals, just use what's already there
-          
           // Weekly goals: from entries this week
           if (entryDate >= startOfWeek && Array.isArray(goals.weekly)) {
             goals.weekly.forEach(goal => {
-              if (!currentWeeklyGoals.find(g => g.id === goal.id || g.text === goal.text)) {
-                currentWeeklyGoals.push(goal)
+              const goalKey = goal.id || goal.text
+              // Only add if we haven't seen this goal before (most recent status wins)
+              if (!weeklyGoalMap.has(goalKey)) {
+                weeklyGoalMap.set(goalKey, goal)
               }
             })
           }
@@ -299,18 +309,26 @@ export function DailyEntry() {
           // Monthly goals: from entries this month
           if (entryDate >= startOfMonth && Array.isArray(goals.monthly)) {
             goals.monthly.forEach(goal => {
-              if (!currentMonthlyGoals.find(g => g.id === goal.id || g.text === goal.text)) {
-                currentMonthlyGoals.push(goal)
+              const goalKey = goal.id || goal.text
+              // Only add if we haven't seen this goal before (most recent status wins)
+              if (!monthlyGoalMap.has(goalKey)) {
+                monthlyGoalMap.set(goalKey, goal)
               }
             })
           }
         }
       })
       
+      // Convert maps to arrays
+      const currentWeeklyGoals: Goal[] = Array.from(weeklyGoalMap.values())
+      const currentMonthlyGoals: Goal[] = Array.from(monthlyGoalMap.values())
+      
       console.log('Current goals by time period:', {
         daily: currentDailyGoals.length,
         weekly: currentWeeklyGoals.length,
-        monthly: currentMonthlyGoals.length
+        monthly: currentMonthlyGoals.length,
+        weeklyGoals: currentWeeklyGoals.map(g => ({ text: g.text, completed: g.completed })),
+        monthlyGoals: currentMonthlyGoals.map(g => ({ text: g.text, completed: g.completed }))
       })
       
       return {
@@ -361,16 +379,22 @@ export function DailyEntry() {
         // Start with goals from current entry
         const currentGoals = entryData.goals || { daily: [], weekly: [], monthly: [] }
         console.log('Current entry goals:', currentGoals)
-        console.log('About to call extractGoalsForTimePeriods with:', {
+        console.log('About to call extractCurrentGoals with:', {
           date: date.toISOString(),
           allEntriesLength: allEntries.length,
           currentGoals: currentGoals
         })
         
         // Extract weekly and monthly goals from all entries in current time periods
-        const extractedGoals = extractCurrentGoals(allEntries, currentGoals, date)
-        console.log('extractCurrentGoals returned:', extractedGoals)
-        setUserGoals(extractedGoals)
+        try {
+          const extractedGoals = extractCurrentGoals(allEntries, currentGoals, date)
+          console.log('extractCurrentGoals returned:', extractedGoals)
+          setUserGoals(extractedGoals)
+        } catch (error) {
+          console.error('Error in extractCurrentGoals:', error)
+          // Fallback to just using current entry goals
+          setUserGoals(currentGoals)
+        }
       } else {
         console.log('No entry found for date:', dateString)
         // No entry exists for this date, start fresh
@@ -386,8 +410,15 @@ export function DailyEntry() {
         
         // Extract weekly and monthly goals from all entries, start with empty daily goals
         const emptyGoals = { daily: [], weekly: [], monthly: [] }
-        const extractedGoals = extractCurrentGoals(allEntries, emptyGoals, date)
-        setUserGoals(extractedGoals)
+        try {
+          const extractedGoals = extractCurrentGoals(allEntries, emptyGoals, date)
+          console.log('extractCurrentGoals returned (no entry):', extractedGoals)
+          setUserGoals(extractedGoals)
+        } catch (error) {
+          console.error('Error in extractCurrentGoals (no entry):', error)
+          // Fallback to empty goals
+          setUserGoals(emptyGoals)
+        }
       }
       
       console.log('loadEntryForDate completed successfully')
