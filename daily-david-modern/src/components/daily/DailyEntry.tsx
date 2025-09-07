@@ -2,7 +2,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { useSearchParams } from 'react-router-dom'
-import { ChevronLeft, ChevronRight, Calendar, Target, Star, Heart, BookOpen, Lightbulb, Zap } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Calendar, Target, Star } from 'lucide-react'
 
 import { useAuthStore } from '../../stores/authStore'
 import { useDailyStore } from '../../stores/dailyStore'
@@ -273,7 +273,7 @@ export function DailyEntry() {
         
         // Add weekly goals from this week
         if (entryDate >= startOfWeek && Array.isArray(entry.goals.weekly)) {
-          entry.goals.weekly.forEach(goal => {
+          entry.goals.weekly.forEach((goal: Goal) => {
             const goalId = goal.id || goal.text
             if (!weeklyGoalIds.has(goalId)) {
               result.weekly.push(goal)
@@ -284,7 +284,7 @@ export function DailyEntry() {
         
         // Add monthly goals from this month
         if (entryDate >= startOfMonth && Array.isArray(entry.goals.monthly)) {
-          entry.goals.monthly.forEach(goal => {
+          entry.goals.monthly.forEach((goal: Goal) => {
             const goalId = goal.id || goal.text
             if (!monthlyGoalIds.has(goalId)) {
               result.monthly.push(goal)
@@ -314,7 +314,7 @@ export function DailyEntry() {
       const entryData = await loadEntryByDate(dateString)
       
       // Load all entries to extract weekly and monthly goals
-      const { loadEntries, entries } = useDailyStore.getState()
+      const { loadEntries } = useDailyStore.getState()
       await loadEntries()
       const allEntries = useDailyStore.getState().entries
       
@@ -666,12 +666,24 @@ export function DailyEntry() {
               />
             </motion.div>
 
+            {/* Gratitude Section */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+            >
+              <GratitudeSection 
+                gratitude={dayData.gratitude}
+                onUpdate={(gratitude) => handleUpdate('gratitude', gratitude)}
+              />
+            </motion.div>
+
             {/* Goals Section */}
             <motion.div
               id="goals-section"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
+              transition={{ delay: 0.4 }}
               className="space-y-6"
             >
               {/* Daily Goals */}
@@ -891,18 +903,6 @@ export function DailyEntry() {
                   ))}
                 </div>
               </div>
-            </motion.div>
-
-            {/* Gratitude Section */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
-            >
-              <GratitudeSection 
-                gratitude={dayData.gratitude}
-                onUpdate={(gratitude) => handleUpdate('gratitude', gratitude)}
-              />
             </motion.div>
 
             {/* SOAP Section */}
