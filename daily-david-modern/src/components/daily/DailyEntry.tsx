@@ -316,14 +316,34 @@ export function DailyEntry() {
     const currentMonthlyGoals: Goal[] = []
     
     // Get all goals from entries within their respective time periods
-    allEntries.forEach(entry => {
+    console.log('Processing', allEntries.length, 'entries for goal extraction')
+    
+    allEntries.forEach((entry, index) => {
+      console.log(`Entry ${index}:`, {
+        date: entry.date,
+        hasGoals: !!entry.goals,
+        goals: entry.goals
+      })
+      
       if (entry.goals) {
         const entryDate = new Date(entry.date)
         entryDate.setHours(0, 0, 0, 0) // Normalize to start of day
         const goals = entry.goals
         
+        console.log(`Entry ${index} date check:`, {
+          entryDate: entryDate.toISOString(),
+          startOfWeek: startOfWeek.toISOString(),
+          targetDate: targetDate.toISOString(),
+          startOfMonth: startOfMonth.toISOString(),
+          isInWeek: entryDate >= startOfWeek && entryDate <= targetDate,
+          isInMonth: entryDate >= startOfMonth && entryDate <= targetDate,
+          weeklyGoals: Array.isArray(goals.weekly) ? goals.weekly.length : 'not array',
+          monthlyGoals: Array.isArray(goals.monthly) ? goals.monthly.length : 'not array'
+        })
+        
         // Weekly goals: from entries in the same week as selected date
         if (entryDate >= startOfWeek && entryDate <= targetDate && Array.isArray(goals.weekly)) {
+          console.log(`Adding ${goals.weekly.length} weekly goals from entry ${index}`)
           goals.weekly.forEach(goal => {
             if (!currentWeeklyGoals.find(g => g.id === goal.id || g.text === goal.text)) {
               currentWeeklyGoals.push(goal)
@@ -333,6 +353,7 @@ export function DailyEntry() {
         
         // Monthly goals: from entries in the same month as selected date
         if (entryDate >= startOfMonth && entryDate <= targetDate && Array.isArray(goals.monthly)) {
+          console.log(`Adding ${goals.monthly.length} monthly goals from entry ${index}`)
           goals.monthly.forEach(goal => {
             if (!currentMonthlyGoals.find(g => g.id === goal.id || g.text === goal.text)) {
               currentMonthlyGoals.push(goal)
