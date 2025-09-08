@@ -82,6 +82,7 @@ export const ReadingPlanProgress: React.FC<ReadingPlanProgressProps> = ({
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -20 }}
         className="bg-slate-800 border border-slate-700 rounded-lg p-4 mb-4"
+        style={{position: 'relative', zIndex: 1, pointerEvents: 'auto'}}
       >
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
@@ -146,12 +147,12 @@ export const ReadingPlanProgress: React.FC<ReadingPlanProgressProps> = ({
       </div>
 
       {/* Action Buttons */}
-      <div className="flex flex-wrap gap-2 mb-4">
+      <div className="flex flex-wrap gap-2 mb-4" style={{position: 'relative', zIndex: 9999, pointerEvents: 'auto'}}>
         {console.log('🔥 ReadingPlanProgress: Rendering buttons with readingPlan.planId:', readingPlan.planId)}
         <div style={{color: 'red', fontSize: '12px'}}>BUTTONS SHOULD BE HERE</div>
         <button
           onClick={() => console.log('🔥 SIMPLE TEST CLICKED!')}
-          style={{backgroundColor: 'red', color: 'white', padding: '10px'}}
+          style={{backgroundColor: 'red', color: 'white', padding: '10px', position: 'relative', zIndex: 10000, pointerEvents: 'auto'}}
         >
           SIMPLE TEST
         </button>
@@ -159,6 +160,7 @@ export const ReadingPlanProgress: React.FC<ReadingPlanProgressProps> = ({
           size="sm"
           onClick={() => console.log('🔥 BUTTON COMPONENT TEST CLICKED!')}
           className="bg-red-600 hover:bg-red-500 text-white"
+          style={{position: 'relative', zIndex: 10000, pointerEvents: 'auto'}}
         >
           BUTTON COMPONENT TEST
         </Button>
