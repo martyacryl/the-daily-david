@@ -139,7 +139,10 @@ export const ReadingPlanProgress: React.FC<ReadingPlanProgressProps> = ({
       <div className="flex flex-wrap gap-2 mb-4">
         <Button
           size="sm"
-          onClick={() => onLoadTodaysDevotion(readingPlan.planId)}
+          onClick={() => {
+            console.log('🔥 Button clicked!', readingPlan.planId)
+            onLoadTodaysDevotion(readingPlan.planId)
+          }}
           className="bg-slate-600 hover:bg-slate-500 text-white"
         >
           Load Today's Devotion
