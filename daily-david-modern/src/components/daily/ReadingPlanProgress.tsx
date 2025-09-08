@@ -32,6 +32,8 @@ export const ReadingPlanProgress: React.FC<ReadingPlanProgressProps> = ({
   onRestartPlan
 }) => {
   console.log('🔥 ReadingPlanProgress: Component rendered with readingPlan:', readingPlan)
+  console.log('🔥 ReadingPlanProgress: onLoadTodaysDevotion function:', typeof onLoadTodaysDevotion)
+  console.log('🔥 ReadingPlanProgress: onAdvanceToNextDay function:', typeof onAdvanceToNextDay)
   const [isExpanded, setIsExpanded] = useState(false)
 
   const progressPercentage = (readingPlan.completedDays.length / readingPlan.totalDays) * 100
@@ -67,6 +69,8 @@ export const ReadingPlanProgress: React.FC<ReadingPlanProgressProps> = ({
     return days
   }
 
+  console.log('🔥 ReadingPlanProgress: About to render component')
+  
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -142,6 +146,7 @@ export const ReadingPlanProgress: React.FC<ReadingPlanProgressProps> = ({
         <button
           onClick={() => console.log('🔥 TEST BUTTON CLICKED!')}
           className="px-3 py-1.5 text-sm bg-red-600 hover:bg-red-500 text-white rounded-lg"
+          style={{ zIndex: 9999, position: 'relative' }}
         >
           TEST BUTTON
         </button>
