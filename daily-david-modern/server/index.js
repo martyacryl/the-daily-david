@@ -254,6 +254,7 @@ app.post('/api/entries', authenticateToken, async (req, res) => {
             growthQuestion,
             leadershipRating,
             checkIn,
+            readingPlan,
             deletedGoalIds
           })
         ]
