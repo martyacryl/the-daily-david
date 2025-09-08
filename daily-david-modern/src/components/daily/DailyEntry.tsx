@@ -764,22 +764,23 @@ export function DailyEntry() {
           </Button>
         </div>
         
-        <div className="flex items-center justify-center space-x-4">
+        <div className="flex items-center justify-center space-x-2 sm:space-x-4">
           <Button
             onClick={() => navigateToDate('prev')}
             variant="outline"
             size="sm"
+            className="px-2 sm:px-3"
           >
             <ChevronLeft className="w-4 h-4" />
-            Previous Day
+            <span className="hidden sm:inline ml-1">Previous Day</span>
           </Button>
           
-          <div className="text-center">
-            <div className="text-lg font-semibold text-white">
+          <div className="text-center min-w-0 flex-1 px-2">
+            <div className="text-sm sm:text-lg font-semibold text-white truncate">
               {formatDate(selectedDate)}
             </div>
             {isToday(selectedDate) && (
-              <div className="text-sm text-amber-500 font-medium">Today</div>
+              <div className="text-xs sm:text-sm text-amber-500 font-medium">Today</div>
             )}
           </div>
           
@@ -787,8 +788,9 @@ export function DailyEntry() {
             onClick={() => navigateToDate('next')}
             variant="outline"
             size="sm"
+            className="px-2 sm:px-3"
           >
-            Next Day
+            <span className="hidden sm:inline mr-1">Next Day</span>
             <ChevronRight className="w-4 h-4" />
           </Button>
         </div>
