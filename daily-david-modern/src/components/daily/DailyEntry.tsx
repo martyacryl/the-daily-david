@@ -253,11 +253,20 @@ export function DailyEntry() {
     console.log('extractCurrentGoals called with', entries.length, 'entries')
     const deletedIds = currentDeletedGoalIds || deletedGoalIds
     console.log('extractCurrentGoals: deletedGoalIds =', Array.from(deletedIds))
-    // Start with current entry goals
+    // Start with current entry goals, but filter out deleted ones
     const result = {
-      daily: [...currentEntryGoals.daily],
-      weekly: [...currentEntryGoals.weekly],
-      monthly: [...currentEntryGoals.monthly]
+      daily: currentEntryGoals.daily.filter(goal => {
+        if (!goal.id) return false
+        return !deletedIds.has(goal.id) && !deletedIds.has(goal.id.toString())
+      }),
+      weekly: currentEntryGoals.weekly.filter(goal => {
+        if (!goal.id) return false
+        return !deletedIds.has(goal.id) && !deletedIds.has(goal.id.toString())
+      }),
+      monthly: currentEntryGoals.monthly.filter(goal => {
+        if (!goal.id) return false
+        return !deletedIds.has(goal.id) && !deletedIds.has(goal.id.toString())
+      })
     }
     
     // Add weekly and monthly goals from other entries in the same time period
@@ -271,9 +280,9 @@ export function DailyEntry() {
     
     const startOfMonth = new Date(targetDate.getFullYear(), targetDate.getMonth(), 1)
     
-    // Collect unique goals from other entries
-    const weeklyGoalIds = new Set(result.weekly.map(g => g.id || g.text))
-    const monthlyGoalIds = new Set(result.monthly.map(g => g.id || g.text))
+    // Collect unique goals from other entries - only use IDs, not text
+    const weeklyGoalIds = new Set(result.weekly.map(g => g.id).filter(id => id))
+    const monthlyGoalIds = new Set(result.monthly.map(g => g.id).filter(id => id))
     
     entries.forEach(entry => {
       if (entry.goals) {
@@ -304,8 +313,18 @@ export function DailyEntry() {
         // Add weekly goals from this week (but not if they were deleted)
         if (entryDate >= startOfWeek && Array.isArray(entry.goals.weekly)) {
           entry.goals.weekly.forEach((goal: Goal) => {
-            const goalId = goal.id || goal.text
-            if (!weeklyGoalIds.has(goalId) && !deletedIds.has(goalId)) {
+            const goalId = goal.id
+            // Only process goals with valid IDs
+            if (!goalId) {
+              console.warn('Weekly goal missing ID:', goal)
+              return
+            }
+            
+            // Check both string and number versions of the ID
+            const isDeleted = deletedIds.has(goalId) || deletedIds.has(goalId.toString())
+            const alreadyExists = weeklyGoalIds.has(goalId)
+            
+            if (!alreadyExists && !isDeleted) {
               result.weekly.push(goal)
               weeklyGoalIds.add(goalId)
             }
@@ -315,19 +334,20 @@ export function DailyEntry() {
         // Add monthly goals from this month (but not if they were deleted)
         if (entryDate >= startOfMonth && Array.isArray(entry.goals.monthly)) {
           entry.goals.monthly.forEach((goal: Goal) => {
-            const goalId = goal.id || goal.text
-            const isDeleted = deletedIds.has(goalId)
+            const goalId = goal.id
+            // Only process goals with valid IDs
+            if (!goalId) {
+              console.warn('Monthly goal missing ID:', goal)
+              return
+            }
+            
+            // Check both string and number versions of the ID
+            const isDeleted = deletedIds.has(goalId) || deletedIds.has(goalId.toString())
             const alreadyExists = monthlyGoalIds.has(goalId)
-            console.log('extractCurrentGoals: Processing monthly goal:', goalId, 'deleted?', isDeleted, 'exists?', alreadyExists)
-            console.log('extractCurrentGoals: deletedIds contents:', Array.from(deletedIds))
-            console.log('extractCurrentGoals: goalId type:', typeof goalId, 'value:', goalId)
             
             if (!alreadyExists && !isDeleted) {
               result.monthly.push(goal)
               monthlyGoalIds.add(goalId)
-              console.log('extractCurrentGoals: Added monthly goal:', goalId)
-            } else {
-              console.log('extractCurrentGoals: Skipped monthly goal:', goalId, 'already exists:', alreadyExists, 'deleted:', isDeleted)
             }
           })
         }
