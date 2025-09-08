@@ -890,8 +890,8 @@ export function ProgressAnalytics() {
           </h3>
           <div className="space-y-4">
             <div className="grid grid-cols-7 gap-1 text-xs">
-              {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day) => (
-                <div key={day} className="text-center text-slate-400 font-medium p-2">
+              {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, index) => (
+                <div key={`day-${index}`} className="text-center text-slate-400 font-medium p-2">
                   {day}
                 </div>
               ))}
