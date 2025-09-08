@@ -703,7 +703,7 @@ export function ProgressAnalytics() {
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {Object.entries(data.leadershipScores).map(([trait, score]) => (
-              <div key={trait} className="text-center">
+              <div key={`leadership-${trait}`} className="text-center">
                 <h4 className="font-medium text-white capitalize mb-2">{trait}</h4>
                 <div className="relative">
                   <svg className="w-20 h-20 mx-auto" viewBox="0 0 36 36">
@@ -936,7 +936,7 @@ export function ProgressAnalytics() {
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {Object.entries(data.leadershipScores).map(([trait, score]) => (
-              <div key={trait} className="text-center">
+              <div key={`leadership-${trait}`} className="text-center">
                 <h4 className="font-medium text-white capitalize mb-2">{trait}</h4>
                 <div className="relative">
                   <svg className="w-20 h-20 mx-auto" viewBox="0 0 36 36">

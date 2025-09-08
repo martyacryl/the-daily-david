@@ -777,7 +777,7 @@ export function DailyEntry() {
                 </div>
                 <div className="space-y-3">
                   {userGoals.daily.map((goal, index) => (
-                    <div key={goal.id} className="p-4 bg-slate-700/50 rounded-lg space-y-3">
+                    <div key={`daily-entry-${goal.id}-${index}`} className="p-4 bg-slate-700/50 rounded-lg space-y-3">
                       <div className="flex items-center space-x-3">
                         <input
                           type="checkbox"
@@ -849,7 +849,7 @@ export function DailyEntry() {
                 </div>
                 <div className="space-y-3">
                   {userGoals.weekly.map((goal, index) => (
-                    <div key={goal.id} className="p-4 bg-slate-700/50 rounded-lg space-y-3">
+                    <div key={`weekly-entry-${goal.id}-${index}`} className="p-4 bg-slate-700/50 rounded-lg space-y-3">
                       <div className="flex items-center space-x-3">
                         <input
                           type="checkbox"
@@ -921,7 +921,7 @@ export function DailyEntry() {
                 </div>
                 <div className="space-y-3">
                   {userGoals.monthly.map((goal, index) => (
-                    <div key={goal.id} className="p-4 bg-slate-700/50 rounded-lg space-y-3">
+                    <div key={`monthly-entry-${goal.id}-${index}`} className="p-4 bg-slate-700/50 rounded-lg space-y-3">
                       <div className="flex items-center space-x-3">
                         <input
                           type="checkbox"
