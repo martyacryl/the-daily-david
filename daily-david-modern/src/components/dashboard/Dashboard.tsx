@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
-import { Crown, Trophy, Calendar, Target, BookOpen, Flame, Trees, Mountain } from 'lucide-react'
+import { Crown, Trophy, CalendarDays, Target, BookOpen, Flame, TreePine, Mountain } from 'lucide-react'
 import { MountainCrossIcon, CompassCrossIcon, CrossIcon, ShieldIcon } from '../icons/WesternIcons'
 import { Card } from '../ui/Card'
 import { Button } from '../ui/Button'
@@ -540,8 +540,8 @@ export const Dashboard: React.FC = () => {
 
         <Card className="p-8 bg-slate-800/80 backdrop-blur-sm border-slate-700">
           <div className="text-center">
-            <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-blue-700 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Trees className="w-8 h-8 text-white" />
+            <div className="w-16 h-16 bg-gradient-to-br from-slate-600 to-slate-700 rounded-full flex items-center justify-center mx-auto mb-4">
+              <TreePine className="w-8 h-8 text-white" />
             </div>
             <h3 className="text-xl font-semibold text-white mb-2">
               View Progress
@@ -666,7 +666,7 @@ export const Dashboard: React.FC = () => {
         <Card className="p-6 bg-slate-800/80 backdrop-blur-sm border-slate-700">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center space-x-2">
-              <Calendar className="w-5 h-5 text-blue-500" />
+              <CalendarDays className="w-5 h-5 text-slate-400" />
               <h3 className="text-lg font-semibold text-white">Weekly Goals</h3>
             </div>
             <span className="text-sm text-slate-300">
