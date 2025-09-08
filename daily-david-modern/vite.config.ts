@@ -10,8 +10,15 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
-            server: {
-            port: 3002,
-            host: true,
-          },
+  server: {
+    port: 3002,
+    host: true,
+    proxy: {
+      '/api': {
+        target: 'http://192.168.0.91:3001',
+        changeOrigin: true,
+        secure: false,
+      },
+    },
+  },
 })

@@ -27,7 +27,7 @@ interface AuthActions {
 
 type AuthStore = AuthState & AuthActions
 
-const API_BASE_URL = 'http://192.168.0.91:3001'
+const API_BASE_URL = ''
 
 export const useAuthStore = create<AuthStore>()(
   persist(

@@ -1,11 +1,21 @@
 // API Configuration for different environments
 const getApiUrl = () => {
-  // Always use the current domain (no localhost)
+  // For local development with IP address, use the backend server IP
+  if (typeof window !== 'undefined' && window.location.hostname === '192.168.0.91') {
+    return 'http://192.168.0.91:3001'
+  }
+  
+  // For localhost development, use localhost backend
+  if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
+    return 'http://localhost:3001'
+  }
+  
+  // For production (Vercel), use the current domain
   if (typeof window !== 'undefined') {
     return window.location.origin
   }
   
-  // Fallback for SSR
+  // Fallback for SSR (production)
   return 'https://thedailydavid.vercel.app'
 }
 
