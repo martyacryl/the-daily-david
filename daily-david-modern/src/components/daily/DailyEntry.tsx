@@ -1158,19 +1158,45 @@ export function DailyEntry() {
                 Test Button (Mobile Debug)
               </button>
               
+              {/* Simple save button for mobile */}
               <button
-                onClick={handleSubmit}
-                onTouchStart={(e) => {
+                onClick={() => {
+                  console.log('Simple save button clicked!')
+                  setShowSuccessBanner(true)
+                  setTimeout(() => {
+                    try {
+                      window.scrollTo({ top: 0, behavior: 'smooth' })
+                    } catch (e) {
+                      window.scrollTo(0, 0)
+                    }
+                  }, 100)
+                }}
+                className="px-6 py-2 text-base bg-purple-600 text-white rounded"
+                style={{ touchAction: 'manipulation' }}
+              >
+                Simple Save (Mobile Test)
+              </button>
+              
+              <button
+                onClick={(e) => {
+                  console.log('Save button clicked!', e)
                   e.preventDefault()
                   e.stopPropagation()
+                  handleSubmit(e)
+                }}
+                onTouchStart={(e) => {
+                  console.log('Save button touch start!', e)
                   e.currentTarget.style.transform = 'scale(0.98)'
-                  e.currentTarget.style.backgroundColor = '#059669' // darker green
+                  e.currentTarget.style.backgroundColor = '#059669'
                 }}
                 onTouchEnd={(e) => {
+                  console.log('Save button touch end!', e)
+                  e.currentTarget.style.transform = 'scale(1)'
+                  e.currentTarget.style.backgroundColor = '#16a34a'
+                  // Trigger the actual save on touch end
                   e.preventDefault()
                   e.stopPropagation()
-                  e.currentTarget.style.transform = 'scale(1)'
-                  e.currentTarget.style.backgroundColor = '#16a34a' // original green
+                  handleSubmit(e)
                 }}
                 onMouseDown={(e) => {
                   e.currentTarget.style.backgroundColor = '#059669'
