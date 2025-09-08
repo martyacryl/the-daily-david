@@ -11,11 +11,22 @@ import { BookOpen, Target, Zap } from 'lucide-react';
 interface BibleIntegrationProps {
   onVerseSelect: (verse: BibleVerse) => void;
   selectedVerse?: BibleVerse;
+  onStartReadingPlan?: (plan: any) => void;
+  currentReadingPlan?: {
+    planId: string
+    planName: string
+    currentDay: number
+    totalDays: number
+    startDate: string
+    completedDays: number[]
+  };
 }
 
 export const BibleIntegration: React.FC<BibleIntegrationProps> = ({ 
   onVerseSelect, 
-  selectedVerse 
+  selectedVerse,
+  onStartReadingPlan,
+  currentReadingPlan
 }) => {
 
   const [bibleVersions, setBibleVersions] = useState<BibleVersion[]>([]);
@@ -114,29 +125,10 @@ export const BibleIntegration: React.FC<BibleIntegrationProps> = ({
                   <div className="flex flex-col gap-2 md:ml-4">
                     <Button
                       size="sm"
-                      onClick={async () => {
-                        setLoadingPlan(plan.id);
-                        try {
-                          console.log('Loading devotion for plan:', plan.id);
-                          const devotion = await bibleService.getTodaysDevotion(plan.id, selectedBible);
-                          console.log('Devotion loaded:', devotion);
-                          if (devotion && devotion.verses.length > 0) {
-                            handleVerseSelect(devotion.verses[0]);
-                          } else {
-                            console.error('No devotion found for plan:', plan.id);
-                            alert('No devotion found for this plan. Please try again.');
-                          }
-                        } catch (error) {
-                          console.error('Error loading devotion:', error);
-                          alert('Error loading devotion. Please try again.');
-                        } finally {
-                          setLoadingPlan(null);
-                        }
-                      }}
-                      disabled={loadingPlan === plan.id}
-                      className="bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400"
+                      onClick={() => onStartReadingPlan && onStartReadingPlan(plan)}
+                      className="bg-slate-600 hover:bg-slate-500 text-white"
                     >
-                      {loadingPlan === plan.id ? 'Loading...' : 'Today\'s Devotion'}
+                      Choose Plan
                     </Button>
                     <Button
                       size="sm"

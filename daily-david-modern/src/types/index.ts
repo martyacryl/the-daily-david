@@ -54,6 +54,16 @@ export interface User {
     integrity: number
   }
   
+  // Reading Plan Structure
+  export interface ReadingPlan {
+    planId: string
+    planName: string
+    currentDay: number
+    totalDays: number
+    startDate: string
+    completedDays: number[]
+  }
+  
   export interface LeadershipTrait {
     key: string
     rating: number
@@ -101,6 +111,7 @@ export interface User {
     dailyIntention?: string
     growthQuestion?: string
     leadershipRating?: LeadershipRating
+    readingPlan?: ReadingPlan
     deletedGoalIds?: string[]
     [key: string]: any
   }

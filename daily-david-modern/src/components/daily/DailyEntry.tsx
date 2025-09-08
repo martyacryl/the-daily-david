@@ -9,6 +9,7 @@ import { useDailyStore } from '../../stores/dailyStore'
 import { CheckInSection } from './CheckInSection'
 import { GratitudeSection } from './GraditudeSection'
 import { SOAPSection } from './SOAPSection'
+import { ReadingPlanProgress } from './ReadingPlanProgress'
 import { Button } from '../ui/Button'
 import { Textarea } from '../ui/Textarea'
 import { Goal, EmotionType } from '../../types'
@@ -70,7 +71,15 @@ export function DailyEntry() {
       courage: 5,
       patience: 5,
       integrity: 5
-    }
+    },
+    readingPlan: undefined as {
+      planId: string
+      planName: string
+      currentDay: number
+      totalDays: number
+      startDate: string
+      completedDays: number[]
+    } | undefined
   })
 
   const [isLoading, setIsLoading] = useState(false)
@@ -174,15 +183,16 @@ export function DailyEntry() {
         return
       }
       
-      console.log('DailyEntry: Auto-save entryData:', entryData)
-      console.log('DailyEntry: CheckIn data in entryData:', {
-        checkIn: entryData.checkIn,
-        checkInType: typeof entryData.checkIn,
-        emotions: entryData.checkIn?.emotions,
-        emotionsType: typeof entryData.checkIn?.emotions,
-        emotionsIsArray: Array.isArray(entryData.checkIn?.emotions),
-        feeling: entryData.checkIn?.feeling
-      })
+        console.log('DailyEntry: Auto-save entryData:', entryData)
+        console.log('DailyEntry: ReadingPlan data in entryData:', entryData.readingPlan)
+        console.log('DailyEntry: CheckIn data in entryData:', {
+          checkIn: entryData.checkIn,
+          checkInType: typeof entryData.checkIn,
+          emotions: entryData.checkIn?.emotions,
+          emotionsType: typeof entryData.checkIn?.emotions,
+          emotionsIsArray: Array.isArray(entryData.checkIn?.emotions),
+          feeling: entryData.checkIn?.feeling
+        })
       
       // Correct API call - this will create or update the entry
         const response = await fetch('/api/entries', {
@@ -199,6 +209,7 @@ export function DailyEntry() {
           dailyIntention: entryData.dailyIntention,
           leadershipRating: entryData.leadershipRating,
           checkIn: entryData.checkIn,
+          readingPlan: entryData.readingPlan,
           deletedGoalIds: Array.from(currentDeletedGoalIds || deletedGoalIds)
         })
       })
@@ -392,13 +403,16 @@ export function DailyEntry() {
         currentEntryIdRef.current = entryData.id
         
         // Load existing entry data
+        const readingPlanData = entryData.readingPlan || (entryData.data_content && entryData.data_content.readingPlan)
+        console.log('🔥 Loading reading plan data:', readingPlanData)
         setDayData(prev => ({
           ...prev,
           checkIn: entryData.checkIn || prev.checkIn,
           gratitude: entryData.gratitude || prev.gratitude,
           soap: entryData.soap || prev.soap,
           dailyIntention: entryData.dailyIntention || prev.dailyIntention,
-          leadershipRating: entryData.leadershipRating || prev.leadershipRating
+          leadershipRating: entryData.leadershipRating || prev.leadershipRating,
+          readingPlan: readingPlanData || prev.readingPlan
         }))
         
         // Start with goals from current entry
@@ -504,6 +518,258 @@ export function DailyEntry() {
       
       return newData
     })
+  }
+
+  const handleStartReadingPlan = (plan: any) => {
+    console.log('🔥 Starting/continuing reading plan:', plan)
+    
+    // Check if we already have this plan in progress
+    const existingPlan = dayData.readingPlan
+    if (existingPlan && existingPlan.planId === plan.id) {
+      console.log('🔥 Plan already in progress, continuing...')
+      return // Don't reset the plan, just continue with existing progress
+    }
+    
+    // Check if we have this plan in any previous entries
+    const allEntries = useDailyStore.getState().entries
+    let existingProgress = null
+    
+    console.log('🔥 Checking all entries for existing progress. Total entries:', allEntries.length)
+    
+    // Look through all entries to find existing progress for this plan
+    // Sort by date to get the most recent progress
+    const sortedEntries = [...allEntries].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+    
+    for (const entry of sortedEntries) {
+      // Check both entry.readingPlan and entry.data_content.readingPlan
+      const readingPlanData = entry.readingPlan || (entry.data_content && entry.data_content.readingPlan)
+      console.log('🔥 Checking entry from:', entry.date, 'has readingPlan:', !!readingPlanData)
+      if (readingPlanData) {
+        console.log('🔥 Entry readingPlan:', readingPlanData)
+        if (readingPlanData.planId === plan.id) {
+          existingProgress = readingPlanData
+          console.log('🔥 FOUND existing progress for plan:', plan.id, 'in entry from:', entry.date)
+          console.log('🔥 Existing progress:', existingProgress)
+          break
+        }
+      }
+    }
+    
+    let readingPlan
+    if (existingProgress) {
+      // Continue existing plan
+      readingPlan = {
+        ...existingProgress,
+        currentDay: existingProgress.currentDay // Keep current day
+      }
+      console.log('🔥 CONTINUING existing plan with progress:', readingPlan)
+    } else {
+      // Start new plan
+      const today = new Date().toISOString().split('T')[0]
+      readingPlan = {
+        planId: plan.id,
+        planName: plan.name,
+        currentDay: 1,
+        totalDays: plan.duration,
+        startDate: today,
+        completedDays: []
+      }
+      console.log('🔥 STARTING new plan:', readingPlan)
+    }
+    
+    setDayData(prev => ({ ...prev, readingPlan }))
+    
+    // Trigger auto-save
+    setTimeout(() => {
+      const entryData = {
+        ...dayData,
+        readingPlan,
+        goals: userGoals
+      }
+      autoSaveToAPI(entryData)
+    }, 100)
+  }
+
+  const handleUpdateReadingPlan = (updatedReadingPlan: any) => {
+    console.log('🔥 Updating reading plan:', updatedReadingPlan)
+    setDayData(prev => ({ ...prev, readingPlan: updatedReadingPlan }))
+    
+    // Trigger auto-save immediately
+    setTimeout(() => {
+      const entryData = {
+        ...dayData,
+        readingPlan: updatedReadingPlan,
+        goals: userGoals
+      }
+      console.log('🔥 Auto-saving reading plan update:', updatedReadingPlan)
+      autoSaveToAPI(entryData)
+    }, 100)
+  }
+
+  const handleLoadTodaysDevotion = async (planId: string) => {
+    console.log('Loading today\'s devotion for plan:', planId)
+    
+    if (!dayData.readingPlan) {
+      console.error('No reading plan active')
+      return
+    }
+
+    try {
+      // Import the bible service
+      const { bibleService } = await import('../../lib/bibleService')
+      
+      // Get today's devotion
+      const devotion = await bibleService.getTodaysDevotion(planId)
+      
+      if (devotion && devotion.verses.length > 0) {
+        const verse = devotion.verses[0]
+        
+        // Load the scripture into the SOAP section
+        const updatedSOAP = {
+          ...dayData.soap,
+          scripture: `${verse.reference} - ${verse.content}`
+        }
+        
+        // Mark the current day as complete
+        const currentDay = dayData.readingPlan.currentDay
+        const updatedCompletedDays = [...dayData.readingPlan.completedDays]
+        if (!updatedCompletedDays.includes(currentDay)) {
+          updatedCompletedDays.push(currentDay)
+        }
+        
+        const updatedReadingPlan = {
+          ...dayData.readingPlan,
+          completedDays: updatedCompletedDays
+        }
+        
+        // Update the day data
+        setDayData(prev => ({
+          ...prev,
+          soap: updatedSOAP,
+          readingPlan: updatedReadingPlan
+        }))
+        
+        console.log('Devotion loaded successfully:', devotion.title)
+        console.log('Day marked as complete:', currentDay)
+        
+        // Trigger auto-save
+        setTimeout(() => {
+          const entryData = {
+            ...dayData,
+            soap: updatedSOAP,
+            readingPlan: updatedReadingPlan,
+            goals: userGoals
+          }
+          autoSaveToAPI(entryData)
+        }, 100)
+        
+      } else {
+        console.error('No devotion found for plan:', planId)
+        alert('No devotion found for this plan. Please try again.')
+      }
+    } catch (error) {
+      console.error('Error loading devotion:', error)
+      alert('Error loading devotion. Please try again.')
+    }
+  }
+
+  const handleAdvanceToNextDay = () => {
+    if (!dayData.readingPlan) return
+    
+    const nextDay = dayData.readingPlan.currentDay + 1
+    if (nextDay <= dayData.readingPlan.totalDays) {
+      const updatedReadingPlan = {
+        ...dayData.readingPlan,
+        currentDay: nextDay
+      }
+      handleUpdateReadingPlan(updatedReadingPlan)
+    }
+  }
+
+  const handleClosePlan = async () => {
+    console.log('🔥 CLOSING READING PLAN')
+    console.log('🔥 Current reading plan before close:', dayData.readingPlan)
+    
+    // Save current progress before closing - IMMEDIATELY
+    if (dayData.readingPlan) {
+      console.log('🔥 Saving reading plan before closing...')
+      const entryData = {
+        ...dayData,
+        readingPlan: dayData.readingPlan,
+        goals: userGoals
+      }
+      
+      try {
+        await autoSaveToAPI(entryData)
+        console.log('🔥 Reading plan saved successfully before closing')
+      } catch (error) {
+        console.error('🔥 Failed to save reading plan before closing:', error)
+      }
+    }
+    
+    // Clear the display but keep the data saved
+    setDayData(prev => ({ ...prev, readingPlan: undefined }))
+    console.log('🔥 Plan closed, display cleared')
+  }
+
+  const handleStartNewPlan = async () => {
+    console.log('🔥 STARTING NEW PLAN - saving current progress first')
+    console.log('🔥 Current reading plan before new plan:', dayData.readingPlan)
+    
+    // Save current progress before starting new plan - IMMEDIATELY
+    if (dayData.readingPlan) {
+      console.log('🔥 Saving reading plan before starting new plan...')
+      const entryData = {
+        ...dayData,
+        readingPlan: dayData.readingPlan,
+        goals: userGoals
+      }
+      
+      try {
+        await autoSaveToAPI(entryData)
+        console.log('🔥 Reading plan saved successfully before starting new plan')
+      } catch (error) {
+        console.error('🔥 Failed to save reading plan before starting new plan:', error)
+      }
+    }
+    
+    // Clear the display but keep the data saved
+    setDayData(prev => ({ ...prev, readingPlan: undefined }))
+    console.log('🔥 Plan cleared, ready for new plan selection')
+    
+    // The Bible Integration component will show the plan selection
+  }
+
+  const handleRestartPlan = () => {
+    console.log('Restarting reading plan')
+    
+    if (!dayData.readingPlan) {
+      console.error('No reading plan to restart')
+      return
+    }
+    
+    // Create a fresh version of the current plan
+    const restartedPlan = {
+      ...dayData.readingPlan,
+      currentDay: 1,
+      completedDays: [],
+      startDate: new Date().toISOString().split('T')[0] // New start date
+    }
+    
+    console.log('Restarting plan with fresh data:', restartedPlan)
+    
+    // Update the day data with the restarted plan
+    setDayData(prev => ({ ...prev, readingPlan: restartedPlan }))
+    
+    // Trigger auto-save
+    setTimeout(() => {
+      const entryData = {
+        ...dayData,
+        readingPlan: restartedPlan,
+        goals: userGoals
+      }
+      autoSaveToAPI(entryData)
+    }, 100)
   }
 
   const handleSubmit = async (event?: React.MouseEvent | React.TouchEvent) => {
@@ -1089,6 +1355,24 @@ export function DailyEntry() {
             </motion.div>
 
             {/* SOAP Section */}
+            {/* Reading Plan Progress */}
+            {dayData.readingPlan && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4 }}
+              >
+                <ReadingPlanProgress
+                  readingPlan={dayData.readingPlan}
+                  onLoadTodaysDevotion={handleLoadTodaysDevotion}
+                  onAdvanceToNextDay={handleAdvanceToNextDay}
+                  onClosePlan={handleClosePlan}
+                  onStartNewPlan={handleStartNewPlan}
+                  onRestartPlan={handleRestartPlan}
+                />
+              </motion.div>
+            )}
+
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -1097,6 +1381,14 @@ export function DailyEntry() {
               <SOAPSection 
                 soap={dayData.soap}
                 onUpdate={(soap) => handleUpdate('soap', soap)}
+                readingPlan={dayData.readingPlan}
+                onStartReadingPlan={handleStartReadingPlan}
+                onUpdateReadingPlan={handleUpdateReadingPlan}
+                onLoadTodaysDevotion={handleLoadTodaysDevotion}
+                onAdvanceToNextDay={handleAdvanceToNextDay}
+                onClosePlan={handleClosePlan}
+                onStartNewPlan={handleStartNewPlan}
+                onRestartPlan={handleRestartPlan}
               />
             </motion.div>
 

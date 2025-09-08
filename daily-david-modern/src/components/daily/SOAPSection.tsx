@@ -6,9 +6,35 @@ import { BookOpen, Target, Heart, Lightbulb } from 'lucide-react'
 interface SOAPSectionProps {
   soap: SOAPData
   onUpdate: (soap: SOAPData) => void
+  readingPlan?: {
+    planId: string
+    planName: string
+    currentDay: number
+    totalDays: number
+    startDate: string
+    completedDays: number[]
+  }
+  onStartReadingPlan?: (plan: any) => void
+  onUpdateReadingPlan?: (updatedReadingPlan: any) => void
+  onLoadTodaysDevotion?: (planId: string) => void
+  onAdvanceToNextDay?: () => void
+  onClosePlan?: () => void
+  onStartNewPlan?: () => void
+  onRestartPlan?: () => void
 }
 
-export function SOAPSection({ soap, onUpdate }: SOAPSectionProps) {
+export function SOAPSection({ 
+  soap, 
+  onUpdate, 
+  readingPlan, 
+  onStartReadingPlan, 
+  onUpdateReadingPlan, 
+  onLoadTodaysDevotion, 
+  onAdvanceToNextDay, 
+  onClosePlan, 
+  onStartNewPlan, 
+  onRestartPlan 
+}: SOAPSectionProps) {
   const [localSOAP, setLocalSOAP] = useState(soap || {
     scripture: '',
     observation: '',
@@ -103,6 +129,8 @@ export function SOAPSection({ soap, onUpdate }: SOAPSectionProps) {
           content: localSOAP.scripture.split(' - ')[1] || '',
           copyright: 'Bible'
         } : undefined}
+        onStartReadingPlan={onStartReadingPlan}
+        currentReadingPlan={readingPlan}
       />
 
       {/* SOAP Study Form */}
