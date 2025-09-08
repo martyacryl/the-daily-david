@@ -686,6 +686,10 @@ export function DailyEntry() {
 
   return (
     <div className="space-y-8">
+      {/* Debug Banner State */}
+      <div className="fixed top-0 left-0 bg-red-500 text-white p-2 z-[99999]">
+        Banner: {showSuccessBanner ? 'SHOWING' : 'HIDDEN'}
+      </div>
       {/* Success Banner */}
       {showSuccessBanner && (
         <motion.div
@@ -1145,11 +1149,12 @@ export function DailyEntry() {
             </motion.div>
 
             {/* Submit Button */}
-            <div className="text-center">
+            <div className="text-center relative z-[9999]">
               {/* Test Button */}
               <div 
                 onClick={() => alert('TEST BUTTON WORKS!')}
-                className="mb-4 px-4 py-2 bg-red-600 text-white rounded cursor-pointer"
+                className="mb-4 px-4 py-2 bg-red-600 text-white rounded cursor-pointer relative z-[9999]"
+                style={{ zIndex: 9999 }}
               >
                 TEST BUTTON
               </div>
