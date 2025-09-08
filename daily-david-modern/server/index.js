@@ -307,7 +307,7 @@ app.get('/api/entries/:date', authenticateToken, async (req, res) => {
     
     try {
       // Get main entry
-      console.log('🔥 Backend: Getting entry for date:', date, 'user:', userId)
+      console.log('🔥 Backend: Getting entry for date:', date, 'user:', userId, 'v2')
       const entryResult = await client.query(
         `SELECT * FROM daily_david_entries 
          WHERE date_key = $1 AND user_id = $2`,
