@@ -160,25 +160,21 @@ export const ReadingPlanProgress: React.FC<ReadingPlanProgressProps> = ({
           </Button>
         )}
         
-        <Button
-          size="sm"
-          variant="outline"
+        <button
           onClick={onRestartPlan}
-          className="border-slate-600 text-slate-300 hover:bg-slate-700"
+          className="px-3 py-1.5 text-sm border-2 border-slate-600 text-slate-300 hover:bg-slate-700 rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-slate-500"
         >
-          <RotateCcw className="w-4 h-4 mr-1" />
+          <RotateCcw className="w-4 h-4 mr-1 inline" />
           Restart
-        </Button>
+        </button>
         
-        <Button
-          size="sm"
-          variant="outline"
+        <button
           onClick={onStartNewPlan}
-          className="border-slate-600 text-slate-300 hover:bg-slate-700"
+          className="px-3 py-1.5 text-sm border-2 border-slate-600 text-slate-300 hover:bg-slate-700 rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-slate-500"
         >
-          <Plus className="w-4 h-4 mr-1" />
+          <Plus className="w-4 h-4 mr-1 inline" />
           New Plan
-        </Button>
+        </button>
       </div>
 
       {/* Expandable Day Grid */}
