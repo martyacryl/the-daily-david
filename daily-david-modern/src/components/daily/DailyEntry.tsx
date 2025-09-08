@@ -183,25 +183,19 @@ export function DailyEntry() {
         return
       }
       
-        console.log('DailyEntry: Auto-save entryData:', entryData)
+      console.log('DailyEntry: Auto-save entryData:', entryData)
         console.log('DailyEntry: ReadingPlan data in entryData:', entryData.readingPlan)
-        console.log('DailyEntry: CheckIn data in entryData:', {
-          checkIn: entryData.checkIn,
-          checkInType: typeof entryData.checkIn,
-          emotions: entryData.checkIn?.emotions,
-          emotionsType: typeof entryData.checkIn?.emotions,
-          emotionsIsArray: Array.isArray(entryData.checkIn?.emotions),
-          feeling: entryData.checkIn?.feeling
-        })
+      console.log('DailyEntry: CheckIn data in entryData:', {
+        checkIn: entryData.checkIn,
+        checkInType: typeof entryData.checkIn,
+        emotions: entryData.checkIn?.emotions,
+        emotionsType: typeof entryData.checkIn?.emotions,
+        emotionsIsArray: Array.isArray(entryData.checkIn?.emotions),
+        feeling: entryData.checkIn?.feeling
+      })
       
       // Correct API call - this will create or update the entry
-        const response = await fetch('/api/entries', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
+      const requestBody = {
           date: dateString,
           goals: entryData.goals,
           gratitude: entryData.gratitude,
@@ -209,9 +203,20 @@ export function DailyEntry() {
           dailyIntention: entryData.dailyIntention,
           leadershipRating: entryData.leadershipRating,
           checkIn: entryData.checkIn,
-          readingPlan: entryData.readingPlan,
+        readingPlan: entryData.readingPlan,
           deletedGoalIds: Array.from(currentDeletedGoalIds || deletedGoalIds)
-        })
+      }
+      
+      console.log('🔥 Frontend: Sending to backend:', requestBody)
+      console.log('🔥 Frontend: Reading plan being sent:', requestBody.readingPlan)
+      
+        const response = await fetch('/api/entries', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(requestBody)
       })
       
       console.log('Auto-save response status:', response.status)
@@ -875,7 +880,7 @@ export function DailyEntry() {
       // Scroll to top after saving - with fallback for browsers that don't support smooth scrolling
       setTimeout(() => {
         try {
-          window.scrollTo({ top: 0, behavior: 'smooth' })
+        window.scrollTo({ top: 0, behavior: 'smooth' })
         } catch (e) {
           // Fallback for browsers that don't support smooth scrolling
           window.scrollTo(0, 0)
