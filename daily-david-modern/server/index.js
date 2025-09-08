@@ -307,23 +307,27 @@ app.get('/api/entries/:date', authenticateToken, async (req, res) => {
     
     try {
       // Get main entry
+      console.log('🔥 Backend: Getting entry for date:', date, 'user:', userId)
       const entryResult = await client.query(
         `SELECT * FROM daily_david_entries 
          WHERE date_key = $1 AND user_id = $2`,
         [date, userId]
       )
+      console.log('🔥 Backend: Entry result:', entryResult.rows.length > 0 ? 'Found' : 'Not found')
 
       if (entryResult.rows.length > 0) {
         const entry = entryResult.rows[0]
         const dataContent = entry.data_content || {}
         
         // Get reading plan for this date
+        console.log('🔥 Backend: Getting reading plan for date:', date, 'user:', userId)
         const readingPlanResult = await client.query(
           `SELECT * FROM reading_plans 
            WHERE date_key = $1 AND user_id = $2
            ORDER BY updated_at DESC LIMIT 1`,
           [date, userId]
         )
+        console.log('🔥 Backend: Reading plan result:', readingPlanResult.rows.length > 0 ? 'Found' : 'Not found')
         
         if (readingPlanResult.rows.length > 0) {
           const readingPlan = readingPlanResult.rows[0]
@@ -335,6 +339,9 @@ app.get('/api/entries/:date', authenticateToken, async (req, res) => {
             startDate: readingPlan.start_date,
             completedDays: readingPlan.completed_days || []
           }
+          console.log('🔥 Backend: Added reading plan to dataContent:', dataContent.readingPlan)
+        } else {
+          console.log('🔥 Backend: No reading plan found for this date')
         }
 
         res.json({ 
