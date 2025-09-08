@@ -138,6 +138,7 @@ export const ReadingPlanProgress: React.FC<ReadingPlanProgressProps> = ({
 
       {/* Action Buttons */}
       <div className="flex flex-wrap gap-2 mb-4">
+        {console.log('🔥 ReadingPlanProgress: Rendering buttons with readingPlan.planId:', readingPlan.planId)}
         <Button
           size="sm"
           onClick={() => {
