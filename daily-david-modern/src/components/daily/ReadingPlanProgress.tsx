@@ -21,6 +21,7 @@ interface ReadingPlanProgressProps {
   onClosePlan: () => void
   onStartNewPlan: () => void
   onRestartPlan: () => void
+  onSaveProgress: () => void
 }
 
 export const ReadingPlanProgress: React.FC<ReadingPlanProgressProps> = ({
@@ -29,7 +30,8 @@ export const ReadingPlanProgress: React.FC<ReadingPlanProgressProps> = ({
   onAdvanceToNextDay,
   onClosePlan,
   onStartNewPlan,
-  onRestartPlan
+  onRestartPlan,
+  onSaveProgress
 }) => {
   const [isExpanded, setIsExpanded] = useState(false)
 
@@ -169,6 +171,14 @@ export const ReadingPlanProgress: React.FC<ReadingPlanProgressProps> = ({
           Restart
         </Button>
         
+        <Button
+          size="sm"
+          onClick={() => onSaveProgress()}
+          className="bg-green-600 hover:bg-green-500 text-white"
+          style={{position: 'relative', zIndex: 10000, pointerEvents: 'auto'}}
+        >
+          Save Progress
+        </Button>
         <Button
           size="sm"
           onClick={() => onStartNewPlan()}

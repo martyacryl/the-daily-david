@@ -712,6 +712,30 @@ export function DailyEntry() {
     console.log('🔥 Plan closed, display cleared')
   }
 
+  const handleSaveProgress = async () => {
+    console.log('🔥 MANUALLY SAVING READING PLAN PROGRESS')
+    console.log('🔥 Current reading plan:', dayData.readingPlan)
+    
+    if (dayData.readingPlan) {
+      const entryData = {
+        ...dayData,
+        readingPlan: dayData.readingPlan,
+        goals: userGoals
+      }
+      
+      try {
+        await autoSaveToAPI(entryData)
+        console.log('✅ Reading plan progress saved successfully!')
+        alert('Reading plan progress saved!')
+      } catch (error) {
+        console.error('❌ Error saving reading plan progress:', error)
+        alert('Error saving progress. Please try again.')
+      }
+    } else {
+      alert('No reading plan to save.')
+    }
+  }
+
   const handleStartNewPlan = async () => {
     console.log('🔥 STARTING NEW PLAN - saving current progress first')
     console.log('🔥 Current reading plan before new plan:', dayData.readingPlan)
@@ -1369,6 +1393,7 @@ export function DailyEntry() {
               onClosePlan={handleClosePlan}
               onStartNewPlan={handleStartNewPlan}
               onRestartPlan={handleRestartPlan}
+              onSaveProgress={handleSaveProgress}
             />
           </motion.div>
         )}
