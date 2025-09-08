@@ -513,7 +513,14 @@ export function DailyEntry() {
       event.stopPropagation()
     }
     
-    console.log('handleSubmit called')
+    console.log('handleSubmit called', { event, isSaving })
+    
+    // Prevent multiple submissions
+    if (isSaving) {
+      console.log('Already saving, ignoring click')
+      return
+    }
+    
     setIsSaving(true)
     
     try {
@@ -1138,34 +1145,57 @@ export function DailyEntry() {
             </motion.div>
 
             {/* Submit Button */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.8 }}
-              className="text-center"
-            >
-              <Button
+            <div className="text-center space-y-2">
+              {/* Debug button for mobile testing */}
+              <button
+                onClick={() => {
+                  console.log('Debug button clicked!')
+                  alert('Debug button works!')
+                }}
+                className="px-4 py-2 text-sm bg-blue-600 text-white rounded"
+                style={{ touchAction: 'manipulation' }}
+              >
+                Test Button (Mobile Debug)
+              </button>
+              
+              <button
                 onClick={handleSubmit}
                 onTouchStart={(e) => {
-                  // Ensure touch events work properly
+                  e.preventDefault()
+                  e.stopPropagation()
                   e.currentTarget.style.transform = 'scale(0.98)'
+                  e.currentTarget.style.backgroundColor = '#059669' // darker green
                 }}
                 onTouchEnd={(e) => {
+                  e.preventDefault()
+                  e.stopPropagation()
                   e.currentTarget.style.transform = 'scale(1)'
+                  e.currentTarget.style.backgroundColor = '#16a34a' // original green
+                }}
+                onMouseDown={(e) => {
+                  e.currentTarget.style.backgroundColor = '#059669'
+                }}
+                onMouseUp={(e) => {
+                  e.currentTarget.style.backgroundColor = '#16a34a'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = '#16a34a'
                 }}
                 disabled={isSaving}
-                className="px-8 py-3 text-lg bg-green-600 hover:bg-green-700 text-white font-semibold min-h-[48px] touch-manipulation active:scale-95 transition-transform"
+                className="px-8 py-3 text-lg bg-green-600 hover:bg-green-700 text-white font-semibold min-h-[48px] touch-manipulation active:scale-95 transition-all duration-150 rounded-lg border-0 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 style={{ 
                   WebkitTapHighlightColor: 'transparent',
                   WebkitTouchCallout: 'none',
                   WebkitUserSelect: 'none',
                   userSelect: 'none',
-                  touchAction: 'manipulation'
+                  touchAction: 'manipulation',
+                  outline: 'none',
+                  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
                 }}
               >
                 {isSaving ? 'Saving...' : 'Save Daily Entry'}
-              </Button>
-            </motion.div>
+              </button>
+            </div>
           </div>
         </>
       )}

@@ -174,7 +174,7 @@ export function AdminPanel({ dbManager }: AdminPanelProps) {
                     required
                     value={newUserForm.email}
                     onChange={(e) => setNewUserForm(prev => ({ ...prev, email: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                    className="w-full px-3 py-3 border border-slate-600/50 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-slate-500 transition-colors bg-slate-700/60 text-white placeholder-slate-400"
                     placeholder="user@example.com"
                   />
                 </div>
@@ -188,7 +188,7 @@ export function AdminPanel({ dbManager }: AdminPanelProps) {
                     required
                     value={newUserForm.displayName}
                     onChange={(e) => setNewUserForm(prev => ({ ...prev, displayName: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                    className="w-full px-3 py-3 border border-slate-600/50 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-slate-500 transition-colors bg-slate-700/60 text-white placeholder-slate-400"
                     placeholder="John Doe"
                   />
                 </div>
@@ -202,7 +202,7 @@ export function AdminPanel({ dbManager }: AdminPanelProps) {
                     required
                     value={newUserForm.password}
                     onChange={(e) => setNewUserForm(prev => ({ ...prev, password: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                    className="w-full px-3 py-3 border border-slate-600/50 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-slate-500 transition-colors bg-slate-700/60 text-white placeholder-slate-400"
                     placeholder="Enter password"
                   />
                 </div>
