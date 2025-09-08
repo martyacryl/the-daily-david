@@ -34,6 +34,10 @@ export const ReadingPlanProgress: React.FC<ReadingPlanProgressProps> = ({
   console.log('🔥 ReadingPlanProgress: Component rendered with readingPlan:', readingPlan)
   console.log('🔥 ReadingPlanProgress: onLoadTodaysDevotion function:', typeof onLoadTodaysDevotion)
   console.log('🔥 ReadingPlanProgress: onAdvanceToNextDay function:', typeof onAdvanceToNextDay)
+  
+  // Test if the component is working at all
+  console.log('🔥 ReadingPlanProgress: Component is working!')
+  
   const [isExpanded, setIsExpanded] = useState(false)
 
   const progressPercentage = (readingPlan.completedDays.length / readingPlan.totalDays) * 100
@@ -71,13 +75,14 @@ export const ReadingPlanProgress: React.FC<ReadingPlanProgressProps> = ({
 
   console.log('🔥 ReadingPlanProgress: About to render component')
   
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      className="bg-slate-800 border border-slate-700 rounded-lg p-4 mb-4"
-    >
+  try {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -20 }}
+        className="bg-slate-800 border border-slate-700 rounded-lg p-4 mb-4"
+      >
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center space-x-3">
@@ -213,6 +218,10 @@ export const ReadingPlanProgress: React.FC<ReadingPlanProgressProps> = ({
           </motion.div>
         )}
       </AnimatePresence>
-    </motion.div>
-  )
+      </motion.div>
+    )
+  } catch (error) {
+    console.error('🔥 ReadingPlanProgress: Error rendering component:', error)
+    return <div style={{color: 'red', padding: '20px'}}>ERROR: {error.message}</div>
+  }
 }
