@@ -200,14 +200,6 @@ export const Dashboard: React.FC = () => {
   }
 
   const extractCurrentGoals = () => {
-    console.log('Dashboard: Extracting goals from', entries.length, 'entries')
-    console.log('Dashboard: All entries:', entries.map(e => ({ 
-      date: e.date, 
-      monthlyGoals: e.goals?.monthly?.length || 0,
-      monthlyGoalTexts: e.goals?.monthly?.map(g => g.text) || [],
-      deletedIds: e.deletedGoalIds || []
-    })))
-    console.log('Dashboard: Raw entries data:', entries)
 
     if (entries.length > 0) {
       const now = new Date()
@@ -245,8 +237,6 @@ export const Dashboard: React.FC = () => {
         return entryDate.getTime() === today.getTime()
       })
 
-      console.log('Dashboard: Today entry:', todayEntry)
-      
       // Collect ALL deleted goal IDs from ALL entries to properly filter goals
       const allDeletedGoalIds = new Set<string>()
       entries.forEach(entry => {
@@ -254,7 +244,6 @@ export const Dashboard: React.FC = () => {
           entry.deletedGoalIds.forEach(id => allDeletedGoalIds.add(id))
         }
       })
-      console.log('Dashboard: All deletedGoalIds from all entries:', Array.from(allDeletedGoalIds))
 
       // Daily goals: from today's entry only, filtered by deleted goals
       const currentDailyGoals: Goal[] = (todayEntry?.goals?.daily || []).filter(goal => {
@@ -325,15 +314,6 @@ export const Dashboard: React.FC = () => {
       const currentWeeklyGoals: Goal[] = Array.from(weeklyGoalMap.values())
       const currentMonthlyGoals: Goal[] = Array.from(monthlyGoalMap.values())
 
-      console.log('Current goals by time period (after filtering deleted goals):', {
-        daily: currentDailyGoals.length,
-        weekly: currentWeeklyGoals.length,
-        monthly: currentMonthlyGoals.length,
-        weeklyGoals: currentWeeklyGoals.map(g => ({ text: g.text, completed: g.completed })),
-        monthlyGoals: currentMonthlyGoals.map(g => ({ text: g.text, completed: g.completed })),
-        totalDeletedGoals: allDeletedGoalIds.size
-      })
-      console.log('Monthly goals detailed:', currentMonthlyGoals)
 
       setCurrentGoals({
         daily: currentDailyGoals,
@@ -588,8 +568,8 @@ export const Dashboard: React.FC = () => {
             </span>
           </div>
           <div className="space-y-2">
-            {currentGoals.daily.map((goal) => (
-              <div key={goal.id} className="flex items-center space-x-2">
+            {currentGoals.daily.map((goal, index) => (
+              <div key={`daily-${goal.id}-${index}`} className="flex items-center space-x-2">
                 <div className={`w-2 h-2 rounded-full ${goal.completed ? 'bg-green-500' : 'bg-slate-500'}`}></div>
                 <span className={`text-sm ${goal.completed ? 'line-through text-slate-300 bg-slate-600/30 px-2 py-1 rounded' : 'text-slate-300'}`}>
                   {goal.text}
@@ -621,8 +601,8 @@ export const Dashboard: React.FC = () => {
             </span>
           </div>
           <div className="space-y-2">
-            {currentGoals.weekly.map((goal) => (
-              <div key={goal.id} className="flex items-center space-x-2">
+            {currentGoals.weekly.map((goal, index) => (
+              <div key={`weekly-${goal.id}-${index}`} className="flex items-center space-x-2">
                 <div className={`w-2 h-2 rounded-full ${goal.completed ? 'bg-green-500' : 'bg-slate-500'}`}></div>
                 <span className={`text-sm ${goal.completed ? 'line-through text-slate-300 bg-slate-600/30 px-2 py-1 rounded' : 'text-slate-300'}`}>
                   {goal.text}
@@ -654,8 +634,8 @@ export const Dashboard: React.FC = () => {
             </span>
           </div>
           <div className="space-y-2">
-            {currentGoals.monthly.map((goal) => (
-              <div key={goal.id} className="flex items-center space-x-2">
+            {currentGoals.monthly.map((goal, index) => (
+              <div key={`monthly-${goal.id}-${index}`} className="flex items-center space-x-2">
                 <div className={`w-2 h-2 rounded-full ${goal.completed ? 'bg-green-500' : 'bg-slate-500'}`}></div>
                 <span className={`text-sm ${goal.completed ? 'line-through text-slate-300 bg-slate-600/30 px-2 py-1 rounded' : 'text-slate-300'}`}>
                   {goal.text}

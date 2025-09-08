@@ -148,9 +148,7 @@ export const useDailyStore = create<DailyStore>((set, get) => ({
     try {
       set({ isLoading: true, error: null })
       
-      console.log('Store: Loading entries from API...')
       const result = await dbManager.getDailyEntries()
-      console.log('Store: API response:', result)
       
       if (result && result.length > 0) {
         const formattedEntries: DailyEntry[] = result.map((entry: any) => {
