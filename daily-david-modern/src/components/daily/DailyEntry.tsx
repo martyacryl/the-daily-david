@@ -1154,55 +1154,26 @@ export function DailyEntry() {
                 backgroundColor: 'rgba(255,0,0,0.1)' // Temporary red background to see the container
               }}
             >
-              {/* Save Daily Entry Button */}
+              {/* Save Daily Entry Button - SIMPLIFIED */}
               <div
-                onClick={(e) => {
-                  console.log('Save button clicked!', e)
+                onClick={() => {
+                  console.log('Save button clicked!')
                   alert('Save button clicked!')
-                  e.preventDefault()
-                  e.stopPropagation()
-                  if (isSaving) return
-                  
-                  setIsSaving(true)
-                  setShowSuccessBanner(true)
-                  
-                  setTimeout(() => {
-                    try {
-                      window.scrollTo({ top: 0, behavior: 'smooth' })
-                    } catch (e) {
-                      window.scrollTo(0, 0)
-                    }
-                    setIsSaving(false)
-                  }, 1000)
                 }}
-                onMouseDown={(e) => {
-                  console.log('Mouse down on save button!', e)
-                  e.preventDefault()
-                  e.stopPropagation()
-                }}
-                onMouseUp={(e) => {
-                  console.log('Mouse up on save button!', e)
-                  e.preventDefault()
-                  e.stopPropagation()
-                }}
-                className="inline-block px-8 py-3 text-lg bg-green-600 text-white font-semibold min-h-[48px] rounded-lg cursor-pointer select-none"
                 style={{
-                  WebkitTapHighlightColor: 'transparent',
-                  WebkitTouchCallout: 'none',
-                  WebkitUserSelect: 'none',
-                  userSelect: 'none',
-                  touchAction: 'manipulation',
-                  outline: 'none',
-                  border: 'none',
-                  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-                  opacity: isSaving ? 0.5 : 1,
-                  pointerEvents: isSaving ? 'none' : 'auto',
+                  marginTop: '10px',
+                  padding: '15px 30px',
+                  backgroundColor: 'green',
+                  color: 'white',
+                  cursor: 'pointer',
+                  borderRadius: '8px',
                   position: 'relative',
                   zIndex: 999999,
-                  backgroundColor: 'rgba(0,255,0,0.2)' // Temporary green background to see the button
+                  fontSize: '18px',
+                  fontWeight: 'bold'
                 }}
               >
-                {isSaving ? 'Saving...' : 'Save Daily Entry'}
+                Save Daily Entry
               </div>
               
               {/* Test button to see if clicks work at all */}
