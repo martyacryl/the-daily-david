@@ -125,7 +125,10 @@ export const BibleIntegration: React.FC<BibleIntegrationProps> = ({
                   <div className="flex flex-col gap-2 md:ml-4">
                     <Button
                       size="sm"
-                      onClick={() => onStartReadingPlan && onStartReadingPlan(plan)}
+                      onClick={() => {
+                        console.log('🔥 Choose Plan button clicked for plan:', plan.id)
+                        onStartReadingPlan && onStartReadingPlan(plan)
+                      }}
                       className="bg-slate-600 hover:bg-slate-500 text-white"
                     >
                       Choose Plan
@@ -183,13 +186,17 @@ export const BibleIntegration: React.FC<BibleIntegrationProps> = ({
 
       {/* Plan Details Modal */}
       {selectedPlan && (
+        console.log('🔥 Modal is rendering with selectedPlan:', selectedPlan),
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-slate-800/90 backdrop-blur-sm rounded-lg max-w-2xl w-full max-h-[80vh] overflow-y-auto border border-slate-700">
             <div className="p-6">
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-xl font-bold text-white">{selectedPlan.title}</h3>
                 <button
-                  onClick={() => setSelectedPlan(null)}
+                  onClick={() => {
+                    console.log('🔥 Modal close button clicked')
+                    setSelectedPlan(null)
+                  }}
                   className="text-green-400 hover:text-green-300 text-2xl"
                 >
                   ×
