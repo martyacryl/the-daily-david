@@ -228,14 +228,13 @@ app.get('/api/admin/users', authenticateToken, async (req, res) => {
 // Daily entries routes
 app.post('/api/entries', authenticateToken, async (req, res) => {
   try {
-    const { date, goals, gratitude, soap, dailyIntention, growthQuestion, leadershipRating, checkIn, readingPlan, deletedGoalIds } = req.body
+    const { date, goals, gratitude, soap, dailyIntention, growthQuestion, leadershipRating, checkIn, deletedGoalIds } = req.body
     const userId = req.user.userId
     const dateKey = date || getLocalDateString()
 
     const client = await pool.connect()
     
     try {
-      // Save main entry data (without readingPlan)
       const result = await client.query(
         `INSERT INTO daily_david_entries 
          (date_key, user_id, data_content) 
@@ -259,35 +258,6 @@ app.post('/api/entries', authenticateToken, async (req, res) => {
         ]
       )
 
-      // Save reading plan data separately if it exists
-      if (readingPlan && readingPlan.planId) {
-        console.log('🔥 Saving reading plan to dedicated table:', readingPlan)
-        await client.query(
-          `INSERT INTO reading_plans 
-           (user_id, date_key, plan_id, plan_name, current_day, total_days, start_date, completed_days)
-           VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-           ON CONFLICT (user_id, date_key, plan_id)
-           DO UPDATE SET 
-             current_day = $5,
-             total_days = $6,
-             start_date = $7,
-             completed_days = $8,
-             updated_at = CURRENT_TIMESTAMP
-           RETURNING *`,
-          [
-            userId,
-            dateKey,
-            readingPlan.planId,
-            readingPlan.planName,
-            readingPlan.currentDay,
-            readingPlan.totalDays,
-            readingPlan.startDate,
-            readingPlan.completedDays || []
-          ]
-        )
-        console.log('✅ Reading plan saved successfully')
-      }
-
       res.json({ success: true, entry: result.rows[0] })
     } finally {
       client.release()
@@ -306,51 +276,14 @@ app.get('/api/entries/:date', authenticateToken, async (req, res) => {
     const client = await pool.connect()
     
     try {
-      // Get main entry
-      console.log('🔥 Backend: Getting entry for date:', date, 'user:', userId)
-      const entryResult = await client.query(
+      const result = await client.query(
         `SELECT * FROM daily_david_entries 
          WHERE date_key = $1 AND user_id = $2`,
         [date, userId]
       )
-      console.log('🔥 Backend: Entry result:', entryResult.rows.length > 0 ? 'Found' : 'Not found')
 
-      if (entryResult.rows.length > 0) {
-        const entry = entryResult.rows[0]
-        const dataContent = entry.data_content || {}
-        
-        // Get reading plan for this date
-        console.log('🔥 Backend: Getting reading plan for date:', date, 'user:', userId)
-        const readingPlanResult = await client.query(
-          `SELECT * FROM reading_plans 
-           WHERE date_key = $1 AND user_id = $2
-           ORDER BY updated_at DESC LIMIT 1`,
-          [date, userId]
-        )
-        console.log('🔥 Backend: Reading plan result:', readingPlanResult.rows.length > 0 ? 'Found' : 'Not found')
-        
-        if (readingPlanResult.rows.length > 0) {
-          const readingPlan = readingPlanResult.rows[0]
-          dataContent.readingPlan = {
-            planId: readingPlan.plan_id,
-            planName: readingPlan.plan_name,
-            currentDay: readingPlan.current_day,
-            totalDays: readingPlan.total_days,
-            startDate: readingPlan.start_date,
-            completedDays: readingPlan.completed_days || []
-          }
-          console.log('🔥 Backend: Added reading plan to dataContent:', dataContent.readingPlan)
-        } else {
-          console.log('🔥 Backend: No reading plan found for this date')
-        }
-
-        res.json({ 
-          success: true, 
-          entry: {
-            ...entry,
-            data_content: dataContent
-          }
-        })
+      if (result.rows.length > 0) {
+        res.json({ success: true, entry: result.rows[0] })
       } else {
         res.json({ success: true, entry: null })
       }
@@ -372,8 +305,7 @@ app.get('/api/entries', authenticateToken, async (req, res) => {
     const client = await pool.connect()
     
     try {
-      // Get main entries
-      const entriesResult = await client.query(
+      const result = await client.query(
         `SELECT * FROM daily_david_entries 
          WHERE user_id = $1 
          ORDER BY date_key DESC 
@@ -381,39 +313,7 @@ app.get('/api/entries', authenticateToken, async (req, res) => {
         [userId, limit]
       )
 
-      // Get reading plans for these entries
-      const readingPlansResult = await client.query(
-        `SELECT * FROM reading_plans 
-         WHERE user_id = $1 
-         ORDER BY date_key DESC, updated_at DESC`,
-        [userId]
-      )
-
-      // Combine the data
-      const entries = entriesResult.rows.map(entry => {
-        const dataContent = entry.data_content || {}
-        
-        // Find reading plan for this date
-        const readingPlan = readingPlansResult.rows.find(rp => rp.date_key === entry.date_key)
-        
-        if (readingPlan) {
-          dataContent.readingPlan = {
-            planId: readingPlan.plan_id,
-            planName: readingPlan.plan_name,
-            currentDay: readingPlan.current_day,
-            totalDays: readingPlan.total_days,
-            startDate: readingPlan.start_date,
-            completedDays: readingPlan.completed_days || []
-          }
-        }
-
-        return {
-          ...entry,
-          data_content: dataContent
-        }
-      })
-
-      res.json({ success: true, entries })
+      res.json({ success: true, entries: result.rows })
     } finally {
       client.release()
     }

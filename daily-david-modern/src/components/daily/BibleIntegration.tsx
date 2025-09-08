@@ -11,15 +11,11 @@ import { BookOpen, Target, Zap } from 'lucide-react';
 interface BibleIntegrationProps {
   onVerseSelect: (verse: BibleVerse) => void;
   selectedVerse?: BibleVerse;
-  onStartReadingPlan?: (plan: ReadingPlan) => void;
-  currentReadingPlan?: any;
 }
 
 export const BibleIntegration: React.FC<BibleIntegrationProps> = ({ 
   onVerseSelect, 
-  selectedVerse,
-  onStartReadingPlan,
-  currentReadingPlan
+  selectedVerse 
 }) => {
 
   const [bibleVersions, setBibleVersions] = useState<BibleVersion[]>([]);
@@ -149,15 +145,6 @@ export const BibleIntegration: React.FC<BibleIntegrationProps> = ({
                     >
                       View Plan
                     </Button>
-                    {onStartReadingPlan && (
-                      <Button
-                        size="sm"
-                        onClick={() => onStartReadingPlan(plan)}
-                        className="bg-slate-600 hover:bg-slate-500 text-white"
-                      >
-                        Choose Plan
-                      </Button>
-                    )}
                   </div>
                 </div>
               </div>

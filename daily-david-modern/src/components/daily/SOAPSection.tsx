@@ -1,30 +1,14 @@
 import { useState, useEffect } from 'react'
 import { SOAPData } from '@/types'
 import { BibleIntegration } from './BibleIntegration'
-import { ReadingPlanProgress } from './ReadingPlanProgress'
-import { BookOpen, Target, Heart, Lightbulb, Calendar } from 'lucide-react'
+import { BookOpen, Target, Heart, Lightbulb } from 'lucide-react'
 
 interface SOAPSectionProps {
   soap: SOAPData
   onUpdate: (soap: SOAPData) => void
-  readingPlan?: {
-    planId: string
-    planName: string
-    currentDay: number
-    totalDays: number
-    startDate: string
-    completedDays: number[]
-  }
-  onStartReadingPlan?: (plan: any) => void
-  onUpdateReadingPlan?: (readingPlan: any) => void
-  onLoadTodaysDevotion?: (planId: string) => void
-  onAdvanceToNextDay?: () => void
-  onClosePlan?: () => void
-  onStartNewPlan?: () => void
-  onRestartPlan?: () => void
 }
 
-export function SOAPSection({ soap, onUpdate, readingPlan, onStartReadingPlan, onUpdateReadingPlan, onLoadTodaysDevotion, onAdvanceToNextDay, onClosePlan, onStartNewPlan, onRestartPlan }: SOAPSectionProps) {
+export function SOAPSection({ soap, onUpdate }: SOAPSectionProps) {
   const [localSOAP, setLocalSOAP] = useState(soap || {
     scripture: '',
     observation: '',
@@ -67,16 +51,6 @@ export function SOAPSection({ soap, onUpdate, readingPlan, onStartReadingPlan, o
     }
     setLocalSOAP(newSOAP)
     onUpdate(newSOAP)
-    
-    // If we have a reading plan and this is the current day, mark it as completed
-    if (readingPlan && onUpdateReadingPlan && !readingPlan.completedDays.includes(readingPlan.currentDay)) {
-      const updatedReadingPlan = {
-        ...readingPlan,
-        completedDays: [...readingPlan.completedDays, readingPlan.currentDay]
-      }
-      onUpdateReadingPlan(updatedReadingPlan)
-    }
-    
     // Trigger auto-save
     setTimeout(() => {
       window.dispatchEvent(new CustomEvent('triggerSave'))
@@ -120,23 +94,6 @@ export function SOAPSection({ soap, onUpdate, readingPlan, onStartReadingPlan, o
 
   return (
     <div className="space-y-6">
-      {/* Reading Plan Progress */}
-      {readingPlan && (
-        <ReadingPlanProgress 
-          readingPlan={readingPlan}
-          onContinuePlan={() => {
-            // Handle continue plan action - show plan details
-            console.log('Continue reading plan:', readingPlan.planId)
-            alert(`Reading Plan: ${readingPlan.planName}\n\nCurrent Day: ${readingPlan.currentDay} of ${readingPlan.totalDays}\nCompleted Days: ${readingPlan.completedDays.length}\nStart Date: ${readingPlan.startDate}\n\nProgress: ${Math.round((readingPlan.completedDays.length / readingPlan.totalDays) * 100)}%`)
-          }}
-          onLoadTodaysDevotion={onLoadTodaysDevotion}
-          onAdvanceToNextDay={onAdvanceToNextDay}
-          onClosePlan={onClosePlan}
-          onStartNewPlan={onStartNewPlan}
-          onRestartPlan={onRestartPlan}
-        />
-      )}
-
       {/* Bible Integration Component */}
       <BibleIntegration 
         onVerseSelect={handleVerseSelect}
@@ -146,8 +103,6 @@ export function SOAPSection({ soap, onUpdate, readingPlan, onStartReadingPlan, o
           content: localSOAP.scripture.split(' - ')[1] || '',
           copyright: 'Bible'
         } : undefined}
-        onStartReadingPlan={onStartReadingPlan}
-        currentReadingPlan={readingPlan}
       />
 
       {/* SOAP Study Form */}
