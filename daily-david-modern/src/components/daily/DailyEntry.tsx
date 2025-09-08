@@ -1148,6 +1148,7 @@ export function DailyEntry() {
             <div className="text-center">
               <button
                 onClick={() => {
+                  console.log('Save button clicked!')
                   if (isSaving) return
                   
                   setIsSaving(true)
