@@ -144,54 +144,48 @@ export const ReadingPlanProgress: React.FC<ReadingPlanProgressProps> = ({
       <div className="flex flex-wrap gap-2 mb-4">
         {console.log('🔥 ReadingPlanProgress: Rendering buttons with readingPlan.planId:', readingPlan.planId)}
         <button
-          onClick={() => console.log('🔥 TEST BUTTON CLICKED!')}
-          className="px-3 py-1.5 text-sm bg-red-600 hover:bg-red-500 text-white rounded-lg"
-          style={{ zIndex: 9999, position: 'relative' }}
-        >
-          TEST BUTTON
-        </button>
-        <Button
-          size="sm"
-          onClick={(e) => {
-            console.log('🔥 Button clicked!', readingPlan.planId, e)
-            e.preventDefault()
-            e.stopPropagation()
+          onClick={() => {
+            console.log('🔥 Load Today\'s Devotion clicked!', readingPlan.planId)
             onLoadTodaysDevotion(readingPlan.planId)
           }}
-          className="bg-slate-600 hover:bg-slate-500 text-white"
+          className="px-3 py-1.5 text-sm bg-slate-600 hover:bg-slate-500 text-white rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-slate-500"
         >
           Load Today's Devotion
-        </Button>
+        </button>
         
         {readingPlan.currentDay < readingPlan.totalDays && (
-          <Button
-            size="sm"
-            onClick={onAdvanceToNextDay}
-            className="bg-slate-600 hover:bg-slate-500 text-white"
+          <button
+            onClick={() => {
+              console.log('🔥 Next Day clicked!')
+              onAdvanceToNextDay()
+            }}
+            className="px-3 py-1.5 text-sm bg-slate-600 hover:bg-slate-500 text-white rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-slate-500"
           >
             Next Day
-          </Button>
+          </button>
         )}
         
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={onRestartPlan}
-          className="border-slate-600 text-slate-300 hover:bg-slate-700"
+        <button
+          onClick={() => {
+            console.log('🔥 Restart clicked!')
+            onRestartPlan()
+          }}
+          className="px-3 py-1.5 text-sm border-2 border-slate-600 text-slate-300 hover:bg-slate-700 rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-slate-500"
         >
-          <RotateCcw className="w-4 h-4 mr-1" />
+          <RotateCcw className="w-4 h-4 mr-1 inline" />
           Restart
-        </Button>
+        </button>
         
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={onStartNewPlan}
-          className="border-slate-600 text-slate-300 hover:bg-slate-700"
+        <button
+          onClick={() => {
+            console.log('🔥 New Plan clicked!')
+            onStartNewPlan()
+          }}
+          className="px-3 py-1.5 text-sm border-2 border-slate-600 text-slate-300 hover:bg-slate-700 rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-slate-500"
         >
-          <Plus className="w-4 h-4 mr-1" />
+          <Plus className="w-4 h-4 mr-1 inline" />
           New Plan
-        </Button>
+        </button>
       </div>
 
       {/* Expandable Day Grid */}
