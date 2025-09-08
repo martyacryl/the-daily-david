@@ -139,10 +139,18 @@ export const ReadingPlanProgress: React.FC<ReadingPlanProgressProps> = ({
       {/* Action Buttons */}
       <div className="flex flex-wrap gap-2 mb-4">
         {console.log('🔥 ReadingPlanProgress: Rendering buttons with readingPlan.planId:', readingPlan.planId)}
+        <button
+          onClick={() => console.log('🔥 TEST BUTTON CLICKED!')}
+          className="px-3 py-1.5 text-sm bg-red-600 hover:bg-red-500 text-white rounded-lg"
+        >
+          TEST BUTTON
+        </button>
         <Button
           size="sm"
-          onClick={() => {
-            console.log('🔥 Button clicked!', readingPlan.planId)
+          onClick={(e) => {
+            console.log('🔥 Button clicked!', readingPlan.planId, e)
+            e.preventDefault()
+            e.stopPropagation()
             onLoadTodaysDevotion(readingPlan.planId)
           }}
           className="bg-slate-600 hover:bg-slate-500 text-white"
