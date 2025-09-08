@@ -266,6 +266,8 @@ export const useDailyStore = create<DailyStore>((set, get) => ({
         console.log('Store: Raw result:', result)
         console.log('Store: Available fields in result:', Object.keys(result))
         console.log('Store: result.deletedGoalIds:', result.deletedGoalIds)
+      console.log('Store: _debug_content:', result._debug_content)
+      console.log('Store: _debug_content.deletedGoalIds:', result._debug_content?.deletedGoalIds)
         console.log('Store: dataContent.deletedGoalIds:', dataContent.deletedGoalIds)
         
         // DEBUG: Check if checkIn data is in individual columns

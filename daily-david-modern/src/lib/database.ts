@@ -330,6 +330,8 @@ class DatabaseManager {
             growthQuestion: content.growthQuestion || '',
             leadershipRating: content.leadershipRating || { wisdom: 0, courage: 0, patience: 0, integrity: 0 },
             deletedGoalIds: content.deletedGoalIds || [],
+            // Debug: log the content to see what's in the database
+            _debug_content: content,
             created_at: entry.created_at,
             updated_at: entry.updated_at
           }

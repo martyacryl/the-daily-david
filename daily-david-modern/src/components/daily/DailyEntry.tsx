@@ -251,7 +251,16 @@ export function DailyEntry() {
   // Simple goal extraction - just use current entry goals and add weekly/monthly from all entries
   const extractCurrentGoals = useCallback((entries: any[], currentEntryGoals: UserGoals, selectedDate: Date, currentDeletedGoalIds?: Set<string>) => {
     console.log('extractCurrentGoals called with', entries.length, 'entries')
-    const deletedIds = currentDeletedGoalIds || deletedGoalIds
+    
+    // Collect ALL deleted goal IDs from ALL entries (like the dashboard does)
+    const allDeletedGoalIds = new Set<string>()
+    entries.forEach(entry => {
+      if (entry.deletedGoalIds && Array.isArray(entry.deletedGoalIds)) {
+        entry.deletedGoalIds.forEach(id => allDeletedGoalIds.add(id))
+      }
+    })
+    
+    const deletedIds = allDeletedGoalIds.size > 0 ? allDeletedGoalIds : (currentDeletedGoalIds || deletedGoalIds)
     console.log('extractCurrentGoals: deletedGoalIds =', Array.from(deletedIds))
     // Start with current entry goals, but filter out deleted ones
     const result = {
