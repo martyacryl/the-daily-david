@@ -143,6 +143,13 @@ export const ReadingPlanProgress: React.FC<ReadingPlanProgressProps> = ({
       {/* Action Buttons */}
       <div className="flex flex-wrap gap-2 mb-4">
         {console.log('🔥 ReadingPlanProgress: Rendering buttons with readingPlan.planId:', readingPlan.planId)}
+        <div style={{color: 'red', fontSize: '12px'}}>BUTTONS SHOULD BE HERE</div>
+        <button
+          onClick={() => console.log('🔥 SIMPLE TEST CLICKED!')}
+          style={{backgroundColor: 'red', color: 'white', padding: '10px'}}
+        >
+          SIMPLE TEST
+        </button>
         <button
           onClick={() => {
             console.log('🔥 Load Today\'s Devotion clicked!', readingPlan.planId)
