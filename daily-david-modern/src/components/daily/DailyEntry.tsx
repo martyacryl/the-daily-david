@@ -1362,6 +1362,7 @@ export function DailyEntry() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4 }}
               >
+                {console.log('🔥 DailyEntry: Rendering ReadingPlanProgress with readingPlan:', dayData.readingPlan)}
                 <ReadingPlanProgress
                   readingPlan={dayData.readingPlan}
                   onLoadTodaysDevotion={handleLoadTodaysDevotion}
