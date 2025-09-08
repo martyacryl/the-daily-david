@@ -525,7 +525,7 @@ export function DailyEntry() {
     })
   }
 
-  const handleStartReadingPlan = (plan: any) => {
+  const handleStartReadingPlan = async (plan: any) => {
     console.log('🔥 Starting/continuing reading plan:', plan)
     
     // Check if we already have this plan in progress
@@ -533,6 +533,21 @@ export function DailyEntry() {
     if (existingPlan && existingPlan.planId === plan.id) {
       console.log('🔥 Plan already in progress, continuing...')
       return // Don't reset the plan, just continue with existing progress
+    }
+    
+    // Force refresh the current day's entry to get the latest data
+    console.log('🔥 Force refreshing current day entry to get latest reading plan data...')
+    try {
+      const currentDateString = getLocalDateString(selectedDate)
+      const freshEntry = await loadEntryByDate(currentDateString)
+      console.log('🔥 Fresh entry loaded:', freshEntry)
+      if (freshEntry && freshEntry.readingPlan && freshEntry.readingPlan.planId === plan.id) {
+        console.log('🔥 FOUND reading plan in fresh entry:', freshEntry.readingPlan)
+        setDayData(prev => ({ ...prev, readingPlan: freshEntry.readingPlan }))
+        return
+      }
+    } catch (error) {
+      console.error('🔥 Error loading fresh entry:', error)
     }
     
     // Check if we have this plan in any previous entries
