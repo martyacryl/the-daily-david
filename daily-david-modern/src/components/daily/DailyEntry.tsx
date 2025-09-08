@@ -1146,6 +1146,13 @@ export function DailyEntry() {
 
             {/* Submit Button */}
             <div className="text-center">
+              {/* Test Button */}
+              <div 
+                onClick={() => alert('TEST BUTTON WORKS!')}
+                className="mb-4 px-4 py-2 bg-red-600 text-white rounded cursor-pointer"
+              >
+                TEST BUTTON
+              </div>
               <button
                 onClick={() => {
                   console.log('Save button clicked!')
