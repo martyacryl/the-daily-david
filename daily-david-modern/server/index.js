@@ -265,32 +265,40 @@ app.post('/api/entries', authenticateToken, async (req, res) => {
         console.log('🔥 User ID:', userId, 'Date Key:', dateKey)
         console.log('🔥 Plan ID:', readingPlan.planId, 'Current Day:', readingPlan.currentDay)
         
-        const result = await client.query(
-          `INSERT INTO reading_plans 
-           (user_id, date_key, plan_id, plan_name, current_day, total_days, start_date, completed_days)
-           VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-           ON CONFLICT (user_id, date_key, plan_id)
-           DO UPDATE SET 
-             current_day = $5,
-             total_days = $6,
-             start_date = $7,
-             completed_days = $8,
-             updated_at = CURRENT_TIMESTAMP
-           RETURNING *`,
-          [
-            userId,
-            dateKey,
-            readingPlan.planId,
-            readingPlan.planName,
-            readingPlan.currentDay,
-            readingPlan.totalDays,
-            readingPlan.startDate,
-            readingPlan.completedDays || []
-          ]
-        )
-        console.log('✅ Reading plan saved successfully:', result.rows[0])
+        try {
+          const readingPlanResult = await client.query(
+            `INSERT INTO reading_plans 
+             (user_id, date_key, plan_id, plan_name, current_day, total_days, start_date, completed_days)
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+             ON CONFLICT (user_id, date_key, plan_id)
+             DO UPDATE SET 
+               current_day = $5,
+               total_days = $6,
+               start_date = $7,
+               completed_days = $8,
+               updated_at = CURRENT_TIMESTAMP
+             RETURNING *`,
+            [
+              userId,
+              dateKey,
+              readingPlan.planId,
+              readingPlan.planName,
+              readingPlan.currentDay,
+              readingPlan.totalDays,
+              readingPlan.startDate,
+              readingPlan.completedDays || []
+            ]
+          )
+          console.log('✅ Reading plan saved successfully:', readingPlanResult.rows[0])
+        } catch (error) {
+          console.error('❌ Error saving reading plan:', error)
+          console.error('❌ Error details:', error.message)
+          console.error('❌ Error code:', error.code)
+        }
       } else {
         console.log('❌ No reading plan data to save or missing planId')
+        console.log('❌ readingPlan:', readingPlan)
+        console.log('❌ readingPlan.planId:', readingPlan?.planId)
       }
 
       res.json({ success: true, entry: result.rows[0] })
