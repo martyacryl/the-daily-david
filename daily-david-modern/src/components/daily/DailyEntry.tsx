@@ -184,7 +184,7 @@ export function DailyEntry() {
       })
       
       // Correct API call - this will create or update the entry
-      const response = await fetch('http://localhost:3001/api/entries', {
+        const response = await fetch('http://192.168.0.91:3001/api/entries', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

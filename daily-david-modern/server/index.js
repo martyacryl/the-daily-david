@@ -410,9 +410,10 @@ app.delete('/api/admin/users/:id', authenticateToken, async (req, res) => {
 
 // Start server (only in development)
 if (process.env.NODE_ENV !== 'production') {
-  app.listen(PORT, () => {
+  app.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 Server running on port ${PORT}`)
     console.log(`📊 Health check: http://localhost:${PORT}/api/health`)
+    console.log(`🌐 Network access: http://192.168.0.91:${PORT}/api/health`)
     console.log(`🔐 Environment: ${process.env.NODE_ENV || 'development'}`)
   })
 }

@@ -1,7 +1,7 @@
 import { getAuthHeaders } from '../stores/authStore'
 
 // Database connection configuration - using API calls instead of direct connection
-const API_BASE_URL = 'http://localhost:3001'
+const API_BASE_URL = 'http://192.168.0.91:3001'
 
 export interface DailyEntry {
   id?: number
