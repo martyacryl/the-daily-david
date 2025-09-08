@@ -2,7 +2,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { motion } from 'framer-motion'
 import { useSearchParams } from 'react-router-dom'
-import { ChevronLeft, ChevronRight, Calendar, Target, Star } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Calendar, Target, Star, CalendarDays, TreePine } from 'lucide-react'
 
 import { useAuthStore } from '../../stores/authStore'
 import { useDailyStore } from '../../stores/dailyStore'
@@ -837,7 +837,8 @@ export function DailyEntry() {
               <div id="weekly-goals-section" className="bg-slate-800/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-slate-700">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                    📅 Weekly Goals
+                    <CalendarDays className="w-4 h-4 text-slate-400" />
+                    Weekly Goals
                   </h3>
                   <Button
                     onClick={() => addGoal('weekly')}
@@ -909,7 +910,8 @@ export function DailyEntry() {
               <div id="monthly-goals-section" className="bg-slate-800/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-slate-700">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                    🗓️ Monthly Goals
+                    <TreePine className="w-4 h-4 text-slate-400" />
+                    Monthly Goals
                   </h3>
                   <Button
                     onClick={() => addGoal('monthly')}
