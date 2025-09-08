@@ -79,6 +79,7 @@ class DatabaseManager {
           growthQuestion: content.growthQuestion || '',
           leadershipRating: content.leadershipRating || { wisdom: 0, courage: 0, patience: 0, integrity: 0 },
           deletedGoalIds: content.deletedGoalIds || [],
+          readingPlan: content.readingPlan || undefined,
           created_at: data.entry.created_at,
           updated_at: data.entry.updated_at
         }
@@ -111,7 +112,8 @@ class DatabaseManager {
         growthQuestion: entry.growthQuestion || '',
         leadershipRating: entry.leadershipRating || { wisdom: 0, courage: 0, patience: 0, integrity: 0 },
         checkIn: entry.checkIn || { emotions: [], feeling: '' },
-        deletedGoalIds: entry.deletedGoalIds || []
+        deletedGoalIds: entry.deletedGoalIds || [],
+        readingPlan: entry.readingPlan || undefined
       }
       
       console.log('API: Request body for save:', requestBody)
@@ -155,6 +157,7 @@ class DatabaseManager {
           growthQuestion: content.growthQuestion || '',
           leadershipRating: content.leadershipRating || { wisdom: 0, courage: 0, patience: 0, integrity: 0 },
           deletedGoalIds: content.deletedGoalIds || [],
+          readingPlan: content.readingPlan || undefined,
           created_at: data.entry.created_at,
           updated_at: data.entry.updated_at
         }
@@ -271,7 +274,8 @@ class DatabaseManager {
           dailyIntention: data.dailyIntention || existingEntry.dailyIntention || '',
           growthQuestion: data.growthQuestion || existingEntry.growthQuestion || '',
           leadershipRating: data.leadershipRating || existingEntry.leadershipRating || { wisdom: 0, courage: 0, patience: 0, integrity: 0 },
-          deletedGoalIds: data.deletedGoalIds || existingEntry.deletedGoalIds || []
+          deletedGoalIds: data.deletedGoalIds || existingEntry.deletedGoalIds || [],
+          readingPlan: data.readingPlan || existingEntry.readingPlan || undefined
         })
       } else {
         // Create new entry
@@ -288,7 +292,8 @@ class DatabaseManager {
           dailyIntention: data.dailyIntention || '',
           growthQuestion: data.growthQuestion || '',
           leadershipRating: data.leadershipRating || { wisdom: 0, courage: 0, patience: 0, integrity: 0 },
-          deletedGoalIds: data.deletedGoalIds || []
+          deletedGoalIds: data.deletedGoalIds || [],
+          readingPlan: data.readingPlan || undefined
         })
       }
       return true
@@ -330,6 +335,7 @@ class DatabaseManager {
             growthQuestion: content.growthQuestion || '',
             leadershipRating: content.leadershipRating || { wisdom: 0, courage: 0, patience: 0, integrity: 0 },
             deletedGoalIds: content.deletedGoalIds || [],
+          readingPlan: content.readingPlan || undefined,
             // Debug: log the content to see what's in the database
             _debug_content: content,
             created_at: entry.created_at,

@@ -82,6 +82,16 @@ export interface User {
     leadershipTraits?: LeadershipTrait[]
     deletedGoalIds?: string[]
     
+    // Reading Plan Progress
+    readingPlan?: {
+      planId: string
+      planName: string
+      currentDay: number
+      totalDays: number
+      startDate: string
+      completedDays: number[]
+    }
+    
     // Status
     completed: boolean
     
@@ -102,6 +112,14 @@ export interface User {
     growthQuestion?: string
     leadershipRating?: LeadershipRating
     deletedGoalIds?: string[]
+    readingPlan?: {
+      planId: string
+      planName: string
+      currentDay: number
+      totalDays: number
+      startDate: string
+      completedDays: number[]
+    }
     [key: string]: any
   }
   
