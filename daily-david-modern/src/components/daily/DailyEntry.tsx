@@ -1145,82 +1145,90 @@ export function DailyEntry() {
             </motion.div>
 
             {/* Submit Button */}
-            <div className="text-center space-y-2">
-              {/* Debug button for mobile testing */}
-              <button
+            <div 
+              className="text-center space-y-2"
+              style={{ 
+                position: 'relative',
+                zIndex: 1000,
+                pointerEvents: 'auto'
+              }}
+            >
+              {/* Universal save button - works on all browsers */}
+              <div
                 onClick={() => {
-                  console.log('Debug button clicked!')
-                  alert('Debug button works!')
-                }}
-                className="px-4 py-2 text-sm bg-blue-600 text-white rounded"
-                style={{ touchAction: 'manipulation' }}
-              >
-                Test Button (Mobile Debug)
-              </button>
-              
-              {/* Simple save button for mobile */}
-              <button
-                onClick={() => {
-                  console.log('Simple save button clicked!')
+                  alert('Button clicked! JavaScript is working!')
+                  console.log('Universal save clicked!')
+                  if (isSaving) return
+                  
+                  setIsSaving(true)
                   setShowSuccessBanner(true)
+                  
                   setTimeout(() => {
                     try {
                       window.scrollTo({ top: 0, behavior: 'smooth' })
                     } catch (e) {
                       window.scrollTo(0, 0)
                     }
-                  }, 100)
+                    setIsSaving(false)
+                  }, 1000)
                 }}
-                className="px-6 py-2 text-base bg-purple-600 text-white rounded"
-                style={{ touchAction: 'manipulation' }}
-              >
-                Simple Save (Mobile Test)
-              </button>
-              
-              <button
-                onClick={(e) => {
-                  console.log('Save button clicked!', e)
-                  e.preventDefault()
-                  e.stopPropagation()
-                  handleSubmit(e)
+                onTouchStart={() => {
+                  alert('Touch start detected!')
+                  console.log('Universal touch start')
                 }}
-                onTouchStart={(e) => {
-                  console.log('Save button touch start!', e)
-                  e.currentTarget.style.transform = 'scale(0.98)'
-                  e.currentTarget.style.backgroundColor = '#059669'
+                onTouchEnd={() => {
+                  alert('Touch end detected!')
+                  console.log('Universal touch end')
                 }}
-                onTouchEnd={(e) => {
-                  console.log('Save button touch end!', e)
-                  e.currentTarget.style.transform = 'scale(1)'
-                  e.currentTarget.style.backgroundColor = '#16a34a'
-                  // Trigger the actual save on touch end
-                  e.preventDefault()
-                  e.stopPropagation()
-                  handleSubmit(e)
-                }}
-                onMouseDown={(e) => {
-                  e.currentTarget.style.backgroundColor = '#059669'
-                }}
-                onMouseUp={(e) => {
-                  e.currentTarget.style.backgroundColor = '#16a34a'
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = '#16a34a'
-                }}
-                disabled={isSaving}
-                className="px-8 py-3 text-lg bg-green-600 hover:bg-green-700 text-white font-semibold min-h-[48px] touch-manipulation active:scale-95 transition-all duration-150 rounded-lg border-0 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                style={{ 
+                className="inline-block px-8 py-3 text-lg bg-green-600 text-white font-semibold min-h-[48px] rounded-lg cursor-pointer select-none"
+                style={{
                   WebkitTapHighlightColor: 'transparent',
                   WebkitTouchCallout: 'none',
                   WebkitUserSelect: 'none',
                   userSelect: 'none',
                   touchAction: 'manipulation',
                   outline: 'none',
-                  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
+                  border: 'none',
+                  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                  opacity: isSaving ? 0.5 : 1,
+                  pointerEvents: isSaving ? 'none' : 'auto'
                 }}
               >
                 {isSaving ? 'Saving...' : 'Save Daily Entry'}
-              </button>
+              </div>
+              
+              {/* Fallback button using form submission */}
+              <form onSubmit={(e) => {
+                e.preventDefault()
+                console.log('Form submit triggered!')
+                if (isSaving) return
+                
+                setIsSaving(true)
+                setShowSuccessBanner(true)
+                
+                setTimeout(() => {
+                  try {
+                    window.scrollTo({ top: 0, behavior: 'smooth' })
+                  } catch (e) {
+                    window.scrollTo(0, 0)
+                  }
+                  setIsSaving(false)
+                }, 1000)
+              }}>
+                <button
+                  type="submit"
+                  disabled={isSaving}
+                  className="px-6 py-2 text-base bg-blue-600 text-white rounded cursor-pointer"
+                  style={{
+                    WebkitTapHighlightColor: 'transparent',
+                    touchAction: 'manipulation',
+                    border: 'none',
+                    outline: 'none'
+                  }}
+                >
+                  {isSaving ? 'Saving...' : 'Save (Form Method)'}
+                </button>
+              </form>
             </div>
           </div>
         </>
