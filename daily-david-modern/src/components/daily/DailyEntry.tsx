@@ -1,7 +1,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { motion } from 'framer-motion'
-import { useSearchParams } from 'react-router-dom'
+import { useSearchParams, Link } from 'react-router-dom'
 import { ChevronLeft, ChevronRight, Calendar, Target, Star, CalendarDays, Crown } from 'lucide-react'
 
 import { useAuthStore } from '../../stores/authStore'
@@ -83,6 +83,7 @@ export function DailyEntry() {
   
   // Track deleted goals to prevent them from being re-added
   const [deletedGoalIds, setDeletedGoalIds] = useState<Set<string>>(new Set())
+  const [showSuccessBanner, setShowSuccessBanner] = useState(false)
 
   // Load data when URL changes
   useEffect(() => {
@@ -517,12 +518,13 @@ export function DailyEntry() {
         })
       }
       
+      // Show success banner
+      setShowSuccessBanner(true)
+      
       // Scroll to top after saving
       setTimeout(() => {
         window.scrollTo({ top: 0, behavior: 'smooth' })
       }, 100)
-      
-      // Silent save - no alert needed
     } catch (error) {
       console.error('Error saving entry:', error)
       // Silent error - just log it
@@ -636,6 +638,43 @@ export function DailyEntry() {
 
   return (
     <div className="space-y-8">
+      {/* Success Banner */}
+      {showSuccessBanner && (
+        <motion.div
+          initial={{ opacity: 0, y: -50 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -50 }}
+          className="bg-slate-800/90 backdrop-blur-sm border border-slate-600 rounded-lg p-4 mx-4"
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <Crown className="w-6 h-6 text-white" />
+              <div>
+                <p className="text-white font-semibold">Daily entry captured!</p>
+                <p className="text-green-300 text-sm">Keep leading with purpose!</p>
+              </div>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Link to="/">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+                >
+                  View Dashboard
+                </Button>
+              </Link>
+              <button
+                onClick={() => setShowSuccessBanner(false)}
+                className="text-white/70 hover:text-white transition-colors"
+              >
+                ✕
+              </button>
+            </div>
+          </div>
+        </motion.div>
+      )}
+
       {/* Back Button */}
 
       {/* Date Navigation */}
@@ -1049,8 +1088,9 @@ export function DailyEntry() {
                 onClick={handleSubmit}
                 disabled={isSaving}
                 className="px-8 py-3 text-lg bg-green-600 hover:bg-green-700"
+                style={{ zIndex: 9999, position: 'relative' }}
               >
-                {isSaving ? 'Saving...' : 'Save Daily Entry'}
+{isSaving ? 'Saving...' : 'Save Daily Entry'}
               </Button>
             </motion.div>
           </div>
