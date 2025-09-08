@@ -122,7 +122,7 @@ export function AdminPanel({ dbManager }: AdminPanelProps) {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-100 to-green-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
       <div className="container mx-auto px-4 py-8 max-w-6xl">
         
         {/* Header */}
@@ -131,18 +131,18 @@ export function AdminPanel({ dbManager }: AdminPanelProps) {
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
           >
-            <h1 className="text-3xl font-bold text-gray-800 flex items-center gap-3">
-              <Settings className="w-8 h-8 text-green-600" />
+            <h1 className="text-3xl font-bold text-white flex items-center gap-3">
+              <Settings className="w-8 h-8 text-green-400" />
               Admin Panel
             </h1>
-            <p className="text-gray-600 mt-2">
+            <p className="text-slate-300 mt-2">
               Manage users and system settings for The Daily David
             </p>
           </motion.div>
           
           <div className="flex items-center gap-4">
-            <div className="text-sm text-gray-600">
-              Logged in as: <span className="font-semibold">{user?.email}</span>
+            <div className="text-sm text-slate-300">
+              Logged in as: <span className="font-semibold text-white">{user?.email}</span>
             </div>
                             <Button variant="outline" onClick={logout}>
               Sign Out
@@ -159,14 +159,14 @@ export function AdminPanel({ dbManager }: AdminPanelProps) {
             transition={{ delay: 0.1 }}
           >
             <Card variant="elevated">
-              <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-                <UserPlus className="w-5 h-5 text-green-600" />
+              <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                <UserPlus className="w-5 h-5 text-green-400" />
                 Add New User
               </h2>
               
               <form onSubmit={handleAddUser} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-slate-300 mb-1">
                     Email Address
                   </label>
                   <input
@@ -180,7 +180,7 @@ export function AdminPanel({ dbManager }: AdminPanelProps) {
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-slate-300 mb-1">
                     Display Name
                   </label>
                   <input
@@ -194,7 +194,7 @@ export function AdminPanel({ dbManager }: AdminPanelProps) {
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-slate-300 mb-1">
                     Password
                   </label>
                   <input
@@ -215,7 +215,7 @@ export function AdminPanel({ dbManager }: AdminPanelProps) {
                     onChange={(e) => setNewUserForm(prev => ({ ...prev, isAdmin: e.target.checked }))}
                     className="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500"
                   />
-                  <label htmlFor="isAdmin" className="text-sm font-medium text-gray-700">
+                  <label htmlFor="isAdmin" className="text-sm font-medium text-slate-300">
                     Admin User
                   </label>
                 </div>
@@ -239,8 +239,8 @@ export function AdminPanel({ dbManager }: AdminPanelProps) {
           >
             <Card variant="elevated">
               <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
-                  <Users className="w-5 h-5 text-green-600" />
+                <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                  <Users className="w-5 h-5 text-green-400" />
                   Users ({users.length})
                 </h2>
                 <Button
@@ -255,26 +255,26 @@ export function AdminPanel({ dbManager }: AdminPanelProps) {
               
               <div className="space-y-3 max-h-96 overflow-y-auto">
                 {users.length === 0 ? (
-                  <div className="text-center py-8 text-gray-500">
+                  <div className="text-center py-8 text-slate-400">
                     No users found. Add a user to get started.
                   </div>
                 ) : (
                   users.map((user) => (
                     <div
                       key={user.id}
-                      className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                      className="flex items-center justify-between p-4 bg-slate-800/50 rounded-lg hover:bg-slate-700/50 transition-colors border border-slate-700"
                     >
                       <div>
-                        <div className="font-medium text-gray-900 flex items-center gap-2">
+                        <div className="font-medium text-white flex items-center gap-2">
                           {user.display_name}
                           {user.is_admin && (
-                            <span className="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">
+                            <span className="px-2 py-1 text-xs bg-green-600/20 text-green-400 rounded-full border border-green-600/30">
                               Admin
                             </span>
                           )}
                         </div>
-                        <div className="text-sm text-gray-600">{user.email}</div>
-                        <div className="text-xs text-gray-500">
+                        <div className="text-sm text-slate-300">{user.email}</div>
+                        <div className="text-xs text-slate-400">
                           Created: {new Date(user.created_at).toLocaleDateString()}
                         </div>
                       </div>
@@ -283,7 +283,7 @@ export function AdminPanel({ dbManager }: AdminPanelProps) {
                         variant="outline"
                         size="sm"
                         onClick={() => handleDeleteUser(user.id, user.display_name)}
-                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                        className="text-red-400 hover:text-red-300 hover:bg-red-600/10"
                       >
                         <Trash2 className="w-4 h-4" />
                       </Button>
@@ -303,16 +303,16 @@ export function AdminPanel({ dbManager }: AdminPanelProps) {
           className="mt-8"
         >
           <Card>
-            <h2 className="text-xl font-bold text-gray-800 mb-4">System Information</h2>
+            <h2 className="text-xl font-bold text-white mb-4">System Information</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
               <div>
-                <span className="font-medium text-gray-700">Version:</span> Daily David Modern v2.0
+                <span className="font-medium text-slate-300">Version:</span> <span className="text-white">Daily David Modern v2.0</span>
               </div>
               <div>
-                <span className="font-medium text-gray-700">Database:</span> Neon PostgreSQL
+                <span className="font-medium text-slate-300">Database:</span> <span className="text-white">Neon PostgreSQL</span>
               </div>
               <div>
-                <span className="font-medium text-gray-700">Total Users:</span> {users.length}
+                <span className="font-medium text-slate-300">Total Users:</span> <span className="text-white">{users.length}</span>
               </div>
             </div>
           </Card>

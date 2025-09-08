@@ -506,9 +506,16 @@ export function DailyEntry() {
     })
   }
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (event?: React.MouseEvent | React.TouchEvent) => {
+    // Prevent default behavior and stop propagation
+    if (event) {
+      event.preventDefault()
+      event.stopPropagation()
+    }
+    
     console.log('handleSubmit called')
     setIsSaving(true)
+    
     try {
       const dateString = getLocalDateString(selectedDate)
       
@@ -550,13 +557,18 @@ export function DailyEntry() {
       // Show success banner
       setShowSuccessBanner(true)
       
-      // Scroll to top after saving
+      // Scroll to top after saving - with fallback for browsers that don't support smooth scrolling
       setTimeout(() => {
-        window.scrollTo({ top: 0, behavior: 'smooth' })
+        try {
+          window.scrollTo({ top: 0, behavior: 'smooth' })
+        } catch (e) {
+          // Fallback for browsers that don't support smooth scrolling
+          window.scrollTo(0, 0)
+        }
       }, 100)
     } catch (error) {
       console.error('Error saving entry:', error)
-      // Silent error - just log it
+      // You might want to show an error message to the user here
     } finally {
       setIsSaving(false)
     }
@@ -673,29 +685,48 @@ export function DailyEntry() {
           initial={{ opacity: 0, y: -50 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -50 }}
-          className="bg-slate-800/90 backdrop-blur-sm border border-slate-600 rounded-lg p-4 mx-4"
+          className="bg-slate-800/90 backdrop-blur-sm border border-slate-600 rounded-lg p-4 mx-4 fixed top-4 left-4 right-4 z-50"
+          style={{
+            WebkitBackdropFilter: 'blur(8px)',
+            backdropFilter: 'blur(8px)'
+          }}
         >
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <div className="flex items-center space-x-3">
-              <Crown className="w-6 h-6 text-white" />
+              <Crown className="w-6 h-6 text-white flex-shrink-0" />
               <div>
                 <p className="text-white font-semibold">Daily entry captured!</p>
                 <p className="text-green-300 text-sm">Keep leading with purpose!</p>
               </div>
             </div>
-            <div className="flex items-center space-x-2">
-              <Link to="/">
+            <div className="flex items-center space-x-2 w-full sm:w-auto">
+              <Link to="/" className="flex-1 sm:flex-none">
                 <Button 
                   variant="outline" 
                   size="sm"
-                  className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+                  className="bg-white/10 border-white/20 text-white hover:bg-white/20 w-full sm:w-auto min-h-[40px] touch-manipulation"
+                  style={{
+                    WebkitTapHighlightColor: 'transparent',
+                    WebkitTouchCallout: 'none'
+                  }}
                 >
                   View Dashboard
                 </Button>
               </Link>
               <button
                 onClick={() => setShowSuccessBanner(false)}
-                className="text-white/70 hover:text-white transition-colors"
+                onTouchStart={(e) => {
+                  e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'
+                }}
+                onTouchEnd={(e) => {
+                  e.currentTarget.style.backgroundColor = 'transparent'
+                }}
+                className="text-white/70 hover:text-white transition-colors p-2 min-h-[40px] min-w-[40px] flex items-center justify-center touch-manipulation rounded"
+                style={{
+                  WebkitTapHighlightColor: 'transparent',
+                  WebkitTouchCallout: 'none',
+                  touchAction: 'manipulation'
+                }}
               >
                 ✕
               </button>
@@ -1115,11 +1146,24 @@ export function DailyEntry() {
             >
               <Button
                 onClick={handleSubmit}
+                onTouchStart={(e) => {
+                  // Ensure touch events work properly
+                  e.currentTarget.style.transform = 'scale(0.98)'
+                }}
+                onTouchEnd={(e) => {
+                  e.currentTarget.style.transform = 'scale(1)'
+                }}
                 disabled={isSaving}
-                className="px-8 py-3 text-lg bg-green-600 hover:bg-green-700"
-                style={{ zIndex: 9999, position: 'relative' }}
+                className="px-8 py-3 text-lg bg-green-600 hover:bg-green-700 text-white font-semibold min-h-[48px] touch-manipulation active:scale-95 transition-transform"
+                style={{ 
+                  WebkitTapHighlightColor: 'transparent',
+                  WebkitTouchCallout: 'none',
+                  WebkitUserSelect: 'none',
+                  userSelect: 'none',
+                  touchAction: 'manipulation'
+                }}
               >
-{isSaving ? 'Saving...' : 'Save Daily Entry'}
+                {isSaving ? 'Saving...' : 'Save Daily Entry'}
               </Button>
             </motion.div>
           </div>
