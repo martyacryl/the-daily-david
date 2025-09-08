@@ -155,6 +155,13 @@ export const ReadingPlanProgress: React.FC<ReadingPlanProgressProps> = ({
         >
           SIMPLE TEST
         </button>
+        <Button
+          size="sm"
+          onClick={() => console.log('🔥 BUTTON COMPONENT TEST CLICKED!')}
+          className="bg-red-600 hover:bg-red-500 text-white"
+        >
+          BUTTON COMPONENT TEST
+        </Button>
         <button
           onClick={() => {
             console.log('🔥 Load Today\'s Devotion clicked!', readingPlan.planId)
