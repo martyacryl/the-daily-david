@@ -1,7 +1,7 @@
 import { getAuthHeaders } from '../stores/authStore'
 
 // Database connection configuration - using API calls instead of direct connection
-const API_BASE_URL = 'https://thedailydavid.vercel.app'
+const API_BASE_URL = 'http://localhost:3001'
 
 export interface DailyEntry {
   id?: number
@@ -329,6 +329,7 @@ class DatabaseManager {
             dailyIntention: content.dailyIntention || '',
             growthQuestion: content.growthQuestion || '',
             leadershipRating: content.leadershipRating || { wisdom: 0, courage: 0, patience: 0, integrity: 0 },
+            deletedGoalIds: content.deletedGoalIds || [],
             created_at: entry.created_at,
             updated_at: entry.updated_at
           }

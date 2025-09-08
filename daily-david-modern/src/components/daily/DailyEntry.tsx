@@ -112,19 +112,39 @@ export function DailyEntry() {
     const hash = window.location.hash
     if (hash === '#goals') {
       // Check if we came from dashboard goals links using session storage
-      const fromDashboardGoals = sessionStorage.getItem('scrollToGoals')
+      const scrollTarget = sessionStorage.getItem('scrollToGoals')
       
-      if (fromDashboardGoals === 'true') {
-        // Small delay to ensure the component is fully rendered
+      if (scrollTarget) {
+        console.log('Dashboard navigation: scrollTarget =', scrollTarget)
+        // Longer delay to ensure the component is fully rendered
         setTimeout(() => {
-          const goalsSection = document.getElementById('goals-section')
-          if (goalsSection) {
-            goalsSection.scrollIntoView({ 
+          let targetElement: HTMLElement | null = null
+          
+          if (scrollTarget === 'daily') {
+            targetElement = document.getElementById('daily-goals-section')
+            console.log('Looking for daily-goals-section:', targetElement)
+          } else if (scrollTarget === 'weekly') {
+            targetElement = document.getElementById('weekly-goals-section')
+            console.log('Looking for weekly-goals-section:', targetElement)
+          } else if (scrollTarget === 'monthly') {
+            targetElement = document.getElementById('monthly-goals-section')
+            console.log('Looking for monthly-goals-section:', targetElement)
+          } else {
+            // Fallback to general goals section
+            targetElement = document.getElementById('goals-section')
+            console.log('Looking for goals-section:', targetElement)
+          }
+          
+          if (targetElement) {
+            console.log('Scrolling to element:', targetElement)
+            targetElement.scrollIntoView({ 
               behavior: 'smooth',
               block: 'start'
             })
+          } else {
+            console.log('Target element not found!')
           }
-        }, 500)
+        }, 1000)
         
         // Clear the session storage flag
         sessionStorage.removeItem('scrollToGoals')
@@ -141,7 +161,7 @@ export function DailyEntry() {
   // REMOVED: useEffect that watches currentEntry - this was causing re-renders
 
   // Direct API auto-save function that bypasses the store
-  const autoSaveToAPI = async (entryData: any) => {
+  const autoSaveToAPI = async (entryData: any, currentDeletedGoalIds?: Set<string>) => {
     if (!user?.id) return
     
     try {
@@ -164,7 +184,7 @@ export function DailyEntry() {
       })
       
       // Correct API call - this will create or update the entry
-      const response = await fetch('https://thedailydavid.vercel.app/api/entries', {
+      const response = await fetch('http://localhost:3001/api/entries', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -178,7 +198,7 @@ export function DailyEntry() {
           dailyIntention: entryData.dailyIntention,
           leadershipRating: entryData.leadershipRating,
           checkIn: entryData.checkIn,
-          deletedGoalIds: Array.from(deletedGoalIds)
+          deletedGoalIds: Array.from(currentDeletedGoalIds || deletedGoalIds)
         })
       })
       
@@ -228,8 +248,10 @@ export function DailyEntry() {
   }, [dayData, userGoals, selectedDate, user])
 
   // Simple goal extraction - just use current entry goals and add weekly/monthly from all entries
-  const extractCurrentGoals = useCallback((entries: any[], currentEntryGoals: UserGoals, selectedDate: Date) => {
+  const extractCurrentGoals = useCallback((entries: any[], currentEntryGoals: UserGoals, selectedDate: Date, currentDeletedGoalIds?: Set<string>) => {
     console.log('extractCurrentGoals called with', entries.length, 'entries')
+    const deletedIds = currentDeletedGoalIds || deletedGoalIds
+    console.log('extractCurrentGoals: deletedGoalIds =', Array.from(deletedIds))
     // Start with current entry goals
     const result = {
       daily: [...currentEntryGoals.daily],
@@ -282,7 +304,7 @@ export function DailyEntry() {
         if (entryDate >= startOfWeek && Array.isArray(entry.goals.weekly)) {
           entry.goals.weekly.forEach((goal: Goal) => {
             const goalId = goal.id || goal.text
-            if (!weeklyGoalIds.has(goalId) && !deletedGoalIds.has(goalId)) {
+            if (!weeklyGoalIds.has(goalId) && !deletedIds.has(goalId)) {
               result.weekly.push(goal)
               weeklyGoalIds.add(goalId)
             }
@@ -293,9 +315,18 @@ export function DailyEntry() {
         if (entryDate >= startOfMonth && Array.isArray(entry.goals.monthly)) {
           entry.goals.monthly.forEach((goal: Goal) => {
             const goalId = goal.id || goal.text
-            if (!monthlyGoalIds.has(goalId) && !deletedGoalIds.has(goalId)) {
+            const isDeleted = deletedIds.has(goalId)
+            const alreadyExists = monthlyGoalIds.has(goalId)
+            console.log('extractCurrentGoals: Processing monthly goal:', goalId, 'deleted?', isDeleted, 'exists?', alreadyExists)
+            console.log('extractCurrentGoals: deletedIds contents:', Array.from(deletedIds))
+            console.log('extractCurrentGoals: goalId type:', typeof goalId, 'value:', goalId)
+            
+            if (!alreadyExists && !isDeleted) {
               result.monthly.push(goal)
               monthlyGoalIds.add(goalId)
+              console.log('extractCurrentGoals: Added monthly goal:', goalId)
+            } else {
+              console.log('extractCurrentGoals: Skipped monthly goal:', goalId, 'already exists:', alreadyExists, 'deleted:', isDeleted)
             }
           })
         }
@@ -344,12 +375,18 @@ export function DailyEntry() {
         const currentGoals = entryData.goals || { daily: [], weekly: [], monthly: [] }
         
         // Load deleted goals from the entry
+        console.log('loadEntryForDate: Full entryData:', entryData)
+        console.log('loadEntryForDate: entryData.deletedGoalIds:', entryData.deletedGoalIds)
         if (entryData.deletedGoalIds && Array.isArray(entryData.deletedGoalIds)) {
+          console.log('loadEntryForDate: Loading deletedGoalIds from entry:', entryData.deletedGoalIds)
           setDeletedGoalIds(new Set(entryData.deletedGoalIds))
+        } else {
+          console.log('loadEntryForDate: No deletedGoalIds found in entry data')
         }
         
         // Extract weekly and monthly goals from all entries in current time periods
-        const extractedGoals = extractCurrentGoals(allEntries, currentGoals, date)
+        const currentDeletedGoalIds = entryData.deletedGoalIds ? new Set(entryData.deletedGoalIds) : new Set()
+        const extractedGoals = extractCurrentGoals(allEntries, currentGoals, date, currentDeletedGoalIds)
         setUserGoals(extractedGoals)
       } else {
         console.log('No entry found for date:', dateString)
@@ -369,7 +406,7 @@ export function DailyEntry() {
         
         // Extract weekly and monthly goals from all entries, start with empty daily goals
         const emptyGoals = { daily: [], weekly: [], monthly: [] }
-        const extractedGoals = extractCurrentGoals(allEntries, emptyGoals, date)
+        const extractedGoals = extractCurrentGoals(allEntries, emptyGoals, date, new Set())
         setUserGoals(extractedGoals)
       }
       
@@ -514,17 +551,32 @@ export function DailyEntry() {
     const goalToDelete = userGoals[type][index]
     const goalId = goalToDelete.id || goalToDelete.text
     
+    console.log('handleGoalDelete: Deleting goal:', goalId, 'type:', type, 'index:', index)
+    
+    // Remove the goal from userGoals immediately
+    const updatedGoals = {
+      ...userGoals,
+      [type]: userGoals[type].filter((_, i) => i !== index)
+    }
+    
+    setUserGoals(updatedGoals)
+    
     // Add to deleted goals set
-    setDeletedGoalIds(prev => new Set([...prev, goalId]))
+    setDeletedGoalIds(prev => {
+      const newSet = new Set([...prev, goalId])
+      console.log('handleGoalDelete: Updated deletedGoalIds:', Array.from(newSet))
+      return newSet
+    })
     
-    setUserGoals(prev => ({
-      ...prev,
-      [type]: prev[type].filter((_, i) => i !== index)
-    }))
-    
-    // Auto-save when goal is deleted
+    // Auto-save with the updated goals (goal removed) and updated deletedGoalIds
     setTimeout(() => {
-      window.dispatchEvent(new CustomEvent('triggerSave'))
+      const entryData = {
+        ...dayData,
+        goals: updatedGoals
+      }
+      const newDeletedGoalIds = new Set([...deletedGoalIds, goalId])
+      console.log('handleGoalDelete: Auto-saving with updated goals and deletedGoalIds:', Array.from(newDeletedGoalIds))
+      autoSaveToAPI(entryData, newDeletedGoalIds)
     }, 100)
   }
 
@@ -708,7 +760,7 @@ export function DailyEntry() {
               className="space-y-6"
             >
               {/* Daily Goals */}
-              <div className="bg-slate-800/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-slate-700">
+              <div id="daily-goals-section" className="bg-slate-800/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-slate-700">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-xl font-bold text-white flex items-center gap-2">
                     <Target className="w-4 h-4 text-slate-400" />
@@ -782,7 +834,7 @@ export function DailyEntry() {
               </div>
 
               {/* Weekly Goals */}
-              <div className="bg-slate-800/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-slate-700">
+              <div id="weekly-goals-section" className="bg-slate-800/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-slate-700">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-xl font-bold text-white flex items-center gap-2">
                     📅 Weekly Goals
@@ -854,7 +906,7 @@ export function DailyEntry() {
               </div>
 
               {/* Monthly Goals */}
-              <div className="bg-slate-800/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-slate-700">
+              <div id="monthly-goals-section" className="bg-slate-800/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-slate-700">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-xl font-bold text-white flex items-center gap-2">
                     🗓️ Monthly Goals

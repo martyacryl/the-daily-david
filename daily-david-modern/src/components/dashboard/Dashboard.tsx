@@ -34,6 +34,7 @@ export const Dashboard: React.FC = () => {
     }
   }, [isAuthenticated, loadEntries])
 
+
   useEffect(() => {
     if (entries.length > 0) {
       calculateStats()
@@ -200,6 +201,13 @@ export const Dashboard: React.FC = () => {
 
   const extractCurrentGoals = () => {
     console.log('Dashboard: Extracting goals from', entries.length, 'entries')
+    console.log('Dashboard: All entries:', entries.map(e => ({ 
+      date: e.date, 
+      monthlyGoals: e.goals?.monthly?.length || 0,
+      monthlyGoalTexts: e.goals?.monthly?.map(g => g.text) || [],
+      deletedIds: e.deletedGoalIds || []
+    })))
+    console.log('Dashboard: Raw entries data:', entries)
 
     if (entries.length > 0) {
       const now = new Date()
@@ -219,9 +227,45 @@ export const Dashboard: React.FC = () => {
         startOfMonth: startOfMonth.toISOString()
       })
 
-      // For all goal types, collect ALL goals from the time period
-      // and track their completion status (most recent completion status wins)
-      const dailyGoalMap = new Map<string, Goal>()
+      // Get today's entry for daily goals
+      const todayEntry = entries.find(entry => {
+        // Parse the date string properly - handle both YYYY-MM-DD and other formats
+        let entryDate: Date
+        if (typeof entry.date === 'string') {
+          if (entry.date.includes('-')) {
+            const [year, month, day] = entry.date.split('-').map(Number)
+            entryDate = new Date(year, month - 1, day) // month is 0-indexed
+          } else {
+            entryDate = new Date(entry.date)
+          }
+        } else {
+          entryDate = new Date(entry.date)
+        }
+        entryDate.setHours(0, 0, 0, 0)
+        return entryDate.getTime() === today.getTime()
+      })
+
+      console.log('Dashboard: Today entry:', todayEntry)
+      
+      // Collect ALL deleted goal IDs from ALL entries to properly filter goals
+      const allDeletedGoalIds = new Set<string>()
+      entries.forEach(entry => {
+        if (entry.deletedGoalIds && Array.isArray(entry.deletedGoalIds)) {
+          entry.deletedGoalIds.forEach(id => allDeletedGoalIds.add(id))
+        }
+      })
+      console.log('Dashboard: All deletedGoalIds from all entries:', Array.from(allDeletedGoalIds))
+
+      // Daily goals: from today's entry only, filtered by deleted goals
+      const currentDailyGoals: Goal[] = (todayEntry?.goals?.daily || []).filter(goal => {
+        const goalId = goal.id
+        // Only use ID for filtering - check both string and number versions
+        const isDeleted = allDeletedGoalIds.has(goalId) || 
+                         allDeletedGoalIds.has(goalId?.toString())
+        return !isDeleted
+      })
+
+      // Weekly and Monthly goals: collect from all entries in time period, filtered by deleted goals
       const weeklyGoalMap = new Map<string, Goal>()
       const monthlyGoalMap = new Map<string, Goal>()
 
@@ -232,75 +276,64 @@ export const Dashboard: React.FC = () => {
         return dateB.getTime() - dateA.getTime()
       })
 
-      // Get all goals from entries within their respective time periods
       sortedEntries.forEach(entry => {
         if (entry.goals) {
-          // Parse the date string properly - handle both YYYY-MM-DD and other formats
+          // Parse the date string properly
           let entryDate: Date
           if (typeof entry.date === 'string') {
-            // If it's a string like "2024-09-06", parse it correctly
             if (entry.date.includes('-')) {
               const [year, month, day] = entry.date.split('-').map(Number)
-              entryDate = new Date(year, month - 1, day) // month is 0-indexed
+              entryDate = new Date(year, month - 1, day)
             } else {
               entryDate = new Date(entry.date)
             }
           } else {
             entryDate = new Date(entry.date)
           }
-
-          // Set time to start of day for accurate comparison
           entryDate.setHours(0, 0, 0, 0)
 
           const goals = entry.goals
 
-          // Daily goals: from today's entry
-          if (entryDate >= today && Array.isArray(goals.daily)) {
-            goals.daily.forEach(goal => {
-              const goalKey = goal.id || goal.text
-              // Only add if we haven't seen this goal before (most recent status wins)
-              if (!dailyGoalMap.has(goalKey)) {
-                dailyGoalMap.set(goalKey, goal)
-              }
-            })
-          }
-
-          // Weekly goals: from entries this week
+          // Weekly goals: from entries this week, filtered by deleted goals
           if (entryDate >= startOfWeek && Array.isArray(goals.weekly)) {
             goals.weekly.forEach(goal => {
-              const goalKey = goal.id || goal.text
-              // Only add if we haven't seen this goal before (most recent status wins)
-              if (!weeklyGoalMap.has(goalKey)) {
-                weeklyGoalMap.set(goalKey, goal)
+              const goalId = goal.id
+              // Only use ID for deduplication and filtering - check both string and number versions
+              const isDeleted = allDeletedGoalIds.has(goalId) || 
+                               allDeletedGoalIds.has(goalId?.toString())
+              if (!weeklyGoalMap.has(goalId) && !isDeleted) {
+                weeklyGoalMap.set(goalId, goal)
               }
             })
           }
 
-          // Monthly goals: from entries this month
+          // Monthly goals: from entries this month, filtered by deleted goals
           if (entryDate >= startOfMonth && Array.isArray(goals.monthly)) {
             goals.monthly.forEach(goal => {
-              const goalKey = goal.id || goal.text
-              // Only add if we haven't seen this goal before (most recent status wins)
-              if (!monthlyGoalMap.has(goalKey)) {
-                monthlyGoalMap.set(goalKey, goal)
+              const goalId = goal.id
+              // Only use ID for deduplication and filtering - check both string and number versions
+              const isDeleted = allDeletedGoalIds.has(goalId) || 
+                               allDeletedGoalIds.has(goalId?.toString())
+              if (!monthlyGoalMap.has(goalId) && !isDeleted) {
+                monthlyGoalMap.set(goalId, goal)
               }
             })
           }
         }
       })
 
-      // Convert maps to arrays
-      const currentDailyGoals: Goal[] = Array.from(dailyGoalMap.values())
       const currentWeeklyGoals: Goal[] = Array.from(weeklyGoalMap.values())
       const currentMonthlyGoals: Goal[] = Array.from(monthlyGoalMap.values())
 
-      console.log('Current goals by time period:', {
+      console.log('Current goals by time period (after filtering deleted goals):', {
         daily: currentDailyGoals.length,
         weekly: currentWeeklyGoals.length,
         monthly: currentMonthlyGoals.length,
         weeklyGoals: currentWeeklyGoals.map(g => ({ text: g.text, completed: g.completed })),
-        monthlyGoals: currentMonthlyGoals.map(g => ({ text: g.text, completed: g.completed }))
+        monthlyGoals: currentMonthlyGoals.map(g => ({ text: g.text, completed: g.completed })),
+        totalDeletedGoals: allDeletedGoalIds.size
       })
+      console.log('Monthly goals detailed:', currentMonthlyGoals)
 
       setCurrentGoals({
         daily: currentDailyGoals,
@@ -555,7 +588,7 @@ export const Dashboard: React.FC = () => {
             </span>
           </div>
           <div className="space-y-2">
-            {currentGoals.daily.slice(0, 3).map((goal) => (
+            {currentGoals.daily.map((goal) => (
               <div key={goal.id} className="flex items-center space-x-2">
                 <div className={`w-2 h-2 rounded-full ${goal.completed ? 'bg-green-500' : 'bg-slate-500'}`}></div>
                 <span className={`text-sm ${goal.completed ? 'line-through text-slate-300 bg-slate-600/30 px-2 py-1 rounded' : 'text-slate-300'}`}>
@@ -570,7 +603,7 @@ export const Dashboard: React.FC = () => {
           <Link 
             to="/daily#goals" 
             className="block mt-4 text-sm text-slate-400 hover:text-slate-300 font-medium"
-            onClick={() => sessionStorage.setItem('scrollToGoals', 'true')}
+            onClick={() => sessionStorage.setItem('scrollToGoals', 'daily')}
           >
             View all daily goals →
           </Link>
@@ -588,7 +621,7 @@ export const Dashboard: React.FC = () => {
             </span>
           </div>
           <div className="space-y-2">
-            {currentGoals.weekly.slice(0, 4).map((goal) => (
+            {currentGoals.weekly.map((goal) => (
               <div key={goal.id} className="flex items-center space-x-2">
                 <div className={`w-2 h-2 rounded-full ${goal.completed ? 'bg-green-500' : 'bg-slate-500'}`}></div>
                 <span className={`text-sm ${goal.completed ? 'line-through text-slate-300 bg-slate-600/30 px-2 py-1 rounded' : 'text-slate-300'}`}>
@@ -603,7 +636,7 @@ export const Dashboard: React.FC = () => {
           <Link 
             to="/daily#goals" 
             className="block mt-4 text-sm text-slate-400 hover:text-slate-300 font-medium"
-            onClick={() => sessionStorage.setItem('scrollToGoals', 'true')}
+            onClick={() => sessionStorage.setItem('scrollToGoals', 'weekly')}
           >
             View all weekly goals →
           </Link>
@@ -621,7 +654,7 @@ export const Dashboard: React.FC = () => {
             </span>
           </div>
           <div className="space-y-2">
-            {currentGoals.monthly.slice(0, 2).map((goal) => (
+            {currentGoals.monthly.map((goal) => (
               <div key={goal.id} className="flex items-center space-x-2">
                 <div className={`w-2 h-2 rounded-full ${goal.completed ? 'bg-green-500' : 'bg-slate-500'}`}></div>
                 <span className={`text-sm ${goal.completed ? 'line-through text-slate-300 bg-slate-600/30 px-2 py-1 rounded' : 'text-slate-300'}`}>
@@ -636,7 +669,7 @@ export const Dashboard: React.FC = () => {
           <Link 
             to="/daily#goals" 
             className="block mt-4 text-sm text-slate-400 hover:text-slate-300 font-medium"
-            onClick={() => sessionStorage.setItem('scrollToGoals', 'true')}
+            onClick={() => sessionStorage.setItem('scrollToGoals', 'monthly')}
           >
             View all monthly goals →
           </Link>

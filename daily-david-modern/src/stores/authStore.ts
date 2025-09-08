@@ -27,7 +27,7 @@ interface AuthActions {
 
 type AuthStore = AuthState & AuthActions
 
-const API_BASE_URL = 'https://thedailydavid.vercel.app'
+const API_BASE_URL = 'http://localhost:3001'
 
 export const useAuthStore = create<AuthStore>()(
   persist(

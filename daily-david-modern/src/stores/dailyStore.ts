@@ -148,7 +148,9 @@ export const useDailyStore = create<DailyStore>((set, get) => ({
     try {
       set({ isLoading: true, error: null })
       
+      console.log('Store: Loading entries from API...')
       const result = await dbManager.getDailyEntries()
+      console.log('Store: API response:', result)
       
       if (result && result.length > 0) {
         const formattedEntries: DailyEntry[] = result.map((entry: any) => {
@@ -193,6 +195,7 @@ export const useDailyStore = create<DailyStore>((set, get) => ({
             dailyIntention: dataContent.dailyIntention || entry.dailyIntention || '',
             growthQuestion: dataContent.growthQuestion || entry.growthQuestion || '',
             leadershipRating: dataContent.leadershipRating || entry.leadershipRating || { wisdom: 0, courage: 0, patience: 0, integrity: 0 },
+            deletedGoalIds: dataContent.deletedGoalIds || entry.deletedGoalIds || [],
             completed: dataContent.completed || entry.completed || false,
             createdAt: new Date(entry.created_at),
             created_at: new Date(entry.created_at),
@@ -264,6 +267,8 @@ export const useDailyStore = create<DailyStore>((set, get) => ({
         console.log('Store: Data content keys:', Object.keys(dataContent))
         console.log('Store: Raw result:', result)
         console.log('Store: Available fields in result:', Object.keys(result))
+        console.log('Store: result.deletedGoalIds:', result.deletedGoalIds)
+        console.log('Store: dataContent.deletedGoalIds:', dataContent.deletedGoalIds)
         
         // DEBUG: Check if checkIn data is in individual columns
         console.log('Store: result.checkIn field:', result.checkIn)
@@ -354,6 +359,7 @@ export const useDailyStore = create<DailyStore>((set, get) => ({
           dailyIntention: dataContent.dailyIntention || result.dailyIntention || '',
           growthQuestion: dataContent.growthQuestion || result.growthQuestion || '',
           leadershipRating: leadershipRatingData,
+          deletedGoalIds: dataContent.deletedGoalIds || result.deletedGoalIds || [],
           completed: dataContent.completed || result.completed || false,
           createdAt: new Date(result.created_at),
           created_at: new Date(result.created_at),
