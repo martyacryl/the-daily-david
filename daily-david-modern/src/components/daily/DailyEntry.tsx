@@ -549,6 +549,9 @@ export function DailyEntry() {
       // Check both entry.readingPlan and entry.data_content.readingPlan
       const readingPlanData = entry.readingPlan || (entry.data_content && entry.data_content.readingPlan)
       console.log('🔥 Checking entry from:', entry.date, 'has readingPlan:', !!readingPlanData)
+      console.log('🔥 Entry object keys:', Object.keys(entry))
+      console.log('🔥 Entry readingPlan field:', entry.readingPlan)
+      console.log('🔥 Entry data_content:', entry.data_content)
       if (readingPlanData) {
         console.log('🔥 Entry readingPlan:', readingPlanData)
         if (readingPlanData.planId === plan.id) {
