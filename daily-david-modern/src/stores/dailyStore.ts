@@ -337,6 +337,19 @@ export const useDailyStore = create<DailyStore>((set, get) => ({
         console.log('Store: checkInData.emotions length:', checkInData.emotions?.length)
         console.log('Store: checkInData.emotions contents:', JSON.stringify(checkInData.emotions))
         
+        // Parse reading plan data
+        let readingPlanData = dataContent.readingPlan || result.readingPlan
+        if (typeof readingPlanData === 'string') {
+          try {
+            readingPlanData = JSON.parse(readingPlanData)
+          } catch (e) {
+            console.error('Store: Failed to parse readingPlan string:', e)
+            readingPlanData = null
+          }
+        }
+        
+        console.log('Store: Parsed readingPlan data:', readingPlanData)
+        
         const formattedEntry: DailyEntry = {
           id: result.id?.toString() || Date.now().toString(),
           userId: result.user_id,
@@ -359,6 +372,7 @@ export const useDailyStore = create<DailyStore>((set, get) => ({
           dailyIntention: dataContent.dailyIntention || result.dailyIntention || '',
           growthQuestion: dataContent.growthQuestion || result.growthQuestion || '',
           leadershipRating: leadershipRatingData,
+          readingPlan: readingPlanData,
           deletedGoalIds: dataContent.deletedGoalIds || result.deletedGoalIds || [],
           completed: dataContent.completed || result.completed || false,
           createdAt: new Date(result.created_at),
