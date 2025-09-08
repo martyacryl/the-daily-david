@@ -686,10 +686,6 @@ export function DailyEntry() {
 
   return (
     <div className="space-y-8">
-      {/* Debug Banner State */}
-      <div className="fixed top-0 left-0 bg-red-500 text-white p-2 z-[99999]">
-        Banner: {showSuccessBanner ? 'SHOWING' : 'HIDDEN'}
-      </div>
       {/* Success Banner */}
       {showSuccessBanner && (
         <motion.div
@@ -1150,17 +1146,8 @@ export function DailyEntry() {
 
             {/* Submit Button */}
             <div className="text-center relative z-[9999]">
-              {/* Test Button */}
-              <div 
-                onClick={() => alert('TEST BUTTON WORKS!')}
-                className="mb-4 px-4 py-2 bg-red-600 text-white rounded cursor-pointer relative z-[9999]"
-                style={{ zIndex: 9999 }}
-              >
-                TEST BUTTON
-              </div>
               <button
                 onClick={() => {
-                  console.log('Save button clicked!')
                   if (isSaving) return
                   
                   setIsSaving(true)
@@ -1176,7 +1163,8 @@ export function DailyEntry() {
                   }, 1000)
                 }}
                 disabled={isSaving}
-                className="px-8 py-3 text-lg bg-green-600 hover:bg-green-700 disabled:bg-green-500 disabled:opacity-70 text-white font-semibold rounded-lg transition-all duration-200 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-slate-900"
+                className="px-8 py-3 text-lg bg-green-600 hover:bg-green-700 disabled:bg-green-500 disabled:opacity-70 text-white font-semibold rounded-lg transition-all duration-200 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-slate-900 relative z-[9999]"
+                style={{ zIndex: 9999 }}
               >
                 {isSaving ? 'Saving...' : 'Save Daily Entry'}
               </button>
