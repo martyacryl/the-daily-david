@@ -255,10 +255,18 @@ export const Dashboard: React.FC = () => {
           entry.deletedGoalIds.forEach(id => allDeletedGoalIds.add(id))
         }
       })
+      
+      console.log('Dashboard: All deleted goal IDs:', Array.from(allDeletedGoalIds))
 
       // Daily goals: from today's entry only, filtered by deleted goals
       const currentDailyGoals: Goal[] = (todayEntry?.goals?.daily || []).filter(goal => {
         const goalId = goal.id
+        // Ensure we have a valid ID for filtering
+        if (!goalId) {
+          console.warn('Daily goal missing ID:', goal)
+          return false
+        }
+        
         // Only use ID for filtering - check both string and number versions
         const isDeleted = allDeletedGoalIds.has(goalId) || 
                          allDeletedGoalIds.has(goalId?.toString())
@@ -298,11 +306,22 @@ export const Dashboard: React.FC = () => {
           if (entryDate >= startOfWeek && Array.isArray(goals.weekly)) {
             goals.weekly.forEach(goal => {
               const goalId = goal.id
+              // Ensure we have a valid ID for deduplication
+              if (!goalId) {
+                console.warn('Weekly goal missing ID:', goal)
+                return
+              }
+              
               // Only use ID for deduplication and filtering - check both string and number versions
               const isDeleted = allDeletedGoalIds.has(goalId) || 
                                allDeletedGoalIds.has(goalId?.toString())
-              if (!weeklyGoalMap.has(goalId) && !isDeleted) {
-                weeklyGoalMap.set(goalId, goal)
+              
+              if (!isDeleted) {
+                // Use the goal ID as the key, ensuring it's a string
+                const key = goalId.toString()
+                if (!weeklyGoalMap.has(key)) {
+                  weeklyGoalMap.set(key, goal)
+                }
               }
             })
           }
@@ -311,11 +330,22 @@ export const Dashboard: React.FC = () => {
           if (entryDate >= startOfMonth && Array.isArray(goals.monthly)) {
             goals.monthly.forEach(goal => {
               const goalId = goal.id
+              // Ensure we have a valid ID for deduplication
+              if (!goalId) {
+                console.warn('Monthly goal missing ID:', goal)
+                return
+              }
+              
               // Only use ID for deduplication and filtering - check both string and number versions
               const isDeleted = allDeletedGoalIds.has(goalId) || 
                                allDeletedGoalIds.has(goalId?.toString())
-              if (!monthlyGoalMap.has(goalId) && !isDeleted) {
-                monthlyGoalMap.set(goalId, goal)
+              
+              if (!isDeleted) {
+                // Use the goal ID as the key, ensuring it's a string
+                const key = goalId.toString()
+                if (!monthlyGoalMap.has(key)) {
+                  monthlyGoalMap.set(key, goal)
+                }
               }
             })
           }
