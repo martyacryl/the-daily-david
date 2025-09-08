@@ -1163,17 +1163,13 @@ export function DailyEntry() {
                     setIsSaving(false)
                   }, 1000)
                 }}
+                onTouchStart={() => {}} // Add touch support
+                className="inline-block px-8 py-3 text-lg bg-green-600 hover:bg-green-700 text-white font-semibold min-h-[48px] rounded-lg cursor-pointer select-none transition-all duration-200 shadow-md hover:shadow-lg touch-manipulation"
                 style={{
-                  padding: '15px 30px',
-                  backgroundColor: isSaving ? '#059669' : '#16a34a',
-                  color: 'white',
-                  cursor: isSaving ? 'not-allowed' : 'pointer',
-                  borderRadius: '8px',
-                  fontSize: '18px',
-                  fontWeight: 'bold',
                   opacity: isSaving ? 0.7 : 1,
-                  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-                  transition: 'all 0.2s ease'
+                  cursor: isSaving ? 'not-allowed' : 'pointer',
+                  WebkitTapHighlightColor: 'transparent',
+                  touchAction: 'manipulation'
                 }}
               >
                 {isSaving ? 'Saving...' : 'Save Daily Entry'}
