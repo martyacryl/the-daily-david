@@ -18,6 +18,7 @@ export const Dashboard: React.FC = () => {
     thisMonth: 0,
     completionRate: 0
   })
+  const [statsLoaded, setStatsLoaded] = useState(false)
   const [currentGoals, setCurrentGoals] = useState<{
     daily: Goal[]
     weekly: Goal[]
@@ -39,8 +40,18 @@ export const Dashboard: React.FC = () => {
     if (entries.length > 0) {
       calculateStats()
       extractCurrentGoals()
+      setStatsLoaded(true)
+    } else if (!isLoading) {
+      // If no entries and not loading, set stats to 0 and mark as loaded
+      setStats({
+        currentStreak: 0,
+        thisWeek: 0,
+        thisMonth: 0,
+        completionRate: 0
+      })
+      setStatsLoaded(true)
     }
-  }, [entries])
+  }, [entries, isLoading])
 
   const calculateStats = () => {
     const thisMonth = new Date().getMonth()
@@ -438,8 +449,20 @@ export const Dashboard: React.FC = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-green-200">{stat.title}</p>
-                    <p className="text-2xl font-bold text-white">{stat.value}</p>
-                    <p className="text-sm text-slate-400 font-medium">{stat.change}</p>
+                    <p className="text-2xl font-bold text-white">
+                      {!statsLoaded ? (
+                        <span className="animate-pulse bg-slate-600 rounded w-12 h-8 inline-block"></span>
+                      ) : (
+                        stat.value
+                      )}
+                    </p>
+                    <p className="text-sm text-slate-400 font-medium">
+                      {!statsLoaded ? (
+                        <span className="animate-pulse bg-slate-600 rounded w-20 h-4 inline-block"></span>
+                      ) : (
+                        stat.change
+                      )}
+                    </p>
                   </div>
                   <div className="p-3 rounded-full bg-slate-700/50">
                     <Icon className="w-6 h-6 text-slate-400" />
@@ -564,20 +587,40 @@ export const Dashboard: React.FC = () => {
               <h3 className="text-lg font-semibold text-white">Daily Goals</h3>
             </div>
             <span className="text-sm text-slate-300">
-              {currentGoals.daily.filter(g => g.completed).length}/{currentGoals.daily.length} completed
+              {!statsLoaded ? (
+                <span className="animate-pulse bg-slate-600 rounded w-16 h-4 inline-block"></span>
+              ) : (
+                `${currentGoals.daily.filter(g => g.completed).length}/${currentGoals.daily.length} completed`
+              )}
             </span>
           </div>
           <div className="space-y-2">
-            {currentGoals.daily.map((goal, index) => (
-              <div key={`daily-${goal.id}-${index}`} className="flex items-center space-x-2">
-                <div className={`w-2 h-2 rounded-full ${goal.completed ? 'bg-green-500' : 'bg-slate-500'}`}></div>
-                <span className={`text-sm ${goal.completed ? 'line-through text-slate-300 bg-slate-600/30 px-2 py-1 rounded' : 'text-slate-300'}`}>
-                  {goal.text}
-                </span>
-              </div>
-            ))}
-            {currentGoals.daily.length === 0 && (
-              <div className="text-sm text-slate-400 italic">No daily goals set yet</div>
+            {!statsLoaded ? (
+              // Loading skeleton for goals
+              <>
+                <div className="flex items-center space-x-2">
+                  <div className="w-2 h-2 rounded-full bg-slate-600 animate-pulse"></div>
+                  <span className="animate-pulse bg-slate-600 rounded w-24 h-4"></span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className="w-2 h-2 rounded-full bg-slate-600 animate-pulse"></div>
+                  <span className="animate-pulse bg-slate-600 rounded w-20 h-4"></span>
+                </div>
+              </>
+            ) : (
+              <>
+                {currentGoals.daily.map((goal, index) => (
+                  <div key={`daily-${goal.id}-${index}`} className="flex items-center space-x-2">
+                    <div className={`w-2 h-2 rounded-full ${goal.completed ? 'bg-green-500' : 'bg-slate-500'}`}></div>
+                    <span className={`text-sm ${goal.completed ? 'line-through text-slate-300 bg-slate-600/30 px-2 py-1 rounded' : 'text-slate-300'}`}>
+                      {goal.text}
+                    </span>
+                  </div>
+                ))}
+                {currentGoals.daily.length === 0 && (
+                  <div className="text-sm text-slate-400 italic">No daily goals set yet</div>
+                )}
+              </>
             )}
           </div>
           <Link 
