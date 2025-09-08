@@ -125,7 +125,9 @@ export const BibleIntegration: React.FC<BibleIntegrationProps> = ({
                   <div className="flex flex-col gap-2 md:ml-4">
                     <Button
                       size="sm"
-                      onClick={() => {
+                      onClick={(e) => {
+                        e.preventDefault()
+                        e.stopPropagation()
                         console.log('🔥 Choose Plan button clicked for plan:', plan.id)
                         onStartReadingPlan && onStartReadingPlan(plan)
                       }}
@@ -136,7 +138,11 @@ export const BibleIntegration: React.FC<BibleIntegrationProps> = ({
                     <Button
                       size="sm"
                       variant="outline"
-                      onClick={() => setSelectedPlan(plan)}
+                      onClick={(e) => {
+                        e.preventDefault()
+                        e.stopPropagation()
+                        setSelectedPlan(plan)
+                      }}
                     >
                       View Plan
                     </Button>
@@ -237,12 +243,18 @@ export const BibleIntegration: React.FC<BibleIntegrationProps> = ({
               <div className="flex justify-end space-x-2">
                 <Button
                   variant="outline"
-                  onClick={() => setSelectedPlan(null)}
+                  onClick={(e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    setSelectedPlan(null)
+                  }}
                 >
                   Close
                 </Button>
                 <Button
-                  onClick={async () => {
+                  onClick={async (e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
                     try {
                       setLoadingPlan(selectedPlan.id);
                       const devotion = await bibleService.getTodaysDevotion(selectedPlan.id, selectedBible);
