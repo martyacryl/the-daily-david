@@ -1163,7 +1163,7 @@ export function DailyEntry() {
                   }, 1000)
                 }}
                 disabled={isSaving}
-                className="px-8 py-3 text-lg bg-green-600 hover:bg-green-700 disabled:bg-green-500 disabled:opacity-70 text-white font-semibold rounded-lg transition-all duration-200 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-slate-900 relative z-[9999]"
+                className="px-8 py-3 text-lg bg-slate-700 hover:bg-slate-600 disabled:bg-slate-800 disabled:opacity-70 text-white font-semibold rounded-lg transition-all duration-200 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 focus:ring-offset-slate-900 relative z-[9999] border border-slate-600"
                 style={{ zIndex: 9999 }}
               >
                 {isSaving ? 'Saving...' : 'Save Daily Entry'}
