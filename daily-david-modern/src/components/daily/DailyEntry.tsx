@@ -591,8 +591,14 @@ export function DailyEntry() {
   }
 
   const handleUpdateReadingPlan = (updatedReadingPlan: any) => {
-    console.log('🔥 Updating reading plan:', updatedReadingPlan)
-    setDayData(prev => ({ ...prev, readingPlan: updatedReadingPlan }))
+    console.log('🔥 handleUpdateReadingPlan called with:', updatedReadingPlan)
+    console.log('🔥 Current dayData before update:', dayData)
+    
+    setDayData(prev => {
+      const newData = { ...prev, readingPlan: updatedReadingPlan }
+      console.log('🔥 Updated dayData:', newData)
+      return newData
+    })
     
     // Trigger auto-save immediately
     setTimeout(() => {
@@ -674,15 +680,27 @@ export function DailyEntry() {
   }
 
   const handleAdvanceToNextDay = () => {
-    if (!dayData.readingPlan) return
+    console.log('🔥 NEXT DAY BUTTON CLICKED!')
+    console.log('🔥 Current reading plan:', dayData.readingPlan)
+    
+    if (!dayData.readingPlan) {
+      console.log('❌ No reading plan found')
+      return
+    }
     
     const nextDay = dayData.readingPlan.currentDay + 1
+    console.log('🔥 Current day:', dayData.readingPlan.currentDay, 'Next day:', nextDay)
+    console.log('🔥 Total days:', dayData.readingPlan.totalDays)
+    
     if (nextDay <= dayData.readingPlan.totalDays) {
       const updatedReadingPlan = {
         ...dayData.readingPlan,
         currentDay: nextDay
       }
+      console.log('🔥 Updating to next day:', updatedReadingPlan)
       handleUpdateReadingPlan(updatedReadingPlan)
+    } else {
+      console.log('❌ Cannot advance - already at last day')
     }
   }
 
