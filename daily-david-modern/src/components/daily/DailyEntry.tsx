@@ -686,8 +686,8 @@ export function DailyEntry() {
 
   return (
     <div className="space-y-8">
-      {/* Success Banner */}
-      {showSuccessBanner && (
+      {/* Success Banner - TEMPORARILY DISABLED FOR DEBUGGING */}
+      {false && showSuccessBanner && (
         <motion.div
           initial={{ opacity: 0, y: -50 }}
           animate={{ opacity: 1, y: 0 }}
@@ -1145,10 +1145,22 @@ export function DailyEntry() {
             </motion.div>
 
             {/* Submit Button */}
-            <div className="text-center">
+            <div 
+              className="text-center"
+              style={{ 
+                position: 'relative',
+                zIndex: 99999,
+                pointerEvents: 'auto',
+                backgroundColor: 'rgba(255,0,0,0.1)' // Temporary red background to see the container
+              }}
+            >
               {/* Save Daily Entry Button */}
               <div
-                onClick={() => {
+                onClick={(e) => {
+                  console.log('Save button clicked!', e)
+                  alert('Save button clicked!')
+                  e.preventDefault()
+                  e.stopPropagation()
                   if (isSaving) return
                   
                   setIsSaving(true)
@@ -1163,6 +1175,16 @@ export function DailyEntry() {
                     setIsSaving(false)
                   }, 1000)
                 }}
+                onMouseDown={(e) => {
+                  console.log('Mouse down on save button!', e)
+                  e.preventDefault()
+                  e.stopPropagation()
+                }}
+                onMouseUp={(e) => {
+                  console.log('Mouse up on save button!', e)
+                  e.preventDefault()
+                  e.stopPropagation()
+                }}
                 className="inline-block px-8 py-3 text-lg bg-green-600 text-white font-semibold min-h-[48px] rounded-lg cursor-pointer select-none"
                 style={{
                   WebkitTapHighlightColor: 'transparent',
@@ -1174,10 +1196,33 @@ export function DailyEntry() {
                   border: 'none',
                   boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
                   opacity: isSaving ? 0.5 : 1,
-                  pointerEvents: isSaving ? 'none' : 'auto'
+                  pointerEvents: isSaving ? 'none' : 'auto',
+                  position: 'relative',
+                  zIndex: 999999,
+                  backgroundColor: 'rgba(0,255,0,0.2)' // Temporary green background to see the button
                 }}
               >
                 {isSaving ? 'Saving...' : 'Save Daily Entry'}
+              </div>
+              
+              {/* Test button to see if clicks work at all */}
+              <div
+                onClick={() => {
+                  console.log('Test button clicked!')
+                  alert('Test button works!')
+                }}
+                style={{
+                  marginTop: '10px',
+                  padding: '10px',
+                  backgroundColor: 'red',
+                  color: 'white',
+                  cursor: 'pointer',
+                  borderRadius: '5px',
+                  position: 'relative',
+                  zIndex: 10000
+                }}
+              >
+                TEST BUTTON - CLICK ME
               </div>
             </div>
           </div>
