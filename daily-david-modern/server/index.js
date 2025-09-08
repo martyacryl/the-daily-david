@@ -262,7 +262,10 @@ app.post('/api/entries', authenticateToken, async (req, res) => {
       // Save reading plan data separately if it exists
       if (readingPlan && readingPlan.planId) {
         console.log('🔥 Saving reading plan to dedicated table:', readingPlan)
-        await client.query(
+        console.log('🔥 User ID:', userId, 'Date Key:', dateKey)
+        console.log('🔥 Plan ID:', readingPlan.planId, 'Current Day:', readingPlan.currentDay)
+        
+        const result = await client.query(
           `INSERT INTO reading_plans 
            (user_id, date_key, plan_id, plan_name, current_day, total_days, start_date, completed_days)
            VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
@@ -285,7 +288,9 @@ app.post('/api/entries', authenticateToken, async (req, res) => {
             readingPlan.completedDays || []
           ]
         )
-        console.log('✅ Reading plan saved successfully')
+        console.log('✅ Reading plan saved successfully:', result.rows[0])
+      } else {
+        console.log('❌ No reading plan data to save or missing planId')
       }
 
       res.json({ success: true, entry: result.rows[0] })
@@ -328,9 +333,11 @@ app.get('/api/entries/:date', authenticateToken, async (req, res) => {
           [date, userId]
         )
         console.log('🔥 Backend: Reading plan result:', readingPlanResult.rows.length > 0 ? 'Found' : 'Not found')
+        console.log('🔥 Backend: Raw reading plan data:', readingPlanResult.rows)
         
         if (readingPlanResult.rows.length > 0) {
           const readingPlan = readingPlanResult.rows[0]
+          console.log('🔥 Backend: Processing reading plan:', readingPlan)
           dataContent.readingPlan = {
             planId: readingPlan.plan_id,
             planName: readingPlan.plan_name,
@@ -341,7 +348,7 @@ app.get('/api/entries/:date', authenticateToken, async (req, res) => {
           }
           console.log('🔥 Backend: Added reading plan to dataContent:', dataContent.readingPlan)
         } else {
-          console.log('🔥 Backend: No reading plan found for this date')
+          console.log('❌ Backend: No reading plan found for date:', date, 'user:', userId)
         }
 
         res.json({ 
