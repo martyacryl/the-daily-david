@@ -1146,8 +1146,7 @@ export function DailyEntry() {
 
             {/* Submit Button */}
             <div className="text-center">
-              {/* Save Daily Entry Button */}
-              <div
+              <button
                 onClick={() => {
                   if (isSaving) return
                   
@@ -1163,17 +1162,11 @@ export function DailyEntry() {
                     setIsSaving(false)
                   }, 1000)
                 }}
-                onTouchStart={() => {}} // Add touch support
-                className="inline-block px-8 py-3 text-lg bg-green-600 hover:bg-green-700 text-white font-semibold min-h-[48px] rounded-lg cursor-pointer select-none transition-all duration-200 shadow-md hover:shadow-lg touch-manipulation"
-                style={{
-                  opacity: isSaving ? 0.7 : 1,
-                  cursor: isSaving ? 'not-allowed' : 'pointer',
-                  WebkitTapHighlightColor: 'transparent',
-                  touchAction: 'manipulation'
-                }}
+                disabled={isSaving}
+                className="px-8 py-3 text-lg bg-green-600 hover:bg-green-700 disabled:bg-green-500 disabled:opacity-70 text-white font-semibold rounded-lg transition-all duration-200 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-slate-900"
               >
                 {isSaving ? 'Saving...' : 'Save Daily Entry'}
-              </div>
+              </button>
             </div>
           </div>
         </>
