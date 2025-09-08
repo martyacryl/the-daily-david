@@ -1145,19 +1145,10 @@ export function DailyEntry() {
             </motion.div>
 
             {/* Submit Button */}
-            <div 
-              className="text-center space-y-2"
-              style={{ 
-                position: 'relative',
-                zIndex: 1000,
-                pointerEvents: 'auto'
-              }}
-            >
-              {/* Universal save button - works on all browsers */}
+            <div className="text-center">
+              {/* Save Daily Entry Button */}
               <div
                 onClick={() => {
-                  alert('Button clicked! JavaScript is working!')
-                  console.log('Universal save clicked!')
                   if (isSaving) return
                   
                   setIsSaving(true)
@@ -1171,14 +1162,6 @@ export function DailyEntry() {
                     }
                     setIsSaving(false)
                   }, 1000)
-                }}
-                onTouchStart={() => {
-                  alert('Touch start detected!')
-                  console.log('Universal touch start')
-                }}
-                onTouchEnd={() => {
-                  alert('Touch end detected!')
-                  console.log('Universal touch end')
                 }}
                 className="inline-block px-8 py-3 text-lg bg-green-600 text-white font-semibold min-h-[48px] rounded-lg cursor-pointer select-none"
                 style={{
@@ -1196,39 +1179,6 @@ export function DailyEntry() {
               >
                 {isSaving ? 'Saving...' : 'Save Daily Entry'}
               </div>
-              
-              {/* Fallback button using form submission */}
-              <form onSubmit={(e) => {
-                e.preventDefault()
-                console.log('Form submit triggered!')
-                if (isSaving) return
-                
-                setIsSaving(true)
-                setShowSuccessBanner(true)
-                
-                setTimeout(() => {
-                  try {
-                    window.scrollTo({ top: 0, behavior: 'smooth' })
-                  } catch (e) {
-                    window.scrollTo(0, 0)
-                  }
-                  setIsSaving(false)
-                }, 1000)
-              }}>
-                <button
-                  type="submit"
-                  disabled={isSaving}
-                  className="px-6 py-2 text-base bg-blue-600 text-white rounded cursor-pointer"
-                  style={{
-                    WebkitTapHighlightColor: 'transparent',
-                    touchAction: 'manipulation',
-                    border: 'none',
-                    outline: 'none'
-                  }}
-                >
-                  {isSaving ? 'Saving...' : 'Save (Form Method)'}
-                </button>
-              </form>
             </div>
           </div>
         </>
