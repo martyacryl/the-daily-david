@@ -727,9 +727,15 @@ export function DailyEntry() {
     }
   }
 
-  const handleClosePlan = async () => {
+  const handleClosePlan = async (event?: React.MouseEvent) => {
     console.log('🔥 CLOSING READING PLAN')
     console.log('🔥 Current reading plan before close:', dayData.readingPlan)
+    
+    // Prevent any default behavior that might cause page reload
+    if (event) {
+      event.preventDefault()
+      event.stopPropagation()
+    }
     
     // Save current progress before closing - IMMEDIATELY
     if (dayData.readingPlan) {
@@ -751,6 +757,7 @@ export function DailyEntry() {
     // Clear the display but keep the data saved
     setDayData(prev => ({ ...prev, readingPlan: undefined }))
     console.log('🔥 Plan closed, display cleared')
+    console.log('🔥 handleClosePlan completed - no page reload should occur')
   }
 
   const handleSaveProgress = async () => {
