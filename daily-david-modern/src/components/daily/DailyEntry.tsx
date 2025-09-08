@@ -1356,23 +1356,22 @@ export function DailyEntry() {
 
             {/* SOAP Section */}
             {/* Reading Plan Progress */}
-            {dayData.readingPlan && (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4 }}
-              >
-                {console.log('🔥 DailyEntry: Rendering ReadingPlanProgress with readingPlan:', dayData.readingPlan)}
-                <ReadingPlanProgress
-                  readingPlan={dayData.readingPlan}
-                  onLoadTodaysDevotion={handleLoadTodaysDevotion}
-                  onAdvanceToNextDay={handleAdvanceToNextDay}
-                  onClosePlan={handleClosePlan}
-                  onStartNewPlan={handleStartNewPlan}
-                  onRestartPlan={handleRestartPlan}
-                />
-              </motion.div>
-            )}
+        {dayData.readingPlan && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+          >
+            <ReadingPlanProgress
+              readingPlan={dayData.readingPlan}
+              onLoadTodaysDevotion={handleLoadTodaysDevotion}
+              onAdvanceToNextDay={handleAdvanceToNextDay}
+              onClosePlan={handleClosePlan}
+              onStartNewPlan={handleStartNewPlan}
+              onRestartPlan={handleRestartPlan}
+            />
+          </motion.div>
+        )}
 
             <motion.div
               initial={{ opacity: 0, y: 20 }}

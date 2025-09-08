@@ -31,13 +31,6 @@ export const ReadingPlanProgress: React.FC<ReadingPlanProgressProps> = ({
   onStartNewPlan,
   onRestartPlan
 }) => {
-  console.log('🔥 ReadingPlanProgress: Component rendered with readingPlan:', readingPlan)
-  console.log('🔥 ReadingPlanProgress: onLoadTodaysDevotion function:', typeof onLoadTodaysDevotion)
-  console.log('🔥 ReadingPlanProgress: onAdvanceToNextDay function:', typeof onAdvanceToNextDay)
-  
-  // Test if the component is working at all
-  console.log('🔥 ReadingPlanProgress: Component is working!')
-  
   const [isExpanded, setIsExpanded] = useState(false)
 
   const progressPercentage = (readingPlan.completedDays.length / readingPlan.totalDays) * 100
@@ -73,10 +66,7 @@ export const ReadingPlanProgress: React.FC<ReadingPlanProgressProps> = ({
     return days
   }
 
-  console.log('🔥 ReadingPlanProgress: About to render component')
-  
-  try {
-    return (
+  return (
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -148,65 +138,47 @@ export const ReadingPlanProgress: React.FC<ReadingPlanProgressProps> = ({
 
       {/* Action Buttons */}
       <div className="flex flex-wrap gap-2 mb-4" style={{position: 'relative', zIndex: 9999, pointerEvents: 'auto'}}>
-        {console.log('🔥 ReadingPlanProgress: Rendering buttons with readingPlan.planId:', readingPlan.planId)}
-        <div style={{color: 'red', fontSize: '12px'}}>BUTTONS SHOULD BE HERE</div>
-        <button
-          onClick={() => console.log('🔥 SIMPLE TEST CLICKED!')}
-          style={{backgroundColor: 'red', color: 'white', padding: '10px', position: 'relative', zIndex: 10000, pointerEvents: 'auto'}}
-        >
-          SIMPLE TEST
-        </button>
         <Button
           size="sm"
-          onClick={() => console.log('🔥 BUTTON COMPONENT TEST CLICKED!')}
-          className="bg-red-600 hover:bg-red-500 text-white"
+          onClick={() => onLoadTodaysDevotion(readingPlan.planId)}
+          className="bg-slate-600 hover:bg-slate-500 text-white"
           style={{position: 'relative', zIndex: 10000, pointerEvents: 'auto'}}
         >
-          BUTTON COMPONENT TEST
-        </Button>
-        <button
-          onClick={() => {
-            console.log('🔥 Load Today\'s Devotion clicked!', readingPlan.planId)
-            onLoadTodaysDevotion(readingPlan.planId)
-          }}
-          className="px-3 py-1.5 text-sm bg-slate-600 hover:bg-slate-500 text-white rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-slate-500"
-        >
           Load Today's Devotion
-        </button>
+        </Button>
         
         {readingPlan.currentDay < readingPlan.totalDays && (
-          <button
-            onClick={() => {
-              console.log('🔥 Next Day clicked!')
-              onAdvanceToNextDay()
-            }}
-            className="px-3 py-1.5 text-sm bg-slate-600 hover:bg-slate-500 text-white rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-slate-500"
+          <Button
+            size="sm"
+            onClick={() => onAdvanceToNextDay()}
+            className="bg-blue-600 hover:bg-blue-500 text-white"
+            style={{position: 'relative', zIndex: 10000, pointerEvents: 'auto'}}
           >
             Next Day
-          </button>
+          </Button>
         )}
         
-        <button
-          onClick={() => {
-            console.log('🔥 Restart clicked!')
-            onRestartPlan()
-          }}
-          className="px-3 py-1.5 text-sm border-2 border-slate-600 text-slate-300 hover:bg-slate-700 rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-slate-500"
+        <Button
+          size="sm"
+          onClick={() => onRestartPlan()}
+          variant="outline"
+          className="text-slate-300 hover:bg-slate-700"
+          style={{position: 'relative', zIndex: 10000, pointerEvents: 'auto'}}
         >
           <RotateCcw className="w-4 h-4 mr-1 inline" />
           Restart
-        </button>
+        </Button>
         
-        <button
-          onClick={() => {
-            console.log('🔥 New Plan clicked!')
-            onStartNewPlan()
-          }}
-          className="px-3 py-1.5 text-sm border-2 border-slate-600 text-slate-300 hover:bg-slate-700 rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-slate-500"
+        <Button
+          size="sm"
+          onClick={() => onStartNewPlan()}
+          variant="outline"
+          className="text-slate-300 hover:bg-slate-700"
+          style={{position: 'relative', zIndex: 10000, pointerEvents: 'auto'}}
         >
           <Plus className="w-4 h-4 mr-1 inline" />
           New Plan
-        </button>
+        </Button>
       </div>
 
       {/* Expandable Day Grid */}
@@ -228,9 +200,5 @@ export const ReadingPlanProgress: React.FC<ReadingPlanProgressProps> = ({
         )}
       </AnimatePresence>
       </motion.div>
-    )
-  } catch (error) {
-    console.error('🔥 ReadingPlanProgress: Error rendering component:', error)
-    return <div style={{color: 'red', padding: '20px'}}>ERROR: {error.message}</div>
-  }
+  )
 }
