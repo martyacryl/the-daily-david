@@ -37,6 +37,13 @@ type AuthStore = AuthState & {
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://theweeklyhuddle.vercel.app' : 'http://localhost:3001')
 
+// Debug logging to see what URL is being used
+if (import.meta.env.PROD) {
+  console.log('🔍 DEBUG: API_BASE_URL in production:', API_BASE_URL)
+  console.log('🔍 DEBUG: VITE_API_URL env var:', import.meta.env.VITE_API_URL)
+  console.log('🔍 DEBUG: import.meta.env.PROD:', import.meta.env.PROD)
+}
+
 export const useAuthStore = create<AuthStore>()(
   persist(
     (set, get) => ({
@@ -51,6 +58,8 @@ export const useAuthStore = create<AuthStore>()(
           set({ isLoading: true, error: null })
           
           console.log('Auth: Attempting login for:', email)
+          console.log('🔍 DEBUG: Using API_BASE_URL:', API_BASE_URL)
+          console.log('🔍 DEBUG: Full login URL:', `${API_BASE_URL}/api/auth/login`)
           
           const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
             method: 'POST',
