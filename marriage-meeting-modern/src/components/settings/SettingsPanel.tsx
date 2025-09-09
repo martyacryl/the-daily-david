@@ -40,6 +40,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
 
   const [activeTab, setActiveTab] = useState('spouses')
   const [newGroceryStore, setNewGroceryStore] = useState({ name: '', address: '' })
+  const [showStoreSuccess, setShowStoreSuccess] = useState(false)
 
   const tabs = [
     { id: 'spouses', label: 'Spouses', icon: User },
@@ -50,13 +51,19 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
   ]
 
   const handleAddGroceryStore = () => {
-    if (newGroceryStore.name && newGroceryStore.address) {
+    console.log('Adding grocery store:', newGroceryStore)
+    if (newGroceryStore.name.trim()) {
       addGroceryStore({
-        name: newGroceryStore.name,
-        address: newGroceryStore.address,
+        name: newGroceryStore.name.trim(),
+        address: newGroceryStore.address.trim() || '',
         isDefault: settings.groceryStores.length === 0
       })
       setNewGroceryStore({ name: '', address: '' })
+      setShowStoreSuccess(true)
+      setTimeout(() => setShowStoreSuccess(false), 3000)
+      console.log('Store added successfully')
+    } else {
+      console.log('Store name is required')
     }
   }
 
@@ -226,6 +233,13 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
                 <div>
                   <h3 className="text-lg font-semibold text-gray-900 mb-4">Grocery Stores</h3>
                   
+                  {/* Success Message */}
+                  {showStoreSuccess && (
+                    <div className="mb-4 p-3 bg-green-100 border border-green-300 rounded-lg text-green-800 text-sm">
+                      ✅ Store added successfully!
+                    </div>
+                  )}
+                  
                   {/* Add New Store */}
                   <Card className="p-4 mb-4">
                     <h4 className="font-medium text-gray-900 mb-3">Add New Store</h4>
@@ -237,13 +251,17 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
                         placeholder="e.g., Whole Foods"
                       />
                       <Input
-                        label="Address"
+                        label="Address (optional)"
                         value={newGroceryStore.address}
                         onChange={(e) => setNewGroceryStore({ ...newGroceryStore, address: e.target.value })}
-                        placeholder="Store address"
+                        placeholder="Store address (optional)"
                       />
                     </div>
-                    <Button onClick={handleAddGroceryStore} className="mt-3">
+                    <Button 
+                      onClick={handleAddGroceryStore} 
+                      disabled={!newGroceryStore.name.trim()}
+                      className="mt-3"
+                    >
                       <Plus className="w-4 h-4 mr-2" />
                       Add Store
                     </Button>
