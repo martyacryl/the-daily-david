@@ -26,14 +26,6 @@ export const GroceryErrandsSection: React.FC<GroceryErrandsSectionProps> = ({ it
   const [customStore, setCustomStore] = useState('')
   const [showSuccessMessage, setShowSuccessMessage] = useState(false)
 
-  // Get or create store list
-  const getStoreList = (storeId: string) => {
-    return items.find(list => list.storeId === storeId) || {
-      storeId,
-      storeName: settings.groceryStores.find(s => s.id === storeId)?.name || storeId,
-      items: []
-    }
-  }
 
   // Add item to specific store
   const addItemToStore = (storeId: string) => {
@@ -46,14 +38,27 @@ export const GroceryErrandsSection: React.FC<GroceryErrandsSectionProps> = ({ it
       completed: false
     }
 
-    const storeList = getStoreList(storeId)
-    const updatedStoreList = {
-      ...storeList,
-      items: [...(storeList.items || []), newItem]
+    // Check if store list already exists
+    const existingStoreIndex = items.findIndex(list => list.storeId === storeId)
+    
+    if (existingStoreIndex >= 0) {
+      // Update existing store list
+      const updatedItems = [...items]
+      updatedItems[existingStoreIndex] = {
+        ...updatedItems[existingStoreIndex],
+        items: [...(updatedItems[existingStoreIndex].items || []), newItem]
+      }
+      onUpdate(updatedItems)
+    } else {
+      // Create new store list
+      const storeName = settings.groceryStores.find(s => s.id === storeId)?.name || storeId
+      const newStoreList: GroceryStoreList = {
+        storeId,
+        storeName,
+        items: [newItem]
+      }
+      onUpdate([...items, newStoreList])
     }
-
-    const otherLists = items.filter(list => list.storeId !== storeId)
-    onUpdate([...otherLists, updatedStoreList])
     
     // Clear the text for this specific store
     setNewItemTexts(prev => ({ ...prev, [storeId]: '' }))
@@ -61,42 +66,45 @@ export const GroceryErrandsSection: React.FC<GroceryErrandsSectionProps> = ({ it
 
   // Update item in specific store
   const updateItemInStore = (storeId: string, itemId: number, text: string) => {
-    const storeList = getStoreList(storeId)
-    const updatedStoreList = {
-      ...storeList,
-      items: (storeList.items || []).map(item => 
+    const existingStoreIndex = items.findIndex(list => list.storeId === storeId)
+    if (existingStoreIndex < 0) return // Store doesn't exist
+
+    const updatedItems = [...items]
+    updatedItems[existingStoreIndex] = {
+      ...updatedItems[existingStoreIndex],
+      items: (updatedItems[existingStoreIndex].items || []).map(item => 
         item.id === itemId ? { ...item, text } : item
       )
     }
-
-    const otherLists = items.filter(list => list.storeId !== storeId)
-    onUpdate([...otherLists, updatedStoreList])
+    onUpdate(updatedItems)
   }
 
   // Toggle item in specific store
   const toggleItemInStore = (storeId: string, itemId: number) => {
-    const storeList = getStoreList(storeId)
-    const updatedStoreList = {
-      ...storeList,
-      items: (storeList.items || []).map(item => 
+    const existingStoreIndex = items.findIndex(list => list.storeId === storeId)
+    if (existingStoreIndex < 0) return // Store doesn't exist
+
+    const updatedItems = [...items]
+    updatedItems[existingStoreIndex] = {
+      ...updatedItems[existingStoreIndex],
+      items: (updatedItems[existingStoreIndex].items || []).map(item => 
         item.id === itemId ? { ...item, completed: !item.completed } : item
       )
     }
-
-    const otherLists = items.filter(list => list.storeId !== storeId)
-    onUpdate([...otherLists, updatedStoreList])
+    onUpdate(updatedItems)
   }
 
   // Remove item from specific store
   const removeItemFromStore = (storeId: string, itemId: number) => {
-    const storeList = getStoreList(storeId)
-    const updatedStoreList = {
-      ...storeList,
-      items: (storeList.items || []).filter(item => item.id !== itemId)
-    }
+    const existingStoreIndex = items.findIndex(list => list.storeId === storeId)
+    if (existingStoreIndex < 0) return // Store doesn't exist
 
-    const otherLists = items.filter(list => list.storeId !== storeId)
-    onUpdate([...otherLists, updatedStoreList])
+    const updatedItems = [...items]
+    updatedItems[existingStoreIndex] = {
+      ...updatedItems[existingStoreIndex],
+      items: (updatedItems[existingStoreIndex].items || []).filter(item => item.id !== itemId)
+    }
+    onUpdate(updatedItems)
   }
 
   // Add new store list
