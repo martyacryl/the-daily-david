@@ -104,7 +104,8 @@ export const TasksSection: React.FC<TasksSectionProps> = ({ tasks, onUpdate }) =
       dueDate: newTask.dueDate || undefined,
       estimatedDuration: newTask.estimatedDuration || 30,
       category: newTask.category || undefined,
-      notes: newTask.notes || undefined
+      notes: newTask.notes || undefined,
+      assignedTo: newTask.assignedTo || 'both'
     }
 
     onUpdate([...tasks, task])
@@ -114,7 +115,8 @@ export const TasksSection: React.FC<TasksSectionProps> = ({ tasks, onUpdate }) =
       dueDate: '',
       estimatedDuration: 30,
       category: '',
-      notes: ''
+      notes: '',
+      assignedTo: 'both'
     })
   }
 
