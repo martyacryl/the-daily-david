@@ -20,7 +20,7 @@ interface GroceryErrandsSectionProps {
 
 export const GroceryErrandsSection: React.FC<GroceryErrandsSectionProps> = ({ items, onUpdate }) => {
   const { settings, addGroceryStore } = useSettingsStore()
-  const [newItemText, setNewItemText] = useState('')
+  const [newItemTexts, setNewItemTexts] = useState<Record<string, string>>({})
   const [selectedStore, setSelectedStore] = useState('')
   const [showCustomStore, setShowCustomStore] = useState(false)
   const [customStore, setCustomStore] = useState('')
@@ -37,23 +37,26 @@ export const GroceryErrandsSection: React.FC<GroceryErrandsSectionProps> = ({ it
 
   // Add item to specific store
   const addItemToStore = (storeId: string) => {
-    if (!newItemText.trim()) return
+    const itemText = newItemTexts[storeId] || ''
+    if (!itemText.trim()) return
 
     const newItem: ListItem = {
       id: Date.now(),
-      text: newItemText.trim(),
+      text: itemText.trim(),
       completed: false
     }
 
     const storeList = getStoreList(storeId)
     const updatedStoreList = {
       ...storeList,
-      items: [...storeList.items, newItem]
+      items: [...(storeList.items || []), newItem]
     }
 
     const otherLists = items.filter(list => list.storeId !== storeId)
     onUpdate([...otherLists, updatedStoreList])
-    setNewItemText('')
+    
+    // Clear the text for this specific store
+    setNewItemTexts(prev => ({ ...prev, [storeId]: '' }))
   }
 
   // Update item in specific store
@@ -303,15 +306,15 @@ export const GroceryErrandsSection: React.FC<GroceryErrandsSectionProps> = ({ it
               <div className="flex gap-2">
                 <input
                   type="text"
-                  value={newItemText}
-                  onChange={(e) => setNewItemText(e.target.value)}
+                  value={newItemTexts[storeList.storeId] || ''}
+                  onChange={(e) => setNewItemTexts(prev => ({ ...prev, [storeList.storeId]: e.target.value }))}
                   placeholder={`Add item to ${storeList.storeName}...`}
                   className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
                   onKeyPress={(e) => e.key === 'Enter' && addItemToStore(storeList.storeId)}
                 />
                 <Button
                   onClick={() => addItemToStore(storeList.storeId)}
-                  disabled={!newItemText.trim()}
+                  disabled={!(newItemTexts[storeList.storeId] || '').trim()}
                   size="sm"
                   className="bg-green-600 hover:bg-green-700"
                 >
