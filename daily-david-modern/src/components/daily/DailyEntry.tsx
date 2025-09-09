@@ -526,7 +526,7 @@ export function DailyEntry() {
     })
   }
 
-  const handleStartReadingPlan = async (plan: any) => {
+  const handleStartReadingPlan = (plan: any) => {
     console.log('🔥 Starting/continuing reading plan:', plan)
     
     // Check if we already have this plan in progress
@@ -536,22 +536,7 @@ export function DailyEntry() {
       return // Don't reset the plan, just continue with existing progress
     }
     
-    // Force refresh the current day's entry to get the latest data
-    console.log('🔥 Force refreshing current day entry to get latest reading plan data...')
-    try {
-      const currentDateString = getLocalDateString(selectedDate)
-      const freshEntry = await loadEntryByDate(currentDateString)
-      console.log('🔥 Fresh entry loaded:', freshEntry)
-      if (freshEntry && freshEntry.readingPlan && freshEntry.readingPlan.planId === plan.id) {
-        console.log('🔥 FOUND reading plan in fresh entry:', freshEntry.readingPlan)
-        setDayData(prev => ({ ...prev, readingPlan: freshEntry.readingPlan }))
-        return
-      }
-    } catch (error) {
-      console.error('🔥 Error loading fresh entry:', error)
-    }
-    
-    // Check if we have this plan in any previous entries
+    // Check if we have this plan in any previous entries (without API calls)
     const allEntries = useDailyStore.getState().entries
     let existingProgress = null
     
@@ -565,9 +550,6 @@ export function DailyEntry() {
       // Check both entry.readingPlan and entry.data_content.readingPlan
       const readingPlanData = entry.readingPlan || (entry.data_content && entry.data_content.readingPlan)
       console.log('🔥 Checking entry from:', entry.date, 'has readingPlan:', !!readingPlanData)
-      console.log('🔥 Entry object keys:', Object.keys(entry))
-      console.log('🔥 Entry readingPlan field:', entry.readingPlan)
-      console.log('🔥 Entry data_content:', entry.data_content)
       if (readingPlanData) {
         console.log('🔥 Entry readingPlan:', readingPlanData)
         if (readingPlanData.planId === plan.id) {
