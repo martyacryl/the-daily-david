@@ -1,6 +1,6 @@
 import React from 'react'
 import { motion } from 'framer-motion'
-import { Star, Quote } from 'lucide-react'
+import { Shield, Quote } from 'lucide-react'
 import { Card } from './ui/Card'
 import { useSettingsStore } from '../stores/settingsStore'
 
@@ -22,20 +22,20 @@ export const FamilyCreedDisplay: React.FC<FamilyCreedDisplayProps> = ({ classNam
       animate={{ opacity: 1, y: 0 }}
       className={className}
     >
-      <Card className="p-6 bg-gradient-to-br from-indigo-50 to-purple-50 border-indigo-200">
+      <Card className="p-6 bg-gradient-to-br from-slate-50 to-gray-50 border-slate-200">
         <div className="flex items-start gap-4">
           <div className="flex-shrink-0">
-            <div className="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center">
-              <Star className="w-6 h-6 text-indigo-600" />
+            <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center">
+              <Shield className="w-6 h-6 text-slate-600" />
             </div>
           </div>
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-3">
-              <h3 className="text-lg font-semibold text-indigo-900">Family Creed</h3>
-              <Quote className="w-4 h-4 text-indigo-600" />
+              <h3 className="text-lg font-semibold text-slate-900">Family Creed</h3>
+              <Quote className="w-4 h-4 text-slate-600" />
             </div>
-            <div className="prose prose-indigo max-w-none">
-              <p className="text-indigo-800 leading-relaxed text-base italic">
+            <div className="prose prose-slate max-w-none">
+              <p className="text-slate-700 leading-relaxed text-base italic">
                 "{familyCreed}"
               </p>
             </div>

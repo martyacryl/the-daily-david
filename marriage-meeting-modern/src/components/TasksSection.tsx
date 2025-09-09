@@ -47,10 +47,10 @@ export const TasksSection: React.FC<TasksSectionProps> = ({ tasks, onUpdate }) =
 
   const getPriorityIcon = (priority: string) => {
     switch (priority) {
-      case 'high': return '🔴'
-      case 'medium': return '🟡'
-      case 'low': return '🟢'
-      default: return '⚪'
+      case 'high': return <AlertCircle className="w-4 h-4 text-red-500" />
+      case 'medium': return <Clock className="w-4 h-4 text-yellow-500" />
+      case 'low': return <CheckCircle className="w-4 h-4 text-green-500" />
+      default: return <CheckCircle className="w-4 h-4 text-gray-400" />
     }
   }
 
@@ -188,9 +188,9 @@ export const TasksSection: React.FC<TasksSectionProps> = ({ tasks, onUpdate }) =
                 onChange={(e) => setNewTask({ ...newTask, priority: e.target.value as 'low' | 'medium' | 'high' })}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
               >
-                <option value="low">🟢 Low</option>
-                <option value="medium">🟡 Medium</option>
-                <option value="high">🔴 High</option>
+                <option value="low">Low Priority</option>
+                <option value="medium">Medium Priority</option>
+                <option value="high">High Priority</option>
               </select>
             </div>
 
@@ -201,9 +201,9 @@ export const TasksSection: React.FC<TasksSectionProps> = ({ tasks, onUpdate }) =
                 onChange={(e) => setNewTask({ ...newTask, assignedTo: e.target.value as 'both' | 'spouse1' | 'spouse2' })}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
               >
-                <option value="both">👥 Both Spouses</option>
-                <option value="spouse1">👤 {settings.spouse1.name || 'Spouse 1'}</option>
-                <option value="spouse2">👤 {settings.spouse2.name || 'Spouse 2'}</option>
+                <option value="both">Both Spouses</option>
+                <option value="spouse1">{settings.spouse1.name || 'Spouse 1'}</option>
+                <option value="spouse2">{settings.spouse2.name || 'Spouse 2'}</option>
               </select>
             </div>
 
@@ -295,10 +295,10 @@ export const TasksSection: React.FC<TasksSectionProps> = ({ tasks, onUpdate }) =
                       }`}
                     />
                     <div className="flex items-center gap-2">
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${getPriorityColor(task.priority)}`}>
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1 ${getPriorityColor(task.priority)}`}>
                         {getPriorityIcon(task.priority)} {task.priority}
                       </span>
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${getAssignmentColor(task.assignedTo || 'both')}`}>
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1 ${getAssignmentColor(task.assignedTo || 'both')}`}>
                         {getAssignmentIcon(task.assignedTo || 'both')} {getAssignmentLabel(task.assignedTo || 'both')}
                       </span>
                     </div>

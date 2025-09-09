@@ -8,7 +8,7 @@ import {
   ShoppingCart, 
   AlertTriangle,
   ChevronRight,
-  BookOpen
+  Shield
 } from 'lucide-react'
 import { Card } from './ui/Card'
 import { Button } from './ui/Button'
@@ -45,49 +45,49 @@ export const WeeklyMeetingSidebar: React.FC<WeeklyMeetingSidebarProps> = ({
       id: 'schedule',
       label: 'Weekly Schedule',
       icon: Calendar,
-      color: 'blue',
+      color: 'slate',
       count: sectionCounts.schedule
     },
     {
       id: 'goals',
       label: 'Goals',
       icon: Target,
-      color: 'green',
+      color: 'slate',
       count: sectionCounts.goals
     },
     {
       id: 'todos',
       label: 'Tasks',
       icon: CheckSquare,
-      color: 'orange',
+      color: 'slate',
       count: sectionCounts.todos
     },
     {
       id: 'prayers',
       label: 'Prayers',
       icon: Heart,
-      color: 'purple',
+      color: 'slate',
       count: sectionCounts.prayers
     },
     {
       id: 'grocery',
       label: 'Grocery',
       icon: ShoppingCart,
-      color: 'teal',
+      color: 'slate',
       count: sectionCounts.grocery
     },
     {
       id: 'unconfessed',
       label: 'Accountability',
       icon: AlertTriangle,
-      color: 'red',
+      color: 'slate',
       count: sectionCounts.unconfessed
     },
     {
       id: 'creed',
       label: 'Family Creed',
-      icon: BookOpen,
-      color: 'indigo',
+      icon: Shield,
+      color: 'slate',
       count: sectionCounts.creed
     }
   ]
@@ -112,7 +112,7 @@ export const WeeklyMeetingSidebar: React.FC<WeeklyMeetingSidebarProps> = ({
               onClick={() => onSectionChange(item.id)}
               className={`w-full flex items-center justify-between p-2 sm:p-3 rounded-lg text-left transition-all duration-200 ${
                 isActive
-                  ? `bg-${item.color}-50 border border-${item.color}-200 text-${item.color}-700`
+                  ? 'bg-slate-50 border border-slate-200 text-slate-700'
                   : 'hover:bg-gray-50 text-gray-700'
               }`}
               whileHover={{ scale: 1.02 }}
@@ -121,12 +121,12 @@ export const WeeklyMeetingSidebar: React.FC<WeeklyMeetingSidebarProps> = ({
               <div className="flex items-center gap-2 sm:gap-3">
                 <div className={`p-2 rounded-lg ${
                   isActive 
-                    ? `bg-${item.color}-100` 
+                    ? 'bg-slate-100' 
                     : 'bg-gray-100'
                 }`}>
                   <IconComponent className={`w-3 h-3 sm:w-4 sm:h-4 ${
                     isActive 
-                      ? `text-${item.color}-600` 
+                      ? 'text-slate-600' 
                       : 'text-gray-500'
                   }`} />
                 </div>
@@ -137,7 +137,7 @@ export const WeeklyMeetingSidebar: React.FC<WeeklyMeetingSidebarProps> = ({
                 {item.count !== undefined && item.count > 0 && (
                   <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                     isActive
-                      ? `bg-${item.color}-200 text-${item.color}-800`
+                      ? 'bg-slate-200 text-slate-800'
                       : 'bg-gray-200 text-gray-600'
                   }`}>
                     {item.count}

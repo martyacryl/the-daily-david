@@ -19,7 +19,11 @@ import {
   Award,
   BookOpen,
   ShoppingCart,
-  Settings
+  Settings,
+  Shield,
+  ArrowRight,
+  CheckSquare,
+  Star
 } from 'lucide-react'
 import { Card } from '../ui/Card'
 import { Button } from '../ui/Button'
@@ -241,7 +245,7 @@ export const DashboardNew: React.FC = () => {
             </Button>
           </div>
           <h1 className="text-4xl font-bold text-gray-800 mb-2">
-            {getGreeting()}, {user?.name || 'David'}! 👋
+            {getGreeting()}, {user?.name || 'David'}!
           </h1>
           <p className="text-gray-600 text-lg">{getScripture()}</p>
         </motion.div>
@@ -260,7 +264,7 @@ export const DashboardNew: React.FC = () => {
             <Link to="/weekly">
               <Card className="p-2 sm:p-4 text-center hover:shadow-lg transition-shadow cursor-pointer">
                 <div className="w-8 h-8 sm:w-10 sm:h-10 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                  <Plus className="w-4 h-4 sm:w-5 sm:h-5 text-slate-600" />
+                  <Target className="w-4 h-4 sm:w-5 sm:h-5 text-slate-600" />
                 </div>
                 <h3 className="font-semibold text-gray-800 text-xs sm:text-sm">Add Goal</h3>
               </Card>
@@ -268,7 +272,7 @@ export const DashboardNew: React.FC = () => {
             <Link to="/weekly?section=schedule">
               <Card className="p-2 sm:p-4 text-center hover:shadow-lg transition-shadow cursor-pointer">
                 <div className="w-8 h-8 sm:w-10 sm:h-10 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                  <BookOpen className="w-4 h-4 sm:w-5 sm:h-5 text-slate-600" />
+                  <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-slate-600" />
                 </div>
                 <h3 className="font-semibold text-gray-800 text-xs sm:text-sm">Start Meeting</h3>
               </Card>

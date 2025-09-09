@@ -11,7 +11,8 @@ import {
   X,
   Plus,
   Trash2,
-  Star
+  Star,
+  Shield
 } from 'lucide-react'
 import { Card } from '../ui/Card'
 import { Button } from '../ui/Button'
@@ -44,7 +45,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
     { id: 'spouses', label: 'Spouses', icon: User },
     { id: 'location', label: 'Location', icon: MapPin },
     { id: 'grocery', label: 'Grocery Stores', icon: Store },
-    { id: 'family-creed', label: 'Family Creed', icon: Star },
+    { id: 'family-creed', label: 'Family Creed', icon: Shield },
     { id: 'general', label: 'General', icon: Settings }
   ]
 
