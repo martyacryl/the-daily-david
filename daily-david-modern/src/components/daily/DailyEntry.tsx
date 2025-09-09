@@ -534,6 +534,7 @@ export function DailyEntry() {
     const existingPlan = dayData.readingPlan
     if (existingPlan && existingPlan.planId === plan.id) {
       console.log('🔥 Plan already in progress, continuing...')
+      setShowReadingPlan(true) // Show the reading plan UI
       return // Don't reset the plan, just continue with existing progress
     }
     
