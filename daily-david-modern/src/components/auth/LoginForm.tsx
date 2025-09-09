@@ -215,20 +215,6 @@ export function LoginForm({ onSuccess, onError }: LoginFormProps) {
           </Button>
         </form>
 
-        {/* Demo Credentials */}
-        <div className="mt-8 pt-6 border-t border-slate-600/50">
-          <div className="text-center">
-            <p className="text-sm text-slate-300 mb-3">Demo Credentials:</p>
-            <div className="bg-slate-700/50 rounded-lg p-3 text-left">
-              <p className="text-xs text-slate-200 mb-1">
-                <strong>Admin:</strong> davidadmin@davidadmin.com / davidadmin
-              </p>
-              <p className="text-xs text-slate-200">
-                <strong>User:</strong> david@davidapp.com / david123
-              </p>
-            </div>
-          </div>
-        </div>
       </div>
     </motion.div>
   )
