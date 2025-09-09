@@ -8,11 +8,14 @@ import {
   DollarSign,
   Store,
   Car,
-  CheckCircle
+  CheckCircle,
+  AlertCircle,
+  Star
 } from 'lucide-react'
 import { Card } from './ui/Card'
 import { Button } from './ui/Button'
 import { ListItem } from '../types/marriageTypes'
+import { useSettingsStore } from '../stores/settingsStore'
 
 interface GroceryErrandItem extends ListItem {
   type: 'grocery' | 'errand'
@@ -29,6 +32,7 @@ interface GroceryErrandsSectionProps {
 }
 
 export const GroceryErrandsSection: React.FC<GroceryErrandsSectionProps> = ({ items, onUpdate }) => {
+  const { settings, addGroceryStore } = useSettingsStore()
   const [newGroceryText, setNewGroceryText] = useState('')
   const [newErrandText, setNewErrandText] = useState('')
   const [groceryContext, setGroceryContext] = useState({
@@ -43,6 +47,8 @@ export const GroceryErrandsSection: React.FC<GroceryErrandsSectionProps> = ({ it
     estimatedCost: 0,
     priority: 'medium' as const
   })
+  const [showCustomStore, setShowCustomStore] = useState(false)
+  const [customStore, setCustomStore] = useState('')
 
   const getTypeIcon = (type: string) => {
     return type === 'grocery' ? <Store className="w-4 h-4" /> : <Car className="w-4 h-4" />
@@ -58,6 +64,34 @@ export const GroceryErrandsSection: React.FC<GroceryErrandsSectionProps> = ({ it
       case 'medium': return 'text-yellow-600 bg-yellow-100'
       case 'low': return 'text-green-600 bg-green-100'
       default: return 'text-gray-600 bg-gray-100'
+    }
+  }
+
+  const getPriorityIcon = (priority: string) => {
+    switch (priority) {
+      case 'high': return <AlertCircle className="w-3 h-3" />
+      case 'medium': return <Clock className="w-3 h-3" />
+      case 'low': return <CheckCircle className="w-3 h-3" />
+      default: return <CheckCircle className="w-3 h-3" />
+    }
+  }
+
+  const handleStoreSelect = (store: string) => {
+    setGroceryContext({ ...groceryContext, store })
+    setShowCustomStore(false)
+    setCustomStore('')
+  }
+
+  const handleCustomStoreAdd = () => {
+    if (customStore.trim()) {
+      addGroceryStore({
+        name: customStore.trim(),
+        address: '',
+        isDefault: false
+      })
+      setGroceryContext({ ...groceryContext, store: customStore.trim() })
+      setShowCustomStore(false)
+      setCustomStore('')
     }
   }
 
@@ -171,13 +205,57 @@ export const GroceryErrandsSection: React.FC<GroceryErrandsSectionProps> = ({ it
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">Store</label>
-                <input
-                  type="text"
-                  value={groceryContext.store}
-                  onChange={(e) => setGroceryContext({ ...groceryContext, store: e.target.value })}
-                  placeholder="Walmart, Kroger, etc."
-                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                />
+                <div className="relative">
+                  <select
+                    value={groceryContext.store}
+                    onChange={(e) => {
+                      if (e.target.value === 'custom') {
+                        setShowCustomStore(true)
+                      } else {
+                        handleStoreSelect(e.target.value)
+                      }
+                    }}
+                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  >
+                    <option value="">Select a store...</option>
+                    {settings.groceryStores.map((store) => (
+                      <option key={store.id} value={store.name}>
+                        {store.name} {store.isDefault && '⭐'}
+                      </option>
+                    ))}
+                    <option value="custom">+ Add custom store</option>
+                  </select>
+                </div>
+                {showCustomStore && (
+                  <div className="mt-2 flex gap-2">
+                    <input
+                      type="text"
+                      value={customStore}
+                      onChange={(e) => setCustomStore(e.target.value)}
+                      placeholder="Enter store name"
+                      className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                      autoFocus
+                    />
+                    <Button
+                      onClick={handleCustomStoreAdd}
+                      disabled={!customStore.trim()}
+                      size="sm"
+                      className="bg-green-600 hover:bg-green-700"
+                    >
+                      <Plus className="w-3 h-3" />
+                    </Button>
+                    <Button
+                      onClick={() => {
+                        setShowCustomStore(false)
+                        setCustomStore('')
+                      }}
+                      variant="outline"
+                      size="sm"
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                )}
               </div>
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">Time (min)</label>
@@ -208,9 +286,9 @@ export const GroceryErrandsSection: React.FC<GroceryErrandsSectionProps> = ({ it
                   onChange={(e) => setGroceryContext({ ...groceryContext, priority: e.target.value as 'low' | 'medium' | 'high' })}
                   className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 >
-                  <option value="low">🟢 Low</option>
-                  <option value="medium">🟡 Medium</option>
-                  <option value="high">🔴 High</option>
+                  <option value="low">Low Priority</option>
+                  <option value="medium">Medium Priority</option>
+                  <option value="high">High Priority</option>
                 </select>
               </div>
             </div>
@@ -242,8 +320,8 @@ export const GroceryErrandsSection: React.FC<GroceryErrandsSectionProps> = ({ it
                   {item.store && <span>{item.store}</span>}
                   {item.estimatedTime && <span>{item.estimatedTime}m</span>}
                   {item.estimatedCost && item.estimatedCost > 0 && <span>${item.estimatedCost}</span>}
-                  <span className={`px-2 py-1 rounded-full text-xs ${getPriorityColor(item.priority)}`}>
-                    {item.priority}
+                  <span className={`px-2 py-1 rounded-full text-xs flex items-center gap-1 ${getPriorityColor(item.priority)}`}>
+                    {getPriorityIcon(item.priority)} {item.priority}
                   </span>
                 </div>
                 <Button
@@ -329,9 +407,9 @@ export const GroceryErrandsSection: React.FC<GroceryErrandsSectionProps> = ({ it
                   onChange={(e) => setErrandContext({ ...errandContext, priority: e.target.value as 'low' | 'medium' | 'high' })}
                   className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
-                  <option value="low">🟢 Low</option>
-                  <option value="medium">🟡 Medium</option>
-                  <option value="high">🔴 High</option>
+                  <option value="low">Low Priority</option>
+                  <option value="medium">Medium Priority</option>
+                  <option value="high">High Priority</option>
                 </select>
               </div>
             </div>
@@ -363,8 +441,8 @@ export const GroceryErrandsSection: React.FC<GroceryErrandsSectionProps> = ({ it
                   {item.store && <span>{item.store}</span>}
                   {item.estimatedTime && <span>{item.estimatedTime}m</span>}
                   {item.estimatedCost && item.estimatedCost > 0 && <span>${item.estimatedCost}</span>}
-                  <span className={`px-2 py-1 rounded-full text-xs ${getPriorityColor(item.priority)}`}>
-                    {item.priority}
+                  <span className={`px-2 py-1 rounded-full text-xs flex items-center gap-1 ${getPriorityColor(item.priority)}`}>
+                    {getPriorityIcon(item.priority)} {item.priority}
                   </span>
                 </div>
                 <Button
