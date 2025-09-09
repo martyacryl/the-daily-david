@@ -694,7 +694,7 @@ export function DailyEntry() {
     }
   }
 
-  const handleAdvanceToNextDay = () => {
+  const handleAdvanceToNextDay = async () => {
     console.log('🔥 NEXT DAY BUTTON CLICKED!')
     console.log('🔥 Current reading plan:', dayData.readingPlan)
     
@@ -713,9 +713,71 @@ export function DailyEntry() {
         currentDay: nextDay
       }
       console.log('🔥 Updating to next day:', updatedReadingPlan)
-      handleUpdateReadingPlan(updatedReadingPlan)
+      
+      // Update the reading plan
+      setDayData(prev => ({ ...prev, readingPlan: updatedReadingPlan }))
+      
+      // Auto-save the progress
+      setTimeout(async () => {
+        const entryData = {
+          ...dayData,
+          readingPlan: updatedReadingPlan,
+          goals: userGoals
+        }
+        console.log('🔥 Auto-saving reading plan update:', updatedReadingPlan)
+        await autoSaveToAPI(entryData)
+      }, 100)
+      
+      // Automatically load the devotion for the new day
+      setTimeout(async () => {
+        console.log('🔥 Auto-loading devotion for day:', nextDay)
+        await handleLoadTodaysDevotion(dayData.readingPlan.planId)
+      }, 200)
     } else {
       console.log('❌ Cannot advance - already at last day')
+    }
+  }
+
+  const handleGoToPreviousDay = async () => {
+    console.log('🔥 PREVIOUS DAY BUTTON CLICKED!')
+    console.log('🔥 Current reading plan:', dayData.readingPlan)
+    
+    if (!dayData.readingPlan) {
+      console.log('❌ No reading plan found')
+      return
+    }
+    
+    const prevDay = dayData.readingPlan.currentDay - 1
+    console.log('🔥 Current day:', dayData.readingPlan.currentDay, 'Previous day:', prevDay)
+    
+    if (prevDay >= 1) {
+      const updatedReadingPlan = {
+        ...dayData.readingPlan,
+        currentDay: prevDay
+      }
+      console.log('🔥 Updating to previous day:', updatedReadingPlan)
+      
+      // Update the reading plan
+      setDayData(prev => ({ ...prev, readingPlan: updatedReadingPlan }))
+      
+      // Auto-save the progress
+      setTimeout(async () => {
+        const entryData = {
+          ...dayData,
+          readingPlan: updatedReadingPlan,
+          goals: userGoals
+        }
+        console.log('🔥 Auto-saving reading plan update:', updatedReadingPlan)
+        await autoSaveToAPI(entryData)
+      }, 100)
+      
+      // Automatically load the devotion for the previous day
+      setTimeout(async () => {
+        console.log('🔥 Auto-loading devotion for day:', prevDay)
+        await handleLoadTodaysDevotion(dayData.readingPlan.planId)
+      }, 200)
+    } else {
+      console.log('❌ Cannot go back - already at first day')
     }
   }
 
@@ -1431,6 +1493,7 @@ export function DailyEntry() {
               readingPlan={dayData.readingPlan}
               onLoadTodaysDevotion={handleLoadTodaysDevotion}
               onAdvanceToNextDay={handleAdvanceToNextDay}
+              onGoToPreviousDay={handleGoToPreviousDay}
               onClosePlan={handleClosePlan}
               onStartNewPlan={handleStartNewPlan}
               onRestartPlan={handleRestartPlan}

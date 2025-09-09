@@ -18,6 +18,7 @@ interface ReadingPlanProgressProps {
   readingPlan: ReadingPlan
   onLoadTodaysDevotion: (planId: string) => void
   onAdvanceToNextDay: () => void
+  onGoToPreviousDay: () => void
   onClosePlan: () => void
   onStartNewPlan: () => void
   onRestartPlan: () => void
@@ -28,6 +29,7 @@ export const ReadingPlanProgress: React.FC<ReadingPlanProgressProps> = ({
   readingPlan,
   onLoadTodaysDevotion,
   onAdvanceToNextDay,
+  onGoToPreviousDay,
   onClosePlan,
   onStartNewPlan,
   onRestartPlan,
@@ -140,25 +142,40 @@ export const ReadingPlanProgress: React.FC<ReadingPlanProgressProps> = ({
 
       {/* Action Buttons */}
       <div className="flex flex-wrap gap-2 mb-4" style={{position: 'relative', zIndex: 9999, pointerEvents: 'auto'}}>
+        {/* Load current day's devotion */}
         <Button
           size="sm"
           onClick={() => onLoadTodaysDevotion(readingPlan.planId)}
           className="bg-slate-600 hover:bg-slate-500 text-white"
           style={{position: 'relative', zIndex: 10000, pointerEvents: 'auto'}}
         >
-          Load Today's Devotion
+          Load Day {readingPlan.currentDay} Devotion
         </Button>
         
-        {readingPlan.currentDay < readingPlan.totalDays && (
-          <Button
-            size="sm"
-            onClick={() => onAdvanceToNextDay()}
-            className="bg-blue-600 hover:bg-blue-500 text-white"
-            style={{position: 'relative', zIndex: 10000, pointerEvents: 'auto'}}
-          >
-            Next Day
-          </Button>
-        )}
+        {/* Navigation buttons */}
+        <div className="flex gap-2">
+          {readingPlan.currentDay > 1 && (
+            <Button
+              size="sm"
+              onClick={() => onGoToPreviousDay()}
+              className="bg-gray-600 hover:bg-gray-500 text-white"
+              style={{position: 'relative', zIndex: 10000, pointerEvents: 'auto'}}
+            >
+              ← Previous
+            </Button>
+          )}
+          
+          {readingPlan.currentDay < readingPlan.totalDays && (
+            <Button
+              size="sm"
+              onClick={() => onAdvanceToNextDay()}
+              className="bg-blue-600 hover:bg-blue-500 text-white"
+              style={{position: 'relative', zIndex: 10000, pointerEvents: 'auto'}}
+            >
+              Next Day →
+            </Button>
+          )}
+        </div>
         
         <Button
           size="sm"
@@ -169,15 +186,6 @@ export const ReadingPlanProgress: React.FC<ReadingPlanProgressProps> = ({
         >
           <RotateCcw className="w-4 h-4 mr-1 inline" />
           Restart
-        </Button>
-        
-        <Button
-          size="sm"
-          onClick={() => onSaveProgress()}
-          className="bg-green-600 hover:bg-green-500 text-white"
-          style={{position: 'relative', zIndex: 10000, pointerEvents: 'auto'}}
-        >
-          Save Progress
         </Button>
         <Button
           size="sm"
