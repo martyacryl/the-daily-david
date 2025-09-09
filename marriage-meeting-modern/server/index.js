@@ -14,7 +14,6 @@ const PORT = process.env.PORT || 3001
 app.use(cors({
   origin: [
     'https://theweeklyhuddle.vercel.app',
-    'https://marriage-meeting-tool.vercel.app',
     'http://localhost:3000',
     'http://localhost:3001',
     'http://localhost:3002',
@@ -314,6 +313,16 @@ app.get('/api/auth/verify', authenticateToken, async (req, res) => {
 // Health check
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() })
+})
+
+// Debug endpoint to check what URL the frontend is using
+app.get('/api/debug', (req, res) => {
+  res.json({ 
+    message: 'Debug endpoint working',
+    timestamp: new Date().toISOString(),
+    origin: req.get('origin'),
+    referer: req.get('referer')
+  })
 })
 
 // Error handling middleware
