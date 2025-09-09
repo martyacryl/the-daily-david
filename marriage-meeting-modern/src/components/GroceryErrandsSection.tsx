@@ -50,6 +50,10 @@ export const GroceryErrandsSection: React.FC<GroceryErrandsSectionProps> = ({ it
   const [showCustomStore, setShowCustomStore] = useState(false)
   const [customStore, setCustomStore] = useState('')
 
+  // Debug logging
+  console.log('Available stores:', settings.groceryStores)
+  console.log('Current store context:', groceryContext.store)
+
   const getTypeIcon = (type: string) => {
     return type === 'grocery' ? <Store className="w-4 h-4" /> : <Car className="w-4 h-4" />
   }
@@ -77,13 +81,18 @@ export const GroceryErrandsSection: React.FC<GroceryErrandsSectionProps> = ({ it
   }
 
   const handleStoreSelect = (store: string) => {
-    setGroceryContext({ ...groceryContext, store })
-    setShowCustomStore(false)
-    setCustomStore('')
+    console.log('Selecting store:', store)
+    if (store && store !== 'custom') {
+      setGroceryContext({ ...groceryContext, store })
+      setShowCustomStore(false)
+      setCustomStore('')
+      console.log('Store selected:', store)
+    }
   }
 
   const handleCustomStoreAdd = () => {
     if (customStore.trim()) {
+      console.log('Adding custom store:', customStore.trim())
       addGroceryStore({
         name: customStore.trim(),
         address: '',
@@ -92,6 +101,9 @@ export const GroceryErrandsSection: React.FC<GroceryErrandsSectionProps> = ({ it
       setGroceryContext({ ...groceryContext, store: customStore.trim() })
       setShowCustomStore(false)
       setCustomStore('')
+      console.log('Store added successfully')
+    } else {
+      console.log('Custom store name is empty')
     }
   }
 
@@ -211,7 +223,8 @@ export const GroceryErrandsSection: React.FC<GroceryErrandsSectionProps> = ({ it
                     onChange={(e) => {
                       if (e.target.value === 'custom') {
                         setShowCustomStore(true)
-                      } else {
+                        setGroceryContext({ ...groceryContext, store: '' })
+                      } else if (e.target.value) {
                         handleStoreSelect(e.target.value)
                       }
                     }}
