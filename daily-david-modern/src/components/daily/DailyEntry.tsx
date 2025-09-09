@@ -627,8 +627,8 @@ export function DailyEntry() {
     }, 100)
   }
 
-  const handleLoadTodaysDevotion = async (planId: string) => {
-    console.log('Loading today\'s devotion for plan:', planId)
+  const handleLoadTodaysDevotion = async (planId: string, targetDay?: number) => {
+    console.log('Loading devotion for plan:', planId, 'target day:', targetDay)
     
     if (!dayData.readingPlan) {
       console.error('No reading plan active')
@@ -651,38 +651,42 @@ export function DailyEntry() {
           scripture: `${verse.reference} - ${verse.content}`
         }
         
-        // Mark the current day as complete
-        const currentDay = dayData.readingPlan.currentDay
-        const updatedCompletedDays = [...dayData.readingPlan.completedDays]
-        if (!updatedCompletedDays.includes(currentDay)) {
-          updatedCompletedDays.push(currentDay)
-        }
+        // Use the target day if provided, otherwise use current day from reading plan
+        const currentDay = targetDay || dayData.readingPlan.currentDay
+        console.log('Using day for completion:', currentDay)
         
-        const updatedReadingPlan = {
-          ...dayData.readingPlan,
-          completedDays: updatedCompletedDays
-        }
-        
-        // Update the day data
-        setDayData(prev => ({
-          ...prev,
-          soap: updatedSOAP,
-          readingPlan: updatedReadingPlan
-        }))
-        
-        console.log('Devotion loaded successfully:', devotion.title)
-        console.log('Day marked as complete:', currentDay)
-        
-        // Trigger auto-save
-        setTimeout(() => {
-          const entryData = {
-            ...dayData,
-            soap: updatedSOAP,
-            readingPlan: updatedReadingPlan,
-            goals: userGoals
+        // Get the current reading plan state to avoid stale data
+        setDayData(prev => {
+          const updatedCompletedDays = [...prev.readingPlan.completedDays]
+          if (!updatedCompletedDays.includes(currentDay)) {
+            updatedCompletedDays.push(currentDay)
           }
-          autoSaveToAPI(entryData)
-        }, 100)
+          
+          const updatedReadingPlan = {
+            ...prev.readingPlan,
+            completedDays: updatedCompletedDays
+          }
+          
+          console.log('Devotion loaded successfully:', devotion.title)
+          console.log('Day marked as complete:', currentDay)
+          
+          // Auto-save with the updated data
+          setTimeout(() => {
+            const entryData = {
+              ...prev,
+              soap: updatedSOAP,
+              readingPlan: updatedReadingPlan,
+              goals: userGoals
+            }
+            autoSaveToAPI(entryData)
+          }, 100)
+          
+          return {
+            ...prev,
+            soap: updatedSOAP,
+            readingPlan: updatedReadingPlan
+          }
+        })
         
       } else {
         console.error('No devotion found for plan:', planId)
@@ -728,7 +732,7 @@ export function DailyEntry() {
       
       // Automatically load the devotion for the new day
       console.log('🔥 Auto-loading devotion for day:', nextDay)
-      await handleLoadTodaysDevotion(updatedReadingPlan.planId)
+      await handleLoadTodaysDevotion(updatedReadingPlan.planId, nextDay)
     } else {
       console.log('❌ Cannot advance - already at last day')
     }
@@ -767,7 +771,7 @@ export function DailyEntry() {
       
       // Automatically load the devotion for the previous day
       console.log('🔥 Auto-loading devotion for day:', prevDay)
-      await handleLoadTodaysDevotion(updatedReadingPlan.planId)
+      await handleLoadTodaysDevotion(updatedReadingPlan.planId, prevDay)
     } else {
       console.log('❌ Cannot go back - already at first day')
     }
