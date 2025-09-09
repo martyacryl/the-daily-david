@@ -5,7 +5,7 @@ import { useDailyStore } from '../../stores/dailyStore'
 import { useAuthStore } from '../../stores/authStore'
 import { useEffect, useState } from 'react'
 import { DailyEntry } from '../../types'
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ComposedChart, Bar, Line } from 'recharts'
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ComposedChart, Bar, Line, Cell } from 'recharts'
 
 interface AnalyticsData {
   currentStreak: number
@@ -901,6 +901,7 @@ export function ProgressAnalytics() {
                             borderRadius: '8px',
                             color: '#f1f5f9'
                           }}
+                          formatter={(value) => [Math.round(value as number), '']}
                         />
                         <Area
                           type="monotone"
@@ -989,10 +990,10 @@ export function ProgressAnalytics() {
                   
                   data.push({
                     day: date.toLocaleDateString('en-US', { weekday: 'short' }),
-                    open: Math.max(0, Math.min(10, open)),
-                    close: Math.max(0, Math.min(10, close)),
-                    high: Math.max(0, Math.min(10, high)),
-                    low: Math.max(0, Math.min(10, low)),
+                    open: Math.round(Math.max(0, Math.min(10, open))),
+                    close: Math.round(Math.max(0, Math.min(10, close))),
+                    high: Math.round(Math.max(0, Math.min(10, high))),
+                    low: Math.round(Math.max(0, Math.min(10, low))),
                     name: traitName
                   })
                 }
@@ -1010,58 +1011,55 @@ export function ProgressAnalytics() {
                       <span className="text-2xl font-bold text-white">{score}</span>
                       <span className="text-sm text-slate-300 ml-1">/10</span>
                       <div className={`text-xs ${isPositive ? 'text-green-400' : 'text-red-400'}`}>
-                        {isPositive ? '↗' : '↘'} {Math.abs(traitData[traitData.length - 1].close - traitData[traitData.length - 2].close).toFixed(1)}
+                        {isPositive ? '↗' : '↘'} {Math.round(Math.abs(traitData[traitData.length - 1].close - traitData[traitData.length - 2].close))}
                       </div>
                     </div>
                   </div>
                   <div className="h-32">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <ComposedChart data={traitData}>
-                        <XAxis 
-                          dataKey="day" 
-                          axisLine={false}
-                          tickLine={false}
-                          tick={{ fill: '#94a3b8', fontSize: 12 }}
-                        />
-                        <YAxis 
-                          axisLine={false}
-                          tickLine={false}
-                          tick={{ fill: '#94a3b8', fontSize: 12 }}
-                          domain={[0, 10]}
-                        />
-                        <Tooltip 
-                          contentStyle={{ 
-                            backgroundColor: '#1e293b', 
-                            border: '1px solid #475569',
-                            borderRadius: '8px',
-                            color: '#f1f5f9'
-                          }}
-                          formatter={(value, name) => [value.toFixed(1), name]}
-                        />
-                        <Bar
-                          dataKey="high"
-                          fill="transparent"
-                          stroke="#10b981"
-                          strokeWidth={1}
-                        />
-                        <Bar
-                          dataKey="low"
-                          fill="transparent"
-                          stroke="#10b981"
-                          strokeWidth={1}
-                        />
-                        <Bar
-                          dataKey="open"
-                          fill="#10b981"
-                          opacity={0.7}
-                        />
-                        <Bar
-                          dataKey="close"
-                          fill="#10b981"
-                          opacity={0.9}
-                        />
-                      </ComposedChart>
-                    </ResponsiveContainer>
+                    <div className="w-full h-full flex items-end justify-between px-2">
+                      {traitData.map((candle, index) => {
+                        const isGreen = candle.close >= candle.open
+                        const bodyHeight = Math.abs(candle.close - candle.open) * 10 // Scale to 0-100
+                        const bodyTop = Math.min(candle.close, candle.open) * 10
+                        const wickTop = (10 - candle.high) * 10
+                        const wickBottom = (10 - candle.low) * 10
+                        
+                        return (
+                          <div key={index} className="flex flex-col items-center relative" style={{ width: '12%' }}>
+                            {/* High wick */}
+                            <div 
+                              className="w-0.5 bg-slate-400 absolute"
+                              style={{ 
+                                height: `${wickTop}px`, 
+                                top: '0px',
+                                left: '50%',
+                                transform: 'translateX(-50%)'
+                              }}
+                            />
+                            {/* Low wick */}
+                            <div 
+                              className="w-0.5 bg-slate-400 absolute"
+                              style={{ 
+                                height: `${wickBottom - bodyTop - bodyHeight}px`, 
+                                top: `${bodyTop + bodyHeight}px`,
+                                left: '50%',
+                                transform: 'translateX(-50%)'
+                              }}
+                            />
+                            {/* Candlestick body */}
+                            <div 
+                              className={`w-3 ${isGreen ? 'bg-green-500' : 'bg-red-500'} rounded-sm`}
+                              style={{ 
+                                height: `${Math.max(bodyHeight, 2)}px`,
+                                marginTop: `${bodyTop}px`
+                              }}
+                            />
+                            {/* Day label */}
+                            <div className="text-xs text-slate-400 mt-1">{candle.day}</div>
+                          </div>
+                        )
+                      })}
+                    </div>
                   </div>
                 </div>
               )
