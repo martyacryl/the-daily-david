@@ -1,7 +1,7 @@
 // Marriage Meeting Tool - API Configuration
 
 export const API_CONFIG = {
-  baseUrl: import.meta.env.VITE_API_URL || 'http://localhost:3001',
+  baseUrl: import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://theweeklyhuddle.vercel.app' : 'http://localhost:3001'),
   endpoints: {
     auth: '/api/auth',
     marriageWeeks: '/api/marriage-weeks',

@@ -9,7 +9,7 @@ import {
   CreateUserFormData 
 } from '../types/marriageTypes'
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '' : 'http://localhost:3001')
+const API_BASE_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://theweeklyhuddle.vercel.app' : 'http://localhost:3001')
 
 export class DatabaseManager {
   private baseUrl: string
