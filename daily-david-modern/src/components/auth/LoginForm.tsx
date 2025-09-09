@@ -82,6 +82,18 @@ export function LoginForm({ onSuccess, onError }: LoginFormProps) {
     }
   }
 
+  const handlePaste = (field: keyof LoginFormData, e: React.ClipboardEvent<HTMLInputElement>) => {
+    // Ensure paste events are handled the same as typing
+    const pastedValue = e.clipboardData.getData('text')
+    handleInputChange(field, pastedValue)
+  }
+
+  const handleInput = (field: keyof LoginFormData, e: React.FormEvent<HTMLInputElement>) => {
+    // Handle all input events including paste, drag-drop, etc.
+    const value = (e.target as HTMLInputElement).value
+    handleInputChange(field, value)
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -126,6 +138,8 @@ export function LoginForm({ onSuccess, onError }: LoginFormProps) {
                 required
                 value={formData.email}
                 onChange={(e) => handleInputChange('email', e.target.value)}
+                onInput={(e) => handleInput('email', e)}
+                onPaste={(e) => handlePaste('email', e)}
                 className={`
                   w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-slate-500 transition-colors
                   ${validationErrors.email ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : 'border-slate-600/50'}
@@ -157,6 +171,8 @@ export function LoginForm({ onSuccess, onError }: LoginFormProps) {
                 required
                 value={formData.password}
                 onChange={(e) => handleInputChange('password', e.target.value)}
+                onInput={(e) => handleInput('password', e)}
+                onPaste={(e) => handlePaste('password', e)}
                 className={`
                   w-full pl-10 pr-12 py-3 border rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-slate-500 transition-colors
                   ${validationErrors.password ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : 'border-slate-600/50'}
