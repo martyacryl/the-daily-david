@@ -5,16 +5,17 @@ import {
   Plus, 
   Trash2, 
   CheckCircle,
-  Store
+  Store,
+  X
 } from 'lucide-react'
 import { Card } from './ui/Card'
 import { Button } from './ui/Button'
-import { ListItem } from '../types/marriageTypes'
+import { ListItem, GroceryStoreList } from '../types/marriageTypes'
 import { useSettingsStore } from '../stores/settingsStore'
 
 interface GroceryErrandsSectionProps {
-  items: ListItem[]
-  onUpdate: (items: ListItem[]) => void
+  items: GroceryStoreList[]
+  onUpdate: (items: GroceryStoreList[]) => void
 }
 
 export const GroceryErrandsSection: React.FC<GroceryErrandsSectionProps> = ({ items, onUpdate }) => {
@@ -25,8 +26,17 @@ export const GroceryErrandsSection: React.FC<GroceryErrandsSectionProps> = ({ it
   const [customStore, setCustomStore] = useState('')
   const [showSuccessMessage, setShowSuccessMessage] = useState(false)
 
+  // Get or create store list
+  const getStoreList = (storeId: string) => {
+    return items.find(list => list.storeId === storeId) || {
+      storeId,
+      storeName: settings.groceryStores.find(s => s.id === storeId)?.name || storeId,
+      items: []
+    }
+  }
 
-  const addItem = () => {
+  // Add item to specific store
+  const addItemToStore = (storeId: string) => {
     if (!newItemText.trim()) return
 
     const newItem: ListItem = {
@@ -35,24 +45,70 @@ export const GroceryErrandsSection: React.FC<GroceryErrandsSectionProps> = ({ it
       completed: false
     }
 
-    onUpdate([...items, newItem])
+    const storeList = getStoreList(storeId)
+    const updatedStoreList = {
+      ...storeList,
+      items: [...storeList.items, newItem]
+    }
+
+    const otherLists = items.filter(list => list.storeId !== storeId)
+    onUpdate([...otherLists, updatedStoreList])
     setNewItemText('')
   }
 
-  const updateItem = (id: number, text: string) => {
-    onUpdate(items.map(item => 
-      item.id === id ? { ...item, text } : item
-    ))
+  // Update item in specific store
+  const updateItemInStore = (storeId: string, itemId: number, text: string) => {
+    const storeList = getStoreList(storeId)
+    const updatedStoreList = {
+      ...storeList,
+      items: storeList.items.map(item => 
+        item.id === itemId ? { ...item, text } : item
+      )
+    }
+
+    const otherLists = items.filter(list => list.storeId !== storeId)
+    onUpdate([...otherLists, updatedStoreList])
   }
 
-  const toggleItem = (id: number) => {
-    onUpdate(items.map(item => 
-      item.id === id ? { ...item, completed: !item.completed } : item
-    ))
+  // Toggle item in specific store
+  const toggleItemInStore = (storeId: string, itemId: number) => {
+    const storeList = getStoreList(storeId)
+    const updatedStoreList = {
+      ...storeList,
+      items: storeList.items.map(item => 
+        item.id === itemId ? { ...item, completed: !item.completed } : item
+      )
+    }
+
+    const otherLists = items.filter(list => list.storeId !== storeId)
+    onUpdate([...otherLists, updatedStoreList])
   }
 
-  const removeItem = (id: number) => {
-    onUpdate(items.filter(item => item.id !== id))
+  // Remove item from specific store
+  const removeItemFromStore = (storeId: string, itemId: number) => {
+    const storeList = getStoreList(storeId)
+    const updatedStoreList = {
+      ...storeList,
+      items: storeList.items.filter(item => item.id !== itemId)
+    }
+
+    const otherLists = items.filter(list => list.storeId !== storeId)
+    onUpdate([...otherLists, updatedStoreList])
+  }
+
+  // Add new store list
+  const addNewStoreList = (storeId: string, storeName: string) => {
+    const newStoreList: GroceryStoreList = {
+      storeId,
+      storeName,
+      items: []
+    }
+    onUpdate([...items, newStoreList])
+  }
+
+  // Remove store list
+  const removeStoreList = (storeId: string) => {
+    onUpdate(items.filter(list => list.storeId !== storeId))
   }
 
   const handleStoreSelect = (store: string) => {
@@ -91,20 +147,20 @@ export const GroceryErrandsSection: React.FC<GroceryErrandsSectionProps> = ({ it
           </div>
           <div>
             <h2 className="text-2xl font-bold text-gray-900">Grocery & Errands</h2>
-            <p className="text-gray-600">Add items to your shopping and errands list</p>
+            <p className="text-gray-600">Organize your shopping by store</p>
           </div>
         </div>
 
         {/* Success Message */}
         {showSuccessMessage && (
           <div className="mb-4 p-3 bg-green-100 border border-green-300 rounded-lg text-green-800 text-sm">
-            ✅ Store added successfully! You can now select it from the dropdown.
+            ✅ Store added successfully! You can now create a list for it.
           </div>
         )}
 
-        {/* Store Selection */}
+        {/* Add New Store List */}
         <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-700 mb-2">Store (optional)</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Create a new store list</label>
           <div className="flex gap-2">
             <select
               key={settings.groceryStores.length}
@@ -119,9 +175,9 @@ export const GroceryErrandsSection: React.FC<GroceryErrandsSectionProps> = ({ it
               }}
               className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
             >
-              <option value="">No specific store</option>
+              <option value="">Select a store to create a list...</option>
               {settings.groceryStores.map((store) => (
-                <option key={store.id} value={store.name}>
+                <option key={store.id} value={store.id}>
                   {store.name} {store.isDefault && '⭐'}
                 </option>
               ))}
@@ -129,11 +185,17 @@ export const GroceryErrandsSection: React.FC<GroceryErrandsSectionProps> = ({ it
             </select>
             {selectedStore && (
               <Button
-                onClick={() => setSelectedStore('')}
-                variant="outline"
-                size="sm"
+                onClick={() => {
+                  const store = settings.groceryStores.find(s => s.id === selectedStore)
+                  if (store) {
+                    addNewStoreList(store.id, store.name)
+                    setSelectedStore('')
+                  }
+                }}
+                className="bg-green-600 hover:bg-green-700"
               >
-                Clear
+                <Plus className="w-4 h-4 mr-1" />
+                Create List
               </Button>
             )}
           </div>
@@ -149,12 +211,26 @@ export const GroceryErrandsSection: React.FC<GroceryErrandsSectionProps> = ({ it
                 autoFocus
               />
               <Button
-                onClick={handleCustomStoreAdd}
+                onClick={() => {
+                  if (customStore.trim()) {
+                    addGroceryStore({
+                      name: customStore.trim(),
+                      address: '',
+                      isDefault: false
+                    })
+                    const newStoreId = Date.now().toString()
+                    addNewStoreList(newStoreId, customStore.trim())
+                    setShowCustomStore(false)
+                    setCustomStore('')
+                    setShowSuccessMessage(true)
+                    setTimeout(() => setShowSuccessMessage(false), 3000)
+                  }
+                }}
                 disabled={!customStore.trim()}
-                size="sm"
                 className="bg-green-600 hover:bg-green-700"
               >
-                <Plus className="w-3 h-3" />
+                <Plus className="w-3 h-3 mr-1" />
+                Create
               </Button>
               <Button
                 onClick={() => {
@@ -162,7 +238,6 @@ export const GroceryErrandsSection: React.FC<GroceryErrandsSectionProps> = ({ it
                   setCustomStore('')
                 }}
                 variant="outline"
-                size="sm"
               >
                 Cancel
               </Button>
@@ -170,70 +245,89 @@ export const GroceryErrandsSection: React.FC<GroceryErrandsSectionProps> = ({ it
           )}
         </div>
 
-        {/* Items List */}
-        <div className="space-y-2 mb-4">
-          {items.map((item) => (
-            <div key={item.id} className="flex items-center gap-3 p-3 bg-white border border-gray-200 rounded-lg hover:shadow-sm transition-shadow">
-              <button
-                onClick={() => toggleItem(item.id)}
-                className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
-                  item.completed
-                    ? 'bg-green-500 border-green-500 text-white'
-                    : 'border-gray-300 hover:border-gray-400'
-                }`}
-              >
-                {item.completed && <CheckCircle className="w-3 h-3" />}
-              </button>
-              <input
-                type="text"
-                value={item.text}
-                onChange={(e) => updateItem(item.id, e.target.value)}
-                className={`flex-1 bg-transparent border-none outline-none text-sm ${
-                  item.completed ? 'line-through text-gray-500' : 'text-gray-800'
-                }`}
-              />
-              {selectedStore && (
-                <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
-                  {selectedStore}
-                </span>
-              )}
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => removeItem(item.id)}
-                className="text-red-600 hover:bg-red-50 border-red-200 p-1 h-6 w-6"
-              >
-                <Trash2 className="w-3 h-3" />
-              </Button>
-            </div>
-          ))}
-        </div>
+        {/* Store Lists */}
+        <div className="space-y-6">
+          {items.map((storeList) => (
+            <Card key={storeList.storeId} className="p-4">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <Store className="w-5 h-5 text-green-600" />
+                  <h3 className="text-lg font-semibold text-gray-900">{storeList.storeName}</h3>
+                  <span className="text-sm text-gray-500">({storeList.items.length} items)</span>
+                </div>
+                <Button
+                  onClick={() => removeStoreList(storeList.storeId)}
+                  variant="outline"
+                  size="sm"
+                  className="text-red-600 hover:bg-red-50 border-red-200"
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
 
-        {/* Add New Item */}
-        <div className="flex gap-2">
-          <input
-            type="text"
-            value={newItemText}
-            onChange={(e) => setNewItemText(e.target.value)}
-            placeholder="Add grocery item or errand..."
-            className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-            onKeyPress={(e) => e.key === 'Enter' && addItem()}
-          />
-          <Button
-            onClick={addItem}
-            disabled={!newItemText.trim()}
-            className="bg-green-600 hover:bg-green-700 px-4"
-          >
-            <Plus className="w-4 h-4 mr-1" />
-            Add
-          </Button>
+              {/* Items in this store */}
+              <div className="space-y-2 mb-4">
+                {storeList.items.map((item) => (
+                  <div key={item.id} className="flex items-center gap-3 p-2 bg-gray-50 rounded-lg">
+                    <button
+                      onClick={() => toggleItemInStore(storeList.storeId, item.id)}
+                      className={`w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
+                        item.completed
+                          ? 'bg-green-500 border-green-500 text-white'
+                          : 'border-gray-300 hover:border-gray-400'
+                      }`}
+                    >
+                      {item.completed && <CheckCircle className="w-3 h-3" />}
+                    </button>
+                    <input
+                      type="text"
+                      value={item.text}
+                      onChange={(e) => updateItemInStore(storeList.storeId, item.id, e.target.value)}
+                      className={`flex-1 bg-transparent border-none outline-none text-sm ${
+                        item.completed ? 'line-through text-gray-500' : 'text-gray-800'
+                      }`}
+                    />
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => removeItemFromStore(storeList.storeId, item.id)}
+                      className="text-red-600 hover:bg-red-50 border-red-200 p-1 h-6 w-6"
+                    >
+                      <Trash2 className="w-3 h-3" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+
+              {/* Add item to this store */}
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={newItemText}
+                  onChange={(e) => setNewItemText(e.target.value)}
+                  placeholder={`Add item to ${storeList.storeName}...`}
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
+                  onKeyPress={(e) => e.key === 'Enter' && addItemToStore(storeList.storeId)}
+                />
+                <Button
+                  onClick={() => addItemToStore(storeList.storeId)}
+                  disabled={!newItemText.trim()}
+                  size="sm"
+                  className="bg-green-600 hover:bg-green-700"
+                >
+                  <Plus className="w-3 h-3 mr-1" />
+                  Add
+                </Button>
+              </div>
+            </Card>
+          ))}
         </div>
 
         {items.length === 0 && (
           <div className="text-center py-12 text-gray-500">
             <ShoppingCart className="w-12 h-12 mx-auto mb-4 text-gray-400" />
-            <p className="text-lg">No grocery items or errands yet</p>
-            <p className="text-sm">Add items using the input above</p>
+            <p className="text-lg">No store lists yet</p>
+            <p className="text-sm">Create a list for a store above to get started</p>
           </div>
         )}
       </Card>

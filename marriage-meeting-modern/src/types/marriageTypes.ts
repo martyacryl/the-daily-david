@@ -73,9 +73,16 @@ export interface WeekData {
   todos: TaskItem[] // Updated to use TaskItem with timeline features
   prayers: ListItem[]
   goals: GoalItem[] // Updated to use GoalItem with timeframes
-  grocery: ListItem[]
+  grocery: GroceryStoreList[] // Updated to use store-specific lists
   unconfessedSin: ListItem[]
   weeklyWinddown: ListItem[]
+}
+
+// Grocery Store List
+export interface GroceryStoreList {
+  storeId: string
+  storeName: string
+  items: ListItem[]
 }
 
 // List Types

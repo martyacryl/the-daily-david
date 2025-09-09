@@ -2,7 +2,7 @@
 // Manages marriage meeting week data
 
 import { create } from 'zustand'
-import { MarriageMeetingWeek, WeekData, ListItem, WeeklySchedule, DayName, ListType, GoalItem, TaskItem } from '../types/marriageTypes'
+import { MarriageMeetingWeek, WeekData, ListItem, WeeklySchedule, DayName, ListType, GoalItem, TaskItem, GroceryStoreList } from '../types/marriageTypes'
 import { dbManager } from '../lib/database'
 
 interface MarriageState {
@@ -27,7 +27,7 @@ interface MarriageState {
   removeListItem: (listType: ListType, id: number) => void
   updateGoals: (goals: GoalItem[]) => void
   updateTasks: (tasks: TaskItem[]) => void
-  updateGrocery: (grocery: any[]) => void
+  updateGrocery: (grocery: GroceryStoreList[]) => void
   setLoading: (loading: boolean) => void
   setError: (error: string | null) => void
   setLastSaved: (date: Date) => void
@@ -47,7 +47,7 @@ const createEmptyWeekData = (): WeekData => ({
   todos: [] as TaskItem[],
   prayers: [],
   goals: [], // Now uses GoalItem[] structure
-  grocery: [],
+  grocery: [] as GroceryStoreList[],
   unconfessedSin: [],
   weeklyWinddown: []
 })
