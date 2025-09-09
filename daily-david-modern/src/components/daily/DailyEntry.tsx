@@ -640,7 +640,7 @@ export function DailyEntry() {
       const { bibleService } = await import('../../lib/bibleService')
       
       // Get today's devotion
-      const devotion = await bibleService.getTodaysDevotion(planId, undefined, currentDay)
+      const devotion = await bibleService.getTodaysDevotion(planId, undefined, targetDay)
       
       if (devotion && devotion.verses.length > 0) {
         const verse = devotion.verses[0]
