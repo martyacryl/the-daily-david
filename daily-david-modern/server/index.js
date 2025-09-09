@@ -228,7 +228,7 @@ app.get('/api/admin/users', authenticateToken, async (req, res) => {
 // Daily entries routes
 app.post('/api/entries', authenticateToken, async (req, res) => {
   try {
-    const { date, goals, gratitude, soap, dailyIntention, growthQuestion, leadershipRating, checkIn, readingPlan, deletedGoalIds } = req.body
+    const { date, goals, gratitude, soap, dailyIntention, growthQuestion, leadershipRating, checkIn, readingPlan, deletedGoalIds, completed } = req.body
     const userId = req.user.userId
     const dateKey = date || getLocalDateString()
 
@@ -255,7 +255,8 @@ app.post('/api/entries', authenticateToken, async (req, res) => {
             leadershipRating,
             checkIn,
             readingPlan,
-            deletedGoalIds
+            deletedGoalIds,
+            completed
           })
         ]
       )

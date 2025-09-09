@@ -195,6 +195,9 @@ export function DailyEntry() {
         feeling: entryData.checkIn?.feeling
       })
       
+      // Determine if entry should be marked as completed based on content
+      const isCompleted = isEntryCompleted(entryData)
+      
       // Correct API call - this will create or update the entry
       const requestBody = {
           date: dateString,
@@ -204,8 +207,9 @@ export function DailyEntry() {
           dailyIntention: entryData.dailyIntention,
           leadershipRating: entryData.leadershipRating,
           checkIn: entryData.checkIn,
-        readingPlan: entryData.readingPlan,
-          deletedGoalIds: Array.from(currentDeletedGoalIds || deletedGoalIds)
+          readingPlan: entryData.readingPlan,
+          deletedGoalIds: Array.from(currentDeletedGoalIds || deletedGoalIds),
+          completed: isCompleted
       }
       
       console.log('🔥 Frontend: Sending to backend:', requestBody)
@@ -896,6 +900,45 @@ export function DailyEntry() {
     }, 100)
   }
 
+  // Function to determine if an entry should be marked as completed
+  const isEntryCompleted = (entryData: any): boolean => {
+    // Check if any meaningful content has been entered
+    const hasSOAPContent = entryData.soap?.scripture?.trim() || 
+                          entryData.soap?.observation?.trim() || 
+                          entryData.soap?.application?.trim() || 
+                          entryData.soap?.prayer?.trim()
+    
+    const hasGratitudeContent = entryData.gratitude?.some((item: string) => item?.trim())
+    
+    const hasCheckInContent = entryData.checkIn?.feeling?.trim() || 
+                             (entryData.checkIn?.emotions && entryData.checkIn.emotions.length > 0)
+    
+    const hasDailyIntention = entryData.dailyIntention?.trim()
+    
+    const hasLeadershipRating = entryData.leadershipRating && 
+                               (entryData.leadershipRating.wisdom > 0 || 
+                                entryData.leadershipRating.courage > 0 || 
+                                entryData.leadershipRating.patience > 0 || 
+                                entryData.leadershipRating.integrity > 0)
+    
+    const hasGoals = entryData.goals && 
+                    (entryData.goals.daily?.length > 0 || 
+                     entryData.goals.weekly?.length > 0 || 
+                     entryData.goals.monthly?.length > 0)
+    
+    // Entry is completed if at least 2 meaningful sections have content
+    const completedSections = [
+      hasSOAPContent,
+      hasGratitudeContent, 
+      hasCheckInContent,
+      hasDailyIntention,
+      hasLeadershipRating,
+      hasGoals
+    ].filter(Boolean).length
+    
+    return completedSections >= 2
+  }
+
   const handleSubmit = async (event?: React.MouseEvent | React.TouchEvent) => {
     // Prevent default behavior and stop propagation
     if (event) {
@@ -922,8 +965,12 @@ export function DailyEntry() {
         goals: userGoals
       }
       
+      // Determine if entry should be marked as completed based on content
+      const isCompleted = isEntryCompleted(entryData)
+      
       console.log('Saving entry with goals:', userGoals)
       console.log('Full entry data:', entryData)
+      console.log('Entry completed:', isCompleted)
       
       if (currentEntry && currentEntry.id) {
         // Update existing entry
@@ -934,7 +981,7 @@ export function DailyEntry() {
           userId: user?.id?.toString() || '',
           user_id: user?.id?.toString() || '',
           ...entryData,
-          completed: true
+          completed: isCompleted
         })
       } else {
         // Create new entry
@@ -945,7 +992,7 @@ export function DailyEntry() {
           userId: user?.id?.toString() || '',
           user_id: user?.id?.toString() || '',
           ...entryData,
-          completed: true,
+          completed: isCompleted,
           created_at: new Date(),
           updated_at: new Date()
         })
