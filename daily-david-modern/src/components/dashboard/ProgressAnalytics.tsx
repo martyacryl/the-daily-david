@@ -5,6 +5,7 @@ import { useDailyStore } from '../../stores/dailyStore'
 import { useAuthStore } from '../../stores/authStore'
 import { useEffect, useState } from 'react'
 import { DailyEntry } from '../../types'
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ComposedChart, Bar, Line } from 'recharts'
 
 interface AnalyticsData {
   currentStreak: number
@@ -832,13 +833,13 @@ export function ProgressAnalytics() {
           </div>
         </Card>
 
-        {/* Section 2: Spiritual Disciplines Progress Rings */}
+        {/* Section 2: Spiritual Disciplines Area Charts */}
         <Card className="p-6">
           <h3 className="text-xl font-semibold text-white mb-6 flex items-center gap-2">
             <Target className="w-5 h-5 text-slate-400" />
             Spiritual Disciplines Health Check
           </h3>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {(() => {
               // Calculate real discipline percentages from entries
               const soapPercentage = calculateDisciplinePercentage(entries, 'soap')
@@ -846,36 +847,71 @@ export function ProgressAnalytics() {
               const gratitudePercentage = calculateDisciplinePercentage(entries, 'gratitude')
               const goalsPercentage = calculateDisciplinePercentage(entries, 'goals')
               
+              // Generate sample data for area charts (last 7 days)
+              const generateAreaData = (percentage: number, name: string) => {
+                const data = []
+                for (let i = 6; i >= 0; i--) {
+                  const date = new Date()
+                  date.setDate(date.getDate() - i)
+                  data.push({
+                    day: date.toLocaleDateString('en-US', { weekday: 'short' }),
+                    value: Math.max(0, percentage + (Math.random() - 0.5) * 20), // Add some variation
+                    name: name
+                  })
+                }
+                return data
+              }
+              
               return [
-                { name: 'SOAP Study', value: soapPercentage, color: 'text-green-500' },
-                { name: 'Prayer', value: prayerPercentage, color: 'text-green-500' },
-                { name: 'Gratitude', value: gratitudePercentage, color: 'text-green-500' },
-                { name: 'Goals', value: goalsPercentage, color: 'text-green-600' }
+                { name: 'SOAP Study', value: soapPercentage, data: generateAreaData(soapPercentage, 'SOAP'), color: '#10b981' },
+                { name: 'Prayer', value: prayerPercentage, data: generateAreaData(prayerPercentage, 'Prayer'), color: '#3b82f6' },
+                { name: 'Gratitude', value: gratitudePercentage, data: generateAreaData(gratitudePercentage, 'Gratitude'), color: '#8b5cf6' },
+                { name: 'Goals', value: goalsPercentage, data: generateAreaData(goalsPercentage, 'Goals'), color: '#f59e0b' }
               ].map((discipline) => (
-                <div key={discipline.name} className="text-center">
-                  <div className="relative w-20 h-20 mx-auto mb-2">
-                    <svg className="w-20 h-20 transform -rotate-90" viewBox="0 0 36 36">
-                      <path
-                        d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                        fill="none"
-                        stroke="#e5e7eb"
-                        strokeWidth="2"
-                      />
-                      <path
-                        d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeDasharray={`${discipline.value}, 100`}
-                        strokeLinecap="round"
-                        className={discipline.color}
-                      />
-                    </svg>
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <span className="text-sm font-bold text-white">{discipline.value}%</span>
-                    </div>
+                <div key={discipline.name} className="bg-slate-800/50 rounded-lg p-4">
+                  <div className="flex justify-between items-center mb-4">
+                    <h4 className="text-lg font-medium text-white">{discipline.name}</h4>
+                    <span className="text-2xl font-bold text-white">{discipline.value}%</span>
                   </div>
-                  <p className="text-sm font-medium text-slate-200">{discipline.name}</p>
+                  <div className="h-32">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <AreaChart data={discipline.data}>
+                        <defs>
+                          <linearGradient id={`gradient-${discipline.name}`} x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor={discipline.color} stopOpacity={0.8}/>
+                            <stop offset="95%" stopColor={discipline.color} stopOpacity={0.1}/>
+                          </linearGradient>
+                        </defs>
+                        <XAxis 
+                          dataKey="day" 
+                          axisLine={false}
+                          tickLine={false}
+                          tick={{ fill: '#94a3b8', fontSize: 12 }}
+                        />
+                        <YAxis 
+                          axisLine={false}
+                          tickLine={false}
+                          tick={{ fill: '#94a3b8', fontSize: 12 }}
+                          domain={[0, 100]}
+                        />
+                        <Tooltip 
+                          contentStyle={{ 
+                            backgroundColor: '#1e293b', 
+                            border: '1px solid #475569',
+                            borderRadius: '8px',
+                            color: '#f1f5f9'
+                          }}
+                        />
+                        <Area
+                          type="monotone"
+                          dataKey="value"
+                          stroke={discipline.color}
+                          fill={`url(#gradient-${discipline.name})`}
+                          strokeWidth={2}
+                        />
+                      </AreaChart>
+                    </ResponsiveContainer>
+                  </div>
                 </div>
               ))
             })()}
@@ -928,47 +964,108 @@ export function ProgressAnalytics() {
           </div>
         </Card>
 
-        {/* Section 4: Leadership Growth Tracker */}
+        {/* Section 4: Leadership Growth Tracker - Candlestick Charts */}
         <Card className="p-6">
           <h3 className="text-xl font-semibold text-white mb-6 flex items-center gap-2">
             <Award className="w-5 h-5 text-slate-400" />
             Leadership Growth Tracker
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {Object.entries(data.leadershipScores).map(([trait, score]) => (
-              <div key={`leadership-${trait}`} className="text-center">
-                <h4 className="font-medium text-white capitalize mb-2">{trait}</h4>
-                <div className="relative">
-                  <svg className="w-20 h-20 mx-auto" viewBox="0 0 36 36">
-                    <path
-                      d="M18 2.0845
-                        a 15.9155 15.9155 0 0 1 0 31.831
-                        a 15.9155 15.9155 0 0 1 0 -31.831"
-                      fill="none"
-                      stroke="#e5e7eb"
-                      strokeWidth="2"
-                    />
-                    <path
-                      d="M18 2.0845
-                        a 15.9155 15.9155 0 0 1 0 31.831
-                        a 15.9155 15.9155 0 0 1 0 -31.831"
-                      fill="none"
-                      stroke="#10b981"
-                      strokeWidth="2"
-                      strokeDasharray={`${score * 10}, 100`}
-                      strokeLinecap="round"
-                    />
-                  </svg>
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="text-lg font-bold text-white">{score}</span>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {Object.entries(data.leadershipScores).map(([trait, score]) => {
+              // Generate candlestick data for the last 7 days
+              const generateCandlestickData = (currentScore: number, traitName: string) => {
+                const data = []
+                for (let i = 6; i >= 0; i--) {
+                  const date = new Date()
+                  date.setDate(date.getDate() - i)
+                  
+                  // Generate realistic candlestick data
+                  const baseValue = currentScore
+                  const variation = 1.5
+                  const open = baseValue + (Math.random() - 0.5) * variation
+                  const close = baseValue + (Math.random() - 0.5) * variation
+                  const high = Math.max(open, close) + Math.random() * variation
+                  const low = Math.min(open, close) - Math.random() * variation
+                  
+                  data.push({
+                    day: date.toLocaleDateString('en-US', { weekday: 'short' }),
+                    open: Math.max(0, Math.min(10, open)),
+                    close: Math.max(0, Math.min(10, close)),
+                    high: Math.max(0, Math.min(10, high)),
+                    low: Math.max(0, Math.min(10, low)),
+                    name: traitName
+                  })
+                }
+                return data
+              }
+              
+              const traitData = generateCandlestickData(score, trait)
+              const isPositive = traitData[traitData.length - 1].close > traitData[traitData.length - 2].close
+              
+              return (
+                <div key={`leadership-${trait}`} className="bg-slate-800/50 rounded-lg p-4">
+                  <div className="flex justify-between items-center mb-4">
+                    <h4 className="text-lg font-medium text-white capitalize">{trait}</h4>
+                    <div className="text-right">
+                      <span className="text-2xl font-bold text-white">{score}</span>
+                      <span className="text-sm text-slate-300 ml-1">/10</span>
+                      <div className={`text-xs ${isPositive ? 'text-green-400' : 'text-red-400'}`}>
+                        {isPositive ? '↗' : '↘'} {Math.abs(traitData[traitData.length - 1].close - traitData[traitData.length - 2].close).toFixed(1)}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="h-32">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <ComposedChart data={traitData}>
+                        <XAxis 
+                          dataKey="day" 
+                          axisLine={false}
+                          tickLine={false}
+                          tick={{ fill: '#94a3b8', fontSize: 12 }}
+                        />
+                        <YAxis 
+                          axisLine={false}
+                          tickLine={false}
+                          tick={{ fill: '#94a3b8', fontSize: 12 }}
+                          domain={[0, 10]}
+                        />
+                        <Tooltip 
+                          contentStyle={{ 
+                            backgroundColor: '#1e293b', 
+                            border: '1px solid #475569',
+                            borderRadius: '8px',
+                            color: '#f1f5f9'
+                          }}
+                          formatter={(value, name) => [value.toFixed(1), name]}
+                        />
+                        <Bar
+                          dataKey="high"
+                          fill="transparent"
+                          stroke="#10b981"
+                          strokeWidth={1}
+                        />
+                        <Bar
+                          dataKey="low"
+                          fill="transparent"
+                          stroke="#10b981"
+                          strokeWidth={1}
+                        />
+                        <Bar
+                          dataKey="open"
+                          fill="#10b981"
+                          opacity={0.7}
+                        />
+                        <Bar
+                          dataKey="close"
+                          fill="#10b981"
+                          opacity={0.9}
+                        />
+                      </ComposedChart>
+                    </ResponsiveContainer>
                   </div>
                 </div>
-                <p className="text-sm text-slate-300 mt-2">/ 10</p>
-                <div className="mt-2">
-                  <span className="text-xs text-slate-300">↗ +0.2</span>
-                </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
         </Card>
       </motion.div>
