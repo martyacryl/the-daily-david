@@ -31,18 +31,38 @@ export const Dashboard: React.FC = () => {
 
   useEffect(() => {
     if (isAuthenticated) {
+      console.log('🏠 Dashboard: Loading entries after authentication')
       loadEntries()
     }
   }, [isAuthenticated, loadEntries])
 
+  // Listen for successful login to force refresh data
+  useEffect(() => {
+    const handleLoginSuccess = () => {
+      console.log('🏠 Dashboard: Login success event received, refreshing data')
+      if (isAuthenticated) {
+        loadEntries()
+      }
+    }
+
+    window.addEventListener('auth-login-success', handleLoginSuccess)
+    return () => window.removeEventListener('auth-login-success', handleLoginSuccess)
+  }, [isAuthenticated, loadEntries])
 
   useEffect(() => {
+    console.log('🏠 Dashboard: Entries changed, recalculating stats', { 
+      entriesLength: entries.length, 
+      isLoading 
+    })
+    
     if (entries.length > 0) {
+      console.log('🏠 Dashboard: Calculating stats with entries')
       calculateStats()
       extractCurrentGoals()
       setStatsLoaded(true)
-    } else if (!isLoading) {
-      // If no entries and not loading, set stats to 0 and mark as loaded
+    } else if (!isLoading && isAuthenticated) {
+      // Only show zeros if we're not loading and we're authenticated
+      console.log('🏠 Dashboard: No entries found, showing zero stats')
       setStats({
         currentStreak: 0,
         thisWeek: 0,
@@ -51,7 +71,7 @@ export const Dashboard: React.FC = () => {
       })
       setStatsLoaded(true)
     }
-  }, [entries, isLoading])
+  }, [entries, isLoading, isAuthenticated])
 
   const calculateStats = () => {
     const thisMonth = new Date().getMonth()
@@ -396,6 +416,27 @@ export const Dashboard: React.FC = () => {
             Get Started
           </Button>
         </Link>
+      </div>
+    )
+  }
+
+  // Show loading state while data is being fetched
+  if (isLoading || (isAuthenticated && entries.length === 0 && !statsLoaded)) {
+    return (
+      <div className="space-y-8 relative z-10">
+        <div className="text-center">
+          <h1 className="text-4xl font-bold text-white mb-4">Welcome back, {user?.name}!</h1>
+          <p className="text-xl text-slate-300">Loading your spiritual journey...</p>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {[1, 2, 3, 4].map((i) => (
+            <Card key={i} className="p-6 animate-pulse">
+              <div className="w-12 h-12 bg-slate-600 rounded-full mx-auto mb-4"></div>
+              <div className="h-8 bg-slate-600 rounded mb-2"></div>
+              <div className="h-4 bg-slate-600 rounded"></div>
+            </Card>
+          ))}
+        </div>
       </div>
     )
   }

@@ -89,6 +89,14 @@ export const useAuthStore = create<AuthStore>()(
               isLoading: false,
               error: null
             })
+            
+            // Force a small delay to ensure auth state is set before components try to load data
+            setTimeout(() => {
+              console.log('🔐 Auth: Login successful, triggering data refresh')
+              // Dispatch a custom event to notify components that login is complete
+              window.dispatchEvent(new CustomEvent('auth-login-success'))
+            }, 100)
+            
             return true
           } else {
             set({

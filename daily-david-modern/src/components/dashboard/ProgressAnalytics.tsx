@@ -408,16 +408,41 @@ export function ProgressAnalytics() {
 
   useEffect(() => {
     if (isAuthenticated) {
+      console.log('📊 Analytics: Loading entries after authentication')
       loadEntries()
     }
   }, [isAuthenticated, loadEntries])
 
+  // Listen for successful login to force refresh data
   useEffect(() => {
+    const handleLoginSuccess = () => {
+      console.log('📊 Analytics: Login success event received, refreshing data')
+      if (isAuthenticated) {
+        loadEntries()
+      }
+    }
+
+    window.addEventListener('auth-login-success', handleLoginSuccess)
+    return () => window.removeEventListener('auth-login-success', handleLoginSuccess)
+  }, [isAuthenticated, loadEntries])
+
+  useEffect(() => {
+    console.log('📊 Analytics: Entries changed, recalculating analytics', { 
+      entriesLength: entries.length, 
+      isLoading 
+    })
+    
     if (entries.length > 0) {
       const data = calculateAnalytics(entries)
+      console.log('📊 Analytics: Calculated analytics data:', data)
+      setAnalyticsData(data)
+    } else if (!isLoading && isAuthenticated) {
+      // Only show zeros if we're not loading and we're authenticated
+      console.log('📊 Analytics: No entries found, showing zero analytics')
+      const data = calculateAnalytics([])
       setAnalyticsData(data)
     }
-  }, [entries])
+  }, [entries, isLoading, isAuthenticated])
 
   // Mock data fallback - replace with actual data from store/database
   const mockData = {
@@ -454,7 +479,7 @@ export function ProgressAnalytics() {
   // Use real data if available, otherwise fallback to mock data
   const data = analyticsData || mockData
 
-  if (isLoading) {
+  if (isLoading || (isAuthenticated && entries.length === 0 && !analyticsData)) {
     return (
       <div className="space-y-8">
         <div className="text-center">
