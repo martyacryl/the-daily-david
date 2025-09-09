@@ -1,7 +1,7 @@
 // Marriage Meeting Tool - Main App Component
 
-import React, { useEffect } from 'react'
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
+import React, { useEffect, useState } from 'react'
+import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom'
 import { useAuthStore } from './stores/authStore'
 import { MarriageMeetingTool } from './components/MarriageMeetingTool'
 import { LoginForm } from './components/LoginForm'
@@ -10,6 +10,23 @@ import { ProgressAnalytics } from './components/dashboard/ProgressAnalytics'
 import { WeeklyReview } from './components/WeeklyReview'
 import { Header } from './components/layout/Header'
 import { LoadingSpinner } from './components/ui/LoadingSpinner'
+
+// Wrapper component to handle navigation from WeeklyReview
+const WeeklyReviewWithNavigation = () => {
+  const navigate = useNavigate()
+  
+  const handleNavigateToSection = (section: string) => {
+    // Navigate to weekly meeting tool with the specific section
+    navigate(`/weekly?section=${section}`)
+  }
+  
+  return (
+    <WeeklyReview 
+      onBack={() => navigate(-1)} 
+      onNavigateToSection={handleNavigateToSection}
+    />
+  )
+}
 
 function App() {
   const { isAuthenticated, isLoading, initialize } = useAuthStore()
@@ -46,7 +63,7 @@ function App() {
           <Route path="/" element={<Dashboard />} />
           <Route path="/weekly" element={<MarriageMeetingTool />} />
           <Route path="/analytics" element={<ProgressAnalytics />} />
-          <Route path="/review" element={<WeeklyReview onBack={() => window.history.back()} />} />
+          <Route path="/review" element={<WeeklyReviewWithNavigation />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </div>

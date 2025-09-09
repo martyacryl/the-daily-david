@@ -12,7 +12,11 @@ import {
   Clock,
   Star,
   ArrowLeft,
-  RefreshCw
+  RefreshCw,
+  ExternalLink,
+  Edit3,
+  Eye,
+  ArrowRight
 } from 'lucide-react'
 import { Card } from './ui/Card'
 import { Button } from './ui/Button'
@@ -21,6 +25,7 @@ import { useMarriageStore } from '../stores/marriageStore'
 
 interface WeeklyReviewProps {
   onBack: () => void
+  onNavigateToSection?: (section: string) => void
 }
 
 interface ReviewInsights {
@@ -45,7 +50,7 @@ interface ReviewInsights {
   nextWeekFocus: string[]
 }
 
-export const WeeklyReview: React.FC<WeeklyReviewProps> = ({ onBack }) => {
+export const WeeklyReview: React.FC<WeeklyReviewProps> = ({ onBack, onNavigateToSection }) => {
   const { weekData, loadWeekData } = useMarriageStore()
   const [insights, setInsights] = useState<ReviewInsights | null>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -236,6 +241,25 @@ export const WeeklyReview: React.FC<WeeklyReviewProps> = ({ onBack }) => {
     return focus
   }
 
+  const handleNavigateToSection = (section: string) => {
+    if (onNavigateToSection) {
+      onNavigateToSection(section)
+    }
+  }
+
+  const getSectionButton = (section: string, label: string, icon: React.ReactNode, variant: 'primary' | 'outline' = 'outline') => (
+    <Button
+      variant={variant}
+      size="sm"
+      onClick={() => handleNavigateToSection(section)}
+      className="flex items-center gap-2"
+    >
+      {icon}
+      {label}
+      <ArrowRight className="w-3 h-3" />
+    </Button>
+  )
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-purple-50 pt-24 sm:pt-16 flex items-center justify-center">
@@ -303,11 +327,23 @@ export const WeeklyReview: React.FC<WeeklyReviewProps> = ({ onBack }) => {
             transition={{ delay: 0.1 }}
           >
             <Card className="p-6 h-full">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="p-2 bg-green-100 rounded-lg">
-                  <Award className="w-5 h-5 text-green-600" />
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-green-100 rounded-lg">
+                    <Award className="w-5 h-5 text-green-600" />
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900">Accomplishments</h3>
                 </div>
-                <h3 className="text-xl font-bold text-gray-900">Accomplishments</h3>
+                {insights.accomplishments.length > 0 && (
+                  <div className="flex gap-2">
+                    {insights.accomplishments.some(acc => acc.includes('task')) && 
+                      getSectionButton('todos', 'View Tasks', <CheckCircle className="w-4 h-4" />, 'primary')}
+                    {insights.accomplishments.some(acc => acc.includes('goal')) && 
+                      getSectionButton('goals', 'View Goals', <Target className="w-4 h-4" />, 'primary')}
+                    {insights.accomplishments.some(acc => acc.includes('prayer')) && 
+                      getSectionButton('prayers', 'View Prayers', <Heart className="w-4 h-4" />, 'primary')}
+                  </div>
+                )}
               </div>
               <div className="space-y-3">
                 {insights.accomplishments.map((accomplishment, index) => (
@@ -317,7 +353,13 @@ export const WeeklyReview: React.FC<WeeklyReviewProps> = ({ onBack }) => {
                   </div>
                 ))}
                 {insights.accomplishments.length === 0 && (
-                  <p className="text-gray-500 italic">No specific accomplishments recorded this week</p>
+                  <div className="text-center py-4">
+                    <p className="text-gray-500 italic mb-3">No specific accomplishments recorded this week</p>
+                    <div className="flex gap-2 justify-center">
+                      {getSectionButton('todos', 'Add Tasks', <CheckCircle className="w-4 h-4" />)}
+                      {getSectionButton('goals', 'Set Goals', <Target className="w-4 h-4" />)}
+                    </div>
+                  </div>
                 )}
               </div>
             </Card>
@@ -330,11 +372,25 @@ export const WeeklyReview: React.FC<WeeklyReviewProps> = ({ onBack }) => {
             transition={{ delay: 0.2 }}
           >
             <Card className="p-6 h-full">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="p-2 bg-blue-100 rounded-lg">
-                  <Lightbulb className="w-5 h-5 text-blue-600" />
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-blue-100 rounded-lg">
+                    <Lightbulb className="w-5 h-5 text-blue-600" />
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900">Growth Opportunities</h3>
                 </div>
-                <h3 className="text-xl font-bold text-gray-900">Growth Opportunities</h3>
+                {insights.growthAreas.length > 0 && (
+                  <div className="flex gap-2">
+                    {insights.growthAreas.some(area => area.includes('task')) && 
+                      getSectionButton('todos', 'Improve Tasks', <CheckCircle className="w-4 h-4" />)}
+                    {insights.growthAreas.some(area => area.includes('goal')) && 
+                      getSectionButton('goals', 'Refine Goals', <Target className="w-4 h-4" />)}
+                    {insights.growthAreas.some(area => area.includes('prayer')) && 
+                      getSectionButton('prayers', 'Add Prayers', <Heart className="w-4 h-4" />)}
+                    {insights.growthAreas.some(area => area.includes('consistency')) && 
+                      getSectionButton('schedule', 'View Schedule', <Calendar className="w-4 h-4" />)}
+                  </div>
+                )}
               </div>
               <div className="space-y-3">
                 {insights.growthAreas.map((area, index) => (
@@ -344,7 +400,13 @@ export const WeeklyReview: React.FC<WeeklyReviewProps> = ({ onBack }) => {
                   </div>
                 ))}
                 {insights.growthAreas.length === 0 && (
-                  <p className="text-gray-500 italic">You're doing great! Keep up the excellent work</p>
+                  <div className="text-center py-4">
+                    <p className="text-gray-500 italic mb-3">You're doing great! Keep up the excellent work</p>
+                    <div className="flex gap-2 justify-center">
+                      {getSectionButton('schedule', 'View Schedule', <Calendar className="w-4 h-4" />)}
+                      {getSectionButton('goals', 'Set Goals', <Target className="w-4 h-4" />)}
+                    </div>
+                  </div>
                 )}
               </div>
             </Card>
@@ -359,50 +421,121 @@ export const WeeklyReview: React.FC<WeeklyReviewProps> = ({ onBack }) => {
           className="mb-8"
         >
           <Card className="p-6">
-            <h3 className="text-xl font-bold text-gray-900 mb-6">Progress Metrics</h3>
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-xl font-bold text-gray-900">Progress Metrics</h3>
+              <div className="flex gap-2">
+                {getSectionButton('schedule', 'View Schedule', <Calendar className="w-4 h-4" />)}
+                {getSectionButton('goals', 'Review Goals', <Target className="w-4 h-4" />)}
+                {getSectionButton('todos', 'Check Tasks', <CheckCircle className="w-4 h-4" />)}
+              </div>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {/* Goal Progress */}
-              <div className="text-center">
-                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
+              <div className="text-center group">
+                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:bg-green-200 transition-colors">
                   <Target className="w-8 h-8 text-green-600" />
                 </div>
                 <h4 className="font-semibold text-gray-900 mb-1">Goal Progress</h4>
                 <p className="text-2xl font-bold text-green-600 mb-1">
                   {insights.goalProgress.percentage}%
                 </p>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-gray-600 mb-3">
                   {insights.goalProgress.completed} of {insights.goalProgress.total} goals
                 </p>
+                {insights.goalProgress.total > 0 && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleNavigateToSection('goals')}
+                    className="text-green-600 border-green-200 hover:bg-green-50"
+                  >
+                    <Eye className="w-3 h-3 mr-1" />
+                    Review Goals
+                  </Button>
+                )}
               </div>
 
               {/* Task Completion */}
-              <div className="text-center">
-                <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-3">
+              <div className="text-center group">
+                <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:bg-orange-200 transition-colors">
                   <CheckCircle className="w-8 h-8 text-orange-600" />
                 </div>
                 <h4 className="font-semibold text-gray-900 mb-1">Task Completion</h4>
                 <p className="text-2xl font-bold text-orange-600 mb-1">
                   {insights.taskCompletion.percentage}%
                 </p>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-gray-600 mb-3">
                   {insights.taskCompletion.completed} of {insights.taskCompletion.total} tasks
                 </p>
+                {insights.taskCompletion.total > 0 && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleNavigateToSection('todos')}
+                    className="text-orange-600 border-orange-200 hover:bg-orange-50"
+                  >
+                    <Edit3 className="w-3 h-3 mr-1" />
+                    Edit Tasks
+                  </Button>
+                )}
               </div>
 
               {/* Consistency Score */}
-              <div className="text-center">
-                <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3">
+              <div className="text-center group">
+                <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:bg-purple-200 transition-colors">
                   <Users className="w-8 h-8 text-purple-600" />
                 </div>
                 <h4 className="font-semibold text-gray-900 mb-1">Consistency</h4>
                 <p className="text-2xl font-bold text-purple-600 mb-1">
                   {insights.consistencyScore}%
                 </p>
-                <p className="text-sm text-gray-600">Meeting engagement</p>
+                <p className="text-sm text-gray-600 mb-3">Meeting engagement</p>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleNavigateToSection('schedule')}
+                  className="text-purple-600 border-purple-200 hover:bg-purple-50"
+                >
+                  <Calendar className="w-3 h-3 mr-1" />
+                  View Schedule
+                </Button>
               </div>
             </div>
           </Card>
         </motion.div>
+
+        {/* Top Priorities */}
+        {insights.topPriorities.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="mb-8"
+          >
+            <Card className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-red-100 rounded-lg">
+                    <Star className="w-5 h-5 text-red-600" />
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900">Top Priorities</h3>
+                </div>
+                <div className="flex gap-2">
+                  {getSectionButton('todos', 'View All Tasks', <CheckCircle className="w-4 h-4" />)}
+                  {getSectionButton('goals', 'View All Goals', <Target className="w-4 h-4" />)}
+                </div>
+              </div>
+              <div className="space-y-3">
+                {insights.topPriorities.map((priority, index) => (
+                  <div key={index} className="flex items-center gap-3 p-3 bg-red-50 rounded-lg">
+                    <div className="w-2 h-2 bg-red-500 rounded-full flex-shrink-0"></div>
+                    <span className="text-gray-700 font-medium">{priority}</span>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          </motion.div>
+        )}
 
         {/* Encouragement & Next Week Focus */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
