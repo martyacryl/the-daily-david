@@ -329,8 +329,8 @@ function calculateDisciplinePercentage(entries: DailyEntry[], discipline: string
         hasDiscipline = !!(entry.soap && entry.soap.prayer?.trim())
         break
       case 'gratitude':
-        // Check if gratitude array has items
-        hasDiscipline = !!(entry.gratitude && entry.gratitude.length > 0)
+        // Check if gratitude array has meaningful content
+        hasDiscipline = !!(entry.gratitude && entry.gratitude.some((item: string) => item?.trim()))
         break
       case 'goals':
         // Check if goals exist and have content
