@@ -714,25 +714,21 @@ export function DailyEntry() {
       }
       console.log('🔥 Updating to next day:', updatedReadingPlan)
       
-      // Update the reading plan
+      // Update the reading plan state
       setDayData(prev => ({ ...prev, readingPlan: updatedReadingPlan }))
       
-      // Auto-save the progress
-      setTimeout(async () => {
-        const entryData = {
-          ...dayData,
-          readingPlan: updatedReadingPlan,
-          goals: userGoals
-        }
-        console.log('🔥 Auto-saving reading plan update:', updatedReadingPlan)
-        await autoSaveToAPI(entryData)
-      }, 100)
+      // Auto-save the progress with the updated reading plan
+      const entryData = {
+        ...dayData,
+        readingPlan: updatedReadingPlan,
+        goals: userGoals
+      }
+      console.log('🔥 Auto-saving reading plan update:', updatedReadingPlan)
+      await autoSaveToAPI(entryData)
       
       // Automatically load the devotion for the new day
-      setTimeout(async () => {
-        console.log('🔥 Auto-loading devotion for day:', nextDay)
-        await handleLoadTodaysDevotion(dayData.readingPlan.planId)
-      }, 200)
+      console.log('🔥 Auto-loading devotion for day:', nextDay)
+      await handleLoadTodaysDevotion(updatedReadingPlan.planId)
     } else {
       console.log('❌ Cannot advance - already at last day')
     }
@@ -757,25 +753,21 @@ export function DailyEntry() {
       }
       console.log('🔥 Updating to previous day:', updatedReadingPlan)
       
-      // Update the reading plan
+      // Update the reading plan state
       setDayData(prev => ({ ...prev, readingPlan: updatedReadingPlan }))
       
-      // Auto-save the progress
-      setTimeout(async () => {
-        const entryData = {
-          ...dayData,
-          readingPlan: updatedReadingPlan,
-          goals: userGoals
-        }
-        console.log('🔥 Auto-saving reading plan update:', updatedReadingPlan)
-        await autoSaveToAPI(entryData)
-      }, 100)
+      // Auto-save the progress with the updated reading plan
+      const entryData = {
+        ...dayData,
+        readingPlan: updatedReadingPlan,
+        goals: userGoals
+      }
+      console.log('🔥 Auto-saving reading plan update:', updatedReadingPlan)
+      await autoSaveToAPI(entryData)
       
       // Automatically load the devotion for the previous day
-      setTimeout(async () => {
-        console.log('🔥 Auto-loading devotion for day:', prevDay)
-        await handleLoadTodaysDevotion(dayData.readingPlan.planId)
-      }, 200)
+      console.log('🔥 Auto-loading devotion for day:', prevDay)
+      await handleLoadTodaysDevotion(updatedReadingPlan.planId)
     } else {
       console.log('❌ Cannot go back - already at first day')
     }
