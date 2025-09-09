@@ -410,7 +410,7 @@ export function DailyEntry() {
         
         // Load existing entry data (but don't auto-show reading plan)
         const readingPlanData = entryData.readingPlan || (entryData.data_content && entryData.data_content.readingPlan)
-        console.log('🔥 Found reading plan data in entry (not auto-loading):', readingPlanData)
+        console.log('🔥 Found reading plan data in entry (storing but not showing):', readingPlanData)
         setDayData(prev => ({
           ...prev,
           checkIn: entryData.checkIn || prev.checkIn,
@@ -418,8 +418,8 @@ export function DailyEntry() {
           soap: entryData.soap || prev.soap,
           dailyIntention: entryData.dailyIntention || prev.dailyIntention,
           leadershipRating: entryData.leadershipRating || prev.leadershipRating,
-          // Don't auto-load reading plan - only show when user clicks "Choose Plan"
-          readingPlan: undefined
+          // Store reading plan data but don't show UI until user clicks "Choose Plan"
+          readingPlan: readingPlanData
         }))
         
         // Start with goals from current entry
