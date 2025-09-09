@@ -538,26 +538,16 @@ export function DailyEntry() {
       return // Don't reset the plan, just continue with existing progress
     }
     
-    // First, try to load the current day's entry to get the most up-to-date reading plan data
+    // Check existing entries for this plan without triggering page reload
     let existingProgress = null
-    try {
-      console.log('🔥 Loading current day entry to check for existing reading plan...')
-      const currentDateString = getLocalDateString(selectedDate)
-      const currentEntry = await loadEntryByDate(currentDateString)
-      
-      if (currentEntry && currentEntry.readingPlan && currentEntry.readingPlan.planId === plan.id) {
-        existingProgress = currentEntry.readingPlan
-        console.log('🔥 FOUND existing progress in current entry:', existingProgress)
-      }
-    } catch (error) {
-      console.error('🔥 Error loading current entry:', error)
-    }
+    const allEntries = useDailyStore.getState().entries
+    console.log('🔥 Checking all entries for existing progress. Total entries:', allEntries.length)
     
-    // If not found in current entry, check other entries
-    if (!existingProgress) {
-      const allEntries = useDailyStore.getState().entries
-      console.log('🔥 Checking all entries for existing progress. Total entries:', allEntries.length)
-      
+    // First check the current day's entry data (which is already loaded)
+    if (dayData.readingPlan && dayData.readingPlan.planId === plan.id) {
+      existingProgress = dayData.readingPlan
+      console.log('🔥 FOUND existing progress in current dayData:', existingProgress)
+    } else {
       // Look through all entries to find existing progress for this plan
       // Sort by date to get the most recent progress
       const sortedEntries = [...allEntries].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
