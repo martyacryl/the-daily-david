@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import { API_BASE_URL } from '../config/api'
 
 interface User {
   id: number
@@ -23,11 +24,10 @@ interface AuthActions {
   clearError: () => void
   setLoading: (loading: boolean) => void
   initialize: () => Promise<void>
+  forceRefresh: () => void
 }
 
 type AuthStore = AuthState & AuthActions
-
-const API_BASE_URL = ''
 
 export const useAuthStore = create<AuthStore>()(
   persist(
@@ -42,13 +42,42 @@ export const useAuthStore = create<AuthStore>()(
         try {
           set({ isLoading: true, error: null })
           
-          const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
+          // First attempt with cache-busting
+          let response = await fetch(`${API_BASE_URL}/api/auth/login?t=${Date.now()}`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
+              'Cache-Control': 'no-cache, no-store, must-revalidate',
+              'Pragma': 'no-cache',
+              'Expires': '0',
             },
             body: JSON.stringify({ email, password }),
           })
+
+          // If first attempt fails, try again with different cache-busting strategy
+          if (!response.ok) {
+            console.log('🔄 First login attempt failed, retrying with fresh cache-busting...')
+            
+            // Clear any cached data and try again
+            if ('caches' in window) {
+              const cacheNames = await caches.keys()
+              await Promise.all(cacheNames.map(name => caches.delete(name)))
+            }
+            
+            // Second attempt with different timestamp and headers
+            response = await fetch(`${API_BASE_URL}/api/auth/login?t=${Date.now()}&retry=1`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Cache-Control': 'no-cache, no-store, must-revalidate',
+                'Pragma': 'no-cache',
+                'Expires': '0',
+                'If-Modified-Since': '0',
+                'If-None-Match': '*',
+              },
+              body: JSON.stringify({ email, password }),
+            })
+          }
 
           const data = await response.json()
 
@@ -90,6 +119,20 @@ export const useAuthStore = create<AuthStore>()(
         set({ error: null })
       },
 
+      // Force refresh - clears all cached auth data and forces fresh login
+      forceRefresh: () => {
+        set({
+          user: null,
+          token: null,
+          isAuthenticated: false,
+          error: null,
+          isLoading: false
+        })
+        // Clear localStorage as well
+        localStorage.removeItem('auth-storage')
+        sessionStorage.clear()
+      },
+
       setLoading: (loading: boolean) => {
         set({ isLoading: loading })
       },
@@ -98,10 +141,14 @@ export const useAuthStore = create<AuthStore>()(
         const { token } = get()
         if (token) {
           try {
-            // Verify token is still valid by making a test request
-            const response = await fetch(`${API_BASE_URL}/api/auth/verify`, {
+            // Verify token is still valid by making a test request with cache-busting
+            const timestamp = Date.now()
+            const response = await fetch(`${API_BASE_URL}/api/auth/verify?t=${timestamp}`, {
               headers: {
-                'Authorization': `Bearer ${token}`
+                'Authorization': `Bearer ${token}`,
+                'Cache-Control': 'no-cache, no-store, must-revalidate',
+                'Pragma': 'no-cache',
+                'Expires': '0',
               }
             })
             

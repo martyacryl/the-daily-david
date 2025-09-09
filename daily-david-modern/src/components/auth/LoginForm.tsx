@@ -55,15 +55,17 @@ export function LoginForm({ onSuccess, onError }: LoginFormProps) {
     }
 
     try {
-      await login(formData.email, formData.password)
+      const success = await login(formData.email, formData.password)
       
-      // If we get here without an error, login was successful
-      console.log('✅ [LoginForm] Sign in successful')
-      
-      // Redirect to dashboard after successful login
-      navigate('/')
-      
-      onSuccess?.()
+      if (success) {
+        // If we get here without an error, login was successful
+        console.log('✅ [LoginForm] Sign in successful')
+        
+        // Redirect to dashboard after successful login
+        navigate('/')
+        
+        onSuccess?.()
+      }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred'
       console.error('❌ [LoginForm] Sign in error:', error)
