@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { 
   ShoppingCart, 
@@ -49,10 +49,12 @@ export const GroceryErrandsSection: React.FC<GroceryErrandsSectionProps> = ({ it
   })
   const [showCustomStore, setShowCustomStore] = useState(false)
   const [customStore, setCustomStore] = useState('')
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false)
 
   // Debug logging
   console.log('Available stores:', settings.groceryStores)
   console.log('Current store context:', groceryContext.store)
+
 
   const getTypeIcon = (type: string) => {
     return type === 'grocery' ? <Store className="w-4 h-4" /> : <Car className="w-4 h-4" />
@@ -98,9 +100,14 @@ export const GroceryErrandsSection: React.FC<GroceryErrandsSectionProps> = ({ it
         address: '',
         isDefault: false
       })
+      // Set the store context to the newly added store
       setGroceryContext({ ...groceryContext, store: customStore.trim() })
+      // Close the custom store input
       setShowCustomStore(false)
       setCustomStore('')
+      // Show success message
+      setShowSuccessMessage(true)
+      setTimeout(() => setShowSuccessMessage(false), 3000)
       console.log('Store added successfully')
     } else {
       console.log('Custom store name is empty')
@@ -211,6 +218,13 @@ export const GroceryErrandsSection: React.FC<GroceryErrandsSectionProps> = ({ it
             <span className="text-sm text-gray-500">({groceryItems.length} items)</span>
           </div>
           
+          {/* Success Message */}
+          {showSuccessMessage && (
+            <div className="mb-4 p-3 bg-green-100 border border-green-300 rounded-lg text-green-800 text-sm">
+              ✅ Store added successfully! You can now select it from the dropdown.
+            </div>
+          )}
+
           {/* Grocery Context */}
           <div className="bg-green-50 rounded-lg p-4 mb-4">
             <h4 className="text-sm font-medium text-gray-700 mb-3">Grocery Context (applies to all items below)</h4>
@@ -219,6 +233,7 @@ export const GroceryErrandsSection: React.FC<GroceryErrandsSectionProps> = ({ it
                 <label className="block text-xs font-medium text-gray-600 mb-1">Store</label>
                 <div className="relative">
                   <select
+                    key={settings.groceryStores.length} // Force re-render when stores change
                     value={groceryContext.store}
                     onChange={(e) => {
                       if (e.target.value === 'custom') {
