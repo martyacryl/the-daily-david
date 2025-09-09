@@ -51,6 +51,11 @@ export function DailyEntry() {
     return new Date()
   })
 
+  // Scroll to top when component mounts
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }, [])
+
 
   // Local state for the day's data
   const [dayData, setDayData] = useState({

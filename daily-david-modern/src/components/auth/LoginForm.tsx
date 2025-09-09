@@ -21,6 +21,11 @@ export function LoginForm({ onSuccess, onError }: LoginFormProps) {
   const [showPassword, setShowPassword] = useState(false)
   const [validationErrors, setValidationErrors] = useState<Partial<LoginFormData>>({})
 
+  // Scroll to top when component mounts
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }, [])
+
   // Redirect to dashboard if already authenticated
   useEffect(() => {
     if (isAuthenticated) {

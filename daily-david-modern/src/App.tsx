@@ -1,5 +1,5 @@
 
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom'
 import { useEffect } from 'react'
 import { Header } from './components/layout/Header'
 import { Dashboard } from './components/dashboard/Dashboard'
@@ -11,6 +11,18 @@ import { useAuthStore } from './stores/authStore'
 import { dbManager } from './lib/database'
 import './App.css'
 
+// Component to handle scroll to top on route changes
+function ScrollToTop() {
+  const location = useLocation()
+
+  useEffect(() => {
+    // Scroll to top immediately when route changes
+    window.scrollTo(0, 0)
+  }, [location])
+
+  return null
+}
+
 function App() {
   const { initialize } = useAuthStore()
 
@@ -21,6 +33,7 @@ function App() {
 
   return (
     <Router>
+      <ScrollToTop />
       {/* Updated theme - slate/dark green - force deployment */}
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-green-950 to-slate-900 relative overflow-hidden">
         
@@ -31,7 +44,7 @@ function App() {
           <div className="absolute bottom-0 right-0 w-full h-56 bg-gradient-to-t from-green-700 to-transparent transform -translate-x-32"></div>
         </div>
         <Header />
-        <main className="container mx-auto px-4 py-8 pt-24">
+        <main className="container mx-auto px-4 py-8 pt-24 min-h-screen">
           <Routes>
             <Route path="/" element={<Dashboard />} />
             <Route path="/daily" element={<DailyEntry />} />

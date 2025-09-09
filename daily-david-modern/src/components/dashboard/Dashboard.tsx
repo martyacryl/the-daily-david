@@ -29,6 +29,11 @@ export const Dashboard: React.FC = () => {
     monthly: []
   })
 
+  // Scroll to top when component mounts
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }, [])
+
   useEffect(() => {
     if (isAuthenticated) {
       console.log('🏠 Dashboard: Loading entries after authentication')
