@@ -161,7 +161,7 @@ export function DailyEntry() {
       })
       
       // Correct API call - this will create or update the entry
-      const response = await fetch('https://thedailydavid.vercel.app/api/entries', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://theweeklyhuddle.vercel.app' : 'http://localhost:3001')}/api/entries`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
