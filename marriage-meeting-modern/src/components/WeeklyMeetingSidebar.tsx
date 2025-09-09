@@ -7,7 +7,8 @@ import {
   Heart, 
   ShoppingCart, 
   AlertTriangle,
-  ChevronRight
+  ChevronRight,
+  BookOpen
 } from 'lucide-react'
 import { Card } from './ui/Card'
 import { Button } from './ui/Button'
@@ -30,6 +31,7 @@ interface WeeklyMeetingSidebarProps {
     prayers: number
     grocery: number
     unconfessed: number
+    creed: number
   }
 }
 
@@ -80,6 +82,13 @@ export const WeeklyMeetingSidebar: React.FC<WeeklyMeetingSidebarProps> = ({
       icon: AlertTriangle,
       color: 'red',
       count: sectionCounts.unconfessed
+    },
+    {
+      id: 'creed',
+      label: 'Family Creed',
+      icon: BookOpen,
+      color: 'indigo',
+      count: sectionCounts.creed
     }
   ]
 

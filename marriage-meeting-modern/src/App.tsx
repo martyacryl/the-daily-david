@@ -58,7 +58,7 @@ function App() {
   return (
     <Router>
       <div className="App">
-        <Header />
+        <Header onSettingsClick={() => {/* Settings handled by individual components */}} />
         <Routes>
           <Route path="/" element={<Dashboard />} />
           <Route path="/weekly" element={<MarriageMeetingTool />} />

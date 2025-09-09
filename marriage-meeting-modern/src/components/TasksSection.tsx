@@ -16,6 +16,7 @@ import {
 import { Card } from './ui/Card'
 import { Button } from './ui/Button'
 import { TaskItem } from '../types/marriageTypes'
+import { useSettingsStore } from '../stores/settingsStore'
 
 interface TasksSectionProps {
   tasks: TaskItem[]
@@ -23,6 +24,7 @@ interface TasksSectionProps {
 }
 
 export const TasksSection: React.FC<TasksSectionProps> = ({ tasks, onUpdate }) => {
+  const { settings } = useSettingsStore()
   const [editingTask, setEditingTask] = useState<number | null>(null)
   const [newTask, setNewTask] = useState<Partial<TaskItem>>({
     text: '',
@@ -55,26 +57,26 @@ export const TasksSection: React.FC<TasksSectionProps> = ({ tasks, onUpdate }) =
   const getAssignmentIcon = (assignedTo: string) => {
     switch (assignedTo) {
       case 'both': return <Users className="w-4 h-4" />
-      case 'partner1': return <User className="w-4 h-4" />
-      case 'partner2': return <UserCheck className="w-4 h-4" />
+      case 'spouse1': return <User className="w-4 h-4" />
+      case 'spouse2': return <UserCheck className="w-4 h-4" />
       default: return <Users className="w-4 h-4" />
     }
   }
 
   const getAssignmentLabel = (assignedTo: string) => {
     switch (assignedTo) {
-      case 'both': return 'Both'
-      case 'partner1': return 'Partner 1'
-      case 'partner2': return 'Partner 2'
-      default: return 'Both'
+      case 'both': return 'Both Spouses'
+      case 'spouse1': return settings.spouse1.name || 'Spouse 1'
+      case 'spouse2': return settings.spouse2.name || 'Spouse 2'
+      default: return 'Both Spouses'
     }
   }
 
   const getAssignmentColor = (assignedTo: string) => {
     switch (assignedTo) {
       case 'both': return 'text-blue-600 bg-blue-100'
-      case 'partner1': return 'text-purple-600 bg-purple-100'
-      case 'partner2': return 'text-green-600 bg-green-100'
+      case 'spouse1': return 'text-purple-600 bg-purple-100'
+      case 'spouse2': return 'text-green-600 bg-green-100'
       default: return 'text-blue-600 bg-blue-100'
     }
   }
@@ -196,12 +198,12 @@ export const TasksSection: React.FC<TasksSectionProps> = ({ tasks, onUpdate }) =
               <label className="block text-sm font-medium text-gray-700 mb-1">Assigned To</label>
               <select
                 value={newTask.assignedTo}
-                onChange={(e) => setNewTask({ ...newTask, assignedTo: e.target.value as 'both' | 'partner1' | 'partner2' })}
+                onChange={(e) => setNewTask({ ...newTask, assignedTo: e.target.value as 'both' | 'spouse1' | 'spouse2' })}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
               >
-                <option value="both">👥 Both Partners</option>
-                <option value="partner1">👤 Partner 1</option>
-                <option value="partner2">👤 Partner 2</option>
+                <option value="both">👥 Both Spouses</option>
+                <option value="spouse1">👤 {settings.spouse1.name || 'Spouse 1'}</option>
+                <option value="spouse2">👤 {settings.spouse2.name || 'Spouse 2'}</option>
               </select>
             </div>
 

@@ -18,11 +18,14 @@ import {
   Flame,
   Award,
   BookOpen,
-  ShoppingCart
+  ShoppingCart,
+  Settings
 } from 'lucide-react'
 import { Card } from '../ui/Card'
 import { Button } from '../ui/Button'
 import { WeatherSection } from '../WeatherSection'
+import { FamilyCreedDisplay } from '../FamilyCreedDisplay'
+import { SettingsPanel } from '../settings/SettingsPanel'
 import { useAuthStore } from '../../stores/authStore'
 import { useMarriageStore } from '../../stores/marriageStore'
 import { MarriageMeetingWeek, GoalItem, ListItem } from '../../types/marriageTypes'
@@ -31,6 +34,7 @@ import { DatabaseManager } from '../../lib/database'
 export const DashboardNew: React.FC = () => {
   const { user, isAuthenticated } = useAuthStore()
   const { currentWeek, weekData, loadWeekData } = useMarriageStore()
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false)
   
   // New actionable insights state
   const [insights, setInsights] = useState({
@@ -223,13 +227,27 @@ export const DashboardNew: React.FC = () => {
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-8"
+          className="text-center mb-8 relative"
         >
+          <div className="absolute top-0 right-0">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsSettingsOpen(true)}
+              className="flex items-center gap-2"
+            >
+              <Settings className="w-4 h-4" />
+              Settings
+            </Button>
+          </div>
           <h1 className="text-4xl font-bold text-gray-800 mb-2">
             {getGreeting()}, {user?.name || 'David'}! 👋
           </h1>
           <p className="text-gray-600 text-lg">{getScripture()}</p>
         </motion.div>
+
+        {/* Family Creed Display */}
+        <FamilyCreedDisplay className="mb-8" />
 
         {/* Quick Actions */}
         <motion.div
@@ -607,6 +625,12 @@ export const DashboardNew: React.FC = () => {
           </motion.div>
         </div>
       </div>
+
+      {/* Settings Panel */}
+      <SettingsPanel 
+        isOpen={isSettingsOpen} 
+        onClose={() => setIsSettingsOpen(false)} 
+      />
     </div>
   )
 }

@@ -1,11 +1,15 @@
 import React from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Mountain, Home, BarChart3, Calendar, LogOut, User } from 'lucide-react'
+import { Mountain, Home, BarChart3, Calendar, LogOut, User, Settings } from 'lucide-react'
 import { useAuthStore } from '../../stores/authStore'
 import { Button } from '../ui/Button'
 
-export const Header: React.FC = () => {
+interface HeaderProps {
+  onSettingsClick?: () => void
+}
+
+export const Header: React.FC<HeaderProps> = ({ onSettingsClick }) => {
   const { user, logout } = useAuthStore()
   const location = useLocation()
 
@@ -60,6 +64,17 @@ export const Header: React.FC = () => {
               <User className="w-4 h-4" />
               <span>{user?.name || 'Couple'}</span>
             </div>
+            {onSettingsClick && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onSettingsClick}
+                className="flex items-center gap-2"
+              >
+                <Settings className="w-4 h-4" />
+                <span className="hidden sm:inline">Settings</span>
+              </Button>
+            )}
             <Button
               variant="outline"
               size="sm"

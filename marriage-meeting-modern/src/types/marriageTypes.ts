@@ -38,7 +38,7 @@ export interface TaskItem {
   estimatedDuration?: number // in minutes
   category?: string
   notes?: string
-  assignedTo?: 'both' | 'partner1' | 'partner2' // who's responsible for this task
+  assignedTo?: 'both' | 'spouse1' | 'spouse2' // who's responsible for this task
 }
 
 // Goal Item Structure with Timeframe

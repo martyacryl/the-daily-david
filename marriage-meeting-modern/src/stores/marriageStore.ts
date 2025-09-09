@@ -123,7 +123,7 @@ export const useMarriageStore = create<MarriageState>((set, get) => ({
             estimatedDuration: 30, // Default 30 minutes
             category: undefined,
             notes: undefined,
-            assignedTo: 'both' as const // Default to both partners
+            assignedTo: 'both' as const // Default to both spouses
           }
         }) || []
         
