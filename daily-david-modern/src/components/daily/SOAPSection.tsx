@@ -14,7 +14,7 @@ interface SOAPSectionProps {
     startDate: string
     completedDays: number[]
   }
-  onStartReadingPlan?: (plan: any) => void
+  onStartReadingPlan?: (plan: any, bibleId?: string) => void
   onUpdateReadingPlan?: (updatedReadingPlan: any) => void
   onLoadTodaysDevotion?: (planId: string) => void
   onAdvanceToNextDay?: () => void

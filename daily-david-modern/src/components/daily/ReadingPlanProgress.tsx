@@ -15,8 +15,8 @@ import { Button } from '../ui/Button'
 import { ReadingPlan } from '../../types'
 
 interface ReadingPlanProgressProps {
-  readingPlan: ReadingPlan
-  onLoadTodaysDevotion: (planId: string, targetDay?: number) => void
+  readingPlan: ReadingPlan & { bibleId?: string }
+  onLoadTodaysDevotion: (planId: string, targetDay?: number, bibleId?: string) => void
   onAdvanceToNextDay: () => void
   onGoToPreviousDay: () => void
   onClosePlan: () => void
@@ -145,7 +145,7 @@ export const ReadingPlanProgress: React.FC<ReadingPlanProgressProps> = ({
         {/* Load current day's devotion */}
         <Button
           size="sm"
-          onClick={() => onLoadTodaysDevotion(readingPlan.planId, readingPlan.currentDay)}
+          onClick={() => onLoadTodaysDevotion(readingPlan.planId, readingPlan.currentDay, readingPlan.bibleId)}
           className="bg-slate-600 hover:bg-slate-500 text-white"
           style={{position: 'relative', zIndex: 10000, pointerEvents: 'auto'}}
         >

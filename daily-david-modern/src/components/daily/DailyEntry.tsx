@@ -527,8 +527,8 @@ export function DailyEntry() {
     })
   }
 
-  const handleStartReadingPlan = async (plan: any) => {
-    console.log('🔥 Starting/continuing reading plan:', plan)
+  const handleStartReadingPlan = async (plan: any, bibleId?: string) => {
+    console.log('🔥 Starting/continuing reading plan:', plan, 'with Bible version:', bibleId)
     
     // Check if we already have this plan in progress
     const existingPlan = dayData.readingPlan
@@ -585,7 +585,8 @@ export function DailyEntry() {
         currentDay: 1,
         totalDays: plan.duration,
         startDate: today,
-        completedDays: []
+        completedDays: [],
+        bibleId: bibleId || 'de4e12af7f28f599-02' // Default to ESV if not provided
       }
       console.log('🔥 STARTING new plan:', readingPlan)
     }
@@ -627,8 +628,8 @@ export function DailyEntry() {
     }, 100)
   }
 
-  const handleLoadTodaysDevotion = async (planId: string, targetDay?: number) => {
-    console.log('Loading devotion for plan:', planId, 'target day:', targetDay)
+  const handleLoadTodaysDevotion = async (planId: string, targetDay?: number, bibleId?: string) => {
+    console.log('Loading devotion for plan:', planId, 'target day:', targetDay, 'bible version:', bibleId)
     
     if (!dayData.readingPlan) {
       console.error('No reading plan active')
@@ -640,7 +641,7 @@ export function DailyEntry() {
       const { bibleService } = await import('../../lib/bibleService')
       
       // Get today's devotion
-      const devotion = await bibleService.getTodaysDevotion(planId, undefined, targetDay)
+      const devotion = await bibleService.getTodaysDevotion(planId, bibleId, targetDay)
       
       if (devotion && devotion.verses.length > 0) {
         const verse = devotion.verses[0]
@@ -732,7 +733,7 @@ export function DailyEntry() {
       
       // Automatically load the devotion for the new day
       console.log('🔥 Auto-loading devotion for day:', nextDay)
-      await handleLoadTodaysDevotion(updatedReadingPlan.planId, nextDay)
+      await handleLoadTodaysDevotion(updatedReadingPlan.planId, nextDay, updatedReadingPlan.bibleId)
     } else {
       console.log('❌ Cannot advance - already at last day')
     }
@@ -771,7 +772,7 @@ export function DailyEntry() {
       
       // Automatically load the devotion for the previous day
       console.log('🔥 Auto-loading devotion for day:', prevDay)
-      await handleLoadTodaysDevotion(updatedReadingPlan.planId, prevDay)
+      await handleLoadTodaysDevotion(updatedReadingPlan.planId, prevDay, updatedReadingPlan.bibleId)
     } else {
       console.log('❌ Cannot go back - already at first day')
     }

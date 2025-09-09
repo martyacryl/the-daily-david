@@ -11,7 +11,7 @@ import { BookOpen, Target, Zap } from 'lucide-react';
 interface BibleIntegrationProps {
   onVerseSelect: (verse: BibleVerse) => void;
   selectedVerse?: BibleVerse;
-  onStartReadingPlan?: (plan: any) => void;
+  onStartReadingPlan?: (plan: any, bibleId?: string) => void;
   currentReadingPlan?: {
     planId: string
     planName: string
@@ -128,8 +128,8 @@ export const BibleIntegration: React.FC<BibleIntegrationProps> = ({
                       onClick={(e) => {
                         e.preventDefault()
                         e.stopPropagation()
-                        console.log('🔥 Choose Plan button clicked for plan:', plan.id)
-                        onStartReadingPlan && onStartReadingPlan(plan)
+                        console.log('🔥 Choose Plan button clicked for plan:', plan.id, 'with Bible version:', selectedBible)
+                        onStartReadingPlan && onStartReadingPlan(plan, selectedBible)
                       }}
                       className="bg-slate-600 hover:bg-slate-500 text-white"
                     >
