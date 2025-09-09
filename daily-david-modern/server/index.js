@@ -135,7 +135,7 @@ app.post('/api/auth/login', async (req, res) => {
       // Simple password check - handle both plain text and bcrypt
       let isValidPassword = false
       
-      if (user.password_hash.startsWith('$2b$')) {
+      if (user.password_hash.startsWith('$2a$') || user.password_hash.startsWith('$2b$')) {
         // Bcrypt hash
         isValidPassword = await bcrypt.compare(password, user.password_hash)
       } else {
