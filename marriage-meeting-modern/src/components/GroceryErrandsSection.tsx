@@ -61,7 +61,7 @@ export const GroceryErrandsSection: React.FC<GroceryErrandsSectionProps> = ({ it
     const storeList = getStoreList(storeId)
     const updatedStoreList = {
       ...storeList,
-      items: storeList.items.map(item => 
+      items: (storeList.items || []).map(item => 
         item.id === itemId ? { ...item, text } : item
       )
     }
@@ -75,7 +75,7 @@ export const GroceryErrandsSection: React.FC<GroceryErrandsSectionProps> = ({ it
     const storeList = getStoreList(storeId)
     const updatedStoreList = {
       ...storeList,
-      items: storeList.items.map(item => 
+      items: (storeList.items || []).map(item => 
         item.id === itemId ? { ...item, completed: !item.completed } : item
       )
     }
@@ -89,7 +89,7 @@ export const GroceryErrandsSection: React.FC<GroceryErrandsSectionProps> = ({ it
     const storeList = getStoreList(storeId)
     const updatedStoreList = {
       ...storeList,
-      items: storeList.items.filter(item => item.id !== itemId)
+      items: (storeList.items || []).filter(item => item.id !== itemId)
     }
 
     const otherLists = items.filter(list => list.storeId !== storeId)
@@ -253,7 +253,7 @@ export const GroceryErrandsSection: React.FC<GroceryErrandsSectionProps> = ({ it
                 <div className="flex items-center gap-2">
                   <Store className="w-5 h-5 text-green-600" />
                   <h3 className="text-lg font-semibold text-gray-900">{storeList.storeName}</h3>
-                  <span className="text-sm text-gray-500">({storeList.items.length} items)</span>
+                  <span className="text-sm text-gray-500">({storeList.items?.length || 0} items)</span>
                 </div>
                 <Button
                   onClick={() => removeStoreList(storeList.storeId)}
@@ -267,7 +267,7 @@ export const GroceryErrandsSection: React.FC<GroceryErrandsSectionProps> = ({ it
 
               {/* Items in this store */}
               <div className="space-y-2 mb-4">
-                {storeList.items.map((item) => (
+                {(storeList.items || []).map((item) => (
                   <div key={item.id} className="flex items-center gap-3 p-2 bg-gray-50 rounded-lg">
                     <button
                       onClick={() => toggleItemInStore(storeList.storeId, item.id)}

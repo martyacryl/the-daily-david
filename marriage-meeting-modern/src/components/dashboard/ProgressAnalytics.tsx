@@ -45,7 +45,7 @@ export const ProgressAnalytics: React.FC = () => {
     if (weekData.todos && weekData.todos.length > 0) completedSections++
     if (weekData.prayers && weekData.prayers.length > 0) completedSections++
     if (weekData.goals && weekData.goals.length > 0) completedSections++
-    if (weekData.grocery && weekData.grocery.length > 0) completedSections++
+    if (weekData.grocery && weekData.grocery.length > 0 && weekData.grocery.some(store => store.items && store.items.length > 0)) completedSections++
     if (weekData.unconfessedSin && weekData.unconfessedSin.length > 0) completedSections++
     if (weekData.weeklyWinddown && weekData.weeklyWinddown.length > 0) completedSections++
 
