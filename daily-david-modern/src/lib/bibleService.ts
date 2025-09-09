@@ -238,10 +238,10 @@ class BibleService {
   }
 
   // Get today's devotion from a custom reading plan
-  async getTodaysDevotion(planId: string, bibleId?: string): Promise<DevotionDay | null> {
-    // Use a simple counter that increments each time to simulate different days
+  async getTodaysDevotion(planId: string, bibleId?: string, day?: number): Promise<DevotionDay | null> {
+    // Use the provided day or a time-based counter that increments each time to simulate different days
     const now = new Date();
-    const timeBasedIndex = Math.floor(now.getTime() / (1000 * 60 * 60 * 24)) % 5; // Changes every day
+    const timeBasedIndex = day !== undefined ? (day - 1) : Math.floor(now.getTime() / (1000 * 60 * 60 * 24)) % 5; // Use provided day or changes every day
     
     // Custom manly devotional tracks using API.Bible scripture
     const devotionPlans = {
