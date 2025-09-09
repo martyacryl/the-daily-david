@@ -165,7 +165,7 @@ export const WeeklyMeetingSidebarLayout: React.FC = () => {
     goals: (weekData.goals || []).length,
     todos: (weekData.todos || []).length,
     prayers: (weekData.prayers || []).length,
-    grocery: (weekData.grocery || []).length,
+    grocery: (weekData.grocery || []).reduce((total, storeList) => total + (storeList.items?.length || 0), 0),
     unconfessed: (weekData.unconfessedSin || []).length
   }
 

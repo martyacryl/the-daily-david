@@ -23,7 +23,8 @@ import {
   Shield,
   ArrowRight,
   CheckSquare,
-  Star
+  Star,
+  Store
 } from 'lucide-react'
 import { Card } from '../ui/Card'
 import { Button } from '../ui/Button'
@@ -450,21 +451,37 @@ export const DashboardNew: React.FC = () => {
                   View All →
                 </Link>
               </div>
-              <div className="space-y-2">
-                {weekData.grocery.slice(0, 5).map((item, index) => (
-                  <div key={index} className="flex items-center gap-3 p-2 bg-white rounded-lg">
-                    <div className={`w-2 h-2 rounded-full ${
-                      item.completed ? 'bg-green-500' : 'bg-gray-300'
-                    }`}></div>
-                    <span className={`flex-1 ${item.completed ? 'line-through text-gray-500' : 'text-gray-800'}`}>
-                      {item.text}
-                    </span>
-                    {item.completed && <CheckCircle className="w-4 h-4 text-green-500" />}
+              <div className="space-y-3">
+                {weekData.grocery.slice(0, 3).map((storeList, storeIndex) => (
+                  <div key={storeList.storeId} className="bg-white rounded-lg p-3">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Store className="w-4 h-4 text-green-600" />
+                      <span className="font-medium text-gray-900">{storeList.storeName}</span>
+                      <span className="text-sm text-gray-500">({storeList.items?.length || 0} items)</span>
+                    </div>
+                    <div className="space-y-1">
+                      {storeList.items?.slice(0, 2).map((item, itemIndex) => (
+                        <div key={item.id} className="flex items-center gap-2 text-sm">
+                          <div className={`w-2 h-2 rounded-full ${
+                            item.completed ? 'bg-green-500' : 'bg-gray-300'
+                          }`}></div>
+                          <span className={`flex-1 ${item.completed ? 'line-through text-gray-500' : 'text-gray-800'}`}>
+                            {item.text}
+                          </span>
+                          {item.completed && <CheckCircle className="w-3 h-3 text-green-500" />}
+                        </div>
+                      ))}
+                      {(storeList.items?.length || 0) > 2 && (
+                        <p className="text-xs text-gray-500 ml-4">
+                          +{(storeList.items?.length || 0) - 2} more items
+                        </p>
+                      )}
+                    </div>
                   </div>
                 ))}
-                {weekData.grocery.length > 5 && (
+                {weekData.grocery.length > 3 && (
                   <p className="text-sm text-gray-600 text-center">
-                    +{weekData.grocery.length - 5} more items
+                    +{weekData.grocery.length - 3} more stores
                   </p>
                 )}
               </div>
