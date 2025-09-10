@@ -118,21 +118,21 @@ export const GoalsSection: React.FC<GoalsSectionProps> = ({ goals, onUpdate }) =
   }, {} as Record<string, GoalItem[]>)
 
   return (
-    <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-200">
-      <div className="flex items-center justify-between mb-6">
-        <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+    <div className="bg-white rounded-lg sm:rounded-xl p-3 sm:p-4 lg:p-6 shadow-lg border border-gray-200">
+      <div className="flex items-center justify-between mb-4 sm:mb-6">
+        <h3 className="text-lg sm:text-xl font-bold text-gray-800 flex items-center gap-2">
           🎯 Goals
         </h3>
-        <div className="text-sm text-gray-500">
+        <div className="text-xs sm:text-sm text-gray-500">
           {goals.length} total goals
         </div>
       </div>
 
       {/* Add New Goal Form */}
-      <div className="mb-6 p-4 bg-gray-50 rounded-lg">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+      <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-gray-50 rounded-lg">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-3 sm:mb-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
               Goal Text
             </label>
             <input
@@ -140,17 +140,17 @@ export const GoalsSection: React.FC<GoalsSectionProps> = ({ goals, onUpdate }) =
               value={newGoalText}
               onChange={(e) => setNewGoalText(e.target.value)}
               placeholder="Enter your goal..."
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-transparent"
+              className="w-full px-2 sm:px-3 py-1.5 sm:py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-transparent text-sm sm:text-base"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
               Timeframe
             </label>
             <select
               value={newGoalTimeframe}
               onChange={(e) => setNewGoalTimeframe(e.target.value as any)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-transparent"
+              className="w-full px-2 sm:px-3 py-1.5 sm:py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-transparent text-sm sm:text-base"
             >
               <option value="monthly">Monthly</option>
               <option value="1year">1 Year</option>
@@ -159,9 +159,9 @@ export const GoalsSection: React.FC<GoalsSectionProps> = ({ goals, onUpdate }) =
             </select>
           </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-3 sm:mb-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
               Description (Optional)
             </label>
             <input
@@ -169,17 +169,17 @@ export const GoalsSection: React.FC<GoalsSectionProps> = ({ goals, onUpdate }) =
               value={newGoalDescription}
               onChange={(e) => setNewGoalDescription(e.target.value)}
               placeholder="Additional details..."
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-transparent"
+              className="w-full px-2 sm:px-3 py-1.5 sm:py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-transparent text-sm sm:text-base"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
               Priority
             </label>
             <select
               value={newGoalPriority}
               onChange={(e) => setNewGoalPriority(e.target.value as any)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-transparent"
+              className="w-full px-2 sm:px-3 py-1.5 sm:py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-transparent text-sm sm:text-base"
             >
               <option value="low">Low</option>
               <option value="medium">Medium</option>
@@ -190,9 +190,9 @@ export const GoalsSection: React.FC<GoalsSectionProps> = ({ goals, onUpdate }) =
         <button
           onClick={addGoal}
           disabled={!newGoalText.trim()}
-          className="w-full bg-gradient-to-r from-slate-500 to-purple-500 text-white py-2 px-4 rounded-md hover:from-slate-600 hover:to-purple-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center gap-2"
+          className="w-full bg-gradient-to-r from-slate-500 to-purple-500 text-white py-2 px-4 rounded-md hover:from-slate-600 hover:to-purple-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center gap-2 text-sm sm:text-base"
         >
-          <Plus className="w-4 h-4" />
+          <Plus className="w-3 h-3 sm:w-4 sm:h-4" />
           Add Goal
         </button>
       </div>

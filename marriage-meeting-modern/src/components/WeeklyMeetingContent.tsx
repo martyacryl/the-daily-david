@@ -52,48 +52,48 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.3 }}
     >
-      <Card className="p-8">
-        <div className="flex items-center gap-3 mb-8">
-          <div className="p-3 bg-blue-100 rounded-lg">
-            <Calendar className="w-6 h-6 text-blue-600" />
+      <Card className="p-3 sm:p-6 lg:p-8">
+        <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6 lg:mb-8">
+          <div className="p-2 sm:p-3 bg-blue-100 rounded-lg">
+            <Calendar className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-blue-600" />
           </div>
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">Weekly Schedule</h2>
-            <p className="text-gray-600">Plan your week together</p>
+            <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">Weekly Schedule</h2>
+            <p className="text-sm sm:text-base text-gray-600">Plan your week together</p>
           </div>
         </div>
 
-        <div className="space-y-6">
+        <div className="space-y-3 sm:space-y-4 lg:space-y-6">
           {days.map((day) => (
-            <div key={day} className="bg-gray-50 rounded-xl p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-800">{day}</h3>
+            <div key={day} className="bg-gray-50 rounded-lg sm:rounded-xl p-3 sm:p-4 lg:p-6">
+              <div className="flex items-center justify-between mb-2 sm:mb-3 lg:mb-4">
+                <h3 className="text-base sm:text-lg font-semibold text-gray-800">{day}</h3>
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => onAddScheduleLine(day)}
-                  className="text-blue-600 border-blue-200 hover:bg-blue-50"
+                  className="text-blue-600 border-blue-200 hover:bg-blue-50 text-xs sm:text-sm px-2 py-1 sm:px-3 sm:py-2"
                 >
-                  + Add Activity
+                  + Add
                 </Button>
               </div>
               
-              <div className="space-y-3">
+              <div className="space-y-2 sm:space-y-3">
                 {weekData.schedule[day]?.map((activity: string, index: number) => (
-                  <div key={index} className="flex gap-3 items-start">
-                    <div className="w-2 h-2 bg-blue-500 rounded-full mt-3 flex-shrink-0"></div>
+                  <div key={index} className="flex gap-2 sm:gap-3 items-start">
+                    <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-blue-500 rounded-full mt-2 sm:mt-3 flex-shrink-0"></div>
                     <textarea
                       value={activity}
                       onChange={(e) => onUpdateSchedule(day, index, e.target.value)}
                       placeholder={`What's planned for ${day}?`}
-                      className="flex-1 p-4 border border-gray-200 rounded-lg text-gray-800 resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
-                      rows={3}
+                      className="flex-1 p-2 sm:p-3 lg:p-4 border border-gray-200 rounded-lg text-gray-800 resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-sm sm:text-base"
+                      rows={2}
                     />
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={() => onRemoveScheduleLine(day, index)}
-                      className="px-3 py-2 text-red-600 hover:bg-red-50 border-red-200 flex-shrink-0"
+                      className="px-2 py-1 sm:px-3 sm:py-2 text-red-600 hover:bg-red-50 border-red-200 flex-shrink-0 text-xs sm:text-sm"
                     >
                       ×
                     </Button>
@@ -101,10 +101,10 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
                 ))}
                 
                 {(!weekData.schedule[day] || weekData.schedule[day].length === 0) && (
-                  <div className="text-center py-8 text-gray-500">
-                    <Calendar className="w-8 h-8 mx-auto mb-2 text-gray-400" />
-                    <p>No activities planned for {day}</p>
-                    <p className="text-sm">Click "Add Activity" to get started</p>
+                  <div className="text-center py-4 sm:py-6 lg:py-8 text-gray-500">
+                    <Calendar className="w-6 h-6 sm:w-8 sm:h-8 mx-auto mb-2 text-gray-400" />
+                    <p className="text-sm sm:text-base">No activities planned for {day}</p>
+                    <p className="text-xs sm:text-sm">Click "Add" to get started</p>
                   </div>
                 )}
               </div>
@@ -125,17 +125,17 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.3 }}
     >
-      <Card className="p-8">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
-            <div className={`p-3 bg-${color}-100 rounded-lg`}>
-              {React.createElement(icon, { className: `w-6 h-6 text-${color}-600` })}
+      <Card className="p-3 sm:p-6 lg:p-8">
+        <div className="flex items-center justify-between mb-4 sm:mb-6">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className={`p-2 sm:p-3 bg-${color}-100 rounded-lg`}>
+              {React.createElement(icon, { className: `w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-${color}-600` })}
             </div>
             <div>
-              <h2 className="text-2xl font-bold text-gray-900">{title}</h2>
-              <p className="text-gray-600">{items.length} items</p>
+              <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">{title}</h2>
+              <p className="text-sm sm:text-base text-gray-600">{items.length} items</p>
               {isAccountability && (
-                <p className="text-sm text-gray-500 mt-1">
+                <p className="text-xs sm:text-sm text-gray-500 mt-1">
                   Areas for growth, confession, or accountability
                 </p>
               )}
@@ -144,30 +144,30 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
           <Button
             variant="outline"
             onClick={() => onAddListItem(type, '')}
-            className={`text-${color}-600 border-${color}-200 hover:bg-${color}-50`}
+            className={`text-${color}-600 border-${color}-200 hover:bg-${color}-50 text-xs sm:text-sm px-2 py-1 sm:px-3 sm:py-2`}
           >
             + Add {isAccountability ? 'Action' : title.slice(0, -1)}
           </Button>
         </div>
 
-        <div className="space-y-4">
+        <div className="space-y-2 sm:space-y-3 lg:space-y-4">
           {items.map((item, index) => (
-            <div key={item.id} className="flex items-center gap-4 p-4 bg-white border border-gray-200 rounded-lg hover:shadow-sm transition-shadow">
+            <div key={item.id} className="flex items-center gap-2 sm:gap-3 lg:gap-4 p-2 sm:p-3 lg:p-4 bg-white border border-gray-200 rounded-lg hover:shadow-sm transition-shadow">
               <button
                 onClick={() => onToggleListItem(type, item.id)}
-                className={`w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
+                className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
                   item.completed
                     ? `bg-${color}-500 border-${color}-500 text-white`
                     : 'border-gray-300 hover:border-gray-400'
                 }`}
               >
-                {item.completed && '✓'}
+                {item.completed && <span className="text-xs sm:text-sm">✓</span>}
               </button>
               <input
                 type="text"
                 value={item.text}
                 onChange={(e) => onUpdateListItem(type, item.id, e.target.value)}
-                className={`flex-1 bg-transparent border-none outline-none text-lg ${
+                className={`flex-1 bg-transparent border-none outline-none text-sm sm:text-base lg:text-lg ${
                   item.completed ? 'line-through text-gray-500' : 'text-gray-800'
                 }`}
                 placeholder={isAccountability ? 'Add an area for growth or accountability...' : `Add a ${title.slice(0, -1).toLowerCase()}...`}
@@ -176,7 +176,7 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
                 variant="outline"
                 size="sm"
                 onClick={() => onRemoveListItem(type, item.id)}
-                className="text-red-600 hover:bg-red-50 border-red-200 flex-shrink-0"
+                className="text-red-600 hover:bg-red-50 border-red-200 flex-shrink-0 text-xs sm:text-sm px-2 py-1 sm:px-3 sm:py-2"
               >
                 ×
               </Button>
@@ -184,17 +184,17 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
           ))}
           
           {items.length === 0 && (
-            <div className="text-center py-12 text-gray-500">
-              {React.createElement(icon, { className: "w-12 h-12 mx-auto mb-4 text-gray-400" })}
-              <p className="text-lg">No {title.toLowerCase()} yet</p>
-              <p className="text-sm">
+            <div className="text-center py-6 sm:py-8 lg:py-12 text-gray-500">
+              {React.createElement(icon, { className: "w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 mx-auto mb-3 sm:mb-4 text-gray-400" })}
+              <p className="text-base sm:text-lg">No {title.toLowerCase()} yet</p>
+              <p className="text-xs sm:text-sm">
                 {isAccountability 
                   ? 'Click "Add Action" to identify areas for growth or accountability'
                   : `Click "Add ${title.slice(0, -1)}" to get started`
                 }
               </p>
               {isAccountability && (
-                <div className="mt-4 text-xs text-gray-400 max-w-md mx-auto">
+                <div className="mt-3 sm:mt-4 text-xs text-gray-400 max-w-md mx-auto px-2">
                   <p>Examples: "Be more patient with family", "Confess anger issues", "Seek accountability for spending"</p>
                 </div>
               )}
@@ -212,14 +212,14 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.3 }}
     >
-      <Card className="p-8">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="p-3 bg-green-100 rounded-lg">
-            <Target className="w-6 h-6 text-green-600" />
+      <Card className="p-3 sm:p-6 lg:p-8">
+        <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
+          <div className="p-2 sm:p-3 bg-green-100 rounded-lg">
+            <Target className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-green-600" />
           </div>
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">Goals</h2>
-            <p className="text-gray-600">Set and track your goals by timeframe</p>
+            <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">Goals</h2>
+            <p className="text-sm sm:text-base text-gray-600">Set and track your goals by timeframe</p>
           </div>
         </div>
         <GoalsSection goals={weekData.goals} onUpdate={onUpdateGoals} />
@@ -255,7 +255,7 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
   }
 
   return (
-    <div className="flex-1 p-8">
+    <div className="flex-1 p-2 sm:p-4 lg:p-8">
       {renderContent()}
     </div>
   )

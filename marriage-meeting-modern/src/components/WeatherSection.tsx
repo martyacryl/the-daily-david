@@ -47,13 +47,14 @@ interface WeatherSectionProps {
 }
 
 export const WeatherSection: React.FC<WeatherSectionProps> = ({ className = '' }) => {
-  const { settings } = useSettingsStore()
+  const { settings, loadSettings } = useSettingsStore()
   const [weather, setWeather] = useState<WeatherData | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [location, setLocation] = useState<{ lat: number; lon: number } | null>(null)
   const [manualLocation, setManualLocation] = useState('')
   const [showManualInput, setShowManualInput] = useState(false)
+  const [settingsLoaded, setSettingsLoaded] = useState(false)
 
   // Get weather icon component
   const getWeatherIcon = (iconCode: string, size: string = 'w-6 h-6') => {
@@ -282,11 +283,34 @@ export const WeatherSection: React.FC<WeatherSectionProps> = ({ className = '' }
     }
   }
 
-  // Load weather on component mount
+  // Load settings on component mount
   useEffect(() => {
+    const loadSettingsData = async () => {
+      console.log('📋 Weather component: Loading settings...')
+      try {
+        await loadSettings()
+        setSettingsLoaded(true)
+        console.log('✅ Settings loaded in weather component')
+      } catch (error) {
+        console.error('❌ Failed to load settings in weather component:', error)
+        setSettingsLoaded(true) // Still set to true to prevent infinite loading
+      }
+    }
+    
+    loadSettingsData()
+  }, [loadSettings])
+
+  // Load weather when settings are loaded
+  useEffect(() => {
+    if (!settingsLoaded) {
+      console.log('⏳ Waiting for settings to load...')
+      return
+    }
+
     const loadWeather = async () => {
       console.log('🌤️ Weather component: Starting to load weather...')
       console.log('🔑 API Key check:', import.meta.env.VITE_OPENWEATHER_API_KEY ? 'Present' : 'Missing (will use demo data)')
+      console.log('📋 Settings loaded:', settings)
       
       try {
         const coords = await getCurrentLocation()
@@ -331,9 +355,9 @@ export const WeatherSection: React.FC<WeatherSectionProps> = ({ className = '' }
     }
 
     // Add a longer delay to let settings load properly
-    const timer = setTimeout(loadWeather, 500)
+    const timer = setTimeout(loadWeather, 1000)
     
-    // Fallback timeout - if still loading after 10 seconds, show demo data
+    // Fallback timeout - if still loading after 15 seconds, show demo data
     const fallbackTimer = setTimeout(() => {
       if (loading && !weather) {
         console.log('⏰ Weather loading timeout - showing demo data as fallback')
@@ -362,13 +386,13 @@ export const WeatherSection: React.FC<WeatherSectionProps> = ({ className = '' }
         setLoading(false)
         setError(null)
       }
-    }, 10000)
+    }, 15000)
     
     return () => {
       clearTimeout(timer)
       clearTimeout(fallbackTimer)
     }
-  }, [settings.location.city, settings.location.state, settings.defaultWeatherLocation])
+  }, [settingsLoaded, settings.location.city, settings.location.state, settings.defaultWeatherLocation])
 
   // Additional effect to handle settings changes after initial load
   useEffect(() => {
