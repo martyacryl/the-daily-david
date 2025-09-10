@@ -15,6 +15,7 @@ import {
 } from 'lucide-react'
 import { Card } from './ui/Card'
 import { Button } from './ui/Button'
+import { useSettingsStore } from '../stores/settingsStore'
 
 interface WeatherData {
   current: {
@@ -46,6 +47,7 @@ interface WeatherSectionProps {
 }
 
 export const WeatherSection: React.FC<WeatherSectionProps> = ({ className = '' }) => {
+  const { settings } = useSettingsStore()
   const [weather, setWeather] = useState<WeatherData | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -285,16 +287,25 @@ export const WeatherSection: React.FC<WeatherSectionProps> = ({ className = '' }
         await fetchWeather(coords.lat, coords.lon)
       } catch (err) {
         console.error('Location error:', err)
-        // Show manual input immediately for mobile
-        setShowManualInput(true)
-        setError('Location access needed. Enter your city below:')
+        
+        // Try to use settings location as fallback
+        if (settings.location.city && settings.location.state) {
+          const cityName = `${settings.location.city}, ${settings.location.state}`
+          console.log('Using settings location as fallback:', cityName)
+          setError(null)
+          await fetchWeatherByCity(cityName)
+        } else {
+          // Show manual input if no settings location
+          setShowManualInput(true)
+          setError('Location access needed. Enter your city below:')
+        }
       }
     }
 
     // Add a small delay to let the component mount properly
     const timer = setTimeout(loadWeather, 100)
     return () => clearTimeout(timer)
-  }, [])
+  }, [settings.location.city, settings.location.state])
 
   // Fetch weather by city name
   const fetchWeatherByCity = async (cityName: string) => {
