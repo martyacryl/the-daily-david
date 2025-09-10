@@ -35,39 +35,33 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
     updateGroceryStore,
     removeGroceryStore,
     setDefaultGroceryStore,
-    updateGeneralSettings
+    updateGeneralSettings,
+    loadSettings
   } = useSettingsStore()
 
   const [activeTab, setActiveTab] = useState('spouses')
   const [newGroceryStore, setNewGroceryStore] = useState({ name: '', address: '' })
   const [showStoreSuccess, setShowStoreSuccess] = useState(false)
-  const [isHydrated, setIsHydrated] = useState(false)
-  const [forceUpdate, setForceUpdate] = useState(0)
+  const [isLoading, setIsLoading] = useState(false)
+  const [isLoaded, setIsLoaded] = useState(false)
 
-  // Force load settings from localStorage
+  // Load settings from database when panel opens
   React.useEffect(() => {
-    const loadSettings = () => {
-      try {
-        const stored = localStorage.getItem('marriage-meeting-settings')
-        if (stored) {
-          const parsed = JSON.parse(stored)
-          if (parsed.state?.settings) {
-            // Force update the store with the loaded settings
-            useSettingsStore.setState({ settings: parsed.state.settings })
-            setForceUpdate(prev => prev + 1)
-          }
+    if (isOpen && !isLoaded) {
+      const loadSettingsData = async () => {
+        setIsLoading(true)
+        try {
+          await loadSettings()
+          setIsLoaded(true)
+        } catch (error) {
+          console.error('Failed to load settings:', error)
+        } finally {
+          setIsLoading(false)
         }
-      } catch (e) {
-        console.error('Failed to load settings from localStorage:', e)
       }
-      setIsHydrated(true)
+      loadSettingsData()
     }
-
-    // Load immediately and also after a delay
-    loadSettings()
-    const timer = setTimeout(loadSettings, 300)
-    return () => clearTimeout(timer)
-  }, [])
+  }, [isOpen, isLoaded, loadSettings])
 
   const tabs = [
     { id: 'spouses', label: 'Spouses', icon: User },
@@ -96,8 +90,8 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
 
   if (!isOpen) return null
 
-  // Show loading state if not hydrated yet
-  if (!isHydrated) {
+  // Show loading state if loading from database
+  if (isLoading) {
     return (
       <motion.div
         initial={{ opacity: 0 }}
@@ -113,7 +107,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
         >
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading settings...</p>
+            <p className="text-gray-600">Loading settings from database...</p>
           </div>
         </motion.div>
       </motion.div>
@@ -122,7 +116,6 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
 
   return (
     <motion.div
-      key={forceUpdate}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -143,14 +136,16 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
           <div className="flex items-center gap-2">
             <Button 
               variant="outline" 
-              onClick={() => {
-                const stored = localStorage.getItem('marriage-meeting-settings')
-                if (stored) {
-                  const parsed = JSON.parse(stored)
-                  if (parsed.state?.settings) {
-                    useSettingsStore.setState({ settings: parsed.state.settings })
-                    setForceUpdate(prev => prev + 1)
-                  }
+              onClick={async () => {
+                console.log('Refresh button clicked - loading from database')
+                setIsLoading(true)
+                try {
+                  await loadSettings()
+                  console.log('Settings refreshed from database')
+                } catch (error) {
+                  console.error('Failed to refresh settings:', error)
+                } finally {
+                  setIsLoading(false)
                 }
               }} 
               size="sm"
@@ -188,14 +183,16 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
           {/* Mobile Refresh Button */}
           <div className="p-3 bg-gray-50 border-t border-gray-200">
             <Button 
-              onClick={() => {
-                const stored = localStorage.getItem('marriage-meeting-settings')
-                if (stored) {
-                  const parsed = JSON.parse(stored)
-                  if (parsed.state?.settings) {
-                    useSettingsStore.setState({ settings: parsed.state.settings })
-                    setForceUpdate(prev => prev + 1)
-                  }
+              onClick={async () => {
+                console.log('Mobile refresh button clicked - loading from database')
+                setIsLoading(true)
+                try {
+                  await loadSettings()
+                  console.log('Settings refreshed from database')
+                } catch (error) {
+                  console.error('Failed to refresh settings:', error)
+                } finally {
+                  setIsLoading(false)
                 }
               }} 
               className="w-full bg-blue-600 text-white hover:bg-blue-700"

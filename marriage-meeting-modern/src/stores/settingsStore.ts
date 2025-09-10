@@ -39,15 +39,16 @@ export interface AppSettings {
 
 interface SettingsStore {
   settings: AppSettings
-  updateSpouse1: (spouse: Partial<SpouseInfo>) => void
-  updateSpouse2: (spouse: Partial<SpouseInfo>) => void
-  updateLocation: (location: Partial<LocationSettings>) => void
-  addGroceryStore: (store: Omit<GroceryStore, 'id'>) => void
-  updateGroceryStore: (id: string, store: Partial<GroceryStore>) => void
-  removeGroceryStore: (id: string) => void
-  setDefaultGroceryStore: (id: string) => void
-  updateGeneralSettings: (settings: Partial<Pick<AppSettings, 'familyCreed' | 'defaultWeatherLocation' | 'timezone' | 'currency' | 'dateFormat' | 'theme'>>) => void
-  resetSettings: () => void
+  updateSpouse1: (spouse: Partial<SpouseInfo>) => Promise<void>
+  updateSpouse2: (spouse: Partial<SpouseInfo>) => Promise<void>
+  updateLocation: (location: Partial<LocationSettings>) => Promise<void>
+  addGroceryStore: (store: Omit<GroceryStore, 'id'>) => Promise<void>
+  updateGroceryStore: (id: string, store: Partial<GroceryStore>) => Promise<void>
+  removeGroceryStore: (id: string) => Promise<void>
+  setDefaultGroceryStore: (id: string) => Promise<void>
+  updateGeneralSettings: (settings: Partial<Pick<AppSettings, 'familyCreed' | 'defaultWeatherLocation' | 'timezone' | 'currency' | 'dateFormat' | 'theme'>>) => Promise<void>
+  resetSettings: () => Promise<void>
+  loadSettings: () => Promise<AppSettings>
 }
 
 const defaultSettings: AppSettings = {
@@ -77,95 +78,189 @@ const defaultSettings: AppSettings = {
   theme: 'light'
 }
 
+// API functions
+const API_BASE_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://theweeklyhuddle.vercel.app' : 'http://localhost:3001')
+
+const fetchSettings = async (): Promise<AppSettings> => {
+  const token = localStorage.getItem('authToken')
+  if (!token) {
+    throw new Error('No auth token found')
+  }
+
+  const response = await fetch(`${API_BASE_URL}/api/settings`, {
+    method: 'GET',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    }
+  })
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch settings: ${response.statusText}`)
+  }
+
+  return response.json()
+}
+
+const saveSettings = async (settings: AppSettings): Promise<AppSettings> => {
+  const token = localStorage.getItem('authToken')
+  if (!token) {
+    throw new Error('No auth token found')
+  }
+
+  const response = await fetch(`${API_BASE_URL}/api/settings`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(settings)
+  })
+
+  if (!response.ok) {
+    throw new Error(`Failed to save settings: ${response.statusText}`)
+  }
+
+  return response.json()
+}
+
 export const useSettingsStore = create<SettingsStore>()(
-  persist(
-    (set, get) => ({
-      settings: defaultSettings,
+  (set, get) => ({
+    settings: defaultSettings,
 
-      updateSpouse1: (spouse) =>
-        set((state) => ({
-          settings: {
-            ...state.settings,
-            spouse1: { ...state.settings.spouse1, ...spouse }
-          }
-        })),
+    updateSpouse1: async (spouse) => {
+      const newSettings = {
+        ...get().settings,
+        spouse1: { ...get().settings.spouse1, ...spouse }
+      }
+      set({ settings: newSettings })
+      try {
+        await saveSettings(newSettings)
+      } catch (error) {
+        console.error('Failed to save spouse1 update:', error)
+      }
+    },
 
-      updateSpouse2: (spouse) =>
-        set((state) => ({
-          settings: {
-            ...state.settings,
-            spouse2: { ...state.settings.spouse2, ...spouse }
-          }
-        })),
+    updateSpouse2: async (spouse) => {
+      const newSettings = {
+        ...get().settings,
+        spouse2: { ...get().settings.spouse2, ...spouse }
+      }
+      set({ settings: newSettings })
+      try {
+        await saveSettings(newSettings)
+      } catch (error) {
+        console.error('Failed to save spouse2 update:', error)
+      }
+    },
 
-      updateLocation: (location) =>
-        set((state) => ({
-          settings: {
-            ...state.settings,
-            location: { ...state.settings.location, ...location }
-          }
-        })),
+    updateLocation: async (location) => {
+      const newSettings = {
+        ...get().settings,
+        location: { ...get().settings.location, ...location }
+      }
+      set({ settings: newSettings })
+      try {
+        await saveSettings(newSettings)
+      } catch (error) {
+        console.error('Failed to save location update:', error)
+      }
+    },
 
-      addGroceryStore: (store) =>
-        set((state) => ({
-          settings: {
-            ...state.settings,
-            groceryStores: [
-              ...state.settings.groceryStores,
-              { ...store, id: Date.now().toString() }
-            ]
-          }
-        })),
+    addGroceryStore: async (store) => {
+      const newSettings = {
+        ...get().settings,
+        groceryStores: [
+          ...get().settings.groceryStores,
+          { ...store, id: Date.now().toString() }
+        ]
+      }
+      set({ settings: newSettings })
+      try {
+        await saveSettings(newSettings)
+      } catch (error) {
+        console.error('Failed to save grocery store addition:', error)
+      }
+    },
 
-      updateGroceryStore: (id, store) =>
-        set((state) => ({
-          settings: {
-            ...state.settings,
-            groceryStores: state.settings.groceryStores.map((s) =>
-              s.id === id ? { ...s, ...store } : s
-            )
-          }
-        })),
+    updateGroceryStore: async (id, store) => {
+      const newSettings = {
+        ...get().settings,
+        groceryStores: get().settings.groceryStores.map((s) =>
+          s.id === id ? { ...s, ...store } : s
+        )
+      }
+      set({ settings: newSettings })
+      try {
+        await saveSettings(newSettings)
+      } catch (error) {
+        console.error('Failed to save grocery store update:', error)
+      }
+    },
 
-      removeGroceryStore: (id) =>
-        set((state) => ({
-          settings: {
-            ...state.settings,
-            groceryStores: state.settings.groceryStores.filter((s) => s.id !== id)
-          }
-        })),
+    removeGroceryStore: async (id) => {
+      const newSettings = {
+        ...get().settings,
+        groceryStores: get().settings.groceryStores.filter((s) => s.id !== id)
+      }
+      set({ settings: newSettings })
+      try {
+        await saveSettings(newSettings)
+      } catch (error) {
+        console.error('Failed to save grocery store removal:', error)
+      }
+    },
 
-      setDefaultGroceryStore: (id) =>
-        set((state) => ({
-          settings: {
-            ...state.settings,
-            groceryStores: state.settings.groceryStores.map((s) => ({
-              ...s,
-              isDefault: s.id === id
-            }))
-          }
-        })),
+    setDefaultGroceryStore: async (id) => {
+      const newSettings = {
+        ...get().settings,
+        groceryStores: get().settings.groceryStores.map((s) => ({
+          ...s,
+          isDefault: s.id === id
+        }))
+      }
+      set({ settings: newSettings })
+      try {
+        await saveSettings(newSettings)
+      } catch (error) {
+        console.error('Failed to save default grocery store:', error)
+      }
+    },
 
-      updateGeneralSettings: (settings) =>
-        set((state) => ({
-          settings: {
-            ...state.settings,
-            ...settings
-          }
-        })),
+    updateGeneralSettings: async (settings) => {
+      const newSettings = {
+        ...get().settings,
+        ...settings
+      }
+      set({ settings: newSettings })
+      try {
+        await saveSettings(newSettings)
+      } catch (error) {
+        console.error('Failed to save general settings update:', error)
+      }
+    },
 
-      resetSettings: () =>
-        set({ settings: defaultSettings })
-    }),
-    {
-      name: 'marriage-meeting-settings',
-      version: 1,
-      partialize: (state) => ({ settings: state.settings }),
-      onRehydrateStorage: () => (state) => {
-        console.log('Settings store rehydrated:', state?.settings)
+    resetSettings: async () => {
+      set({ settings: defaultSettings })
+      try {
+        await saveSettings(defaultSettings)
+      } catch (error) {
+        console.error('Failed to reset settings:', error)
+      }
+    },
+
+    // New method to load settings from database
+    loadSettings: async () => {
+      try {
+        const settings = await fetchSettings()
+        set({ settings })
+        return settings
+      } catch (error) {
+        console.error('Failed to load settings:', error)
+        return defaultSettings
       }
     }
-  )
+  })
 )
 
 // Helper functions

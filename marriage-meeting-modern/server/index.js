@@ -201,6 +201,63 @@ app.post('/api/marriage-weeks', authenticateToken, async (req, res) => {
   }
 })
 
+// Settings Routes
+app.get('/api/settings', authenticateToken, async (req, res) => {
+  try {
+    const userId = req.user.userId
+
+    const result = await pool.query(
+      'SELECT settings_data FROM user_settings WHERE user_id = $1',
+      [userId]
+    )
+
+    if (result.rows.length === 0) {
+      // Return default settings if none exist
+      const defaultSettings = {
+        spouse1: { name: '', email: '', phone: '' },
+        spouse2: { name: '', email: '', phone: '' },
+        location: { address: '', city: '', state: '', zipCode: '', country: 'US' },
+        groceryStores: [],
+        familyCreed: '',
+        defaultWeatherLocation: '',
+        timezone: 'America/New_York',
+        currency: 'USD',
+        dateFormat: 'MM/DD/YYYY',
+        theme: 'light'
+      }
+      return res.json(defaultSettings)
+    }
+
+    res.json(result.rows[0].settings_data)
+  } catch (error) {
+    console.error('Error fetching settings:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
+app.post('/api/settings', authenticateToken, async (req, res) => {
+  try {
+    const userId = req.user.userId
+    const settingsData = req.body
+
+    // Upsert settings (insert or update)
+    const result = await pool.query(`
+      INSERT INTO user_settings (user_id, settings_data, updated_at)
+      VALUES ($1, $2, NOW())
+      ON CONFLICT (user_id)
+      DO UPDATE SET 
+        settings_data = EXCLUDED.settings_data,
+        updated_at = NOW()
+      RETURNING settings_data
+    `, [userId, JSON.stringify(settingsData)])
+
+    res.json(result.rows[0].settings_data)
+  } catch (error) {
+    console.error('Error saving settings:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
 // Admin Routes
 app.get('/api/admin/users', authenticateToken, async (req, res) => {
   try {
