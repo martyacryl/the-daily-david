@@ -341,6 +341,8 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
                     </div>
                     <p className="text-sm text-gray-500 mt-3">
                       This location will be used for weather information and other location-based features.
+                      <br />
+                      <strong>💡 Tip:</strong> ZIP code is most reliable for weather - make sure to fill it out!
                     </p>
                   </Card>
                 </div>

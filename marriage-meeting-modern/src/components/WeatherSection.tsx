@@ -329,28 +329,33 @@ export const WeatherSection: React.FC<WeatherSectionProps> = ({ className = '' }
           hasDefaultWeather: !!settings.defaultWeatherLocation
         })
         
-        // Try to use settings location as fallback
-        if (settings.location.city && settings.location.state) {
-          const cityName = `${settings.location.city}, ${settings.location.state}`
-          console.log('🏠 Using settings location as fallback:', cityName)
-          setError(null)
-          await fetchWeatherByCity(cityName)
-        } else if (settings.location.city) {
-          // Try with just city if no state
-          console.log('🏠 Using city only as fallback:', settings.location.city)
-          setError(null)
-          await fetchWeatherByCity(settings.location.city)
-        } else if (settings.defaultWeatherLocation) {
-          // Try with default weather location
-          console.log('🌍 Using default weather location as fallback:', settings.defaultWeatherLocation)
-          setError(null)
-          await fetchWeatherByCity(settings.defaultWeatherLocation)
-        } else {
-          // Show manual input if no settings location
-          console.log('⚠️ No settings location available, showing manual input')
-          setShowManualInput(true)
-          setError('Location access needed. Enter your city below:')
-        }
+      // Try to use settings location as fallback - prioritize zip code
+      if (settings.location.zipCode) {
+        const zipCode = `${settings.location.zipCode},${settings.location.country || 'US'}`
+        console.log('📮 Using zip code from settings:', zipCode)
+        setError(null)
+        await fetchWeatherByZip(zipCode)
+      } else if (settings.location.city && settings.location.state) {
+        const cityName = `${settings.location.city}, ${settings.location.state}`
+        console.log('🏠 Using city, state from settings:', cityName)
+        setError(null)
+        await fetchWeatherByCity(cityName)
+      } else if (settings.location.city) {
+        // Try with just city if no state
+        console.log('🏠 Using city only from settings:', settings.location.city)
+        setError(null)
+        await fetchWeatherByCity(settings.location.city)
+      } else if (settings.defaultWeatherLocation) {
+        // Try with default weather location
+        console.log('🌍 Using default weather location:', settings.defaultWeatherLocation)
+        setError(null)
+        await fetchWeatherByCity(settings.defaultWeatherLocation)
+      } else {
+        // Show manual input if no settings location
+        console.log('⚠️ No settings location available, showing manual input')
+        setShowManualInput(true)
+        setError('Location access needed. Enter your city or zip code below:')
+      }
       }
     }
 
@@ -409,6 +414,155 @@ export const WeatherSection: React.FC<WeatherSectionProps> = ({ className = '' }
       }
     }
   }, [settings.location.city, settings.location.state, settings.defaultWeatherLocation, error, loading])
+
+  // Fetch weather by zip code
+  const fetchWeatherByZip = async (zipCode: string) => {
+    console.log('🌤️ fetchWeatherByZip called with zip:', zipCode)
+    setLoading(true)
+    setError(null)
+
+    try {
+      const API_KEY = import.meta.env.VITE_OPENWEATHER_API_KEY || 'demo_key'
+      console.log('🔑 API Key status for zip fetch:', API_KEY === 'demo_key' ? 'Using demo data' : 'Using real API')
+      
+      if (API_KEY === 'demo_key') {
+        console.log('📊 Setting demo weather data for zip:', zipCode)
+        // Demo data for development
+        setWeather({
+          current: {
+            temp: 72,
+            feels_like: 75,
+            humidity: 65,
+            description: 'Partly cloudy',
+            icon: '02d',
+            wind_speed: 8,
+            visibility: 10
+          },
+          location: {
+            name: `Zip ${zipCode.split(',')[0]}`,
+            country: 'US'
+          },
+          forecast: [
+            { date: '2024-01-15', day: 'Mon', temp_max: 75, temp_min: 60, description: 'Sunny', icon: '01d', precipitation: 0 },
+            { date: '2024-01-16', day: 'Tue', temp_max: 78, temp_min: 62, description: 'Partly cloudy', icon: '02d', precipitation: 10 },
+            { date: '2024-01-17', day: 'Wed', temp_max: 70, temp_min: 55, description: 'Light rain', icon: '10d', precipitation: 60 },
+            { date: '2024-01-18', day: 'Thu', temp_max: 68, temp_min: 52, description: 'Cloudy', icon: '04d', precipitation: 20 },
+            { date: '2024-01-19', day: 'Fri', temp_max: 73, temp_min: 58, description: 'Clear', icon: '01d', precipitation: 0 }
+          ]
+        })
+        console.log('✅ Demo weather data set successfully for zip')
+        setLoading(false)
+        return
+      }
+
+      // Real API call by zip code
+      const response = await fetch(
+        `https://api.openweathermap.org/data/2.5/weather?zip=${encodeURIComponent(zipCode)}&appid=${API_KEY}&units=imperial`
+      )
+      
+      console.log('📡 Zip API response status:', response.status)
+
+      if (!response.ok) {
+        throw new Error('Zip code not found. Please check the zip code.')
+      }
+
+      const currentData = await response.json()
+      console.log('📊 Current weather data received:', currentData)
+
+      // Fetch 5-day forecast by zip code
+      const forecastResponse = await fetch(
+        `https://api.openweathermap.org/data/2.5/forecast?zip=${encodeURIComponent(zipCode)}&appid=${API_KEY}&units=imperial`
+      )
+      
+      if (!forecastResponse.ok) {
+        throw new Error('Failed to fetch forecast data')
+      }
+
+      const forecastData = await forecastResponse.json()
+      console.log('📊 Forecast data received:', forecastData)
+
+      // Process forecast data (same as before)
+      const dailyForecast = forecastData.list.reduce((acc: any, item: any) => {
+        const date = new Date(item.dt * 1000).toISOString().split('T')[0]
+        const day = new Date(item.dt * 1000).toLocaleDateString('en-US', { weekday: 'short' })
+        
+        if (!acc[date]) {
+          acc[date] = {
+            date,
+            day,
+            temp_max: item.main.temp_max,
+            temp_min: item.main.temp_min,
+            description: item.weather[0].description,
+            icon: item.weather[0].icon,
+            precipitation: item.pop * 100
+          }
+        } else {
+          acc[date].temp_max = Math.max(acc[date].temp_max, item.main.temp_max)
+          acc[date].temp_min = Math.min(acc[date].temp_min, item.main.temp_min)
+        }
+        
+        return acc
+      }, {})
+
+      const forecast = Object.values(dailyForecast).slice(0, 5)
+
+      setWeather({
+        current: {
+          temp: Math.round(currentData.main.temp),
+          feels_like: Math.round(currentData.main.feels_like),
+          humidity: currentData.main.humidity,
+          description: currentData.weather[0].description,
+          icon: currentData.weather[0].icon,
+          wind_speed: Math.round(currentData.wind.speed),
+          visibility: Math.round((currentData.visibility || 10000) / 1609.34)
+        },
+        location: {
+          name: currentData.name,
+          country: currentData.sys.country
+        },
+        forecast: forecast as any[]
+      })
+
+      setShowManualInput(false)
+      console.log('✅ Weather data set successfully for zip code')
+
+    } catch (err) {
+      console.error('❌ Weather fetch error for zip:', err)
+      const errorMessage = err instanceof Error ? err.message : 'Failed to fetch weather data'
+      
+      // If API fails, fall back to demo data
+      if (errorMessage.includes('API key') || errorMessage.includes('unavailable')) {
+        console.log('📊 Falling back to demo weather data for zip')
+        setWeather({
+          current: {
+            temp: 72,
+            feels_like: 75,
+            humidity: 65,
+            description: 'Partly cloudy',
+            icon: '02d',
+            wind_speed: 8,
+            visibility: 10
+          },
+          location: {
+            name: `Zip ${zipCode.split(',')[0]}`,
+            country: 'US'
+          },
+          forecast: [
+            { date: '2024-01-15', day: 'Mon', temp_max: 75, temp_min: 60, description: 'Sunny', icon: '01d', precipitation: 0 },
+            { date: '2024-01-16', day: 'Tue', temp_max: 78, temp_min: 62, description: 'Partly cloudy', icon: '02d', precipitation: 10 },
+            { date: '2024-01-17', day: 'Wed', temp_max: 70, temp_min: 55, description: 'Light rain', icon: '10d', precipitation: 60 },
+            { date: '2024-01-18', day: 'Thu', temp_max: 68, temp_min: 52, description: 'Cloudy', icon: '04d', precipitation: 20 },
+            { date: '2024-01-19', day: 'Fri', temp_max: 73, temp_min: 58, description: 'Clear', icon: '01d', precipitation: 0 }
+          ]
+        })
+        setError(null) // Clear error since we're showing demo data
+      } else {
+        setError(errorMessage)
+      }
+    } finally {
+      setLoading(false)
+    }
+  }
 
   // Fetch weather by city name
   const fetchWeatherByCity = async (cityName: string) => {
@@ -585,22 +739,33 @@ export const WeatherSection: React.FC<WeatherSectionProps> = ({ className = '' }
           
           {showManualInput && (
             <div className="space-y-2">
-              <p className="text-xs text-gray-600">Enter your city name:</p>
+              <p className="text-xs text-gray-600">Enter your city name or zip code:</p>
               <div className="flex flex-col sm:flex-row gap-1">
                 <input
                   type="text"
                   value={manualLocation}
                   onChange={(e) => setManualLocation(e.target.value)}
-                  placeholder="e.g., New York, London, Tokyo"
+                  placeholder="e.g., New York, NY or 10001"
                   className="flex-1 px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-transparent text-xs"
                   onKeyPress={(e) => {
                     if (e.key === 'Enter' && manualLocation.trim()) {
-                      fetchWeatherByCity(manualLocation.trim())
+                      // Check if it's a zip code (5 digits) or city name
+                      if (/^\d{5}$/.test(manualLocation.trim())) {
+                        fetchWeatherByZip(`${manualLocation.trim()},US`)
+                      } else {
+                        fetchWeatherByCity(manualLocation.trim())
+                      }
                     }
                   }}
                 />
                 <Button
-                  onClick={() => fetchWeatherByCity(manualLocation.trim())}
+                  onClick={() => {
+                    if (/^\d{5}$/.test(manualLocation.trim())) {
+                      fetchWeatherByZip(`${manualLocation.trim()},US`)
+                    } else {
+                      fetchWeatherByCity(manualLocation.trim())
+                    }
+                  }}
                   disabled={!manualLocation.trim() || loading}
                   className="bg-blue-600 hover:bg-blue-700 px-2 py-1 text-xs"
                 >
@@ -608,7 +773,7 @@ export const WeatherSection: React.FC<WeatherSectionProps> = ({ className = '' }
                 </Button>
               </div>
               <p className="text-xs text-gray-500">
-                Try: "City, State" or "City, Country" format
+                Try: "City, State", "City, Country", or "12345" (zip code)
               </p>
             </div>
           )}
