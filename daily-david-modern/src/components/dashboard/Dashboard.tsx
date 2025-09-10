@@ -121,36 +121,32 @@ export const Dashboard: React.FC = () => {
       return entryDate.getTime() === today.getTime()
     })
     
-    if (!todayEntry) {
-      // If no entry today, check if yesterday had an entry
-      const yesterday = new Date(today)
-      yesterday.setDate(yesterday.getDate() - 1)
-      
-      const yesterdayEntry = sortedEntries.find(entry => {
-        const entryDate = new Date(entry.date)
-        entryDate.setHours(0, 0, 0, 0)
-        return entryDate.getTime() === yesterday.getTime()
-      })
-      
-      if (!yesterdayEntry) return 0
-    }
-    
-    // Count consecutive days with entries
+    // Start counting from today if there's an entry, otherwise start from yesterday
     let currentDate = new Date(today)
     if (!todayEntry) {
       currentDate.setDate(currentDate.getDate() - 1)
     }
     
+    // Count consecutive days with entries, allowing for gaps up to 1 day
     for (let i = 0; i < sortedEntries.length; i++) {
       const entryDate = new Date(sortedEntries[i].date)
       entryDate.setHours(0, 0, 0, 0)
       
-      if (entryDate.getTime() === currentDate.getTime()) {
+      const daysDiff = Math.floor((currentDate.getTime() - entryDate.getTime()) / (1000 * 60 * 60 * 24))
+      
+      if (daysDiff === 0) {
+        // Exact match - count this entry
         streak++
         currentDate.setDate(currentDate.getDate() - 1)
-      } else if (entryDate.getTime() < currentDate.getTime()) {
+      } else if (daysDiff === 1) {
+        // Entry is 1 day before current date - count it and continue
+        streak++
+        currentDate.setDate(currentDate.getDate() - 1)
+      } else if (daysDiff > 1) {
+        // Gap of more than 1 day - streak is broken
         break
       }
+      // If daysDiff < 0, entry is in the future, skip it
     }
     
     return streak
