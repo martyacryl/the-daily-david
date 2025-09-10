@@ -356,9 +356,28 @@ export const DashboardNew: React.FC = () => {
                       </span>
                     )}
                   </div>
-                  <Link to="/weekly?section=encouragement" className="text-pink-600 text-sm font-medium">
-                    View All →
-                  </Link>
+                  <div className="flex items-center gap-2">
+                    {unreadCount > 0 && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          const updatedNotes = weekData.encouragementNotes.map(note => ({
+                            ...note,
+                            isRead: true
+                          }))
+                          updateEncouragementNotes(updatedNotes)
+                        }}
+                        className="text-pink-600 border-pink-200 hover:bg-pink-50 p-2"
+                        title="Mark all as read"
+                      >
+                        <CheckCircle className="w-4 h-4" />
+                      </Button>
+                    )}
+                    <Link to="/weekly?section=encouragement" className="text-pink-600 text-sm font-medium">
+                      View All →
+                    </Link>
+                  </div>
                 </div>
                 <div className="space-y-3">
                   {sortedNotes.slice(0, 3).map((note) => {
@@ -419,6 +438,26 @@ export const DashboardNew: React.FC = () => {
                       }`}>
                         {note.text}
                       </div>
+                      
+                      {/* Mark as Read Button */}
+                      {!note.isRead && (
+                        <div className="flex justify-end mt-3">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              const updatedNotes = weekData.encouragementNotes.map(n =>
+                                n.id === note.id ? { ...n, isRead: true } : n
+                              )
+                              updateEncouragementNotes(updatedNotes)
+                            }}
+                            className="text-pink-600 border-pink-200 hover:bg-pink-50 p-2"
+                            title="Mark as read"
+                          >
+                            <CheckCircle className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      )}
                     </div>
                   )
                 })}
