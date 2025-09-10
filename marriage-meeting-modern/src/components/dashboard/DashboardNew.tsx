@@ -33,12 +33,13 @@ import { FamilyCreedDisplay } from '../FamilyCreedDisplay'
 import { SettingsPanel } from '../settings/SettingsPanel'
 import { useAuthStore } from '../../stores/authStore'
 import { useMarriageStore } from '../../stores/marriageStore'
-import { MarriageMeetingWeek, GoalItem, ListItem } from '../../types/marriageTypes'
+import { MarriageMeetingWeek, GoalItem, ListItem, EncouragementNote } from '../../types/marriageTypes'
+import { EncouragementSection } from '../EncouragementSection'
 import { DatabaseManager } from '../../lib/database'
 
 export const DashboardNew: React.FC = () => {
   const { user, isAuthenticated } = useAuthStore()
-  const { currentWeek, weekData, loadWeekData } = useMarriageStore()
+  const { currentWeek, weekData, loadWeekData, updateEncouragementNotes } = useMarriageStore()
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
   
   // New actionable insights state
@@ -263,7 +264,7 @@ export const DashboardNew: React.FC = () => {
           transition={{ delay: 0.1 }}
           className="mb-6"
         >
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 sm:gap-3">
             <Link to="/weekly">
               <Card className="p-2 sm:p-4 text-center hover:shadow-lg transition-shadow cursor-pointer">
                 <div className="w-8 h-8 sm:w-10 sm:h-10 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-2">
@@ -296,6 +297,14 @@ export const DashboardNew: React.FC = () => {
                 <h3 className="font-semibold text-gray-800 text-xs sm:text-sm">Full Analytics</h3>
               </Card>
             </Link>
+            <Link to="/weekly?section=encouragement">
+              <Card className="p-2 sm:p-4 text-center hover:shadow-lg transition-shadow cursor-pointer">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-pink-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                  <Heart className="w-4 h-4 sm:w-5 sm:h-5 text-pink-600" />
+                </div>
+                <h3 className="font-semibold text-gray-800 text-xs sm:text-sm">Add Note</h3>
+              </Card>
+            </Link>
           </div>
         </motion.div>
 
@@ -303,6 +312,82 @@ export const DashboardNew: React.FC = () => {
         <div className="mb-6">
           <WeatherSection />
         </div>
+
+        {/* Encouragement Notes */}
+        {(weekData.encouragementNotes && weekData.encouragementNotes.length > 0) && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="mb-6"
+          >
+            <Card className="p-3 sm:p-6 bg-gradient-to-r from-pink-50 to-rose-50 border-pink-200">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg sm:text-xl font-semibold text-gray-900 flex items-center gap-2">
+                  <Heart className="w-4 h-4 sm:w-5 sm:h-5 text-pink-600" />
+                  Encouragement Notes
+                </h3>
+                <Link to="/weekly?section=encouragement" className="text-pink-600 text-sm font-medium">
+                  View All →
+                </Link>
+              </div>
+              <div className="space-y-3">
+                {weekData.encouragementNotes.slice(0, 3).map((note) => {
+                  const getTypeInfo = (type: EncouragementNote['type']) => {
+                    const typeMap = {
+                      encouragement: { label: 'Encouragement', color: 'text-pink-600' },
+                      bible: { label: 'Bible Verse', color: 'text-blue-600' },
+                      reminder: { label: 'Reminder', color: 'text-orange-600' },
+                      love: { label: 'Love Note', color: 'text-red-600' },
+                      general: { label: 'General', color: 'text-gray-600' }
+                    }
+                    return typeMap[type] || typeMap.general
+                  }
+                  
+                  const typeInfo = getTypeInfo(note.type)
+                  const formatDate = (dateString: string) => {
+                    const date = new Date(dateString)
+                    const now = new Date()
+                    const diffInHours = (now.getTime() - date.getTime()) / (1000 * 60 * 60)
+                    
+                    if (diffInHours < 1) return 'Just now'
+                    if (diffInHours < 24) return `${Math.floor(diffInHours)}h ago`
+                    if (diffInHours < 48) return 'Yesterday'
+                    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+                  }
+
+                  return (
+                    <div key={note.id} className={`bg-white rounded-lg p-3 sm:p-4 ${!note.isRead ? 'ring-2 ring-pink-200' : ''}`}>
+                      <div className="flex items-start justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          <span className={`text-xs sm:text-sm font-medium ${typeInfo.color}`}>
+                            {typeInfo.label}
+                          </span>
+                          <span className="text-xs text-gray-500">
+                            {formatDate(note.createdAt)}
+                          </span>
+                          {!note.isRead && (
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-pink-100 text-pink-800">
+                              New
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      <div className="text-gray-800 text-sm sm:text-base leading-relaxed whitespace-pre-wrap">
+                        {note.text}
+                      </div>
+                    </div>
+                  )
+                })}
+                {weekData.encouragementNotes.length > 3 && (
+                  <p className="text-sm text-gray-600 text-center">
+                    +{weekData.encouragementNotes.length - 3} more notes
+                  </p>
+                )}
+              </div>
+            </Card>
+          </motion.div>
+        )}
 
         {/* Priority Actions */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 mb-4 sm:mb-6">
