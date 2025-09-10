@@ -74,28 +74,51 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-2 sm:p-4"
     >
       <motion.div
         initial={{ scale: 0.95, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.95, opacity: 0 }}
-        className="bg-white rounded-lg shadow-xl w-full max-w-4xl h-[90vh] flex flex-col"
+        className="bg-white rounded-lg shadow-xl w-full max-w-4xl h-[95vh] sm:h-[90vh] flex flex-col"
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <div className="flex items-center gap-3">
-            <Settings className="w-6 h-6 text-gray-600" />
-            <h2 className="text-2xl font-bold text-gray-900">Settings</h2>
+        <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <Settings className="w-5 h-5 sm:w-6 sm:h-6 text-gray-600" />
+            <h2 className="text-lg sm:text-2xl font-bold text-gray-900">Settings</h2>
           </div>
-          <Button variant="outline" onClick={onClose}>
+          <Button variant="outline" onClick={onClose} size="sm">
             <X className="w-4 h-4" />
           </Button>
         </div>
 
         <div className="flex flex-1 overflow-hidden">
-          {/* Sidebar */}
-          <div className="w-64 bg-gray-50 border-r border-gray-200 p-4">
+          {/* Mobile Tab Navigation */}
+          <div className="block sm:hidden w-full border-b border-gray-200">
+            <div className="flex overflow-x-auto">
+              {tabs.map((tab) => {
+                const IconComponent = tab.icon
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`flex-shrink-0 flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+                      activeTab === tab.id
+                        ? 'border-blue-500 text-blue-600 bg-blue-50'
+                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                    }`}
+                  >
+                    <IconComponent className="w-4 h-4" />
+                    <span className="whitespace-nowrap">{tab.label}</span>
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+
+          {/* Desktop Sidebar */}
+          <div className="hidden sm:block w-64 bg-gray-50 border-r border-gray-200 p-4">
             <nav className="space-y-2">
               {tabs.map((tab) => {
                 const IconComponent = tab.icon
@@ -118,13 +141,13 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
           </div>
 
           {/* Content */}
-          <div className="flex-1 p-6 overflow-y-auto">
+          <div className="flex-1 p-4 sm:p-6 overflow-y-auto">
             {/* Spouses Tab */}
             {activeTab === 'spouses' && (
               <div className="space-y-6">
                 <div>
                   <h3 className="text-lg font-semibold text-gray-900 mb-4">Spouse Information</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
                     {/* Spouse 1 */}
                     <Card className="p-4">
                       <h4 className="font-medium text-gray-900 mb-3">Spouse 1</h4>
@@ -187,7 +210,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
                 <div>
                   <h3 className="text-lg font-semibold text-gray-900 mb-4">Location Settings</h3>
                   <Card className="p-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <Input
                         label="Address"
                         value={settings.location.address}
@@ -243,7 +266,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
                   {/* Add New Store */}
                   <Card className="p-4 mb-4">
                     <h4 className="font-medium text-gray-900 mb-3">Add New Store</h4>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <Input
                         label="Store Name"
                         value={newGroceryStore.name}
@@ -271,7 +294,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
                   <div className="space-y-3">
                     {settings.groceryStores.map((store) => (
                       <Card key={store.id} className="p-4">
-                        <div className="flex items-center justify-between">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                           <div className="flex-1">
                             <div className="flex items-center gap-2">
                               <h4 className="font-medium text-gray-900">{store.name}</h4>
@@ -336,7 +359,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
                 <div>
                   <h3 className="text-lg font-semibold text-gray-900 mb-4">General Settings</h3>
                   <Card className="p-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <Input
                         label="Default Weather Location"
                         value={settings.defaultWeatherLocation}
