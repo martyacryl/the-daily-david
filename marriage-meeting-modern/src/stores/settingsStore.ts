@@ -1,5 +1,4 @@
 import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
 
 export interface SpouseInfo {
   name: string
@@ -82,6 +81,8 @@ const defaultSettings: AppSettings = {
 const API_BASE_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://theweeklyhuddle.vercel.app' : 'http://localhost:3001')
 
 const fetchSettings = async (): Promise<AppSettings> => {
+  console.log('🔍 Fetching settings from database...')
+  
   // Get token from auth store
   let token = ''
   try {
@@ -89,33 +90,48 @@ const fetchSettings = async (): Promise<AppSettings> => {
     if (authData) {
       const parsed = JSON.parse(authData)
       token = parsed.state?.token || ''
+      console.log('🔑 Token found:', token ? 'Yes' : 'No')
+    } else {
+      console.log('❌ No auth data in localStorage')
     }
   } catch (error) {
-    console.error('Error getting auth token:', error)
+    console.error('❌ Error getting auth token:', error)
   }
   
   if (!token) {
-    console.log('No auth token found, returning default settings')
+    console.log('⚠️ No auth token found, returning default settings')
     return defaultSettings
   }
 
-  const response = await fetch(`${API_BASE_URL}/api/settings`, {
-    method: 'GET',
-    headers: {
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json'
+  try {
+    console.log('🌐 Making API request to:', `${API_BASE_URL}/api/settings`)
+    const response = await fetch(`${API_BASE_URL}/api/settings`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    })
+
+    console.log('📡 Response status:', response.status)
+
+    if (!response.ok) {
+      console.error(`❌ Failed to fetch settings: ${response.statusText}`)
+      return defaultSettings
     }
-  })
 
-  if (!response.ok) {
-    console.error(`Failed to fetch settings: ${response.statusText}`)
+    const settings = await response.json()
+    console.log('✅ Settings fetched successfully:', settings)
+    return settings
+  } catch (error) {
+    console.error('❌ Network error fetching settings:', error)
     return defaultSettings
   }
-
-  return response.json()
 }
 
 const saveSettings = async (settings: AppSettings): Promise<AppSettings> => {
+  console.log('💾 Saving settings to database...', settings)
+  
   // Get token from auth store
   let token = ''
   try {
@@ -123,31 +139,44 @@ const saveSettings = async (settings: AppSettings): Promise<AppSettings> => {
     if (authData) {
       const parsed = JSON.parse(authData)
       token = parsed.state?.token || ''
+      console.log('🔑 Token found for save:', token ? 'Yes' : 'No')
+    } else {
+      console.log('❌ No auth data in localStorage for save')
     }
   } catch (error) {
-    console.error('Error getting auth token:', error)
+    console.error('❌ Error getting auth token for save:', error)
   }
   
   if (!token) {
-    console.log('No auth token found, cannot save settings')
+    console.log('⚠️ No auth token found, cannot save settings')
     return settings
   }
 
-  const response = await fetch(`${API_BASE_URL}/api/settings`, {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(settings)
-  })
+  try {
+    console.log('🌐 Making API request to save:', `${API_BASE_URL}/api/settings`)
+    const response = await fetch(`${API_BASE_URL}/api/settings`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(settings)
+    })
 
-  if (!response.ok) {
-    console.error(`Failed to save settings: ${response.statusText}`)
+    console.log('📡 Save response status:', response.status)
+
+    if (!response.ok) {
+      console.error(`❌ Failed to save settings: ${response.statusText}`)
+      return settings
+    }
+
+    const savedSettings = await response.json()
+    console.log('✅ Settings saved successfully:', savedSettings)
+    return savedSettings
+  } catch (error) {
+    console.error('❌ Network error saving settings:', error)
     return settings
   }
-
-  return response.json()
 }
 
 export const useSettingsStore = create<SettingsStore>()(
@@ -277,12 +306,14 @@ export const useSettingsStore = create<SettingsStore>()(
 
     // New method to load settings from database
     loadSettings: async () => {
+      console.log('🔄 Loading settings from database...')
       try {
         const settings = await fetchSettings()
+        console.log('📥 Settings loaded, updating store:', settings)
         set({ settings })
         return settings
       } catch (error) {
-        console.error('Failed to load settings:', error)
+        console.error('❌ Failed to load settings:', error)
         return defaultSettings
       }
     }

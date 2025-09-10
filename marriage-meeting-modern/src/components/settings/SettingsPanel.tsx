@@ -49,21 +49,30 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
 
   // Load settings from database when panel opens and user is authenticated
   React.useEffect(() => {
-    if (isOpen && !isLoaded && isAuthenticated) {
+    if (isOpen && isAuthenticated) {
       const loadSettingsData = async () => {
+        console.log('🔄 Settings panel opened, loading settings...')
         setIsLoading(true)
         try {
-          await loadSettings()
+          const loadedSettings = await loadSettings()
+          console.log('✅ Settings loaded in panel:', loadedSettings)
           setIsLoaded(true)
         } catch (error) {
-          console.error('Failed to load settings:', error)
+          console.error('❌ Failed to load settings in panel:', error)
         } finally {
           setIsLoading(false)
         }
       }
       loadSettingsData()
     }
-  }, [isOpen, isLoaded, isAuthenticated, loadSettings])
+  }, [isOpen, isAuthenticated, loadSettings])
+
+  // Reset loaded state when panel closes
+  React.useEffect(() => {
+    if (!isOpen) {
+      setIsLoaded(false)
+    }
+  }, [isOpen])
 
   const tabs = [
     { id: 'spouses', label: 'Spouses', icon: User },
