@@ -19,6 +19,7 @@ import { Button } from '../ui/Button'
 import { Input } from '../ui/Input'
 import { Textarea } from '../ui/Textarea'
 import { useSettingsStore } from '../../stores/settingsStore'
+import { useAuthStore } from '../../stores/authStore'
 
 interface SettingsPanelProps {
   isOpen: boolean
@@ -26,6 +27,7 @@ interface SettingsPanelProps {
 }
 
 export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose }) => {
+  const { isAuthenticated } = useAuthStore()
   const {
     settings,
     updateSpouse1,
@@ -45,9 +47,9 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
   const [isLoading, setIsLoading] = useState(false)
   const [isLoaded, setIsLoaded] = useState(false)
 
-  // Load settings from database when panel opens
+  // Load settings from database when panel opens and user is authenticated
   React.useEffect(() => {
-    if (isOpen && !isLoaded) {
+    if (isOpen && !isLoaded && isAuthenticated) {
       const loadSettingsData = async () => {
         setIsLoading(true)
         try {
@@ -61,7 +63,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
       }
       loadSettingsData()
     }
-  }, [isOpen, isLoaded, loadSettings])
+  }, [isOpen, isLoaded, isAuthenticated, loadSettings])
 
   const tabs = [
     { id: 'spouses', label: 'Spouses', icon: User },

@@ -82,9 +82,21 @@ const defaultSettings: AppSettings = {
 const API_BASE_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://theweeklyhuddle.vercel.app' : 'http://localhost:3001')
 
 const fetchSettings = async (): Promise<AppSettings> => {
-  const token = localStorage.getItem('authToken')
+  // Get token from auth store
+  let token = ''
+  try {
+    const authData = localStorage.getItem('auth-storage')
+    if (authData) {
+      const parsed = JSON.parse(authData)
+      token = parsed.state?.token || ''
+    }
+  } catch (error) {
+    console.error('Error getting auth token:', error)
+  }
+  
   if (!token) {
-    throw new Error('No auth token found')
+    console.log('No auth token found, returning default settings')
+    return defaultSettings
   }
 
   const response = await fetch(`${API_BASE_URL}/api/settings`, {
@@ -96,16 +108,29 @@ const fetchSettings = async (): Promise<AppSettings> => {
   })
 
   if (!response.ok) {
-    throw new Error(`Failed to fetch settings: ${response.statusText}`)
+    console.error(`Failed to fetch settings: ${response.statusText}`)
+    return defaultSettings
   }
 
   return response.json()
 }
 
 const saveSettings = async (settings: AppSettings): Promise<AppSettings> => {
-  const token = localStorage.getItem('authToken')
+  // Get token from auth store
+  let token = ''
+  try {
+    const authData = localStorage.getItem('auth-storage')
+    if (authData) {
+      const parsed = JSON.parse(authData)
+      token = parsed.state?.token || ''
+    }
+  } catch (error) {
+    console.error('Error getting auth token:', error)
+  }
+  
   if (!token) {
-    throw new Error('No auth token found')
+    console.log('No auth token found, cannot save settings')
+    return settings
   }
 
   const response = await fetch(`${API_BASE_URL}/api/settings`, {
@@ -118,7 +143,8 @@ const saveSettings = async (settings: AppSettings): Promise<AppSettings> => {
   })
 
   if (!response.ok) {
-    throw new Error(`Failed to save settings: ${response.statusText}`)
+    console.error(`Failed to save settings: ${response.statusText}`)
+    return settings
   }
 
   return response.json()
