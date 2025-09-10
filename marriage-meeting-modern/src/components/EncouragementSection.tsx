@@ -144,11 +144,11 @@ export const EncouragementSection: React.FC<EncouragementSectionProps> = ({
         </div>
         <Button
           onClick={() => setIsAdding(true)}
-          className="bg-pink-600 hover:bg-pink-700 text-white"
+          className="bg-pink-600 hover:bg-pink-700 text-white p-2 sm:px-3 sm:py-2"
           size="sm"
         >
-          <Plus className="w-4 h-4 mr-1" />
-          Add Note
+          <Plus className="w-4 h-4 sm:mr-1" />
+          <span className="hidden sm:inline">Add Note</span>
         </Button>
       </div>
 

@@ -299,8 +299,8 @@ export const DashboardNew: React.FC = () => {
             </Link>
             <Link to="/weekly?section=encouragement">
               <Card className="p-2 sm:p-4 text-center hover:shadow-lg transition-shadow cursor-pointer">
-                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-pink-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                  <Heart className="w-4 h-4 sm:w-5 sm:h-5 text-pink-600" />
+                <div className="w-6 h-6 sm:w-8 sm:h-8 bg-pink-100 rounded-full flex items-center justify-center mx-auto mb-1 sm:mb-2">
+                  <Heart className="w-3 h-3 sm:w-4 sm:h-4 text-pink-600" />
                 </div>
                 <h3 className="font-semibold text-gray-800 text-xs sm:text-sm">Add Note</h3>
               </Card>
