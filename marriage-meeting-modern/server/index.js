@@ -204,7 +204,8 @@ app.post('/api/marriage-weeks', authenticateToken, async (req, res) => {
 // Settings Routes
 app.get('/api/settings', authenticateToken, async (req, res) => {
   try {
-    const userId = req.user.userId
+    const userId = req.user.id
+    console.log('GET /api/settings - User ID:', userId)
 
     const result = await pool.query(
       'SELECT settings_data FROM user_settings WHERE user_id = $1',
@@ -237,8 +238,10 @@ app.get('/api/settings', authenticateToken, async (req, res) => {
 
 app.post('/api/settings', authenticateToken, async (req, res) => {
   try {
-    const userId = req.user.userId
+    const userId = req.user.id
     const settingsData = req.body
+    console.log('POST /api/settings - User ID:', userId)
+    console.log('POST /api/settings - Settings Data:', JSON.stringify(settingsData, null, 2))
 
     // Upsert settings (insert or update)
     const result = await pool.query(`
