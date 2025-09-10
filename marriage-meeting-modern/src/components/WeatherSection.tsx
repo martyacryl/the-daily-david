@@ -287,11 +287,14 @@ export const WeatherSection: React.FC<WeatherSectionProps> = ({ className = '' }
         await fetchWeather(coords.lat, coords.lon)
       } catch (err) {
         console.error('Location error:', err)
+        console.log('Full settings object:', settings)
         console.log('Settings location check:', {
           city: settings.location.city,
           state: settings.location.state,
+          defaultWeatherLocation: settings.defaultWeatherLocation,
           hasCity: !!settings.location.city,
-          hasState: !!settings.location.state
+          hasState: !!settings.location.state,
+          hasDefaultWeather: !!settings.defaultWeatherLocation
         })
         
         // Try to use settings location as fallback
@@ -305,6 +308,11 @@ export const WeatherSection: React.FC<WeatherSectionProps> = ({ className = '' }
           console.log('Using city only as fallback:', settings.location.city)
           setError(null)
           await fetchWeatherByCity(settings.location.city)
+        } else if (settings.defaultWeatherLocation) {
+          // Try with default weather location
+          console.log('Using default weather location as fallback:', settings.defaultWeatherLocation)
+          setError(null)
+          await fetchWeatherByCity(settings.defaultWeatherLocation)
         } else {
           // Show manual input if no settings location
           console.log('No settings location available, showing manual input')
@@ -317,18 +325,23 @@ export const WeatherSection: React.FC<WeatherSectionProps> = ({ className = '' }
     // Add a longer delay to let settings load properly
     const timer = setTimeout(loadWeather, 500)
     return () => clearTimeout(timer)
-  }, [settings.location.city, settings.location.state])
+  }, [settings.location.city, settings.location.state, settings.defaultWeatherLocation])
 
   // Additional effect to handle settings changes after initial load
   useEffect(() => {
-    if (error && settings.location.city && !loading) {
-      console.log('Settings changed, retrying with new location:', settings.location.city)
-      const cityName = settings.location.state 
-        ? `${settings.location.city}, ${settings.location.state}`
-        : settings.location.city
-      fetchWeatherByCity(cityName)
+    if (error && !loading) {
+      if (settings.location.city) {
+        console.log('Settings changed, retrying with new location:', settings.location.city)
+        const cityName = settings.location.state 
+          ? `${settings.location.city}, ${settings.location.state}`
+          : settings.location.city
+        fetchWeatherByCity(cityName)
+      } else if (settings.defaultWeatherLocation) {
+        console.log('Settings changed, retrying with default weather location:', settings.defaultWeatherLocation)
+        fetchWeatherByCity(settings.defaultWeatherLocation)
+      }
     }
-  }, [settings.location.city, settings.location.state, error, loading])
+  }, [settings.location.city, settings.location.state, settings.defaultWeatherLocation, error, loading])
 
   // Fetch weather by city name
   const fetchWeatherByCity = async (cityName: string) => {
