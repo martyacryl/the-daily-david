@@ -42,29 +42,30 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
   const [newGroceryStore, setNewGroceryStore] = useState({ name: '', address: '' })
   const [showStoreSuccess, setShowStoreSuccess] = useState(false)
   const [isHydrated, setIsHydrated] = useState(false)
+  const [forceUpdate, setForceUpdate] = useState(0)
 
-  // Force hydration and ensure settings are loaded
+  // Force load settings from localStorage
   React.useEffect(() => {
-    // Force a re-render after a short delay to ensure store is hydrated
-    const timer = setTimeout(() => {
-      setIsHydrated(true)
-      // Force the store to rehydrate if needed
-      const store = useSettingsStore.getState()
-      if (store.settings.spouse1.name === '' && store.settings.spouse2.name === '') {
-        // Try to reload from localStorage manually
+    const loadSettings = () => {
+      try {
         const stored = localStorage.getItem('marriage-meeting-settings')
         if (stored) {
-          try {
-            const parsed = JSON.parse(stored)
-            if (parsed.state?.settings) {
-              useSettingsStore.setState({ settings: parsed.state.settings })
-            }
-          } catch (e) {
-            console.error('Failed to parse stored settings:', e)
+          const parsed = JSON.parse(stored)
+          if (parsed.state?.settings) {
+            // Force update the store with the loaded settings
+            useSettingsStore.setState({ settings: parsed.state.settings })
+            setForceUpdate(prev => prev + 1)
           }
         }
+      } catch (e) {
+        console.error('Failed to load settings from localStorage:', e)
       }
-    }, 200)
+      setIsHydrated(true)
+    }
+
+    // Load immediately and also after a delay
+    loadSettings()
+    const timer = setTimeout(loadSettings, 300)
     return () => clearTimeout(timer)
   }, [])
 
@@ -121,6 +122,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
 
   return (
     <motion.div
+      key={forceUpdate}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -138,9 +140,28 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
             <Settings className="w-5 h-5 sm:w-6 sm:h-6 text-gray-600" />
             <h2 className="text-lg sm:text-2xl font-bold text-gray-900">Settings</h2>
           </div>
-          <Button variant="outline" onClick={onClose} size="sm">
-            <X className="w-4 h-4" />
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button 
+              variant="outline" 
+              onClick={() => {
+                const stored = localStorage.getItem('marriage-meeting-settings')
+                if (stored) {
+                  const parsed = JSON.parse(stored)
+                  if (parsed.state?.settings) {
+                    useSettingsStore.setState({ settings: parsed.state.settings })
+                    setForceUpdate(prev => prev + 1)
+                  }
+                }
+              }} 
+              size="sm"
+              className="text-xs"
+            >
+              Refresh
+            </Button>
+            <Button variant="outline" onClick={onClose} size="sm">
+              <X className="w-4 h-4" />
+            </Button>
+          </div>
         </div>
 
         {/* Mobile Tab Navigation */}
