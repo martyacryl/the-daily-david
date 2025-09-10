@@ -6,7 +6,8 @@ import { Button } from './ui/Button'
 import { GoalsSection } from './GoalsSection'
 import { TasksSection } from './TasksSection'
 import { GroceryErrandsSection } from './GroceryErrandsSection'
-import { ListItem, GoalItem, TaskItem, DayName } from '../types/marriageTypes'
+import { ListItem, GoalItem, TaskItem, DayName, EncouragementNote } from '../types/marriageTypes'
+import { EncouragementSection } from './EncouragementSection'
 
 interface WeeklyMeetingContentProps {
   activeSection: string
@@ -15,8 +16,9 @@ interface WeeklyMeetingContentProps {
     todos: TaskItem[]
     prayers: ListItem[]
     goals: GoalItem[]
-    grocery: ListItem[]
+    grocery: any[]
     unconfessedSin: ListItem[]
+    encouragementNotes: EncouragementNote[]
   }
   onUpdateSchedule: (day: DayName, index: number, value: string) => void
   onAddScheduleLine: (day: DayName) => void
@@ -28,6 +30,7 @@ interface WeeklyMeetingContentProps {
   onUpdateGoals: (goals: GoalItem[]) => void
   onUpdateTasks: (tasks: TaskItem[]) => void
   onUpdateGrocery: (grocery: any[]) => void
+  onUpdateEncouragementNotes: (encouragementNotes: EncouragementNote[]) => void
 }
 
 export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
@@ -42,7 +45,8 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
   onRemoveListItem,
   onUpdateGoals,
   onUpdateTasks,
-  onUpdateGrocery
+  onUpdateGrocery,
+  onUpdateEncouragementNotes
 }) => {
   const days: DayName[] = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 
@@ -235,6 +239,31 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
     <GroceryErrandsSection items={weekData.grocery} onUpdate={onUpdateGrocery} />
   )
 
+  const renderEncouragementSection = () => (
+    <motion.div
+      initial={{ opacity: 0, x: 20 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ duration: 0.3 }}
+    >
+      <Card className="p-3 sm:p-6 lg:p-8">
+        <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
+          <div className="p-2 sm:p-3 bg-pink-100 rounded-lg">
+            <Heart className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-pink-600" />
+          </div>
+          <div>
+            <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">Encouragement</h2>
+            <p className="text-sm sm:text-base text-gray-600">Leave notes of encouragement, Bible verses, and reminders for your spouse</p>
+          </div>
+        </div>
+        <EncouragementSection 
+          notes={weekData.encouragementNotes || []} 
+          onUpdate={onUpdateEncouragementNotes}
+          className="w-full"
+        />
+      </Card>
+    </motion.div>
+  )
+
   const renderContent = () => {
     switch (activeSection) {
       case 'schedule':
@@ -249,6 +278,8 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
         return renderGroceryErrandsSection()
       case 'unconfessed':
         return renderListSection('unconfessedSin', 'Accountability', AlertTriangle, 'red', weekData.unconfessedSin)
+      case 'encouragement':
+        return renderEncouragementSection()
       default:
         return renderScheduleSection()
     }

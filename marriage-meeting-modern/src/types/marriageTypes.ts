@@ -51,6 +51,15 @@ export interface GoalItem {
   priority?: 'low' | 'medium' | 'high'
 }
 
+// Encouragement Note Structure
+export interface EncouragementNote {
+  id: number
+  text: string
+  type: 'encouragement' | 'bible' | 'reminder' | 'love' | 'general'
+  createdAt: string
+  isRead?: boolean
+}
+
 // Marriage Meeting Week Data Structure
 export interface MarriageMeetingWeek {
   id?: string
@@ -76,6 +85,7 @@ export interface WeekData {
   grocery: GroceryStoreList[] // Updated to use store-specific lists
   unconfessedSin: ListItem[]
   weeklyWinddown: ListItem[]
+  encouragementNotes: EncouragementNote[] // Encouragement notes and messages
 }
 
 // Grocery Store List

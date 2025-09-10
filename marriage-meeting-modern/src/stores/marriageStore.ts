@@ -2,7 +2,7 @@
 // Manages marriage meeting week data
 
 import { create } from 'zustand'
-import { MarriageMeetingWeek, WeekData, ListItem, WeeklySchedule, DayName, ListType, GoalItem, TaskItem, GroceryStoreList } from '../types/marriageTypes'
+import { MarriageMeetingWeek, WeekData, ListItem, WeeklySchedule, DayName, ListType, GoalItem, TaskItem, GroceryStoreList, EncouragementNote } from '../types/marriageTypes'
 import { dbManager } from '../lib/database'
 
 interface MarriageState {
@@ -28,6 +28,7 @@ interface MarriageState {
   updateGoals: (goals: GoalItem[]) => void
   updateTasks: (tasks: TaskItem[]) => void
   updateGrocery: (grocery: GroceryStoreList[]) => void
+  updateEncouragementNotes: (encouragementNotes: EncouragementNote[]) => void
   setLoading: (loading: boolean) => void
   setError: (error: string | null) => void
   setLastSaved: (date: Date) => void
@@ -49,7 +50,8 @@ const createEmptyWeekData = (): WeekData => ({
   goals: [], // Now uses GoalItem[] structure
   grocery: [] as GroceryStoreList[],
   unconfessedSin: [],
-  weeklyWinddown: []
+  weeklyWinddown: [],
+  encouragementNotes: []
 })
 
 // Helper function to get next ID for list items
@@ -136,7 +138,8 @@ export const useMarriageStore = create<MarriageState>((set, get) => ({
             goals: migratedGoals,
             grocery: week.grocery,
             unconfessedSin: week.unconfessedSin,
-            weeklyWinddown: week.weeklyWinddown
+            weeklyWinddown: week.weeklyWinddown,
+            encouragementNotes: week.encouragementNotes || []
           }
         })
       } else {
@@ -185,7 +188,8 @@ export const useMarriageStore = create<MarriageState>((set, get) => ({
         goals: data.goals,
         grocery: data.grocery,
         unconfessedSin: data.unconfessedSin,
-        weeklyWinddown: data.weeklyWinddown
+        weeklyWinddown: data.weeklyWinddown,
+        encouragementNotes: data.encouragementNotes
       }
 
       await dbManager.saveMarriageMeetingWeek(weekData)
@@ -327,6 +331,15 @@ export const useMarriageStore = create<MarriageState>((set, get) => ({
         weekData: {
           ...state.weekData,
           grocery: grocery
+        }
+      }))
+    },
+
+    updateEncouragementNotes: (encouragementNotes: EncouragementNote[]) => {
+      set((state) => ({
+        weekData: {
+          ...state.weekData,
+          encouragementNotes
         }
       }))
     },

@@ -103,7 +103,8 @@ export const WeeklyMeetingSidebarLayout: React.FC = () => {
     removeListItem,
     updateGoals,
     updateTasks,
-    updateGrocery
+    updateGrocery,
+    updateEncouragementNotes
   } = useMarriageStore()
 
   const [searchParams] = useSearchParams()
@@ -113,7 +114,7 @@ export const WeeklyMeetingSidebarLayout: React.FC = () => {
   // Handle section parameter from URL
   useEffect(() => {
     const section = searchParams.get('section')
-    if (section && ['schedule', 'goals', 'todos', 'prayers', 'grocery', 'unconfessed'].includes(section)) {
+    if (section && ['schedule', 'goals', 'todos', 'prayers', 'grocery', 'unconfessed', 'encouragement'].includes(section)) {
       setActiveSection(section)
     }
   }, [searchParams])
@@ -166,7 +167,8 @@ export const WeeklyMeetingSidebarLayout: React.FC = () => {
     todos: (weekData.todos || []).length,
     prayers: (weekData.prayers || []).length,
     grocery: (weekData.grocery || []).reduce((total, storeList) => total + (storeList.items?.length || 0), 0),
-    unconfessed: (weekData.unconfessedSin || []).length
+    unconfessed: (weekData.unconfessedSin || []).length,
+    encouragement: (weekData.encouragementNotes || []).length
   }
 
   if (isLoading) {
@@ -235,6 +237,7 @@ export const WeeklyMeetingSidebarLayout: React.FC = () => {
             onUpdateGoals={updateGoals}
             onUpdateTasks={updateTasks}
             onUpdateGrocery={updateGrocery}
+            onUpdateEncouragementNotes={updateEncouragementNotes}
           />
         </div>
       </div>
