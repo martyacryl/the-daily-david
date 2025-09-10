@@ -72,6 +72,7 @@ export interface MarriageMeetingWeek {
   grocery: ListItem[]
   unconfessedSin: ListItem[]
   weeklyWinddown: ListItem[]
+  encouragementNotes: EncouragementNote[]
   created_at?: string
   updated_at?: string
 }

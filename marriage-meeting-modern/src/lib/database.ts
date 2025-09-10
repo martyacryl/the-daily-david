@@ -52,7 +52,8 @@ export class DatabaseManager {
         goals: week.goals,
         grocery: week.grocery,
         unconfessedSin: week.unconfessedSin,
-        weeklyWinddown: week.weeklyWinddown
+        weeklyWinddown: week.weeklyWinddown,
+        encouragementNotes: week.encouragementNotes
       }
     }
 
@@ -195,6 +196,7 @@ export class DatabaseManager {
       grocery: dataContent.grocery || [],
       unconfessedSin: dataContent.unconfessedSin || [],
       weeklyWinddown: dataContent.weeklyWinddown || [],
+      encouragementNotes: dataContent.encouragementNotes || [],
       created_at: result.created_at,
       updated_at: result.updated_at
     }
