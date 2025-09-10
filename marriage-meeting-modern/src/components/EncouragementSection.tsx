@@ -107,6 +107,27 @@ export const EncouragementSection: React.FC<EncouragementSectionProps> = ({
     }
   }
 
+  // Sort notes: unread first, then read, then filter by date (recent first)
+  const sortedNotes = [...notes]
+    .sort((a, b) => {
+      // First sort by read status (unread first)
+      if (a.isRead !== b.isRead) {
+        return a.isRead ? 1 : -1
+      }
+      // Then sort by date (newest first)
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    })
+    .filter(note => {
+      // Auto-archive notes older than 7 days
+      const noteDate = new Date(note.createdAt)
+      const sevenDaysAgo = new Date()
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
+      return noteDate >= sevenDaysAgo
+    })
+
+  const unreadCount = sortedNotes.filter(note => !note.isRead).length
+  const totalCount = sortedNotes.length
+
   return (
     <div className={`space-y-3 ${className}`}>
       {/* Header */}
@@ -114,7 +135,12 @@ export const EncouragementSection: React.FC<EncouragementSectionProps> = ({
         <div className="flex items-center gap-2">
           <Heart className="w-5 h-5 text-pink-600" />
           <h3 className="text-lg font-semibold text-gray-900">Encouragement</h3>
-          <span className="text-sm text-gray-500">({notes.length})</span>
+          <span className="text-sm text-gray-500">({totalCount})</span>
+          {unreadCount > 0 && (
+            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-pink-100 text-pink-800">
+              {unreadCount} new
+            </span>
+          )}
         </div>
         <Button
           onClick={() => setIsAdding(true)}
@@ -219,7 +245,7 @@ export const EncouragementSection: React.FC<EncouragementSectionProps> = ({
       {/* Notes List */}
       <div className="space-y-2">
         <AnimatePresence>
-          {notes.length === 0 ? (
+          {sortedNotes.length === 0 ? (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -230,7 +256,7 @@ export const EncouragementSection: React.FC<EncouragementSectionProps> = ({
               <p className="text-sm">Add your first note to encourage your spouse!</p>
             </motion.div>
           ) : (
-            notes.map((note) => {
+            sortedNotes.map((note) => {
               const typeInfo = getTypeInfo(note.type)
               const IconComponent = typeInfo.icon
               const isEditing = editingId === note.id
@@ -241,9 +267,15 @@ export const EncouragementSection: React.FC<EncouragementSectionProps> = ({
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
-                  className={`relative ${!note.isRead ? 'ring-2 ring-pink-200 bg-pink-50' : ''}`}
+                  className={`relative transition-all duration-300 ${
+                    !note.isRead 
+                      ? 'ring-2 ring-pink-200 bg-pink-50 opacity-100' 
+                      : 'opacity-60 border border-gray-100'
+                  }`}
                 >
-                  <Card className={`p-4 ${!note.isRead ? 'border-pink-200' : 'border-gray-200'}`}>
+                  <Card className={`p-4 transition-all duration-300 ${
+                    !note.isRead ? 'border-pink-200' : 'border-gray-200'
+                  }`}>
                     {isEditing ? (
                       <div className="space-y-3">
                         {/* Edit Form */}
@@ -324,9 +356,14 @@ export const EncouragementSection: React.FC<EncouragementSectionProps> = ({
                             <span className="text-xs text-gray-500">
                               {formatDate(note.createdAt)}
                             </span>
-                            {!note.isRead && (
+                            {!note.isRead ? (
                               <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-pink-100 text-pink-800">
                                 New
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+                                <Check className="w-3 h-3 mr-1" />
+                                Read
                               </span>
                             )}
                           </div>
@@ -351,7 +388,9 @@ export const EncouragementSection: React.FC<EncouragementSectionProps> = ({
                         </div>
 
                         {/* Note Content */}
-                        <div className="text-gray-800 leading-relaxed whitespace-pre-wrap">
+                        <div className={`leading-relaxed whitespace-pre-wrap ${
+                          note.isRead ? 'text-gray-600' : 'text-gray-800'
+                        }`}>
                           {note.text}
                         </div>
 

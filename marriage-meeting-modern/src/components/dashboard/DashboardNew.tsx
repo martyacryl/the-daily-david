@@ -314,25 +314,54 @@ export const DashboardNew: React.FC = () => {
         </div>
 
         {/* Encouragement Notes */}
-        {(weekData.encouragementNotes && weekData.encouragementNotes.length > 0) && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="mb-6"
-          >
-            <Card className="p-3 sm:p-6 bg-gradient-to-r from-pink-50 to-rose-50 border-pink-200">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg sm:text-xl font-semibold text-gray-900 flex items-center gap-2">
-                  <Heart className="w-4 h-4 sm:w-5 sm:h-5 text-pink-600" />
-                  Encouragement Notes
-                </h3>
-                <Link to="/weekly?section=encouragement" className="text-pink-600 text-sm font-medium">
-                  View All →
-                </Link>
-              </div>
-              <div className="space-y-3">
-                {weekData.encouragementNotes.slice(0, 3).map((note) => {
+        {(weekData.encouragementNotes && weekData.encouragementNotes.length > 0) && (() => {
+          // Sort notes: unread first, then read, then filter by date (recent first)
+          const sortedNotes = [...weekData.encouragementNotes]
+            .sort((a, b) => {
+              // First sort by read status (unread first)
+              if (a.isRead !== b.isRead) {
+                return a.isRead ? 1 : -1
+              }
+              // Then sort by date (newest first)
+              return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+            })
+            .filter(note => {
+              // Auto-archive notes older than 7 days
+              const noteDate = new Date(note.createdAt)
+              const sevenDaysAgo = new Date()
+              sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
+              return noteDate >= sevenDaysAgo
+            })
+
+          const unreadCount = sortedNotes.filter(note => !note.isRead).length
+          const totalCount = sortedNotes.length
+
+          return (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="mb-6"
+            >
+              <Card className="p-3 sm:p-6 bg-gradient-to-r from-pink-50 to-rose-50 border-pink-200">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-lg sm:text-xl font-semibold text-gray-900 flex items-center gap-2">
+                      <Heart className="w-4 h-4 sm:w-5 sm:h-5 text-pink-600" />
+                      Encouragement Notes
+                    </h3>
+                    {unreadCount > 0 && (
+                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-pink-100 text-pink-800">
+                        {unreadCount} new
+                      </span>
+                    )}
+                  </div>
+                  <Link to="/weekly?section=encouragement" className="text-pink-600 text-sm font-medium">
+                    View All →
+                  </Link>
+                </div>
+                <div className="space-y-3">
+                  {sortedNotes.slice(0, 3).map((note) => {
                   const getTypeInfo = (type: EncouragementNote['type']) => {
                     const typeMap = {
                       encouragement: { label: 'Encouragement', color: 'text-pink-600' },
@@ -357,7 +386,14 @@ export const DashboardNew: React.FC = () => {
                   }
 
                   return (
-                    <div key={note.id} className={`bg-white rounded-lg p-3 sm:p-4 ${!note.isRead ? 'ring-2 ring-pink-200' : ''}`}>
+                    <div 
+                      key={note.id} 
+                      className={`bg-white rounded-lg p-3 sm:p-4 transition-all duration-300 ${
+                        !note.isRead 
+                          ? 'ring-2 ring-pink-200 opacity-100' 
+                          : 'opacity-60 border border-gray-100'
+                      }`}
+                    >
                       <div className="flex items-start justify-between mb-2">
                         <div className="flex items-center gap-2">
                           <span className={`text-xs sm:text-sm font-medium ${typeInfo.color}`}>
@@ -366,28 +402,36 @@ export const DashboardNew: React.FC = () => {
                           <span className="text-xs text-gray-500">
                             {formatDate(note.createdAt)}
                           </span>
-                          {!note.isRead && (
+                          {!note.isRead ? (
                             <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-pink-100 text-pink-800">
                               New
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+                              <CheckCircle className="w-3 h-3 mr-1" />
+                              Read
                             </span>
                           )}
                         </div>
                       </div>
-                      <div className="text-gray-800 text-sm sm:text-base leading-relaxed whitespace-pre-wrap">
+                      <div className={`text-sm sm:text-base leading-relaxed whitespace-pre-wrap ${
+                        note.isRead ? 'text-gray-600' : 'text-gray-800'
+                      }`}>
                         {note.text}
                       </div>
                     </div>
                   )
                 })}
-                {weekData.encouragementNotes.length > 3 && (
+                {totalCount > 3 && (
                   <p className="text-sm text-gray-600 text-center">
-                    +{weekData.encouragementNotes.length - 3} more notes
+                    +{totalCount - 3} more notes
                   </p>
                 )}
               </div>
             </Card>
           </motion.div>
-        )}
+          )
+        })()}
 
         {/* Priority Actions */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 mb-4 sm:mb-6">
