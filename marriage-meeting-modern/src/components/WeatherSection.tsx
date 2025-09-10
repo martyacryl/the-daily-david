@@ -125,6 +125,7 @@ export const WeatherSection: React.FC<WeatherSectionProps> = ({ className = '' }
 
   // Fetch weather data
   const fetchWeather = async (lat: number, lon: number) => {
+    console.log('🌤️ fetchWeather called with coords:', { lat, lon })
     setLoading(true)
     setError(null)
 
@@ -132,8 +133,10 @@ export const WeatherSection: React.FC<WeatherSectionProps> = ({ className = '' }
       // Using OpenWeatherMap API (free tier)
       // You'll need to get a free API key from https://openweathermap.org/api
       const API_KEY = import.meta.env.VITE_OPENWEATHER_API_KEY || 'demo_key'
+      console.log('🔑 API Key status:', API_KEY === 'demo_key' ? 'Using demo data' : 'Using real API')
       
       if (API_KEY === 'demo_key') {
+        console.log('📊 Setting demo weather data...')
         // Demo data for development
         setWeather({
           current: {
@@ -157,6 +160,7 @@ export const WeatherSection: React.FC<WeatherSectionProps> = ({ className = '' }
             { date: '2024-01-19', day: 'Fri', temp_max: 73, temp_min: 58, description: 'Clear', icon: '01d', precipitation: 0 }
           ]
         })
+        console.log('✅ Demo weather data set successfully')
         setLoading(false)
         return
       }
@@ -281,14 +285,18 @@ export const WeatherSection: React.FC<WeatherSectionProps> = ({ className = '' }
   // Load weather on component mount
   useEffect(() => {
     const loadWeather = async () => {
+      console.log('🌤️ Weather component: Starting to load weather...')
+      console.log('🔑 API Key check:', import.meta.env.VITE_OPENWEATHER_API_KEY ? 'Present' : 'Missing (will use demo data)')
+      
       try {
         const coords = await getCurrentLocation()
+        console.log('📍 Location obtained:', coords)
         setLocation(coords)
         await fetchWeather(coords.lat, coords.lon)
       } catch (err) {
-        console.error('Location error:', err)
-        console.log('Full settings object:', settings)
-        console.log('Settings location check:', {
+        console.error('❌ Location error:', err)
+        console.log('📋 Settings object:', settings)
+        console.log('🏠 Settings location check:', {
           city: settings.location.city,
           state: settings.location.state,
           defaultWeatherLocation: settings.defaultWeatherLocation,
@@ -300,22 +308,22 @@ export const WeatherSection: React.FC<WeatherSectionProps> = ({ className = '' }
         // Try to use settings location as fallback
         if (settings.location.city && settings.location.state) {
           const cityName = `${settings.location.city}, ${settings.location.state}`
-          console.log('Using settings location as fallback:', cityName)
+          console.log('🏠 Using settings location as fallback:', cityName)
           setError(null)
           await fetchWeatherByCity(cityName)
         } else if (settings.location.city) {
           // Try with just city if no state
-          console.log('Using city only as fallback:', settings.location.city)
+          console.log('🏠 Using city only as fallback:', settings.location.city)
           setError(null)
           await fetchWeatherByCity(settings.location.city)
         } else if (settings.defaultWeatherLocation) {
           // Try with default weather location
-          console.log('Using default weather location as fallback:', settings.defaultWeatherLocation)
+          console.log('🌍 Using default weather location as fallback:', settings.defaultWeatherLocation)
           setError(null)
           await fetchWeatherByCity(settings.defaultWeatherLocation)
         } else {
           // Show manual input if no settings location
-          console.log('No settings location available, showing manual input')
+          console.log('⚠️ No settings location available, showing manual input')
           setShowManualInput(true)
           setError('Location access needed. Enter your city below:')
         }
@@ -324,7 +332,42 @@ export const WeatherSection: React.FC<WeatherSectionProps> = ({ className = '' }
 
     // Add a longer delay to let settings load properly
     const timer = setTimeout(loadWeather, 500)
-    return () => clearTimeout(timer)
+    
+    // Fallback timeout - if still loading after 10 seconds, show demo data
+    const fallbackTimer = setTimeout(() => {
+      if (loading && !weather) {
+        console.log('⏰ Weather loading timeout - showing demo data as fallback')
+        setWeather({
+          current: {
+            temp: 72,
+            feels_like: 75,
+            humidity: 65,
+            description: 'Partly cloudy',
+            icon: '02d',
+            wind_speed: 8,
+            visibility: 10
+          },
+          location: {
+            name: 'Demo Location',
+            country: 'US'
+          },
+          forecast: [
+            { date: '2024-01-15', day: 'Mon', temp_max: 75, temp_min: 60, description: 'Sunny', icon: '01d', precipitation: 0 },
+            { date: '2024-01-16', day: 'Tue', temp_max: 78, temp_min: 62, description: 'Partly cloudy', icon: '02d', precipitation: 10 },
+            { date: '2024-01-17', day: 'Wed', temp_max: 70, temp_min: 55, description: 'Light rain', icon: '10d', precipitation: 60 },
+            { date: '2024-01-18', day: 'Thu', temp_max: 68, temp_min: 52, description: 'Cloudy', icon: '04d', precipitation: 20 },
+            { date: '2024-01-19', day: 'Fri', temp_max: 73, temp_min: 58, description: 'Clear', icon: '01d', precipitation: 0 }
+          ]
+        })
+        setLoading(false)
+        setError(null)
+      }
+    }, 10000)
+    
+    return () => {
+      clearTimeout(timer)
+      clearTimeout(fallbackTimer)
+    }
   }, [settings.location.city, settings.location.state, settings.defaultWeatherLocation])
 
   // Additional effect to handle settings changes after initial load
@@ -345,13 +388,16 @@ export const WeatherSection: React.FC<WeatherSectionProps> = ({ className = '' }
 
   // Fetch weather by city name
   const fetchWeatherByCity = async (cityName: string) => {
+    console.log('🌤️ fetchWeatherByCity called with city:', cityName)
     setLoading(true)
     setError(null)
 
     try {
       const API_KEY = import.meta.env.VITE_OPENWEATHER_API_KEY || 'demo_key'
+      console.log('🔑 API Key status for city fetch:', API_KEY === 'demo_key' ? 'Using demo data' : 'Using real API')
       
       if (API_KEY === 'demo_key') {
+        console.log('📊 Setting demo weather data for city:', cityName)
         // Demo data for development
         setWeather({
           current: {
@@ -375,6 +421,7 @@ export const WeatherSection: React.FC<WeatherSectionProps> = ({ className = '' }
             { date: '2024-01-19', day: 'Fri', temp_max: 73, temp_min: 58, description: 'Clear', icon: '01d', precipitation: 0 }
           ]
         })
+        console.log('✅ Demo weather data set successfully for city')
         setLoading(false)
         return
       }
