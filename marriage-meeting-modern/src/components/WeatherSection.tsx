@@ -203,30 +203,56 @@ export const WeatherSection: React.FC<WeatherSectionProps> = ({ className = '' }
 
       const forecastData = await forecastResponse.json()
 
-      // Process forecast data (group by day and get daily max/min)
-      const dailyForecast = forecastData.list.reduce((acc: any, item: any) => {
-        const date = new Date(item.dt * 1000).toISOString().split('T')[0]
-        const day = new Date(item.dt * 1000).toLocaleDateString('en-US', { weekday: 'short' })
+      // Process forecast data to get 5 consecutive days starting from today
+      const today = new Date()
+      const forecast = []
+      
+      for (let i = 0; i < 5; i++) {
+        const forecastDate = new Date(today)
+        forecastDate.setDate(today.getDate() + i)
         
-        if (!acc[date]) {
-          acc[date] = {
-            date,
-            day,
-            temp_max: item.main.temp_max,
-            temp_min: item.main.temp_min,
-            description: item.weather[0].description,
-            icon: item.weather[0].icon,
-            precipitation: item.pop * 100
-          }
+        const dateString = forecastDate.toISOString().split('T')[0]
+        const dayName = forecastDate.toLocaleDateString('en-US', { weekday: 'short' })
+        
+        // Find the forecast data for this date (use the first item of the day)
+        const dayData = forecastData.list.find((item: any) => {
+          const itemDate = new Date(item.dt * 1000).toISOString().split('T')[0]
+          return itemDate === dateString
+        })
+        
+        if (dayData) {
+          // For multi-day forecasts, we need to get max/min temps for the day
+          const dayItems = forecastData.list.filter((item: any) => {
+            const itemDate = new Date(item.dt * 1000).toISOString().split('T')[0]
+            return itemDate === dateString
+          })
+          
+          const maxTemp = Math.max(...dayItems.map((item: any) => item.main.temp_max))
+          const minTemp = Math.min(...dayItems.map((item: any) => item.main.temp_min))
+          const avgPrecipitation = dayItems.reduce((sum: number, item: any) => sum + (item.pop * 100), 0) / dayItems.length
+          
+          forecast.push({
+            date: dateString,
+            day: dayName,
+            temp_max: Math.round(maxTemp),
+            temp_min: Math.round(minTemp),
+            description: dayData.weather[0].description,
+            icon: dayData.weather[0].icon,
+            precipitation: Math.round(avgPrecipitation)
+          })
         } else {
-          acc[date].temp_max = Math.max(acc[date].temp_max, item.main.temp_max)
-          acc[date].temp_min = Math.min(acc[date].temp_min, item.main.temp_min)
+          // Fallback if no data for this date
+          forecast.push({
+            date: dateString,
+            day: dayName,
+            temp_max: 72,
+            temp_min: 60,
+            description: 'Partly cloudy',
+            icon: '02d',
+            precipitation: 10
+          })
         }
-        
-        return acc
-      }, {})
-
-      const forecast = Object.values(dailyForecast).slice(0, 5)
+      }
 
       setWeather({
         current: {
@@ -481,30 +507,56 @@ export const WeatherSection: React.FC<WeatherSectionProps> = ({ className = '' }
       const forecastData = await forecastResponse.json()
       console.log('📊 Forecast data received:', forecastData)
 
-      // Process forecast data (same as before)
-      const dailyForecast = forecastData.list.reduce((acc: any, item: any) => {
-        const date = new Date(item.dt * 1000).toISOString().split('T')[0]
-        const day = new Date(item.dt * 1000).toLocaleDateString('en-US', { weekday: 'short' })
+      // Process forecast data to get 5 consecutive days starting from today
+      const today = new Date()
+      const forecast = []
+      
+      for (let i = 0; i < 5; i++) {
+        const forecastDate = new Date(today)
+        forecastDate.setDate(today.getDate() + i)
         
-        if (!acc[date]) {
-          acc[date] = {
-            date,
-            day,
-            temp_max: item.main.temp_max,
-            temp_min: item.main.temp_min,
-            description: item.weather[0].description,
-            icon: item.weather[0].icon,
-            precipitation: item.pop * 100
-          }
+        const dateString = forecastDate.toISOString().split('T')[0]
+        const dayName = forecastDate.toLocaleDateString('en-US', { weekday: 'short' })
+        
+        // Find the forecast data for this date (use the first item of the day)
+        const dayData = forecastData.list.find((item: any) => {
+          const itemDate = new Date(item.dt * 1000).toISOString().split('T')[0]
+          return itemDate === dateString
+        })
+        
+        if (dayData) {
+          // For multi-day forecasts, we need to get max/min temps for the day
+          const dayItems = forecastData.list.filter((item: any) => {
+            const itemDate = new Date(item.dt * 1000).toISOString().split('T')[0]
+            return itemDate === dateString
+          })
+          
+          const maxTemp = Math.max(...dayItems.map((item: any) => item.main.temp_max))
+          const minTemp = Math.min(...dayItems.map((item: any) => item.main.temp_min))
+          const avgPrecipitation = dayItems.reduce((sum: number, item: any) => sum + (item.pop * 100), 0) / dayItems.length
+          
+          forecast.push({
+            date: dateString,
+            day: dayName,
+            temp_max: Math.round(maxTemp),
+            temp_min: Math.round(minTemp),
+            description: dayData.weather[0].description,
+            icon: dayData.weather[0].icon,
+            precipitation: Math.round(avgPrecipitation)
+          })
         } else {
-          acc[date].temp_max = Math.max(acc[date].temp_max, item.main.temp_max)
-          acc[date].temp_min = Math.min(acc[date].temp_min, item.main.temp_min)
+          // Fallback if no data for this date
+          forecast.push({
+            date: dateString,
+            day: dayName,
+            temp_max: 72,
+            temp_min: 60,
+            description: 'Partly cloudy',
+            icon: '02d',
+            precipitation: 10
+          })
         }
-        
-        return acc
-      }, {})
-
-      const forecast = Object.values(dailyForecast).slice(0, 5)
+      }
 
       setWeather({
         current: {
@@ -626,30 +678,56 @@ export const WeatherSection: React.FC<WeatherSectionProps> = ({ className = '' }
 
       const forecastData = await forecastResponse.json()
 
-      // Process forecast data (same as before)
-      const dailyForecast = forecastData.list.reduce((acc: any, item: any) => {
-        const date = new Date(item.dt * 1000).toISOString().split('T')[0]
-        const day = new Date(item.dt * 1000).toLocaleDateString('en-US', { weekday: 'short' })
+      // Process forecast data to get 5 consecutive days starting from today
+      const today = new Date()
+      const forecast = []
+      
+      for (let i = 0; i < 5; i++) {
+        const forecastDate = new Date(today)
+        forecastDate.setDate(today.getDate() + i)
         
-        if (!acc[date]) {
-          acc[date] = {
-            date,
-            day,
-            temp_max: item.main.temp_max,
-            temp_min: item.main.temp_min,
-            description: item.weather[0].description,
-            icon: item.weather[0].icon,
-            precipitation: item.pop * 100
-          }
+        const dateString = forecastDate.toISOString().split('T')[0]
+        const dayName = forecastDate.toLocaleDateString('en-US', { weekday: 'short' })
+        
+        // Find the forecast data for this date (use the first item of the day)
+        const dayData = forecastData.list.find((item: any) => {
+          const itemDate = new Date(item.dt * 1000).toISOString().split('T')[0]
+          return itemDate === dateString
+        })
+        
+        if (dayData) {
+          // For multi-day forecasts, we need to get max/min temps for the day
+          const dayItems = forecastData.list.filter((item: any) => {
+            const itemDate = new Date(item.dt * 1000).toISOString().split('T')[0]
+            return itemDate === dateString
+          })
+          
+          const maxTemp = Math.max(...dayItems.map((item: any) => item.main.temp_max))
+          const minTemp = Math.min(...dayItems.map((item: any) => item.main.temp_min))
+          const avgPrecipitation = dayItems.reduce((sum: number, item: any) => sum + (item.pop * 100), 0) / dayItems.length
+          
+          forecast.push({
+            date: dateString,
+            day: dayName,
+            temp_max: Math.round(maxTemp),
+            temp_min: Math.round(minTemp),
+            description: dayData.weather[0].description,
+            icon: dayData.weather[0].icon,
+            precipitation: Math.round(avgPrecipitation)
+          })
         } else {
-          acc[date].temp_max = Math.max(acc[date].temp_max, item.main.temp_max)
-          acc[date].temp_min = Math.min(acc[date].temp_min, item.main.temp_min)
+          // Fallback if no data for this date
+          forecast.push({
+            date: dateString,
+            day: dayName,
+            temp_max: 72,
+            temp_min: 60,
+            description: 'Partly cloudy',
+            icon: '02d',
+            precipitation: 10
+          })
         }
-        
-        return acc
-      }, {})
-
-      const forecast = Object.values(dailyForecast).slice(0, 5)
+      }
 
       setWeather({
         current: {
