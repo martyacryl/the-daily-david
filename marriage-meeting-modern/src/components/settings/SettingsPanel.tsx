@@ -93,30 +93,30 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
           </Button>
         </div>
 
-        <div className="flex flex-1 overflow-hidden">
-          {/* Mobile Tab Navigation */}
-          <div className="block sm:hidden w-full border-b border-gray-200">
-            <div className="flex overflow-x-auto">
-              {tabs.map((tab) => {
-                const IconComponent = tab.icon
-                return (
-                  <button
-                    key={tab.id}
-                    onClick={() => setActiveTab(tab.id)}
-                    className={`flex-shrink-0 flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
-                      activeTab === tab.id
-                        ? 'border-blue-500 text-blue-600 bg-blue-50'
-                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50'
-                    }`}
-                  >
-                    <IconComponent className="w-4 h-4" />
-                    <span className="whitespace-nowrap">{tab.label}</span>
-                  </button>
-                )
-              })}
-            </div>
+        {/* Mobile Tab Navigation */}
+        <div className="block sm:hidden w-full border-b border-gray-200">
+          <div className="flex overflow-x-auto">
+            {tabs.map((tab) => {
+              const IconComponent = tab.icon
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`flex-shrink-0 flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+                    activeTab === tab.id
+                      ? 'border-blue-500 text-blue-600 bg-blue-50'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                  }`}
+                >
+                  <IconComponent className="w-4 h-4" />
+                  <span className="whitespace-nowrap">{tab.label}</span>
+                </button>
+              )
+            })}
           </div>
+        </div>
 
+        <div className="flex flex-1 overflow-hidden">
           {/* Desktop Sidebar */}
           <div className="hidden sm:block w-64 bg-gray-50 border-r border-gray-200 p-4">
             <nav className="space-y-2">
