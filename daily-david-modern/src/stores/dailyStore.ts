@@ -193,6 +193,7 @@ export const useDailyStore = create<DailyStore>((set, get) => ({
             dailyIntention: dataContent.dailyIntention || entry.dailyIntention || '',
             growthQuestion: dataContent.growthQuestion || entry.growthQuestion || '',
             leadershipRating: dataContent.leadershipRating || entry.leadershipRating || { wisdom: 0, courage: 0, patience: 0, integrity: 0 },
+            readingPlan: dataContent.readingPlan || entry.readingPlan || undefined,
             deletedGoalIds: dataContent.deletedGoalIds || entry.deletedGoalIds || [],
             completed: dataContent.completed || entry.completed || false,
             createdAt: new Date(entry.created_at),
