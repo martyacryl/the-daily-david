@@ -55,6 +55,20 @@ export const WeatherSection: React.FC<WeatherSectionProps> = ({ className = '' }
   const [manualLocation, setManualLocation] = useState('')
   const [showManualInput, setShowManualInput] = useState(false)
   const [settingsLoaded, setSettingsLoaded] = useState(false)
+  const [lastFetchTime, setLastFetchTime] = useState<number>(0)
+  const [isRefreshing, setIsRefreshing] = useState(false)
+
+  // Cache duration: 30 minutes (1,800,000 ms) to stay well within API rate limits
+  const CACHE_DURATION = 30 * 60 * 1000 // 30 minutes
+  const MAX_RETRIES = 2
+  const RETRY_DELAY = 5000 // 5 seconds
+
+  // Check if we can make a new API request (rate limiting)
+  const canMakeRequest = (): boolean => {
+    const now = Date.now()
+    const timeSinceLastFetch = now - lastFetchTime
+    return timeSinceLastFetch >= CACHE_DURATION
+  }
 
   // Get weather icon component
   const getWeatherIcon = (iconCode: string, size: string = 'w-6 h-6') => {
@@ -124,11 +138,19 @@ export const WeatherSection: React.FC<WeatherSectionProps> = ({ className = '' }
     })
   }
 
-  // Fetch weather data
-  const fetchWeather = async (lat: number, lon: number) => {
-    console.log('🌤️ fetchWeather called with coords:', { lat, lon })
+  // Fetch weather data with caching and rate limiting
+  const fetchWeather = async (lat: number, lon: number, forceRefresh: boolean = false) => {
+    console.log('🌤️ fetchWeather called with coords:', { lat, lon }, 'forceRefresh:', forceRefresh)
+    
+    // Check if we can make a request (rate limiting)
+    if (!forceRefresh && !canMakeRequest()) {
+      console.log('⏳ Rate limited: Too soon to fetch weather data')
+      return
+    }
+
     setLoading(true)
     setError(null)
+    setLastFetchTime(Date.now())
 
     try {
       // Using OpenWeatherMap API (free tier)
@@ -326,7 +348,7 @@ export const WeatherSection: React.FC<WeatherSectionProps> = ({ className = '' }
     loadSettingsData()
   }, [loadSettings])
 
-  // Load weather when settings are loaded
+  // Load weather when settings are loaded (with caching)
   useEffect(() => {
     if (!settingsLoaded) {
       console.log('⏳ Waiting for settings to load...')
@@ -338,50 +360,58 @@ export const WeatherSection: React.FC<WeatherSectionProps> = ({ className = '' }
       console.log('🔑 API Key check:', import.meta.env.VITE_OPENWEATHER_API_KEY ? 'Present' : 'Missing (will use demo data)')
       console.log('📋 Settings loaded:', settings)
       
+      // Check if we already have recent weather data
+      if (weather && canMakeRequest() === false) {
+        console.log('📊 Using cached weather data (less than 30 minutes old)')
+        return
+      }
+      
       try {
         const coords = await getCurrentLocation()
         console.log('📍 Location obtained:', coords)
         setLocation(coords)
-        await fetchWeather(coords.lat, coords.lon)
+        await fetchWeather(coords.lat, coords.lon, true) // Force refresh on initial load
       } catch (err) {
         console.error('❌ Location error:', err)
         console.log('📋 Settings object:', settings)
         console.log('🏠 Settings location check:', {
           city: settings.location.city,
           state: settings.location.state,
+          zipCode: settings.location.zipCode,
           defaultWeatherLocation: settings.defaultWeatherLocation,
           hasCity: !!settings.location.city,
           hasState: !!settings.location.state,
+          hasZipCode: !!settings.location.zipCode,
           hasDefaultWeather: !!settings.defaultWeatherLocation
         })
         
-      // Try to use settings location as fallback - prioritize zip code
-      if (settings.location.zipCode) {
-        const zipCode = `${settings.location.zipCode},${settings.location.country || 'US'}`
-        console.log('📮 Using zip code from settings:', zipCode)
-        setError(null)
-        await fetchWeatherByZip(zipCode)
-      } else if (settings.location.city && settings.location.state) {
-        const cityName = `${settings.location.city}, ${settings.location.state}`
-        console.log('🏠 Using city, state from settings:', cityName)
-        setError(null)
-        await fetchWeatherByCity(cityName)
-      } else if (settings.location.city) {
-        // Try with just city if no state
-        console.log('🏠 Using city only from settings:', settings.location.city)
-        setError(null)
-        await fetchWeatherByCity(settings.location.city)
-      } else if (settings.defaultWeatherLocation) {
-        // Try with default weather location
-        console.log('🌍 Using default weather location:', settings.defaultWeatherLocation)
-        setError(null)
-        await fetchWeatherByCity(settings.defaultWeatherLocation)
-      } else {
-        // Show manual input if no settings location
-        console.log('⚠️ No settings location available, showing manual input')
-        setShowManualInput(true)
-        setError('Location access needed. Enter your city or zip code below:')
-      }
+        // Try to use settings location as fallback - prioritize zip code
+        if (settings.location.zipCode) {
+          const zipCode = `${settings.location.zipCode},${settings.location.country || 'US'}`
+          console.log('📮 Using zip code from settings:', zipCode)
+          setError(null)
+          await fetchWeatherByZip(zipCode, true) // Force refresh on initial load
+        } else if (settings.location.city && settings.location.state) {
+          const cityName = `${settings.location.city}, ${settings.location.state}`
+          console.log('🏠 Using city, state from settings:', cityName)
+          setError(null)
+          await fetchWeatherByCity(cityName, true) // Force refresh on initial load
+        } else if (settings.location.city) {
+          // Try with just city if no state
+          console.log('🏠 Using city only from settings:', settings.location.city)
+          setError(null)
+          await fetchWeatherByCity(settings.location.city, true) // Force refresh on initial load
+        } else if (settings.defaultWeatherLocation) {
+          // Try with default weather location
+          console.log('🌍 Using default weather location:', settings.defaultWeatherLocation)
+          setError(null)
+          await fetchWeatherByCity(settings.defaultWeatherLocation, true) // Force refresh on initial load
+        } else {
+          // Show manual input if no settings location
+          console.log('⚠️ No settings location available, showing manual input')
+          setShowManualInput(true)
+          setError('Location access needed. Enter your city or zip code below:')
+        }
       }
     }
 
@@ -423,29 +453,45 @@ export const WeatherSection: React.FC<WeatherSectionProps> = ({ className = '' }
       clearTimeout(timer)
       clearTimeout(fallbackTimer)
     }
-  }, [settingsLoaded, settings.location.city, settings.location.state, settings.defaultWeatherLocation])
+  }, [settingsLoaded]) // Removed settings dependencies to prevent retry loops
 
-  // Additional effect to handle settings changes after initial load
+  // Auto-refresh weather every 30 minutes (only if we have weather data)
   useEffect(() => {
-    if (error && !loading) {
-      if (settings.location.city) {
-        console.log('Settings changed, retrying with new location:', settings.location.city)
-        const cityName = settings.location.state 
-          ? `${settings.location.city}, ${settings.location.state}`
-          : settings.location.city
-        fetchWeatherByCity(cityName)
-      } else if (settings.defaultWeatherLocation) {
-        console.log('Settings changed, retrying with default weather location:', settings.defaultWeatherLocation)
-        fetchWeatherByCity(settings.defaultWeatherLocation)
-      }
-    }
-  }, [settings.location.city, settings.location.state, settings.defaultWeatherLocation, error, loading])
+    if (!weather) return
 
-  // Fetch weather by zip code
-  const fetchWeatherByZip = async (zipCode: string) => {
-    console.log('🌤️ fetchWeatherByZip called with zip:', zipCode)
+    const interval = setInterval(() => {
+      console.log('🔄 Auto-refreshing weather data (30-minute interval)')
+      if (location) {
+        fetchWeather(location.lat, location.lon, true) // Force refresh
+      } else if (settings.location.zipCode) {
+        const zipCode = `${settings.location.zipCode},${settings.location.country || 'US'}`
+        fetchWeatherByZip(zipCode, true) // Force refresh
+      } else if (settings.location.city && settings.location.state) {
+        const cityName = `${settings.location.city}, ${settings.location.state}`
+        fetchWeatherByCity(cityName, true) // Force refresh
+      } else if (settings.location.city) {
+        fetchWeatherByCity(settings.location.city, true) // Force refresh
+      } else if (settings.defaultWeatherLocation) {
+        fetchWeatherByCity(settings.defaultWeatherLocation, true) // Force refresh
+      }
+    }, CACHE_DURATION) // 30 minutes
+
+    return () => clearInterval(interval)
+  }, [weather, location, settings.location.zipCode, settings.location.city, settings.location.state, settings.defaultWeatherLocation])
+
+  // Fetch weather by zip code with caching and rate limiting
+  const fetchWeatherByZip = async (zipCode: string, forceRefresh: boolean = false) => {
+    console.log('🌤️ fetchWeatherByZip called with zip:', zipCode, 'forceRefresh:', forceRefresh)
+    
+    // Check if we can make a request (rate limiting)
+    if (!forceRefresh && !canMakeRequest()) {
+      console.log('⏳ Rate limited: Too soon to fetch weather data')
+      return
+    }
+
     setLoading(true)
     setError(null)
+    setLastFetchTime(Date.now())
 
     try {
       const API_KEY = import.meta.env.VITE_OPENWEATHER_API_KEY || 'demo_key'
@@ -616,11 +662,19 @@ export const WeatherSection: React.FC<WeatherSectionProps> = ({ className = '' }
     }
   }
 
-  // Fetch weather by city name
-  const fetchWeatherByCity = async (cityName: string) => {
-    console.log('🌤️ fetchWeatherByCity called with city:', cityName)
+  // Fetch weather by city name with caching and rate limiting
+  const fetchWeatherByCity = async (cityName: string, forceRefresh: boolean = false) => {
+    console.log('🌤️ fetchWeatherByCity called with city:', cityName, 'forceRefresh:', forceRefresh)
+    
+    // Check if we can make a request (rate limiting)
+    if (!forceRefresh && !canMakeRequest()) {
+      console.log('⏳ Rate limited: Too soon to fetch weather data')
+      return
+    }
+
     setLoading(true)
     setError(null)
+    setLastFetchTime(Date.now())
 
     try {
       const API_KEY = import.meta.env.VITE_OPENWEATHER_API_KEY || 'demo_key'
@@ -786,10 +840,27 @@ export const WeatherSection: React.FC<WeatherSectionProps> = ({ className = '' }
     }
   }
 
-  // Refresh weather
+  // Refresh weather (manual refresh button)
   const handleRefresh = async () => {
-    if (location) {
-      await fetchWeather(location.lat, location.lon)
+    console.log('🔄 Manual weather refresh requested')
+    setIsRefreshing(true)
+    
+    try {
+      if (location) {
+        await fetchWeather(location.lat, location.lon, true) // Force refresh
+      } else if (settings.location.zipCode) {
+        const zipCode = `${settings.location.zipCode},${settings.location.country || 'US'}`
+        await fetchWeatherByZip(zipCode, true) // Force refresh
+      } else if (settings.location.city && settings.location.state) {
+        const cityName = `${settings.location.city}, ${settings.location.state}`
+        await fetchWeatherByCity(cityName, true) // Force refresh
+      } else if (settings.location.city) {
+        await fetchWeatherByCity(settings.location.city, true) // Force refresh
+      } else if (settings.defaultWeatherLocation) {
+        await fetchWeatherByCity(settings.defaultWeatherLocation, true) // Force refresh
+      }
+    } finally {
+      setIsRefreshing(false)
     }
   }
 
@@ -829,9 +900,9 @@ export const WeatherSection: React.FC<WeatherSectionProps> = ({ className = '' }
                     if (e.key === 'Enter' && manualLocation.trim()) {
                       // Check if it's a zip code (5 digits) or city name
                       if (/^\d{5}$/.test(manualLocation.trim())) {
-                        fetchWeatherByZip(`${manualLocation.trim()},US`)
+                        fetchWeatherByZip(`${manualLocation.trim()},US`, true) // Force refresh for manual input
                       } else {
-                        fetchWeatherByCity(manualLocation.trim())
+                        fetchWeatherByCity(manualLocation.trim(), true) // Force refresh for manual input
                       }
                     }
                   }}
@@ -839,9 +910,9 @@ export const WeatherSection: React.FC<WeatherSectionProps> = ({ className = '' }
                 <Button
                   onClick={() => {
                     if (/^\d{5}$/.test(manualLocation.trim())) {
-                      fetchWeatherByZip(`${manualLocation.trim()},US`)
+                      fetchWeatherByZip(`${manualLocation.trim()},US`, true) // Force refresh for manual input
                     } else {
-                      fetchWeatherByCity(manualLocation.trim())
+                      fetchWeatherByCity(manualLocation.trim(), true) // Force refresh for manual input
                     }
                   }}
                   disabled={!manualLocation.trim() || loading}
