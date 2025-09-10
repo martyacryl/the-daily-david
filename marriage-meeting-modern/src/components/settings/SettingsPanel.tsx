@@ -154,9 +154,9 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
                 }
               }} 
               size="sm"
-              className="text-xs"
+              className="text-sm bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100"
             >
-              Refresh
+              🔄 Refresh
             </Button>
             <Button variant="outline" onClick={onClose} size="sm">
               <X className="w-4 h-4" />
@@ -184,6 +184,24 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
                 </button>
               )
             })}
+          </div>
+          {/* Mobile Refresh Button */}
+          <div className="p-3 bg-gray-50 border-t border-gray-200">
+            <Button 
+              onClick={() => {
+                const stored = localStorage.getItem('marriage-meeting-settings')
+                if (stored) {
+                  const parsed = JSON.parse(stored)
+                  if (parsed.state?.settings) {
+                    useSettingsStore.setState({ settings: parsed.state.settings })
+                    setForceUpdate(prev => prev + 1)
+                  }
+                }
+              }} 
+              className="w-full bg-blue-600 text-white hover:bg-blue-700"
+            >
+              🔄 Load My Saved Settings
+            </Button>
           </div>
         </div>
 
