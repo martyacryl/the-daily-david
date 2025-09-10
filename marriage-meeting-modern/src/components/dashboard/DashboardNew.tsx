@@ -675,6 +675,94 @@ export const DashboardNew: React.FC = () => {
           </Card>
         </motion.div>
 
+        {/* Goals Content */}
+        {weekData.goals && weekData.goals.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.7 }}
+            className="mb-8"
+          >
+            <Card className="p-3 sm:p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg sm:text-xl font-semibold text-gray-900 flex items-center gap-2">
+                  <Target className="w-4 h-4 sm:w-5 sm:h-5 text-slate-600" />
+                  Your Goals
+                </h3>
+                <Link to="/weekly?section=goals" className="text-slate-600 text-sm font-medium">
+                  Manage Goals →
+                </Link>
+              </div>
+              <div className="space-y-3">
+                {weekData.goals.slice(0, 5).map((goal) => {
+                  const getTimeframeColor = (timeframe: string) => {
+                    const colorMap = {
+                      monthly: 'bg-blue-100 text-blue-700',
+                      '1year': 'bg-green-100 text-green-700',
+                      '5year': 'bg-orange-100 text-orange-700',
+                      '10year': 'bg-purple-100 text-purple-700'
+                    }
+                    return colorMap[timeframe as keyof typeof colorMap] || 'bg-gray-100 text-gray-700'
+                  }
+
+                  const getPriorityColor = (priority: string) => {
+                    const colorMap = {
+                      high: 'bg-red-100 text-red-700',
+                      medium: 'bg-yellow-100 text-yellow-700',
+                      low: 'bg-green-100 text-green-700'
+                    }
+                    return colorMap[priority as keyof typeof colorMap] || 'bg-gray-100 text-gray-700'
+                  }
+
+                  return (
+                    <div key={goal.id} className={`p-3 sm:p-4 rounded-lg border-l-4 ${
+                      goal.completed 
+                        ? 'bg-green-50 border-green-400' 
+                        : 'bg-white border-gray-200'
+                    }`}>
+                      <div className="flex items-start justify-between mb-2">
+                        <div className="flex-1 min-w-0">
+                          <h4 className={`font-medium text-gray-900 ${
+                            goal.completed ? 'line-through text-gray-500' : ''
+                          }`}>
+                            {goal.text}
+                          </h4>
+                          {goal.description && (
+                            <p className="text-sm text-gray-600 mt-1">{goal.description}</p>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-1 ml-2">
+                          {goal.completed ? (
+                            <CheckCircle className="w-4 h-4 text-green-600" />
+                          ) : (
+                            <div className="w-4 h-4 border-2 border-gray-300 rounded-full"></div>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${getTimeframeColor(goal.timeframe)}`}>
+                          {goal.timeframe === '1year' ? '1 Year' : 
+                           goal.timeframe === '5year' ? '5 Year' : 
+                           goal.timeframe === '10year' ? '10 Year' : 
+                           goal.timeframe}
+                        </span>
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${getPriorityColor(goal.priority)}`}>
+                          {goal.priority}
+                        </span>
+                      </div>
+                    </div>
+                  )
+                })}
+                {weekData.goals.length > 5 && (
+                  <p className="text-sm text-gray-600 text-center">
+                    +{weekData.goals.length - 5} more goals
+                  </p>
+                )}
+              </div>
+            </Card>
+          </motion.div>
+        )}
+
         {/* Insights & Trends */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-6">
           <motion.div
