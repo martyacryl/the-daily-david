@@ -43,25 +43,28 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
   const [showStoreSuccess, setShowStoreSuccess] = useState(false)
   const [isHydrated, setIsHydrated] = useState(false)
 
-  // Debug logging
+  // Force hydration and ensure settings are loaded
   React.useEffect(() => {
-    console.log('SettingsPanel: Settings data loaded:', {
-      spouse1: settings.spouse1,
-      spouse2: settings.spouse2,
-      location: settings.location,
-      groceryStores: settings.groceryStores,
-      familyCreed: settings.familyCreed,
-      defaultWeatherLocation: settings.defaultWeatherLocation,
-      isHydrated: isHydrated
-    })
-  }, [settings, isHydrated])
-
-  // Check if store is hydrated
-  React.useEffect(() => {
+    // Force a re-render after a short delay to ensure store is hydrated
     const timer = setTimeout(() => {
       setIsHydrated(true)
-      console.log('SettingsPanel: Store should be hydrated now')
-    }, 100)
+      // Force the store to rehydrate if needed
+      const store = useSettingsStore.getState()
+      if (store.settings.spouse1.name === '' && store.settings.spouse2.name === '') {
+        // Try to reload from localStorage manually
+        const stored = localStorage.getItem('marriage-meeting-settings')
+        if (stored) {
+          try {
+            const parsed = JSON.parse(stored)
+            if (parsed.state?.settings) {
+              useSettingsStore.setState({ settings: parsed.state.settings })
+            }
+          } catch (e) {
+            console.error('Failed to parse stored settings:', e)
+          }
+        }
+      }
+    }, 200)
     return () => clearTimeout(timer)
   }, [])
 
@@ -91,6 +94,30 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
   }
 
   if (!isOpen) return null
+
+  // Show loading state if not hydrated yet
+  if (!isHydrated) {
+    return (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-2 sm:p-4"
+      >
+        <motion.div
+          initial={{ scale: 0.95, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          exit={{ scale: 0.95, opacity: 0 }}
+          className="bg-white rounded-lg shadow-xl w-full max-w-4xl h-[95vh] sm:h-[90vh] flex items-center justify-center"
+        >
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading settings...</p>
+          </div>
+        </motion.div>
+      </motion.div>
+    )
+  }
 
   return (
     <motion.div
