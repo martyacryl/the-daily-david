@@ -39,7 +39,7 @@ import { DatabaseManager } from '../../lib/database'
 
 export const DashboardNew: React.FC = () => {
   const { user, isAuthenticated } = useAuthStore()
-  const { currentWeek, weekData, loadWeekData, updateEncouragementNotes } = useMarriageStore()
+  const { currentWeek, weekData, loadWeekData, saveWeekData, updateEncouragementNotes } = useMarriageStore()
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
   
   // New actionable insights state
@@ -72,6 +72,24 @@ export const DashboardNew: React.FC = () => {
       loadWeekData(weekKey)
     }
   }, [isAuthenticated, loadWeekData])
+
+  // Auto-save when weekData changes
+  useEffect(() => {
+    if (weekData && isAuthenticated) {
+      const saveTimeout = setTimeout(async () => {
+        try {
+          const today = new Date()
+          const weekKey = DatabaseManager.formatWeekKey(today)
+          await saveWeekData(weekKey, weekData)
+          console.log('Dashboard: Auto-saved week data')
+        } catch (error) {
+          console.error('Dashboard: Auto-save failed:', error)
+        }
+      }, 1000) // Auto-save after 1 second of inactivity
+
+      return () => clearTimeout(saveTimeout)
+    }
+  }, [weekData, isAuthenticated, saveWeekData])
 
   useEffect(() => {
     if (weekData) {
