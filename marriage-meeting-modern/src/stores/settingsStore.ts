@@ -159,7 +159,11 @@ export const useSettingsStore = create<SettingsStore>()(
     }),
     {
       name: 'marriage-meeting-settings',
-      version: 1
+      version: 1,
+      partialize: (state) => ({ settings: state.settings }),
+      onRehydrateStorage: () => (state) => {
+        console.log('Settings store rehydrated:', state?.settings)
+      }
     }
   )
 )

@@ -41,6 +41,29 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
   const [activeTab, setActiveTab] = useState('spouses')
   const [newGroceryStore, setNewGroceryStore] = useState({ name: '', address: '' })
   const [showStoreSuccess, setShowStoreSuccess] = useState(false)
+  const [isHydrated, setIsHydrated] = useState(false)
+
+  // Debug logging
+  React.useEffect(() => {
+    console.log('SettingsPanel: Settings data loaded:', {
+      spouse1: settings.spouse1,
+      spouse2: settings.spouse2,
+      location: settings.location,
+      groceryStores: settings.groceryStores,
+      familyCreed: settings.familyCreed,
+      defaultWeatherLocation: settings.defaultWeatherLocation,
+      isHydrated: isHydrated
+    })
+  }, [settings, isHydrated])
+
+  // Check if store is hydrated
+  React.useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsHydrated(true)
+      console.log('SettingsPanel: Store should be hydrated now')
+    }, 100)
+    return () => clearTimeout(timer)
+  }, [])
 
   const tabs = [
     { id: 'spouses', label: 'Spouses', icon: User },
