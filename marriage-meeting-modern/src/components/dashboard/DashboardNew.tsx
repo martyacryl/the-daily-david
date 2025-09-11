@@ -379,6 +379,11 @@ export const DashboardNew: React.FC = () => {
                     const todaySchedule = weekData.schedule?.[todayName as keyof typeof weekData.schedule] || []
                     const filteredSchedule = todaySchedule.filter(item => item.trim() !== '')
                     
+                    console.log('Dashboard Debug - Today:', todayName)
+                    console.log('Dashboard Debug - Schedule data:', weekData.schedule)
+                    console.log('Dashboard Debug - Today schedule:', todaySchedule)
+                    console.log('Dashboard Debug - Filtered schedule:', filteredSchedule)
+                    
                     return filteredSchedule.length > 0 ? (
                       filteredSchedule.map((item, index) => (
                         <div key={index} className="flex items-center gap-2 p-2 sm:p-3 bg-white rounded-lg border border-blue-100 shadow-sm">
@@ -411,6 +416,9 @@ export const DashboardNew: React.FC = () => {
                       // Show high priority tasks even without due date
                       return task.priority === 'high'
                     }).slice(0, 5) // Limit to 5 tasks for mobile
+                    
+                    console.log('Dashboard Debug - All todos:', weekData.todos)
+                    console.log('Dashboard Debug - Today tasks:', todayTasks)
                     
                     return todayTasks.length > 0 ? (
                       todayTasks.map((task) => (
