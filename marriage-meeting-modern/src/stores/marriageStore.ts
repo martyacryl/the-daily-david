@@ -77,8 +77,10 @@ export const useMarriageStore = create<MarriageState>((set, get) => ({
     
     try {
       console.log('Store: Loading week data for:', weekKey)
+      console.log('Store: Current date being used:', new Date().toISOString())
       
       const week = await dbManager.getMarriageMeetingWeekByDate(weekKey)
+      console.log('Store: Raw data from database:', week)
       
       if (week) {
         console.log('Store: Found existing week data:', {
@@ -111,17 +113,25 @@ export const useMarriageStore = create<MarriageState>((set, get) => ({
         }) || []
         
         console.log('Store: Setting weekData with prayers:', week.prayers)
+        console.log('Store: Setting weekData with todos:', migratedTodos)
+        console.log('Store: Setting weekData with grocery:', week.grocery)
+        console.log('Store: Setting weekData with encouragementNotes:', week.encouragementNotes)
+        
+        const weekDataToSet = {
+          schedule: week.schedule,
+          todos: migratedTodos,
+          prayers: week.prayers,
+          grocery: week.grocery,
+          unconfessedSin: week.unconfessedSin,
+          weeklyWinddown: week.weeklyWinddown,
+          encouragementNotes: week.encouragementNotes || []
+        }
+        
+        console.log('Store: Complete weekData being set:', weekDataToSet)
+        
         set({ 
           currentWeek: week,
-          weekData: {
-            schedule: week.schedule,
-            todos: migratedTodos,
-            prayers: week.prayers,
-            grocery: week.grocery,
-            unconfessedSin: week.unconfessedSin,
-            weeklyWinddown: week.weeklyWinddown,
-            encouragementNotes: week.encouragementNotes || []
-          }
+          weekData: weekDataToSet
         })
       } else {
         console.log('Store: No existing data, using empty week data')
