@@ -544,15 +544,15 @@ export const DashboardNew: React.FC = () => {
               transition={{ delay: 0.2 }}
               className="mb-6"
             >
-              <Card className="p-3 sm:p-6 bg-gradient-to-r from-pink-50 to-rose-50 border-pink-200">
+              <Card className="p-3 sm:p-6 bg-slate-50 border-slate-200">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-2">
                     <h3 className="text-lg sm:text-xl font-semibold text-gray-900 flex items-center gap-2">
-                      <Heart className="w-4 h-4 sm:w-5 sm:h-5 text-pink-600" />
+                      <Heart className="w-4 h-4 sm:w-5 sm:h-5 text-slate-600" />
                       Encouragement Notes
                     </h3>
                     {unreadCount > 0 && (
-                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-pink-100 text-pink-800">
+                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-800">
                         {unreadCount} new
                       </span>
                     )}
@@ -569,13 +569,13 @@ export const DashboardNew: React.FC = () => {
                           }))
                           updateEncouragementNotes(updatedNotes)
                         }}
-                        className="text-pink-600 border-pink-200 hover:bg-pink-50 p-2"
+                        className="text-slate-600 border-slate-200 hover:bg-slate-50 p-2"
                         title="Mark all as read"
                       >
                         <CheckCircle className="w-4 h-4" />
                       </Button>
                     )}
-                    <Link to="/weekly?section=encouragement" className="text-pink-600 text-sm font-medium">
+                    <Link to="/weekly?section=encouragement" className="text-slate-600 text-sm font-medium">
                       View All →
                     </Link>
                   </div>
@@ -584,11 +584,11 @@ export const DashboardNew: React.FC = () => {
                   {sortedNotes.slice(0, 3).map((note) => {
                   const getTypeInfo = (type: EncouragementNote['type']) => {
                     const typeMap = {
-                      encouragement: { label: 'Encouragement', color: 'text-pink-600' },
-                      bible: { label: 'Bible Verse', color: 'text-blue-600' },
-                      reminder: { label: 'Reminder', color: 'text-orange-600' },
-                      love: { label: 'Love Note', color: 'text-red-600' },
-                      general: { label: 'General', color: 'text-gray-600' }
+                      encouragement: { label: 'Encouragement', color: 'text-slate-600' },
+                      bible: { label: 'Bible Verse', color: 'text-slate-600' },
+                      reminder: { label: 'Reminder', color: 'text-slate-600' },
+                      love: { label: 'Love Note', color: 'text-slate-600' },
+                      general: { label: 'General', color: 'text-slate-600' }
                     }
                     return typeMap[type] || typeMap.general
                   }
@@ -623,7 +623,7 @@ export const DashboardNew: React.FC = () => {
                             {formatDate(note.createdAt)}
                           </span>
                           {!note.isRead ? (
-                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-pink-100 text-pink-800">
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-800">
                               New
                             </span>
                           ) : (
@@ -652,7 +652,7 @@ export const DashboardNew: React.FC = () => {
                               )
                               updateEncouragementNotes(updatedNotes)
                             }}
-                            className="text-pink-600 border-pink-200 hover:bg-pink-50 p-2"
+                            className="text-slate-600 border-slate-200 hover:bg-slate-50 p-2"
                             title="Mark as read"
                           >
                             <CheckCircle className="w-4 h-4" />
@@ -682,24 +682,24 @@ export const DashboardNew: React.FC = () => {
           >
             <Card className="p-3 sm:p-6">
               <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                <Zap className="w-4 h-4 sm:w-5 sm:h-5 text-orange-600" />
+                <Zap className="w-4 h-4 sm:w-5 sm:h-5 text-slate-600" />
                 Priority Actions
               </h3>
               <div className="space-y-3">
                 {insights.urgentTodos.map((todo, index) => (
-                  <div key={index} className="flex items-start gap-2 p-2 sm:p-3 bg-orange-50 rounded-lg">
+                  <div key={index} className="flex items-start gap-2 p-2 sm:p-3 bg-slate-50 rounded-lg">
                     <div className={`w-3 h-3 rounded-full mt-1 ${
-                      todo.priority === 'high' ? 'bg-red-500' : 
-                      todo.priority === 'medium' ? 'bg-yellow-500' : 'bg-green-500'
+                      todo.priority === 'high' ? 'bg-slate-600' : 
+                      todo.priority === 'medium' ? 'bg-slate-500' : 'bg-slate-400'
                     }`}></div>
                     <div className="flex-1 min-w-0">
                       <p className="text-gray-800 font-medium">{todo.text}</p>
                       <div className="flex items-center gap-2 mt-1 text-xs sm:text-sm text-gray-600 flex-wrap">
                         {todo.priority && (
                           <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                            todo.priority === 'high' ? 'bg-red-100 text-red-700' :
-                            todo.priority === 'medium' ? 'bg-yellow-100 text-yellow-700' :
-                            'bg-green-100 text-green-700'
+                            todo.priority === 'high' ? 'bg-slate-200 text-slate-700' :
+                            todo.priority === 'medium' ? 'bg-slate-100 text-slate-600' :
+                            'bg-slate-50 text-slate-500'
                           }`}>
                             {todo.priority}
                           </span>
@@ -712,7 +712,7 @@ export const DashboardNew: React.FC = () => {
                         )}
                         {todo.dueDate && (
                           <span className={`flex items-center gap-1 ${
-                            new Date(todo.dueDate) < new Date() ? 'text-red-600' : 'text-gray-600'
+                            new Date(todo.dueDate) < new Date() ? 'text-slate-600' : 'text-gray-600'
                           }`}>
                             <Calendar className="w-3 h-3" />
                             {new Date(todo.dueDate).toLocaleDateString()}
@@ -729,7 +729,7 @@ export const DashboardNew: React.FC = () => {
                   <p className="text-gray-500 text-sm">No urgent todos</p>
                 )}
               </div>
-              <Link to="/weekly?section=todos" className="text-orange-600 text-sm font-medium mt-4 block">
+              <Link to="/weekly?section=todos" className="text-slate-600 text-sm font-medium mt-4 block">
                 View All Todos →
               </Link>
             </Card>
@@ -742,13 +742,13 @@ export const DashboardNew: React.FC = () => {
           >
             <Card className="p-3 sm:p-6">
               <h3 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                <Clock className="w-5 h-5 text-red-600" />
+                <Clock className="w-5 h-5 text-slate-600" />
                 Overdue Items
               </h3>
               <div className="space-y-2">
                 {insights.overdueGoals.map((goal, index) => (
                   <div key={index} className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                    <div className="w-2 h-2 bg-slate-500 rounded-full"></div>
                     <span className="text-gray-700">{goal.text}</span>
                   </div>
                 ))}
@@ -756,7 +756,7 @@ export const DashboardNew: React.FC = () => {
                   <p className="text-gray-500 text-sm">No overdue goals</p>
                 )}
               </div>
-              <Link to="/weekly?section=goals" className="text-red-600 text-sm font-medium mt-4 block">
+              <Link to="/weekly?section=goals" className="text-slate-600 text-sm font-medium mt-4 block">
                 View All Goals →
               </Link>
             </Card>
@@ -778,24 +778,24 @@ export const DashboardNew: React.FC = () => {
               </h3>
               <div className="space-y-3">
                 {insights.overdueTasks.length > 0 && (
-                  <div className="flex items-center gap-3 p-3 bg-red-50 rounded-lg border border-red-200">
-                    <AlertTriangle className="w-5 h-5 text-red-600 flex-shrink-0" />
+                  <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg border border-slate-200">
+                    <AlertTriangle className="w-5 h-5 text-slate-600 flex-shrink-0" />
                     <div>
-                      <p className="font-medium text-red-800">
+                      <p className="font-medium text-slate-800">
                         {insights.overdueTasks.length} task{insights.overdueTasks.length > 1 ? 's' : ''} overdue
                       </p>
-                      <p className="text-sm text-red-600">Check your task list to catch up</p>
+                      <p className="text-sm text-slate-600">Check your task list to catch up</p>
                     </div>
                   </div>
                 )}
                 {insights.highPriorityTasks.length > 0 && (
-                  <div className="flex items-center gap-3 p-3 bg-orange-50 rounded-lg border border-orange-200">
-                    <Zap className="w-5 h-5 text-orange-600 flex-shrink-0" />
+                  <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg border border-slate-200">
+                    <Zap className="w-5 h-5 text-slate-600 flex-shrink-0" />
                     <div>
-                      <p className="font-medium text-orange-800">
+                      <p className="font-medium text-slate-800">
                         {insights.highPriorityTasks.length} high priority task{insights.highPriorityTasks.length > 1 ? 's' : ''} need attention
                       </p>
-                      <p className="text-sm text-orange-600">Focus on these first today</p>
+                      <p className="text-sm text-slate-600">Focus on these first today</p>
                     </div>
                   </div>
                 )}
@@ -812,13 +812,13 @@ export const DashboardNew: React.FC = () => {
             transition={{ delay: 0.4 }}
             className="mb-8"
           >
-            <Card className="p-6 bg-gradient-to-r from-green-50 to-teal-50 border-green-200">
+            <Card className="p-6 bg-slate-50 border-slate-200">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
-                  <ShoppingCart className="w-5 h-5 text-green-600" />
+                  <ShoppingCart className="w-5 h-5 text-slate-600" />
                   Grocery & Errands
                 </h3>
-                <Link to="/weekly?section=grocery" className="text-green-600 text-sm font-medium">
+                <Link to="/weekly?section=grocery" className="text-slate-600 text-sm font-medium">
                   View All →
                 </Link>
               </div>
@@ -826,7 +826,7 @@ export const DashboardNew: React.FC = () => {
                 {weekData.grocery.slice(0, 3).map((storeList, storeIndex) => (
                   <div key={storeList.storeId} className="bg-white rounded-lg p-3">
                     <div className="flex items-center gap-2 mb-2">
-                      <Store className="w-4 h-4 text-green-600" />
+                      <Store className="w-4 h-4 text-slate-600" />
                       <span className="font-medium text-gray-900">{storeList.storeName}</span>
                       <span className="text-sm text-gray-500">({storeList.items?.length || 0} items)</span>
                     </div>
@@ -834,12 +834,12 @@ export const DashboardNew: React.FC = () => {
                       {storeList.items?.slice(0, 2).map((item, itemIndex) => (
                         <div key={item.id} className="flex items-center gap-2 text-sm">
                           <div className={`w-2 h-2 rounded-full ${
-                            item.completed ? 'bg-green-500' : 'bg-gray-300'
+                            item.completed ? 'bg-slate-500' : 'bg-gray-300'
                           }`}></div>
                           <span className={`flex-1 ${item.completed ? 'line-through text-gray-500' : 'text-gray-800'}`}>
                             {item.text}
                           </span>
-                          {item.completed && <CheckCircle className="w-3 h-3 text-green-500" />}
+                          {item.completed && <CheckCircle className="w-3 h-3 text-slate-500" />}
                         </div>
                       ))}
                       {(storeList.items?.length || 0) > 2 && (
@@ -869,13 +869,13 @@ export const DashboardNew: React.FC = () => {
           >
             <Card className="p-3 sm:p-6">
               <h3 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                <Heart className="w-5 h-5 text-purple-600" />
+                <Heart className="w-5 h-5 text-slate-600" />
                 Prayer Requests
               </h3>
               <div className="space-y-2">
                 {insights.unansweredPrayers.map((prayer, index) => (
                   <div key={index} className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                    <div className="w-2 h-2 bg-slate-500 rounded-full"></div>
                     <span className="text-gray-700">{prayer.text}</span>
                   </div>
                 ))}
@@ -883,7 +883,7 @@ export const DashboardNew: React.FC = () => {
                   <p className="text-gray-500 text-sm">No unanswered prayers</p>
                 )}
               </div>
-              <Link to="/weekly?section=prayers" className="text-purple-600 text-sm font-medium mt-4 block">
+              <Link to="/weekly?section=prayers" className="text-slate-600 text-sm font-medium mt-4 block">
                 View All Prayers →
               </Link>
             </Card>
@@ -902,7 +902,7 @@ export const DashboardNew: React.FC = () => {
               <div className="space-y-2">
                 {insights.unconfessedItems.map((item, index) => (
                   <div key={index} className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                    <div className="w-2 h-2 bg-slate-500 rounded-full"></div>
                     <span className="text-gray-700">{item.text}</span>
                   </div>
                 ))}
@@ -940,12 +940,12 @@ export const DashboardNew: React.FC = () => {
                 return (
                   <div key={timeframe} className="text-center">
                     <div className="flex items-center justify-center gap-2 mb-2">
-                      <IconComponent className={`w-5 h-5 text-${color}-600`} />
+                      <IconComponent className="w-5 h-5 text-slate-600" />
                       <span className="font-medium text-gray-800">{label}</span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-3 mb-2">
                       <div 
-                        className={`bg-${color}-500 h-3 rounded-full transition-all duration-300`}
+                        className="bg-slate-500 h-3 rounded-full transition-all duration-300"
                         style={{ width: `${progress.percentage}%` }}
                       ></div>
                     </div>
@@ -1108,11 +1108,11 @@ export const DashboardNew: React.FC = () => {
           >
             <Card className="p-3 sm:p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                <Flame className="w-5 h-5 text-orange-600" />
+                <Flame className="w-5 h-5 text-slate-600" />
                 Meeting Streak
               </h3>
               <div className="text-center">
-                <div className="text-3xl font-bold text-orange-600 mb-2">{insights.meetingStreak}</div>
+                <div className="text-3xl font-bold text-slate-600 mb-2">{insights.meetingStreak}</div>
                 <p className="text-sm text-gray-600">weeks strong!</p>
               </div>
             </Card>
@@ -1125,7 +1125,7 @@ export const DashboardNew: React.FC = () => {
           >
             <Card className="p-3 sm:p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                <TrendingUp className="w-5 h-5 text-green-600" />
+                <TrendingUp className="w-5 h-5 text-slate-600" />
                 Growth Areas
               </h3>
               <div className="space-y-1">
