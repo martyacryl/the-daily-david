@@ -36,13 +36,13 @@ interface MarriageState {
 // Helper function to create empty week data
 const createEmptyWeekData = (): WeekData => ({
   schedule: {
-    Monday: [''],
-    Tuesday: [''],
-    Wednesday: [''],
-    Thursday: [''],
-    Friday: [''],
-    Saturday: [''],
-    Sunday: ['']
+    Monday: [],
+    Tuesday: [],
+    Wednesday: [],
+    Thursday: [],
+    Friday: [],
+    Saturday: [],
+    Sunday: []
   },
   todos: [] as TaskItem[],
   prayers: [],
@@ -119,6 +119,27 @@ export const useMarriageStore = create<MarriageState>((set, get) => ({
         
         const weekDataToSet = {
           schedule: week.schedule,
+          todos: migratedTodos,
+          prayers: week.prayers,
+          grocery: week.grocery,
+          unconfessedSin: week.unconfessedSin,
+          weeklyWinddown: week.weeklyWinddown,
+          encouragementNotes: week.encouragementNotes || []
+        }
+        
+        // Normalize schedule structure to ensure consistency
+        const normalizedSchedule = {
+          Monday: week.schedule?.Monday || [],
+          Tuesday: week.schedule?.Tuesday || [],
+          Wednesday: week.schedule?.Wednesday || [],
+          Thursday: week.schedule?.Thursday || [],
+          Friday: week.schedule?.Friday || [],
+          Saturday: week.schedule?.Saturday || [],
+          Sunday: week.schedule?.Sunday || []
+        }
+        
+        const weekDataToSet = {
+          schedule: normalizedSchedule,
           todos: migratedTodos,
           prayers: week.prayers,
           grocery: week.grocery,
