@@ -217,10 +217,21 @@ export class DatabaseManager {
 
   // Helper method to format week key (Monday of the week)
   static formatWeekKey(date: Date): string {
-    const d = new Date(date)
+    // Create a new date to avoid mutating the original
+    const d = new Date(date.getTime())
+    
+    // Get the day of the week (0 = Sunday, 1 = Monday, etc.)
     const day = d.getDay()
-    const diff = d.getDate() - day + (day === 0 ? -6 : 1) // Adjust when day is Sunday
-    const monday = new Date(d.setDate(diff))
+    
+    // Calculate days to subtract to get to Monday
+    // If it's Sunday (0), subtract 6 days to get to Monday
+    // Otherwise, subtract (day - 1) to get to Monday
+    const daysToSubtract = day === 0 ? 6 : day - 1
+    
+    // Create Monday date by subtracting the calculated days
+    const monday = new Date(d.getFullYear(), d.getMonth(), d.getDate() - daysToSubtract)
+    
+    // Return in YYYY-MM-DD format
     return monday.toISOString().split('T')[0]
   }
 

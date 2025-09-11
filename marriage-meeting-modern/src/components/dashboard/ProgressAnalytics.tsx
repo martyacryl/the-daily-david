@@ -88,7 +88,7 @@ export const ProgressAnalytics: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-purple-50">
+      <div className="min-h-screen flex items-center justify-center bg-slate-100">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-slate-600 mx-auto mb-4"></div>
           <p className="text-gray-600">Loading analytics...</p>
@@ -98,7 +98,7 @@ export const ProgressAnalytics: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-purple-50 pt-24 sm:pt-16">
+    <div className="min-h-screen bg-slate-100 pt-24 sm:pt-16">
       <div className="container mx-auto px-4 py-8">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -117,7 +117,7 @@ export const ProgressAnalytics: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
           >
-            <Card className="p-6 text-center">
+            <Card className="p-6 text-center bg-white shadow-sm">
               <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Target className="w-6 h-6 text-slate-600" />
               </div>
@@ -131,9 +131,9 @@ export const ProgressAnalytics: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
           >
-            <Card className="p-6 text-center">
-              <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <CheckCircle className="w-6 h-6 text-purple-600" />
+            <Card className="p-6 text-center bg-white shadow-sm">
+              <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <CheckCircle className="w-6 h-6 text-slate-600" />
               </div>
               <h3 className="text-2xl font-bold text-gray-900">{analyticsData.goalAchievement}%</h3>
               <p className="text-gray-600">Goal Achievement</p>
@@ -145,7 +145,7 @@ export const ProgressAnalytics: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
           >
-            <Card className="p-6 text-center">
+            <Card className="p-6 text-center bg-white shadow-sm">
               <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Mountain className="w-6 h-6 text-slate-600" />
               </div>
@@ -159,9 +159,9 @@ export const ProgressAnalytics: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
           >
-            <Card className="p-6 text-center">
-              <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Users className="w-6 h-6 text-green-600" />
+            <Card className="p-6 text-center bg-white shadow-sm">
+              <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Users className="w-6 h-6 text-slate-600" />
               </div>
               <h3 className="text-2xl font-bold text-gray-900">{analyticsData.taskCompletion}%</h3>
               <p className="text-gray-600">Task Completion</p>
@@ -174,9 +174,9 @@ export const ProgressAnalytics: React.FC = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
         >
-          <Card className="p-6">
+          <Card className="p-6 bg-white shadow-sm">
             <h3 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
-              <TrendingUp className="w-5 h-5 text-green-600" />
+              <TrendingUp className="w-5 h-5 text-slate-600" />
               Insights & Recommendations
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -185,13 +185,13 @@ export const ProgressAnalytics: React.FC = () => {
                 <ul className="space-y-2 text-sm text-gray-600">
                   {analyticsData.completionRate > 50 && (
                     <li className="flex items-center gap-2">
-                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                      <div className="w-2 h-2 bg-slate-500 rounded-full"></div>
                       Great consistency in weekly planning
                     </li>
                   )}
                   {analyticsData.prayerConsistency > 0 && (
                     <li className="flex items-center gap-2">
-                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                      <div className="w-2 h-2 bg-slate-500 rounded-full"></div>
                       Strong prayer and spiritual focus
                     </li>
                   )}
@@ -202,12 +202,12 @@ export const ProgressAnalytics: React.FC = () => {
                 <ul className="space-y-2 text-sm text-gray-600">
                   {analyticsData.completionRate < 50 && (
                     <li className="flex items-center gap-2">
-                      <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                      <div className="w-2 h-2 bg-slate-500 rounded-full"></div>
                       Focus on completing all weekly sections
                     </li>
                   )}
                   <li className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                    <div className="w-2 h-2 bg-slate-500 rounded-full"></div>
                     Consider adding more prayer requests
                   </li>
                 </ul>

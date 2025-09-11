@@ -262,7 +262,7 @@ export const WeeklyReview: React.FC<WeeklyReviewProps> = ({ onBack, onNavigateTo
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-purple-50 pt-24 sm:pt-16 flex items-center justify-center">
+      <div className="min-h-screen bg-slate-100 pt-24 sm:pt-16 flex items-center justify-center">
         <div className="text-center">
           <RefreshCw className="w-8 h-8 animate-spin text-slate-600 mx-auto mb-4" />
           <p className="text-gray-600">Generating your weekly review...</p>
@@ -273,7 +273,7 @@ export const WeeklyReview: React.FC<WeeklyReviewProps> = ({ onBack, onNavigateTo
 
   if (!insights) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-purple-50 pt-24 sm:pt-16 flex items-center justify-center">
+      <div className="min-h-screen bg-slate-100 pt-24 sm:pt-16 flex items-center justify-center">
         <div className="text-center">
           <Calendar className="w-16 h-16 text-gray-400 mx-auto mb-4" />
           <h2 className="text-2xl font-bold text-gray-900 mb-2">No Data Yet</h2>
@@ -288,7 +288,7 @@ export const WeeklyReview: React.FC<WeeklyReviewProps> = ({ onBack, onNavigateTo
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-purple-50 pt-24 sm:pt-16">
+    <div className="min-h-screen bg-slate-100 pt-24 sm:pt-16">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="flex items-center gap-4 mb-8">
@@ -308,10 +308,10 @@ export const WeeklyReview: React.FC<WeeklyReviewProps> = ({ onBack, onNavigateTo
           animate={{ opacity: 1, y: 0 }}
           className="mb-8"
         >
-          <Card className="p-8 bg-gradient-to-r from-slate-100 to-purple-100">
+          <Card className="p-8 bg-white shadow-sm">
             <div className="flex items-center gap-3 mb-4">
               <div className="p-3 bg-white rounded-lg shadow-sm">
-                <Star className="w-6 h-6 text-purple-600" />
+                <Star className="w-6 h-6 text-slate-600" />
               </div>
               <h2 className="text-2xl font-bold text-gray-900">Week Summary</h2>
             </div>
@@ -326,11 +326,11 @@ export const WeeklyReview: React.FC<WeeklyReviewProps> = ({ onBack, onNavigateTo
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.1 }}
           >
-            <Card className="p-6 h-full">
+            <Card className="p-6 h-full bg-white shadow-sm">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-green-100 rounded-lg">
-                    <Award className="w-5 h-5 text-green-600" />
+                  <div className="p-2 bg-slate-100 rounded-lg">
+                    <Award className="w-5 h-5 text-slate-600" />
                   </div>
                   <h3 className="text-xl font-bold text-gray-900">Accomplishments</h3>
                 </div>
@@ -348,7 +348,7 @@ export const WeeklyReview: React.FC<WeeklyReviewProps> = ({ onBack, onNavigateTo
               <div className="space-y-3">
                 {insights.accomplishments.map((accomplishment, index) => (
                   <div key={index} className="flex items-center gap-3">
-                    <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
+                    <CheckCircle className="w-5 h-5 text-slate-500 flex-shrink-0" />
                     <span className="text-gray-700">{accomplishment}</span>
                   </div>
                 ))}
@@ -371,11 +371,11 @@ export const WeeklyReview: React.FC<WeeklyReviewProps> = ({ onBack, onNavigateTo
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.2 }}
           >
-            <Card className="p-6 h-full">
+            <Card className="p-6 h-full bg-white shadow-sm">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-blue-100 rounded-lg">
-                    <Lightbulb className="w-5 h-5 text-blue-600" />
+                  <div className="p-2 bg-slate-100 rounded-lg">
+                    <Lightbulb className="w-5 h-5 text-slate-600" />
                   </div>
                   <h3 className="text-xl font-bold text-gray-900">Growth Opportunities</h3>
                 </div>
@@ -395,7 +395,7 @@ export const WeeklyReview: React.FC<WeeklyReviewProps> = ({ onBack, onNavigateTo
               <div className="space-y-3">
                 {insights.growthAreas.map((area, index) => (
                   <div key={index} className="flex items-start gap-3">
-                    <TrendingUp className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />
+                    <TrendingUp className="w-5 h-5 text-slate-500 flex-shrink-0 mt-0.5" />
                     <span className="text-gray-700">{area}</span>
                   </div>
                 ))}
@@ -420,7 +420,7 @@ export const WeeklyReview: React.FC<WeeklyReviewProps> = ({ onBack, onNavigateTo
           transition={{ delay: 0.3 }}
           className="mb-8"
         >
-          <Card className="p-6">
+          <Card className="p-6 bg-white shadow-sm">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-xl font-bold text-gray-900">Progress Metrics</h3>
               <div className="flex gap-2">
@@ -432,11 +432,11 @@ export const WeeklyReview: React.FC<WeeklyReviewProps> = ({ onBack, onNavigateTo
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {/* Goal Progress */}
               <div className="text-center group">
-                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:bg-green-200 transition-colors">
-                  <Target className="w-8 h-8 text-green-600" />
+                <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:bg-slate-200 transition-colors">
+                  <Target className="w-8 h-8 text-slate-600" />
                 </div>
                 <h4 className="font-semibold text-gray-900 mb-1">Goal Progress</h4>
-                <p className="text-2xl font-bold text-green-600 mb-1">
+                <p className="text-2xl font-bold text-slate-600 mb-1">
                   {insights.goalProgress.percentage}%
                 </p>
                 <p className="text-sm text-gray-600 mb-3">
@@ -447,7 +447,7 @@ export const WeeklyReview: React.FC<WeeklyReviewProps> = ({ onBack, onNavigateTo
                     variant="outline"
                     size="sm"
                     onClick={() => handleNavigateToSection('goals')}
-                    className="text-green-600 border-green-200 hover:bg-green-50"
+                    className="text-slate-600 border-slate-200 hover:bg-slate-50"
                   >
                     <Eye className="w-3 h-3 mr-1" />
                     Review Goals
@@ -512,7 +512,7 @@ export const WeeklyReview: React.FC<WeeklyReviewProps> = ({ onBack, onNavigateTo
             transition={{ delay: 0.4 }}
             className="mb-8"
           >
-            <Card className="p-6">
+            <Card className="p-6 bg-white shadow-sm">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-red-100 rounded-lg">
@@ -562,7 +562,7 @@ export const WeeklyReview: React.FC<WeeklyReviewProps> = ({ onBack, onNavigateTo
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 }}
           >
-            <Card className="p-6">
+            <Card className="p-6 bg-white shadow-sm">
               <div className="flex items-center gap-3 mb-4">
                 <div className="p-2 bg-blue-100 rounded-lg">
                   <Clock className="w-5 h-5 text-blue-600" />

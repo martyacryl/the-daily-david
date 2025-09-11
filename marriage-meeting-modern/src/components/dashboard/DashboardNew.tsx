@@ -69,8 +69,9 @@ export const DashboardNew: React.FC = () => {
 
   useEffect(() => {
     if (isAuthenticated) {
-      // Load current week data - using 2025-09-09 where the actual data is
-      const weekKey = '2025-09-09'
+      // Load current week data
+      const today = new Date()
+      const weekKey = DatabaseManager.formatWeekKey(today)
       console.log('Dashboard: Loading week data for key:', weekKey)
       loadWeekData(weekKey)
     }
@@ -81,7 +82,8 @@ export const DashboardNew: React.FC = () => {
     if (weekData && isAuthenticated) {
       const saveTimeout = setTimeout(async () => {
         try {
-          const weekKey = '2025-09-09'
+          const today = new Date()
+          const weekKey = DatabaseManager.formatWeekKey(today)
           await saveWeekData(weekKey, weekData)
           console.log('Dashboard: Auto-saved week data')
         } catch (error) {
