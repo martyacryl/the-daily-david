@@ -242,10 +242,9 @@ export const DashboardNew: React.FC = () => {
 
   const getScripture = () => {
     const scriptures = [
-      '"Two are better than one, because they have a good return for their labor" - Ecclesiastes 4:9',
-      '"Love is patient, love is kind" - 1 Corinthians 13:4',
-      '"Therefore what God has joined together, let no one separate" - Mark 10:9',
-      '"Above all, love each other deeply, because love covers over a multitude of sins" - 1 Peter 4:8'
+      '"Be completely humble and gentle; be patient, bearing with one another in love" - Ephesians 4:2',
+      '"And over all these virtues put on love, which binds them all together in perfect unity" - Colossians 3:14',
+      '"Let us not love with words or speech but with actions and in truth" - 1 John 3:18'
     ]
     return scriptures[Math.floor(Math.random() * scriptures.length)]
   }
