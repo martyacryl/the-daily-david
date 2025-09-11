@@ -213,6 +213,10 @@ export const useMarriageStore = create<MarriageState>((set, get) => ({
   addScheduleLine: (day: DayName) => {
     set((state) => {
       const newSchedule = { ...state.weekData.schedule }
+      // Ensure the day array exists before pushing
+      if (!newSchedule[day]) {
+        newSchedule[day] = []
+      }
       newSchedule[day].push('')
       
       return {
@@ -227,7 +231,10 @@ export const useMarriageStore = create<MarriageState>((set, get) => ({
   removeScheduleLine: (day: DayName, index: number) => {
     set((state) => {
       const newSchedule = { ...state.weekData.schedule }
-      newSchedule[day].splice(index, 1)
+      // Ensure the day array exists before splicing
+      if (newSchedule[day] && Array.isArray(newSchedule[day])) {
+        newSchedule[day].splice(index, 1)
+      }
       
       return {
         weekData: {
