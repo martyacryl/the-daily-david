@@ -251,7 +251,7 @@ export const DashboardNew: React.FC = () => {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-purple-50 flex items-center justify-center">
+      <div className="min-h-screen bg-slate-100 flex items-center justify-center">
         <div className="text-center">
           <Mountain className="w-16 h-16 text-slate-500 mx-auto mb-4" />
           <h1 className="text-2xl font-bold text-gray-800 mb-2">Welcome to Daily David</h1>
@@ -267,7 +267,7 @@ export const DashboardNew: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-purple-50 pt-24 sm:pt-16">
+    <div className="min-h-screen bg-slate-100 pt-24 sm:pt-16">
       <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-8 max-w-7xl">
         {/* Header */}
         <motion.div
@@ -310,7 +310,7 @@ export const DashboardNew: React.FC = () => {
           transition={{ delay: 0.3 }}
           className="mb-6"
         >
-          <Card className="p-4 sm:p-6 bg-slate-50 border-slate-200">
+          <Card className="p-4 sm:p-6 bg-white shadow-sm border border-slate-200">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
               <h3 className="text-lg sm:text-xl font-semibold text-gray-900 flex items-center gap-2">
                 <Calendar className="w-5 h-5 text-slate-600" />
@@ -472,7 +472,7 @@ export const DashboardNew: React.FC = () => {
         >
           <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 sm:gap-3">
             <Link to="/weekly">
-              <Card className="p-2 sm:p-4 text-center hover:shadow-lg transition-shadow cursor-pointer">
+              <Card className="p-2 sm:p-4 text-center bg-white shadow-sm hover:shadow-md transition-shadow cursor-pointer">
                 <div className="w-8 h-8 sm:w-10 sm:h-10 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-2">
                   <Target className="w-4 h-4 sm:w-5 sm:h-5 text-slate-600" />
                 </div>
@@ -480,7 +480,7 @@ export const DashboardNew: React.FC = () => {
               </Card>
             </Link>
             <Link to="/weekly?section=schedule">
-              <Card className="p-2 sm:p-4 text-center hover:shadow-lg transition-shadow cursor-pointer">
+              <Card className="p-2 sm:p-4 text-center bg-white shadow-sm hover:shadow-md transition-shadow cursor-pointer">
                 <div className="w-8 h-8 sm:w-10 sm:h-10 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-2">
                   <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-slate-600" />
                 </div>
@@ -488,7 +488,7 @@ export const DashboardNew: React.FC = () => {
               </Card>
             </Link>
             <Link to="/review">
-              <Card className="p-2 sm:p-4 text-center hover:shadow-lg transition-shadow cursor-pointer">
+              <Card className="p-2 sm:p-4 text-center bg-white shadow-sm hover:shadow-md transition-shadow cursor-pointer">
                 <div className="w-8 h-8 sm:w-10 sm:h-10 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-2">
                   <Eye className="w-4 h-4 sm:w-5 sm:h-5 text-slate-600" />
                 </div>
@@ -496,7 +496,7 @@ export const DashboardNew: React.FC = () => {
               </Card>
             </Link>
             <Link to="/analytics">
-              <Card className="p-2 sm:p-4 text-center hover:shadow-lg transition-shadow cursor-pointer">
+              <Card className="p-2 sm:p-4 text-center bg-white shadow-sm hover:shadow-md transition-shadow cursor-pointer">
                 <div className="w-8 h-8 sm:w-10 sm:h-10 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-2">
                   <BarChart3 className="w-4 h-4 sm:w-5 sm:h-5 text-slate-600" />
                 </div>
@@ -504,7 +504,7 @@ export const DashboardNew: React.FC = () => {
               </Card>
             </Link>
             <Link to="/weekly?section=encouragement">
-              <Card className="p-2 sm:p-4 text-center hover:shadow-lg transition-shadow cursor-pointer">
+              <Card className="p-2 sm:p-4 text-center bg-white shadow-sm hover:shadow-md transition-shadow cursor-pointer">
                 <div className="w-6 h-6 sm:w-8 sm:h-8 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-1 sm:mb-2">
                   <Heart className="w-3 h-3 sm:w-4 sm:h-4 text-slate-600" />
                 </div>
@@ -544,7 +544,7 @@ export const DashboardNew: React.FC = () => {
               transition={{ delay: 0.2 }}
               className="mb-6"
             >
-              <Card className="p-3 sm:p-6 bg-slate-50 border-slate-200">
+              <Card className="p-3 sm:p-6 bg-white shadow-sm border border-slate-200">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-2">
                     <h3 className="text-lg sm:text-xl font-semibold text-gray-900 flex items-center gap-2">
@@ -680,7 +680,7 @@ export const DashboardNew: React.FC = () => {
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.2 }}
           >
-            <Card className="p-3 sm:p-6">
+            <Card className="p-3 sm:p-6 bg-white shadow-sm">
               <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
                 <Zap className="w-4 h-4 sm:w-5 sm:h-5 text-slate-600" />
                 Priority Actions
@@ -740,7 +740,7 @@ export const DashboardNew: React.FC = () => {
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.3 }}
           >
-            <Card className="p-3 sm:p-6">
+            <Card className="p-3 sm:p-6 bg-white shadow-sm">
               <h3 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
                 <Clock className="w-5 h-5 text-slate-600" />
                 Overdue Items
@@ -812,7 +812,7 @@ export const DashboardNew: React.FC = () => {
             transition={{ delay: 0.4 }}
             className="mb-8"
           >
-            <Card className="p-6 bg-slate-50 border-slate-200">
+            <Card className="p-6 bg-white shadow-sm border border-slate-200">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
                   <ShoppingCart className="w-5 h-5 text-slate-600" />
@@ -867,7 +867,7 @@ export const DashboardNew: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
           >
-            <Card className="p-3 sm:p-6">
+            <Card className="p-3 sm:p-6 bg-white shadow-sm">
               <h3 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
                 <Heart className="w-5 h-5 text-slate-600" />
                 Prayer Requests
@@ -894,9 +894,9 @@ export const DashboardNew: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 }}
           >
-            <Card className="p-3 sm:p-6">
+            <Card className="p-3 sm:p-6 bg-white shadow-sm">
               <h3 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                <AlertTriangle className="w-5 h-5 text-yellow-600" />
+                <AlertTriangle className="w-5 h-5 text-slate-600" />
                 Needs Attention
               </h3>
               <div className="space-y-2">
@@ -924,7 +924,7 @@ export const DashboardNew: React.FC = () => {
           transition={{ delay: 0.6 }}
           className="mb-8"
         >
-          <Card className="p-6">
+          <Card className="p-6 bg-white shadow-sm">
             <h3 className="text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
               <Target className="w-5 h-5 text-slate-600" />
               Goal Progress by Timeframe
@@ -966,7 +966,7 @@ export const DashboardNew: React.FC = () => {
           transition={{ delay: 0.7 }}
           className="mb-8"
         >
-            <Card className="p-3 sm:p-6">
+            <Card className="p-3 sm:p-6 bg-white shadow-sm">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg sm:text-xl font-semibold text-gray-900 flex items-center gap-2">
                   <Target className="w-4 h-4 sm:w-5 sm:h-5 text-slate-600" />
@@ -1089,7 +1089,7 @@ export const DashboardNew: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.7 }}
           >
-            <Card className="p-3 sm:p-6">
+            <Card className="p-3 sm:p-6 bg-white shadow-sm">
               <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
                 <Award className="w-5 h-5 text-slate-600" />
                 Consistency Score
@@ -1106,7 +1106,7 @@ export const DashboardNew: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.8 }}
           >
-            <Card className="p-3 sm:p-6">
+            <Card className="p-3 sm:p-6 bg-white shadow-sm">
               <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
                 <Flame className="w-5 h-5 text-slate-600" />
                 Meeting Streak
@@ -1123,7 +1123,7 @@ export const DashboardNew: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.9 }}
           >
-            <Card className="p-3 sm:p-6">
+            <Card className="p-3 sm:p-6 bg-white shadow-sm">
               <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
                 <TrendingUp className="w-5 h-5 text-slate-600" />
                 Growth Areas
