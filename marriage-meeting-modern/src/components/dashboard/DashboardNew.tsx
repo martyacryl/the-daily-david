@@ -310,10 +310,10 @@ export const DashboardNew: React.FC = () => {
           transition={{ delay: 0.3 }}
           className="mb-6"
         >
-          <Card className="p-4 sm:p-6 bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
+          <Card className="p-4 sm:p-6 bg-slate-50 border-slate-200">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
               <h3 className="text-lg sm:text-xl font-semibold text-gray-900 flex items-center gap-2">
-                <Calendar className="w-5 h-5 text-blue-600" />
+                <Calendar className="w-5 h-5 text-slate-600" />
                 Today's Overview
                 <span className="text-sm font-normal text-gray-600">
                   {new Date().toLocaleDateString('en-US', { 
@@ -327,7 +327,7 @@ export const DashboardNew: React.FC = () => {
                 variant="outline"
                 size="sm"
                 onClick={() => window.location.href = '/weekly'}
-                className="text-blue-600 border-blue-200 hover:bg-blue-50 self-start sm:self-auto"
+                className="text-slate-600 border-slate-200 hover:bg-slate-50 self-start sm:self-auto"
               >
                 <Edit3 className="w-4 h-4 mr-1" />
                 Edit Day
@@ -338,7 +338,7 @@ export const DashboardNew: React.FC = () => {
               {/* Today's Schedule */}
               <div className="space-y-3">
                 <h4 className="font-medium text-gray-900 flex items-center gap-2">
-                  <Clock className="w-4 h-4 text-blue-600" />
+                  <Clock className="w-4 h-4 text-slate-600" />
                   Today's Schedule
                 </h4>
                 <div className="space-y-2">
@@ -356,7 +356,7 @@ export const DashboardNew: React.FC = () => {
                     
                     return filteredSchedule.length > 0 ? (
                       filteredSchedule.map((item, index) => (
-                        <div key={index} className="p-3 sm:p-4 bg-slate-100 rounded-xl border-l-4 border-blue-500">
+                        <div key={index} className="p-3 sm:p-4 bg-slate-100 rounded-xl border-l-4 border-slate-400">
                           <span className="text-sm sm:text-base text-slate-800 font-medium">{item}</span>
                         </div>
                       ))
@@ -370,7 +370,7 @@ export const DashboardNew: React.FC = () => {
               {/* Today's Tasks */}
               <div className="space-y-3">
                 <h4 className="font-medium text-gray-900 flex items-center gap-2">
-                  <CheckSquare className="w-4 h-4 text-green-600" />
+                  <CheckSquare className="w-4 h-4 text-slate-600" />
                   Today's Tasks
                 </h4>
                 <div className="space-y-2">
@@ -393,13 +393,13 @@ export const DashboardNew: React.FC = () => {
                       todayTasks.map((task) => (
                         <div key={task.id} className={`flex items-center gap-3 p-3 sm:p-4 rounded-xl border-l-4 ${
                           task.completed 
-                            ? 'bg-green-50 border-green-500' 
+                            ? 'bg-slate-100 border-slate-400' 
                             : 'bg-slate-100 border-slate-400'
                         }`}>
                           <div className={`w-4 h-4 rounded border-2 flex items-center justify-center flex-shrink-0 ${
                             task.completed 
-                              ? 'bg-green-500 border-green-500' 
-                              : 'border-gray-300'
+                              ? 'bg-slate-600 border-slate-600' 
+                              : 'border-slate-300'
                           }`}>
                             {task.completed && <Check className="w-3 h-3 text-white" />}
                           </div>
@@ -416,7 +416,7 @@ export const DashboardNew: React.FC = () => {
                             )}
                           </div>
                           {task.priority === 'high' && (
-                            <div className="w-2 h-2 bg-red-500 rounded-full flex-shrink-0"></div>
+                            <div className="w-2 h-2 bg-slate-500 rounded-full flex-shrink-0"></div>
                           )}
                         </div>
                       ))
@@ -429,13 +429,13 @@ export const DashboardNew: React.FC = () => {
             </div>
 
             {/* Quick Actions */}
-            <div className="mt-4 sm:mt-6 pt-4 border-t border-blue-200">
+            <div className="mt-4 sm:mt-6 pt-4 border-t border-slate-200">
               <div className="flex flex-wrap gap-2 sm:gap-3">
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => window.location.href = '/weekly?section=schedule'}
-                  className="text-blue-600 border-blue-200 hover:bg-blue-50 text-xs sm:text-sm"
+                  className="text-slate-600 border-slate-200 hover:bg-slate-50 text-xs sm:text-sm"
                 >
                   <Calendar className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
                   View Full Schedule
@@ -444,7 +444,7 @@ export const DashboardNew: React.FC = () => {
                   variant="outline"
                   size="sm"
                   onClick={() => window.location.href = '/weekly?section=todos'}
-                  className="text-green-600 border-green-200 hover:bg-green-50 text-xs sm:text-sm"
+                  className="text-slate-600 border-slate-200 hover:bg-slate-50 text-xs sm:text-sm"
                 >
                   <CheckSquare className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
                   Manage Tasks
@@ -453,7 +453,7 @@ export const DashboardNew: React.FC = () => {
                   variant="outline"
                   size="sm"
                   onClick={() => window.location.href = '/weekly?section=goals'}
-                  className="text-purple-600 border-purple-200 hover:bg-purple-50 text-xs sm:text-sm"
+                  className="text-slate-600 border-slate-200 hover:bg-slate-50 text-xs sm:text-sm"
                 >
                   <Target className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
                   Review Goals
@@ -505,8 +505,8 @@ export const DashboardNew: React.FC = () => {
             </Link>
             <Link to="/weekly?section=encouragement">
               <Card className="p-2 sm:p-4 text-center hover:shadow-lg transition-shadow cursor-pointer">
-                <div className="w-6 h-6 sm:w-8 sm:h-8 bg-pink-100 rounded-full flex items-center justify-center mx-auto mb-1 sm:mb-2">
-                  <Heart className="w-3 h-3 sm:w-4 sm:h-4 text-pink-600" />
+                <div className="w-6 h-6 sm:w-8 sm:h-8 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-1 sm:mb-2">
+                  <Heart className="w-3 h-3 sm:w-4 sm:h-4 text-slate-600" />
                 </div>
                 <h3 className="font-semibold text-gray-800 text-xs sm:text-sm">Add Note</h3>
               </Card>
@@ -931,10 +931,10 @@ export const DashboardNew: React.FC = () => {
             </h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6">
               {[
-                { timeframe: 'monthly' as const, label: 'Monthly Goals', color: 'blue', icon: Calendar },
-                { timeframe: '1year' as const, label: '1 Year Goals', color: 'green', icon: Target },
-                { timeframe: '5year' as const, label: '5 Year Goals', color: 'orange', icon: TrendingUp },
-                { timeframe: '10year' as const, label: '10 Year Goals', color: 'purple', icon: Users }
+                { timeframe: 'monthly' as const, label: 'Monthly Goals', color: 'slate', icon: Calendar },
+                { timeframe: '1year' as const, label: '1 Year Goals', color: 'slate', icon: Target },
+                { timeframe: '5year' as const, label: '5 Year Goals', color: 'slate', icon: TrendingUp },
+                { timeframe: '10year' as const, label: '10 Year Goals', color: 'slate', icon: Users }
               ].map(({ timeframe, label, color, icon: IconComponent }) => {
                 const progress = insights.goalProgress[timeframe]
                 return (
