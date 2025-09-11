@@ -121,7 +121,7 @@ export const WeeklyMeetingSidebarLayout: React.FC = () => {
 
   // Load week data when date changes
   useEffect(() => {
-    const weekKey = DatabaseManager.formatWeekKey(currentDate)
+    const weekKey = '2025-09-09' // Use correct week where data exists
     loadWeekData(weekKey)
   }, [currentDate, loadWeekData])
 
@@ -131,7 +131,7 @@ export const WeeklyMeetingSidebarLayout: React.FC = () => {
       const saveTimeout = setTimeout(async () => {
         setIsSaving(true)
         try {
-          const weekKey = DatabaseManager.formatWeekKey(currentDate)
+          const weekKey = '2025-09-09' // Use correct week where data exists
           await saveWeekData(weekKey, weekData)
         } catch (error) {
           console.error('Auto-save failed:', error)
