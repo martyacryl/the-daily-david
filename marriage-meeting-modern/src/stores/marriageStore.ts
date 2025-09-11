@@ -117,16 +117,6 @@ export const useMarriageStore = create<MarriageState>((set, get) => ({
         console.log('Store: Setting weekData with grocery:', week.grocery)
         console.log('Store: Setting weekData with encouragementNotes:', week.encouragementNotes)
         
-        const weekDataToSet = {
-          schedule: week.schedule,
-          todos: migratedTodos,
-          prayers: week.prayers,
-          grocery: week.grocery,
-          unconfessedSin: week.unconfessedSin,
-          weeklyWinddown: week.weeklyWinddown,
-          encouragementNotes: week.encouragementNotes || []
-        }
-        
         // Normalize schedule structure to ensure consistency
         const normalizedSchedule = {
           Monday: week.schedule?.Monday || [],
