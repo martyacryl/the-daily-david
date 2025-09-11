@@ -277,59 +277,8 @@ export const DashboardNew: React.FC = () => {
           <p className="text-gray-600 text-base sm:text-lg">{getScripture()}</p>
         </motion.div>
 
-        {/* Family Creed Display */}
+        {/* Family Creed Display - Moved to top */}
         <FamilyCreedDisplay className="mb-8" />
-
-        {/* Quick Actions */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="mb-6"
-        >
-          <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 sm:gap-3">
-            <Link to="/weekly">
-              <Card className="p-2 sm:p-4 text-center hover:shadow-lg transition-shadow cursor-pointer">
-                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                  <Target className="w-4 h-4 sm:w-5 sm:h-5 text-slate-600" />
-                </div>
-                <h3 className="font-semibold text-gray-800 text-xs sm:text-sm">Add Goal</h3>
-              </Card>
-            </Link>
-            <Link to="/weekly?section=schedule">
-              <Card className="p-2 sm:p-4 text-center hover:shadow-lg transition-shadow cursor-pointer">
-                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                  <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-slate-600" />
-                </div>
-                <h3 className="font-semibold text-gray-800 text-xs sm:text-sm">Start Meeting</h3>
-              </Card>
-            </Link>
-            <Link to="/review">
-              <Card className="p-2 sm:p-4 text-center hover:shadow-lg transition-shadow cursor-pointer">
-                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                  <Eye className="w-4 h-4 sm:w-5 sm:h-5 text-slate-600" />
-                </div>
-                <h3 className="font-semibold text-gray-800 text-xs sm:text-sm">Review Last Week</h3>
-              </Card>
-            </Link>
-            <Link to="/analytics">
-              <Card className="p-2 sm:p-4 text-center hover:shadow-lg transition-shadow cursor-pointer">
-                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                  <BarChart3 className="w-4 h-4 sm:w-5 sm:h-5 text-slate-600" />
-                </div>
-                <h3 className="font-semibold text-gray-800 text-xs sm:text-sm">Full Analytics</h3>
-              </Card>
-            </Link>
-            <Link to="/weekly?section=encouragement">
-              <Card className="p-2 sm:p-4 text-center hover:shadow-lg transition-shadow cursor-pointer">
-                <div className="w-6 h-6 sm:w-8 sm:h-8 bg-pink-100 rounded-full flex items-center justify-center mx-auto mb-1 sm:mb-2">
-                  <Heart className="w-3 h-3 sm:w-4 sm:h-4 text-pink-600" />
-                </div>
-                <h3 className="font-semibold text-gray-800 text-xs sm:text-sm">Add Note</h3>
-              </Card>
-            </Link>
-          </div>
-        </motion.div>
 
         {/* Weather Section */}
         <div className="mb-6">
@@ -495,6 +444,57 @@ export const DashboardNew: React.FC = () => {
               </div>
             </div>
           </Card>
+        </motion.div>
+
+        {/* Quick Actions - Moved below Today's Overview */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+          className="mb-6"
+        >
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 sm:gap-3">
+            <Link to="/weekly">
+              <Card className="p-2 sm:p-4 text-center hover:shadow-lg transition-shadow cursor-pointer">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                  <Target className="w-4 h-4 sm:w-5 sm:h-5 text-slate-600" />
+                </div>
+                <h3 className="font-semibold text-gray-800 text-xs sm:text-sm">Add Goal</h3>
+              </Card>
+            </Link>
+            <Link to="/weekly?section=schedule">
+              <Card className="p-2 sm:p-4 text-center hover:shadow-lg transition-shadow cursor-pointer">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                  <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-slate-600" />
+                </div>
+                <h3 className="font-semibold text-gray-800 text-xs sm:text-sm">Start Meeting</h3>
+              </Card>
+            </Link>
+            <Link to="/review">
+              <Card className="p-2 sm:p-4 text-center hover:shadow-lg transition-shadow cursor-pointer">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                  <Eye className="w-4 h-4 sm:w-5 sm:h-5 text-slate-600" />
+                </div>
+                <h3 className="font-semibold text-gray-800 text-xs sm:text-sm">Review Last Week</h3>
+              </Card>
+            </Link>
+            <Link to="/analytics">
+              <Card className="p-2 sm:p-4 text-center hover:shadow-lg transition-shadow cursor-pointer">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                  <BarChart3 className="w-4 h-4 sm:w-5 sm:h-5 text-slate-600" />
+                </div>
+                <h3 className="font-semibold text-gray-800 text-xs sm:text-sm">Full Analytics</h3>
+              </Card>
+            </Link>
+            <Link to="/weekly?section=encouragement">
+              <Card className="p-2 sm:p-4 text-center hover:shadow-lg transition-shadow cursor-pointer">
+                <div className="w-6 h-6 sm:w-8 sm:h-8 bg-pink-100 rounded-full flex items-center justify-center mx-auto mb-1 sm:mb-2">
+                  <Heart className="w-3 h-3 sm:w-4 sm:h-4 text-pink-600" />
+                </div>
+                <h3 className="font-semibold text-gray-800 text-xs sm:text-sm">Add Note</h3>
+              </Card>
+            </Link>
+          </div>
         </motion.div>
 
         {/* Encouragement Notes */}
