@@ -95,6 +95,9 @@ export const DashboardNew: React.FC = () => {
 
   useEffect(() => {
     if (weekData) {
+      console.log('Dashboard: WeekData loaded:', weekData)
+      console.log('Dashboard: Schedule data:', weekData.schedule)
+      console.log('Dashboard: Todos data:', weekData.todos)
       calculateInsights()
     }
   }, [weekData])
@@ -334,6 +337,7 @@ export const DashboardNew: React.FC = () => {
         </div>
 
         {/* Today's Overview */}
+        {console.log('Dashboard: Rendering Today\'s Overview section')}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
