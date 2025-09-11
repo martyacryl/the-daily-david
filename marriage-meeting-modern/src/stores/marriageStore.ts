@@ -110,6 +110,7 @@ export const useMarriageStore = create<MarriageState>((set, get) => ({
           }
         }) || []
         
+        console.log('Store: Setting weekData with prayers:', week.prayers)
         set({ 
           currentWeek: week,
           weekData: {

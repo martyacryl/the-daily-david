@@ -270,6 +270,7 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
       case 'todos':
         return renderTasksSection()
       case 'prayers':
+        console.log('WeeklyMeetingContent: Rendering prayers section with data:', weekData.prayers)
         return renderListSection('prayers', 'Prayers', Heart, 'purple', weekData.prayers)
       case 'grocery':
         return renderGroceryErrandsSection()
