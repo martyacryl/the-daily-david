@@ -330,7 +330,7 @@ export const DashboardNew: React.FC = () => {
                     const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
                     const todayName = dayNames[today.getDay()]
                     const todaySchedule = weekData.schedule?.[todayName as keyof typeof weekData.schedule] || []
-                    const filteredSchedule = todaySchedule.filter(item => item.trim() !== '')
+                    const filteredSchedule = todaySchedule.filter(item => item && item.trim() !== '')
                     
                     console.log('Dashboard Debug - Today:', todayName)
                     console.log('Dashboard Debug - Schedule data:', weekData.schedule)
