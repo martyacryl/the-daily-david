@@ -240,14 +240,14 @@ export const DashboardNew: React.FC = () => {
     return 'Good evening'
   }
 
-  const getScripture = () => {
+  const [scripture] = useState(() => {
     const scriptures = [
       '"Be completely humble and gentle; be patient, bearing with one another in love" - Ephesians 4:2',
       '"And over all these virtues put on love, which binds them all together in perfect unity" - Colossians 3:14',
       '"Let us not love with words or speech but with actions and in truth" - 1 John 3:18'
     ]
     return scriptures[Math.floor(Math.random() * scriptures.length)]
-  }
+  })
 
   if (!isAuthenticated) {
     return (
@@ -291,7 +291,7 @@ export const DashboardNew: React.FC = () => {
           <h1 className="text-3xl sm:text-4xl font-bold text-gray-800 mb-2">
             {getGreeting()}, {user?.name || 'David'}!
           </h1>
-          <p className="text-gray-600 text-base sm:text-lg">{getScripture()}</p>
+          <p className="text-gray-600 text-base sm:text-lg">{scripture}</p>
         </motion.div>
 
         {/* Family Creed Display - Moved to top */}
