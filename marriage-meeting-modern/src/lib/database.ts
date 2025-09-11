@@ -225,6 +225,7 @@ export class DatabaseManager {
     
     // Calculate days to subtract to get to Monday
     // If it's Sunday (0), subtract 6 days to get to Monday
+    // If it's Monday (1), subtract 0 days (already Monday)
     // Otherwise, subtract (day - 1) to get to Monday
     const daysToSubtract = day === 0 ? 6 : day - 1
     
