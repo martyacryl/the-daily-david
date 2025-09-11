@@ -9,9 +9,9 @@ interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
 export const Card = React.forwardRef<HTMLDivElement, CardProps>(
   ({ className, variant = 'default', children, ...props }, ref) => {
     const variants = {
-      default: 'bg-white border border-gray-200 shadow-sm',
-      elevated: 'bg-white border border-gray-200 shadow-lg hover:shadow-xl transition-shadow duration-300',
-      outline: 'border-2 border-gray-300 bg-white/50'
+      default: 'bg-white border-0 shadow-sm',
+      elevated: 'bg-white border-0 shadow-md hover:shadow-lg transition-shadow duration-300',
+      outline: 'border border-gray-200 bg-white/80 backdrop-blur-sm'
     }
 
     return (

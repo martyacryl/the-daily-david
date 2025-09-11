@@ -20,10 +20,10 @@ export const Textarea: React.FC<TextareaProps> = ({
       )}
       <textarea
         className={`
-          w-full px-4 py-3 border-2 border-gray-200 rounded-lg 
-          focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 
-          transition-colors duration-200 resize-none
-          ${error ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : ''}
+          w-full px-4 py-3 bg-gray-50 border-0 rounded-xl 
+          focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white 
+          transition-all duration-200 resize-none placeholder:text-gray-400 text-gray-900
+          ${error ? 'bg-red-50 focus:ring-red-500 focus:bg-red-50' : ''}
           ${className}
         `}
         {...props}
