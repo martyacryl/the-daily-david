@@ -29,7 +29,6 @@ interface TasksSectionProps {
 
 export const TasksSection: React.FC<TasksSectionProps> = ({ tasks, onUpdate }) => {
   const { settings, loadSettings } = useSettingsStore()
-  const [editingTask, setEditingTask] = useState<number | null>(null)
   
   // Load settings when component mounts
   useEffect(() => {
