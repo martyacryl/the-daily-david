@@ -76,8 +76,8 @@ export const TasksSection: React.FC<TasksSectionProps> = ({ tasks, onUpdate }) =
   const getAssignmentLabel = (assignedTo: string) => {
     switch (assignedTo) {
       case 'both': return 'Both Spouses'
-      case 'spouse1': return settings.spouse1?.name || 'Marty'
-      case 'spouse2': return settings.spouse2?.name || 'Ashlynn'
+      case 'spouse1': return settings.spouse1?.name || 'Loading...'
+      case 'spouse2': return settings.spouse2?.name || 'Loading...'
       default: return 'Both Spouses'
     }
   }
@@ -214,8 +214,8 @@ export const TasksSection: React.FC<TasksSectionProps> = ({ tasks, onUpdate }) =
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
               >
                 <option value="both">Both Spouses</option>
-                <option value="spouse1">{settings.spouse1?.name || 'Marty'}</option>
-                <option value="spouse2">{settings.spouse2?.name || 'Ashlynn'}</option>
+                <option value="spouse1">{settings.spouse1?.name || 'Loading...'}</option>
+                <option value="spouse2">{settings.spouse2?.name || 'Loading...'}</option>
               </select>
             </div>
 

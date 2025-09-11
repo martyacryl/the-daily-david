@@ -36,6 +36,7 @@ import { SettingsPanel } from '../settings/SettingsPanel'
 import { useAuthStore } from '../../stores/authStore'
 import { useMarriageStore } from '../../stores/marriageStore'
 import { useGoalsStore } from '../../stores/goalsStore'
+import { useSettingsStore } from '../../stores/settingsStore'
 import { MarriageMeetingWeek, GoalItem, ListItem, EncouragementNote } from '../../types/marriageTypes'
 import { EncouragementSection } from '../EncouragementSection'
 import { DatabaseManager } from '../../lib/database'
@@ -44,6 +45,7 @@ export const DashboardNew: React.FC = () => {
   const { user, isAuthenticated } = useAuthStore()
   const { currentWeek, weekData, loadWeekData, saveWeekData, updateEncouragementNotes } = useMarriageStore()
   const { goals, loadGoals, getCurrentMonthGoals, getCurrentYearGoals, getLongTermGoals } = useGoalsStore()
+  const { settings, loadSettings } = useSettingsStore()
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
   
   // New actionable insights state
@@ -96,12 +98,13 @@ export const DashboardNew: React.FC = () => {
     }
   }, [weekData, isAuthenticated, saveWeekData])
 
-  // Load goals when component mounts
+  // Load settings and goals when component mounts
   useEffect(() => {
     if (isAuthenticated) {
+      loadSettings()
       loadGoals()
     }
-  }, [isAuthenticated, loadGoals])
+  }, [isAuthenticated, loadSettings, loadGoals])
 
   useEffect(() => {
     if (weekData) {
@@ -419,7 +422,7 @@ export const DashboardNew: React.FC = () => {
                             </span>
                             {task.assignedTo !== 'both' && (
                               <span className="ml-2 text-xs text-gray-500">
-                                ({task.assignedTo === 'spouse1' ? 'Marty' : 'Ashlynn'})
+                                ({task.assignedTo === 'spouse1' ? (settings.spouse1?.name || 'Loading...') : (settings.spouse2?.name || 'Loading...')})
                               </span>
                             )}
                           </div>
