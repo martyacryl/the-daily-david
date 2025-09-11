@@ -6,7 +6,8 @@ import {
   MarriageMeetingWeek, 
   WeekData, 
   DatabaseResponse,
-  CreateUserFormData 
+  CreateUserFormData,
+  GoalItem
 } from '../types/marriageTypes'
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://theweeklyhuddle.vercel.app' : 'http://localhost:3001')
@@ -49,7 +50,6 @@ export class DatabaseManager {
         schedule: week.schedule,
         todos: week.todos,
         prayers: week.prayers,
-        goals: week.goals,
         grocery: week.grocery,
         unconfessedSin: week.unconfessedSin,
         weeklyWinddown: week.weeklyWinddown,
@@ -192,7 +192,6 @@ export class DatabaseManager {
       },
       todos: dataContent.todos || [],
       prayers: dataContent.prayers || [],
-      goals: dataContent.goals || [],
       grocery: dataContent.grocery || [],
       unconfessedSin: dataContent.unconfessedSin || [],
       weeklyWinddown: dataContent.weeklyWinddown || [],
@@ -235,6 +234,109 @@ export class DatabaseManager {
       start: monday.toISOString().split('T')[0],
       end: sunday.toISOString().split('T')[0]
     }
+  }
+
+  // Goals Management (Independent of weeks)
+  async getGoals(): Promise<GoalItem[]> {
+    const token = this.getAuthToken()
+    console.log('API: Getting goals with token:', token ? 'present' : 'missing')
+    
+    const response = await fetch(`${this.baseUrl}/api/goals`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    })
+
+    console.log('API: Goals response status:', response.status)
+
+    if (!response.ok) {
+      if (response.status === 404) {
+        console.log('API: No goals found, returning empty array')
+        return []
+      }
+      const error = await response.text()
+      console.error('API: Error response:', error)
+      throw new Error(`Failed to fetch goals: ${error}`)
+    }
+
+    const result = await response.json()
+    console.log('API: Successfully fetched goals')
+    return result
+  }
+
+  async addGoal(goal: Omit<GoalItem, 'id'>): Promise<GoalItem> {
+    const token = this.getAuthToken()
+    console.log('API: Adding goal with token:', token ? 'present' : 'missing')
+    
+    const response = await fetch(`${this.baseUrl}/api/goals`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify(goal),
+    })
+
+    console.log('API: Add goal response status:', response.status)
+
+    if (!response.ok) {
+      const error = await response.text()
+      console.error('API: Add goal error response:', error)
+      throw new Error(`Failed to add goal: ${error}`)
+    }
+
+    const result = await response.json()
+    console.log('API: Successfully added goal')
+    return result
+  }
+
+  async updateGoal(id: number, updates: Partial<GoalItem>): Promise<GoalItem> {
+    const token = this.getAuthToken()
+    console.log('API: Updating goal:', id, 'with token:', token ? 'present' : 'missing')
+    
+    const response = await fetch(`${this.baseUrl}/api/goals/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify(updates),
+    })
+
+    console.log('API: Update goal response status:', response.status)
+
+    if (!response.ok) {
+      const error = await response.text()
+      console.error('API: Update goal error response:', error)
+      throw new Error(`Failed to update goal: ${error}`)
+    }
+
+    const result = await response.json()
+    console.log('API: Successfully updated goal')
+    return result
+  }
+
+  async deleteGoal(id: number): Promise<void> {
+    const token = this.getAuthToken()
+    console.log('API: Deleting goal:', id, 'with token:', token ? 'present' : 'missing')
+    
+    const response = await fetch(`${this.baseUrl}/api/goals/${id}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    })
+
+    console.log('API: Delete goal response status:', response.status)
+
+    if (!response.ok) {
+      const error = await response.text()
+      console.error('API: Delete goal error response:', error)
+      throw new Error(`Failed to delete goal: ${error}`)
+    }
+
+    console.log('API: Successfully deleted goal')
   }
 }
 

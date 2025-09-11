@@ -397,4 +397,99 @@ app.listen(PORT, () => {
   console.log(`Environment: ${process.env.NODE_ENV || 'development'}`)
 })
 
+// Goals Routes (Independent of weeks)
+app.get('/api/goals', authenticateToken, async (req, res) => {
+  try {
+    const result = await pool.query(
+      'SELECT * FROM goals WHERE user_id = $1 ORDER BY timeframe, created_at DESC',
+      [req.user.id]
+    )
+
+    res.json(result.rows)
+  } catch (error) {
+    console.error('Error fetching goals:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
+app.post('/api/goals', authenticateToken, async (req, res) => {
+  try {
+    const { text, completed, timeframe, description, priority } = req.body
+
+    console.log('Server: Creating goal:', { text, timeframe, userId: req.user.id })
+
+    if (!text || !timeframe) {
+      return res.status(400).json({ error: 'Missing required fields: text and timeframe' })
+    }
+
+    const result = await pool.query(
+      `INSERT INTO goals (user_id, text, completed, timeframe, description, priority, created_at, updated_at)
+       VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW())
+       RETURNING *`,
+      [req.user.id, text, completed || false, timeframe, description || '', priority || 'medium']
+    )
+
+    console.log('Server: Successfully created goal')
+    res.json(result.rows[0])
+  } catch (error) {
+    console.error('Error creating goal:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
+app.put('/api/goals/:id', authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params
+    const { text, completed, timeframe, description, priority } = req.body
+
+    console.log('Server: Updating goal:', { id, updates: req.body, userId: req.user.id })
+
+    const result = await pool.query(
+      `UPDATE goals 
+       SET text = COALESCE($2, text),
+           completed = COALESCE($3, completed),
+           timeframe = COALESCE($4, timeframe),
+           description = COALESCE($5, description),
+           priority = COALESCE($6, priority),
+           updated_at = NOW()
+       WHERE id = $1 AND user_id = $7
+       RETURNING *`,
+      [id, text, completed, timeframe, description, priority, req.user.id]
+    )
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Goal not found' })
+    }
+
+    console.log('Server: Successfully updated goal')
+    res.json(result.rows[0])
+  } catch (error) {
+    console.error('Error updating goal:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
+app.delete('/api/goals/:id', authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params
+
+    console.log('Server: Deleting goal:', { id, userId: req.user.id })
+
+    const result = await pool.query(
+      'DELETE FROM goals WHERE id = $1 AND user_id = $2 RETURNING *',
+      [id, req.user.id]
+    )
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Goal not found' })
+    }
+
+    console.log('Server: Successfully deleted goal')
+    res.json({ message: 'Goal deleted successfully' })
+  } catch (error) {
+    console.error('Error deleting goal:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
 module.exports = app

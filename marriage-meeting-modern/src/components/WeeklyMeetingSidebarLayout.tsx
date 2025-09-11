@@ -163,7 +163,6 @@ export const WeeklyMeetingSidebarLayout: React.FC = () => {
   // Calculate section counts for sidebar
   const sectionCounts = {
     schedule: Object.values(weekData.schedule || {}).flat().filter((item: any) => item && item.trim()).length,
-    goals: (weekData.goals || []).length,
     todos: (weekData.todos || []).length,
     prayers: (weekData.prayers || []).length,
     grocery: (weekData.grocery || []).reduce((total, storeList) => total + (storeList.items?.length || 0), 0),
@@ -234,7 +233,6 @@ export const WeeklyMeetingSidebarLayout: React.FC = () => {
             onAddListItem={addListItem}
             onToggleListItem={toggleListItem}
             onRemoveListItem={removeListItem}
-            onUpdateGoals={updateGoals}
             onUpdateTasks={updateTasks}
             onUpdateGrocery={updateGrocery}
             onUpdateEncouragementNotes={updateEncouragementNotes}

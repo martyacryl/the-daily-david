@@ -35,6 +35,7 @@ import { FamilyCreedDisplay } from '../FamilyCreedDisplay'
 import { SettingsPanel } from '../settings/SettingsPanel'
 import { useAuthStore } from '../../stores/authStore'
 import { useMarriageStore } from '../../stores/marriageStore'
+import { useGoalsStore } from '../../stores/goalsStore'
 import { MarriageMeetingWeek, GoalItem, ListItem, EncouragementNote } from '../../types/marriageTypes'
 import { EncouragementSection } from '../EncouragementSection'
 import { DatabaseManager } from '../../lib/database'
@@ -42,6 +43,7 @@ import { DatabaseManager } from '../../lib/database'
 export const DashboardNew: React.FC = () => {
   const { user, isAuthenticated } = useAuthStore()
   const { currentWeek, weekData, loadWeekData, saveWeekData, updateEncouragementNotes } = useMarriageStore()
+  const { goals, loadGoals, getCurrentMonthGoals, getCurrentYearGoals, getLongTermGoals } = useGoalsStore()
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
   
   // New actionable insights state
@@ -93,6 +95,13 @@ export const DashboardNew: React.FC = () => {
     }
   }, [weekData, isAuthenticated, saveWeekData])
 
+  // Load goals when component mounts
+  useEffect(() => {
+    if (isAuthenticated) {
+      loadGoals()
+    }
+  }, [isAuthenticated, loadGoals])
+
   useEffect(() => {
     if (weekData) {
       console.log('Dashboard: WeekData loaded:', weekData)
@@ -102,17 +111,25 @@ export const DashboardNew: React.FC = () => {
     }
   }, [weekData])
 
+  useEffect(() => {
+    if (goals.length > 0) {
+      console.log('Dashboard: Goals loaded:', goals.length)
+      calculateInsights()
+    }
+  }, [goals])
+
   const calculateInsights = () => {
-    if (!weekData) return
+    if (!weekData && goals.length === 0) return
 
     console.log('Dashboard: Calculating insights from weekData:', weekData)
+    console.log('Dashboard: Calculating insights from goals:', goals.length)
 
     // Get current date for calculations
     const now = new Date()
 
     // Calculate urgent todos (incomplete, high priority)
     // Calculate urgent todos with enhanced task data
-    const allTodos = weekData.todos || []
+    const allTodos = weekData?.todos || []
     const incompleteTodos = allTodos.filter(todo => !todo.completed)
     
     // Sort by priority (high first) and due date
@@ -161,7 +178,7 @@ export const DashboardNew: React.FC = () => {
     // Calculate unconfessed items
     const unconfessedItems = (weekData.unconfessedSin || []).filter(item => !item.completed).slice(0, 3)
 
-    // Calculate goal progress by timeframe
+    // Calculate goal progress by timeframe using goals store
     const goalProgress = {
       monthly: { completed: 0, total: 0, percentage: 0 },
       '1year': { completed: 0, total: 0, percentage: 0 },
@@ -169,7 +186,7 @@ export const DashboardNew: React.FC = () => {
       '10year': { completed: 0, total: 0, percentage: 0 }
     }
 
-    const goals = weekData.goals || []
+    // Use goals from store instead of weekly data
     goals.forEach(goal => {
       const timeframe = goal.timeframe || 'monthly'
       goalProgress[timeframe].total++
@@ -196,7 +213,7 @@ export const DashboardNew: React.FC = () => {
     if (unansweredPrayers.length > 2) growthAreas.push('Spiritual')
     if (unconfessedItems.length > 0) growthAreas.push('Accountability')
 
-    // Recent achievements (completed goals)
+    // Recent achievements (completed goals from store)
     const recentAchievements = goals.filter(goal => goal.completed).slice(0, 3)
 
     setInsights({
@@ -961,7 +978,7 @@ export const DashboardNew: React.FC = () => {
                 </Link>
               </div>
               <div className="space-y-3">
-                {weekData.goals.slice(0, 5).map((goal) => {
+                {goals.slice(0, 5).map((goal) => {
                   const getTimeframeColor = (timeframe: string) => {
                     const colorMap = {
                       monthly: 'bg-blue-100 text-blue-700',

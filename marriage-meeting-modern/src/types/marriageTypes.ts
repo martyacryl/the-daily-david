@@ -68,7 +68,6 @@ export interface MarriageMeetingWeek {
   schedule: WeeklySchedule
   todos: TaskItem[] // Updated to use TaskItem with timeline features
   prayers: ListItem[]
-  goals: GoalItem[] // Updated to use GoalItem with timeframes
   grocery: ListItem[]
   unconfessedSin: ListItem[]
   weeklyWinddown: ListItem[]
@@ -82,7 +81,6 @@ export interface WeekData {
   schedule: WeeklySchedule
   todos: TaskItem[] // Updated to use TaskItem with timeline features
   prayers: ListItem[]
-  goals: GoalItem[] // Updated to use GoalItem with timeframes
   grocery: GroceryStoreList[] // Updated to use store-specific lists
   unconfessedSin: ListItem[]
   weeklyWinddown: ListItem[]

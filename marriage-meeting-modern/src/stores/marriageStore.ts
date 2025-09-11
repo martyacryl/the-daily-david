@@ -25,7 +25,6 @@ interface MarriageState {
   addListItem: (listType: ListType, text: string) => void
   toggleListItem: (listType: ListType, id: number) => void
   removeListItem: (listType: ListType, id: number) => void
-  updateGoals: (goals: GoalItem[]) => void
   updateTasks: (tasks: TaskItem[]) => void
   updateGrocery: (grocery: GroceryStoreList[]) => void
   updateEncouragementNotes: (encouragementNotes: EncouragementNote[]) => void
@@ -47,7 +46,6 @@ const createEmptyWeekData = (): WeekData => ({
   },
   todos: [] as TaskItem[],
   prayers: [],
-  goals: [], // Now uses GoalItem[] structure
   grocery: [] as GroceryStoreList[],
   unconfessedSin: [],
   weeklyWinddown: [],
@@ -85,26 +83,9 @@ export const useMarriageStore = create<MarriageState>((set, get) => ({
       if (week) {
         console.log('Store: Found existing week data:', {
           weekKey: week.week_key,
-          goalsCount: week.goals?.length || 0,
-          goals: week.goals
+          todosCount: week.todos?.length || 0,
+          todos: week.todos
         })
-        
-        // Migrate old goals to new structure if needed
-        const migratedGoals = week.goals?.map((goal: any) => {
-          // If goal already has timeframe, it's already migrated
-          if (goal.timeframe) {
-            return goal
-          }
-          // Migrate old ListItem to new GoalItem structure
-          return {
-            id: goal.id,
-            text: goal.text,
-            completed: goal.completed,
-            timeframe: 'monthly' as const, // Default to monthly for existing goals
-            description: '',
-            priority: 'medium' as const
-          }
-        }) || []
 
         // Migrate old todos to new TaskItem structure if needed
         const migratedTodos = week.todos?.map((todo: any) => {
@@ -135,7 +116,6 @@ export const useMarriageStore = create<MarriageState>((set, get) => ({
             schedule: week.schedule,
             todos: migratedTodos,
             prayers: week.prayers,
-            goals: migratedGoals,
             grocery: week.grocery,
             unconfessedSin: week.unconfessedSin,
             weeklyWinddown: week.weeklyWinddown,
@@ -185,7 +165,6 @@ export const useMarriageStore = create<MarriageState>((set, get) => ({
         schedule: data.schedule,
         todos: data.todos,
         prayers: data.prayers,
-        goals: data.goals,
         grocery: data.grocery,
         unconfessedSin: data.unconfessedSin,
         weeklyWinddown: data.weeklyWinddown,
@@ -308,14 +287,6 @@ export const useMarriageStore = create<MarriageState>((set, get) => ({
     })
   },
 
-      updateGoals: (goals: GoalItem[]) => {
-      set((state) => ({
-        weekData: {
-          ...state.weekData,
-          goals
-        }
-      }))
-    },
 
     updateTasks: (tasks: TaskItem[]) => {
       set((state) => ({

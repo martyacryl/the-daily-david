@@ -15,7 +15,6 @@ interface WeeklyMeetingContentProps {
     schedule: any
     todos: TaskItem[]
     prayers: ListItem[]
-    goals: GoalItem[]
     grocery: any[]
     unconfessedSin: ListItem[]
     encouragementNotes: EncouragementNote[]
@@ -27,7 +26,6 @@ interface WeeklyMeetingContentProps {
   onAddListItem: (listType: string, text: string) => void
   onToggleListItem: (listType: string, id: number) => void
   onRemoveListItem: (listType: string, id: number) => void
-  onUpdateGoals: (goals: GoalItem[]) => void
   onUpdateTasks: (tasks: TaskItem[]) => void
   onUpdateGrocery: (grocery: any[]) => void
   onUpdateEncouragementNotes: (encouragementNotes: EncouragementNote[]) => void
@@ -43,7 +41,6 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
   onAddListItem,
   onToggleListItem,
   onRemoveListItem,
-  onUpdateGoals,
   onUpdateTasks,
   onUpdateGrocery,
   onUpdateEncouragementNotes
@@ -226,7 +223,7 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
             <p className="text-sm sm:text-base text-gray-600">Set and track your goals by timeframe</p>
           </div>
         </div>
-        <GoalsSection goals={weekData.goals} onUpdate={onUpdateGoals} />
+        <GoalsSection />
       </Card>
     </motion.div>
   )
