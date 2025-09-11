@@ -976,13 +976,16 @@ export const DashboardNew: React.FC = () => {
                   Manage Goals →
                 </Link>
               </div>
-              <div className="space-y-4">
+              <div className="space-y-6">
                 {goals.length === 0 ? (
-                  <div className="text-center py-6">
-                    <Target className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                    <p className="text-gray-500 mb-3">No goals set yet</p>
-                    <Link to="/weekly?section=goals" className="text-blue-600 text-sm font-medium">
-                      Add your first goal →
+                  <div className="text-center py-8">
+                    <div className="w-16 h-16 bg-gradient-to-br from-slate-100 to-slate-200 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                      <Target className="w-8 h-8 text-slate-400" />
+                    </div>
+                    <p className="text-slate-600 mb-4 font-medium">No goals set yet</p>
+                    <Link to="/weekly?section=goals" className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium transition-colors">
+                      <Plus className="w-4 h-4" />
+                      Add your first goal
                     </Link>
                   </div>
                 ) : (
@@ -997,65 +1000,75 @@ export const DashboardNew: React.FC = () => {
                       '10year': '10 Year'
                     }
                     
+                    const timeframeColors = {
+                      monthly: 'from-blue-50 to-blue-100 border-blue-200',
+                      '1year': 'from-green-50 to-green-100 border-green-200',
+                      '5year': 'from-orange-50 to-orange-100 border-orange-200',
+                      '10year': 'from-purple-50 to-purple-100 border-purple-200'
+                    }
+                    
                     return (
-                      <div key={timeframe}>
-                        <h4 className="text-sm font-medium text-gray-600 mb-2">{timeframeLabels[timeframe as keyof typeof timeframeLabels]} Goals</h4>
+                      <div key={timeframe} className="space-y-3">
+                        <div className="flex items-center gap-2">
+                          <div className={`w-2 h-2 rounded-full ${
+                            timeframe === 'monthly' ? 'bg-blue-500' :
+                            timeframe === '1year' ? 'bg-green-500' :
+                            timeframe === '5year' ? 'bg-orange-500' : 'bg-purple-500'
+                          }`}></div>
+                          <h4 className="text-sm font-semibold text-slate-700 uppercase tracking-wide">
+                            {timeframeLabels[timeframe as keyof typeof timeframeLabels]}
+                          </h4>
+                        </div>
                         <div className="space-y-2">
                           {timeframeGoals.map((goal) => {
-                            const getTimeframeColor = (timeframe: string) => {
-                              const colorMap = {
-                                monthly: 'bg-blue-100 text-blue-700',
-                                '1year': 'bg-green-100 text-green-700',
-                                '5year': 'bg-orange-100 text-orange-700',
-                                '10year': 'bg-purple-100 text-purple-700'
-                              }
-                              return colorMap[timeframe as keyof typeof colorMap] || 'bg-gray-100 text-gray-700'
-                            }
-
-                            const getPriorityColor = (priority: string) => {
-                              const colorMap = {
-                                high: 'bg-red-100 text-red-700',
-                                medium: 'bg-yellow-100 text-yellow-700',
-                                low: 'bg-green-100 text-green-700'
-                              }
-                              return colorMap[priority as keyof typeof colorMap] || 'bg-gray-100 text-gray-700'
-                            }
-
                             return (
-                              <div key={goal.id} className={`p-3 sm:p-4 rounded-lg border-l-4 ${
+                              <div key={goal.id} className={`group relative overflow-hidden rounded-xl border transition-all duration-200 hover:shadow-sm ${
                                 goal.completed 
-                                  ? 'bg-green-50 border-green-400' 
-                                  : 'bg-white border-gray-200'
+                                  ? 'bg-gradient-to-r from-green-50 to-emerald-50 border-green-200' 
+                                  : `bg-gradient-to-r ${timeframeColors[timeframe as keyof typeof timeframeColors]}`
                               }`}>
-                                <div className="flex items-start justify-between mb-2">
-                                  <div className="flex-1 min-w-0">
-                                    <h4 className={`font-medium text-gray-900 ${
-                                      goal.completed ? 'line-through text-gray-500' : ''
-                                    }`}>
-                                      {goal.text}
-                                    </h4>
-                                    {goal.description && (
-                                      <p className="text-sm text-gray-600 mt-1">{goal.description}</p>
-                                    )}
+                                <div className="p-4">
+                                  <div className="flex items-start gap-3">
+                                    <button className="mt-1 flex-shrink-0 group-hover:scale-110 transition-transform duration-200">
+                                      {goal.completed ? (
+                                        <div className="w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
+                                          <CheckCircle className="w-3 h-3 text-white" />
+                                        </div>
+                                      ) : (
+                                        <div className="w-5 h-5 border-2 border-slate-300 rounded-full group-hover:border-slate-400 transition-colors"></div>
+                                      )}
+                                    </button>
+                                    
+                                    <div className="flex-1 min-w-0">
+                                      <h4 className={`font-semibold text-slate-900 leading-tight ${
+                                        goal.completed ? 'line-through text-slate-500' : ''
+                                      }`}>
+                                        {goal.text}
+                                      </h4>
+                                      {goal.description && (
+                                        <p className="text-sm text-slate-600 mt-1 leading-relaxed">{goal.description}</p>
+                                      )}
+                                      
+                                      <div className="flex items-center gap-2 mt-3">
+                                        <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${
+                                          timeframe === 'monthly' ? 'bg-blue-100 text-blue-700' :
+                                          timeframe === '1year' ? 'bg-green-100 text-green-700' :
+                                          timeframe === '5year' ? 'bg-orange-100 text-orange-700' : 'bg-purple-100 text-purple-700'
+                                        }`}>
+                                          {goal.timeframe === '1year' ? '1 Year' : 
+                                           goal.timeframe === '5year' ? '5 Year' : 
+                                           goal.timeframe === '10year' ? '10 Year' : 
+                                           goal.timeframe}
+                                        </span>
+                                        <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${
+                                          goal.priority === 'high' ? 'bg-red-100 text-red-700' :
+                                          goal.priority === 'medium' ? 'bg-yellow-100 text-yellow-700' : 'bg-slate-100 text-slate-700'
+                                        }`}>
+                                          {goal.priority}
+                                        </span>
+                                      </div>
+                                    </div>
                                   </div>
-                                  <div className="flex items-center gap-1 ml-2">
-                                    {goal.completed ? (
-                                      <CheckCircle className="w-4 h-4 text-green-600" />
-                                    ) : (
-                                      <div className="w-4 h-4 border-2 border-gray-300 rounded-full"></div>
-                                    )}
-                                  </div>
-                                </div>
-                                <div className="flex items-center gap-2 flex-wrap">
-                                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${getTimeframeColor(goal.timeframe)}`}>
-                                    {goal.timeframe === '1year' ? '1 Year' : 
-                                     goal.timeframe === '5year' ? '5 Year' : 
-                                     goal.timeframe === '10year' ? '10 Year' : 
-                                     goal.timeframe}
-                                  </span>
-                                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${getPriorityColor(goal.priority)}`}>
-                                    {goal.priority}
-                                  </span>
                                 </div>
                               </div>
                             )
@@ -1066,9 +1079,12 @@ export const DashboardNew: React.FC = () => {
                   })
                 )}
                 {goals.length > 8 && (
-                  <p className="text-sm text-gray-600 text-center">
-                    +{goals.length - 8} more goals
-                  </p>
+                  <div className="text-center pt-4">
+                    <span className="inline-flex items-center gap-2 text-sm text-slate-500 bg-slate-50 px-4 py-2 rounded-full">
+                      <Target className="w-4 h-4" />
+                      +{goals.length - 8} more goals
+                    </span>
+                  </div>
                 )}
               </div>
             </Card>
