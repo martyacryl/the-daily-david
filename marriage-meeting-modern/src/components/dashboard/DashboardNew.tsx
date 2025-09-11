@@ -390,13 +390,13 @@ export const DashboardNew: React.FC = () => {
                     
                     return filteredSchedule.length > 0 ? (
                       filteredSchedule.map((item, index) => (
-                        <div key={index} className="flex items-center gap-2 p-2 sm:p-3 bg-white rounded-lg border border-blue-100 shadow-sm">
+                        <div key={index} className="flex items-center gap-3 p-3 sm:p-4 bg-gray-50 rounded-xl">
                           <div className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0"></div>
-                          <span className="text-sm sm:text-base text-gray-700">{item}</span>
+                          <span className="text-sm sm:text-base text-gray-800 font-medium">{item}</span>
                         </div>
                       ))
                     ) : (
-                      <p className="text-sm text-gray-500 italic p-2">No schedule items for today</p>
+                      <p className="text-sm text-gray-500 italic p-3">No schedule items for today</p>
                     )
                   })()}
                 </div>
@@ -426,10 +426,10 @@ export const DashboardNew: React.FC = () => {
                     
                     return todayTasks.length > 0 ? (
                       todayTasks.map((task) => (
-                        <div key={task.id} className={`flex items-center gap-2 p-2 sm:p-3 rounded-lg border shadow-sm ${
+                        <div key={task.id} className={`flex items-center gap-3 p-3 sm:p-4 rounded-xl ${
                           task.completed 
-                            ? 'bg-green-50 border-green-200' 
-                            : 'bg-white border-gray-200'
+                            ? 'bg-green-50' 
+                            : 'bg-gray-50'
                         }`}>
                           <div className={`w-4 h-4 rounded border-2 flex items-center justify-center flex-shrink-0 ${
                             task.completed 
@@ -439,8 +439,8 @@ export const DashboardNew: React.FC = () => {
                             {task.completed && <Check className="w-3 h-3 text-white" />}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <span className={`text-sm sm:text-base ${
-                              task.completed ? 'line-through text-gray-500' : 'text-gray-700'
+                            <span className={`text-sm sm:text-base font-medium ${
+                              task.completed ? 'line-through text-gray-500' : 'text-gray-800'
                             }`}>
                               {task.text}
                             </span>
@@ -456,7 +456,7 @@ export const DashboardNew: React.FC = () => {
                         </div>
                       ))
                     ) : (
-                      <p className="text-sm text-gray-500 italic p-2">No tasks for today</p>
+                      <p className="text-sm text-gray-500 italic p-3">No tasks for today</p>
                     )
                   })()}
                 </div>
