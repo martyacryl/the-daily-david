@@ -73,6 +73,7 @@ export const DashboardNew: React.FC = () => {
       const today = new Date()
       const weekKey = DatabaseManager.formatWeekKey(today)
       console.log('Dashboard: Loading week data for key:', weekKey)
+      console.log('Dashboard: Today is:', today.toISOString().split('T')[0])
       loadWeekData(weekKey)
     }
   }, [isAuthenticated, loadWeekData])
@@ -130,7 +131,7 @@ export const DashboardNew: React.FC = () => {
     // Calculate urgent todos (incomplete, high priority)
     // Calculate urgent todos with enhanced task data
     const allTodos = weekData?.todos || []
-    const incompleteTodos = allTodos.filter(todo => !todo.completed)
+    const incompleteTodos = allTodos.filter(todo => !todo.completed && todo.text && todo.text.trim() !== '')
     
     // Sort by priority (high first) and due date
     const sortedTodos = incompleteTodos.sort((a, b) => {
@@ -172,11 +173,11 @@ export const DashboardNew: React.FC = () => {
       }
     }).slice(0, 3)
 
-    // Calculate unanswered prayers (incomplete prayers)
-    const unansweredPrayers = (weekData.prayers || []).filter(prayer => !prayer.completed).slice(0, 3)
+    // Calculate unanswered prayers (incomplete prayers with text)
+    const unansweredPrayers = (weekData.prayers || []).filter(prayer => !prayer.completed && prayer.text && prayer.text.trim() !== '').slice(0, 3)
 
-    // Calculate unconfessed items
-    const unconfessedItems = (weekData.unconfessedSin || []).filter(item => !item.completed).slice(0, 3)
+    // Calculate unconfessed items (incomplete items with text)
+    const unconfessedItems = (weekData.unconfessedSin || []).filter(item => !item.completed && item.text && item.text.trim() !== '').slice(0, 3)
 
     // Calculate goal progress by timeframe using goals store
     const goalProgress = {
@@ -347,7 +348,7 @@ export const DashboardNew: React.FC = () => {
                     const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
                     const todayName = dayNames[today.getDay()]
                     const todaySchedule = weekData.schedule?.[todayName as keyof typeof weekData.schedule] || []
-                    const filteredSchedule = todaySchedule.filter(item => item && item.trim() !== '')
+                    const filteredSchedule = todaySchedule.filter(item => item && item.trim() !== '' && item !== '')
                     
                     console.log('Dashboard Debug - Today:', todayName)
                     console.log('Dashboard Debug - Schedule data:', weekData.schedule)
@@ -376,6 +377,14 @@ export const DashboardNew: React.FC = () => {
                 <div className="space-y-2">
                   {(() => {
                     const today = new Date()
+                    const weekStart = new Date(today)
+                    const day = weekStart.getDay()
+                    const daysToSubtract = day === 0 ? 6 : day - 1
+                    weekStart.setDate(weekStart.getDate() - daysToSubtract)
+                    
+                    const weekEnd = new Date(weekStart)
+                    weekEnd.setDate(weekEnd.getDate() + 6)
+                    
                     const todayTasks = (weekData.todos || []).filter(task => {
                       // Show tasks that are due today or overdue
                       if (task.dueDate) {
@@ -515,6 +524,7 @@ export const DashboardNew: React.FC = () => {
         </motion.div>
 
         {/* Encouragement Notes */}
+        {console.log('Dashboard: Checking encouragement notes:', weekData.encouragementNotes?.length || 0)}
         {(weekData.encouragementNotes && weekData.encouragementNotes.length > 0) && (() => {
           // Sort notes: unread first, then read, then filter by date (recent first)
           const sortedNotes = [...weekData.encouragementNotes]
@@ -805,7 +815,7 @@ export const DashboardNew: React.FC = () => {
         )}
 
         {/* Grocery & Errands */}
-        {(weekData.grocery && weekData.grocery.length > 0) && (
+        {(weekData.grocery && weekData.grocery.length > 0 && weekData.grocery.some(store => store.items && store.items.some(item => item.text && item.text.trim() !== ''))) && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -823,15 +833,15 @@ export const DashboardNew: React.FC = () => {
                 </Link>
               </div>
               <div className="space-y-3">
-                {weekData.grocery.slice(0, 3).map((storeList, storeIndex) => (
+                {weekData.grocery.filter(store => store.items && store.items.some(item => item.text && item.text.trim() !== '')).slice(0, 3).map((storeList, storeIndex) => (
                   <div key={storeList.storeId} className="bg-white rounded-lg p-3">
                     <div className="flex items-center gap-2 mb-2">
                       <Store className="w-4 h-4 text-slate-600" />
                       <span className="font-medium text-gray-900">{storeList.storeName}</span>
-                      <span className="text-sm text-gray-500">({storeList.items?.length || 0} items)</span>
+                      <span className="text-sm text-gray-500">({storeList.items?.filter(item => item.text && item.text.trim() !== '').length || 0} items)</span>
                     </div>
                     <div className="space-y-1">
-                      {storeList.items?.slice(0, 2).map((item, itemIndex) => (
+                      {storeList.items?.filter(item => item.text && item.text.trim() !== '').slice(0, 2).map((item, itemIndex) => (
                         <div key={item.id} className="flex items-center gap-2 text-sm">
                           <div className={`w-2 h-2 rounded-full ${
                             item.completed ? 'bg-slate-500' : 'bg-gray-300'
@@ -850,9 +860,9 @@ export const DashboardNew: React.FC = () => {
                     </div>
                   </div>
                 ))}
-                {weekData.grocery.length > 3 && (
+                {weekData.grocery.filter(store => store.items && store.items.some(item => item.text && item.text.trim() !== '')).length > 3 && (
                   <p className="text-sm text-gray-600 text-center">
-                    +{weekData.grocery.length - 3} more stores
+                    +{weekData.grocery.filter(store => store.items && store.items.some(item => item.text && item.text.trim() !== '')).length - 3} more stores
                   </p>
                 )}
               </div>
@@ -873,13 +883,13 @@ export const DashboardNew: React.FC = () => {
                 Prayer Requests
               </h3>
               <div className="space-y-2">
-                {insights.unansweredPrayers.map((prayer, index) => (
+                {insights.unansweredPrayers.filter(prayer => prayer.text && prayer.text.trim() !== '').map((prayer, index) => (
                   <div key={index} className="flex items-center gap-2">
                     <div className="w-2 h-2 bg-slate-500 rounded-full"></div>
                     <span className="text-gray-700">{prayer.text}</span>
                   </div>
                 ))}
-                {insights.unansweredPrayers.length === 0 && (
+                {insights.unansweredPrayers.filter(prayer => prayer.text && prayer.text.trim() !== '').length === 0 && (
                   <p className="text-gray-500 text-sm">No unanswered prayers</p>
                 )}
               </div>
@@ -900,13 +910,13 @@ export const DashboardNew: React.FC = () => {
                 Needs Attention
               </h3>
               <div className="space-y-2">
-                {insights.unconfessedItems.map((item, index) => (
+                {insights.unconfessedItems.filter(item => item.text && item.text.trim() !== '').map((item, index) => (
                   <div key={index} className="flex items-center gap-2">
                     <div className="w-2 h-2 bg-slate-500 rounded-full"></div>
                     <span className="text-gray-700">{item.text}</span>
                   </div>
                 ))}
-                {insights.unconfessedItems.length === 0 && (
+                {insights.unconfessedItems.filter(item => item.text && item.text.trim() !== '').length === 0 && (
                   <p className="text-gray-500 text-sm">All items addressed</p>
                 )}
               </div>
