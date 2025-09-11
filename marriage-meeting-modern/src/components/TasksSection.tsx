@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { 
   CheckSquare, 
@@ -24,8 +24,18 @@ interface TasksSectionProps {
 }
 
 export const TasksSection: React.FC<TasksSectionProps> = ({ tasks, onUpdate }) => {
-  const { settings } = useSettingsStore()
+  const { settings, loadSettings } = useSettingsStore()
   const [editingTask, setEditingTask] = useState<number | null>(null)
+  
+  // Load settings when component mounts
+  useEffect(() => {
+    loadSettings()
+  }, [loadSettings])
+  
+  // Debug logging
+  console.log('TasksSection - Settings:', settings)
+  console.log('TasksSection - Spouse1 name:', settings.spouse1?.name)
+  console.log('TasksSection - Spouse2 name:', settings.spouse2?.name)
   const [newTask, setNewTask] = useState<Partial<TaskItem>>({
     text: '',
     priority: 'medium',
@@ -66,8 +76,8 @@ export const TasksSection: React.FC<TasksSectionProps> = ({ tasks, onUpdate }) =
   const getAssignmentLabel = (assignedTo: string) => {
     switch (assignedTo) {
       case 'both': return 'Both Spouses'
-      case 'spouse1': return settings.spouse1.name || 'Spouse 1'
-      case 'spouse2': return settings.spouse2.name || 'Spouse 2'
+      case 'spouse1': return settings.spouse1?.name || 'Marty'
+      case 'spouse2': return settings.spouse2?.name || 'Ashlynn'
       default: return 'Both Spouses'
     }
   }
@@ -204,8 +214,8 @@ export const TasksSection: React.FC<TasksSectionProps> = ({ tasks, onUpdate }) =
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
               >
                 <option value="both">Both Spouses</option>
-                <option value="spouse1">{settings.spouse1.name || 'Spouse 1'}</option>
-                <option value="spouse2">{settings.spouse2.name || 'Spouse 2'}</option>
+                <option value="spouse1">{settings.spouse1?.name || 'Marty'}</option>
+                <option value="spouse2">{settings.spouse2?.name || 'Ashlynn'}</option>
               </select>
             </div>
 
