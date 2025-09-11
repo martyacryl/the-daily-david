@@ -179,10 +179,16 @@ export const useMarriageStore = create<MarriageState>((set, get) => ({
         throw new Error('User not authenticated')
       }
 
+      // Clean schedule data by removing empty strings
+      const cleanedSchedule = Object.keys(data.schedule).reduce((acc, day) => {
+        acc[day as keyof typeof data.schedule] = data.schedule[day as keyof typeof data.schedule].filter(item => item.trim() !== '')
+        return acc
+      }, {} as typeof data.schedule)
+
       const weekData: MarriageMeetingWeek = {
         user_id: user.id,
         week_key: weekKey,
-        schedule: data.schedule,
+        schedule: cleanedSchedule,
         todos: data.todos,
         prayers: data.prayers,
         goals: data.goals,
