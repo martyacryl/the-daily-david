@@ -24,7 +24,9 @@ import {
   ArrowRight,
   CheckSquare,
   Star,
-  Store
+  Store,
+  Edit3,
+  Check
 } from 'lucide-react'
 import { Card } from '../ui/Card'
 import { Button } from '../ui/Button'
@@ -330,6 +332,159 @@ export const DashboardNew: React.FC = () => {
         <div className="mb-6">
           <WeatherSection />
         </div>
+
+        {/* Today's Overview */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="mb-6"
+        >
+          <Card className="p-4 sm:p-6 bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
+              <h3 className="text-lg sm:text-xl font-semibold text-gray-900 flex items-center gap-2">
+                <Calendar className="w-5 h-5 text-blue-600" />
+                Today's Overview
+                <span className="text-sm font-normal text-gray-600">
+                  {new Date().toLocaleDateString('en-US', { 
+                    weekday: 'long', 
+                    month: 'short', 
+                    day: 'numeric' 
+                  })}
+                </span>
+              </h3>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => window.location.href = '/weekly'}
+                className="text-blue-600 border-blue-200 hover:bg-blue-50 self-start sm:self-auto"
+              >
+                <Edit3 className="w-4 h-4 mr-1" />
+                Edit Day
+              </Button>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+              {/* Today's Schedule */}
+              <div className="space-y-3">
+                <h4 className="font-medium text-gray-900 flex items-center gap-2">
+                  <Clock className="w-4 h-4 text-blue-600" />
+                  Today's Schedule
+                </h4>
+                <div className="space-y-2">
+                  {(() => {
+                    const today = new Date()
+                    const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+                    const todayName = dayNames[today.getDay()]
+                    const todaySchedule = weekData.schedule?.[todayName as keyof typeof weekData.schedule] || []
+                    const filteredSchedule = todaySchedule.filter(item => item.trim() !== '')
+                    
+                    return filteredSchedule.length > 0 ? (
+                      filteredSchedule.map((item, index) => (
+                        <div key={index} className="flex items-center gap-2 p-2 sm:p-3 bg-white rounded-lg border border-blue-100 shadow-sm">
+                          <div className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0"></div>
+                          <span className="text-sm sm:text-base text-gray-700">{item}</span>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="text-sm text-gray-500 italic p-2">No schedule items for today</p>
+                    )
+                  })()}
+                </div>
+              </div>
+
+              {/* Today's Tasks */}
+              <div className="space-y-3">
+                <h4 className="font-medium text-gray-900 flex items-center gap-2">
+                  <CheckSquare className="w-4 h-4 text-green-600" />
+                  Today's Tasks
+                </h4>
+                <div className="space-y-2">
+                  {(() => {
+                    const today = new Date()
+                    const todayTasks = (weekData.todos || []).filter(task => {
+                      // Show tasks that are due today or overdue
+                      if (task.dueDate) {
+                        const dueDate = new Date(task.dueDate)
+                        return dueDate.toDateString() === today.toDateString() || dueDate < today
+                      }
+                      // Show high priority tasks even without due date
+                      return task.priority === 'high'
+                    }).slice(0, 5) // Limit to 5 tasks for mobile
+                    
+                    return todayTasks.length > 0 ? (
+                      todayTasks.map((task) => (
+                        <div key={task.id} className={`flex items-center gap-2 p-2 sm:p-3 rounded-lg border shadow-sm ${
+                          task.completed 
+                            ? 'bg-green-50 border-green-200' 
+                            : 'bg-white border-gray-200'
+                        }`}>
+                          <div className={`w-4 h-4 rounded border-2 flex items-center justify-center flex-shrink-0 ${
+                            task.completed 
+                              ? 'bg-green-500 border-green-500' 
+                              : 'border-gray-300'
+                          }`}>
+                            {task.completed && <Check className="w-3 h-3 text-white" />}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <span className={`text-sm sm:text-base ${
+                              task.completed ? 'line-through text-gray-500' : 'text-gray-700'
+                            }`}>
+                              {task.text}
+                            </span>
+                            {task.assignedTo !== 'both' && (
+                              <span className="ml-2 text-xs text-gray-500">
+                                ({task.assignedTo === 'spouse1' ? 'Marty' : 'Ashlynn'})
+                              </span>
+                            )}
+                          </div>
+                          {task.priority === 'high' && (
+                            <div className="w-2 h-2 bg-red-500 rounded-full flex-shrink-0"></div>
+                          )}
+                        </div>
+                      ))
+                    ) : (
+                      <p className="text-sm text-gray-500 italic p-2">No tasks for today</p>
+                    )
+                  })()}
+                </div>
+              </div>
+            </div>
+
+            {/* Quick Actions */}
+            <div className="mt-4 sm:mt-6 pt-4 border-t border-blue-200">
+              <div className="flex flex-wrap gap-2 sm:gap-3">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => window.location.href = '/weekly?section=schedule'}
+                  className="text-blue-600 border-blue-200 hover:bg-blue-50 text-xs sm:text-sm"
+                >
+                  <Calendar className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+                  View Full Schedule
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => window.location.href = '/weekly?section=todos'}
+                  className="text-green-600 border-green-200 hover:bg-green-50 text-xs sm:text-sm"
+                >
+                  <CheckSquare className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+                  Manage Tasks
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => window.location.href = '/weekly?section=goals'}
+                  className="text-purple-600 border-purple-200 hover:bg-purple-50 text-xs sm:text-sm"
+                >
+                  <Target className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+                  Review Goals
+                </Button>
+              </div>
+            </div>
+          </Card>
+        </motion.div>
 
         {/* Encouragement Notes */}
         {(weekData.encouragementNotes && weekData.encouragementNotes.length > 0) && (() => {
