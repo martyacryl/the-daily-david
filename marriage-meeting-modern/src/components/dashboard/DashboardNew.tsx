@@ -979,11 +979,11 @@ export const DashboardNew: React.FC = () => {
               <div className="space-y-6">
                 {goals.length === 0 ? (
                   <div className="text-center py-8">
-                    <div className="w-16 h-16 bg-gradient-to-br from-slate-100 to-slate-200 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <div className="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
                       <Target className="w-8 h-8 text-slate-400" />
                     </div>
                     <p className="text-slate-600 mb-4 font-medium">No goals set yet</p>
-                    <Link to="/weekly?section=goals" className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium transition-colors">
+                    <Link to="/weekly?section=goals" className="inline-flex items-center gap-2 text-slate-600 hover:text-slate-700 font-medium transition-colors">
                       <Plus className="w-4 h-4" />
                       Add your first goal
                     </Link>
@@ -1001,21 +1001,17 @@ export const DashboardNew: React.FC = () => {
                     }
                     
                     const timeframeColors = {
-                      monthly: 'from-blue-50 to-blue-100 border-blue-200',
-                      '1year': 'from-green-50 to-green-100 border-green-200',
-                      '5year': 'from-orange-50 to-orange-100 border-orange-200',
-                      '10year': 'from-purple-50 to-purple-100 border-purple-200'
+                      monthly: 'from-slate-50 to-slate-100 border-slate-200',
+                      '1year': 'from-slate-50 to-slate-100 border-slate-200',
+                      '5year': 'from-slate-50 to-slate-100 border-slate-200',
+                      '10year': 'from-slate-50 to-slate-100 border-slate-200'
                     }
                     
                     return (
                       <div key={timeframe} className="space-y-3">
-                        <div className="flex items-center gap-2">
-                          <div className={`w-2 h-2 rounded-full ${
-                            timeframe === 'monthly' ? 'bg-blue-500' :
-                            timeframe === '1year' ? 'bg-green-500' :
-                            timeframe === '5year' ? 'bg-orange-500' : 'bg-purple-500'
-                          }`}></div>
-                          <h4 className="text-sm font-semibold text-slate-700 uppercase tracking-wide">
+                        <div className="flex items-center gap-3">
+                          <div className="w-1 h-6 bg-gradient-to-b from-slate-300 to-slate-400 rounded-full"></div>
+                          <h4 className="text-sm font-semibold text-slate-600 uppercase tracking-wide">
                             {timeframeLabels[timeframe as keyof typeof timeframeLabels]}
                           </h4>
                         </div>
@@ -1024,18 +1020,18 @@ export const DashboardNew: React.FC = () => {
                             return (
                               <div key={goal.id} className={`group relative overflow-hidden rounded-xl border transition-all duration-200 hover:shadow-sm ${
                                 goal.completed 
-                                  ? 'bg-gradient-to-r from-green-50 to-emerald-50 border-green-200' 
-                                  : `bg-gradient-to-r ${timeframeColors[timeframe as keyof typeof timeframeColors]}`
+                                  ? 'bg-gradient-to-r from-slate-50 to-slate-100 border-slate-200' 
+                                  : 'bg-white border-slate-200 hover:border-slate-300'
                               }`}>
                                 <div className="p-4">
                                   <div className="flex items-start gap-3">
-                                    <button className="mt-1 flex-shrink-0 group-hover:scale-110 transition-transform duration-200">
+                                    <button className="mt-1 flex-shrink-0 group-hover:scale-105 transition-transform duration-200">
                                       {goal.completed ? (
-                                        <div className="w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
+                                        <div className="w-5 h-5 bg-slate-600 rounded-full flex items-center justify-center">
                                           <CheckCircle className="w-3 h-3 text-white" />
                                         </div>
                                       ) : (
-                                        <div className="w-5 h-5 border-2 border-slate-300 rounded-full group-hover:border-slate-400 transition-colors"></div>
+                                        <div className="w-5 h-5 border-2 border-slate-300 rounded-full group-hover:border-slate-500 transition-colors"></div>
                                       )}
                                     </button>
                                     
@@ -1050,19 +1046,15 @@ export const DashboardNew: React.FC = () => {
                                       )}
                                       
                                       <div className="flex items-center gap-2 mt-3">
-                                        <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${
-                                          timeframe === 'monthly' ? 'bg-blue-100 text-blue-700' :
-                                          timeframe === '1year' ? 'bg-green-100 text-green-700' :
-                                          timeframe === '5year' ? 'bg-orange-100 text-orange-700' : 'bg-purple-100 text-purple-700'
-                                        }`}>
+                                        <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-600">
                                           {goal.timeframe === '1year' ? '1 Year' : 
                                            goal.timeframe === '5year' ? '5 Year' : 
                                            goal.timeframe === '10year' ? '10 Year' : 
                                            goal.timeframe}
                                         </span>
                                         <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${
-                                          goal.priority === 'high' ? 'bg-red-100 text-red-700' :
-                                          goal.priority === 'medium' ? 'bg-yellow-100 text-yellow-700' : 'bg-slate-100 text-slate-700'
+                                          goal.priority === 'high' ? 'bg-slate-200 text-slate-700' :
+                                          goal.priority === 'medium' ? 'bg-slate-100 text-slate-600' : 'bg-slate-50 text-slate-500'
                                         }`}>
                                           {goal.priority}
                                         </span>
