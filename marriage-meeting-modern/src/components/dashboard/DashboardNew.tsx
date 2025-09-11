@@ -390,9 +390,8 @@ export const DashboardNew: React.FC = () => {
                     
                     return filteredSchedule.length > 0 ? (
                       filteredSchedule.map((item, index) => (
-                        <div key={index} className="flex items-center gap-3 p-3 sm:p-4 bg-gray-50 rounded-xl">
-                          <div className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0"></div>
-                          <span className="text-sm sm:text-base text-gray-800 font-medium">{item}</span>
+                        <div key={index} className="p-3 sm:p-4 bg-slate-100 rounded-xl border-l-4 border-blue-500">
+                          <span className="text-sm sm:text-base text-slate-800 font-medium">{item}</span>
                         </div>
                       ))
                     ) : (
@@ -426,10 +425,10 @@ export const DashboardNew: React.FC = () => {
                     
                     return todayTasks.length > 0 ? (
                       todayTasks.map((task) => (
-                        <div key={task.id} className={`flex items-center gap-3 p-3 sm:p-4 rounded-xl ${
+                        <div key={task.id} className={`flex items-center gap-3 p-3 sm:p-4 rounded-xl border-l-4 ${
                           task.completed 
-                            ? 'bg-green-50' 
-                            : 'bg-gray-50'
+                            ? 'bg-green-50 border-green-500' 
+                            : 'bg-slate-100 border-slate-400'
                         }`}>
                           <div className={`w-4 h-4 rounded border-2 flex items-center justify-center flex-shrink-0 ${
                             task.completed 
@@ -440,7 +439,7 @@ export const DashboardNew: React.FC = () => {
                           </div>
                           <div className="flex-1 min-w-0">
                             <span className={`text-sm sm:text-base font-medium ${
-                              task.completed ? 'line-through text-gray-500' : 'text-gray-800'
+                              task.completed ? 'line-through text-slate-500' : 'text-slate-800'
                             }`}>
                               {task.text}
                             </span>
