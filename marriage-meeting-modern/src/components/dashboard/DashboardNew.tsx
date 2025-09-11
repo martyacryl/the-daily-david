@@ -977,69 +977,98 @@ export const DashboardNew: React.FC = () => {
                   Manage Goals →
                 </Link>
               </div>
-              <div className="space-y-3">
-                {goals.slice(0, 5).map((goal) => {
-                  const getTimeframeColor = (timeframe: string) => {
-                    const colorMap = {
-                      monthly: 'bg-blue-100 text-blue-700',
-                      '1year': 'bg-green-100 text-green-700',
-                      '5year': 'bg-orange-100 text-orange-700',
-                      '10year': 'bg-purple-100 text-purple-700'
+              <div className="space-y-4">
+                {goals.length === 0 ? (
+                  <div className="text-center py-6">
+                    <Target className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                    <p className="text-gray-500 mb-3">No goals set yet</p>
+                    <Link to="/weekly?section=goals" className="text-blue-600 text-sm font-medium">
+                      Add your first goal →
+                    </Link>
+                  </div>
+                ) : (
+                  ['monthly', '1year', '5year', '10year'].map((timeframe) => {
+                    const timeframeGoals = goals.filter(goal => goal.timeframe === timeframe).slice(0, 2)
+                    if (timeframeGoals.length === 0) return null
+                    
+                    const timeframeLabels = {
+                      monthly: 'Monthly',
+                      '1year': '1 Year',
+                      '5year': '5 Year', 
+                      '10year': '10 Year'
                     }
-                    return colorMap[timeframe as keyof typeof colorMap] || 'bg-gray-100 text-gray-700'
-                  }
+                    
+                    return (
+                      <div key={timeframe}>
+                        <h4 className="text-sm font-medium text-gray-600 mb-2">{timeframeLabels[timeframe as keyof typeof timeframeLabels]} Goals</h4>
+                        <div className="space-y-2">
+                          {timeframeGoals.map((goal) => {
+                            const getTimeframeColor = (timeframe: string) => {
+                              const colorMap = {
+                                monthly: 'bg-blue-100 text-blue-700',
+                                '1year': 'bg-green-100 text-green-700',
+                                '5year': 'bg-orange-100 text-orange-700',
+                                '10year': 'bg-purple-100 text-purple-700'
+                              }
+                              return colorMap[timeframe as keyof typeof colorMap] || 'bg-gray-100 text-gray-700'
+                            }
 
-                  const getPriorityColor = (priority: string) => {
-                    const colorMap = {
-                      high: 'bg-red-100 text-red-700',
-                      medium: 'bg-yellow-100 text-yellow-700',
-                      low: 'bg-green-100 text-green-700'
-                    }
-                    return colorMap[priority as keyof typeof colorMap] || 'bg-gray-100 text-gray-700'
-                  }
+                            const getPriorityColor = (priority: string) => {
+                              const colorMap = {
+                                high: 'bg-red-100 text-red-700',
+                                medium: 'bg-yellow-100 text-yellow-700',
+                                low: 'bg-green-100 text-green-700'
+                              }
+                              return colorMap[priority as keyof typeof colorMap] || 'bg-gray-100 text-gray-700'
+                            }
 
-                  return (
-                    <div key={goal.id} className={`p-3 sm:p-4 rounded-lg border-l-4 ${
-                      goal.completed 
-                        ? 'bg-green-50 border-green-400' 
-                        : 'bg-white border-gray-200'
-                    }`}>
-                      <div className="flex items-start justify-between mb-2">
-                        <div className="flex-1 min-w-0">
-                          <h4 className={`font-medium text-gray-900 ${
-                            goal.completed ? 'line-through text-gray-500' : ''
-                          }`}>
-                            {goal.text}
-                          </h4>
-                          {goal.description && (
-                            <p className="text-sm text-gray-600 mt-1">{goal.description}</p>
-                          )}
-                        </div>
-                        <div className="flex items-center gap-1 ml-2">
-                          {goal.completed ? (
-                            <CheckCircle className="w-4 h-4 text-green-600" />
-                          ) : (
-                            <div className="w-4 h-4 border-2 border-gray-300 rounded-full"></div>
-                          )}
+                            return (
+                              <div key={goal.id} className={`p-3 sm:p-4 rounded-lg border-l-4 ${
+                                goal.completed 
+                                  ? 'bg-green-50 border-green-400' 
+                                  : 'bg-white border-gray-200'
+                              }`}>
+                                <div className="flex items-start justify-between mb-2">
+                                  <div className="flex-1 min-w-0">
+                                    <h4 className={`font-medium text-gray-900 ${
+                                      goal.completed ? 'line-through text-gray-500' : ''
+                                    }`}>
+                                      {goal.text}
+                                    </h4>
+                                    {goal.description && (
+                                      <p className="text-sm text-gray-600 mt-1">{goal.description}</p>
+                                    )}
+                                  </div>
+                                  <div className="flex items-center gap-1 ml-2">
+                                    {goal.completed ? (
+                                      <CheckCircle className="w-4 h-4 text-green-600" />
+                                    ) : (
+                                      <div className="w-4 h-4 border-2 border-gray-300 rounded-full"></div>
+                                    )}
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${getTimeframeColor(goal.timeframe)}`}>
+                                    {goal.timeframe === '1year' ? '1 Year' : 
+                                     goal.timeframe === '5year' ? '5 Year' : 
+                                     goal.timeframe === '10year' ? '10 Year' : 
+                                     goal.timeframe}
+                                  </span>
+                                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${getPriorityColor(goal.priority)}`}>
+                                    {goal.priority}
+                                  </span>
+                                </div>
+                              </div>
+                            )
+                          })}
                         </div>
                       </div>
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${getTimeframeColor(goal.timeframe)}`}>
-                          {goal.timeframe === '1year' ? '1 Year' : 
-                           goal.timeframe === '5year' ? '5 Year' : 
-                           goal.timeframe === '10year' ? '10 Year' : 
-                           goal.timeframe}
-                        </span>
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${getPriorityColor(goal.priority)}`}>
-                          {goal.priority}
-                        </span>
-                      </div>
-                    </div>
-                  )
-                })}
-                {weekData.goals.length > 5 && (
+                    )
+                  })
+                )}
+                {goals.length > 8 && (
                   <p className="text-sm text-gray-600 text-center">
-                    +{weekData.goals.length - 5} more goals
+                    +{goals.length - 8} more goals
                   </p>
                 )}
               </div>
