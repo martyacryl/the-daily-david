@@ -9,6 +9,7 @@ import {
   Tag,
   FileText,
   AlertCircle,
+  CheckCircle,
   Users,
   User,
   UserCheck
