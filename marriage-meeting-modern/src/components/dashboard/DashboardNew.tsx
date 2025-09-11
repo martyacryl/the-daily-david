@@ -960,13 +960,12 @@ export const DashboardNew: React.FC = () => {
         </motion.div>
 
         {/* Goals Content */}
-        {weekData.goals && weekData.goals.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.7 }}
-            className="mb-8"
-          >
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.7 }}
+          className="mb-8"
+        >
             <Card className="p-3 sm:p-6">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg sm:text-xl font-semibold text-gray-900 flex items-center gap-2">
@@ -1074,7 +1073,6 @@ export const DashboardNew: React.FC = () => {
               </div>
             </Card>
           </motion.div>
-        )}
 
         {/* Insights & Trends */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-6">
