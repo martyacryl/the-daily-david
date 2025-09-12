@@ -83,7 +83,9 @@ export const useMarriageStore = create<MarriageState>((set, get) => ({
   initializeStore: () => {
     const today = new Date()
     const mondayKey = DatabaseManager.formatWeekKey(today)
-    const mondayDate = new Date(mondayKey)
+    // Create date in local timezone to avoid UTC issues
+    const [year, month, day] = mondayKey.split('-').map(Number)
+    const mondayDate = new Date(year, month - 1, day) // month is 0-indexed
     console.log('Store: Initializing with today:', today.toISOString().split('T')[0])
     console.log('Store: Calculated Monday key:', mondayKey)
     console.log('Store: Setting currentDate to:', mondayDate.toISOString().split('T')[0])

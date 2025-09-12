@@ -114,11 +114,11 @@ export const WeeklyMeetingSidebarLayout: React.FC = () => {
   const [isSaving, setIsSaving] = useState(false)
   const [hasLoadedInitialData, setHasLoadedInitialData] = useState(false)
 
-  // Initialize store with correct current date
+  // Initialize store with correct current date on mount
   useEffect(() => {
     console.log('Weekly Planner: Calling initializeStore')
     initializeStore()
-  }, [initializeStore])
+  }, []) // Empty dependency array - only run on mount
 
   // Force re-render when currentDate changes
   useEffect(() => {
