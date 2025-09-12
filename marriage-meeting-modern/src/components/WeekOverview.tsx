@@ -44,11 +44,6 @@ export const WeekOverview: React.FC<WeekOverviewProps> = ({
   const today = new Date()
   const todayDayName = today.toLocaleDateString('en-US', { weekday: 'long' }) as keyof MarriageMeetingWeek['schedule']
 
-  // Debug logging
-  console.log('WeekOverview: weekData:', weekData)
-  console.log('WeekOverview: weekDates:', weekDates)
-  console.log('WeekOverview: isExpanded:', isExpanded)
-  console.log('WeekOverview: expandedDay:', expandedDay)
 
   // Get schedule items for a specific day (limit to 3 items for compact view)
   const getDaySchedule = (dayKey: keyof MarriageMeetingWeek['schedule']) => {
@@ -111,10 +106,6 @@ export const WeekOverview: React.FC<WeekOverviewProps> = ({
               exit={{ opacity: 0 }}
               className="fixed inset-0 bg-black bg-opacity-25 z-40"
               onClick={() => setIsExpanded(false)}
-              onTouchEnd={(e) => {
-                e.preventDefault()
-                setIsExpanded(false)
-              }}
             />
             
             {/* Popup */}
@@ -133,27 +124,14 @@ export const WeekOverview: React.FC<WeekOverviewProps> = ({
                     <Calendar className="w-5 h-5 text-slate-600" />
                     Week Overview - {getWeekRange()}
                   </h3>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        console.log('Test button clicked, expandedDay:', expandedDay)
-                        setExpandedDay('Monday')
-                      }}
-                      className="text-xs"
-                    >
-                      Test
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setIsExpanded(false)}
-                      className="text-gray-400 hover:text-gray-600 p-1"
-                    >
-                      <X className="w-5 h-5" />
-                    </Button>
-                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setIsExpanded(false)}
+                    className="text-gray-400 hover:text-gray-600 p-1"
+                  >
+                    <X className="w-5 h-5" />
+                  </Button>
                 </div>
 
                 {/* Week Grid - Responsive Layout */}
@@ -173,29 +151,18 @@ export const WeekOverview: React.FC<WeekOverviewProps> = ({
                         className={`
                           relative bg-white rounded-lg border-2 p-3 sm:p-4 cursor-pointer transition-all duration-200 
                           min-h-[80px] sm:min-h-[100px] lg:min-h-[120px]
+                          select-none touch-manipulation
                           active:scale-95 active:shadow-lg
-                          ${isToday 
-                            ? 'border-slate-400 bg-slate-50 shadow-md' 
-                            : hasItems 
-                              ? 'border-slate-200 hover:border-slate-300 hover:shadow-sm active:bg-slate-50' 
-                              : 'border-gray-100 hover:border-gray-200 active:bg-gray-50'
+                          ${expandedDay === dayKey 
+                            ? 'border-blue-400 bg-blue-50 shadow-lg' 
+                            : isToday 
+                              ? 'border-slate-400 bg-slate-50 shadow-md' 
+                              : hasItems 
+                                ? 'border-slate-200 hover:border-slate-300 hover:shadow-sm active:bg-slate-50' 
+                                : 'border-gray-100 hover:border-gray-200 active:bg-gray-50'
                           }
                         `}
-                        onClick={(e) => {
-                          e.preventDefault()
-                          e.stopPropagation()
-                          console.log('WeekOverview: Day clicked:', dayKey)
-                          setExpandedDay(dayKey)
-                        }}
-                        onTouchStart={(e) => {
-                          e.preventDefault()
-                          e.stopPropagation()
-                          console.log('WeekOverview: Touch start:', dayKey)
-                        }}
-                        onTouchEnd={(e) => {
-                          e.preventDefault()
-                          e.stopPropagation()
-                          console.log('WeekOverview: Touch end:', dayKey)
+                        onClick={() => {
                           setExpandedDay(dayKey)
                         }}
                       >
