@@ -134,12 +134,6 @@ export const WeekOverview: React.FC<WeekOverviewProps> = ({
                   </Button>
                 </div>
 
-                {/* Debug Info */}
-                {expandedDay && (
-                  <div className="mb-4 p-2 bg-yellow-100 border border-yellow-300 rounded text-sm">
-                    Debug: expandedDay = "{expandedDay}"
-                  </div>
-                )}
 
                 {/* Week Grid - Responsive Layout */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-3 sm:gap-4 mb-6">
@@ -281,9 +275,6 @@ export const WeekOverview: React.FC<WeekOverviewProps> = ({
                     </Button>
                   </div>
                   <div className="space-y-2">
-                    <div className="text-sm text-gray-600 mb-2">
-                      Selected day: {expandedDay}
-                    </div>
                     {(() => {
                       const dayKey = expandedDay as keyof MarriageMeetingWeek['schedule']
                       const allItems = weekData?.schedule?.[dayKey] || []
