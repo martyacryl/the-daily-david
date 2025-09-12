@@ -110,6 +110,10 @@ export const WeekOverview: React.FC<WeekOverviewProps> = ({
               exit={{ opacity: 0 }}
               className="fixed inset-0 bg-black bg-opacity-25 z-40"
               onClick={() => setIsExpanded(false)}
+              onTouchEnd={(e) => {
+                e.preventDefault()
+                setIsExpanded(false)
+              }}
             />
             
             {/* Popup */}
@@ -155,15 +159,23 @@ export const WeekOverview: React.FC<WeekOverviewProps> = ({
                         className={`
                           relative bg-white rounded-lg border-2 p-3 sm:p-4 cursor-pointer transition-all duration-200 
                           min-h-[80px] sm:min-h-[100px] lg:min-h-[120px]
+                          active:scale-95 active:shadow-lg
                           ${isToday 
                             ? 'border-slate-400 bg-slate-50 shadow-md' 
                             : hasItems 
-                              ? 'border-slate-200 hover:border-slate-300 hover:shadow-sm' 
-                              : 'border-gray-100 hover:border-gray-200'
+                              ? 'border-slate-200 hover:border-slate-300 hover:shadow-sm active:bg-slate-50' 
+                              : 'border-gray-100 hover:border-gray-200 active:bg-gray-50'
                           }
                         `}
                         onClick={() => {
                           // Show detailed view for this day
+                          console.log('WeekOverview: Day clicked:', dayKey)
+                          setExpandedDay(dayKey)
+                        }}
+                        onTouchEnd={(e) => {
+                          // Prevent double-tap zoom and ensure touch works
+                          e.preventDefault()
+                          console.log('WeekOverview: Day touched:', dayKey)
                           setExpandedDay(dayKey)
                         }}
                       >
@@ -181,9 +193,14 @@ export const WeekOverview: React.FC<WeekOverviewProps> = ({
                               {day.month} {day.dayNumber}
                             </div>
                           </div>
-                          {isToday && (
-                            <div className="w-2 h-2 bg-slate-600 rounded-full"></div>
-                          )}
+                          <div className="flex items-center gap-2">
+                            {isToday && (
+                              <div className="w-2 h-2 bg-slate-600 rounded-full"></div>
+                            )}
+                            <div className="text-xs text-gray-400 sm:hidden">
+                              Tap
+                            </div>
+                          </div>
                         </div>
 
                         {/* Schedule Items */}
