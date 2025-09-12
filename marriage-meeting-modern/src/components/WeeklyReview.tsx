@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
+import { DatabaseManager } from '../lib/database'
 import { 
   Calendar, 
   Target, 
@@ -73,9 +74,9 @@ export const WeeklyReview: React.FC<WeeklyReviewProps> = ({ onBack, onNavigateTo
       if (weekData) {
         generateInsights(weekData)
       } else {
-        // If no current week data, try to load it
+        // If no current week data, try to load it using the same week calculation as everywhere else
         const today = new Date()
-        const weekKey = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`
+        const weekKey = DatabaseManager.formatWeekKey(today)
         await loadWeekData(weekKey)
       }
     } catch (error) {
