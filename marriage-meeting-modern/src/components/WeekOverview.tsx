@@ -48,6 +48,7 @@ export const WeekOverview: React.FC<WeekOverviewProps> = ({
   console.log('WeekOverview: weekData:', weekData)
   console.log('WeekOverview: weekDates:', weekDates)
   console.log('WeekOverview: isExpanded:', isExpanded)
+  console.log('WeekOverview: expandedDay:', expandedDay)
 
   // Get schedule items for a specific day (limit to 3 items for compact view)
   const getDaySchedule = (dayKey: keyof MarriageMeetingWeek['schedule']) => {
@@ -132,14 +133,27 @@ export const WeekOverview: React.FC<WeekOverviewProps> = ({
                     <Calendar className="w-5 h-5 text-slate-600" />
                     Week Overview - {getWeekRange()}
                   </h3>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setIsExpanded(false)}
-                    className="text-gray-400 hover:text-gray-600 p-1"
-                  >
-                    <X className="w-5 h-5" />
-                  </Button>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        console.log('Test button clicked, expandedDay:', expandedDay)
+                        setExpandedDay('Monday')
+                      }}
+                      className="text-xs"
+                    >
+                      Test
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setIsExpanded(false)}
+                      className="text-gray-400 hover:text-gray-600 p-1"
+                    >
+                      <X className="w-5 h-5" />
+                    </Button>
+                  </div>
                 </div>
 
                 {/* Week Grid - Responsive Layout */}
@@ -167,15 +181,21 @@ export const WeekOverview: React.FC<WeekOverviewProps> = ({
                               : 'border-gray-100 hover:border-gray-200 active:bg-gray-50'
                           }
                         `}
-                        onClick={() => {
-                          // Show detailed view for this day
+                        onClick={(e) => {
+                          e.preventDefault()
+                          e.stopPropagation()
                           console.log('WeekOverview: Day clicked:', dayKey)
                           setExpandedDay(dayKey)
                         }}
-                        onTouchEnd={(e) => {
-                          // Prevent double-tap zoom and ensure touch works
+                        onTouchStart={(e) => {
                           e.preventDefault()
-                          console.log('WeekOverview: Day touched:', dayKey)
+                          e.stopPropagation()
+                          console.log('WeekOverview: Touch start:', dayKey)
+                        }}
+                        onTouchEnd={(e) => {
+                          e.preventDefault()
+                          e.stopPropagation()
+                          console.log('WeekOverview: Touch end:', dayKey)
                           setExpandedDay(dayKey)
                         }}
                       >
