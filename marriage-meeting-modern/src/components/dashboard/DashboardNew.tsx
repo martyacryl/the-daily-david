@@ -40,6 +40,7 @@ import { useGoalsStore } from '../../stores/goalsStore'
 import { useSettingsStore } from '../../stores/settingsStore'
 import { MarriageMeetingWeek, GoalItem, ListItem, EncouragementNote } from '../../types/marriageTypes'
 import { EncouragementSection } from '../EncouragementSection'
+import { WeekOverview } from '../WeekOverview'
 import { DatabaseManager } from '../../lib/database'
 
 export const DashboardNew: React.FC = () => {
@@ -329,15 +330,23 @@ export const DashboardNew: React.FC = () => {
                   })}
                 </span>
               </h3>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => window.location.href = '/weekly'}
-                className="text-slate-600 border-slate-200 hover:bg-slate-50 self-start sm:self-auto"
-              >
-                <Edit3 className="w-4 h-4 mr-1" />
-                Edit Day
-              </Button>
+              <div className="flex items-center gap-2 self-start sm:self-auto">
+                <div className="relative">
+                  <WeekOverview 
+                    weekData={weekData} 
+                    currentDate={new Date()}
+                  />
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => window.location.href = '/weekly'}
+                  className="text-slate-600 border-slate-200 hover:bg-slate-50"
+                >
+                  <Edit3 className="w-4 h-4 mr-1" />
+                  Edit Day
+                </Button>
+              </div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
