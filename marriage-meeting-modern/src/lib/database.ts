@@ -58,6 +58,14 @@ export class DatabaseManager {
     }
 
     console.log('API: Request body for save:', requestBody)
+    console.log('API: Detailed data_content:', {
+      schedule: Object.values(requestBody.data_content.schedule || {}).flat().filter(item => item && item.trim()).length,
+      todos: requestBody.data_content.todos?.length || 0,
+      prayers: requestBody.data_content.prayers?.length || 0,
+      grocery: requestBody.data_content.grocery?.length || 0,
+      encouragementNotes: requestBody.data_content.encouragementNotes?.length || 0,
+      fullDataContent: JSON.stringify(requestBody.data_content, null, 2)
+    })
 
     const response = await fetch(`${this.baseUrl}/api/marriage-weeks`, {
       method: 'POST',

@@ -168,8 +168,12 @@ app.post('/api/marriage-weeks', authenticateToken, async (req, res) => {
     console.log('Server: Saving marriage week data:', {
       week_key,
       user_id,
-      goalsCount: data_content?.goals?.length || 0,
-      goals: data_content?.goals
+      scheduleCount: Object.values(data_content?.schedule || {}).flat().filter(item => item && item.trim()).length,
+      todosCount: data_content?.todos?.length || 0,
+      prayersCount: data_content?.prayers?.length || 0,
+      groceryCount: data_content?.grocery?.length || 0,
+      encouragementCount: data_content?.encouragementNotes?.length || 0,
+      fullDataContent: JSON.stringify(data_content, null, 2)
     })
 
     if (!week_key || !user_id || !data_content) {
