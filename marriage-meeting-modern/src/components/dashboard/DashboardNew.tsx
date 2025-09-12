@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
+import { DatabaseManager } from '../../lib/database'
 import { 
   Mountain, 
   TrendingUp, 
@@ -379,13 +380,11 @@ export const DashboardNew: React.FC = () => {
                 <div className="space-y-2">
                   {(() => {
                     const today = new Date()
-                    const weekStart = new Date(today)
-                    const day = weekStart.getDay()
-                    const daysToSubtract = day === 0 ? 6 : day - 1
-                    weekStart.setDate(weekStart.getDate() - daysToSubtract)
-                    
+                    // Use DatabaseManager.formatWeekKey to get the Monday of current week
+                    const mondayKey = DatabaseManager.formatWeekKey(today)
+                    const weekStart = new Date(mondayKey)
                     const weekEnd = new Date(weekStart)
-                    weekEnd.setDate(weekEnd.getDate() + 6)
+                    weekEnd.setDate(weekStart.getDate() + 6)
                     
                     const todayTasks = (weekData.todos || []).filter(task => {
                       // Show tasks that are due today or overdue

@@ -8,9 +8,11 @@ import { TasksSection } from './TasksSection'
 import { GroceryErrandsSection } from './GroceryErrandsSection'
 import { ListItem, GoalItem, TaskItem, DayName, EncouragementNote } from '../types/marriageTypes'
 import { EncouragementSection } from './EncouragementSection'
+import { DatabaseManager } from '../lib/database'
 
 interface WeeklyMeetingContentProps {
   activeSection: string
+  currentDate: Date
   weekData: {
     schedule: any
     todos: TaskItem[]
@@ -33,6 +35,7 @@ interface WeeklyMeetingContentProps {
 
 export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
   activeSection,
+  currentDate,
   weekData,
   onUpdateSchedule,
   onAddScheduleLine,
@@ -49,10 +52,9 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
 
   // Calculate actual dates for each day of the current week
   const getWeekDates = () => {
-    const today = new Date()
-    const day = today.getDay()
-    const daysToSubtract = day === 0 ? 6 : day - 1
-    const monday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - daysToSubtract)
+    // Use DatabaseManager.formatWeekKey to get the Monday of the current week
+    const mondayKey = DatabaseManager.formatWeekKey(currentDate)
+    const monday = new Date(mondayKey)
     
     const weekDates: { [key in DayName]: string } = {
       Monday: new Date(monday.getTime()).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),

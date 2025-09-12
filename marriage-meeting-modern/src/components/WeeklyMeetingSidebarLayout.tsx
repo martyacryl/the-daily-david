@@ -23,12 +23,9 @@ const WeekNavigation: React.FC<WeekNavigationProps> = ({
   onCurrentWeek
 }) => {
   const formatWeekRange = (date: Date) => {
-    // Use the same week calculation as DatabaseManager.formatWeekKey
-    const startOfWeek = new Date(date)
-    const day = startOfWeek.getDay()
-    const daysToSubtract = day === 0 ? 6 : day - 1
-    startOfWeek.setDate(startOfWeek.getDate() - daysToSubtract)
-    
+    // Use DatabaseManager.formatWeekKey to get the Monday, then format the range
+    const mondayKey = DatabaseManager.formatWeekKey(date)
+    const startOfWeek = new Date(mondayKey)
     const endOfWeek = new Date(startOfWeek)
     endOfWeek.setDate(startOfWeek.getDate() + 6)
     
@@ -158,7 +155,10 @@ export const WeeklyMeetingSidebarLayout: React.FC = () => {
   }
 
   const handleCurrentWeek = () => {
-    setCurrentDate(new Date())
+    // Set to Monday of current week, not today
+    const today = new Date()
+    const mondayKey = DatabaseManager.formatWeekKey(today)
+    setCurrentDate(new Date(mondayKey))
   }
 
   // Calculate section counts for sidebar
@@ -226,6 +226,7 @@ export const WeeklyMeetingSidebarLayout: React.FC = () => {
         <div className="flex-1 overflow-y-auto">
           <WeeklyMeetingContent
             activeSection={activeSection}
+            currentDate={currentDate}
             weekData={weekData}
             onUpdateSchedule={updateSchedule}
             onAddScheduleLine={addScheduleLine}
