@@ -173,6 +173,7 @@ export const WeeklyMeetingSidebarLayout: React.FC = () => {
         try {
           const weekKey = DatabaseManager.formatWeekKey(currentDate)
           console.log('Weekly Planner: Auto-saving to weekKey:', weekKey)
+          console.log('Weekly Planner: Using currentDate:', currentDate.toISOString().split('T')[0])
           await saveWeekData(weekKey, weekData)
         } catch (error) {
           console.error('Auto-save failed:', error)
