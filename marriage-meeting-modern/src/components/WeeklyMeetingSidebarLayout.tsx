@@ -7,6 +7,7 @@ import { LoadingSpinner } from './ui/LoadingSpinner'
 import { WeeklyMeetingSidebar } from './WeeklyMeetingSidebar'
 import { WeeklyMeetingContent } from './WeeklyMeetingContent'
 import { useMarriageStore } from '../stores/marriageStore'
+import { useAuthStore } from '../stores/authStore'
 import { DatabaseManager } from '../lib/database'
 
 interface WeekNavigationProps {
@@ -83,6 +84,7 @@ const WeekNavigation: React.FC<WeekNavigationProps> = ({
 }
 
 export const WeeklyMeetingSidebarLayout: React.FC = () => {
+  const { isAuthenticated } = useAuthStore()
   const {
     weekData,
     currentDate,
