@@ -26,7 +26,10 @@ const WeekNavigation: React.FC<WeekNavigationProps> = ({
   const formatWeekRange = (date: Date) => {
     // Use DatabaseManager.formatWeekKey to get the Monday, then format the range
     const mondayKey = DatabaseManager.formatWeekKey(date)
-    const startOfWeek = new Date(mondayKey)
+    
+    // Parse the date string to avoid timezone issues
+    const [year, month, day] = mondayKey.split('-').map(Number)
+    const startOfWeek = new Date(year, month - 1, day) // month is 0-indexed
     const endOfWeek = new Date(startOfWeek)
     endOfWeek.setDate(startOfWeek.getDate() + 6)
     
