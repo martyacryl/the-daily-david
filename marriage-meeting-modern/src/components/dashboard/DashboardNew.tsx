@@ -81,23 +81,25 @@ export const DashboardNew: React.FC = () => {
     }
   }, [isAuthenticated, loadWeekData])
 
-  // Auto-save when weekData changes
-  useEffect(() => {
-    if (weekData && isAuthenticated) {
-      const saveTimeout = setTimeout(async () => {
-        try {
-          const today = new Date()
-          const weekKey = DatabaseManager.formatWeekKey(today)
-          await saveWeekData(weekKey, weekData)
-          console.log('Dashboard: Auto-saved week data')
-        } catch (error) {
-          console.error('Dashboard: Auto-save failed:', error)
-        }
-      }, 1000) // Auto-save after 1 second of inactivity
+  // DISABLED: Auto-save when weekData changes
+  // This was causing data loss by overwriting data with empty values
+  // The Weekly Planner already handles auto-saving, so this is redundant
+  // useEffect(() => {
+  //   if (weekData && isAuthenticated) {
+  //     const saveTimeout = setTimeout(async () => {
+  //       try {
+  //         const today = new Date()
+  //         const weekKey = DatabaseManager.formatWeekKey(today)
+  //         await saveWeekData(weekKey, weekData)
+  //         console.log('Dashboard: Auto-saved week data')
+  //       } catch (error) {
+  //         console.error('Dashboard: Auto-save failed:', error)
+  //       }
+  //     }, 1000) // Auto-save after 1 second of inactivity
 
-      return () => clearTimeout(saveTimeout)
-    }
-  }, [weekData, isAuthenticated, saveWeekData])
+  //     return () => clearTimeout(saveTimeout)
+  //   }
+  // }, [weekData, isAuthenticated, saveWeekData])
 
   // Load settings and goals when component mounts
   useEffect(() => {

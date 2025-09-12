@@ -255,6 +255,10 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
                           onChange={(e) => updateSpouse1({ name: e.target.value })}
                           placeholder="Enter spouse name"
                         />
+                        {/* Debug info */}
+                        <div className="text-xs text-gray-500">
+                          Debug: {JSON.stringify({ name: settings.spouse1.name, hasValue: !!settings.spouse1.name })}
+                        </div>
                         <Input
                           label="Email"
                           type="email"

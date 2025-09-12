@@ -8,6 +8,9 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
 
 export const Input = React.forwardRef<HTMLInputElement, InputProps>(
   ({ className, label, error, ...props }, ref) => {
+    // Debug logging for mobile
+    console.log('Input component rendering:', { label, value: props.value, placeholder: props.placeholder })
+    
     return (
       <div className="space-y-2">
         {label && (

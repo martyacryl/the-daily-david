@@ -169,29 +169,42 @@ export const WeeklyMeetingSidebarLayout: React.FC = () => {
   // Auto-save functionality (only after initial data is loaded)
   useEffect(() => {
     if (weekData && hasLoadedInitialData) {
+      const scheduleCount = Object.values(weekData.schedule || {}).flat().filter(item => item && item.trim()).length
+      const todosCount = weekData.todos?.length || 0
+      const prayersCount = weekData.prayers?.length || 0
+      const groceryCount = weekData.grocery?.length || 0
+      const encouragementCount = weekData.encouragementNotes?.length || 0
+      
       console.log('Weekly Planner: Auto-save triggered with weekData:', {
-        scheduleCount: Object.values(weekData.schedule || {}).flat().filter(item => item && item.trim()).length,
-        todosCount: weekData.todos?.length || 0,
-        prayersCount: weekData.prayers?.length || 0,
-        groceryCount: weekData.grocery?.length || 0,
-        encouragementCount: weekData.encouragementNotes?.length || 0
+        scheduleCount,
+        todosCount,
+        prayersCount,
+        groceryCount,
+        encouragementCount
       })
       
-      const saveTimeout = setTimeout(async () => {
-        setIsSaving(true)
-        try {
-          const weekKey = DatabaseManager.formatWeekKey(currentDate)
-          console.log('Weekly Planner: Auto-saving to weekKey:', weekKey)
-          console.log('Weekly Planner: Using currentDate:', currentDate.toISOString().split('T')[0])
-          await saveWeekData(weekKey, weekData)
-        } catch (error) {
-          console.error('Auto-save failed:', error)
-        } finally {
-          setIsSaving(false)
-        }
-      }, 1000) // Auto-save after 1 second of inactivity
+      // Only auto-save if there's actual data to save
+      const hasData = scheduleCount > 0 || todosCount > 0 || prayersCount > 0 || groceryCount > 0 || encouragementCount > 0
+      
+      if (hasData) {
+        const saveTimeout = setTimeout(async () => {
+          setIsSaving(true)
+          try {
+            const weekKey = DatabaseManager.formatWeekKey(currentDate)
+            console.log('Weekly Planner: Auto-saving to weekKey:', weekKey)
+            console.log('Weekly Planner: Using currentDate:', currentDate.toISOString().split('T')[0])
+            await saveWeekData(weekKey, weekData)
+          } catch (error) {
+            console.error('Auto-save failed:', error)
+          } finally {
+            setIsSaving(false)
+          }
+        }, 1000) // Auto-save after 1 second of inactivity
 
-      return () => clearTimeout(saveTimeout)
+        return () => clearTimeout(saveTimeout)
+      } else {
+        console.log('Weekly Planner: Skipping auto-save - no data to save')
+      }
     }
   }, [weekData, currentDate, saveWeekData, hasLoadedInitialData])
 
