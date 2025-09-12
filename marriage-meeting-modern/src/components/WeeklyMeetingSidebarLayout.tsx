@@ -183,7 +183,7 @@ export const WeeklyMeetingSidebarLayout: React.FC = () => {
     }
   }
 
-  // AUTO-SAVE LOGIC - Restored to working state
+  // AUTO-SAVE LOGIC - Restored to working state with loop prevention
   useEffect(() => {
     if (weekData && hasLoadedInitialData && !isSaving) {
       const scheduleCount = Object.values(weekData.schedule || {}).flat().filter(item => item && item.trim()).length
@@ -206,14 +206,22 @@ export const WeeklyMeetingSidebarLayout: React.FC = () => {
           setIsSaving(true)
           try {
             const weekKey = DatabaseManager.formatWeekKey(currentDate)
-            console.log('Weekly Planner: Auto-saving to weekKey:', weekKey)
+            console.log('Weekly Planner: Auto-saving to weekKey:', weekKey, 'with data counts:', {
+              schedule: scheduleCount,
+              todos: todosCount,
+              prayers: prayersCount,
+              grocery: groceryCount,
+              encouragement: encouragementCount,
+              unconfessed: unconfessedCount,
+              winddown: winddownCount
+            })
             await saveWeekData(weekKey, weekData)
           } catch (error) {
             console.error('Auto-save failed:', error)
           } finally {
             setIsSaving(false)
           }
-        }, 2000) // 2 second debounce to prevent conflicts
+        }, 3000) // 3 second debounce to prevent conflicts
 
         return () => clearTimeout(saveTimeout)
       }
