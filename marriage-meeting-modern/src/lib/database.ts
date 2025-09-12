@@ -228,6 +228,8 @@ export class DatabaseManager {
     // Create a new date to avoid mutating the original
     const d = new Date(date.getTime())
     
+    console.log('formatWeekKey input:', date.toISOString().split('T')[0], 'day:', d.getDay())
+    
     // Get the day of the week (0 = Sunday, 1 = Monday, etc.)
     const day = d.getDay()
     
@@ -239,6 +241,8 @@ export class DatabaseManager {
     
     // Create Monday date by subtracting the calculated days
     const monday = new Date(d.getFullYear(), d.getMonth(), d.getDate() - daysToSubtract)
+    
+    console.log('formatWeekKey result:', monday.toISOString().split('T')[0])
     
     // Return in YYYY-MM-DD format
     return monday.toISOString().split('T')[0]
