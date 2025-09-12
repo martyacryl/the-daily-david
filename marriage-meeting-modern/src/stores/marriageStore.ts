@@ -213,6 +213,9 @@ export const useMarriageStore = create<MarriageState>((set, get) => ({
         encouragementNotes: data.encouragementNotes
       }
 
+      console.log('Store: Saving weekData with todos:', data.todos)
+      console.log('Store: Todos count:', data.todos?.length || 0)
+
       await dbManager.saveMarriageMeetingWeek(weekData)
       
       set({ 
@@ -337,14 +340,16 @@ export const useMarriageStore = create<MarriageState>((set, get) => ({
   },
 
 
-    updateTasks: (tasks: TaskItem[]) => {
-      set((state) => ({
-        weekData: {
-          ...state.weekData,
-          todos: tasks
-        }
-      }))
-    },
+  updateTasks: (tasks: TaskItem[]) => {
+    console.log('Store: updateTasks called with:', tasks.length, 'tasks')
+    console.log('Store: Task details:', tasks)
+    set((state) => ({
+      weekData: {
+        ...state.weekData,
+        todos: tasks
+      }
+    }))
+  },
 
     updateGrocery: (grocery: any[]) => {
       set((state) => ({
