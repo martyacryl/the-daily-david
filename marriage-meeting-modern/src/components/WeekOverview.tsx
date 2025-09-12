@@ -116,8 +116,8 @@ export const WeekOverview: React.FC<WeekOverviewProps> = ({
               transition={{ duration: 0.2 }}
               className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4"
             >
-              <div className="w-full max-w-6xl max-h-[90vh] sm:max-h-[85vh] overflow-y-auto">
-              <Card className="p-4 sm:p-6 bg-white shadow-xl border border-slate-200">
+              <div className="w-full max-w-6xl max-h-[90vh] sm:max-h-[85vh] flex flex-col">
+              <Card className="p-4 sm:p-6 bg-white shadow-xl border border-slate-200 flex-1 overflow-y-auto">
                 {/* Header */}
                 <div className="flex items-center justify-between mb-6">
                   <h3 className="text-lg sm:text-xl font-semibold text-gray-900 flex items-center gap-2">
@@ -228,64 +228,6 @@ export const WeekOverview: React.FC<WeekOverviewProps> = ({
                   })}
                 </div>
 
-                {/* Detailed Day View */}
-                {expandedDay && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="mb-6 p-4 bg-blue-50 rounded-lg border-2 border-blue-200"
-                  >
-                    <div className="flex items-center justify-between mb-3">
-                      <h4 className="text-lg font-semibold text-gray-900">
-                        {expandedDay} - Full Schedule
-                      </h4>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setExpandedDay(null)}
-                        className="text-gray-500 hover:text-gray-700"
-                      >
-                        <X className="w-4 h-4" />
-                      </Button>
-                    </div>
-                    <div className="space-y-2">
-                      <div className="text-sm text-gray-600 mb-2">
-                        Selected day: {expandedDay}
-                      </div>
-                      {(() => {
-                        const dayKey = expandedDay as keyof MarriageMeetingWeek['schedule']
-                        const allItems = weekData?.schedule?.[dayKey] || []
-                        const filteredItems = allItems.filter(item => item && item.trim() !== '')
-                        
-                        return filteredItems.length > 0 ? (
-                          filteredItems.map((item, index) => (
-                            <div
-                              key={index}
-                              className="p-3 bg-white rounded-lg border border-slate-200 text-sm text-gray-800"
-                            >
-                              {item}
-                            </div>
-                          ))
-                        ) : (
-                          <p className="text-gray-500 italic text-center py-4">
-                            No schedule items for this day
-                          </p>
-                        )
-                      })()}
-                    </div>
-                    <div className="mt-4 pt-3 border-t border-slate-200">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => window.location.href = `/weekly?section=schedule&day=${expandedDay.toLowerCase()}`}
-                        className="text-slate-600 border-slate-200 hover:bg-slate-50"
-                      >
-                        <Edit3 className="w-4 h-4 mr-1" />
-                        Edit in Weekly Planner
-                      </Button>
-                    </div>
-                  </motion.div>
-                )}
 
                 {/* Action Buttons */}
                 <div className="flex flex-wrap gap-3 pt-4 border-t border-slate-200">
@@ -317,6 +259,65 @@ export const WeekOverview: React.FC<WeekOverviewProps> = ({
                   </Button>
                 </div>
               </Card>
+              
+              {/* Detailed Day View - Outside Card */}
+              {expandedDay && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mt-4 p-4 bg-blue-50 rounded-lg border-2 border-blue-200"
+                >
+                  <div className="flex items-center justify-between mb-3">
+                    <h4 className="text-lg font-semibold text-gray-900">
+                      {expandedDay} - Full Schedule
+                    </h4>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setExpandedDay(null)}
+                      className="text-gray-500 hover:text-gray-700"
+                    >
+                      <X className="w-4 h-4" />
+                    </Button>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="text-sm text-gray-600 mb-2">
+                      Selected day: {expandedDay}
+                    </div>
+                    {(() => {
+                      const dayKey = expandedDay as keyof MarriageMeetingWeek['schedule']
+                      const allItems = weekData?.schedule?.[dayKey] || []
+                      const filteredItems = allItems.filter(item => item && item.trim() !== '')
+                      
+                      return filteredItems.length > 0 ? (
+                        filteredItems.map((item, index) => (
+                          <div
+                            key={index}
+                            className="p-3 bg-white rounded-lg border border-slate-200 text-sm text-gray-800"
+                          >
+                            {item}
+                          </div>
+                        ))
+                      ) : (
+                        <p className="text-gray-500 italic text-center py-4">
+                          No schedule items for this day
+                        </p>
+                      )
+                    })()}
+                  </div>
+                  <div className="mt-4 pt-3 border-t border-slate-200">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => window.location.href = `/weekly?section=schedule&day=${expandedDay.toLowerCase()}`}
+                      className="text-slate-600 border-slate-200 hover:bg-slate-50"
+                    >
+                      <Edit3 className="w-4 h-4 mr-1" />
+                      Edit in Weekly Planner
+                    </Button>
+                  </div>
+                </motion.div>
+              )}
               </div>
             </motion.div>
           </>
