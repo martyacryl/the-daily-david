@@ -111,6 +111,7 @@ export const WeeklyMeetingSidebarLayout: React.FC = () => {
   const [searchParams] = useSearchParams()
   const [activeSection, setActiveSection] = useState('schedule')
   const [isSaving, setIsSaving] = useState(false)
+  const [hasLoadedInitialData, setHasLoadedInitialData] = useState(false)
 
   // Handle section parameter from URL
   useEffect(() => {
@@ -122,8 +123,11 @@ export const WeeklyMeetingSidebarLayout: React.FC = () => {
 
   // Load week data when date changes
   useEffect(() => {
+    setHasLoadedInitialData(false) // Reset flag when date changes
     const weekKey = DatabaseManager.formatWeekKey(currentDate)
-    loadWeekData(weekKey)
+    loadWeekData(weekKey).then(() => {
+      setHasLoadedInitialData(true)
+    })
   }, [currentDate, loadWeekData])
 
   // Also load current week data on mount to ensure we have the latest data
@@ -147,9 +151,9 @@ export const WeeklyMeetingSidebarLayout: React.FC = () => {
     }
   }, [isAuthenticated, loadWeekData, setCurrentWeek])
 
-  // Auto-save functionality
+  // Auto-save functionality (only after initial data is loaded)
   useEffect(() => {
-    if (weekData) {
+    if (weekData && hasLoadedInitialData) {
       console.log('Weekly Planner: Auto-save triggered with weekData:', {
         scheduleCount: Object.values(weekData.schedule || {}).flat().filter(item => item && item.trim()).length,
         todosCount: weekData.todos?.length || 0,
@@ -173,7 +177,7 @@ export const WeeklyMeetingSidebarLayout: React.FC = () => {
 
       return () => clearTimeout(saveTimeout)
     }
-  }, [weekData, currentDate, saveWeekData])
+  }, [weekData, currentDate, saveWeekData, hasLoadedInitialData])
 
   const handlePreviousWeek = () => {
     const newDate = new Date(currentDate)
