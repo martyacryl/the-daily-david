@@ -179,11 +179,17 @@ export const useMarriageStore = create<MarriageState>((set, get) => ({
     }
   },
 
-  saveWeekData: async (weekKey: string, data: WeekData) => {
+  saveWeekData: async (weekKey: string, data?: WeekData) => {
     try {
       console.log('Store: Saving week data for:', weekKey)
       
-      const { currentDate } = get()
+      const { currentDate, weekData: currentWeekData } = get()
+      
+      // Use the data passed in, or fall back to current store data
+      const dataToSave = data || currentWeekData
+      
+      console.log('Store: Using data:', data ? 'passed data' : 'store data')
+      console.log('Store: Data to save todos:', dataToSave.todos)
       
       // Get user from auth store
       let user = null
@@ -204,17 +210,17 @@ export const useMarriageStore = create<MarriageState>((set, get) => ({
       const weekData: MarriageMeetingWeek = {
         user_id: user.id,
         week_key: weekKey,
-        schedule: data.schedule,
-        todos: data.todos,
-        prayers: data.prayers,
-        grocery: data.grocery,
-        unconfessedSin: data.unconfessedSin,
-        weeklyWinddown: data.weeklyWinddown,
-        encouragementNotes: data.encouragementNotes
+        schedule: dataToSave.schedule,
+        todos: dataToSave.todos,
+        prayers: dataToSave.prayers,
+        grocery: dataToSave.grocery,
+        unconfessedSin: dataToSave.unconfessedSin,
+        weeklyWinddown: dataToSave.weeklyWinddown,
+        encouragementNotes: dataToSave.encouragementNotes
       }
 
-      console.log('Store: Saving weekData with todos:', data.todos)
-      console.log('Store: Todos count:', data.todos?.length || 0)
+      console.log('Store: Saving weekData with todos:', dataToSave.todos)
+      console.log('Store: Todos count:', dataToSave.todos?.length || 0)
 
       await dbManager.saveMarriageMeetingWeek(weekData)
       

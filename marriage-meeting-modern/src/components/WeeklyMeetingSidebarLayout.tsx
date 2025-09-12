@@ -174,7 +174,7 @@ export const WeeklyMeetingSidebarLayout: React.FC = () => {
     try {
       const weekKey = DatabaseManager.formatWeekKey(currentDate)
       console.log('Weekly Planner: Manual save to weekKey:', weekKey)
-      await saveWeekData(weekKey, weekData)
+      await saveWeekData(weekKey) // Don't pass weekData - use current store data
       console.log('Weekly Planner: Save successful!')
     } catch (error) {
       console.error('Manual save failed:', error)
