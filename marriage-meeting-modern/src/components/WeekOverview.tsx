@@ -118,9 +118,9 @@ export const WeekOverview: React.FC<WeekOverviewProps> = ({
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -10, scale: 0.95 }}
               transition={{ duration: 0.2 }}
-              className="fixed inset-0 z-50 flex items-center justify-center p-4"
+              className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4"
             >
-              <div className="w-full max-w-6xl max-h-[85vh] overflow-y-auto">
+              <div className="w-full max-w-6xl max-h-[90vh] sm:max-h-[85vh] overflow-y-auto">
               <Card className="p-4 sm:p-6 bg-white shadow-xl border border-slate-200">
                 {/* Header */}
                 <div className="flex items-center justify-between mb-6">
@@ -138,8 +138,8 @@ export const WeekOverview: React.FC<WeekOverviewProps> = ({
                   </Button>
                 </div>
 
-                {/* Week Grid */}
-                <div className="grid grid-cols-7 gap-2 sm:gap-3 lg:gap-4 mb-6">
+                {/* Week Grid - Responsive Layout */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-3 sm:gap-4 mb-6">
                   {weekDates.map((day, index) => {
                     const dayKey = day.dayKey
                     const isToday = day.fullDate.toDateString() === today.toDateString()
@@ -153,7 +153,8 @@ export const WeekOverview: React.FC<WeekOverviewProps> = ({
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: index * 0.05 }}
                         className={`
-                          relative bg-white rounded-lg border-2 p-2 sm:p-3 cursor-pointer transition-all duration-200 min-h-[100px] sm:min-h-[120px]
+                          relative bg-white rounded-lg border-2 p-3 sm:p-4 cursor-pointer transition-all duration-200 
+                          min-h-[80px] sm:min-h-[100px] lg:min-h-[120px]
                           ${isToday 
                             ? 'border-slate-400 bg-slate-50 shadow-md' 
                             : hasItems 
@@ -167,32 +168,34 @@ export const WeekOverview: React.FC<WeekOverviewProps> = ({
                         }}
                       >
                         {/* Day Header */}
-                        <div className="text-center mb-2 sm:mb-3">
-                          <div className={`text-xs sm:text-sm font-semibold ${
-                            isToday ? 'text-slate-800' : 'text-gray-600'
-                          }`}>
-                            {day.dayName}
-                          </div>
-                          <div className={`text-xs ${
-                            isToday ? 'text-slate-700 font-medium' : 'text-gray-500'
-                          }`}>
-                            {day.month} {day.dayNumber}
+                        <div className="flex items-center justify-between mb-2 sm:mb-3">
+                          <div>
+                            <div className={`text-sm sm:text-base font-semibold ${
+                              isToday ? 'text-slate-800' : 'text-gray-600'
+                            }`}>
+                              {day.dayName}
+                            </div>
+                            <div className={`text-xs ${
+                              isToday ? 'text-slate-700 font-medium' : 'text-gray-500'
+                            }`}>
+                              {day.month} {day.dayNumber}
+                            </div>
                           </div>
                           {isToday && (
-                            <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-slate-600 rounded-full mx-auto mt-1"></div>
+                            <div className="w-2 h-2 bg-slate-600 rounded-full"></div>
                           )}
                         </div>
 
                         {/* Schedule Items */}
-                        <div className="space-y-1">
+                        <div className="space-y-1.5">
                           {scheduleItems.length > 0 ? (
                             scheduleItems.map((item, itemIndex) => (
                               <div
                                 key={itemIndex}
-                                className="text-xs text-gray-700 bg-slate-100 rounded px-2 py-1"
+                                className="text-xs sm:text-sm text-gray-700 bg-slate-100 rounded px-2 py-1.5 break-words"
                                 title={item}
                               >
-                                {truncateText(item, 18)}
+                                {truncateText(item, 25)}
                               </div>
                             ))
                           ) : (
