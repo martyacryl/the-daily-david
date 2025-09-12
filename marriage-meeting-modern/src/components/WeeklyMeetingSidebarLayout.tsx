@@ -116,8 +116,14 @@ export const WeeklyMeetingSidebarLayout: React.FC = () => {
 
   // Initialize store with correct current date
   useEffect(() => {
+    console.log('Weekly Planner: Calling initializeStore')
     initializeStore()
   }, [initializeStore])
+
+  // Force re-render when currentDate changes
+  useEffect(() => {
+    console.log('Weekly Planner: currentDate changed to:', currentDate.toISOString().split('T')[0])
+  }, [currentDate])
 
   // Handle section parameter from URL
   useEffect(() => {
