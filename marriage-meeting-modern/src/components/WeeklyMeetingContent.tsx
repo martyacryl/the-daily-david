@@ -54,7 +54,10 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
   const getWeekDates = () => {
     // Use DatabaseManager.formatWeekKey to get the Monday of the current week
     const mondayKey = DatabaseManager.formatWeekKey(currentDate)
-    const monday = new Date(mondayKey)
+    
+    // Parse the date string to avoid timezone issues
+    const [year, month, day] = mondayKey.split('-').map(Number)
+    const monday = new Date(year, month - 1, day) // month is 0-indexed
     
     const weekDates: { [key in DayName]: string } = {
       Monday: new Date(monday.getTime()).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
