@@ -3,7 +3,7 @@
 
 import { create } from 'zustand'
 import { MarriageMeetingWeek, WeekData, ListItem, WeeklySchedule, DayName, ListType, GoalItem, TaskItem, GroceryStoreList, EncouragementNote } from '../types/marriageTypes'
-import { dbManager } from '../lib/database'
+import { dbManager, DatabaseManager } from '../lib/database'
 
 interface MarriageState {
   // Data
