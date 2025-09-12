@@ -90,6 +90,7 @@ export const WeeklyMeetingSidebarLayout: React.FC = () => {
     error,
     lastSaved,
     setCurrentDate,
+    setCurrentWeek,
     loadWeekData,
     saveWeekData,
     updateSchedule,
@@ -122,6 +123,27 @@ export const WeeklyMeetingSidebarLayout: React.FC = () => {
     const weekKey = DatabaseManager.formatWeekKey(currentDate)
     loadWeekData(weekKey)
   }, [currentDate, loadWeekData])
+
+  // Also load current week data on mount to ensure we have the latest data
+  useEffect(() => {
+    if (isAuthenticated) {
+      const today = new Date()
+      const currentWeekKey = DatabaseManager.formatWeekKey(today)
+      const currentDateKey = DatabaseManager.formatWeekKey(currentDate)
+      
+      console.log('Weekly Planner: Date check - Today:', today.toISOString().split('T')[0])
+      console.log('Weekly Planner: Date check - Current week key:', currentWeekKey)
+      console.log('Weekly Planner: Date check - Store currentDate:', currentDate.toISOString().split('T')[0])
+      console.log('Weekly Planner: Date check - Store currentDate key:', currentDateKey)
+      
+      // Only load if we're not already on the current week
+      if (currentWeekKey !== currentDateKey) {
+        console.log('Weekly Planner: Auto-loading current week data')
+        setCurrentWeek() // This will set currentDate to Monday of current week
+        loadWeekData(currentWeekKey)
+      }
+    }
+  }, [isAuthenticated, loadWeekData, setCurrentWeek])
 
   // Auto-save functionality
   useEffect(() => {
@@ -156,9 +178,7 @@ export const WeeklyMeetingSidebarLayout: React.FC = () => {
 
   const handleCurrentWeek = () => {
     // Set to Monday of current week, not today
-    const today = new Date()
-    const mondayKey = DatabaseManager.formatWeekKey(today)
-    setCurrentDate(new Date(mondayKey))
+    setCurrentWeek()
   }
 
   // Calculate section counts for sidebar
