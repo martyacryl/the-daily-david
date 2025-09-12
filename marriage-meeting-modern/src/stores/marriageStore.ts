@@ -62,12 +62,7 @@ export const useMarriageStore = create<MarriageState>((set, get) => ({
   // Initial state
   currentWeek: null,
   weekData: createEmptyWeekData(),
-  currentDate: (() => {
-    // Initialize with Monday of current week
-    const today = new Date()
-    const mondayKey = DatabaseManager.formatWeekKey(today)
-    return new Date(mondayKey)
-  })(),
+  currentDate: new Date(), // Will be set to Monday when store initializes
   isLoading: false,
   error: null,
   lastSaved: null,
@@ -79,6 +74,13 @@ export const useMarriageStore = create<MarriageState>((set, get) => ({
 
   // Ensure current date is set to Monday of current week
   setCurrentWeek: () => {
+    const today = new Date()
+    const mondayKey = DatabaseManager.formatWeekKey(today)
+    set({ currentDate: new Date(mondayKey) })
+  },
+
+  // Initialize the store with correct current date
+  initializeStore: () => {
     const today = new Date()
     const mondayKey = DatabaseManager.formatWeekKey(today)
     set({ currentDate: new Date(mondayKey) })

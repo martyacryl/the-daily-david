@@ -93,6 +93,7 @@ export const WeeklyMeetingSidebarLayout: React.FC = () => {
     lastSaved,
     setCurrentDate,
     setCurrentWeek,
+    initializeStore,
     loadWeekData,
     saveWeekData,
     updateSchedule,
@@ -112,6 +113,11 @@ export const WeeklyMeetingSidebarLayout: React.FC = () => {
   const [activeSection, setActiveSection] = useState('schedule')
   const [isSaving, setIsSaving] = useState(false)
   const [hasLoadedInitialData, setHasLoadedInitialData] = useState(false)
+
+  // Initialize store with correct current date
+  useEffect(() => {
+    initializeStore()
+  }, [initializeStore])
 
   // Handle section parameter from URL
   useEffect(() => {
