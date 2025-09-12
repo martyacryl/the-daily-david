@@ -150,10 +150,19 @@ export const WeeklyMeetingSidebarLayout: React.FC = () => {
   // Auto-save functionality
   useEffect(() => {
     if (weekData) {
+      console.log('Weekly Planner: Auto-save triggered with weekData:', {
+        scheduleCount: Object.values(weekData.schedule || {}).flat().filter(item => item && item.trim()).length,
+        todosCount: weekData.todos?.length || 0,
+        prayersCount: weekData.prayers?.length || 0,
+        groceryCount: weekData.grocery?.length || 0,
+        encouragementCount: weekData.encouragementNotes?.length || 0
+      })
+      
       const saveTimeout = setTimeout(async () => {
         setIsSaving(true)
         try {
           const weekKey = DatabaseManager.formatWeekKey(currentDate)
+          console.log('Weekly Planner: Auto-saving to weekKey:', weekKey)
           await saveWeekData(weekKey, weekData)
         } catch (error) {
           console.error('Auto-save failed:', error)
