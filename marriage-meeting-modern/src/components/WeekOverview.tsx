@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Calendar, X, Edit3, ChevronDown, ChevronUp } from 'lucide-react'
+import { Calendar, X, Edit3, ChevronDown, ChevronUp, MoreHorizontal } from 'lucide-react'
 import { Card } from './ui/Card'
 import { Button } from './ui/Button'
 import { DatabaseManager } from '../lib/database'
@@ -18,6 +18,7 @@ export const WeekOverview: React.FC<WeekOverviewProps> = ({
   className = '' 
 }) => {
   const [isExpanded, setIsExpanded] = useState(false)
+  const [expandedDay, setExpandedDay] = useState<string | null>(null)
 
   // Get the week dates (Monday to Sunday)
   const getWeekDates = () => {
@@ -66,6 +67,18 @@ export const WeekOverview: React.FC<WeekOverviewProps> = ({
     const monday = weekDates[0]
     const sunday = weekDates[6]
     return `${monday.month} ${monday.dayNumber}-${sunday.dayNumber}, ${monday.fullDate.getFullYear()}`
+  }
+
+  // Smart text truncation
+  const truncateText = (text: string, maxLength: number = 20) => {
+    if (text.length <= maxLength) return text
+    const words = text.split(' ')
+    let result = ''
+    for (const word of words) {
+      if ((result + ' ' + word).length > maxLength) break
+      result += (result ? ' ' : '') + word
+    }
+    return result + (result.length < text.length ? '...' : '')
   }
 
   return (
@@ -149,8 +162,8 @@ export const WeekOverview: React.FC<WeekOverviewProps> = ({
                           }
                         `}
                         onClick={() => {
-                          // Navigate to weekly planner for this day
-                          window.location.href = `/weekly?section=schedule&day=${dayKey.toLowerCase()}`
+                          // Show detailed view for this day
+                          setExpandedDay(dayKey)
                         }}
                       >
                         {/* Day Header */}
@@ -176,10 +189,10 @@ export const WeekOverview: React.FC<WeekOverviewProps> = ({
                             scheduleItems.map((item, itemIndex) => (
                               <div
                                 key={itemIndex}
-                                className="text-xs text-gray-700 bg-slate-100 rounded px-2 py-1 truncate"
+                                className="text-xs text-gray-700 bg-slate-100 rounded px-2 py-1"
                                 title={item}
                               >
-                                {item}
+                                {truncateText(item, 18)}
                               </div>
                             ))
                           ) : (
@@ -190,7 +203,8 @@ export const WeekOverview: React.FC<WeekOverviewProps> = ({
                           
                           {/* Show "more" indicator if there are more than 3 items */}
                           {weekData?.schedule?.[dayKey]?.filter(item => item && item.trim() !== '').length > 3 && (
-                            <div className="text-xs text-slate-500 text-center mt-1">
+                            <div className="text-xs text-slate-500 text-center mt-1 flex items-center justify-center gap-1">
+                              <MoreHorizontal className="w-3 h-3" />
                               +{weekData.schedule[dayKey].filter(item => item && item.trim() !== '').length - 3} more
                             </div>
                           )}
@@ -199,6 +213,62 @@ export const WeekOverview: React.FC<WeekOverviewProps> = ({
                     )
                   })}
                 </div>
+
+                {/* Detailed Day View */}
+                {expandedDay && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mb-6 p-4 bg-slate-50 rounded-lg border border-slate-200"
+                  >
+                    <div className="flex items-center justify-between mb-3">
+                      <h4 className="text-lg font-semibold text-gray-900">
+                        {expandedDay} - Full Schedule
+                      </h4>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setExpandedDay(null)}
+                        className="text-gray-500 hover:text-gray-700"
+                      >
+                        <X className="w-4 h-4" />
+                      </Button>
+                    </div>
+                    <div className="space-y-2">
+                      {(() => {
+                        const dayKey = expandedDay as keyof MarriageMeetingWeek['schedule']
+                        const allItems = weekData?.schedule?.[dayKey] || []
+                        const filteredItems = allItems.filter(item => item && item.trim() !== '')
+                        
+                        return filteredItems.length > 0 ? (
+                          filteredItems.map((item, index) => (
+                            <div
+                              key={index}
+                              className="p-3 bg-white rounded-lg border border-slate-200 text-sm text-gray-800"
+                            >
+                              {item}
+                            </div>
+                          ))
+                        ) : (
+                          <p className="text-gray-500 italic text-center py-4">
+                            No schedule items for this day
+                          </p>
+                        )
+                      })()}
+                    </div>
+                    <div className="mt-4 pt-3 border-t border-slate-200">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => window.location.href = `/weekly?section=schedule&day=${expandedDay.toLowerCase()}`}
+                        className="text-slate-600 border-slate-200 hover:bg-slate-50"
+                      >
+                        <Edit3 className="w-4 h-4 mr-1" />
+                        Edit in Weekly Planner
+                      </Button>
+                    </div>
+                  </motion.div>
+                )}
 
                 {/* Action Buttons */}
                 <div className="flex flex-wrap gap-3 pt-4 border-t border-slate-200">
