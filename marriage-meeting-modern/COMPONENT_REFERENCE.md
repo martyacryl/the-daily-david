@@ -1,10 +1,10 @@
 # Component Reference Guide
-## Quick Reference for The Daily David Modern App
+## Quick Reference for The Weekly Huddle Marriage Meeting App
 
 ### 🎯 **RECOMMENDATION: Copy & Modify Approach**
 
 **For your new app, I strongly recommend:**
-1. **Copy the entire `daily-david-modern` folder**
+1. **Copy the entire `marriage-meeting-modern` folder**
 2. **Rename it to your new app name**
 3. **Tell me what to change for your specific app**
 
@@ -19,23 +19,24 @@
 ## 📁 **COMPONENT BREAKDOWN**
 
 ### **UI Components** (`src/components/ui/`)
-| Component | Purpose | Props |
-|-----------|---------|-------|
-| `Button.tsx` | Styled button with variants | `variant`, `size`, `disabled`, `loading` |
-| `Card.tsx` | Container with padding/shadow | `padding`, `className` |
-| `Input.tsx` | Form input field | `type`, `placeholder`, `value`, `onChange` |
-| `Textarea.tsx` | Multi-line text input | `rows`, `placeholder`, `value`, `onChange` |
-| `LoadingSpinner.tsx` | Loading indicator | `size`, `className` |
+| Component | Purpose | Props | Key Features |
+|-----------|---------|-------|--------------|
+| `Button.tsx` | Styled button with variants | `variant`, `size`, `disabled`, `loading` | Primary, outline, ghost variants |
+| `Card.tsx` | Container with padding/shadow | `padding`, `className` | Consistent card styling |
+| `Input.tsx` | Form input field | `type`, `placeholder`, `value`, `onChange`, `label`, `error` | Label, error states, mobile debugging |
+| `Textarea.tsx` | Multi-line text input | `rows`, `placeholder`, `value`, `onChange` | Auto-resize, consistent styling |
+| `LoadingSpinner.tsx` | Loading indicator | `size`, `className` | Multiple sizes, smooth animation |
+| `index.ts` | Barrel export | Re-exports all UI components | Clean imports |
 
 ### **Layout Components** (`src/components/layout/`)
 | Component | Purpose | Key Features |
 |-----------|---------|--------------|
-| `Header.tsx` | Global navigation | Auth state, role-based menus, responsive |
+| `Header.tsx` | Global navigation | Auth state, role-based menus, responsive design |
 
 ### **Authentication** (`src/components/auth/`)
 | Component | Purpose | Key Features |
 |-----------|---------|--------------|
-| `LoginForm.tsx` | User login | Email/password, validation, error handling |
+| `LoginForm.tsx` | User login | Email/password, validation, error handling, marriage verses |
 | `Index.ts` | Barrel export | Re-exports auth components |
 
 ### **Daily Entry System** (`src/components/daily/`)
@@ -50,14 +51,41 @@
 ### **Dashboard** (`src/components/dashboard/`)
 | Component | Purpose | Key Features |
 |-----------|---------|--------------|
-| `Dashboard.tsx` | Main dashboard | Metrics, navigation, goal summaries |
+| `Dashboard.tsx` | Legacy dashboard | Basic metrics, navigation |
+| `DashboardNew.tsx` | **MAIN DASHBOARD** | Today's overview, weather, goals, encouragement, week overview |
 | `ProgressAnalytics.tsx` | Analytics page | Charts, insights, spiritual growth tracking |
 
-### **Admin** (`src/components/admin/`)
+### **Marriage Meeting System** (`src/components/`)
 | Component | Purpose | Key Features |
 |-----------|---------|--------------|
-| `AdminPanel.tsx` | User management | Create/delete users, admin functions |
-| `ProtectedAdminRoute.tsx` | Route protection | Admin-only access, redirect logic |
+| `MarriageMeetingTool.tsx` | **MAIN MEETING TOOL** | Complete weekly meeting interface |
+| `WeeklyMeetingContent.tsx` | Meeting content sections | Schedule, tasks, prayers, grocery, encouragement |
+| `WeeklyMeetingSidebar.tsx` | Meeting navigation | Section navigation, progress tracking |
+| `WeeklyMeetingSidebarLayout.tsx` | **MAIN LAYOUT** | Sidebar + content layout, data management |
+| `WeeklyReview.tsx` | Week review | Progress summary, navigation buttons |
+| `WeekOverview.tsx` | **NEW: Week Overview** | Collapsible 7-day grid, clickable days, responsive |
+
+### **Meeting Sections** (`src/components/`)
+| Component | Purpose | Key Features |
+|-----------|---------|--------------|
+| `TasksSection.tsx` | Task management | Add/edit/delete tasks, priority, due dates, spouse assignment |
+| `GoalsSection.tsx` | Goal management | 1-year, 5-year, 10-year, monthly goals |
+| `GroceryErrandsSection.tsx` | Grocery lists | Store-based organization, item management |
+| `EncouragementSection.tsx` | Love notes | Add/read encouragement notes, mark as read |
+| `WeatherSection.tsx` | Weather display | Current weather, location-based |
+
+### **Settings & Admin** (`src/components/`)
+| Component | Purpose | Key Features |
+|-----------|---------|--------------|
+| `settings/SettingsPanel.tsx` | User settings | Spouse info, location, grocery stores, family creed |
+| `FamilyCreedDisplay.tsx` | Creed display | Family creed with shield icon, settings integration |
+| `admin/AdminPanel.tsx` | User management | Create/delete users, admin functions |
+| `admin/ProtectedAdminRoute.tsx` | Route protection | Admin-only access, redirect logic |
+
+### **Demo & Testing** (`src/components/demo/`)
+| Component | Purpose | Key Features |
+|-----------|---------|--------------|
+| `BibleIntegrationDemo.tsx` | Bible API testing | Test Bible integration functionality |
 
 ---
 
@@ -66,7 +94,10 @@
 ### **Zustand Stores** (`src/stores/`)
 | Store | Purpose | Key Methods |
 |-------|---------|-------------|
-| `authStore.ts` | Authentication | `login()`, `logout()`, `checkAuth()` |
+| `authStore.ts` | Authentication | `login()`, `logout()`, `checkAuth()`, `isAuthenticated` |
+| `marriageStore.ts` | **MAIN STORE** | `loadWeekData()`, `saveWeekData()`, `updateTasks()`, `updateSchedule()` |
+| `goalsStore.ts` | Goals management | `loadGoals()`, `addGoal()`, `updateGoal()`, `deleteGoal()` |
+| `settingsStore.ts` | User settings | `loadSettings()`, `updateSpouse1()`, `updateSpouse2()`, `updateLocation()` |
 | `dailyStore.ts` | Daily entries | `loadEntries()`, `saveEntry()`, `loadEntryByDate()` |
 | `appStore.ts` | App state | `setCurrentDate()`, `setLoading()` |
 
@@ -100,19 +131,97 @@
 
 ## 📊 **TYPE DEFINITIONS**
 
-### **Core Types** (`src/types/index.ts`)
+### **Core Types** (`src/types/index.ts` & `src/types/marriageTypes.ts`)
 ```typescript
 // User management
 interface User { id, email, name, is_admin, created_at }
 
-// Daily entry data
+// Marriage meeting data
+interface MarriageMeetingWeek {
+  id: string
+  user_id: string
+  week_key: string
+  schedule: { [key in DayName]: string[] }
+  todos: TaskItem[]
+  prayers: ListItem[]
+  grocery: GroceryStore[]
+  unconfessedSin: ListItem[]
+  weeklyWinddown: ListItem[]
+  encouragementNotes: EncouragementNote[]
+  created_at: string
+  updated_at: string
+}
+
+// Task management
+interface TaskItem {
+  id: string
+  text: string
+  completed: boolean
+  priority: 'high' | 'medium' | 'low'
+  dueDate?: string
+  assignedTo: 'spouse1' | 'spouse2' | 'both'
+  category?: string
+  estimatedDuration?: number
+}
+
+// List items (prayers, unconfessed sin, etc.)
+interface ListItem {
+  id: string
+  text: string
+  completed: boolean
+  createdAt: string
+}
+
+// Grocery system
+interface GroceryStore {
+  storeId: string
+  storeName: string
+  items: GroceryItem[]
+}
+
+interface GroceryItem {
+  id: string
+  text: string
+  completed: boolean
+  quantity?: string
+  notes?: string
+}
+
+// Encouragement notes
+interface EncouragementNote {
+  id: string
+  text: string
+  type: 'encouragement' | 'bible' | 'reminder' | 'love' | 'general'
+  isRead: boolean
+  createdAt: string
+}
+
+// Goals system
+interface GoalItem {
+  id: string
+  text: string
+  description?: string
+  completed: boolean
+  timeframe: 'monthly' | '1year' | '5year' | '10year'
+  priority: 'high' | 'medium' | 'low'
+  createdAt: string
+  updatedAt: string
+}
+
+// Settings
+interface UserSettings {
+  spouse1: { name: string, email?: string }
+  spouse2: { name: string, email?: string }
+  location: { city: string, state: string, country: string }
+  groceryStores: string[]
+  familyCreed: string
+}
+
+// Daily entry data (legacy)
 interface DailyEntry { id, user_id, date, soap, gratitude, goals, dailyIntention, leadershipRating, checkIn }
 
 // SOAP study
 interface SOAPData { scripture, observation, application, prayer }
-
-// Goals system
-interface GoalsByType { daily: string[], weekly: string[], monthly: string[] }
 
 // Leadership tracking
 interface LeadershipRating { wisdom, courage, patience, integrity }
@@ -123,6 +232,117 @@ interface CheckInData { emotions: string[], feeling: string }
 // Bible integration
 interface BibleVerse { id, text, reference, version }
 interface ReadingPlan { id, name, description, duration, titles, themes, verses }
+
+// Day names
+type DayName = 'Monday' | 'Tuesday' | 'Wednesday' | 'Thursday' | 'Friday' | 'Saturday' | 'Sunday'
+```
+
+---
+
+## 🆕 **NEW COMPONENT: WeekOverview**
+
+### **Purpose**
+A collapsible week overview component that provides a quick 7-day grid view of the weekly schedule, integrated into the dashboard for easy access to daily plans.
+
+### **Key Features**
+- **Collapsible Design**: Toggle button to expand/collapse the week view
+- **7-Day Grid**: Shows Monday through Sunday with dates and schedule items
+- **Responsive Layout**: 
+  - Desktop: 7 columns in one row
+  - Mobile: 5 columns (Mon-Fri) + 2 columns (Sat-Sun) below
+- **Today Highlighting**: Current day has special styling and indicator dot
+- **Schedule Preview**: Shows up to 3 schedule items per day (with "more" indicator)
+- **Clickable Days**: Click any day to navigate to that day in weekly planner
+- **Smooth Animations**: Framer Motion for expand/collapse and day card animations
+
+### **Props Interface**
+```typescript
+interface WeekOverviewProps {
+  weekData: MarriageMeetingWeek | null
+  currentDate: Date
+  className?: string
+}
+```
+
+### **Component Structure**
+```typescript
+// Toggle Button
+<Button onClick={() => setIsExpanded(!isExpanded)}>
+  <Calendar className="w-4 h-4" />
+  Week Overview
+  {isExpanded ? <ChevronUp /> : <ChevronDown />}
+</Button>
+
+// Animated Popup
+<AnimatePresence>
+  {isExpanded && (
+    <motion.div
+      initial={{ opacity: 0, y: -10, scale: 0.95 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, y: -10, scale: 0.95 }}
+    >
+      {/* Week Grid */}
+      <div className="grid grid-cols-5 sm:grid-cols-7 gap-2 sm:gap-3">
+        {weekDates.map((day) => (
+          <motion.div
+            key={day.dayName}
+            className={`day-card ${isToday ? 'today' : ''}`}
+            onClick={() => navigateToDay(day)}
+          >
+            {/* Day Header */}
+            <div className="day-header">
+              <div className="day-name">{day.dayName}</div>
+              <div className="day-date">{day.month} {day.dayNumber}</div>
+              {isToday && <div className="today-indicator" />}
+            </div>
+            
+            {/* Schedule Items */}
+            <div className="schedule-items">
+              {scheduleItems.map((item, index) => (
+                <div key={index} className="schedule-item">
+                  {item}
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        ))}
+      </div>
+    </motion.div>
+  )}
+</AnimatePresence>
+```
+
+### **Integration Points**
+- **Location**: Next to "Edit Day" button in Today's Overview section
+- **Data Source**: Uses `weekData` from `useMarriageStore()`
+- **Navigation**: Links to `/weekly?section=schedule&day={dayKey}`
+- **Styling**: Matches dashboard design with slate color scheme
+
+### **Responsive Behavior**
+- **Mobile (< 640px)**: 5+2 grid layout, smaller text, compact spacing
+- **Desktop (≥ 640px)**: 7-column layout, larger text, more spacing
+- **Touch-Friendly**: Large clickable areas for mobile interaction
+
+### **Animation Details**
+- **Expand/Collapse**: Scale + opacity transition (200ms)
+- **Day Cards**: Staggered entrance animation (50ms delay per card)
+- **Hover Effects**: Subtle scale and shadow changes
+- **Today Indicator**: Pulsing dot animation
+
+### **Usage Example**
+```typescript
+// In DashboardNew.tsx
+<div className="flex items-center gap-2">
+  <div className="relative">
+    <WeekOverview 
+      weekData={weekData} 
+      currentDate={new Date()}
+    />
+  </div>
+  <Button onClick={() => navigate('/weekly')}>
+    Edit Day
+  </Button>
+</div>
 ```
 
 ---
