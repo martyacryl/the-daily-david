@@ -47,6 +47,28 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
 }) => {
   const days: DayName[] = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 
+  // Calculate actual dates for each day of the current week
+  const getWeekDates = () => {
+    const today = new Date()
+    const day = today.getDay()
+    const daysToSubtract = day === 0 ? 6 : day - 1
+    const monday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - daysToSubtract)
+    
+    const weekDates: { [key in DayName]: string } = {
+      Monday: new Date(monday.getTime()).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+      Tuesday: new Date(monday.getTime() + 24 * 60 * 60 * 1000).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+      Wednesday: new Date(monday.getTime() + 2 * 24 * 60 * 60 * 1000).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+      Thursday: new Date(monday.getTime() + 3 * 24 * 60 * 60 * 1000).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+      Friday: new Date(monday.getTime() + 4 * 24 * 60 * 60 * 1000).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+      Saturday: new Date(monday.getTime() + 5 * 24 * 60 * 60 * 1000).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+      Sunday: new Date(monday.getTime() + 6 * 24 * 60 * 60 * 1000).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+    }
+    
+    return weekDates
+  }
+
+  const weekDates = getWeekDates()
+
   const renderScheduleSection = () => (
     <motion.div
       initial={{ opacity: 0, x: 20 }}
@@ -68,7 +90,12 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
           {days.map((day) => (
             <div key={day} className="bg-gray-50 rounded-lg sm:rounded-xl p-3 sm:p-4 lg:p-6">
               <div className="flex items-center justify-between mb-2 sm:mb-3 lg:mb-4">
-                <h3 className="text-base sm:text-lg font-semibold text-gray-800">{day}</h3>
+                <div className="flex items-center gap-2">
+                  <h3 className="text-base sm:text-lg font-semibold text-gray-800">{day}</h3>
+                  <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded-full">
+                    {weekDates[day]}
+                  </span>
+                </div>
                 <Button
                   variant="outline"
                   size="sm"
