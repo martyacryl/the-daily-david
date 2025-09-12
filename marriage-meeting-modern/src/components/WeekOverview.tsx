@@ -105,8 +105,9 @@ export const WeekOverview: React.FC<WeekOverviewProps> = ({
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -10, scale: 0.95 }}
               transition={{ duration: 0.2 }}
-              className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 w-[95vw] max-w-4xl max-h-[90vh] overflow-y-auto"
+              className="fixed inset-0 z-50 flex items-center justify-center p-4"
             >
+              <div className="w-full max-w-6xl max-h-[85vh] overflow-y-auto">
               <Card className="p-4 sm:p-6 bg-white shadow-xl border border-slate-200">
                 {/* Header */}
                 <div className="flex items-center justify-between mb-6">
@@ -125,7 +126,7 @@ export const WeekOverview: React.FC<WeekOverviewProps> = ({
                 </div>
 
                 {/* Week Grid */}
-                <div className="grid grid-cols-7 gap-3 sm:gap-4 mb-6">
+                <div className="grid grid-cols-7 gap-2 sm:gap-3 lg:gap-4 mb-6">
                   {weekDates.map((day, index) => {
                     const dayKey = day.dayKey
                     const isToday = day.fullDate.toDateString() === today.toDateString()
@@ -139,7 +140,7 @@ export const WeekOverview: React.FC<WeekOverviewProps> = ({
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: index * 0.05 }}
                         className={`
-                          relative bg-white rounded-lg border-2 p-3 cursor-pointer transition-all duration-200 min-h-[120px]
+                          relative bg-white rounded-lg border-2 p-2 sm:p-3 cursor-pointer transition-all duration-200 min-h-[100px] sm:min-h-[120px]
                           ${isToday 
                             ? 'border-slate-400 bg-slate-50 shadow-md' 
                             : hasItems 
@@ -153,8 +154,8 @@ export const WeekOverview: React.FC<WeekOverviewProps> = ({
                         }}
                       >
                         {/* Day Header */}
-                        <div className="text-center mb-3">
-                          <div className={`text-sm font-semibold ${
+                        <div className="text-center mb-2 sm:mb-3">
+                          <div className={`text-xs sm:text-sm font-semibold ${
                             isToday ? 'text-slate-800' : 'text-gray-600'
                           }`}>
                             {day.dayName}
@@ -165,7 +166,7 @@ export const WeekOverview: React.FC<WeekOverviewProps> = ({
                             {day.month} {day.dayNumber}
                           </div>
                           {isToday && (
-                            <div className="w-2 h-2 bg-slate-600 rounded-full mx-auto mt-1"></div>
+                            <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-slate-600 rounded-full mx-auto mt-1"></div>
                           )}
                         </div>
 
@@ -229,6 +230,7 @@ export const WeekOverview: React.FC<WeekOverviewProps> = ({
                   </Button>
                 </div>
               </Card>
+              </div>
             </motion.div>
           </>
         )}
