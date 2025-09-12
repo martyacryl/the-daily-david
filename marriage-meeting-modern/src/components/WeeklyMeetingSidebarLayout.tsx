@@ -23,10 +23,11 @@ const WeekNavigation: React.FC<WeekNavigationProps> = ({
   onCurrentWeek
 }) => {
   const formatWeekRange = (date: Date) => {
+    // Use the same week calculation as DatabaseManager.formatWeekKey
     const startOfWeek = new Date(date)
     const day = startOfWeek.getDay()
-    const diff = startOfWeek.getDate() - day + (day === 0 ? -6 : 1) // Adjust when day is Sunday
-    startOfWeek.setDate(diff)
+    const daysToSubtract = day === 0 ? 6 : day - 1
+    startOfWeek.setDate(startOfWeek.getDate() - daysToSubtract)
     
     const endOfWeek = new Date(startOfWeek)
     endOfWeek.setDate(startOfWeek.getDate() + 6)
