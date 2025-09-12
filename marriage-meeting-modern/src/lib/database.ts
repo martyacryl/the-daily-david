@@ -185,6 +185,9 @@ export class DatabaseManager {
   private transformDatabaseResult(result: any): MarriageMeetingWeek {
     const dataContent = result.data_content || {}
     
+    console.log('Database: Raw result data_content:', JSON.stringify(dataContent, null, 2))
+    console.log('Database: encouragementNotes in data_content:', dataContent.encouragementNotes)
+    
     return {
       id: result.id,
       user_id: result.user_id,

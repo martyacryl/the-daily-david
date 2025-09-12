@@ -85,23 +85,14 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
       transition={{ duration: 0.3 }}
     >
       <Card className="p-3 sm:p-6 lg:p-8">
-        <div className="flex items-center justify-between mb-4 sm:mb-6 lg:mb-8">
-          <div className="flex items-center gap-2 sm:gap-3">
-            <div className="p-2 sm:p-3 bg-blue-100 rounded-lg">
-              <Calendar className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-blue-600" />
-            </div>
-            <div>
-              <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">Weekly Schedule</h2>
-              <p className="text-sm sm:text-base text-gray-600">Plan your week together</p>
-            </div>
+        <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6 lg:mb-8">
+          <div className="p-2 sm:p-3 bg-blue-100 rounded-lg">
+            <Calendar className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-blue-600" />
           </div>
-          <Button
-            onClick={onSave}
-            disabled={isSaving}
-            className="bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm px-3 py-2"
-          >
-            {isSaving ? 'Saving...' : 'Save Schedule'}
-          </Button>
+          <div>
+            <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">Weekly Schedule</h2>
+            <p className="text-sm sm:text-base text-gray-600">Plan your week together</p>
+          </div>
         </div>
 
         <div className="space-y-3 sm:space-y-4 lg:space-y-6">
@@ -187,22 +178,13 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
               )}
             </div>
           </div>
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              onClick={() => onAddListItem(type, '')}
-              className={`text-${color}-600 border-${color}-200 hover:bg-${color}-50 text-xs sm:text-sm px-2 py-1 sm:px-3 sm:py-2`}
-            >
-              + Add {isAccountability ? 'Action' : title.slice(0, -1)}
-            </Button>
-            <Button
-              onClick={onSave}
-              disabled={isSaving}
-              className="bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm px-2 py-1 sm:px-3 sm:py-2"
-            >
-              {isSaving ? 'Saving...' : 'Save'}
-            </Button>
-          </div>
+          <Button
+            variant="outline"
+            onClick={() => onAddListItem(type, '')}
+            className={`text-${color}-600 border-${color}-200 hover:bg-${color}-50 text-xs sm:text-sm px-2 py-1 sm:px-3 sm:py-2`}
+          >
+            + Add {isAccountability ? 'Action' : title.slice(0, -1)}
+          </Button>
         </div>
 
         <div className="space-y-2 sm:space-y-3 lg:space-y-4">
@@ -283,77 +265,11 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
   )
 
   const renderTasksSection = () => (
-    <motion.div
-      initial={{ opacity: 0, x: 20 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ duration: 0.3 }}
-    >
-      <Card className="p-3 sm:p-6 lg:p-8">
-        <div className="flex items-center justify-between mb-4 sm:mb-6">
-          <div className="flex items-center gap-2 sm:gap-3">
-            <div className="p-2 sm:p-3 bg-blue-100 rounded-lg">
-              <CheckSquare className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-blue-600" />
-            </div>
-            <div>
-              <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">Tasks</h2>
-              <p className="text-sm sm:text-base text-gray-600">Manage your weekly tasks and responsibilities</p>
-            </div>
-          </div>
-          <Button
-            onClick={onSave}
-            disabled={isSaving}
-            className="bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm px-3 py-2"
-          >
-            {isSaving ? 'Saving...' : 'Save Tasks'}
-          </Button>
-        </div>
-        <TasksSection 
-          tasks={weekData.todos} 
-          onUpdate={(tasks) => {
-            onUpdateTasks(tasks)
-            // Auto-save when tasks are updated
-            onSave()
-          }} 
-        />
-      </Card>
-    </motion.div>
+    <TasksSection tasks={weekData.todos} onUpdate={onUpdateTasks} />
   )
 
   const renderGroceryErrandsSection = () => (
-    <motion.div
-      initial={{ opacity: 0, x: 20 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ duration: 0.3 }}
-    >
-      <Card className="p-3 sm:p-6 lg:p-8">
-        <div className="flex items-center justify-between mb-4 sm:mb-6">
-          <div className="flex items-center gap-2 sm:gap-3">
-            <div className="p-2 sm:p-3 bg-green-100 rounded-lg">
-              <Store className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-green-600" />
-            </div>
-            <div>
-              <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">Grocery & Errands</h2>
-              <p className="text-sm sm:text-base text-gray-600">Plan your shopping and errands by store</p>
-            </div>
-          </div>
-          <Button
-            onClick={onSave}
-            disabled={isSaving}
-            className="bg-green-600 hover:bg-green-700 text-white text-xs sm:text-sm px-3 py-2"
-          >
-            {isSaving ? 'Saving...' : 'Save Lists'}
-          </Button>
-        </div>
-        <GroceryErrandsSection 
-          items={weekData.grocery} 
-          onUpdate={(items) => {
-            onUpdateGrocery(items)
-            // Auto-save when grocery items are updated
-            onSave()
-          }} 
-        />
-      </Card>
-    </motion.div>
+    <GroceryErrandsSection items={weekData.grocery} onUpdate={onUpdateGrocery} />
   )
 
   const renderEncouragementSection = () => (
@@ -374,11 +290,7 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
         </div>
         <EncouragementSection 
           notes={weekData.encouragementNotes || []} 
-          onUpdate={(notes) => {
-            onUpdateEncouragementNotes(notes)
-            // Auto-save when encouragement notes are updated
-            onSave()
-          }}
+          onUpdate={onUpdateEncouragementNotes}
           className="w-full"
         />
       </Card>

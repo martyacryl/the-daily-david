@@ -183,42 +183,42 @@ export const WeeklyMeetingSidebarLayout: React.FC = () => {
     }
   }
 
-  // OLD AUTO-SAVE LOGIC (commented out for reference - can be restored if needed)
-  // useEffect(() => {
-  //   if (weekData && hasLoadedInitialData && !isSaving) {
-  //     const scheduleCount = Object.values(weekData.schedule || {}).flat().filter(item => item && item.trim()).length
-  //     const todosCount = weekData.todos?.length || 0
-  //     const prayersCount = weekData.prayers?.length || 0
-  //     const groceryCount = weekData.grocery?.length || 0
-  //     const encouragementCount = weekData.encouragementNotes?.length || 0
-  //     const unconfessedCount = weekData.unconfessedSin?.length || 0
-  //     const winddownCount = weekData.weeklyWinddown?.length || 0
-  //     
-  //     // Only auto-save if there's actual data to save
-  //     const hasData = scheduleCount > 0 || todosCount > 0 || prayersCount > 0 || groceryCount > 0 || 
-  //                    encouragementCount > 0 || unconfessedCount > 0 || winddownCount > 0
-  //     
-  //     if (hasData) {
-  //       // Single debounced save with longer timeout to prevent conflicts
-  //       const saveTimeout = setTimeout(async () => {
-  //         if (isSaving) return // Prevent concurrent saves
-  //         
-  //         setIsSaving(true)
-  //         try {
-  //           const weekKey = DatabaseManager.formatWeekKey(currentDate)
-  //           console.log('Weekly Planner: Auto-saving to weekKey:', weekKey)
-  //           await saveWeekData(weekKey, weekData)
-  //         } catch (error) {
-  //           console.error('Auto-save failed:', error)
-  //         } finally {
-  //           setIsSaving(false)
-  //         }
-  //       }, 3000) // 3 second debounce to prevent conflicts
-  //
-  //       return () => clearTimeout(saveTimeout)
-  //     }
-  //   }
-  // }, [weekData, currentDate, saveWeekData, hasLoadedInitialData, isSaving])
+  // AUTO-SAVE LOGIC - Restored to working state
+  useEffect(() => {
+    if (weekData && hasLoadedInitialData && !isSaving) {
+      const scheduleCount = Object.values(weekData.schedule || {}).flat().filter(item => item && item.trim()).length
+      const todosCount = weekData.todos?.length || 0
+      const prayersCount = weekData.prayers?.length || 0
+      const groceryCount = weekData.grocery?.length || 0
+      const encouragementCount = weekData.encouragementNotes?.length || 0
+      const unconfessedCount = weekData.unconfessedSin?.length || 0
+      const winddownCount = weekData.weeklyWinddown?.length || 0
+      
+      // Only auto-save if there's actual data to save
+      const hasData = scheduleCount > 0 || todosCount > 0 || prayersCount > 0 || groceryCount > 0 || 
+                     encouragementCount > 0 || unconfessedCount > 0 || winddownCount > 0
+      
+      if (hasData) {
+        // Single debounced save with longer timeout to prevent conflicts
+        const saveTimeout = setTimeout(async () => {
+          if (isSaving) return // Prevent concurrent saves
+          
+          setIsSaving(true)
+          try {
+            const weekKey = DatabaseManager.formatWeekKey(currentDate)
+            console.log('Weekly Planner: Auto-saving to weekKey:', weekKey)
+            await saveWeekData(weekKey, weekData)
+          } catch (error) {
+            console.error('Auto-save failed:', error)
+          } finally {
+            setIsSaving(false)
+          }
+        }, 2000) // 2 second debounce to prevent conflicts
+
+        return () => clearTimeout(saveTimeout)
+      }
+    }
+  }, [weekData, currentDate, saveWeekData, hasLoadedInitialData, isSaving])
 
   const handlePreviousWeek = () => {
     const newDate = new Date(currentDate)
@@ -257,36 +257,15 @@ export const WeeklyMeetingSidebarLayout: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-purple-50 flex flex-col pt-24 sm:pt-16">
-      {/* Header with Week Navigation and Save Button */}
-      <div className="px-2 sm:px-8">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <WeekNavigation
-            currentDate={currentDate}
-            onPreviousWeek={handlePreviousWeek}
-            onNextWeek={handleNextWeek}
-            onCurrentWeek={handleCurrentWeek}
-          />
-          
-          {/* Save Button */}
-          <Button
-            onClick={handleSaveWeek}
-            disabled={isSaving}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2"
-          >
-            {isSaving ? (
-              <>
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                Saving...
-              </>
-            ) : (
-              <>
-                <RotateCcw className="w-4 h-4" />
-                Save Week
-              </>
-            )}
-          </Button>
-        </div>
-      </div>
+            {/* Header with Week Navigation */}
+            <div className="px-2 sm:px-8">
+              <WeekNavigation
+                currentDate={currentDate}
+                onPreviousWeek={handlePreviousWeek}
+                onNextWeek={handleNextWeek}
+                onCurrentWeek={handleCurrentWeek}
+              />
+            </div>
 
       {/* Error Display */}
       {error && (
@@ -295,20 +274,20 @@ export const WeeklyMeetingSidebarLayout: React.FC = () => {
         </div>
       )}
 
-      {/* Save Status */}
-      {isSaving && (
-        <div className="mx-2 sm:mx-8 mt-2 p-2 sm:p-3 bg-blue-50 border border-blue-200 rounded-lg">
-          <p className="text-blue-800 text-sm">Saving changes...</p>
-        </div>
-      )}
+            {/* Auto-save Status */}
+            {isSaving && (
+              <div className="mx-2 sm:mx-8 mt-2 p-2 sm:p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <p className="text-blue-800 text-sm">Auto-saving changes...</p>
+              </div>
+            )}
 
-      {lastSaved && !isSaving && (
-        <div className="mx-2 sm:mx-8 mt-2 p-2 sm:p-3 bg-green-50 border border-green-200 rounded-lg">
-          <p className="text-green-800 text-sm">
-            Last saved {lastSaved.toLocaleTimeString()}
-          </p>
-        </div>
-      )}
+            {lastSaved && !isSaving && (
+              <div className="mx-2 sm:mx-8 mt-2 p-2 sm:p-3 bg-green-50 border border-green-200 rounded-lg">
+                <p className="text-green-800 text-sm">
+                  Auto-saved {lastSaved.toLocaleTimeString()}
+                </p>
+              </div>
+            )}
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
