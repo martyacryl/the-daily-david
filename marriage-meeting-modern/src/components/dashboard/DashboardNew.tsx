@@ -81,9 +81,9 @@ export const DashboardNew: React.FC = () => {
     }
   }, [isAuthenticated, loadWeekData])
 
-  // DISABLED: Auto-save when weekData changes
+  // OLD DASHBOARD AUTO-SAVE LOGIC (commented out for reference - can be restored if needed)
   // This was causing data loss by overwriting data with empty values
-  // The Weekly Planner already handles auto-saving, so this is redundant
+  // The Weekly Planner now handles manual saving, so this is redundant
   // useEffect(() => {
   //   if (weekData && isAuthenticated) {
   //     const saveTimeout = setTimeout(async () => {

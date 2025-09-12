@@ -31,6 +31,8 @@ interface WeeklyMeetingContentProps {
   onUpdateTasks: (tasks: TaskItem[]) => void
   onUpdateGrocery: (grocery: any[]) => void
   onUpdateEncouragementNotes: (encouragementNotes: EncouragementNote[]) => void
+  onSave: () => void
+  isSaving?: boolean
 }
 
 export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
@@ -46,7 +48,9 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
   onRemoveListItem,
   onUpdateTasks,
   onUpdateGrocery,
-  onUpdateEncouragementNotes
+  onUpdateEncouragementNotes,
+  onSave,
+  isSaving = false
 }) => {
   const days: DayName[] = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 
@@ -81,14 +85,23 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
       transition={{ duration: 0.3 }}
     >
       <Card className="p-3 sm:p-6 lg:p-8">
-        <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6 lg:mb-8">
-          <div className="p-2 sm:p-3 bg-blue-100 rounded-lg">
-            <Calendar className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-blue-600" />
+        <div className="flex items-center justify-between mb-4 sm:mb-6 lg:mb-8">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="p-2 sm:p-3 bg-blue-100 rounded-lg">
+              <Calendar className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-blue-600" />
+            </div>
+            <div>
+              <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">Weekly Schedule</h2>
+              <p className="text-sm sm:text-base text-gray-600">Plan your week together</p>
+            </div>
           </div>
-          <div>
-            <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">Weekly Schedule</h2>
-            <p className="text-sm sm:text-base text-gray-600">Plan your week together</p>
-          </div>
+          <Button
+            onClick={onSave}
+            disabled={isSaving}
+            className="bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm px-3 py-2"
+          >
+            {isSaving ? 'Saving...' : 'Save Schedule'}
+          </Button>
         </div>
 
         <div className="space-y-3 sm:space-y-4 lg:space-y-6">
@@ -174,13 +187,22 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
               )}
             </div>
           </div>
-          <Button
-            variant="outline"
-            onClick={() => onAddListItem(type, '')}
-            className={`text-${color}-600 border-${color}-200 hover:bg-${color}-50 text-xs sm:text-sm px-2 py-1 sm:px-3 sm:py-2`}
-          >
-            + Add {isAccountability ? 'Action' : title.slice(0, -1)}
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              onClick={() => onAddListItem(type, '')}
+              className={`text-${color}-600 border-${color}-200 hover:bg-${color}-50 text-xs sm:text-sm px-2 py-1 sm:px-3 sm:py-2`}
+            >
+              + Add {isAccountability ? 'Action' : title.slice(0, -1)}
+            </Button>
+            <Button
+              onClick={onSave}
+              disabled={isSaving}
+              className="bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm px-2 py-1 sm:px-3 sm:py-2"
+            >
+              {isSaving ? 'Saving...' : 'Save'}
+            </Button>
+          </div>
         </div>
 
         <div className="space-y-2 sm:space-y-3 lg:space-y-4">
