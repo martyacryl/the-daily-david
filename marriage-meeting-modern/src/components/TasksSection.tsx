@@ -99,7 +99,16 @@ export const TasksSection: React.FC<TasksSectionProps> = ({ tasks, onUpdate }) =
 
   const isOverdue = (dueDate: string) => {
     if (!dueDate) return false
-    return new Date(dueDate) < new Date()
+    
+    // Parse the due date string to avoid timezone issues
+    const [year, month, day] = dueDate.split('-').map(Number)
+    const dueDateLocal = new Date(year, month - 1, day) // month is 0-indexed
+    
+    // Get today's date in local timezone
+    const today = new Date()
+    const todayLocal = new Date(today.getFullYear(), today.getMonth(), today.getDate())
+    
+    return dueDateLocal < todayLocal
   }
 
   const formatDuration = (minutes: number) => {
