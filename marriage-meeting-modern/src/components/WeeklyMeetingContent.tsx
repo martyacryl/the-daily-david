@@ -108,7 +108,11 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => onAddScheduleLine(day)}
+                  onClick={() => {
+                    onAddScheduleLine(day)
+                    // Save immediately when schedule is added
+                    onSave()
+                  }}
                   className="text-blue-600 border-blue-200 hover:bg-blue-50 text-xs sm:text-sm px-2 py-1 sm:px-3 sm:py-2"
                 >
                   + Add
@@ -121,7 +125,11 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
                     <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-blue-500 rounded-full mt-2 sm:mt-3 flex-shrink-0"></div>
                     <textarea
                       value={activity}
-                      onChange={(e) => onUpdateSchedule(day, index, e.target.value)}
+                      onChange={(e) => {
+                        onUpdateSchedule(day, index, e.target.value)
+                        // Save immediately when schedule is updated
+                        onSave()
+                      }}
                       placeholder={`What's planned for ${day}?`}
                       className="flex-1 p-2 sm:p-3 lg:p-4 border border-gray-200 rounded-lg text-gray-800 resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-sm sm:text-base"
                       rows={2}
@@ -129,7 +137,11 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => onRemoveScheduleLine(day, index)}
+                      onClick={() => {
+                        onRemoveScheduleLine(day, index)
+                        // Save immediately when schedule is removed
+                        onSave()
+                      }}
                       className="px-2 py-1 sm:px-3 sm:py-2 text-red-600 hover:bg-red-50 border-red-200 flex-shrink-0 text-xs sm:text-sm"
                     >
                       ×
@@ -152,7 +164,7 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
     </motion.div>
   )
 
-  const renderListSection = (type: string, title: string, icon: React.ComponentType<{ className?: string }>, color: string, items: ListItem[]) => {
+  const renderListSection = (type: string, title: string, icon: React.ComponentType<{ className?: string }>, color: string, items: ListItem[], onSave?: () => void) => {
     // Special handling for accountability section
     const isAccountability = type === 'unconfessedSin'
     
@@ -180,7 +192,11 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
           </div>
           <Button
             variant="outline"
-            onClick={() => onAddListItem(type, '')}
+            onClick={() => {
+              onAddListItem(type, '')
+              // Save immediately when list items are added
+              if (onSave) onSave()
+            }}
             className={`text-${color}-600 border-${color}-200 hover:bg-${color}-50 text-xs sm:text-sm px-2 py-1 sm:px-3 sm:py-2`}
           >
             + Add {isAccountability ? 'Action' : title.slice(0, -1)}
@@ -191,7 +207,11 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
           {items.map((item, index) => (
             <div key={item.id} className="flex items-center gap-2 sm:gap-3 lg:gap-4 p-2 sm:p-3 lg:p-4 bg-white border border-gray-200 rounded-lg hover:shadow-sm transition-shadow">
               <button
-                onClick={() => onToggleListItem(type, item.id)}
+                onClick={() => {
+                  onToggleListItem(type, item.id)
+                  // Save immediately when list items are toggled
+                  if (onSave) onSave()
+                }}
                 className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
                   item.completed
                     ? `bg-${color}-500 border-${color}-500 text-white`
@@ -203,7 +223,11 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
               <input
                 type="text"
                 value={item.text}
-                onChange={(e) => onUpdateListItem(type, item.id, e.target.value)}
+                onChange={(e) => {
+                  onUpdateListItem(type, item.id, e.target.value)
+                  // Save immediately when list items are updated
+                  if (onSave) onSave()
+                }}
                 className={`flex-1 bg-transparent border-none outline-none text-sm sm:text-base lg:text-lg ${
                   item.completed ? 'line-through text-gray-500' : 'text-gray-800'
                 }`}
@@ -212,7 +236,11 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => onRemoveListItem(type, item.id)}
+                onClick={() => {
+                  onRemoveListItem(type, item.id)
+                  // Save immediately when list items are removed
+                  if (onSave) onSave()
+                }}
                 className="text-red-600 hover:bg-red-50 border-red-200 flex-shrink-0 text-xs sm:text-sm px-2 py-1 sm:px-3 sm:py-2"
               >
                 ×
@@ -265,11 +293,25 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
   )
 
   const renderTasksSection = () => (
-    <TasksSection tasks={weekData.todos} onUpdate={onUpdateTasks} />
+    <TasksSection 
+      tasks={weekData.todos} 
+      onUpdate={(tasks) => {
+        onUpdateTasks(tasks)
+        // Save immediately when tasks are updated
+        onSave()
+      }} 
+    />
   )
 
   const renderGroceryErrandsSection = () => (
-    <GroceryErrandsSection items={weekData.grocery} onUpdate={onUpdateGrocery} />
+    <GroceryErrandsSection 
+      items={weekData.grocery} 
+      onUpdate={(items) => {
+        onUpdateGrocery(items)
+        // Save immediately when grocery items are updated
+        onSave()
+      }} 
+    />
   )
 
   const renderEncouragementSection = () => (
@@ -290,7 +332,11 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
         </div>
         <EncouragementSection 
           notes={weekData.encouragementNotes || []} 
-          onUpdate={onUpdateEncouragementNotes}
+          onUpdate={(notes) => {
+            onUpdateEncouragementNotes(notes)
+            // Save immediately when encouragement notes are updated
+            onSave()
+          }}
           className="w-full"
         />
       </Card>
@@ -307,11 +353,11 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
         return renderTasksSection()
       case 'prayers':
         console.log('WeeklyMeetingContent: Rendering prayers section with data:', weekData.prayers)
-        return renderListSection('prayers', 'Prayers', Heart, 'purple', weekData.prayers)
+        return renderListSection('prayers', 'Prayers', Heart, 'purple', weekData.prayers, onSave)
       case 'grocery':
         return renderGroceryErrandsSection()
       case 'unconfessed':
-        return renderListSection('unconfessedSin', 'Accountability', AlertTriangle, 'red', weekData.unconfessedSin)
+        return renderListSection('unconfessedSin', 'Accountability', AlertTriangle, 'red', weekData.unconfessedSin, onSave)
       case 'encouragement':
         return renderEncouragementSection()
       default:

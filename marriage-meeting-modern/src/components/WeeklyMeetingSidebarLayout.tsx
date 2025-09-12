@@ -183,50 +183,8 @@ export const WeeklyMeetingSidebarLayout: React.FC = () => {
     }
   }
 
-  // AUTO-SAVE LOGIC - Restored to working state with loop prevention
-  useEffect(() => {
-    if (weekData && hasLoadedInitialData && !isSaving) {
-      const scheduleCount = Object.values(weekData.schedule || {}).flat().filter(item => item && item.trim()).length
-      const todosCount = weekData.todos?.length || 0
-      const prayersCount = weekData.prayers?.length || 0
-      const groceryCount = weekData.grocery?.length || 0
-      const encouragementCount = weekData.encouragementNotes?.length || 0
-      const unconfessedCount = weekData.unconfessedSin?.length || 0
-      const winddownCount = weekData.weeklyWinddown?.length || 0
-      
-      // Only auto-save if there's actual data to save
-      const hasData = scheduleCount > 0 || todosCount > 0 || prayersCount > 0 || groceryCount > 0 || 
-                     encouragementCount > 0 || unconfessedCount > 0 || winddownCount > 0
-      
-      if (hasData) {
-        // Single debounced save with longer timeout to prevent conflicts
-        const saveTimeout = setTimeout(async () => {
-          if (isSaving) return // Prevent concurrent saves
-          
-          setIsSaving(true)
-          try {
-            const weekKey = DatabaseManager.formatWeekKey(currentDate)
-            console.log('Weekly Planner: Auto-saving to weekKey:', weekKey, 'with data counts:', {
-              schedule: scheduleCount,
-              todos: todosCount,
-              prayers: prayersCount,
-              grocery: groceryCount,
-              encouragement: encouragementCount,
-              unconfessed: unconfessedCount,
-              winddown: winddownCount
-            })
-            await saveWeekData(weekKey, weekData)
-          } catch (error) {
-            console.error('Auto-save failed:', error)
-          } finally {
-            setIsSaving(false)
-          }
-        }, 3000) // 3 second debounce to prevent conflicts
-
-        return () => clearTimeout(saveTimeout)
-      }
-    }
-  }, [weekData, currentDate, saveWeekData, hasLoadedInitialData, isSaving])
+  // AUTO-SAVE DISABLED - Only save when user explicitly adds/modifies data
+  // This prevents random auto-saves that overwrite data with empty values
 
   const handlePreviousWeek = () => {
     const newDate = new Date(currentDate)
