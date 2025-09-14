@@ -16,7 +16,9 @@ import {
   Calendar,
   Link,
   CheckCircle,
-  AlertCircle
+  AlertCircle,
+  Key,
+  Settings as SettingsIcon
 } from 'lucide-react'
 import { Card } from '../ui/Card'
 import { Button } from '../ui/Button'
@@ -57,6 +59,12 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
   const [isTestingConnection, setIsTestingConnection] = useState(false)
   const [connectionStatus, setConnectionStatus] = useState<'idle' | 'success' | 'error'>('idle')
   const [connectionMessage, setConnectionMessage] = useState('')
+  
+  // Google Calendar state
+  const [googleClientId, setGoogleClientId] = useState('')
+  const [googleApiKey, setGoogleApiKey] = useState('')
+  const [isGoogleAuthenticated, setIsGoogleAuthenticated] = useState(false)
+  const [isGoogleInitialized, setIsGoogleInitialized] = useState(false)
 
   // Load settings from database when panel opens and user is authenticated
   React.useEffect(() => {
@@ -187,6 +195,92 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
     } catch (error) {
       setConnectionStatus('error')
       setConnectionMessage('❌ Failed to clear calendar settings')
+    }
+  }
+
+  // Google Calendar handlers
+  const handleInitializeGoogleCalendar = async () => {
+    if (!googleClientId || !googleApiKey) {
+      setConnectionStatus('error')
+      setConnectionMessage('Please enter both Client ID and API Key')
+      return
+    }
+
+    setIsTestingConnection(true)
+    try {
+      const { calendarService } = await import('../../lib/calendarService')
+      
+      const config = {
+        clientId: googleClientId,
+        apiKey: googleApiKey,
+        discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest'],
+        scope: 'https://www.googleapis.com/auth/calendar.readonly'
+      }
+
+      const success = await calendarService.initializeGoogleCalendar(config)
+      
+      if (success) {
+        setIsGoogleInitialized(true)
+        setConnectionStatus('success')
+        setConnectionMessage('Google Calendar API initialized successfully!')
+        
+        // Save the configuration
+        updateCalendarSettings({
+          googleCalendarConfig: config,
+          googleCalendarEnabled: true
+        })
+      } else {
+        setConnectionStatus('error')
+        setConnectionMessage('Failed to initialize Google Calendar API')
+      }
+    } catch (error) {
+      console.error('Error initializing Google Calendar:', error)
+      setConnectionStatus('error')
+      setConnectionMessage('Error initializing Google Calendar API')
+    } finally {
+      setIsTestingConnection(false)
+    }
+  }
+
+  const handleAuthenticateGoogleCalendar = async () => {
+    if (!isGoogleInitialized) {
+      setConnectionStatus('error')
+      setConnectionMessage('Please initialize Google Calendar API first')
+      return
+    }
+
+    setIsTestingConnection(true)
+    try {
+      const { calendarService } = await import('../../lib/calendarService')
+      
+      const success = await calendarService.authenticateGoogleCalendar()
+      
+      if (success) {
+        setIsGoogleAuthenticated(true)
+        setConnectionStatus('success')
+        setConnectionMessage('Successfully authenticated with Google Calendar!')
+      } else {
+        setConnectionStatus('error')
+        setConnectionMessage('Failed to authenticate with Google Calendar')
+      }
+    } catch (error) {
+      console.error('Error authenticating with Google Calendar:', error)
+      setConnectionStatus('error')
+      setConnectionMessage('Error authenticating with Google Calendar')
+    } finally {
+      setIsTestingConnection(false)
+    }
+  }
+
+  const handleSignOutGoogleCalendar = async () => {
+    try {
+      const { calendarService } = await import('../../lib/calendarService')
+      await calendarService.signOutGoogleCalendar()
+      setIsGoogleAuthenticated(false)
+      setConnectionStatus('idle')
+      setConnectionMessage('Signed out from Google Calendar')
+    } catch (error) {
+      console.error('Error signing out from Google Calendar:', error)
     }
   }
 
@@ -606,6 +700,97 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
                               Clear
                             </Button>
                           )}
+                        </div>
+                      </div>
+                    </div>
+                  </Card>
+
+                  {/* Google Calendar Integration */}
+                  <Card className="p-4 mb-6">
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-2 mb-4">
+                        <SettingsIcon className="w-5 h-5 text-green-600" />
+                        <h4 className="text-md font-semibold text-gray-900">Google Calendar Integration</h4>
+                      </div>
+                      
+                      <div className="space-y-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              Google Client ID
+                            </label>
+                            <Input
+                              value={googleClientId}
+                              onChange={(e) => setGoogleClientId(e.target.value)}
+                              placeholder="your-client-id.apps.googleusercontent.com"
+                              className="w-full"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              Google API Key
+                            </label>
+                            <Input
+                              value={googleApiKey}
+                              onChange={(e) => setGoogleApiKey(e.target.value)}
+                              placeholder="AIzaSyC..."
+                              className="w-full"
+                            />
+                          </div>
+                        </div>
+                        
+                        <div className="flex gap-2">
+                          <Button
+                            onClick={handleInitializeGoogleCalendar}
+                            disabled={!googleClientId.trim() || !googleApiKey.trim() || isTestingConnection}
+                            className="bg-green-600 hover:bg-green-700"
+                          >
+                            {isTestingConnection ? 'Initializing...' : 'Initialize Google Calendar'}
+                          </Button>
+                          {isGoogleInitialized && (
+                            <Button
+                              onClick={handleAuthenticateGoogleCalendar}
+                              disabled={isTestingConnection}
+                              variant="outline"
+                              className="border-green-300 text-green-600 hover:bg-green-50"
+                            >
+                              {isTestingConnection ? 'Authenticating...' : 'Sign In to Google'}
+                            </Button>
+                          )}
+                          {isGoogleAuthenticated && (
+                            <Button
+                              onClick={handleSignOutGoogleCalendar}
+                              variant="outline"
+                              className="border-red-300 text-red-600 hover:bg-red-50"
+                            >
+                              Sign Out
+                            </Button>
+                          )}
+                        </div>
+                        
+                        {connectionStatus === 'success' && (
+                          <div className="flex items-center gap-2 text-green-600 text-sm">
+                            <CheckCircle className="w-4 h-4" />
+                            {connectionMessage}
+                          </div>
+                        )}
+                        {connectionStatus === 'error' && (
+                          <div className="flex items-center gap-2 text-red-600 text-sm">
+                            <AlertCircle className="w-4 h-4" />
+                            {connectionMessage}
+                          </div>
+                        )}
+                        
+                        <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                          <h5 className="font-medium text-green-900 mb-2">🔑 How to get Google Calendar credentials:</h5>
+                          <ol className="text-sm text-green-800 space-y-1 list-decimal list-inside">
+                            <li>Go to <a href="https://console.developers.google.com/" target="_blank" rel="noopener noreferrer" className="underline">Google Cloud Console</a></li>
+                            <li>Create a new project or select existing one</li>
+                            <li>Enable the Google Calendar API</li>
+                            <li>Create credentials (OAuth 2.0 Client ID and API Key)</li>
+                            <li>Add your domain to authorized origins</li>
+                            <li>Copy the Client ID and API Key here</li>
+                          </ol>
                         </div>
                       </div>
                     </div>

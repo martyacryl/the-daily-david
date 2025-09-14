@@ -232,6 +232,12 @@ app.get('/api/settings', authenticateToken, async (req, res) => {
         calendar: {
           icalUrl: '',
           googleCalendarEnabled: false,
+          googleCalendarConfig: {
+            clientId: '',
+            apiKey: '',
+            discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest'],
+            scope: 'https://www.googleapis.com/auth/calendar.readonly'
+          },
           syncFrequency: 'daily',
           showCalendarEvents: true
         }
@@ -246,6 +252,12 @@ app.get('/api/settings', authenticateToken, async (req, res) => {
       settings.calendar = {
         icalUrl: '',
         googleCalendarEnabled: false,
+        googleCalendarConfig: {
+          clientId: '',
+          apiKey: '',
+          discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest'],
+          scope: 'https://www.googleapis.com/auth/calendar.readonly'
+        },
         syncFrequency: 'daily',
         showCalendarEvents: true
       }

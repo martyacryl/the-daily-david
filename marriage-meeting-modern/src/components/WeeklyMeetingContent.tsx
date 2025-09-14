@@ -62,7 +62,7 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
   // Fetch calendar events when component mounts or settings change
   React.useEffect(() => {
     const fetchCalendarEvents = async () => {
-      if (!settings.calendar?.icalUrl || !settings.calendar?.showCalendarEvents) {
+      if (!settings.calendar?.showCalendarEvents) {
         setCalendarEvents([])
         return
       }
@@ -74,11 +74,26 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
         const weekStart = new Date(year, month - 1, day)
         
         console.log('📅 Fetching calendar events for week starting:', weekStart)
-        console.log('📅 iCal URL:', settings.calendar.icalUrl)
-        const events = await calendarService.getICalEvents(settings.calendar.icalUrl, weekStart)
-        setCalendarEvents(events)
-        console.log('📅 Loaded calendar events:', events.length)
-        console.log('📅 Events details:', events)
+        
+        const allEvents: CalendarEvent[] = []
+        
+        // Fetch iCal events if URL is provided
+        if (settings.calendar?.icalUrl) {
+          console.log('📅 Fetching iCal events from:', settings.calendar.icalUrl)
+          const icalEvents = await calendarService.getICalEvents(settings.calendar.icalUrl, weekStart)
+          allEvents.push(...icalEvents)
+        }
+        
+        // Fetch Google Calendar events if enabled and authenticated
+        if (settings.calendar?.googleCalendarEnabled && calendarService.isGoogleCalendarSignedIn()) {
+          console.log('📅 Fetching Google Calendar events')
+          const googleEvents = await calendarService.getGoogleCalendarEvents(weekStart)
+          allEvents.push(...googleEvents)
+        }
+        
+        setCalendarEvents(allEvents)
+        console.log('📅 Loaded calendar events:', allEvents.length)
+        console.log('📅 Events details:', allEvents)
       } catch (error) {
         console.error('❌ Error fetching calendar events:', error)
         setCalendarEvents([])
@@ -88,7 +103,7 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
     }
 
     fetchCalendarEvents()
-  }, [settings.calendar?.icalUrl, settings.calendar?.showCalendarEvents, currentDate])
+  }, [settings.calendar?.icalUrl, settings.calendar?.googleCalendarEnabled, settings.calendar?.showCalendarEvents, currentDate])
 
   // Calculate actual dates for each day of the current week
   const getWeekDates = () => {

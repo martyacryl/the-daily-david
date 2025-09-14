@@ -26,6 +26,12 @@ export interface GroceryStore {
 export interface CalendarSettings {
   icalUrl: string
   googleCalendarEnabled: boolean
+  googleCalendarConfig: {
+    clientId: string
+    apiKey: string
+    discoveryDocs: string[]
+    scope: string
+  }
   syncFrequency: 'realtime' | 'hourly' | 'daily'
   showCalendarEvents: boolean
 }
@@ -84,12 +90,18 @@ const defaultSettings: AppSettings = {
   currency: 'USD',
   dateFormat: 'MM/DD/YYYY',
   theme: 'light',
-  calendar: {
-    icalUrl: '',
-    googleCalendarEnabled: false,
-    syncFrequency: 'daily',
-    showCalendarEvents: true
-  }
+    calendar: {
+      icalUrl: '',
+      googleCalendarEnabled: false,
+      googleCalendarConfig: {
+        clientId: '',
+        apiKey: '',
+        discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest'],
+        scope: 'https://www.googleapis.com/auth/calendar.readonly'
+      },
+      syncFrequency: 'daily',
+      showCalendarEvents: true
+    }
 }
 
 // API functions

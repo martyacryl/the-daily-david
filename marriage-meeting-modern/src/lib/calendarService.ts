@@ -9,6 +9,13 @@ export interface CalendarEvent {
   source: 'ical' | 'google'
 }
 
+export interface GoogleCalendarConfig {
+  clientId: string
+  apiKey: string
+  discoveryDocs: string[]
+  scope: string
+}
+
 export class CalendarService {
   private static instance: CalendarService
   private cache: Map<string, CalendarEvent[]> = new Map()
@@ -251,6 +258,144 @@ export class CalendarService {
       : `${event.start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - ${event.end.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
     
     return `[📅 Calendar] ${event.title} (${timeStr})`
+  }
+
+  /**
+   * Initialize Google Calendar API
+   */
+  async initializeGoogleCalendar(config: GoogleCalendarConfig): Promise<boolean> {
+    try {
+      console.log('📅 Initializing Google Calendar API...')
+      
+      // Load Google API script if not already loaded
+      if (!window.gapi) {
+        await this.loadGoogleAPI()
+      }
+
+      // Initialize the API client
+      await window.gapi.client.init({
+        apiKey: config.apiKey,
+        clientId: config.clientId,
+        discoveryDocs: config.discoveryDocs,
+        scope: config.scope
+      })
+
+      console.log('✅ Google Calendar API initialized successfully')
+      return true
+    } catch (error) {
+      console.error('❌ Failed to initialize Google Calendar API:', error)
+      return false
+    }
+  }
+
+  /**
+   * Load Google API script
+   */
+  private loadGoogleAPI(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      if (window.gapi) {
+        resolve()
+        return
+      }
+
+      const script = document.createElement('script')
+      script.src = 'https://apis.google.com/js/api.js'
+      script.onload = () => {
+        window.gapi.load('client', () => {
+          resolve()
+        })
+      }
+      script.onerror = () => {
+        reject(new Error('Failed to load Google API script'))
+      }
+      document.head.appendChild(script)
+    })
+  }
+
+  /**
+   * Authenticate with Google Calendar
+   */
+  async authenticateGoogleCalendar(): Promise<boolean> {
+    try {
+      console.log('📅 Authenticating with Google Calendar...')
+      
+      const authInstance = window.gapi.auth2.getAuthInstance()
+      const user = await authInstance.signIn()
+      
+      if (user.isSignedIn()) {
+        console.log('✅ Google Calendar authentication successful')
+        return true
+      } else {
+        console.log('❌ Google Calendar authentication failed')
+        return false
+      }
+    } catch (error) {
+      console.error('❌ Google Calendar authentication error:', error)
+      return false
+    }
+  }
+
+  /**
+   * Get Google Calendar events
+   */
+  async getGoogleCalendarEvents(weekStart: Date): Promise<CalendarEvent[]> {
+    try {
+      console.log('📅 Fetching Google Calendar events for week starting:', weekStart)
+      
+      const weekEnd = new Date(weekStart)
+      weekEnd.setDate(weekEnd.getDate() + 6)
+      weekEnd.setHours(23, 59, 59, 999)
+
+      const response = await window.gapi.client.calendar.events.list({
+        calendarId: 'primary',
+        timeMin: weekStart.toISOString(),
+        timeMax: weekEnd.toISOString(),
+        singleEvents: true,
+        orderBy: 'startTime'
+      })
+
+      const events: CalendarEvent[] = response.result.items.map((item: any) => ({
+        id: item.id,
+        title: item.summary || 'No Title',
+        start: new Date(item.start.dateTime || item.start.date),
+        end: new Date(item.end.dateTime || item.end.date),
+        allDay: !item.start.dateTime,
+        description: item.description,
+        location: item.location,
+        source: 'google'
+      }))
+
+      console.log(`📅 Found ${events.length} Google Calendar events`)
+      return events
+    } catch (error) {
+      console.error('❌ Error fetching Google Calendar events:', error)
+      return []
+    }
+  }
+
+  /**
+   * Sign out from Google Calendar
+   */
+  async signOutGoogleCalendar(): Promise<void> {
+    try {
+      const authInstance = window.gapi.auth2.getAuthInstance()
+      await authInstance.signOut()
+      console.log('✅ Signed out from Google Calendar')
+    } catch (error) {
+      console.error('❌ Error signing out from Google Calendar:', error)
+    }
+  }
+
+  /**
+   * Check if user is signed in to Google Calendar
+   */
+  isGoogleCalendarSignedIn(): boolean {
+    try {
+      const authInstance = window.gapi.auth2.getAuthInstance()
+      return authInstance.isSignedIn.get()
+    } catch (error) {
+      return false
+    }
   }
 }
 
