@@ -74,6 +74,7 @@ export interface MarriageMeetingWeek {
   unconfessedSin: ListItem[]
   weeklyWinddown: ListItem[]
   encouragementNotes: EncouragementNote[]
+  calendarEvents?: CalendarEvent[] // Calendar events from iCal and Google Calendar
   created_at?: string
   updated_at?: string
 }

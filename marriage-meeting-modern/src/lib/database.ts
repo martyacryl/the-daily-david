@@ -53,7 +53,8 @@ export class DatabaseManager {
         grocery: week.grocery,
         unconfessedSin: week.unconfessedSin,
         weeklyWinddown: week.weeklyWinddown,
-        encouragementNotes: week.encouragementNotes
+        encouragementNotes: week.encouragementNotes,
+        calendarEvents: week.calendarEvents
       }
     }
 
@@ -64,6 +65,7 @@ export class DatabaseManager {
       prayers: requestBody.data_content.prayers?.length || 0,
       grocery: requestBody.data_content.grocery?.length || 0,
       encouragementNotes: requestBody.data_content.encouragementNotes?.length || 0,
+      calendarEvents: requestBody.data_content.calendarEvents?.length || 0,
       fullDataContent: JSON.stringify(requestBody.data_content, null, 2)
     })
 
@@ -207,6 +209,7 @@ export class DatabaseManager {
       unconfessedSin: dataContent.unconfessedSin || [],
       weeklyWinddown: dataContent.weeklyWinddown || [],
       encouragementNotes: dataContent.encouragementNotes || [],
+      calendarEvents: dataContent.calendarEvents || [],
       created_at: result.created_at,
       updated_at: result.updated_at
     }

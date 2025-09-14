@@ -219,7 +219,8 @@ export const useMarriageStore = create<MarriageState>((set, get) => ({
         grocery: dataToSave.grocery,
         unconfessedSin: dataToSave.unconfessedSin,
         weeklyWinddown: dataToSave.weeklyWinddown,
-        encouragementNotes: dataToSave.encouragementNotes
+        encouragementNotes: dataToSave.encouragementNotes,
+        calendarEvents: dataToSave.calendarEvents
       }
 
       console.log('Store: Saving weekData with todos:', dataToSave.todos)
