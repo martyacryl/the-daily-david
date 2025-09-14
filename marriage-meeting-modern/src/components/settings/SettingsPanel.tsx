@@ -122,8 +122,12 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
     setConnectionMessage('')
     
     try {
+      // Convert webcal:// to https:// for fetch API
+      const testUrl = icalUrl.replace(/^webcal:\/\//, 'https://')
+      console.log('📅 Testing converted URL:', testUrl)
+      
       // Test the iCal URL by fetching it
-      const response = await fetch(icalUrl, {
+      const response = await fetch(testUrl, {
         method: 'HEAD', // Just check if it's accessible
         headers: {
           'Accept': 'text/calendar, application/calendar+json, */*'

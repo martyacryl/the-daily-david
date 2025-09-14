@@ -35,8 +35,12 @@ export class CalendarService {
     try {
       console.log('📅 Fetching iCal events from:', icalUrl)
       
+      // Convert webcal:// to https:// for fetch API
+      const fetchUrl = icalUrl.replace(/^webcal:\/\//, 'https://')
+      console.log('📅 Converted URL for fetch:', fetchUrl)
+      
       // Fetch iCal data
-      const response = await fetch(icalUrl, {
+      const response = await fetch(fetchUrl, {
         method: 'GET',
         headers: {
           'Accept': 'text/calendar, application/calendar+json, */*'
