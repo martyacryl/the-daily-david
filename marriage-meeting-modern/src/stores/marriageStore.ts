@@ -152,6 +152,23 @@ export const useMarriageStore = create<MarriageState>((set, get) => ({
           Sunday: week.schedule?.Sunday || []
         }
         
+        // Convert calendar events string dates back to Date objects
+        const calendarEvents = (week.calendarEvents || []).map(event => {
+          const convertedEvent = {
+            ...event,
+            start: new Date(event.start),
+            end: new Date(event.end)
+          }
+          console.log('Store: Converting calendar event:', {
+            title: event.title,
+            originalStart: event.start,
+            convertedStart: convertedEvent.start,
+            originalEnd: event.end,
+            convertedEnd: convertedEvent.end
+          })
+          return convertedEvent
+        })
+        
         const weekDataToSet = {
           schedule: normalizedSchedule,
           todos: migratedTodos,
@@ -160,7 +177,7 @@ export const useMarriageStore = create<MarriageState>((set, get) => ({
           unconfessedSin: week.unconfessedSin,
           weeklyWinddown: week.weeklyWinddown,
           encouragementNotes: week.encouragementNotes || [],
-          calendarEvents: week.calendarEvents || []
+          calendarEvents: calendarEvents
         }
         
         console.log('Store: Complete weekData being set:', weekDataToSet)
