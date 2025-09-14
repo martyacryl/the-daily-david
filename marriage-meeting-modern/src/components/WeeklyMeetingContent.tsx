@@ -23,6 +23,7 @@ interface WeeklyMeetingContentProps {
     grocery: any[]
     unconfessedSin: ListItem[]
     encouragementNotes: EncouragementNote[]
+    calendarEvents?: CalendarEvent[]
   }
   onUpdateSchedule: (day: DayName, index: number, value: string) => void
   onAddScheduleLine: (day: DayName) => void
@@ -62,6 +63,8 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
   
   // Get calendar events from the store instead of local state
   const calendarEvents = weekData.calendarEvents || []
+  console.log('📅 WeeklyMeetingContent: calendarEvents from weekData:', calendarEvents)
+  console.log('📅 WeeklyMeetingContent: weekData keys:', Object.keys(weekData))
 
   // Set up automatic calendar sync when component mounts or settings change
   React.useEffect(() => {
@@ -191,6 +194,7 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
                 {/* Calendar Events */}
                 {(() => {
                   const dayEvents = calendarService.getEventsForDay(calendarEvents, getDayDate(day))
+                  console.log(`📅 ${day} events:`, dayEvents)
                   return dayEvents.map((event, index) => (
                     <div key={`calendar-${index}`} className="flex gap-2 sm:gap-3 items-start">
                       <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-green-500 rounded-full mt-2 sm:mt-3 flex-shrink-0"></div>

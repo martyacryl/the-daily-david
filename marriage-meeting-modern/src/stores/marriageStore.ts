@@ -51,7 +51,8 @@ const createEmptyWeekData = (): WeekData => ({
   grocery: [] as GroceryStoreList[],
   unconfessedSin: [],
   weeklyWinddown: [],
-  encouragementNotes: []
+  encouragementNotes: [],
+  calendarEvents: []
 })
 
 // Helper function to get next ID for list items
@@ -138,6 +139,7 @@ export const useMarriageStore = create<MarriageState>((set, get) => ({
         console.log('Store: Setting weekData with todos:', migratedTodos)
         console.log('Store: Setting weekData with grocery:', week.grocery)
         console.log('Store: Setting weekData with encouragementNotes:', week.encouragementNotes)
+        console.log('Store: Setting weekData with calendarEvents:', week.calendarEvents)
         
         // Normalize schedule structure to ensure consistency
         const normalizedSchedule = {
