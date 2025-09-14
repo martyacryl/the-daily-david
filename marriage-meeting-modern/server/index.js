@@ -228,12 +228,36 @@ app.get('/api/settings', authenticateToken, async (req, res) => {
         timezone: 'America/New_York',
         currency: 'USD',
         dateFormat: 'MM/DD/YYYY',
-        theme: 'light'
+        theme: 'light',
+        calendar: {
+          icalUrl: '',
+          googleCalendarEnabled: false,
+          syncFrequency: 'daily',
+          showCalendarEvents: true
+        }
       }
       return res.json(defaultSettings)
     }
 
-    res.json(result.rows[0].settings_data)
+    let settings = result.rows[0].settings_data
+    
+    // Migrate existing users to include calendar settings
+    if (!settings.calendar) {
+      settings.calendar = {
+        icalUrl: '',
+        googleCalendarEnabled: false,
+        syncFrequency: 'daily',
+        showCalendarEvents: true
+      }
+      
+      // Update the database with migrated settings
+      await pool.query(
+        'UPDATE user_settings SET settings_data = $1 WHERE user_id = $2',
+        [settings, userId]
+      )
+    }
+    
+    res.json(settings)
   } catch (error) {
     console.error('Error fetching settings:', error)
     res.status(500).json({ error: 'Internal server error' })
