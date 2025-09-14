@@ -9,6 +9,8 @@ import { GroceryErrandsSection } from './GroceryErrandsSection'
 import { ListItem, GoalItem, TaskItem, DayName, EncouragementNote } from '../types/marriageTypes'
 import { EncouragementSection } from './EncouragementSection'
 import { DatabaseManager } from '../lib/database'
+import { calendarService, CalendarEvent } from '../lib/calendarService'
+import { useSettingsStore } from '../stores/settingsStore'
 
 interface WeeklyMeetingContentProps {
   activeSection: string
@@ -53,6 +55,38 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
   isSaving = false
 }) => {
   const days: DayName[] = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+  const { settings } = useSettingsStore()
+  const [calendarEvents, setCalendarEvents] = React.useState<CalendarEvent[]>([])
+  const [isLoadingCalendar, setIsLoadingCalendar] = React.useState(false)
+
+  // Fetch calendar events when component mounts or settings change
+  React.useEffect(() => {
+    const fetchCalendarEvents = async () => {
+      if (!settings.calendar?.icalUrl || !settings.calendar?.showCalendarEvents) {
+        setCalendarEvents([])
+        return
+      }
+
+      setIsLoadingCalendar(true)
+      try {
+        const mondayKey = DatabaseManager.formatWeekKey(currentDate)
+        const [year, month, day] = mondayKey.split('-').map(Number)
+        const weekStart = new Date(year, month - 1, day)
+        
+        console.log('📅 Fetching calendar events for week starting:', weekStart)
+        const events = await calendarService.getICalEvents(settings.calendar.icalUrl, weekStart)
+        setCalendarEvents(events)
+        console.log('📅 Loaded calendar events:', events.length)
+      } catch (error) {
+        console.error('❌ Error fetching calendar events:', error)
+        setCalendarEvents([])
+      } finally {
+        setIsLoadingCalendar(false)
+      }
+    }
+
+    fetchCalendarEvents()
+  }, [settings.calendar?.icalUrl, settings.calendar?.showCalendarEvents, currentDate])
 
   // Calculate actual dates for each day of the current week
   const getWeekDates = () => {
@@ -74,6 +108,16 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
     }
     
     return weekDates
+  }
+
+  // Get the actual Date object for a specific day
+  const getDayDate = (day: DayName): Date => {
+    const mondayKey = DatabaseManager.formatWeekKey(currentDate)
+    const [year, month, dayNum] = mondayKey.split('-').map(Number)
+    const monday = new Date(year, month - 1, dayNum)
+    
+    const dayIndex = days.indexOf(day)
+    return new Date(monday.getTime() + dayIndex * 24 * 60 * 60 * 1000)
   }
 
   const weekDates = getWeekDates()
@@ -120,6 +164,27 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
               </div>
               
               <div className="space-y-2 sm:space-y-3">
+                {/* Calendar Events */}
+                {(() => {
+                  const dayEvents = calendarService.getEventsForDay(calendarEvents, getDayDate(day))
+                  return dayEvents.map((event, index) => (
+                    <div key={`calendar-${index}`} className="flex gap-2 sm:gap-3 items-start">
+                      <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-green-500 rounded-full mt-2 sm:mt-3 flex-shrink-0"></div>
+                      <div className="flex-1">
+                        <div className="text-sm sm:text-base text-gray-800 font-medium">
+                          {calendarService.formatEventForDisplay(event)}
+                        </div>
+                        {event.location && (
+                          <div className="text-xs text-gray-500 mt-1">
+                            📍 {event.location}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))
+                })()}
+                
+                {/* Custom Schedule Items */}
                 {weekData.schedule[day]?.map((activity: string, index: number) => (
                   <div key={index} className="flex gap-2 sm:gap-3 items-start">
                     <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-blue-500 rounded-full mt-2 sm:mt-3 flex-shrink-0"></div>
