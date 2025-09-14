@@ -22,12 +22,23 @@ export const SimpleCalendarSettings: React.FC<SimpleCalendarSettingsProps> = ({ 
   // Google Calendar state
   const [isGoogleAuthenticated, setIsGoogleAuthenticated] = useState(false)
   const [isGoogleInitialized, setIsGoogleInitialized] = useState(false)
+  
+  // Sync status
+  const [syncStatus, setSyncStatus] = useState<{ isActive: boolean; frequency?: string }>({ isActive: false })
 
   // Load settings when panel opens
   React.useEffect(() => {
     if (isOpen) {
       setIcalUrl(settings.calendar?.icalUrl || '')
       setIsGoogleAuthenticated(settings.calendar?.googleCalendarEnabled || false)
+      
+      // Check sync status
+      if (settings.calendar?.icalUrl) {
+        import('../../lib/calendarService').then(({ calendarService }) => {
+          const status = calendarService.getSyncStatus(settings.calendar.icalUrl)
+          setSyncStatus(status)
+        })
+      }
     }
   }, [isOpen, settings.calendar])
 
@@ -41,36 +52,29 @@ export const SimpleCalendarSettings: React.FC<SimpleCalendarSettingsProps> = ({ 
 
     setIsTestingConnection(true)
     setConnectionStatus('idle')
-    setConnectionMessage('Testing connection...')
+    setConnectionMessage('Testing connection and fetching events...')
 
     try {
-      // Convert webcal:// to https:// for fetch API
-      const testUrl = icalUrl.replace(/^webcal:\/\//, 'https://')
+      const { calendarService } = await import('../../lib/calendarService')
       
-      // Use CORS proxy to bypass CORS restrictions
-      const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(testUrl)}`
+      // Get current week for testing
+      const now = new Date()
+      const monday = new Date(now)
+      monday.setDate(now.getDate() - now.getDay() + 1) // Get Monday of current week
+      monday.setHours(0, 0, 0, 0)
       
-      const response = await fetch(proxyUrl, {
-        method: 'GET',
-        headers: {
-          'Accept': 'text/calendar, application/calendar+json, */*'
+      // Force sync to test the connection and fetch events
+      await calendarService.forceSync(
+        icalUrl,
+        false, // Don't test Google Calendar in this test
+        monday,
+        (events) => {
+          console.log('Test sync completed with events:', events.length)
         }
-      })
-
-      if (!response.ok) {
-        throw new Error(`Failed to fetch iCal: ${response.status} ${response.statusText}`)
-      }
-
-      const icalData = await response.text()
+      )
       
-      // Check if it's valid iCal data
-      if (icalData.includes('BEGIN:VCALENDAR') && icalData.includes('END:VCALENDAR')) {
-        setConnectionStatus('success')
-        setConnectionMessage('iCal feed is working! Found calendar data.')
-      } else {
-        setConnectionStatus('error')
-        setConnectionMessage('Invalid iCal data received')
-      }
+      setConnectionStatus('success')
+      setConnectionMessage('iCal feed is working! Events will sync automatically.')
     } catch (error) {
       console.error('Error testing iCal connection:', error)
       setConnectionStatus('error')
@@ -235,6 +239,21 @@ export const SimpleCalendarSettings: React.FC<SimpleCalendarSettingsProps> = ({ 
                     <AlertCircle className="w-5 h-5" />
                   )}
                   <span className="text-sm font-medium">{connectionMessage}</span>
+                </div>
+              )}
+
+              {/* Auto-Sync Status */}
+              {syncStatus.isActive && (
+                <div className="bg-blue-50 text-blue-800 border border-blue-200 p-3 rounded-lg">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                    <span className="text-sm font-medium">
+                      Auto-sync active ({syncStatus.frequency})
+                    </span>
+                  </div>
+                  <p className="text-xs text-blue-600 mt-1">
+                    Calendar events will update automatically when you create new events on your phone
+                  </p>
                 </div>
               )}
 

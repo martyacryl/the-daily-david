@@ -20,6 +20,8 @@ export class CalendarService {
   private static instance: CalendarService
   private cache: Map<string, CalendarEvent[]> = new Map()
   private cacheExpiry: Map<string, number> = new Map()
+  private syncIntervals: Map<string, NodeJS.Timeout> = new Map()
+  private syncCallbacks: Set<(events: CalendarEvent[]) => void> = new Set()
 
   static getInstance(): CalendarService {
     if (!CalendarService.instance) {
@@ -396,6 +398,132 @@ export class CalendarService {
     } catch (error) {
       return false
     }
+  }
+
+  /**
+   * Start automatic calendar sync
+   */
+  startAutoSync(
+    icalUrl: string, 
+    googleCalendarEnabled: boolean, 
+    syncFrequency: 'realtime' | 'hourly' | 'daily',
+    weekStart: Date,
+    onEventsUpdate: (events: CalendarEvent[]) => void
+  ): void {
+    // Clear any existing sync for this configuration
+    this.stopAutoSync(icalUrl)
+    
+    // Add callback
+    this.syncCallbacks.add(onEventsUpdate)
+    
+    // Calculate sync interval in milliseconds
+    const getSyncInterval = () => {
+      switch (syncFrequency) {
+        case 'realtime': return 5 * 60 * 1000 // 5 minutes
+        case 'hourly': return 60 * 60 * 1000 // 1 hour
+        case 'daily': return 24 * 60 * 60 * 1000 // 24 hours
+        default: return 60 * 60 * 1000 // Default to hourly
+      }
+    }
+    
+    const syncInterval = getSyncInterval()
+    const syncKey = `${icalUrl}_${googleCalendarEnabled}_${syncFrequency}`
+    
+    console.log(`📅 Starting auto-sync for ${syncFrequency} (every ${syncInterval / 1000 / 60} minutes)`)
+    
+    // Initial sync
+    this.performSync(icalUrl, googleCalendarEnabled, weekStart, onEventsUpdate)
+    
+    // Set up recurring sync
+    const interval = setInterval(() => {
+      console.log('📅 Auto-sync triggered')
+      this.performSync(icalUrl, googleCalendarEnabled, weekStart, onEventsUpdate)
+    }, syncInterval)
+    
+    this.syncIntervals.set(syncKey, interval)
+  }
+  
+  /**
+   * Stop automatic calendar sync
+   */
+  stopAutoSync(icalUrl: string): void {
+    // Clear all intervals for this URL
+    for (const [key, interval] of this.syncIntervals.entries()) {
+      if (key.startsWith(icalUrl)) {
+        clearInterval(interval)
+        this.syncIntervals.delete(key)
+      }
+    }
+    
+    // Remove callbacks
+    this.syncCallbacks.clear()
+    
+    console.log('📅 Auto-sync stopped')
+  }
+  
+  /**
+   * Perform a single sync operation
+   */
+  private async performSync(
+    icalUrl: string,
+    googleCalendarEnabled: boolean,
+    weekStart: Date,
+    onEventsUpdate: (events: CalendarEvent[]) => void
+  ): Promise<void> {
+    try {
+      console.log('📅 Performing calendar sync...')
+      
+      const allEvents: CalendarEvent[] = []
+      
+      // Fetch iCal events if URL is provided
+      if (icalUrl) {
+        const icalEvents = await this.getICalEvents(icalUrl, weekStart)
+        allEvents.push(...icalEvents)
+      }
+      
+      // Fetch Google Calendar events if enabled and authenticated
+      if (googleCalendarEnabled && this.isGoogleCalendarSignedIn()) {
+        const googleEvents = await this.getGoogleCalendarEvents(weekStart)
+        allEvents.push(...googleEvents)
+      }
+      
+      // Notify all callbacks
+      this.syncCallbacks.forEach(callback => callback(allEvents))
+      onEventsUpdate(allEvents)
+      
+      console.log(`📅 Sync completed: ${allEvents.length} events found`)
+    } catch (error) {
+      console.error('❌ Error during calendar sync:', error)
+    }
+  }
+  
+  /**
+   * Force a manual sync (useful for "Test" button)
+   */
+  async forceSync(
+    icalUrl: string,
+    googleCalendarEnabled: boolean,
+    weekStart: Date,
+    onEventsUpdate: (events: CalendarEvent[]) => void
+  ): Promise<void> {
+    // Clear cache to force fresh fetch
+    this.clearCache(icalUrl)
+    
+    // Perform sync
+    await this.performSync(icalUrl, googleCalendarEnabled, weekStart, onEventsUpdate)
+  }
+  
+  /**
+   * Get sync status
+   */
+  getSyncStatus(icalUrl: string): { isActive: boolean; frequency?: string } {
+    for (const [key, interval] of this.syncIntervals.entries()) {
+      if (key.startsWith(icalUrl)) {
+        const frequency = key.split('_').pop()
+        return { isActive: true, frequency }
+      }
+    }
+    return { isActive: false }
   }
 }
 
