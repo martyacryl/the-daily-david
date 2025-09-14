@@ -39,8 +39,12 @@ export class CalendarService {
       const fetchUrl = icalUrl.replace(/^webcal:\/\//, 'https://')
       console.log('📅 Converted URL for fetch:', fetchUrl)
       
-      // Fetch iCal data
-      const response = await fetch(fetchUrl, {
+      // Use CORS proxy to bypass CORS restrictions
+      const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(fetchUrl)}`
+      console.log('📅 Using CORS proxy:', proxyUrl)
+      
+      // Fetch iCal data through CORS proxy
+      const response = await fetch(proxyUrl, {
         method: 'GET',
         headers: {
           'Accept': 'text/calendar, application/calendar+json, */*'

@@ -126,24 +126,40 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
       const testUrl = icalUrl.replace(/^webcal:\/\//, 'https://')
       console.log('📅 Testing converted URL:', testUrl)
       
-      // Test the iCal URL by fetching it
-      const response = await fetch(testUrl, {
-        method: 'HEAD', // Just check if it's accessible
+      // Test the iCal URL by fetching it with CORS proxy
+      const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(testUrl)}`
+      console.log('📅 Using CORS proxy:', proxyUrl)
+      
+      const response = await fetch(proxyUrl, {
+        method: 'GET',
         headers: {
           'Accept': 'text/calendar, application/calendar+json, */*'
         }
       })
       
       if (response.ok) {
-        setConnectionStatus('success')
-        setConnectionMessage('✅ Calendar connection successful!')
+        const data = await response.text()
+        // Check if it looks like valid iCal data
+        if (data.includes('BEGIN:VCALENDAR') && data.includes('END:VCALENDAR')) {
+          setConnectionStatus('success')
+          setConnectionMessage('✅ Calendar connection successful! Found valid iCal data.')
+        } else {
+          setConnectionStatus('error')
+          setConnectionMessage('❌ URL accessible but not valid iCal format')
+        }
       } else {
         setConnectionStatus('error')
         setConnectionMessage(`❌ Failed to connect: ${response.status} ${response.statusText}`)
       }
     } catch (error) {
-      setConnectionStatus('error')
-      setConnectionMessage(`❌ Connection error: ${error instanceof Error ? error.message : 'Unknown error'}`)
+      console.error('Calendar test error:', error)
+      if (error instanceof Error && error.message.includes('CORS')) {
+        setConnectionStatus('error')
+        setConnectionMessage('❌ CORS error: Calendar URL is not accessible from browser. This is normal for some iCloud URLs.')
+      } else {
+        setConnectionStatus('error')
+        setConnectionMessage(`❌ Connection error: ${error instanceof Error ? error.message : 'Unknown error'}`)
+      }
     } finally {
       setIsTestingConnection(false)
     }
