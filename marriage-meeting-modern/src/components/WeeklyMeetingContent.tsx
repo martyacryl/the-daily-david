@@ -134,7 +134,10 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
     const monday = new Date(year, month - 1, dayNum)
     
     const dayIndex = days.indexOf(day)
-    return new Date(monday.getTime() + dayIndex * 24 * 60 * 60 * 1000)
+    const dayDate = new Date(monday.getTime() + dayIndex * 24 * 60 * 60 * 1000)
+    
+    console.log(`📅 getDayDate - Day: ${day}, Index: ${dayIndex}, Date: ${dayDate.toDateString()}`)
+    return dayDate
   }
 
   const weekDates = getWeekDates()

@@ -244,9 +244,18 @@ export class CalendarService {
     const dayEnd = new Date(date)
     dayEnd.setHours(23, 59, 59, 999)
 
-    return events.filter(event => 
-      event.start < dayEnd && event.end > dayStart
-    )
+    console.log('📅 getEventsForDay - Checking date:', date.toDateString())
+    console.log('📅 getEventsForDay - Day range:', dayStart.toISOString(), 'to', dayEnd.toISOString())
+    console.log('📅 getEventsForDay - Available events:', events.length)
+    
+    const filteredEvents = events.filter(event => {
+      const isInRange = event.start < dayEnd && event.end > dayStart
+      console.log(`📅 Event "${event.title}" (${event.start.toDateString()}) - In range: ${isInRange}`)
+      return isInRange
+    })
+    
+    console.log('📅 getEventsForDay - Filtered events:', filteredEvents.length)
+    return filteredEvents
   }
 
   /**
