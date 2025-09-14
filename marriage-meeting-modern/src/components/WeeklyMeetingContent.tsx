@@ -74,6 +74,8 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
         const weekStart = new Date(year, month - 1, day)
         
         console.log('📅 Fetching calendar events for week starting:', weekStart)
+        console.log('📅 Settings calendar object:', settings.calendar)
+        console.log('📅 iCal URL from settings:', settings.calendar?.icalUrl)
         
         const allEvents: CalendarEvent[] = []
         
@@ -82,6 +84,8 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
           console.log('📅 Fetching iCal events from:', settings.calendar.icalUrl)
           const icalEvents = await calendarService.getICalEvents(settings.calendar.icalUrl, weekStart)
           allEvents.push(...icalEvents)
+        } else {
+          console.log('📅 No iCal URL found in settings, skipping iCal fetch')
         }
         
         // Fetch Google Calendar events if enabled and authenticated

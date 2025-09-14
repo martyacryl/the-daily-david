@@ -175,27 +175,27 @@ export const SimpleCalendarSettings: React.FC<SimpleCalendarSettingsProps> = ({ 
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-        <div className="p-6">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3">
-              <Calendar className="w-6 h-6 text-blue-600" />
-              <h2 className="text-xl font-semibold text-gray-900">Calendar Integration</h2>
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4">
+      <Card className="w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-2xl max-h-[95vh] sm:max-h-[90vh] overflow-y-auto">
+        <div className="p-4 sm:p-6">
+          <div className="flex items-center justify-between mb-4 sm:mb-6">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <Calendar className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" />
+              <h2 className="text-lg sm:text-xl font-semibold text-gray-900">Calendar Integration</h2>
             </div>
             <Button
               onClick={onClose}
               variant="ghost"
-              className="text-gray-400 hover:text-gray-600"
+              className="text-gray-400 hover:text-gray-600 p-1"
             >
               ✕
             </Button>
           </div>
 
           {/* Apple Calendar / iCal Feed */}
-          <div className="mb-8">
-            <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center gap-2">
-              <SettingsIcon className="w-5 h-5" />
+          <div className="mb-6 sm:mb-8">
+            <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-3 sm:mb-4 flex items-center gap-2">
+              <SettingsIcon className="w-4 h-4 sm:w-5 sm:h-5" />
               Apple Calendar / iCal Feed
             </h3>
             
@@ -204,18 +204,18 @@ export const SimpleCalendarSettings: React.FC<SimpleCalendarSettingsProps> = ({ 
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   iCal URL
                 </label>
-                <div className="flex gap-2">
+                <div className="flex flex-col sm:flex-row gap-2">
                   <Input
                     type="url"
                     value={icalUrl}
                     onChange={(e) => setIcalUrl(e.target.value)}
                     placeholder="webcal://p119-caldav.icloud.com/..."
-                    className="flex-1"
+                    className="flex-1 text-sm"
                   />
                   <Button
                     onClick={handleTestConnection}
                     disabled={!icalUrl.trim() || isTestingConnection}
-                    className="bg-blue-600 hover:bg-blue-700"
+                    className="bg-blue-600 hover:bg-blue-700 text-sm px-4 py-2"
                   >
                     {isTestingConnection ? 'Testing...' : 'Test'}
                   </Button>
@@ -239,9 +239,9 @@ export const SimpleCalendarSettings: React.FC<SimpleCalendarSettingsProps> = ({ 
               )}
 
               {/* Instructions */}
-              <div className="bg-blue-50 p-4 rounded-lg">
-                <h4 className="font-medium text-blue-900 mb-2">How to get your iCal URL from iPhone:</h4>
-                <ol className="text-sm text-blue-800 space-y-1 list-decimal list-inside">
+              <div className="bg-blue-50 p-3 sm:p-4 rounded-lg">
+                <h4 className="font-medium text-blue-900 mb-2 text-sm sm:text-base">How to get your iCal URL from iPhone:</h4>
+                <ol className="text-xs sm:text-sm text-blue-800 space-y-1 list-decimal list-inside">
                   <li>Open Calendar app on your iPhone</li>
                   <li>Tap "Calendars" at the bottom</li>
                   <li>Find your calendar and tap the "i" icon</li>
@@ -269,24 +269,24 @@ export const SimpleCalendarSettings: React.FC<SimpleCalendarSettingsProps> = ({ 
           </div>
 
           {/* Google Calendar Integration */}
-          <div className="mb-8">
-            <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center gap-2">
-              <SettingsIcon className="w-5 h-5" />
+          <div className="mb-6 sm:mb-8">
+            <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-3 sm:mb-4 flex items-center gap-2">
+              <SettingsIcon className="w-4 h-4 sm:w-5 sm:h-5" />
               Google Calendar Integration
             </h3>
             
             <div className="space-y-4">
               {!isGoogleAuthenticated ? (
-                <div className="text-center py-8">
-                  <Calendar className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                  <h4 className="text-lg font-medium text-gray-900 mb-2">Connect Google Calendar</h4>
-                  <p className="text-gray-600 mb-4">
+                <div className="text-center py-6 sm:py-8">
+                  <Calendar className="w-10 h-10 sm:w-12 sm:h-12 text-gray-400 mx-auto mb-3 sm:mb-4" />
+                  <h4 className="text-base sm:text-lg font-medium text-gray-900 mb-2">Connect Google Calendar</h4>
+                  <p className="text-sm sm:text-base text-gray-600 mb-4">
                     One-click connection to sync your Google Calendar events
                   </p>
                   <Button
                     onClick={handleConnectGoogleCalendar}
                     disabled={isTestingConnection}
-                    className="bg-blue-600 hover:bg-blue-700"
+                    className="bg-blue-600 hover:bg-blue-700 text-sm px-4 py-2"
                   >
                     {isTestingConnection ? 'Connecting...' : 'Connect Google Calendar'}
                   </Button>
@@ -313,8 +313,8 @@ export const SimpleCalendarSettings: React.FC<SimpleCalendarSettingsProps> = ({ 
           </div>
 
           {/* Display Settings */}
-          <div className="mb-6">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">Display Settings</h3>
+          <div className="mb-4 sm:mb-6">
+            <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-3 sm:mb-4">Display Settings</h3>
             <div className="space-y-4">
               <label className="flex items-center gap-3">
                 <input
