@@ -241,6 +241,7 @@ export class CalendarService {
    * Get events for a specific day
    */
   getEventsForDay(events: CalendarEvent[], date: Date): CalendarEvent[] {
+    // Create day boundaries in local time
     const dayStart = new Date(date)
     dayStart.setHours(0, 0, 0, 0)
     const dayEnd = new Date(date)
@@ -250,24 +251,45 @@ export class CalendarService {
       date: date.toISOString().split('T')[0],
       dayStart: dayStart.toISOString(),
       dayEnd: dayEnd.toISOString(),
+      dayStartLocal: dayStart.toLocaleDateString(),
+      dayEndLocal: dayEnd.toLocaleDateString(),
       eventsCount: events.length,
       events: events.map(e => ({
         title: e.title,
         start: e.start.toISOString(),
-        end: e.end.toISOString()
+        end: e.end.toISOString(),
+        startLocal: e.start.toLocaleDateString(),
+        endLocal: e.end.toLocaleDateString()
       }))
     })
 
     const filteredEvents = events.filter(event => {
-      const isInDay = event.start < dayEnd && event.end > dayStart
+      // Convert event times to local time for comparison
+      const eventStart = new Date(event.start)
+      const eventEnd = new Date(event.end)
+      
+      // Check if event overlaps with the day by comparing local dates
+      const eventStartDate = eventStart.toLocaleDateString()
+      const eventEndDate = eventEnd.toLocaleDateString()
+      const dayStartDate = dayStart.toLocaleDateString()
+      const dayEndDate = dayEnd.toLocaleDateString()
+      
+      // Event is in the day if it starts on or before the day and ends on or after the day
+      const isInDay = eventStartDate <= dayEndDate && eventEndDate >= dayStartDate
+      
       console.log('📅 Event filter check:', {
         title: event.title,
-        eventStart: event.start.toISOString(),
-        eventEnd: event.end.toISOString(),
+        eventStart: eventStart.toISOString(),
+        eventEnd: eventEnd.toISOString(),
         dayStart: dayStart.toISOString(),
         dayEnd: dayEnd.toISOString(),
+        eventStartDate,
+        eventEndDate,
+        dayStartDate,
+        dayEndDate,
         isInDay
       })
+      
       return isInDay
     })
 
