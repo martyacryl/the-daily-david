@@ -99,7 +99,6 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
         updateCalendarEvents(allEvents)
         
         // Save to database
-        const mondayKey = DatabaseManager.formatWeekKey(currentDate)
         await saveWeekData(mondayKey, {
           ...weekData,
           calendarEvents: allEvents
