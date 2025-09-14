@@ -74,9 +74,11 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
         const weekStart = new Date(year, month - 1, day)
         
         console.log('📅 Fetching calendar events for week starting:', weekStart)
+        console.log('📅 iCal URL:', settings.calendar.icalUrl)
         const events = await calendarService.getICalEvents(settings.calendar.icalUrl, weekStart)
         setCalendarEvents(events)
         console.log('📅 Loaded calendar events:', events.length)
+        console.log('📅 Events details:', events)
       } catch (error) {
         console.error('❌ Error fetching calendar events:', error)
         setCalendarEvents([])

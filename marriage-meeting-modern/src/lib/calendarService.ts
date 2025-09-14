@@ -63,6 +63,7 @@ export class CalendarService {
       this.cacheExpiry.set(cacheKey, Date.now() + (60 * 60 * 1000)) // 1 hour cache
       
       console.log(`📅 Found ${events.length} calendar events for the week`)
+      console.log('📅 Event details:', events)
       return events
       
     } catch (error) {
