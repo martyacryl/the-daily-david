@@ -3,6 +3,7 @@
 
 import { create } from 'zustand'
 import { MarriageMeetingWeek, WeekData, ListItem, WeeklySchedule, DayName, ListType, GoalItem, TaskItem, GroceryStoreList, EncouragementNote } from '../types/marriageTypes'
+import { CalendarEvent } from '../lib/calendarService'
 import { dbManager, DatabaseManager } from '../lib/database'
 
 interface MarriageState {
@@ -28,6 +29,7 @@ interface MarriageState {
   updateTasks: (tasks: TaskItem[]) => void
   updateGrocery: (grocery: GroceryStoreList[]) => void
   updateEncouragementNotes: (encouragementNotes: EncouragementNote[]) => void
+  updateCalendarEvents: (calendarEvents: CalendarEvent[]) => void
   setLoading: (loading: boolean) => void
   setError: (error: string | null) => void
   setLastSaved: (date: Date) => void
@@ -155,7 +157,8 @@ export const useMarriageStore = create<MarriageState>((set, get) => ({
           grocery: week.grocery,
           unconfessedSin: week.unconfessedSin,
           weeklyWinddown: week.weeklyWinddown,
-          encouragementNotes: week.encouragementNotes || []
+          encouragementNotes: week.encouragementNotes || [],
+          calendarEvents: week.calendarEvents || []
         }
         
         console.log('Store: Complete weekData being set:', weekDataToSet)
@@ -366,14 +369,23 @@ export const useMarriageStore = create<MarriageState>((set, get) => ({
       }))
     },
 
-    updateEncouragementNotes: (encouragementNotes: EncouragementNote[]) => {
-      set((state) => ({
-        weekData: {
-          ...state.weekData,
-          encouragementNotes
-        }
-      }))
-    },
+  updateEncouragementNotes: (encouragementNotes: EncouragementNote[]) => {
+    set((state) => ({
+      weekData: {
+        ...state.weekData,
+        encouragementNotes
+      }
+    }))
+  },
+
+  updateCalendarEvents: (calendarEvents: CalendarEvent[]) => {
+    set((state) => ({
+      weekData: {
+        ...state.weekData,
+        calendarEvents
+      }
+    }))
+  },
 
   setLoading: (loading: boolean) => {
     set({ isLoading: loading })

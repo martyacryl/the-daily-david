@@ -11,6 +11,7 @@ import { EncouragementSection } from './EncouragementSection'
 import { DatabaseManager } from '../lib/database'
 import { calendarService, CalendarEvent } from '../lib/calendarService'
 import { useSettingsStore } from '../stores/settingsStore'
+import { useMarriageStore } from '../stores/marriageStore'
 
 interface WeeklyMeetingContentProps {
   activeSection: string
@@ -56,14 +57,17 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
 }) => {
   const days: DayName[] = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
   const { settings } = useSettingsStore()
-  const [calendarEvents, setCalendarEvents] = React.useState<CalendarEvent[]>([])
+  const { updateCalendarEvents, saveWeekData } = useMarriageStore()
   const [isLoadingCalendar, setIsLoadingCalendar] = React.useState(false)
+  
+  // Get calendar events from the store instead of local state
+  const calendarEvents = weekData.calendarEvents || []
 
   // Fetch calendar events when component mounts or settings change
   React.useEffect(() => {
     const fetchCalendarEvents = async () => {
       if (!settings.calendar?.showCalendarEvents) {
-        setCalendarEvents([])
+        updateCalendarEvents([])
         return
       }
 
@@ -74,8 +78,6 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
         const weekStart = new Date(year, month - 1, day)
         
         console.log('📅 Fetching calendar events for week starting:', weekStart)
-        console.log('📅 Settings calendar object:', settings.calendar)
-        console.log('📅 iCal URL from settings:', settings.calendar?.icalUrl)
         
         const allEvents: CalendarEvent[] = []
         
@@ -84,8 +86,6 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
           console.log('📅 Fetching iCal events from:', settings.calendar.icalUrl)
           const icalEvents = await calendarService.getICalEvents(settings.calendar.icalUrl, weekStart)
           allEvents.push(...icalEvents)
-        } else {
-          console.log('📅 No iCal URL found in settings, skipping iCal fetch')
         }
         
         // Fetch Google Calendar events if enabled and authenticated
@@ -95,12 +95,21 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
           allEvents.push(...googleEvents)
         }
         
-        setCalendarEvents(allEvents)
+        // Update the store with calendar events
+        updateCalendarEvents(allEvents)
+        
+        // Save to database
+        const mondayKey = DatabaseManager.formatWeekKey(currentDate)
+        await saveWeekData(mondayKey, {
+          ...weekData,
+          calendarEvents: allEvents
+        })
+        
         console.log('📅 Loaded calendar events:', allEvents.length)
         console.log('📅 Events details:', allEvents)
       } catch (error) {
         console.error('❌ Error fetching calendar events:', error)
-        setCalendarEvents([])
+        updateCalendarEvents([])
       } finally {
         setIsLoadingCalendar(false)
       }
@@ -138,10 +147,7 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
     const monday = new Date(year, month - 1, dayNum)
     
     const dayIndex = days.indexOf(day)
-    const dayDate = new Date(monday.getTime() + dayIndex * 24 * 60 * 60 * 1000)
-    
-    console.log(`📅 getDayDate - Day: ${day}, Index: ${dayIndex}, Date: ${dayDate.toDateString()}`)
-    return dayDate
+    return new Date(monday.getTime() + dayIndex * 24 * 60 * 60 * 1000)
   }
 
   const weekDates = getWeekDates()

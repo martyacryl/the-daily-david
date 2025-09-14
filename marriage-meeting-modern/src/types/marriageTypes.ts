@@ -1,5 +1,7 @@
 // Marriage Meeting Tool - Type Definitions
 
+import { CalendarEvent } from '../lib/calendarService'
+
 // Core User Types
 export interface User {
   id: string
@@ -85,6 +87,7 @@ export interface WeekData {
   unconfessedSin: ListItem[]
   weeklyWinddown: ListItem[]
   encouragementNotes: EncouragementNote[] // Encouragement notes and messages
+  calendarEvents?: CalendarEvent[] // Calendar events from iCal and Google Calendar
 }
 
 // Grocery Store List
