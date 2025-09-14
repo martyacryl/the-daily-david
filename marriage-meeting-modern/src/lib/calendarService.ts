@@ -104,6 +104,8 @@ export class CalendarService {
    * Parse individual event block
    */
   private parseEventBlock(eventBlock: string): CalendarEvent | null {
+    console.log('📅 Parsing event block:', eventBlock.substring(0, 200) + '...')
+    
     const lines = eventBlock.split('\n')
     const event: Partial<CalendarEvent> = {
       source: 'ical'
@@ -113,11 +115,24 @@ export class CalendarService {
       const trimmedLine = line.trim()
       if (trimmedLine.startsWith('SUMMARY:')) {
         event.title = trimmedLine.substring(8).replace(/\\,/g, ',').replace(/\\;/g, ';')
+        console.log('📅 Found title:', event.title)
       } else if (trimmedLine.startsWith('DTSTART')) {
-        event.start = this.parseICalDate(trimmedLine)
-        event.allDay = trimmedLine.includes('VALUE=DATE')
+        try {
+          event.start = this.parseICalDate(trimmedLine)
+          event.allDay = trimmedLine.includes('VALUE=DATE')
+          console.log('📅 Found start date:', event.start, 'allDay:', event.allDay)
+        } catch (error) {
+          console.error('❌ Error parsing DTSTART:', trimmedLine, error)
+          return null
+        }
       } else if (trimmedLine.startsWith('DTEND')) {
-        event.end = this.parseICalDate(trimmedLine)
+        try {
+          event.end = this.parseICalDate(trimmedLine)
+          console.log('📅 Found end date:', event.end)
+        } catch (error) {
+          console.error('❌ Error parsing DTEND:', trimmedLine, error)
+          return null
+        }
       } else if (trimmedLine.startsWith('DESCRIPTION:')) {
         event.description = trimmedLine.substring(12).replace(/\\,/g, ',').replace(/\\;/g, ';')
       } else if (trimmedLine.startsWith('LOCATION:')) {
@@ -128,9 +143,11 @@ export class CalendarService {
     }
 
     if (!event.title || !event.start || !event.end || !event.id) {
+      console.log('❌ Missing required fields:', { title: !!event.title, start: !!event.start, end: !!event.end, id: !!event.id })
       return null
     }
 
+    console.log('✅ Successfully parsed event:', event.title)
     return event as CalendarEvent
   }
 
@@ -138,13 +155,17 @@ export class CalendarService {
    * Parse iCal date format
    */
   private parseICalDate(dateLine: string): Date {
-    // Extract date part (remove parameters)
-    const dateMatch = dateLine.match(/(\d{8}T?\d{6}?)/)
+    console.log('📅 Parsing date line:', dateLine)
+    
+    // Extract date part (remove parameters and timezone info)
+    const dateMatch = dateLine.match(/(\d{8}(?:T\d{6})?)/)
     if (!dateMatch) {
+      console.error('❌ No date match found in:', dateLine)
       throw new Error('Invalid date format')
     }
 
     const dateStr = dateMatch[1]
+    console.log('📅 Extracted date string:', dateStr)
     
     // Handle both date-only and datetime formats
     if (dateStr.length === 8) {
@@ -152,7 +173,9 @@ export class CalendarService {
       const year = parseInt(dateStr.substring(0, 4))
       const month = parseInt(dateStr.substring(4, 6)) - 1 // JS months are 0-based
       const day = parseInt(dateStr.substring(6, 8))
-      return new Date(year, month, day)
+      const date = new Date(year, month, day)
+      console.log('📅 Parsed date-only:', date)
+      return date
     } else if (dateStr.length === 15) {
       // DateTime (YYYYMMDDTHHMMSS)
       const year = parseInt(dateStr.substring(0, 4))
@@ -161,9 +184,12 @@ export class CalendarService {
       const hour = parseInt(dateStr.substring(9, 11))
       const minute = parseInt(dateStr.substring(11, 13))
       const second = parseInt(dateStr.substring(13, 15))
-      return new Date(year, month, day, hour, minute, second)
+      const date = new Date(year, month, day, hour, minute, second)
+      console.log('📅 Parsed datetime:', date)
+      return date
     }
 
+    console.error('❌ Unsupported date format:', dateStr)
     throw new Error('Unsupported date format')
   }
 
