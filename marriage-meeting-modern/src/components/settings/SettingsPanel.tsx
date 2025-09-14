@@ -12,11 +12,7 @@ import {
   Plus,
   Trash2,
   Star,
-  Shield,
-  Calendar,
-  Link,
-  CheckCircle,
-  AlertCircle
+  Shield
 } from 'lucide-react'
 import { Card } from '../ui/Card'
 import { Button } from '../ui/Button'
@@ -42,7 +38,6 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
     removeGroceryStore,
     setDefaultGroceryStore,
     updateGeneralSettings,
-    updateCalendarSettings,
     loadSettings
   } = useSettingsStore()
 
@@ -51,12 +46,6 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
   const [showStoreSuccess, setShowStoreSuccess] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [isLoaded, setIsLoaded] = useState(false)
-  
-  // Calendar state
-  const [icalUrl, setIcalUrl] = useState('')
-  const [isTestingConnection, setIsTestingConnection] = useState(false)
-  const [connectionStatus, setConnectionStatus] = useState<'idle' | 'success' | 'error'>('idle')
-  const [connectionMessage, setConnectionMessage] = useState('')
 
   // Load settings from database when panel opens and user is authenticated
   React.useEffect(() => {
@@ -68,8 +57,6 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
           const loadedSettings = await loadSettings()
           console.log('✅ Settings loaded in panel:', loadedSettings)
           setIsLoaded(true)
-          // Load calendar settings
-          setIcalUrl(loadedSettings.calendar.icalUrl)
         } catch (error) {
           console.error('❌ Failed to load settings in panel:', error)
         } finally {
@@ -91,7 +78,6 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
     { id: 'spouses', label: 'Spouses', icon: User },
     { id: 'location', label: 'Location', icon: MapPin },
     { id: 'grocery', label: 'Grocery Stores', icon: Store },
-    { id: 'calendar', label: 'Calendar', icon: Calendar },
     { id: 'family-creed', label: 'Family Creed', icon: Shield },
     { id: 'general', label: 'General', icon: Settings }
   ]
@@ -110,63 +96,6 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
       console.log('Store added successfully')
     } else {
       console.log('Store name is required')
-    }
-  }
-
-  // Calendar handlers
-  const handleTestConnection = async () => {
-    if (!icalUrl.trim()) return
-    
-    setIsTestingConnection(true)
-    setConnectionStatus('idle')
-    setConnectionMessage('')
-    
-    try {
-      // Test the iCal URL by fetching it
-      const response = await fetch(icalUrl, {
-        method: 'HEAD', // Just check if it's accessible
-        headers: {
-          'Accept': 'text/calendar, application/calendar+json, */*'
-        }
-      })
-      
-      if (response.ok) {
-        setConnectionStatus('success')
-        setConnectionMessage('✅ Calendar connection successful!')
-      } else {
-        setConnectionStatus('error')
-        setConnectionMessage(`❌ Failed to connect: ${response.status} ${response.statusText}`)
-      }
-    } catch (error) {
-      setConnectionStatus('error')
-      setConnectionMessage(`❌ Connection error: ${error instanceof Error ? error.message : 'Unknown error'}`)
-    } finally {
-      setIsTestingConnection(false)
-    }
-  }
-
-  const handleSaveCalendarSettings = async () => {
-    if (!icalUrl.trim()) return
-    
-    try {
-      await updateCalendarSettings({ icalUrl: icalUrl.trim() })
-      setConnectionStatus('success')
-      setConnectionMessage('✅ Calendar settings saved successfully!')
-    } catch (error) {
-      setConnectionStatus('error')
-      setConnectionMessage('❌ Failed to save calendar settings')
-    }
-  }
-
-  const handleClearCalendarSettings = async () => {
-    try {
-      await updateCalendarSettings({ icalUrl: '' })
-      setIcalUrl('')
-      setConnectionStatus('idle')
-      setConnectionMessage('')
-    } catch (error) {
-      setConnectionStatus('error')
-      setConnectionMessage('❌ Failed to clear calendar settings')
     }
   }
 
@@ -522,130 +451,6 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
                     <p className="text-sm text-gray-500 mt-3">
                       This creed will be displayed on your dashboard to remind you of your family's values and mission.
                     </p>
-                  </Card>
-                </div>
-              </div>
-            )}
-
-            {/* Calendar Tab */}
-            {activeTab === 'calendar' && (
-              <div className="space-y-6">
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Calendar Integration</h3>
-                  
-                  {/* iCal Integration */}
-                  <Card className="p-4 mb-6">
-                    <div className="space-y-4">
-                      <div className="flex items-center gap-2 mb-4">
-                        <Calendar className="w-5 h-5 text-blue-600" />
-                        <h4 className="text-md font-semibold text-gray-900">Apple Calendar / iCal Feed</h4>
-                      </div>
-                      
-                      <div className="space-y-3">
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            iCal URL
-                          </label>
-                          <div className="flex gap-2">
-                            <Input
-                              value={icalUrl}
-                              onChange={(e) => setIcalUrl(e.target.value)}
-                              placeholder="https://p123-caldav.icloud.com/published/2/abc123..."
-                              className="flex-1"
-                            />
-                            <Button
-                              onClick={handleTestConnection}
-                              disabled={!icalUrl.trim() || isTestingConnection}
-                              variant="outline"
-                              className="whitespace-nowrap"
-                            >
-                              {isTestingConnection ? 'Testing...' : 'Test'}
-                            </Button>
-                          </div>
-                          {connectionStatus === 'success' && (
-                            <div className="flex items-center gap-2 text-green-600 text-sm mt-2">
-                              <CheckCircle className="w-4 h-4" />
-                              {connectionMessage}
-                            </div>
-                          )}
-                          {connectionStatus === 'error' && (
-                            <div className="flex items-center gap-2 text-red-600 text-sm mt-2">
-                              <AlertCircle className="w-4 h-4" />
-                              {connectionMessage}
-                            </div>
-                          )}
-                        </div>
-                        
-                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                          <h5 className="font-medium text-blue-900 mb-2">📱 How to get your iCal URL from iPhone:</h5>
-                          <ol className="text-sm text-blue-800 space-y-1 list-decimal list-inside">
-                            <li>Open <strong>Calendar</strong> app on your iPhone</li>
-                            <li>Tap <strong>"Calendars"</strong> at the bottom</li>
-                            <li>Find your shared calendar and tap the <strong>"i"</strong> button</li>
-                            <li>Scroll down and tap <strong>"Share Calendar"</strong></li>
-                            <li>Choose <strong>"Public Calendar"</strong></li>
-                            <li>Tap <strong>"Share Link"</strong> and copy the URL</li>
-                          </ol>
-                        </div>
-                        
-                        <div className="flex gap-2">
-                          <Button
-                            onClick={handleSaveCalendarSettings}
-                            disabled={!icalUrl.trim()}
-                            className="bg-blue-600 text-white hover:bg-blue-700"
-                          >
-                            <Save className="w-4 h-4 mr-2" />
-                            Save Calendar Settings
-                          </Button>
-                          {settings.calendar.icalUrl && (
-                            <Button
-                              onClick={handleClearCalendarSettings}
-                              variant="outline"
-                              className="text-red-600 border-red-200 hover:bg-red-50"
-                            >
-                              <X className="w-4 h-4 mr-2" />
-                              Clear
-                            </Button>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </Card>
-
-                  {/* Calendar Display Settings */}
-                  <Card className="p-4">
-                    <div className="space-y-4">
-                      <h4 className="text-md font-semibold text-gray-900">Display Settings</h4>
-                      
-                      <div className="space-y-3">
-                        <label className="flex items-center gap-3">
-                          <input
-                            type="checkbox"
-                            checked={settings.calendar.showCalendarEvents}
-                            onChange={(e) => updateCalendarSettings({ showCalendarEvents: e.target.checked })}
-                            className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                          />
-                          <span className="text-sm text-gray-700">
-                            Show calendar events in weekly planner
-                          </span>
-                        </label>
-                        
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Sync Frequency
-                          </label>
-                          <select
-                            value={settings.calendar.syncFrequency}
-                            onChange={(e) => updateCalendarSettings({ syncFrequency: e.target.value as any })}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                          >
-                            <option value="realtime">Real-time (every 5 minutes)</option>
-                            <option value="hourly">Hourly</option>
-                            <option value="daily">Daily</option>
-                          </select>
-                        </div>
-                      </div>
-                    </div>
                   </Card>
                 </div>
               </div>

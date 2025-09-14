@@ -23,13 +23,6 @@ export interface GroceryStore {
   isDefault: boolean
 }
 
-export interface CalendarSettings {
-  icalUrl: string
-  googleCalendarEnabled: boolean
-  syncFrequency: 'realtime' | 'hourly' | 'daily'
-  showCalendarEvents: boolean
-}
-
 export interface AppSettings {
   spouse1: SpouseInfo
   spouse2: SpouseInfo
@@ -41,7 +34,6 @@ export interface AppSettings {
   currency: string
   dateFormat: 'MM/DD/YYYY' | 'DD/MM/YYYY' | 'YYYY-MM-DD'
   theme: 'light' | 'dark' | 'auto'
-  calendar: CalendarSettings
 }
 
 interface SettingsStore {
@@ -54,7 +46,6 @@ interface SettingsStore {
   removeGroceryStore: (id: string) => Promise<void>
   setDefaultGroceryStore: (id: string) => Promise<void>
   updateGeneralSettings: (settings: Partial<Pick<AppSettings, 'familyCreed' | 'defaultWeatherLocation' | 'timezone' | 'currency' | 'dateFormat' | 'theme'>>) => Promise<void>
-  updateCalendarSettings: (calendar: Partial<CalendarSettings>) => Promise<void>
   resetSettings: () => Promise<void>
   loadSettings: () => Promise<AppSettings>
 }
@@ -83,13 +74,7 @@ const defaultSettings: AppSettings = {
   timezone: 'America/New_York',
   currency: 'USD',
   dateFormat: 'MM/DD/YYYY',
-  theme: 'light',
-  calendar: {
-    icalUrl: '',
-    googleCalendarEnabled: false,
-    syncFrequency: 'daily',
-    showCalendarEvents: true
-  }
+  theme: 'light'
 }
 
 // API functions
@@ -307,19 +292,6 @@ export const useSettingsStore = create<SettingsStore>()(
         await saveSettings(newSettings)
       } catch (error) {
         console.error('Failed to save general settings update:', error)
-      }
-    },
-
-    updateCalendarSettings: async (calendar) => {
-      const newSettings = {
-        ...get().settings,
-        calendar: { ...get().settings.calendar, ...calendar }
-      }
-      set({ settings: newSettings })
-      try {
-        await saveSettings(newSettings)
-      } catch (error) {
-        console.error('Failed to save calendar settings update:', error)
       }
     },
 
