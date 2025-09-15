@@ -387,7 +387,18 @@ export class CalendarService {
     const eventEnd = event.end
 
     // Check if event overlaps with the week
-    return (eventStart < weekEnd && eventEnd > weekStart)
+    const isInWeek = (eventStart < weekEnd && eventEnd > weekStart)
+    
+    console.log('📅 isEventInWeek check:', {
+      title: event.title,
+      eventStart: eventStart.toISOString().split('T')[0],
+      eventEnd: eventEnd.toISOString().split('T')[0],
+      weekStart: weekStart.toISOString().split('T')[0],
+      weekEnd: weekEnd.toISOString().split('T')[0],
+      isInWeek
+    })
+    
+    return isInWeek
   }
 
   /**
@@ -751,6 +762,18 @@ export class CalendarService {
     
     // Perform sync
     await this.performSync(icalUrl, googleCalendarEnabled, weekStart, onEventsUpdate)
+  }
+
+  /**
+   * Clear cache for a specific week to force fresh data
+   */
+  clearCacheForWeek(icalUrl: string, weekStart: Date): void {
+    const weekKey = weekStart.toISOString().split('T')[0]
+    const cacheKey = `ical_${icalUrl}_${weekKey}`
+    
+    console.log('📅 Clearing cache for week:', weekKey)
+    this.cache.delete(cacheKey)
+    this.cacheExpiry.delete(cacheKey)
   }
   
   /**

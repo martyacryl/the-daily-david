@@ -82,9 +82,10 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
     const [year, month, day] = mondayKey.split('-').map(Number)
     const weekStart = new Date(year, month - 1, day)
     
-    // Stop any existing sync
+    // Stop any existing sync and clear cache for this week
     if (settings.calendar?.icalUrl) {
       calendarService.stopAutoSync(settings.calendar.icalUrl)
+      calendarService.clearCacheForWeek(settings.calendar.icalUrl, weekStart)
     }
     
     // Start auto-sync if calendar events are enabled
@@ -102,13 +103,39 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
       const handleEventsUpdate = async (events: CalendarEvent[]) => {
         console.log('📅 Calendar events updated:', events.length)
         
-        // Update the store with calendar events
-        updateCalendarEvents(events)
+        // Filter events to only include those that actually belong to the current week
+        const currentWeekEvents = events.filter(event => {
+          const eventStartDate = event.start.toISOString().split('T')[0]
+          const eventEndDate = event.end.toISOString().split('T')[0]
+          const weekStartDate = weekStart.toISOString().split('T')[0]
+          const weekEndDate = new Date(weekStart.getTime() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+          
+          // Event belongs to current week if it starts or ends within the week
+          const belongsToWeek = (eventStartDate >= weekStartDate && eventStartDate < weekEndDate) ||
+                               (eventEndDate > weekStartDate && eventEndDate <= weekEndDate) ||
+                               (eventStartDate < weekStartDate && eventEndDate >= weekEndDate)
+          
+          console.log('📅 Event week filter check:', {
+            title: event.title,
+            eventStartDate,
+            eventEndDate,
+            weekStartDate,
+            weekEndDate,
+            belongsToWeek
+          })
+          
+          return belongsToWeek
+        })
+        
+        console.log('📅 Filtered events for current week:', currentWeekEvents.length, 'out of', events.length)
+        
+        // Update the store with filtered calendar events
+        updateCalendarEvents(currentWeekEvents)
         
         // Save to database
         await saveWeekData(mondayKey, {
           ...weekData,
-          calendarEvents: events
+          calendarEvents: currentWeekEvents
         })
       }
       
