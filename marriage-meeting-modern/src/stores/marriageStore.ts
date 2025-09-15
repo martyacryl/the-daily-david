@@ -212,6 +212,7 @@ export const useMarriageStore = create<MarriageState>((set, get) => ({
         }
         
         console.log('Store: Complete weekData being set:', weekDataToSet)
+        console.log('Store: Schedule data being set:', weekDataToSet.schedule)
         
         set({ 
           currentWeek: week,

@@ -56,6 +56,13 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
   onSave,
   isSaving = false
 }) => {
+  // Debug logging
+  console.log('📅 WeeklyMeetingContent: Rendering with weekData:', {
+    schedule: weekData.schedule,
+    todos: weekData.todos?.length || 0,
+    prayers: weekData.prayers?.length || 0,
+    currentDate: currentDate.toISOString().split('T')[0]
+  })
   const days: DayName[] = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
   const { settings, loadSettings } = useSettingsStore()
   const { updateCalendarEvents, saveWeekData } = useMarriageStore()
@@ -259,6 +266,7 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
                 })()}
                 
                 {/* Custom Schedule Items */}
+                {console.log(`📅 Rendering schedule for ${day}:`, weekData.schedule[day])}
                 {weekData.schedule[day]?.map((activity: string, index: number) => (
                   <div key={index} className="flex gap-2 sm:gap-3 items-start">
                     <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-blue-500 rounded-full mt-2 sm:mt-3 flex-shrink-0"></div>
