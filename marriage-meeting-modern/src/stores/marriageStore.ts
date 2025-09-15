@@ -111,14 +111,14 @@ export const useMarriageStore = create<MarriageState>((set, get) => ({
     set({ isLoading: true, error: null })
     
     try {
-      console.log('Store: Loading week data for:', weekKey)
-      console.log('Store: Current date being used:', new Date().toISOString())
+      console.log('🔍 Store: Loading week data for:', weekKey)
+      console.log('🔍 Store: Current date being used:', new Date().toISOString())
       
       const week = await dbManager.getMarriageMeetingWeekByDate(weekKey)
-      console.log('Store: Raw data from database:', week)
+      console.log('🔍 Store: Raw data from database:', week)
       
       if (week) {
-        console.log('Store: Found existing week data:', {
+        console.log('🔍 Store: Found existing week data:', {
           weekKey: week.week_key,
           todosCount: week.todos?.length || 0,
           todos: week.todos
@@ -211,15 +211,15 @@ export const useMarriageStore = create<MarriageState>((set, get) => ({
           calendarEvents: calendarEvents
         }
         
-        console.log('Store: Complete weekData being set:', weekDataToSet)
-        console.log('Store: Schedule data being set:', weekDataToSet.schedule)
+        console.log('🔍 Store: Complete weekData being set:', weekDataToSet)
+        console.log('🔍 Store: Schedule data being set:', weekDataToSet.schedule)
         
         set({ 
           currentWeek: week,
           weekData: weekDataToSet
         })
       } else {
-        console.log('Store: No existing data, using empty week data')
+        console.log('🔍 Store: No existing data, using empty week data')
         set({ 
           currentWeek: null,
           weekData: createEmptyWeekData()
