@@ -73,14 +73,13 @@ export const DashboardNew: React.FC = () => {
 
   useEffect(() => {
     if (isAuthenticated) {
-      // Load current week data
-      const today = new Date()
-      const weekKey = DatabaseManager.formatWeekKey(today)
+      // Load the same week data that the user is currently viewing
+      const weekKey = DatabaseManager.formatWeekKey(currentDate)
       console.log('Dashboard: Loading week data for key:', weekKey)
-      console.log('Dashboard: Today is:', today.toISOString().split('T')[0])
+      console.log('Dashboard: Current date being viewed:', currentDate.toISOString().split('T')[0])
       loadWeekData(weekKey)
     }
-  }, [isAuthenticated, loadWeekData])
+  }, [isAuthenticated, currentDate])
 
   // OLD DASHBOARD AUTO-SAVE LOGIC (commented out for reference - can be restored if needed)
   // This was causing data loss by overwriting data with empty values
