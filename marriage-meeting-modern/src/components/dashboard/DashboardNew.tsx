@@ -71,15 +71,14 @@ export const DashboardNew: React.FC = () => {
     highPriorityTasks: [] as any[]
   })
 
-  useEffect(() => {
-    if (isAuthenticated) {
-      // Load the same week data that the user is currently viewing
-      const weekKey = DatabaseManager.formatWeekKey(currentDate)
-      console.log('Dashboard: Loading week data for key:', weekKey)
-      console.log('Dashboard: Current date being viewed:', currentDate.toISOString().split('T')[0])
-      loadWeekData(weekKey)
-    }
-  }, [isAuthenticated, currentDate])
+  // REMOVED: Dashboard should not load week data - it causes data overwrites
+  // The Dashboard should only display data that's already loaded by the main app
+  // useEffect(() => {
+  //   if (isAuthenticated) {
+  //     const weekKey = DatabaseManager.formatWeekKey(currentDate)
+  //     loadWeekData(weekKey)
+  //   }
+  // }, [isAuthenticated, currentDate])
 
   // OLD DASHBOARD AUTO-SAVE LOGIC (commented out for reference - can be restored if needed)
   // This was causing data loss by overwriting data with empty values
