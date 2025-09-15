@@ -81,10 +81,12 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
     console.log('📅 Calendar sync check:', {
       showCalendarEvents: settings.calendar?.showCalendarEvents,
       icalUrl: settings.calendar?.icalUrl,
-      syncFrequency: settings.calendar?.syncFrequency
+      syncFrequency: settings.calendar?.syncFrequency,
+      hasCalendar: !!settings.calendar
     })
     
-    if (settings.calendar?.showCalendarEvents && settings.calendar?.icalUrl) {
+    // Force sync to start if we have an iCal URL, regardless of other settings
+    if (settings.calendar?.icalUrl) {
       console.log('📅 Starting automatic calendar sync...')
       
       const handleEventsUpdate = async (events: CalendarEvent[]) => {
@@ -109,8 +111,8 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
         handleEventsUpdate
       )
     } else {
-      console.log('📅 Calendar sync disabled - clearing events')
-      // Clear events if sync is disabled
+      console.log('📅 No iCal URL found - clearing events')
+      // Clear events if no iCal URL
       updateCalendarEvents([])
     }
     
