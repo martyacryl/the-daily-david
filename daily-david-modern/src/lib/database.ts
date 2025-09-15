@@ -214,6 +214,10 @@ class DatabaseManager {
       const entry = await this.getDailyEntry(date, userIdNum)
       
       if (entry) {
+        // Get reading plan data from data_content if it exists
+        const dataContent = entry.data_content || {}
+        const readingPlan = dataContent.readingPlan || null
+        
         // Transform the entry to match the expected format
         return {
           checkIn: {
@@ -240,7 +244,8 @@ class DatabaseManager {
             courage: 5,
             patience: 5,
             integrity: 5
-          }
+          },
+          readingPlan: readingPlan
         }
       }
       return null

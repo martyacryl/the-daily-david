@@ -156,7 +156,8 @@ export const useDayData = (dateKey: string, userId: string | null): UseDayDataRe
           (data.checkIn && (data.checkIn.feeling?.trim() || data.checkIn.emotions?.length > 0)) ||
           (data.goals && (data.goals.daily?.length > 0 || data.goals.weekly?.length > 0 || data.goals.monthly?.length > 0)) ||
           (data.dailyIntention?.trim()) ||
-          (data.growthQuestion?.trim())
+          (data.growthQuestion?.trim()) ||
+          (data.readingPlan && data.readingPlan.planId)
 
         if (hasRealData) {
           // Merge with defaults to ensure all properties exist

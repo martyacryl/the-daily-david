@@ -120,10 +120,23 @@ export const WeeklyMeetingSidebarLayout: React.FC = () => {
   // Initialize store with correct current date on mount
   useEffect(() => {
     if (isAuthenticated) {
-      console.log('Weekly Planner: Initializing store with current week')
-      initializeStore()
+      console.log('Weekly Planner: Initializing store')
+      
+      // Check if there's a week parameter in the URL
+      const weekParam = searchParams.get('week')
+      if (weekParam) {
+        // Parse the week from URL (format: YYYY-MM-DD)
+        const [year, month, day] = weekParam.split('-').map(Number)
+        const weekDate = new Date(year, month - 1, day) // month is 0-indexed
+        console.log('Weekly Planner: Using week from URL:', weekParam, '->', weekDate.toISOString())
+        setCurrentDate(weekDate)
+      } else {
+        // No week in URL, use current week
+        console.log('Weekly Planner: No week in URL, using current week')
+        initializeStore()
+      }
     }
-  }, [isAuthenticated, initializeStore])
+  }, [isAuthenticated, initializeStore, searchParams])
 
   // Force re-render when currentDate changes
   useEffect(() => {
@@ -185,17 +198,34 @@ export const WeeklyMeetingSidebarLayout: React.FC = () => {
     const newDate = new Date(currentDate)
     newDate.setDate(newDate.getDate() - 7)
     setCurrentDate(newDate)
+    updateWeekInURL(newDate)
   }
 
   const handleNextWeek = () => {
     const newDate = new Date(currentDate)
     newDate.setDate(newDate.getDate() + 7)
     setCurrentDate(newDate)
+    updateWeekInURL(newDate)
   }
 
   const handleCurrentWeek = () => {
     // Set to Monday of current week, not today
     setCurrentWeek()
+    // Update URL to current week
+    const today = new Date()
+    const mondayKey = DatabaseManager.formatWeekKey(today)
+    const [year, month, day] = mondayKey.split('-').map(Number)
+    const mondayDate = new Date(year, month - 1, day)
+    updateWeekInURL(mondayDate)
+  }
+
+  // Update week parameter in URL
+  const updateWeekInURL = (date: Date) => {
+    const weekKey = DatabaseManager.formatWeekKey(date)
+    const newSearchParams = new URLSearchParams(searchParams)
+    newSearchParams.set('week', weekKey)
+    setSearchParams(newSearchParams)
+    console.log('🔍 Weekly Planner: Updated URL with week:', weekKey)
   }
 
   // Handle section change and update URL
@@ -203,9 +233,12 @@ export const WeeklyMeetingSidebarLayout: React.FC = () => {
     console.log('🔍 Weekly Planner: Changing section to:', section)
     setActiveSection(section)
     
-    // Update URL to persist section on refresh
+    // Update URL to persist section on refresh, preserving week parameter
     const newSearchParams = new URLSearchParams(searchParams)
     newSearchParams.set('section', section)
+    // Preserve week parameter if it exists
+    const currentWeekKey = DatabaseManager.formatWeekKey(currentDate)
+    newSearchParams.set('week', currentWeekKey)
     setSearchParams(newSearchParams)
   }
 

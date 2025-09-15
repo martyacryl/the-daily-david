@@ -31,10 +31,7 @@ interface UserGoals {
 export function DailyEntry() {
   const { isAuthenticated, user } = useAuthStore()
   const { 
-    currentEntry, 
     loadEntryByDate,
-    createEntry,
-    updateEntry,
     isLoading: storeLoading,
     error: storeError
   } = useDailyStore()
@@ -282,7 +279,7 @@ export function DailyEntry() {
     const allDeletedGoalIds = new Set<string>()
     entries.forEach(entry => {
       if (entry.deletedGoalIds && Array.isArray(entry.deletedGoalIds)) {
-        entry.deletedGoalIds.forEach(id => allDeletedGoalIds.add(id))
+        entry.deletedGoalIds.forEach((id: string) => allDeletedGoalIds.add(id))
       }
     })
     
@@ -445,7 +442,7 @@ export function DailyEntry() {
         }
         
         // Extract weekly and monthly goals from all entries in current time periods
-        const currentDeletedGoalIds = entryData.deletedGoalIds ? new Set(entryData.deletedGoalIds) : new Set()
+        const currentDeletedGoalIds = entryData.deletedGoalIds ? new Set(entryData.deletedGoalIds as string[]) : new Set<string>()
         const extractedGoals = extractCurrentGoals(allEntries, currentGoals, date, currentDeletedGoalIds)
         setUserGoals(extractedGoals)
       } else {
@@ -456,12 +453,26 @@ export function DailyEntry() {
         // Reset deleted goals for new entries
         setDeletedGoalIds(new Set())
         
+        // Look for existing reading plan progress across all entries
+        let existingReadingPlan = null
+        const sortedEntries = [...allEntries].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+        
+        for (const entry of sortedEntries) {
+          const readingPlanData = entry.readingPlan || (entry.data_content && entry.data_content.readingPlan)
+          if (readingPlanData && readingPlanData.planId) {
+            existingReadingPlan = readingPlanData
+            console.log('🔥 Found existing reading plan progress from:', entry.date, 'plan:', readingPlanData.planName)
+            break
+          }
+        }
+        
         setDayData({
           checkIn: { emotions: [], feeling: '' },
           gratitude: ['', '', ''],
           soap: { scripture: '', observation: '', application: '', prayer: '' },
           dailyIntention: '',
-          leadershipRating: { wisdom: 5, courage: 5, patience: 5, integrity: 5 }
+          leadershipRating: { wisdom: 5, courage: 5, patience: 5, integrity: 5 },
+          readingPlan: existingReadingPlan // Preserve existing reading plan progress
         })
         
         // Extract weekly and monthly goals from all entries, start with empty daily goals
@@ -667,6 +678,11 @@ export function DailyEntry() {
         
         // Get the current reading plan state to avoid stale data
         setDayData(prev => {
+          if (!prev.readingPlan) {
+            console.log('No reading plan found, cannot mark day as complete')
+            return prev
+          }
+          
           const updatedCompletedDays = [...prev.readingPlan.completedDays]
           if (!updatedCompletedDays.includes(currentDay)) {
             updatedCompletedDays.push(currentDay)
@@ -724,7 +740,8 @@ export function DailyEntry() {
     if (nextDay <= dayData.readingPlan.totalDays) {
       const updatedReadingPlan = {
         ...dayData.readingPlan,
-        currentDay: nextDay
+        currentDay: nextDay,
+        bibleId: (dayData.readingPlan as any).bibleId || 'de4e12af7f28f599-02'
       }
       console.log('🔥 Updating to next day:', updatedReadingPlan)
       
@@ -742,7 +759,7 @@ export function DailyEntry() {
       
       // Automatically load the devotion for the new day
       console.log('🔥 Auto-loading devotion for day:', nextDay)
-      await handleLoadTodaysDevotion(updatedReadingPlan.planId, nextDay, updatedReadingPlan.bibleId)
+      await handleLoadTodaysDevotion(updatedReadingPlan.planId, nextDay, updatedReadingPlan.bibleId || 'de4e12af7f28f599-02')
     } else {
       console.log('❌ Cannot advance - already at last day')
     }
@@ -763,7 +780,8 @@ export function DailyEntry() {
     if (prevDay >= 1) {
       const updatedReadingPlan = {
         ...dayData.readingPlan,
-        currentDay: prevDay
+        currentDay: prevDay,
+        bibleId: (dayData.readingPlan as any).bibleId || 'de4e12af7f28f599-02'
       }
       console.log('🔥 Updating to previous day:', updatedReadingPlan)
       
@@ -781,7 +799,7 @@ export function DailyEntry() {
       
       // Automatically load the devotion for the previous day
       console.log('🔥 Auto-loading devotion for day:', prevDay)
-      await handleLoadTodaysDevotion(updatedReadingPlan.planId, prevDay, updatedReadingPlan.bibleId)
+      await handleLoadTodaysDevotion(updatedReadingPlan.planId, prevDay, updatedReadingPlan.bibleId || 'de4e12af7f28f599-02')
     } else {
       console.log('❌ Cannot go back - already at first day')
     }
@@ -944,84 +962,6 @@ export function DailyEntry() {
     return completedSections >= 2
   }
 
-  const handleSubmit = async (event?: React.MouseEvent | React.TouchEvent) => {
-    // Prevent default behavior and stop propagation
-    if (event) {
-      event.preventDefault()
-      event.stopPropagation()
-    }
-    
-    console.log('handleSubmit called', { event, isSaving })
-    
-    // Prevent multiple submissions
-    if (isSaving) {
-      console.log('Already saving, ignoring click')
-      return
-    }
-    
-    setIsSaving(true)
-    
-    try {
-      const dateString = getLocalDateString(selectedDate)
-      
-      // Include goals in the submission
-      const entryData = {
-        ...dayData,
-        goals: userGoals
-      }
-      
-      // Determine if entry should be marked as completed based on content
-      const isCompleted = isEntryCompleted(entryData)
-      
-      console.log('Saving entry with goals:', userGoals)
-      console.log('Full entry data:', entryData)
-      console.log('Entry completed:', isCompleted)
-      
-      if (currentEntry && currentEntry.id) {
-        // Update existing entry
-        await updateEntry(currentEntry.id, {
-          date: dateString,
-          dateKey: dateString,
-          date_key: dateString,
-          userId: user?.id?.toString() || '',
-          user_id: user?.id?.toString() || '',
-          ...entryData,
-          completed: isCompleted
-        })
-      } else {
-        // Create new entry
-        await createEntry({
-          date: dateString,
-          dateKey: dateString,
-          date_key: dateString,
-          userId: user?.id?.toString() || '',
-          user_id: user?.id?.toString() || '',
-          ...entryData,
-          completed: isCompleted,
-          created_at: new Date(),
-          updated_at: new Date()
-        })
-      }
-      
-      // Show success banner
-      setShowSuccessBanner(true)
-      
-      // Scroll to top after saving - with fallback for browsers that don't support smooth scrolling
-      setTimeout(() => {
-        try {
-        window.scrollTo({ top: 0, behavior: 'smooth' })
-        } catch (e) {
-          // Fallback for browsers that don't support smooth scrolling
-          window.scrollTo(0, 0)
-        }
-      }, 100)
-    } catch (error) {
-      console.error('Error saving entry:', error)
-      // You might want to show an error message to the user here
-    } finally {
-      setIsSaving(false)
-    }
-  }
 
   const handleGoalEdit = (type: keyof UserGoals, index: number, field: keyof Goal, value: any) => {
     setUserGoals(prev => {

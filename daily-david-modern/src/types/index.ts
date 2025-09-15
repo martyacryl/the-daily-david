@@ -62,6 +62,7 @@ export interface User {
     totalDays: number
     startDate: string
     completedDays: number[]
+    bibleId?: string
   }
   
   export interface LeadershipTrait {
@@ -91,6 +92,8 @@ export interface User {
     leadershipRating?: LeadershipRating
     leadershipTraits?: LeadershipTrait[]
     deletedGoalIds?: string[]
+    readingPlan?: ReadingPlan
+    data_content?: any
     
     // Status
     completed: boolean
