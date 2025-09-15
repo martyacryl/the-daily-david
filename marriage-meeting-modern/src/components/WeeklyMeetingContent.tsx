@@ -338,7 +338,8 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
             variant="outline"
             onClick={() => {
               onAddListItem(type, '')
-              // DO NOT auto-save - let user manually save when ready
+              // Auto-save for accountability section
+              if (isAccountability && onSave) onSave()
             }}
             className={`text-${color}-600 border-${color}-200 hover:bg-${color}-50 text-xs sm:text-sm px-2 py-1 sm:px-3 sm:py-2`}
           >
@@ -352,7 +353,8 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
               <button
                 onClick={() => {
                   onToggleListItem(type, item.id)
-                  // DO NOT auto-save - let user manually save when ready
+                  // Auto-save for accountability section
+                  if (isAccountability && onSave) onSave()
                 }}
                 className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
                   item.completed
@@ -367,7 +369,8 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
                 value={item.text}
                 onChange={(e) => {
                   onUpdateListItem(type, item.id, e.target.value)
-                  // DO NOT auto-save - let user manually save when ready
+                  // Auto-save for accountability section
+                  if (isAccountability && onSave) onSave()
                 }}
                 className={`flex-1 bg-transparent border-none outline-none text-sm sm:text-base lg:text-lg ${
                   item.completed ? 'line-through text-gray-500' : 'text-gray-800'
@@ -379,7 +382,8 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
                 size="sm"
                 onClick={() => {
                   onRemoveListItem(type, item.id)
-                  // DO NOT auto-save - let user manually save when ready
+                  // Auto-save for accountability section
+                  if (isAccountability && onSave) onSave()
                 }}
                 className="text-red-600 hover:bg-red-50 border-red-200 flex-shrink-0 text-xs sm:text-sm px-2 py-1 sm:px-3 sm:py-2"
               >
