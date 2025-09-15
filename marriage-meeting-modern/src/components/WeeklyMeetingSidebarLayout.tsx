@@ -119,9 +119,11 @@ export const WeeklyMeetingSidebarLayout: React.FC = () => {
 
   // Initialize store with correct current date on mount
   useEffect(() => {
-    console.log('Weekly Planner: Calling initializeStore')
-    initializeStore()
-  }, []) // Empty dependency array - only run on mount
+    if (isAuthenticated) {
+      console.log('Weekly Planner: Initializing store with current week')
+      initializeStore()
+    }
+  }, [isAuthenticated, initializeStore])
 
   // Force re-render when currentDate changes
   useEffect(() => {
@@ -138,33 +140,15 @@ export const WeeklyMeetingSidebarLayout: React.FC = () => {
 
   // Load week data when date changes
   useEffect(() => {
-    setHasLoadedInitialData(false) // Reset flag when date changes
-    const weekKey = DatabaseManager.formatWeekKey(currentDate)
-    loadWeekData(weekKey).then(() => {
-      setHasLoadedInitialData(true)
-    })
-  }, [currentDate, loadWeekData])
-
-  // Also load current week data on mount to ensure we have the latest data
-  useEffect(() => {
     if (isAuthenticated) {
-      const today = new Date()
-      const currentWeekKey = DatabaseManager.formatWeekKey(today)
-      const currentDateKey = DatabaseManager.formatWeekKey(currentDate)
-      
-      console.log('Weekly Planner: Date check - Today:', today.toISOString().split('T')[0])
-      console.log('Weekly Planner: Date check - Current week key:', currentWeekKey)
-      console.log('Weekly Planner: Date check - Store currentDate:', currentDate.toISOString().split('T')[0])
-      console.log('Weekly Planner: Date check - Store currentDate key:', currentDateKey)
-      
-      // Only load if we're not already on the current week
-      if (currentWeekKey !== currentDateKey) {
-        console.log('Weekly Planner: Auto-loading current week data')
-        setCurrentWeek() // This will set currentDate to Monday of current week
-        loadWeekData(currentWeekKey)
-      }
+      setHasLoadedInitialData(false) // Reset flag when date changes
+      const weekKey = DatabaseManager.formatWeekKey(currentDate)
+      console.log('Weekly Planner: Loading week data for:', weekKey)
+      loadWeekData(weekKey).then(() => {
+        setHasLoadedInitialData(true)
+      })
     }
-  }, [isAuthenticated, loadWeekData, setCurrentWeek])
+  }, [currentDate, loadWeekData, isAuthenticated])
 
   // USER INTENT: Manual save function (no auto-save)
   const handleSaveWeek = async () => {

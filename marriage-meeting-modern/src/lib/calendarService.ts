@@ -143,8 +143,20 @@ export class CalendarService {
    */
   private parseICalData(icalData: string, weekStart: Date): CalendarEvent[] {
     const events: CalendarEvent[] = []
+    
+    // Include the previous weekend in the week range
+    // Week starts on Monday, but we want to include Saturday and Sunday from the previous week
+    const weekStartExtended = new Date(weekStart)
+    weekStartExtended.setDate(weekStartExtended.getDate() - 2) // Go back 2 days to include Saturday and Sunday
+    
     const weekEnd = new Date(weekStart)
     weekEnd.setDate(weekEnd.getDate() + 7)
+
+    console.log('📅 parseICalData: Week range extended to include previous weekend:', {
+      weekStart: weekStart.toISOString().split('T')[0],
+      weekStartExtended: weekStartExtended.toISOString().split('T')[0],
+      weekEnd: weekEnd.toISOString().split('T')[0]
+    })
 
     // Split into events
     const eventBlocks = icalData.split('BEGIN:VEVENT')
@@ -159,7 +171,7 @@ export class CalendarService {
         console.log('📅 parseICalData: Parsed event:', event ? event.title : 'null')
         
         if (event) {
-          const isInWeek = this.isEventInWeek(event, weekStart, weekEnd)
+          const isInWeek = this.isEventInWeek(event, weekStartExtended, weekEnd)
           console.log('📅 parseICalData: Event in week?', isInWeek, 'for event:', event.title)
           
           if (isInWeek) {

@@ -250,8 +250,12 @@ export class DatabaseManager {
     
     console.log('formatWeekKey result:', monday.toISOString().split('T')[0])
     
-    // Return in YYYY-MM-DD format
-    return monday.toISOString().split('T')[0]
+    // Return in YYYY-MM-DD format using local date components to avoid timezone issues
+    const year = monday.getFullYear()
+    const month = String(monday.getMonth() + 1).padStart(2, '0')
+    const dayOfMonth = String(monday.getDate()).padStart(2, '0')
+    
+    return `${year}-${month}-${dayOfMonth}`
   }
 
   // Helper method to get week range from week key

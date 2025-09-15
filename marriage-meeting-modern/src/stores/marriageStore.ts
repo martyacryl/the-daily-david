@@ -93,6 +93,10 @@ export const useMarriageStore = create<MarriageState>((set, get) => ({
     console.log('Store: Calculated Monday key:', mondayKey)
     console.log('Store: Setting currentDate to:', mondayDate.toISOString().split('T')[0])
     set({ currentDate: mondayDate })
+    
+    // Load the week data for the current week
+    const { loadWeekData } = get()
+    loadWeekData(mondayKey)
   },
 
   loadWeekData: async (weekKey: string) => {
