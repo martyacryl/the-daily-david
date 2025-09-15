@@ -139,11 +139,8 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
         // Update the store with filtered calendar events
         updateCalendarEvents(currentWeekEvents)
         
-        // Save to database
-        await saveWeekData(mondayKey, {
-          ...weekData,
-          calendarEvents: currentWeekEvents
-        })
+        // DO NOT auto-save - let user manually save when ready
+        // This prevents copying data between weeks
       }
       
       // Start auto-sync
@@ -341,8 +338,7 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
             variant="outline"
             onClick={() => {
               onAddListItem(type, '')
-              // Save immediately when list items are added
-              if (onSave) onSave()
+              // DO NOT auto-save - let user manually save when ready
             }}
             className={`text-${color}-600 border-${color}-200 hover:bg-${color}-50 text-xs sm:text-sm px-2 py-1 sm:px-3 sm:py-2`}
           >
@@ -356,8 +352,7 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
               <button
                 onClick={() => {
                   onToggleListItem(type, item.id)
-                  // Save immediately when list items are toggled
-                  if (onSave) onSave()
+                  // DO NOT auto-save - let user manually save when ready
                 }}
                 className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
                   item.completed
@@ -372,8 +367,7 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
                 value={item.text}
                 onChange={(e) => {
                   onUpdateListItem(type, item.id, e.target.value)
-                  // Save immediately when list items are updated
-                  if (onSave) onSave()
+                  // DO NOT auto-save - let user manually save when ready
                 }}
                 className={`flex-1 bg-transparent border-none outline-none text-sm sm:text-base lg:text-lg ${
                   item.completed ? 'line-through text-gray-500' : 'text-gray-800'
@@ -385,8 +379,7 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
                 size="sm"
                 onClick={() => {
                   onRemoveListItem(type, item.id)
-                  // Save immediately when list items are removed
-                  if (onSave) onSave()
+                  // DO NOT auto-save - let user manually save when ready
                 }}
                 className="text-red-600 hover:bg-red-50 border-red-200 flex-shrink-0 text-xs sm:text-sm px-2 py-1 sm:px-3 sm:py-2"
               >
@@ -444,8 +437,7 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
       tasks={weekData.todos} 
       onUpdate={(tasks) => {
         onUpdateTasks(tasks)
-        // Save immediately when tasks are updated
-        onSave()
+        // DO NOT auto-save - let user manually save when ready
       }} 
     />
   )
@@ -455,8 +447,7 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
       items={weekData.grocery} 
       onUpdate={(items) => {
         onUpdateGrocery(items)
-        // Save immediately when grocery items are updated
-        onSave()
+        // DO NOT auto-save - let user manually save when ready
       }} 
     />
   )
@@ -481,8 +472,7 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
           notes={weekData.encouragementNotes || []} 
           onUpdate={(notes) => {
             onUpdateEncouragementNotes(notes)
-            // Save immediately when encouragement notes are updated
-            onSave()
+            // DO NOT auto-save - let user manually save when ready
           }}
           className="w-full"
         />
