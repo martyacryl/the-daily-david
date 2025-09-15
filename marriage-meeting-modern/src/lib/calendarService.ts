@@ -410,18 +410,11 @@ export class CalendarService {
    * Get events for a specific day
    */
   getEventsForDay(events: CalendarEvent[], date: Date): CalendarEvent[] {
-    // Create day boundaries in local time
-    const dayStart = new Date(date)
-    dayStart.setHours(0, 0, 0, 0)
-    const dayEnd = new Date(date)
-    dayEnd.setHours(23, 59, 59, 999)
+    // Get the target date in YYYY-MM-DD format for comparison
+    const targetDateStr = date.toISOString().split('T')[0]
 
     console.log('📅 getEventsForDay called with:', {
-      date: date.toISOString().split('T')[0],
-      dayStart: dayStart.toISOString(),
-      dayEnd: dayEnd.toISOString(),
-      dayStartLocal: dayStart.toLocaleDateString(),
-      dayEndLocal: dayEnd.toLocaleDateString(),
+      date: targetDateStr,
       eventsCount: events.length
     })
     
@@ -429,50 +422,39 @@ export class CalendarService {
       title: e.title,
       start: e.start.toISOString(),
       end: e.end.toISOString(),
-      startLocal: e.start.toLocaleDateString(),
-      endLocal: e.end.toLocaleDateString()
+      startDate: e.start.toISOString().split('T')[0],
+      endDate: e.end.toISOString().split('T')[0]
     })))
 
     const filteredEvents = events.filter(event => {
-      // Convert event times to local time for comparison
-      const eventStart = new Date(event.start)
-      const eventEnd = new Date(event.end)
-      
       // Skip events with invalid dates (before 2020)
-      const startYear = eventStart.getFullYear()
-      const endYear = eventEnd.getFullYear()
+      const startYear = event.start.getFullYear()
+      const endYear = event.end.getFullYear()
       
       if (startYear < 2020 || endYear < 2020) {
         console.warn('⚠️ Skipping event with invalid date in getEventsForDay:', {
           title: event.title,
           startYear,
           endYear,
-          start: eventStart.toISOString(),
-          end: eventEnd.toISOString()
+          start: event.start.toISOString(),
+          end: event.end.toISOString()
         })
         return false
       }
       
-      // Get the date parts (year, month, day) for comparison
-      const eventStartDate = new Date(eventStart.getFullYear(), eventStart.getMonth(), eventStart.getDate())
-      const eventEndDate = new Date(eventEnd.getFullYear(), eventEnd.getMonth(), eventEnd.getDate())
-      const dayStartDate = new Date(dayStart.getFullYear(), dayStart.getMonth(), dayStart.getDate())
-      const dayEndDate = new Date(dayEnd.getFullYear(), dayEnd.getMonth(), dayEnd.getDate())
+      // Get the start date in YYYY-MM-DD format
+      const eventStartDateStr = event.start.toISOString().split('T')[0]
       
-      // Event is in the day if it overlaps with the day
-      const isInDay = eventStartDate <= dayEndDate && eventEndDate >= dayStartDate
+      // Show event only on the day it starts
+      const isOnStartDay = eventStartDateStr === targetDateStr
       
       console.log('📅 Event filter check for', event.title, ':', {
-        eventStart: eventStart.toISOString(),
-        eventEnd: eventEnd.toISOString(),
-        eventStartDate: eventStartDate.toISOString().split('T')[0],
-        eventEndDate: eventEndDate.toISOString().split('T')[0],
-        dayStartDate: dayStartDate.toISOString().split('T')[0],
-        dayEndDate: dayEndDate.toISOString().split('T')[0],
-        isInDay
+        eventStartDate: eventStartDateStr,
+        targetDate: targetDateStr,
+        isOnStartDay
       })
       
-      return isInDay
+      return isOnStartDay
     })
 
     console.log('📅 Filtered events for day:', filteredEvents.length)
@@ -483,11 +465,23 @@ export class CalendarService {
    * Format event for display in the weekly planner
    */
   formatEventForDisplay(event: CalendarEvent): string {
-    const timeStr = event.allDay 
-      ? 'All Day' 
-      : `${event.start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - ${event.end.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
+    if (event.allDay) {
+      return `[📅 Calendar] ${event.title} (All Day)`
+    }
     
-    return `[📅 Calendar] ${event.title} (${timeStr})`
+    // Format times in local timezone
+    const startTime = event.start.toLocaleTimeString([], { 
+      hour: '2-digit', 
+      minute: '2-digit',
+      timeZoneName: 'short'
+    })
+    const endTime = event.end.toLocaleTimeString([], { 
+      hour: '2-digit', 
+      minute: '2-digit',
+      timeZoneName: 'short'
+    })
+    
+    return `[📅 Calendar] ${event.title} (${startTime} - ${endTime})`
   }
 
   /**
