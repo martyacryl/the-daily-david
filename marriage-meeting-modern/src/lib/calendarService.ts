@@ -137,6 +137,13 @@ export class CalendarService {
       source: 'ical'
     }
 
+    // Find all DTSTART and DTEND lines in this specific event block
+    const dtstartLines = lines.filter(line => line.trim().startsWith('DTSTART'))
+    const dtendLines = lines.filter(line => line.trim().startsWith('DTEND'))
+    
+    console.log('📅 Event block DTSTART lines:', dtstartLines)
+    console.log('📅 Event block DTEND lines:', dtendLines)
+
     for (const line of lines) {
       const trimmedLine = line.trim()
       if (trimmedLine.startsWith('SUMMARY:')) {
@@ -224,23 +231,49 @@ export class CalendarService {
     // Handle both date-only and datetime formats
     if (dateStr.length === 8) {
       // Date only (YYYYMMDD)
-      const year = parseInt(dateStr.substring(0, 4))
-      const month = parseInt(dateStr.substring(4, 6)) - 1 // JS months are 0-based
-      const day = parseInt(dateStr.substring(6, 8))
+      const year = parseInt(dateStr.substring(0, 4), 10)
+      const month = parseInt(dateStr.substring(4, 6), 10) - 1 // JS months are 0-based
+      const day = parseInt(dateStr.substring(6, 8), 10)
+      
+      // Validate the parsed values
+      if (isNaN(year) || isNaN(month) || isNaN(day)) {
+        console.error('❌ Invalid parsed values:', { year, month, day })
+        throw new Error('Invalid date components')
+      }
+      
+      // Validate year range (reasonable calendar years)
+      if (year < 1900 || year > 2100) {
+        console.error('❌ Year out of reasonable range:', year)
+        throw new Error('Year out of range')
+      }
+      
       const date = new Date(year, month, day)
       
       console.log('📅 Parsed date-only:', date, 'Year:', year, 'Month:', month, 'Day:', day)
+      console.log('📅 Final date year:', date.getFullYear())
       return date
     } else if (dateStr.length === 15 || dateStr.length === 16) {
       // DateTime (YYYYMMDDTHHMMSS or YYYYMMDDTHHMMSSZ)
-      const year = parseInt(dateStr.substring(0, 4))
-      const month = parseInt(dateStr.substring(4, 6)) - 1
-      const day = parseInt(dateStr.substring(6, 8))
-      const hour = parseInt(dateStr.substring(9, 11))
-      const minute = parseInt(dateStr.substring(11, 13))
-      const second = parseInt(dateStr.substring(13, 15))
+      const year = parseInt(dateStr.substring(0, 4), 10)
+      const month = parseInt(dateStr.substring(4, 6), 10) - 1
+      const day = parseInt(dateStr.substring(6, 8), 10)
+      const hour = parseInt(dateStr.substring(9, 11), 10)
+      const minute = parseInt(dateStr.substring(11, 13), 10)
+      const second = parseInt(dateStr.substring(13, 15), 10)
       
       console.log('📅 Parsing components:', { year, month, day, hour, minute, second })
+      
+      // Validate the parsed values
+      if (isNaN(year) || isNaN(month) || isNaN(day) || isNaN(hour) || isNaN(minute) || isNaN(second)) {
+        console.error('❌ Invalid parsed values:', { year, month, day, hour, minute, second })
+        throw new Error('Invalid date components')
+      }
+      
+      // Validate year range (reasonable calendar years)
+      if (year < 1900 || year > 2100) {
+        console.error('❌ Year out of reasonable range:', year)
+        throw new Error('Year out of range')
+      }
       
       // Check if it's UTC (ends with Z)
       const isUTC = dateStr.endsWith('Z')
@@ -255,6 +288,7 @@ export class CalendarService {
       }
       
       console.log('📅 Parsed datetime:', date, 'UTC:', isUTC, 'Year:', year, 'Month:', month, 'Day:', day)
+      console.log('📅 Final date year:', date.getFullYear())
       return date
     }
 
