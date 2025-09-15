@@ -148,6 +148,16 @@ export class CalendarService {
           event.start = this.parseICalDate(trimmedLine)
           event.allDay = trimmedLine.includes('VALUE=DATE')
           console.log('📅 Found start date:', event.start, 'allDay:', event.allDay)
+          
+          // Special debugging for Test event 3
+          if (event.title === 'Test event 3') {
+            console.log('🔍 DEBUG Test event 3 DTSTART parsing:')
+            console.log('  Raw line:', trimmedLine)
+            console.log('  Parsed start:', event.start)
+            console.log('  Start year:', event.start.getFullYear())
+            console.log('  Start month:', event.start.getMonth())
+            console.log('  Start day:', event.start.getDate())
+          }
         } catch (error) {
           console.error('❌ Error parsing DTSTART:', trimmedLine, error)
           return null
@@ -157,6 +167,16 @@ export class CalendarService {
         try {
           event.end = this.parseICalDate(trimmedLine)
           console.log('📅 Found end date:', event.end)
+          
+          // Special debugging for Test event 3
+          if (event.title === 'Test event 3') {
+            console.log('🔍 DEBUG Test event 3 DTEND parsing:')
+            console.log('  Raw line:', trimmedLine)
+            console.log('  Parsed end:', event.end)
+            console.log('  End year:', event.end.getFullYear())
+            console.log('  End month:', event.end.getMonth())
+            console.log('  End day:', event.end.getDate())
+          }
         } catch (error) {
           console.error('❌ Error parsing DTEND:', trimmedLine, error)
           return null
@@ -209,7 +229,7 @@ export class CalendarService {
       const day = parseInt(dateStr.substring(6, 8))
       const date = new Date(year, month, day)
       
-      console.log('📅 Parsed date-only:', date)
+      console.log('📅 Parsed date-only:', date, 'Year:', year, 'Month:', month, 'Day:', day)
       return date
     } else if (dateStr.length === 15 || dateStr.length === 16) {
       // DateTime (YYYYMMDDTHHMMSS or YYYYMMDDTHHMMSSZ)
@@ -219,6 +239,8 @@ export class CalendarService {
       const hour = parseInt(dateStr.substring(9, 11))
       const minute = parseInt(dateStr.substring(11, 13))
       const second = parseInt(dateStr.substring(13, 15))
+      
+      console.log('📅 Parsing components:', { year, month, day, hour, minute, second })
       
       // Check if it's UTC (ends with Z)
       const isUTC = dateStr.endsWith('Z')
@@ -232,7 +254,7 @@ export class CalendarService {
         date = new Date(year, month, day, hour, minute, second)
       }
       
-      console.log('📅 Parsed datetime:', date, 'UTC:', isUTC)
+      console.log('📅 Parsed datetime:', date, 'UTC:', isUTC, 'Year:', year, 'Month:', month, 'Day:', day)
       return date
     }
 
