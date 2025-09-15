@@ -181,8 +181,11 @@ export class CalendarService {
   private parseICalDate(dateLine: string): Date {
     console.log('📅 Parsing date line:', dateLine)
     
-    // Extract date part (remove parameters and timezone info)
-    const dateMatch = dateLine.match(/(\d{8}(?:T\d{6})?)/)
+    // Extract date part - handle various iCal formats
+    // DTSTART:20250915T030000Z
+    // DTSTART;TZID=America/Denver:20250915T030000
+    // DTSTART:20250915
+    const dateMatch = dateLine.match(/:(\d{8}(?:T\d{6})?[Z]?)/)
     if (!dateMatch) {
       console.error('❌ No date match found in:', dateLine)
       throw new Error('Invalid date format')
@@ -199,31 +202,30 @@ export class CalendarService {
       const day = parseInt(dateStr.substring(6, 8))
       const date = new Date(year, month, day)
       
-      // Validate the date is reasonable (not before 2020)
-      if (year < 2020) {
-        console.warn('⚠️ Skipping event with date before 2020:', dateStr, '->', date.toISOString())
-        throw new Error('Date too old')
-      }
-      
       console.log('📅 Parsed date-only:', date)
       return date
-    } else if (dateStr.length === 15) {
-      // DateTime (YYYYMMDDTHHMMSS)
+    } else if (dateStr.length === 15 || dateStr.length === 16) {
+      // DateTime (YYYYMMDDTHHMMSS or YYYYMMDDTHHMMSSZ)
       const year = parseInt(dateStr.substring(0, 4))
       const month = parseInt(dateStr.substring(4, 6)) - 1
       const day = parseInt(dateStr.substring(6, 8))
       const hour = parseInt(dateStr.substring(9, 11))
       const minute = parseInt(dateStr.substring(11, 13))
       const second = parseInt(dateStr.substring(13, 15))
-      const date = new Date(year, month, day, hour, minute, second)
       
-      // Validate the date is reasonable (not before 2020)
-      if (year < 2020) {
-        console.warn('⚠️ Skipping event with date before 2020:', dateStr, '->', date.toISOString())
-        throw new Error('Date too old')
+      // Check if it's UTC (ends with Z)
+      const isUTC = dateStr.endsWith('Z')
+      
+      let date: Date
+      if (isUTC) {
+        // Create UTC date
+        date = new Date(Date.UTC(year, month, day, hour, minute, second))
+      } else {
+        // Create local date
+        date = new Date(year, month, day, hour, minute, second)
       }
       
-      console.log('📅 Parsed datetime:', date)
+      console.log('📅 Parsed datetime:', date, 'UTC:', isUTC)
       return date
     }
 
