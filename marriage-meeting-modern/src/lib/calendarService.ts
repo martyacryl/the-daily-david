@@ -9,6 +9,9 @@ export interface CalendarEvent {
   source: 'ical' | 'google'
 }
 
+// Type declaration for timer
+type Timer = ReturnType<typeof setInterval>
+
 export interface GoogleCalendarConfig {
   clientId: string
   apiKey: string
@@ -20,7 +23,7 @@ export class CalendarService {
   private static instance: CalendarService
   private cache: Map<string, CalendarEvent[]> = new Map()
   private cacheExpiry: Map<string, number> = new Map()
-  private syncIntervals: Map<string, NodeJS.Timeout> = new Map()
+  private syncIntervals: Map<string, Timer> = new Map()
   private syncCallbacks: Set<(events: CalendarEvent[]) => void> = new Set()
 
   static getInstance(): CalendarService {
@@ -196,8 +199,9 @@ export class CalendarService {
             console.log('  Start day:', event.start.getDate())
           }
         } catch (error) {
-          console.error('❌ Error parsing DTSTART:', trimmedLine, error)
-          return null
+          const errorMessage = error instanceof Error ? error.message : String(error)
+          console.warn('⚠️ Skipping invalid DTSTART line (likely timezone definition):', trimmedLine, errorMessage)
+          // Don't return null here - continue parsing to find valid dates
         }
       } else if (trimmedLine.startsWith('DTEND')) {
         console.log('📅 RAW DTEND line:', trimmedLine)
@@ -215,8 +219,9 @@ export class CalendarService {
             console.log('  End day:', event.end.getDate())
           }
         } catch (error) {
-          console.error('❌ Error parsing DTEND:', trimmedLine, error)
-          return null
+          const errorMessage = error instanceof Error ? error.message : String(error)
+          console.warn('⚠️ Skipping invalid DTEND line (likely timezone definition):', trimmedLine, errorMessage)
+          // Don't return null here - continue parsing to find valid dates
         }
       } else if (trimmedLine.startsWith('DESCRIPTION:')) {
         event.description = trimmedLine.substring(12).replace(/\\,/g, ',').replace(/\\;/g, ';')
@@ -227,8 +232,14 @@ export class CalendarService {
       }
     }
 
+    // Only fail if we don't have the essential fields after trying all lines
     if (!event.title || !event.start || !event.end || !event.id) {
-      console.log('❌ Missing required fields:', { title: !!event.title, start: !!event.start, end: !!event.end, id: !!event.id })
+      console.log('❌ Missing required fields after parsing all lines:', { 
+        title: !!event.title, 
+        start: !!event.start, 
+        end: !!event.end, 
+        id: !!event.id 
+      })
       if (hasTestEvent3) {
         console.log('🔍 Test event 3 missing fields - full event object:', event)
         console.log('🔍 Test event 3 lines processed:', lines.length)
@@ -257,7 +268,7 @@ export class CalendarService {
     const colonIndex = dateLine.indexOf(':')
     if (colonIndex === -1) {
       console.error('❌ No colon found in date line:', dateLine)
-      throw new Error('Invalid date format')
+      throw new Error('Invalid date format - no colon found')
     }
     
     const dateStr = dateLine.substring(colonIndex + 1).trim()
@@ -278,8 +289,8 @@ export class CalendarService {
       
       // Validate year range (reasonable calendar years)
       if (year < 1900 || year > 2100) {
-        console.error('❌ Year out of reasonable range:', year)
-        throw new Error('Year out of range')
+        console.warn('⚠️ Year out of reasonable range (likely timezone definition):', year, 'in line:', dateLine)
+        throw new Error(`Year out of range: ${year} (likely timezone definition)`)
       }
       
       const date = new Date(year, month, day)
@@ -306,8 +317,8 @@ export class CalendarService {
       
       // Validate year range (reasonable calendar years)
       if (year < 1900 || year > 2100) {
-        console.error('❌ Year out of reasonable range:', year)
-        throw new Error('Year out of range')
+        console.warn('⚠️ Year out of reasonable range (likely timezone definition):', year, 'in line:', dateLine)
+        throw new Error(`Year out of range: ${year} (likely timezone definition)`)
       }
       
       // Check if it's UTC (ends with Z)
@@ -328,7 +339,7 @@ export class CalendarService {
     }
 
     console.error('❌ Unsupported date format:', dateStr)
-    throw new Error('Unsupported date format')
+    throw new Error(`Unsupported date format: ${dateStr}`)
   }
 
   /**
@@ -715,7 +726,7 @@ export class CalendarService {
    * Get sync status
    */
   getSyncStatus(icalUrl: string): { isActive: boolean; frequency?: string } {
-    for (const [key, interval] of this.syncIntervals.entries()) {
+    for (const [key] of this.syncIntervals.entries()) {
       if (key.startsWith(icalUrl)) {
         const frequency = key.split('_').pop()
         return { isActive: true, frequency }
