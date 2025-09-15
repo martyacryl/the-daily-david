@@ -102,9 +102,9 @@ export const useMarriageStore = create<MarriageState>((set, get) => ({
     console.log('Store: Monday date local:', mondayDate.toLocaleDateString())
     set({ currentDate: mondayDate })
     
-    // Load the week data for the current week
-    const { loadWeekData } = get()
-    loadWeekData(mondayKey)
+    // DO NOT auto-load week data here - let the component handle it
+    // This prevents race conditions when navigating between weeks
+    console.log('Store: Initialization complete - component will load week data')
   },
 
   loadWeekData: async (weekKey: string) => {

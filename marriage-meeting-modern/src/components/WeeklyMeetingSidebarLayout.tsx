@@ -138,7 +138,7 @@ export const WeeklyMeetingSidebarLayout: React.FC = () => {
     }
   }, [searchParams])
 
-  // Load week data when date changes
+  // Load week data when date changes OR when first authenticated
   useEffect(() => {
     if (isAuthenticated) {
       setHasLoadedInitialData(false) // Reset flag when date changes
@@ -151,7 +151,7 @@ export const WeeklyMeetingSidebarLayout: React.FC = () => {
         console.log('🔍 Weekly Planner: Week data loaded successfully')
       })
     }
-  }, [currentDate, isAuthenticated])
+  }, [currentDate, isAuthenticated, loadWeekData])
 
   // USER INTENT: Manual save function (no auto-save)
   const handleSaveWeek = async () => {
