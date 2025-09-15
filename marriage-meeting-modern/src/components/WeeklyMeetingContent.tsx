@@ -57,7 +57,7 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
   isSaving = false
 }) => {
   const days: DayName[] = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
-  const { settings } = useSettingsStore()
+  const { settings, loadSettings } = useSettingsStore()
   const { updateCalendarEvents, saveWeekData } = useMarriageStore()
   const [isLoadingCalendar, setIsLoadingCalendar] = React.useState(false)
   
@@ -65,6 +65,16 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
   const calendarEvents = weekData.calendarEvents || []
   console.log('📅 WeeklyMeetingContent: calendarEvents from weekData:', calendarEvents)
   console.log('📅 WeeklyMeetingContent: weekData keys:', Object.keys(weekData))
+
+  // Load settings first, then set up calendar sync
+  React.useEffect(() => {
+    const loadSettingsAndSync = async () => {
+      console.log('📅 WeeklyMeetingContent: Loading settings...')
+      await loadSettings()
+    }
+    
+    loadSettingsAndSync()
+  }, [loadSettings])
 
   // Set up automatic calendar sync when component mounts or settings change
   React.useEffect(() => {
@@ -122,7 +132,7 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
         calendarService.stopAutoSync(settings.calendar.icalUrl)
       }
     }
-  }, [settings.calendar?.icalUrl, settings.calendar?.googleCalendarEnabled, settings.calendar?.showCalendarEvents, settings.calendar?.syncFrequency, currentDate])
+  }, [settings.calendar?.icalUrl, settings.calendar?.googleCalendarEnabled, settings.calendar?.showCalendarEvents, settings.calendar?.syncFrequency, currentDate, loadSettings])
 
   // Calculate actual dates for each day of the current week
   const getWeekDates = () => {
