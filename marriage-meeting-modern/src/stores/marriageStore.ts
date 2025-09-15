@@ -240,11 +240,13 @@ export const useMarriageStore = create<MarriageState>((set, get) => ({
       
       const { currentDate, weekData: currentWeekData } = get()
       
-      // Use the data passed in, or fall back to current store data
-      const dataToSave = data || currentWeekData
+      // ALWAYS use current store data to ensure we save the latest changes
+      // The passed data might be stale if updates happened after it was passed
+      const dataToSave = currentWeekData
       
-      console.log('Store: Using data:', data ? 'passed data' : 'store data')
+      console.log('Store: Using current store data (ignoring passed data)')
       console.log('Store: Data to save todos:', dataToSave.todos)
+      console.log('Store: Data to save grocery:', dataToSave.grocery)
       
       // Get user from auth store
       let user = null
