@@ -152,22 +152,41 @@ export const useMarriageStore = create<MarriageState>((set, get) => ({
           Sunday: week.schedule?.Sunday || []
         }
         
-        // Convert calendar events string dates back to Date objects
-        const calendarEvents = (week.calendarEvents || []).map(event => {
-          const convertedEvent = {
-            ...event,
-            start: new Date(event.start),
-            end: new Date(event.end)
-          }
-          console.log('Store: Converting calendar event:', {
-            title: event.title,
-            originalStart: event.start,
-            convertedStart: convertedEvent.start,
-            originalEnd: event.end,
-            convertedEnd: convertedEvent.end
-          })
-          return convertedEvent
-        })
+            // Convert calendar events string dates back to Date objects and filter out invalid events
+            const calendarEvents = (week.calendarEvents || [])
+              .map(event => {
+                const convertedEvent = {
+                  ...event,
+                  start: new Date(event.start),
+                  end: new Date(event.end)
+                }
+                console.log('Store: Converting calendar event:', {
+                  title: event.title,
+                  originalStart: event.start,
+                  convertedStart: convertedEvent.start,
+                  originalEnd: event.end,
+                  convertedEnd: convertedEvent.end
+                })
+                return convertedEvent
+              })
+              .filter(event => {
+                // Filter out events with invalid dates (before 2020)
+                const startYear = event.start.getFullYear()
+                const endYear = event.end.getFullYear()
+                
+                if (startYear < 2020 || endYear < 2020) {
+                  console.warn('⚠️ Filtering out event with invalid date:', {
+                    title: event.title,
+                    startYear,
+                    endYear,
+                    start: event.start.toISOString(),
+                    end: event.end.toISOString()
+                  })
+                  return false
+                }
+                
+                return true
+              })
         
         const weekDataToSet = {
           schedule: normalizedSchedule,

@@ -298,6 +298,21 @@ export class CalendarService {
       const eventStart = new Date(event.start)
       const eventEnd = new Date(event.end)
       
+      // Skip events with invalid dates (before 2020)
+      const startYear = eventStart.getFullYear()
+      const endYear = eventEnd.getFullYear()
+      
+      if (startYear < 2020 || endYear < 2020) {
+        console.warn('⚠️ Skipping event with invalid date in getEventsForDay:', {
+          title: event.title,
+          startYear,
+          endYear,
+          start: eventStart.toISOString(),
+          end: eventEnd.toISOString()
+        })
+        return false
+      }
+      
       // Get the date parts (year, month, day) for comparison
       const eventStartDate = new Date(eventStart.getFullYear(), eventStart.getMonth(), eventStart.getDate())
       const eventEndDate = new Date(eventEnd.getFullYear(), eventEnd.getMonth(), eventEnd.getDate())
