@@ -269,22 +269,23 @@ export class CalendarService {
       const eventStart = new Date(event.start)
       const eventEnd = new Date(event.end)
       
-      // Check if event overlaps with the day by comparing local dates
-      const eventStartDate = eventStart.toLocaleDateString()
-      const eventEndDate = eventEnd.toLocaleDateString()
-      const dayStartDate = dayStart.toLocaleDateString()
-      const dayEndDate = dayEnd.toLocaleDateString()
+      // Get the date parts (year, month, day) for comparison
+      const eventStartDate = new Date(eventStart.getFullYear(), eventStart.getMonth(), eventStart.getDate())
+      const eventEndDate = new Date(eventEnd.getFullYear(), eventEnd.getMonth(), eventEnd.getDate())
+      const dayStartDate = new Date(dayStart.getFullYear(), dayStart.getMonth(), dayStart.getDate())
+      const dayEndDate = new Date(dayEnd.getFullYear(), dayEnd.getMonth(), dayEnd.getDate())
       
-      // Event is in the day if it starts on or before the day and ends on or after the day
+      // Event is in the day if it overlaps with the day
       const isInDay = eventStartDate <= dayEndDate && eventEndDate >= dayStartDate
       
       console.log('📅 Event filter check for', event.title, ':', {
-        eventStartDate,
-        eventEndDate,
-        dayStartDate,
-        dayEndDate,
-        isInDay,
-        comparison: `${eventStartDate} <= ${dayEndDate} && ${eventEndDate} >= ${dayStartDate}`
+        eventStart: eventStart.toISOString(),
+        eventEnd: eventEnd.toISOString(),
+        eventStartDate: eventStartDate.toISOString().split('T')[0],
+        eventEndDate: eventEndDate.toISOString().split('T')[0],
+        dayStartDate: dayStartDate.toISOString().split('T')[0],
+        dayEndDate: dayEndDate.toISOString().split('T')[0],
+        isInDay
       })
       
       return isInDay
