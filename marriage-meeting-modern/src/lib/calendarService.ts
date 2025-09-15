@@ -65,6 +65,19 @@ export class CalendarService {
       }
 
       const icalData = await response.text()
+      
+      // DEBUG: Log the raw iCal data
+      console.log('📅 RAW iCal data:', icalData)
+      console.log('📅 iCal data length:', icalData.length)
+      
+      // Find all DTSTART lines in the raw data
+      const dtstartLines = icalData.split('\n').filter(line => line.includes('DTSTART'))
+      console.log('📅 All DTSTART lines in raw data:', dtstartLines)
+      
+      // Find all DTEND lines in the raw data
+      const dtendLines = icalData.split('\n').filter(line => line.includes('DTEND'))
+      console.log('📅 All DTEND lines in raw data:', dtendLines)
+      
       const events = this.parseICalData(icalData, weekStart)
       
       // Cache the results
@@ -126,6 +139,7 @@ export class CalendarService {
         event.title = trimmedLine.substring(8).replace(/\\,/g, ',').replace(/\\;/g, ';')
         console.log('📅 Found title:', event.title)
       } else if (trimmedLine.startsWith('DTSTART')) {
+        console.log('📅 RAW DTSTART line:', trimmedLine)
         try {
           event.start = this.parseICalDate(trimmedLine)
           event.allDay = trimmedLine.includes('VALUE=DATE')
@@ -135,6 +149,7 @@ export class CalendarService {
           return null
         }
       } else if (trimmedLine.startsWith('DTEND')) {
+        console.log('📅 RAW DTEND line:', trimmedLine)
         try {
           event.end = this.parseICalDate(trimmedLine)
           console.log('📅 Found end date:', event.end)
@@ -183,6 +198,13 @@ export class CalendarService {
       const month = parseInt(dateStr.substring(4, 6)) - 1 // JS months are 0-based
       const day = parseInt(dateStr.substring(6, 8))
       const date = new Date(year, month, day)
+      
+      // Validate the date is reasonable (not before 2020)
+      if (year < 2020) {
+        console.warn('⚠️ Skipping event with date before 2020:', dateStr, '->', date.toISOString())
+        throw new Error('Date too old')
+      }
+      
       console.log('📅 Parsed date-only:', date)
       return date
     } else if (dateStr.length === 15) {
@@ -194,6 +216,13 @@ export class CalendarService {
       const minute = parseInt(dateStr.substring(11, 13))
       const second = parseInt(dateStr.substring(13, 15))
       const date = new Date(year, month, day, hour, minute, second)
+      
+      // Validate the date is reasonable (not before 2020)
+      if (year < 2020) {
+        console.warn('⚠️ Skipping event with date before 2020:', dateStr, '->', date.toISOString())
+        throw new Error('Date too old')
+      }
+      
       console.log('📅 Parsed datetime:', date)
       return date
     }
