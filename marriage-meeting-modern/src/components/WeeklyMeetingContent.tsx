@@ -78,6 +78,12 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
     }
     
     // Start auto-sync if calendar events are enabled
+    console.log('📅 Calendar sync check:', {
+      showCalendarEvents: settings.calendar?.showCalendarEvents,
+      icalUrl: settings.calendar?.icalUrl,
+      syncFrequency: settings.calendar?.syncFrequency
+    })
+    
     if (settings.calendar?.showCalendarEvents && settings.calendar?.icalUrl) {
       console.log('📅 Starting automatic calendar sync...')
       
@@ -98,11 +104,12 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
       calendarService.startAutoSync(
         settings.calendar.icalUrl,
         settings.calendar.googleCalendarEnabled || false,
-        settings.calendar.syncFrequency || 'daily',
+        settings.calendar.syncFrequency || 'realtime',
         weekStart,
         handleEventsUpdate
       )
     } else {
+      console.log('📅 Calendar sync disabled - clearing events')
       // Clear events if sync is disabled
       updateCalendarEvents([])
     }
