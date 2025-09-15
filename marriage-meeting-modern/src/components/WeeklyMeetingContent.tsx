@@ -446,9 +446,12 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
     <GroceryErrandsSection 
       items={weekData.grocery} 
       onUpdate={(items) => {
+        console.log('🛒 Grocery: onUpdate called with items:', items)
+        console.log('🛒 Grocery: Calling onUpdateGrocery')
         onUpdateGrocery(items)
-        // Auto-save grocery changes immediately
+        console.log('🛒 Grocery: Calling onSave for auto-save')
         onSave()
+        console.log('🛒 Grocery: onSave called successfully')
       }}
     />
   )

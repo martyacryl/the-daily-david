@@ -414,12 +414,14 @@ export const useMarriageStore = create<MarriageState>((set, get) => ({
   },
 
     updateGrocery: (grocery: any[]) => {
+      console.log('🏪 Store: updateGrocery called with:', grocery)
       set((state) => ({
         weekData: {
           ...state.weekData,
           grocery: grocery
         }
       }))
+      console.log('🏪 Store: updateGrocery completed, new grocery count:', grocery.length)
     },
 
   updateEncouragementNotes: (encouragementNotes: EncouragementNote[]) => {

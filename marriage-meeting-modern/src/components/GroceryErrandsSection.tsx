@@ -119,11 +119,13 @@ export const GroceryErrandsSection: React.FC<GroceryErrandsSectionProps> = ({ it
 
   // Remove store list
   const removeStoreList = (storeId: string) => {
-    console.log('🗑️ Grocery: Removing store list with ID:', storeId)
+    console.log('🗑️ Grocery: removeStoreList called with storeId:', storeId)
     console.log('🗑️ Grocery: Current items before removal:', items)
     const filteredItems = items.filter(list => list.storeId !== storeId)
-    console.log('🗑️ Grocery: Items after removal:', filteredItems)
+    console.log('🗑️ Grocery: Filtered items after removal:', filteredItems)
+    console.log('🗑️ Grocery: Calling onUpdate with filtered items')
     onUpdate(filteredItems)
+    console.log('🗑️ Grocery: onUpdate called successfully')
   }
 
   const handleStoreSelect = (store: string) => {
