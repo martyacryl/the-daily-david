@@ -476,7 +476,8 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
           notes={weekData.encouragementNotes || []} 
           onUpdate={(notes) => {
             onUpdateEncouragementNotes(notes)
-            // DO NOT auto-save - let user manually save when ready
+            // Auto-save encouragement changes immediately
+            onSave()
           }}
           className="w-full"
         />
