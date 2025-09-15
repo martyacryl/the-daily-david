@@ -443,7 +443,8 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
       tasks={weekData.todos} 
       onUpdate={(tasks) => {
         onUpdateTasks(tasks)
-        // DO NOT auto-save - let user manually save when ready
+        // Auto-save tasks changes immediately
+        onSave()
       }} 
     />
   )
