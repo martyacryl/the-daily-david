@@ -185,13 +185,20 @@ export class CalendarService {
     // DTSTART:20250915T030000Z
     // DTSTART;TZID=America/Denver:20250915T030000
     // DTSTART:20250915
+    // DTSTART;VALUE=DATE:20250915
     const dateMatch = dateLine.match(/:(\d{8}(?:T\d{6})?[Z]?)/)
     if (!dateMatch) {
-      console.error('❌ No date match found in:', dateLine)
-      throw new Error('Invalid date format')
+      // Try alternative patterns
+      const altMatch = dateLine.match(/(\d{8}(?:T\d{6})?[Z]?)/)
+      if (!altMatch) {
+        console.error('❌ No date match found in:', dateLine)
+        throw new Error('Invalid date format')
+      }
+      var dateStr = altMatch[1]
+    } else {
+      var dateStr = dateMatch[1]
     }
 
-    const dateStr = dateMatch[1]
     console.log('📅 Extracted date string:', dateStr)
     
     // Handle both date-only and datetime formats
@@ -596,8 +603,15 @@ export class CalendarService {
     weekStart: Date,
     onEventsUpdate: (events: CalendarEvent[]) => void
   ): Promise<void> {
-    // Clear cache to force fresh fetch
-    this.clearCache(icalUrl)
+    console.log('📅 Force sync requested - clearing all cache and fetching fresh data')
+    
+    // Clear ALL cache entries for this URL
+    for (const key of this.cache.keys()) {
+      if (key.includes(icalUrl)) {
+        this.cache.delete(key)
+        this.cacheExpiry.delete(key)
+      }
+    }
     
     // Perform sync
     await this.performSync(icalUrl, googleCalendarEnabled, weekStart, onEventsUpdate)
