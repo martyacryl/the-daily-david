@@ -158,6 +158,8 @@ export const WeeklyMeetingSidebarLayout: React.FC = () => {
     try {
       const weekKey = DatabaseManager.formatWeekKey(currentDate)
       console.log('Weekly Planner: Manual save to weekKey:', weekKey)
+      console.log('Weekly Planner: Current date being used:', currentDate.toISOString())
+      console.log('Weekly Planner: Current date local:', currentDate.toLocaleDateString())
       console.log('Weekly Planner: Saving weekData with todos:', weekData.todos?.length || 0)
       await saveWeekData(weekKey, weekData) // Pass current weekData to ensure we save the latest changes
       console.log('Weekly Planner: Save successful!')
