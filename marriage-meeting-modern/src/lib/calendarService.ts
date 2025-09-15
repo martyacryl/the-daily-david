@@ -527,13 +527,16 @@ export class CalendarService {
     const syncKey = `${icalUrl}_${googleCalendarEnabled}_${syncFrequency}`
     
     console.log(`📅 Starting auto-sync for ${syncFrequency} (every ${syncInterval / 1000 / 60} minutes)`)
+    console.log('📅 Sync URL:', icalUrl)
+    console.log('📅 Google Calendar enabled:', googleCalendarEnabled)
     
     // Initial sync
+    console.log('📅 Performing initial sync...')
     this.performSync(icalUrl, googleCalendarEnabled, weekStart, onEventsUpdate)
     
     // Set up recurring sync
     const interval = setInterval(() => {
-      console.log('📅 Auto-sync triggered')
+      console.log('📅 Auto-sync triggered for', syncFrequency, 'sync')
       this.performSync(icalUrl, googleCalendarEnabled, weekStart, onEventsUpdate)
     }, syncInterval)
     
