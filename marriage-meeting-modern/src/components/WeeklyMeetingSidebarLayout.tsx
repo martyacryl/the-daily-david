@@ -112,7 +112,7 @@ export const WeeklyMeetingSidebarLayout: React.FC = () => {
     updateEncouragementNotes
   } = useMarriageStore()
 
-  const [searchParams] = useSearchParams()
+  const [searchParams, setSearchParams] = useSearchParams()
   const [activeSection, setActiveSection] = useState('schedule')
   const [isSaving, setIsSaving] = useState(false)
   const [hasLoadedInitialData, setHasLoadedInitialData] = useState(false)
@@ -130,11 +130,16 @@ export const WeeklyMeetingSidebarLayout: React.FC = () => {
     console.log('Weekly Planner: currentDate changed to:', currentDate.toISOString().split('T')[0])
   }, [currentDate])
 
-  // Handle section parameter from URL
+  // Handle section parameter from URL - run on mount and when searchParams change
   useEffect(() => {
     const section = searchParams.get('section')
     if (section && ['schedule', 'goals', 'todos', 'prayers', 'grocery', 'unconfessed', 'encouragement'].includes(section)) {
+      console.log('🔍 Weekly Planner: Setting active section from URL:', section)
       setActiveSection(section)
+    } else {
+      // Default to schedule if no valid section in URL
+      console.log('🔍 Weekly Planner: No valid section in URL, defaulting to schedule')
+      setActiveSection('schedule')
     }
   }, [searchParams])
 
@@ -193,6 +198,17 @@ export const WeeklyMeetingSidebarLayout: React.FC = () => {
     setCurrentWeek()
   }
 
+  // Handle section change and update URL
+  const handleSectionChange = (section: string) => {
+    console.log('🔍 Weekly Planner: Changing section to:', section)
+    setActiveSection(section)
+    
+    // Update URL to persist section on refresh
+    const newSearchParams = new URLSearchParams(searchParams)
+    newSearchParams.set('section', section)
+    setSearchParams(newSearchParams)
+  }
+
   // Calculate section counts for sidebar
   const sectionCounts = {
     schedule: Object.values(weekData.schedule || {}).flat().filter((item: any) => item && item.trim()).length,
@@ -202,6 +218,17 @@ export const WeeklyMeetingSidebarLayout: React.FC = () => {
     unconfessed: (weekData.unconfessedSin || []).length,
     encouragement: (weekData.encouragementNotes || []).length
   }
+
+  // Debug counts
+  console.log('🔍 Weekly Planner: Section counts for week', DatabaseManager.formatWeekKey(currentDate), ':', sectionCounts)
+  console.log('🔍 Weekly Planner: Week data details:', {
+    scheduleItems: Object.values(weekData.schedule || {}).flat().filter((item: any) => item && item.trim()),
+    todos: weekData.todos,
+    prayers: weekData.prayers,
+    grocery: weekData.grocery,
+    unconfessedSin: weekData.unconfessedSin,
+    encouragementNotes: weekData.encouragementNotes
+  })
 
   if (isLoading) {
     return (
@@ -250,7 +277,7 @@ export const WeeklyMeetingSidebarLayout: React.FC = () => {
         {/* Sidebar */}
         <WeeklyMeetingSidebar
           activeSection={activeSection}
-          onSectionChange={setActiveSection}
+          onSectionChange={handleSectionChange}
           sectionCounts={sectionCounts}
         />
 
