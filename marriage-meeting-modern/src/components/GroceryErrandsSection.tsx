@@ -18,7 +18,7 @@ interface GroceryErrandsSectionProps {
   onUpdate: (items: GroceryStoreList[]) => void
 }
 
-export const GroceryErrandsSection: React.FC<GroceryErrandsSectionProps> = ({ items, onUpdate }) => {
+export const GroceryErrandsSection: React.FC<GroceryErrandsSectionProps> = ({ items, onUpdate, onSave }) => {
   const { settings, addGroceryStore } = useSettingsStore()
   const [newItemTexts, setNewItemTexts] = useState<Record<string, string>>({})
   const [selectedStore, setSelectedStore] = useState('')

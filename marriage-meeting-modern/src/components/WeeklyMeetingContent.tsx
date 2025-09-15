@@ -447,8 +447,9 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
       items={weekData.grocery} 
       onUpdate={(items) => {
         onUpdateGrocery(items)
-        // DO NOT auto-save - let user manually save when ready
-      }} 
+        // Auto-save grocery changes immediately
+        onSave()
+      }}
     />
   )
 
