@@ -253,15 +253,16 @@ export class CalendarService {
       dayEnd: dayEnd.toISOString(),
       dayStartLocal: dayStart.toLocaleDateString(),
       dayEndLocal: dayEnd.toLocaleDateString(),
-      eventsCount: events.length,
-      events: events.map(e => ({
-        title: e.title,
-        start: e.start.toISOString(),
-        end: e.end.toISOString(),
-        startLocal: e.start.toLocaleDateString(),
-        endLocal: e.end.toLocaleDateString()
-      }))
+      eventsCount: events.length
     })
+    
+    console.log('📅 Events details:', events.map(e => ({
+      title: e.title,
+      start: e.start.toISOString(),
+      end: e.end.toISOString(),
+      startLocal: e.start.toLocaleDateString(),
+      endLocal: e.end.toLocaleDateString()
+    })))
 
     const filteredEvents = events.filter(event => {
       // Convert event times to local time for comparison
@@ -277,17 +278,13 @@ export class CalendarService {
       // Event is in the day if it starts on or before the day and ends on or after the day
       const isInDay = eventStartDate <= dayEndDate && eventEndDate >= dayStartDate
       
-      console.log('📅 Event filter check:', {
-        title: event.title,
-        eventStart: eventStart.toISOString(),
-        eventEnd: eventEnd.toISOString(),
-        dayStart: dayStart.toISOString(),
-        dayEnd: dayEnd.toISOString(),
+      console.log('📅 Event filter check for', event.title, ':', {
         eventStartDate,
         eventEndDate,
         dayStartDate,
         dayEndDate,
-        isInDay
+        isInDay,
+        comparison: `${eventStartDate} <= ${dayEndDate} && ${eventEndDate} >= ${dayStartDate}`
       })
       
       return isInDay
