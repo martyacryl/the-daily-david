@@ -66,17 +66,21 @@ export class CalendarService {
 
       const icalData = await response.text()
       
-      // DEBUG: Log the raw iCal data
-      console.log('📅 RAW iCal data:', icalData)
-      console.log('📅 iCal data length:', icalData.length)
-      
-      // Find all DTSTART lines in the raw data
-      const dtstartLines = icalData.split('\n').filter(line => line.includes('DTSTART'))
-      console.log('📅 All DTSTART lines in raw data:', dtstartLines)
-      
-      // Find all DTEND lines in the raw data
-      const dtendLines = icalData.split('\n').filter(line => line.includes('DTEND'))
-      console.log('📅 All DTEND lines in raw data:', dtendLines)
+                // DEBUG: Log the raw iCal data
+                console.log('📅 RAW iCal data:', icalData)
+                console.log('📅 iCal data length:', icalData.length)
+                
+                // Find all DTSTART lines in the raw data
+                const dtstartLines = icalData.split('\n').filter(line => line.includes('DTSTART'))
+                console.log('📅 All DTSTART lines in raw data:', dtstartLines)
+                
+                // Find all DTEND lines in the raw data
+                const dtendLines = icalData.split('\n').filter(line => line.includes('DTEND'))
+                console.log('📅 All DTEND lines in raw data:', dtendLines)
+                
+                // Find Test event 3 specifically
+                const testEvent3Lines = icalData.split('\n').filter(line => line.includes('Test event 3'))
+                console.log('📅 Test event 3 lines:', testEvent3Lines)
       
       const events = this.parseICalData(icalData, weekStart)
       
@@ -186,19 +190,15 @@ export class CalendarService {
     // DTSTART;TZID=America/Denver:20250915T030000
     // DTSTART:20250915
     // DTSTART;VALUE=DATE:20250915
-    const dateMatch = dateLine.match(/:(\d{8}(?:T\d{6})?[Z]?)/)
-    if (!dateMatch) {
-      // Try alternative patterns
-      const altMatch = dateLine.match(/(\d{8}(?:T\d{6})?[Z]?)/)
-      if (!altMatch) {
-        console.error('❌ No date match found in:', dateLine)
-        throw new Error('Invalid date format')
-      }
-      var dateStr = altMatch[1]
-    } else {
-      var dateStr = dateMatch[1]
+    
+    // Try to find the date part after the colon
+    const colonIndex = dateLine.indexOf(':')
+    if (colonIndex === -1) {
+      console.error('❌ No colon found in date line:', dateLine)
+      throw new Error('Invalid date format')
     }
-
+    
+    const dateStr = dateLine.substring(colonIndex + 1).trim()
     console.log('📅 Extracted date string:', dateStr)
     
     // Handle both date-only and datetime formats
