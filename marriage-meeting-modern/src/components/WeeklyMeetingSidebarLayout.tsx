@@ -143,9 +143,12 @@ export const WeeklyMeetingSidebarLayout: React.FC = () => {
     if (isAuthenticated) {
       setHasLoadedInitialData(false) // Reset flag when date changes
       const weekKey = DatabaseManager.formatWeekKey(currentDate)
-      console.log('Weekly Planner: Loading week data for:', weekKey)
+      console.log('🔍 Weekly Planner: Loading week data for:', weekKey)
+      console.log('🔍 Weekly Planner: Current date:', currentDate.toISOString())
+      console.log('🔍 Weekly Planner: Week key calculated:', weekKey)
       loadWeekData(weekKey).then(() => {
         setHasLoadedInitialData(true)
+        console.log('🔍 Weekly Planner: Week data loaded successfully')
       })
     }
   }, [currentDate, loadWeekData, isAuthenticated])

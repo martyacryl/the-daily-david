@@ -108,6 +108,7 @@ export const useMarriageStore = create<MarriageState>((set, get) => ({
   },
 
   loadWeekData: async (weekKey: string) => {
+    console.log('🔍 Store: loadWeekData called with weekKey:', weekKey)
     set({ isLoading: true, error: null })
     
     try {
