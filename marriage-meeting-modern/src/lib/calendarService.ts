@@ -81,6 +81,14 @@ export class CalendarService {
                 // Find Test event 3 specifically
                 const testEvent3Lines = icalData.split('\n').filter(line => line.includes('Test event 3'))
                 console.log('📅 Test event 3 lines:', testEvent3Lines)
+                
+                // Find all SUMMARY lines to see all event titles
+                const summaryLines = icalData.split('\n').filter(line => line.includes('SUMMARY:'))
+                console.log('📅 All SUMMARY lines in raw data:', summaryLines)
+                
+                // Count total VEVENT blocks
+                const veventBlocks = icalData.split('BEGIN:VEVENT')
+                console.log('📅 Total VEVENT blocks found:', veventBlocks.length - 1) // -1 because first split creates empty string
       
       const events = this.parseICalData(icalData, weekStart)
       
@@ -108,14 +116,28 @@ export class CalendarService {
 
     // Split into events
     const eventBlocks = icalData.split('BEGIN:VEVENT')
+    console.log('📅 parseICalData: Processing', eventBlocks.length - 1, 'event blocks')
     
     for (let i = 1; i < eventBlocks.length; i++) { // Skip first empty block
       const eventBlock = eventBlocks[i]
+      console.log(`📅 parseICalData: Processing event block ${i}/${eventBlocks.length - 1}`)
       
       try {
         const event = this.parseEventBlock(eventBlock)
-        if (event && this.isEventInWeek(event, weekStart, weekEnd)) {
-          events.push(event)
+        console.log('📅 parseICalData: Parsed event:', event ? event.title : 'null')
+        
+        if (event) {
+          const isInWeek = this.isEventInWeek(event, weekStart, weekEnd)
+          console.log('📅 parseICalData: Event in week?', isInWeek, 'for event:', event.title)
+          
+          if (isInWeek) {
+            events.push(event)
+            console.log('📅 parseICalData: Added event to results:', event.title)
+          } else {
+            console.log('📅 parseICalData: Event not in week range:', event.title)
+          }
+        } else {
+          console.log('📅 parseICalData: Failed to parse event block')
         }
       } catch (error) {
         console.warn('⚠️ Error parsing event block:', error)
@@ -123,6 +145,7 @@ export class CalendarService {
       }
     }
 
+    console.log('📅 parseICalData: Final events count:', events.length)
     return events.sort((a, b) => a.start.getTime() - b.start.getTime())
   }
 
@@ -135,6 +158,13 @@ export class CalendarService {
     const lines = eventBlock.split('\n')
     const event: Partial<CalendarEvent> = {
       source: 'ical'
+    }
+    
+    // Check if this event block contains "Test event 3"
+    const hasTestEvent3 = eventBlock.includes('Test event 3')
+    if (hasTestEvent3) {
+      console.log('🔍 Found Test event 3 in event block!')
+      console.log('🔍 Full event block:', eventBlock)
     }
 
     // Find all DTSTART and DTEND lines in this specific event block
@@ -199,6 +229,11 @@ export class CalendarService {
 
     if (!event.title || !event.start || !event.end || !event.id) {
       console.log('❌ Missing required fields:', { title: !!event.title, start: !!event.start, end: !!event.end, id: !!event.id })
+      if (hasTestEvent3) {
+        console.log('🔍 Test event 3 missing fields - full event object:', event)
+        console.log('🔍 Test event 3 lines processed:', lines.length)
+        console.log('🔍 Test event 3 first 10 lines:', lines.slice(0, 10))
+      }
       return null
     }
 
