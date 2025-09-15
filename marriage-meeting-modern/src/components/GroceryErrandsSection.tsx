@@ -18,7 +18,7 @@ interface GroceryErrandsSectionProps {
   onUpdate: (items: GroceryStoreList[]) => void
 }
 
-export const GroceryErrandsSection: React.FC<GroceryErrandsSectionProps> = ({ items, onUpdate, onSave }) => {
+export const GroceryErrandsSection: React.FC<GroceryErrandsSectionProps> = ({ items, onUpdate }) => {
   const { settings, addGroceryStore } = useSettingsStore()
   const [newItemTexts, setNewItemTexts] = useState<Record<string, string>>({})
   const [selectedStore, setSelectedStore] = useState('')
@@ -119,7 +119,11 @@ export const GroceryErrandsSection: React.FC<GroceryErrandsSectionProps> = ({ it
 
   // Remove store list
   const removeStoreList = (storeId: string) => {
-    onUpdate(items.filter(list => list.storeId !== storeId))
+    console.log('🗑️ Grocery: Removing store list with ID:', storeId)
+    console.log('🗑️ Grocery: Current items before removal:', items)
+    const filteredItems = items.filter(list => list.storeId !== storeId)
+    console.log('🗑️ Grocery: Items after removal:', filteredItems)
+    onUpdate(filteredItems)
   }
 
   const handleStoreSelect = (store: string) => {
