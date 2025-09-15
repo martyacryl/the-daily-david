@@ -51,20 +51,49 @@ export class CalendarService {
       const fetchUrl = icalUrl.replace(/^webcal:\/\//, 'https://')
       console.log('📅 Converted URL for fetch:', fetchUrl)
       
-      // Use CORS proxy to bypass CORS restrictions
-      const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(fetchUrl)}`
-      console.log('📅 Using CORS proxy:', proxyUrl)
+      // Try multiple CORS proxies as fallbacks
+      const corsProxies = [
+        `https://corsproxy.io/?${encodeURIComponent(fetchUrl)}`,
+        `https://api.allorigins.win/raw?url=${encodeURIComponent(fetchUrl)}`,
+        `https://cors-anywhere.herokuapp.com/${fetchUrl}`
+      ]
       
-      // Fetch iCal data through CORS proxy
-      const response = await fetch(proxyUrl, {
-        method: 'GET',
-        headers: {
-          'Accept': 'text/calendar, application/calendar+json, */*'
-        }
-      })
+      let response: Response | null = null
+      let lastError: Error | null = null
+      
+      for (let i = 0; i < corsProxies.length; i++) {
+        const proxyUrl = corsProxies[i]
+        console.log(`📅 Trying CORS proxy ${i + 1}/${corsProxies.length}:`, proxyUrl)
+        
+        try {
+          response = await fetch(proxyUrl, {
+            method: 'GET',
+            headers: {
+              'Accept': 'text/calendar, application/calendar+json, */*'
+            }
+          })
 
-      if (!response.ok) {
-        throw new Error(`Failed to fetch iCal: ${response.status} ${response.statusText}`)
+          console.log(`📅 CORS proxy ${i + 1} response status:`, response.status)
+          console.log(`📅 CORS proxy ${i + 1} response headers:`, Object.fromEntries(response.headers.entries()))
+
+          if (response.ok) {
+            console.log(`✅ CORS proxy ${i + 1} succeeded`)
+            break
+          } else {
+            const errorText = await response.text()
+            console.warn(`⚠️ CORS proxy ${i + 1} failed:`, response.status, errorText)
+            lastError = new Error(`CORS proxy ${i + 1} failed: ${response.status} ${response.statusText}`)
+            response = null
+          }
+        } catch (error) {
+          console.warn(`⚠️ CORS proxy ${i + 1} error:`, error)
+          lastError = error as Error
+          response = null
+        }
+      }
+      
+      if (!response) {
+        throw lastError || new Error('All CORS proxies failed')
       }
 
       const icalData = await response.text()
