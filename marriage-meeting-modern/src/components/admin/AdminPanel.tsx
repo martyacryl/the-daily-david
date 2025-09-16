@@ -30,8 +30,12 @@ export function AdminPanel({ dbManager }: AdminPanelProps) {
   const loadUsers = async () => {
     try {
       setLoading(true)
+      console.log('AdminPanel: Loading users...')
       const response = await dbManager.getAllUsers()
+      console.log('AdminPanel: Response from getAllUsers:', response)
+      
       if (response.success && response.data) {
+        console.log('AdminPanel: Converting users:', response.data)
         // Convert DatabaseUser to User type
         const convertedUsers: User[] = response.data.map(dbUser => ({
           id: dbUser.id,
@@ -44,10 +48,15 @@ export function AdminPanel({ dbManager }: AdminPanelProps) {
           created_at: new Date(dbUser.created_at),
           lastLoginAt: undefined
         }))
+        console.log('AdminPanel: Converted users:', convertedUsers)
         setUsers(convertedUsers)
+      } else {
+        console.error('AdminPanel: Failed to load users:', response.error)
+        alert(`Failed to load users: ${response.error}`)
       }
     } catch (error) {
       console.error('Failed to load users:', error)
+      alert(`Failed to load users: ${error}`)
     } finally {
       setLoading(false)
     }
@@ -136,7 +145,7 @@ export function AdminPanel({ dbManager }: AdminPanelProps) {
               Admin Panel
             </h1>
             <p className="text-gray-600 mt-2">
-              Manage users and system settings for The Daily David
+              Manage users and system settings for Weekly Huddle
             </p>
           </motion.div>
           
@@ -306,7 +315,7 @@ export function AdminPanel({ dbManager }: AdminPanelProps) {
             <h2 className="text-xl font-bold text-gray-800 mb-4">System Information</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
               <div>
-                <span className="font-medium text-gray-700">Version:</span> Daily David Modern v2.0
+                <span className="font-medium text-gray-700">Version:</span> Weekly Huddle v2.0
               </div>
               <div>
                 <span className="font-medium text-gray-700">Database:</span> Neon PostgreSQL

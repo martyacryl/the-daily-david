@@ -167,20 +167,25 @@ export class DatabaseManager {
     }
   }
 
-  async getAllUsers(): Promise<User[]> {
-    const response = await fetch(`${this.baseUrl}/api/admin/users`, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${this.getAuthToken()}`,
-      },
-    })
+  async getAllUsers(): Promise<{ success: boolean; data?: any[]; error?: string }> {
+    try {
+      const response = await fetch(`${this.baseUrl}/api/admin/users`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${this.getAuthToken()}`,
+        },
+      })
 
-    if (!response.ok) {
-      const error = await response.text()
-      throw new Error(`Failed to fetch users: ${error}`)
+      if (!response.ok) {
+        const error = await response.text()
+        return { success: false, error: `Failed to fetch users: ${error}` }
+      }
+
+      const data = await response.json()
+      return { success: true, data }
+    } catch (error) {
+      return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
     }
-
-    return await response.json()
   }
 
   // Utility Methods
