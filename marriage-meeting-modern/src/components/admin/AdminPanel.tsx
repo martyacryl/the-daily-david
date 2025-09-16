@@ -73,12 +73,16 @@ export function AdminPanel({ dbManager }: AdminPanelProps) {
     try {
       setLoading(true)
       
-      const response = await dbManager.createUser({
+      const userData = {
         email: newUserForm.email,
         password: newUserForm.password,
         displayName: newUserForm.displayName,
         isAdmin: newUserForm.isAdmin
-      })
+      }
+      
+      console.log('AdminPanel: Creating user with data:', userData)
+      const response = await dbManager.createUser(userData)
+      console.log('AdminPanel: Create user response:', response)
       
       if (response.success && response.data) {
         // Convert the created user to User type

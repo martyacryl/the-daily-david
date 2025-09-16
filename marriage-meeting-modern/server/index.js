@@ -302,6 +302,11 @@ app.post('/api/settings', authenticateToken, async (req, res) => {
   }
 })
 
+// Test endpoint to verify server is working
+app.get('/api/test', (req, res) => {
+  res.json({ message: 'Server is working', timestamp: new Date().toISOString() })
+})
+
 // Admin Routes
 app.get('/api/admin/users', authenticateToken, async (req, res) => {
   try {

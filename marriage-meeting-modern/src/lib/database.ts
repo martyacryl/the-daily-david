@@ -135,22 +135,27 @@ export class DatabaseManager {
   }
 
   // Admin User Management
-  async createUser(userData: CreateUserFormData): Promise<User> {
-    const response = await fetch(`${this.baseUrl}/api/admin/users`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${this.getAuthToken()}`,
-      },
-      body: JSON.stringify(userData),
-    })
+  async createUser(userData: CreateUserFormData): Promise<{ success: boolean; data?: any; error?: string }> {
+    try {
+      const response = await fetch(`${this.baseUrl}/api/admin/users`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.getAuthToken()}`,
+        },
+        body: JSON.stringify(userData),
+      })
 
-    if (!response.ok) {
-      const error = await response.text()
-      throw new Error(`Failed to create user: ${error}`)
+      if (!response.ok) {
+        const error = await response.text()
+        return { success: false, error: `Failed to create user: ${error}` }
+      }
+
+      const data = await response.json()
+      return { success: true, data }
+    } catch (error) {
+      return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
     }
-
-    return await response.json()
   }
 
   async deleteUser(userId: string): Promise<void> {
