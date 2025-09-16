@@ -321,6 +321,26 @@ app.get('/api/test', (req, res) => {
   res.json({ message: 'Server is working', timestamp: new Date().toISOString() })
 })
 
+// Database connection test endpoint
+app.get('/api/db-test', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT NOW() as current_time, COUNT(*) as user_count FROM users')
+    res.json({ 
+      success: true, 
+      database: 'connected',
+      current_time: result.rows[0].current_time,
+      user_count: result.rows[0].user_count,
+      connection_string: process.env.NEON_CONNECTION_STRING ? 'using_env_var' : 'using_hardcoded'
+    })
+  } catch (error) {
+    res.status(500).json({ 
+      success: false, 
+      error: error.message,
+      connection_string: process.env.NEON_CONNECTION_STRING ? 'using_env_var' : 'using_hardcoded'
+    })
+  }
+})
+
 // Admin Routes
 app.get('/api/admin/users', authenticateToken, async (req, res) => {
   try {
