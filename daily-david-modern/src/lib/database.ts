@@ -48,8 +48,13 @@ class DatabaseManager {
   async getDailyEntry(date: string, userId: number = 1): Promise<DailyEntry | null> {
     try {
       console.log('API: Getting daily entry for date:', date, 'user:', userId)
-      const response = await fetch(`${API_BASE_URL}/api/entries/${date}`, {
-        headers: getAuthHeaders()
+      const response = await fetch(`${API_BASE_URL}/api/entries/${date}?t=${Date.now()}`, {
+        headers: {
+          ...getAuthHeaders(),
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0'
+        }
       })
       if (!response.ok) {
         if (response.status === 404) {
@@ -311,8 +316,13 @@ class DatabaseManager {
   async getDailyEntries(userId: number = 1): Promise<DailyEntry[]> {
     try {
       console.log('API: Getting all daily entries for user:', userId)
-      const response = await fetch(`${API_BASE_URL}/api/entries`, {
-        headers: getAuthHeaders()
+      const response = await fetch(`${API_BASE_URL}/api/entries?t=${Date.now()}`, {
+        headers: {
+          ...getAuthHeaders(),
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0'
+        }
       })
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`)

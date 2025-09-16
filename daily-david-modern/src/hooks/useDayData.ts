@@ -143,7 +143,20 @@ export const useDayData = (dateKey: string, userId: string | null): UseDayDataRe
       setIsLoading(true)
       setError(null)
 
+      // Clear caches on mobile devices to ensure fresh data
+      if ('caches' in window) {
+        try {
+          const cacheNames = await caches.keys()
+          await Promise.all(cacheNames.map(name => caches.delete(name)))
+          console.log('🧹 [useDayData] Cleared browser caches for fresh data')
+        } catch (cacheError) {
+          console.log('⚠️ [useDayData] Could not clear caches:', cacheError)
+        }
+      }
+
       console.log('🔍 [useDayData] Loading data for:', { dateKey, userId })
+      console.log('📱 [useDayData] User agent:', navigator.userAgent)
+      console.log('📱 [useDayData] Is mobile:', /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent))
 
       // First try database
       const data = await dbManager.current.loadDayData(dateKey, userId)
@@ -179,12 +192,47 @@ export const useDayData = (dateKey: string, userId: string | null): UseDayDataRe
       const localStorageKey = `dailyDavid_dayData_${userId}`
       const localData = localStorage.getItem(localStorageKey)
       
+      console.log('💾 [useDayData] Checking localStorage fallback...')
+      console.log('💾 [useDayData] localStorage key:', localStorageKey)
+      console.log('💾 [useDayData] localStorage data exists:', !!localData)
+      
       if (localData) {
         const parsedLocalData = JSON.parse(localData)
-        if (parsedLocalData[dateKey]) {
+        console.log('💾 [useDayData] Parsed localStorage data keys:', Object.keys(parsedLocalData))
+        
+        // First try to get data for the current date
+        let currentDateData = parsedLocalData[dateKey]
+        console.log('💾 [useDayData] Current date data exists:', !!currentDateData)
+        console.log('💾 [useDayData] Current date has reading plan:', !!(currentDateData && currentDateData.readingPlan))
+        
+        // If no data for current date, look for reading plan progress across all dates
+        if (!currentDateData || !currentDateData.readingPlan) {
+          console.log('🔍 [useDayData] No reading plan found for current date, searching across all dates...')
+          
+          // Get all dates and sort them by date (most recent first)
+          const allDates = Object.keys(parsedLocalData).sort((a, b) => new Date(b).getTime() - new Date(a).getTime())
+          console.log('🔍 [useDayData] All stored dates:', allDates)
+          
+          for (const storedDate of allDates) {
+            const storedData = parsedLocalData[storedDate]
+            console.log('🔍 [useDayData] Checking date:', storedDate, 'has reading plan:', !!(storedData && storedData.readingPlan))
+            if (storedData && storedData.readingPlan && storedData.readingPlan.planId) {
+              console.log('🔥 [useDayData] Found reading plan progress from date:', storedDate, 'plan:', storedData.readingPlan.planName)
+              
+              // Use the reading plan from the most recent date that has one
+              if (!currentDateData) {
+                currentDateData = { ...createEmptyDayData() }
+              }
+              currentDateData.readingPlan = storedData.readingPlan
+              break
+            }
+          }
+        }
+        
+        if (currentDateData) {
           const mergedData = {
             ...createEmptyDayData(),
-            ...parsedLocalData[dateKey]
+            ...currentDateData
           }
           
           isInitialLoad.current = true

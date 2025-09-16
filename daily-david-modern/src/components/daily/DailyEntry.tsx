@@ -466,6 +466,27 @@ export function DailyEntry() {
           }
         }
         
+        // If no reading plan found in database entries, check localStorage as fallback
+        if (!existingReadingPlan && user?.id) {
+          console.log('🔍 No reading plan found in database entries, checking localStorage...')
+          const localStorageKey = `dailyDavid_dayData_${user.id}`
+          const localData = localStorage.getItem(localStorageKey)
+          
+          if (localData) {
+            const parsedLocalData = JSON.parse(localData)
+            const allDates = Object.keys(parsedLocalData).sort((a, b) => new Date(b).getTime() - new Date(a).getTime())
+            
+            for (const storedDate of allDates) {
+              const storedData = parsedLocalData[storedDate]
+              if (storedData && storedData.readingPlan && storedData.readingPlan.planId) {
+                existingReadingPlan = storedData.readingPlan
+                console.log('🔥 Found reading plan progress in localStorage from date:', storedDate, 'plan:', storedData.readingPlan.planName)
+                break
+              }
+            }
+          }
+        }
+        
         setDayData({
           checkIn: { emotions: [], feeling: '' },
           gratitude: ['', '', ''],
