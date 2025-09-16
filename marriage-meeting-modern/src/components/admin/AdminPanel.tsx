@@ -120,7 +120,7 @@ export function AdminPanel({ dbManager }: AdminPanelProps) {
       setLoading(true)
       const response = await dbManager.deleteUser(userId)
       
-      if (response.success && response.data) {
+      if (response.success) {
         setUsers(prev => prev.filter(u => u.id !== userId))
         alert(`✅ User "${userName}" deleted successfully`)
       } else {

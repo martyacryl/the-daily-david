@@ -158,17 +158,23 @@ export class DatabaseManager {
     }
   }
 
-  async deleteUser(userId: string): Promise<void> {
-    const response = await fetch(`${this.baseUrl}/api/admin/users/${userId}`, {
-      method: 'DELETE',
-      headers: {
-        'Authorization': `Bearer ${this.getAuthToken()}`,
-      },
-    })
+  async deleteUser(userId: string): Promise<{ success: boolean; error?: string }> {
+    try {
+      const response = await fetch(`${this.baseUrl}/api/admin/users/${userId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${this.getAuthToken()}`,
+        },
+      })
 
-    if (!response.ok) {
-      const error = await response.text()
-      throw new Error(`Failed to delete user: ${error}`)
+      if (!response.ok) {
+        const error = await response.text()
+        return { success: false, error: `Failed to delete user: ${error}` }
+      }
+
+      return { success: true }
+    } catch (error) {
+      return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
     }
   }
 
