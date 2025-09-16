@@ -11,6 +11,8 @@ import { ProgressAnalytics } from './components/dashboard/ProgressAnalytics'
 import { WeeklyReview } from './components/WeeklyReview'
 import { Header } from './components/layout/Header'
 import { LoadingSpinner } from './components/ui/LoadingSpinner'
+import { ProtectedAdminRoute } from './components/admin/ProtectedAdminRoute'
+import { DatabaseManager } from './lib/database'
 
 // Wrapper component to handle navigation from WeeklyReview
 const WeeklyReviewWithNavigation = () => {
@@ -32,6 +34,9 @@ const WeeklyReviewWithNavigation = () => {
 function App() {
   const { isAuthenticated, isLoading, initialize } = useAuthStore()
   const { initializeStore } = useMarriageStore()
+  
+  // Initialize database manager
+  const dbManager = new DatabaseManager()
 
   // Check authentication on app load
   useEffect(() => {
@@ -74,6 +79,7 @@ function App() {
           <Route path="/weekly" element={<MarriageMeetingTool />} />
           <Route path="/analytics" element={<ProgressAnalytics />} />
           <Route path="/review" element={<WeeklyReviewWithNavigation />} />
+          <Route path="/admin" element={<ProtectedAdminRoute dbManager={dbManager} />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </div>

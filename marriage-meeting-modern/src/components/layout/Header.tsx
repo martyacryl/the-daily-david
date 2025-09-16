@@ -1,7 +1,7 @@
 import React from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Mountain, Home, BarChart3, Calendar, LogOut, User } from 'lucide-react'
+import { Mountain, Home, BarChart3, Calendar, LogOut, User, Settings } from 'lucide-react'
 import { useAuthStore } from '../../stores/authStore'
 import { Button } from '../ui/Button'
 
@@ -17,6 +17,11 @@ export const Header: React.FC<HeaderProps> = () => {
     { path: '/weekly', label: 'Weekly Planning', icon: Calendar },
     { path: '/analytics', label: 'Analytics', icon: BarChart3 }
   ]
+
+  // Add admin link if user is admin
+  if (user?.is_admin) {
+    navItems.push({ path: '/admin', label: 'Admin', icon: Settings })
+  }
 
   const isActive = (path: string) => {
     if (path === '/' && location.pathname === '/') return true
