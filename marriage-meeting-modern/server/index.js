@@ -341,6 +341,59 @@ app.get('/api/db-test', async (req, res) => {
   }
 })
 
+// Test user creation endpoint
+app.post('/api/test-create-user', async (req, res) => {
+  try {
+    console.log('🧪 Test: Starting user creation test...')
+    const { email, displayName, password, isAdmin } = req.body || {
+      email: 'test@example.com',
+      displayName: 'Test User',
+      password: 'test123',
+      isAdmin: false
+    }
+    
+    console.log('🧪 Test: User data:', { email, displayName, password: password ? '[REDACTED]' : 'MISSING', isAdmin })
+    
+    // Check if user exists
+    console.log('🧪 Test: Checking if user exists...')
+    const existingUser = await pool.query('SELECT id FROM users WHERE email = $1', [email])
+    console.log('🧪 Test: Existing user check result:', existingUser.rows.length)
+    
+    if (existingUser.rows.length > 0) {
+      console.log('🧪 Test: User exists, deleting first...')
+      await pool.query('DELETE FROM users WHERE email = $1', [email])
+    }
+    
+    // Hash password
+    console.log('🧪 Test: Hashing password...')
+    const saltRounds = 10
+    const passwordHash = await bcrypt.hash(password, saltRounds)
+    console.log('🧪 Test: Password hashed successfully')
+    
+    // Create user
+    console.log('🧪 Test: Inserting user...')
+    const result = await pool.query(
+      'INSERT INTO users (email, display_name, password_hash, is_admin, created_at) VALUES ($1, $2, $3, $4, NOW()) RETURNING id, email, display_name, is_admin, created_at',
+      [email, displayName, passwordHash, isAdmin || false]
+    )
+    console.log('🧪 Test: User created successfully:', result.rows[0])
+    
+    res.json({ 
+      success: true, 
+      message: 'User created successfully',
+      user: result.rows[0]
+    })
+  } catch (error) {
+    console.error('🧪 Test: Error creating user:', error)
+    console.error('🧪 Test: Error stack:', error.stack)
+    res.status(500).json({ 
+      success: false, 
+      error: error.message,
+      stack: error.stack
+    })
+  }
+})
+
 // Admin Routes
 app.get('/api/admin/users', authenticateToken, async (req, res) => {
   try {
