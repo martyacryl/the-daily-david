@@ -28,13 +28,27 @@ app.use(cors({
 app.use(express.json())
 
 // Neon Database Connection
+const connectionString = process.env.NEON_CONNECTION_STRING || 
+  'postgresql://neondb_owner:npg_JVaULlB0w8mo@ep-soft-rice-adn6s9vn-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require'
+
+console.log('🔍 Database connection string:', connectionString.substring(0, 50) + '...')
+console.log('🔍 Using environment variable:', !!process.env.NEON_CONNECTION_STRING)
+
 const pool = new Pool({
-  connectionString: process.env.NEON_CONNECTION_STRING || 
-    'postgresql://neondb_owner:npg_JVaULlB0w8mo@ep-soft-rice-adn6s9vn-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require',
+  connectionString: connectionString,
   ssl: {
     rejectUnauthorized: false
   }
 })
+
+// Test database connection on startup
+pool.query('SELECT NOW()')
+  .then(result => {
+    console.log('✅ Database connection successful:', result.rows[0].now)
+  })
+  .catch(error => {
+    console.error('❌ Database connection failed:', error.message)
+  })
 
 // JWT Secret
 const JWT_SECRET = process.env.JWT_SECRET || 'marriage-meeting-secret-key'
