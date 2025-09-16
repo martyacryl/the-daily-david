@@ -100,13 +100,19 @@ export const DashboardNew: React.FC = () => {
   //   }
   // }, [weekData, isAuthenticated, saveWeekData])
 
-  // Load settings and goals when component mounts
+  // Load settings, goals, and current week data when component mounts
   useEffect(() => {
     if (isAuthenticated) {
       loadSettings()
       loadGoals()
+      
+      // Load current week data for dashboard display
+      const today = new Date()
+      const weekKey = DatabaseManager.formatWeekKey(today)
+      console.log('Dashboard: Loading current week data on mount:', weekKey)
+      loadWeekData(weekKey)
     }
-  }, [isAuthenticated, loadSettings, loadGoals])
+  }, [isAuthenticated, loadSettings, loadGoals, loadWeekData])
 
   useEffect(() => {
     if (weekData) {

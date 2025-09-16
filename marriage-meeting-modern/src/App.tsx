@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react'
 import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom'
 import { useAuthStore } from './stores/authStore'
+import { useMarriageStore } from './stores/marriageStore'
 import { MarriageMeetingTool } from './components/MarriageMeetingTool'
 import { LoginForm } from './components/LoginForm'
 import { Dashboard } from './components/dashboard/Dashboard'
@@ -30,11 +31,20 @@ const WeeklyReviewWithNavigation = () => {
 
 function App() {
   const { isAuthenticated, isLoading, initialize } = useAuthStore()
+  const { initializeStore } = useMarriageStore()
 
   // Check authentication on app load
   useEffect(() => {
     initialize()
   }, [initialize])
+
+  // Initialize marriage store when user is authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      console.log('App: User authenticated, initializing marriage store')
+      initializeStore()
+    }
+  }, [isAuthenticated, initializeStore])
 
   if (isLoading) {
     return (
