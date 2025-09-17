@@ -272,7 +272,7 @@ app.post('/api/entries', authenticateToken, async (req, res) => {
             `INSERT INTO reading_plans 
              (user_id, date_key, plan_id, plan_name, current_day, total_days, start_date, completed_days)
              VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-             ON CONFLICT (user_id, date_key, plan_id)
+             ON CONFLICT (user_id, plan_id)
              DO UPDATE SET 
                current_day = $5,
                total_days = $6,
@@ -334,13 +334,13 @@ app.get('/api/entries/:date', authenticateToken, async (req, res) => {
         const entry = entryResult.rows[0]
         const dataContent = entry.data_content || {}
         
-        // Get reading plan for this date
-        console.log('🔥 Backend: Getting reading plan for date:', date, 'user:', userId)
+        // Get reading plan for this user (not tied to specific date)
+        console.log('🔥 Backend: Getting reading plan for user:', userId)
         const readingPlanResult = await client.query(
           `SELECT * FROM reading_plans 
-           WHERE date_key = $1 AND user_id = $2
-           ORDER BY updated_at DESC LIMIT 1`,
-          [date, userId]
+           WHERE user_id = $1
+           ORDER BY updated_at DESC`,
+          [userId]
         )
         console.log('🔥 Backend: Reading plan result:', readingPlanResult.rows.length > 0 ? 'Found' : 'Not found')
         console.log('🔥 Backend: Raw reading plan data:', readingPlanResult.rows)

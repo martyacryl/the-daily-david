@@ -579,34 +579,36 @@ export function DailyEntry() {
       return // Don't reset the plan, just continue with existing progress
     }
     
-    // Check existing entries for this plan without triggering page reload
-    let existingProgress = null
-    const allEntries = useDailyStore.getState().entries
-    console.log('🔥 Checking all entries for existing progress. Total entries:', allEntries.length)
-    
-    // First check the current day's entry data (which is already loaded)
-    if (dayData.readingPlan && dayData.readingPlan.planId === plan.id) {
-      existingProgress = dayData.readingPlan
-      console.log('🔥 FOUND existing progress in current dayData:', existingProgress)
-    } else {
-      // Look through all entries to find existing progress for this plan
-      // Sort by date to get the most recent progress
-      const sortedEntries = [...allEntries].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-      
-      for (const entry of sortedEntries) {
-        // Check both entry.readingPlan and entry.data_content.readingPlan
-        const readingPlanData = entry.readingPlan || (entry.data_content && entry.data_content.readingPlan)
-        console.log('🔥 Checking entry from:', entry.date, 'has readingPlan:', !!readingPlanData)
-        if (readingPlanData) {
-          console.log('🔥 Entry readingPlan:', readingPlanData)
-          if (readingPlanData.planId === plan.id) {
-            existingProgress = readingPlanData
-            console.log('🔥 FOUND existing progress for plan:', plan.id, 'in entry from:', entry.date)
-            console.log('🔥 Existing progress:', existingProgress)
-            break
-          }
-        }
+    // If we have a different plan in progress, save it before switching
+    if (existingPlan && existingPlan.planId !== plan.id) {
+      console.log('🔥 Different plan in progress, saving current plan before switching...')
+      const entryData = {
+        ...dayData,
+        readingPlan: existingPlan,
+        goals: userGoals
       }
+      try {
+        await autoSaveToAPI(entryData)
+        console.log('🔥 Current plan saved before switching')
+      } catch (error) {
+        console.error('🔥 Failed to save current plan before switching:', error)
+      }
+    }
+    
+    // Load existing progress from database
+    let existingProgress = null
+    console.log('🔥 Loading reading plan progress from database...')
+    
+    try {
+      // Load the current day's entry to get the reading plan data
+      const dateString = getLocalDateString(selectedDate)
+      const entryData = await loadEntryByDate(dateString)
+      if (entryData && entryData.readingPlan) {
+        existingProgress = entryData.readingPlan
+        console.log('🔥 FOUND existing progress in database for current date:', existingProgress)
+      }
+    } catch (error) {
+      console.error('🔥 Error loading from database:', error)
     }
     
     let readingPlan
@@ -865,10 +867,11 @@ export function DailyEntry() {
       }
     }
     
-    // DON'T clear the reading plan data - just hide the UI
-    // The data stays in state so it can be restored when reopening
+    // Clear the reading plan data from current dayData when closing
+    // This forces a fresh load from database when reopening
+    setDayData(prev => ({ ...prev, readingPlan: undefined }))
     setShowReadingPlan(false) // Hide the reading plan UI
-    console.log('🔥 Plan closed, data preserved in state')
+    console.log('🔥 Plan closed, data cleared from current dayData')
     console.log('🔥 handleClosePlan completed - no page reload should occur')
   }
 
