@@ -145,6 +145,21 @@ app.get('/api/marriage-weeks', authenticateToken, async (req, res) => {
   }
 })
 
+// Get all weeks for analytics (same as above but with explicit naming)
+app.get('/api/marriage-weeks/all', authenticateToken, async (req, res) => {
+  try {
+    const result = await pool.query(
+      'SELECT * FROM marriage_meetings WHERE user_id = $1 ORDER BY week_key DESC',
+      [req.user.id]
+    )
+
+    res.json(result.rows)
+  } catch (error) {
+    console.error('Error fetching all marriage weeks:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
 app.get('/api/marriage-weeks/:weekKey', authenticateToken, async (req, res) => {
   try {
     const { weekKey } = req.params

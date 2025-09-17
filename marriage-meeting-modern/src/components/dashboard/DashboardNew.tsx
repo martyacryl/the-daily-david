@@ -45,7 +45,7 @@ import { DatabaseManager } from '../../lib/database'
 
 export const DashboardNew: React.FC = () => {
   const { user, isAuthenticated } = useAuthStore()
-  const { currentWeek, weekData, loadWeekData, saveWeekData, updateEncouragementNotes } = useMarriageStore()
+  const { currentWeek, weekData, loadWeekData, saveWeekData, updateEncouragementNotes, loadAllWeeks, calculateMeetingStreak, calculateConsistencyScore } = useMarriageStore()
   const { goals, loadGoals, getCurrentMonthGoals, getCurrentYearGoals, getLongTermGoals } = useGoalsStore()
   const { settings, loadSettings } = useSettingsStore()
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
@@ -119,22 +119,26 @@ export const DashboardNew: React.FC = () => {
       console.log('Dashboard: WeekData loaded:', weekData)
       console.log('Dashboard: Schedule data:', weekData.schedule)
       console.log('Dashboard: Todos data:', weekData.todos)
-      calculateInsights()
+      calculateInsights().catch(console.error)
     }
   }, [weekData])
 
   useEffect(() => {
     if (goals.length > 0) {
       console.log('Dashboard: Goals loaded:', goals.length)
-      calculateInsights()
+      calculateInsights().catch(console.error)
     }
   }, [goals])
 
-  const calculateInsights = () => {
+  const calculateInsights = async () => {
     if (!weekData && goals.length === 0) return
 
     console.log('Dashboard: Calculating insights from weekData:', weekData)
     console.log('Dashboard: Calculating insights from goals:', goals.length)
+
+    // Load historical data for analytics
+    const allWeeks = await loadAllWeeks()
+    console.log('Dashboard: Loaded historical weeks for analytics:', allWeeks.length)
 
     // Get current date for calculations
     const now = new Date()
@@ -213,11 +217,11 @@ export const DashboardNew: React.FC = () => {
       progress.percentage = progress.total > 0 ? Math.round((progress.completed / progress.total) * 100) : 0
     })
 
-    // Calculate consistency score (simplified - would need historical data)
-    const consistencyScore = 85 // Placeholder - would calculate from meeting history
+    // Calculate consistency score from historical data
+    const consistencyScore = calculateConsistencyScore(allWeeks)
 
-    // Calculate meeting streak (simplified)
-    const meetingStreak = 4 // Placeholder - would calculate from consecutive weeks
+    // Calculate meeting streak from historical data
+    const meetingStreak = calculateMeetingStreak(allWeeks)
 
     // Identify growth areas (categories with most incomplete items)
     const growthAreas = []

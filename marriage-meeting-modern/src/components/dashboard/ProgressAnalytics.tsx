@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
-import { Mountain, TrendingUp, Calendar, Target, Users, CheckCircle, BarChart3 } from 'lucide-react'
+import { Mountain, TrendingUp, Calendar, Target, Users, CheckCircle, BarChart3, Flame } from 'lucide-react'
 import { Card } from '../ui/Card'
 import { Button } from '../ui/Button'
 import { useAuthStore } from '../../stores/authStore'
@@ -13,30 +13,38 @@ interface AnalyticsData {
   goalAchievement: number
   prayerConsistency: number
   taskCompletion: number
+  meetingStreak: number
+  consistencyScore: number
 }
 
 export const ProgressAnalytics: React.FC = () => {
   const { user } = useAuthStore()
-  const { weekData } = useMarriageStore()
+  const { weekData, loadAllWeeks, calculateMeetingStreak, calculateConsistencyScore } = useMarriageStore()
   const [analyticsData, setAnalyticsData] = useState<AnalyticsData>({
     totalWeeks: 0,
     completionRate: 0,
     mostActiveDay: 'Monday',
     goalAchievement: 0,
     prayerConsistency: 0,
-    taskCompletion: 0
+    taskCompletion: 0,
+    meetingStreak: 0,
+    consistencyScore: 0
   })
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    calculateAnalytics()
+    calculateAnalytics().catch(console.error)
   }, [weekData])
 
-  const calculateAnalytics = () => {
+  const calculateAnalytics = async () => {
     if (!weekData) {
       setIsLoading(false)
       return
     }
+
+    // Load historical data for analytics
+    const allWeeks = await loadAllWeeks()
+    console.log('ProgressAnalytics: Loaded historical weeks:', allWeeks.length)
 
     // Calculate completion rate
     const totalSections = 6
@@ -74,13 +82,19 @@ export const ProgressAnalytics: React.FC = () => {
       current.count > max.count ? current : max
     ).day
 
+    // Calculate historical analytics
+    const meetingStreak = calculateMeetingStreak(allWeeks)
+    const consistencyScore = calculateConsistencyScore(allWeeks)
+
     setAnalyticsData({
-      totalWeeks: 1,
+      totalWeeks: allWeeks.length,
       completionRate,
       mostActiveDay,
       goalAchievement,
       prayerConsistency,
-      taskCompletion
+      taskCompletion,
+      meetingStreak,
+      consistencyScore
     })
 
     setIsLoading(false)
@@ -111,7 +125,7 @@ export const ProgressAnalytics: React.FC = () => {
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6 mb-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -165,6 +179,34 @@ export const ProgressAnalytics: React.FC = () => {
               </div>
               <h3 className="text-2xl font-bold text-gray-900">{analyticsData.taskCompletion}%</h3>
               <p className="text-gray-600">Task Completion</p>
+            </Card>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+          >
+            <Card className="p-6 text-center bg-white shadow-sm">
+              <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Flame className="w-6 h-6 text-slate-600" />
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900">{analyticsData.meetingStreak}</h3>
+              <p className="text-gray-600">Meeting Streak</p>
+            </Card>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6 }}
+          >
+            <Card className="p-6 text-center bg-white shadow-sm">
+              <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <TrendingUp className="w-6 h-6 text-slate-600" />
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900">{analyticsData.consistencyScore}%</h3>
+              <p className="text-gray-600">Consistency Score</p>
             </Card>
           </motion.div>
         </div>

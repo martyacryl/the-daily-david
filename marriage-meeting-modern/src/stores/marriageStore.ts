@@ -19,6 +19,9 @@ interface MarriageState {
   setCurrentDate: (date: Date) => void
   loadWeekData: (weekKey: string) => Promise<void>
   saveWeekData: (weekKey: string, data: WeekData) => Promise<void>
+  loadAllWeeks: () => Promise<MarriageMeetingWeek[]>
+  calculateMeetingStreak: (weeks: MarriageMeetingWeek[]) => number
+  calculateConsistencyScore: (weeks: MarriageMeetingWeek[]) => number
   updateSchedule: (day: DayName, index: number, value: string) => void
   addScheduleLine: (day: DayName) => void
   removeScheduleLine: (day: DayName, index: number) => void
@@ -458,5 +461,100 @@ export const useMarriageStore = create<MarriageState>((set, get) => ({
 
   setLastSaved: (date: Date) => {
     set({ lastSaved: date })
+  },
+
+  // Analytics methods
+  loadAllWeeks: async (): Promise<MarriageMeetingWeek[]> => {
+    try {
+      const weeks = await dbManager.getAllWeeksForUser()
+      console.log('Store: Loaded all weeks for analytics:', weeks.length)
+      return weeks
+    } catch (error) {
+      console.error('Store: Error loading all weeks:', error)
+      set({ error: error instanceof Error ? error.message : 'Failed to load weeks' })
+      return []
+    }
+  },
+
+  calculateMeetingStreak: (weeks: MarriageMeetingWeek[]): number => {
+    if (weeks.length === 0) return 0
+
+    // Sort weeks by date (most recent first)
+    const sortedWeeks = weeks.sort((a, b) => b.week_key.localeCompare(a.week_key))
+    
+    let streak = 0
+    const today = new Date()
+    const currentWeekKey = DatabaseManager.formatWeekKey(today)
+    
+    // Check if current week has data
+    const hasCurrentWeek = sortedWeeks.some(week => week.week_key === currentWeekKey)
+    if (!hasCurrentWeek) return 0
+    
+    // Count consecutive weeks with data, starting from current week
+    for (let i = 0; i < sortedWeeks.length; i++) {
+      const week = sortedWeeks[i]
+      const weekDate = new Date(week.week_key)
+      const expectedWeekKey = DatabaseManager.formatWeekKey(weekDate)
+      
+      if (week.week_key === expectedWeekKey) {
+        streak++
+        // Move to previous week for next iteration
+        weekDate.setDate(weekDate.getDate() - 7)
+      } else {
+        break
+      }
+    }
+    
+    console.log('Store: Calculated meeting streak:', streak)
+    return streak
+  },
+
+  calculateConsistencyScore: (weeks: MarriageMeetingWeek[]): number => {
+    if (weeks.length === 0) return 0
+
+    let totalScore = 0
+    let weeksWithData = 0
+
+    weeks.forEach(week => {
+      const data = week.data_content || {}
+      let weekScore = 0
+      let sectionsUsed = 0
+      const totalSections = 6
+
+      // Check each section for data
+      if (data.todos && data.todos.length > 0) {
+        weekScore += 1
+        sectionsUsed++
+      }
+      if (data.prayers && data.prayers.length > 0) {
+        weekScore += 1
+        sectionsUsed++
+      }
+      if (data.goals && data.goals.length > 0) {
+        weekScore += 1
+        sectionsUsed++
+      }
+      if (data.grocery && data.grocery.length > 0 && data.grocery.some(store => store.items && store.items.length > 0)) {
+        weekScore += 1
+        sectionsUsed++
+      }
+      if (data.unconfessedSin && data.unconfessedSin.length > 0) {
+        weekScore += 1
+        sectionsUsed++
+      }
+      if (data.weeklyWinddown && data.weeklyWinddown.length > 0) {
+        weekScore += 1
+        sectionsUsed++
+      }
+
+      // Calculate week's consistency percentage
+      const weekConsistency = (sectionsUsed / totalSections) * 100
+      totalScore += weekConsistency
+      weeksWithData++
+    })
+
+    const averageConsistency = weeksWithData > 0 ? totalScore / weeksWithData : 0
+    console.log('Store: Calculated consistency score:', Math.round(averageConsistency))
+    return Math.round(averageConsistency)
   }
 }))

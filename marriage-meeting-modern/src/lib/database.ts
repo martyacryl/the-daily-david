@@ -106,6 +106,24 @@ export class DatabaseManager {
     return results.map((result: any) => this.transformDatabaseResult(result))
   }
 
+  // Get all weeks for analytics calculations
+  async getAllWeeksForUser(): Promise<MarriageMeetingWeek[]> {
+    const response = await fetch(`${this.baseUrl}/api/marriage-weeks/all`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${this.getAuthToken()}`,
+      },
+    })
+
+    if (!response.ok) {
+      const error = await response.text()
+      throw new Error(`Failed to fetch all marriage meeting weeks: ${error}`)
+    }
+
+    const results = await response.json()
+    return results.map((result: any) => this.transformDatabaseResult(result))
+  }
+
   async getMarriageMeetingWeekByDate(weekKey: string): Promise<MarriageMeetingWeek | null> {
     const token = this.getAuthToken()
     console.log('API: Getting marriage week for:', weekKey, 'with token:', token ? 'present' : 'missing')
