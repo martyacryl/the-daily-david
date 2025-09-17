@@ -3,6 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { 
   ChevronDown, 
   ChevronUp, 
+  ChevronLeft,
+  ChevronRight,
   X, 
   BookOpen, 
   Calendar, 
@@ -48,7 +50,7 @@ export const ReadingPlanProgress: React.FC<ReadingPlanProgressProps> = ({
       const isPast = i < readingPlan.currentDay && !isCompleted
       const isFuture = i > readingPlan.currentDay
 
-      let dayClass = "w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium border-2 "
+      let dayClass = "w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs font-medium border-2 "
       
       if (isCompleted) {
         dayClass += "bg-green-500 border-green-500 text-white"
@@ -79,23 +81,23 @@ export const ReadingPlanProgress: React.FC<ReadingPlanProgressProps> = ({
         style={{position: 'relative', zIndex: 1, pointerEvents: 'auto'}}
       >
       {/* Header */}
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center space-x-3">
-          <BookOpen className="w-5 h-5 text-blue-400" />
-          <div>
-            <h3 className="text-lg font-semibold text-white">{readingPlan.planName}</h3>
+      <div className="flex items-start justify-between mb-4">
+        <div className="flex items-center space-x-3 min-w-0 flex-1">
+          <BookOpen className="w-5 h-5 text-blue-400 flex-shrink-0" />
+          <div className="min-w-0 flex-1">
+            <h3 className="text-lg font-semibold text-white truncate">{readingPlan.planName}</h3>
             <p className="text-sm text-gray-400">
               Started {new Date(readingPlan.startDate).toLocaleDateString()}
             </p>
           </div>
         </div>
         
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-1 flex-shrink-0">
           <Button
             size="sm"
             variant="ghost"
             onClick={() => setIsExpanded(!isExpanded)}
-            className="text-gray-400 hover:text-white"
+            className="text-gray-400 hover:text-white p-2"
           >
             {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
           </Button>
@@ -103,7 +105,7 @@ export const ReadingPlanProgress: React.FC<ReadingPlanProgressProps> = ({
             size="sm"
             variant="ghost"
             onClick={onClosePlan}
-            className="text-gray-400 hover:text-white"
+            className="text-gray-400 hover:text-white p-2"
           >
             <X className="w-4 h-4" />
           </Button>
@@ -141,27 +143,29 @@ export const ReadingPlanProgress: React.FC<ReadingPlanProgressProps> = ({
       </div>
 
       {/* Action Buttons */}
-      <div className="flex flex-wrap gap-2 mb-4" style={{position: 'relative', zIndex: 9999, pointerEvents: 'auto'}}>
-        {/* Load current day's devotion */}
+      <div className="space-y-3 mb-4" style={{position: 'relative', zIndex: 9999, pointerEvents: 'auto'}}>
+        {/* Load current day's devotion - Full width on mobile */}
         <Button
           size="sm"
           onClick={() => onLoadTodaysDevotion(readingPlan.planId, readingPlan.currentDay, readingPlan.bibleId)}
-          className="bg-slate-600 hover:bg-slate-500 text-white"
+          className="w-full sm:w-auto bg-slate-600 hover:bg-slate-500 text-white"
           style={{position: 'relative', zIndex: 10000, pointerEvents: 'auto'}}
         >
           Load Day {readingPlan.currentDay} Devotion
         </Button>
         
-        {/* Navigation buttons */}
-        <div className="flex gap-2">
+        {/* Navigation buttons - Responsive layout */}
+        <div className="flex flex-col sm:flex-row gap-2">
           {readingPlan.currentDay > 1 && (
             <Button
               size="sm"
               onClick={() => onGoToPreviousDay()}
-              className="bg-gray-600 hover:bg-gray-500 text-white"
+              className="flex-1 sm:flex-none bg-gray-600 hover:bg-gray-500 text-white"
               style={{position: 'relative', zIndex: 10000, pointerEvents: 'auto'}}
             >
-              ← Previous
+              <ChevronLeft className="w-4 h-4 mr-1" />
+              <span className="hidden sm:inline">Previous</span>
+              <span className="sm:hidden">← Previous</span>
             </Button>
           )}
           
@@ -169,34 +173,39 @@ export const ReadingPlanProgress: React.FC<ReadingPlanProgressProps> = ({
             <Button
               size="sm"
               onClick={() => onAdvanceToNextDay()}
-              className="bg-blue-600 hover:bg-blue-500 text-white"
+              className="flex-1 sm:flex-none bg-blue-600 hover:bg-blue-500 text-white"
               style={{position: 'relative', zIndex: 10000, pointerEvents: 'auto'}}
             >
-              Next Day →
+              <span className="hidden sm:inline">Next Day</span>
+              <span className="sm:hidden">Next Day →</span>
+              <ChevronRight className="w-4 h-4 ml-1" />
             </Button>
           )}
         </div>
         
-        <Button
-          size="sm"
-          onClick={() => onRestartPlan()}
-          variant="outline"
-          className="text-slate-300 hover:bg-slate-700"
-          style={{position: 'relative', zIndex: 10000, pointerEvents: 'auto'}}
-        >
-          <RotateCcw className="w-4 h-4 mr-1 inline" />
-          Restart
-        </Button>
-        <Button
-          size="sm"
-          onClick={() => onStartNewPlan()}
-          variant="outline"
-          className="text-slate-300 hover:bg-slate-700"
-          style={{position: 'relative', zIndex: 10000, pointerEvents: 'auto'}}
-        >
-          <Plus className="w-4 h-4 mr-1 inline" />
-          New Plan
-        </Button>
+        {/* Secondary actions - Responsive layout */}
+        <div className="flex flex-col sm:flex-row gap-2">
+          <Button
+            size="sm"
+            onClick={() => onRestartPlan()}
+            variant="outline"
+            className="flex-1 sm:flex-none text-slate-300 hover:bg-slate-700"
+            style={{position: 'relative', zIndex: 10000, pointerEvents: 'auto'}}
+          >
+            <RotateCcw className="w-4 h-4 mr-1" />
+            Restart
+          </Button>
+          <Button
+            size="sm"
+            onClick={() => onStartNewPlan()}
+            variant="outline"
+            className="flex-1 sm:flex-none text-slate-300 hover:bg-slate-700"
+            style={{position: 'relative', zIndex: 10000, pointerEvents: 'auto'}}
+          >
+            <Plus className="w-4 h-4 mr-1" />
+            New Plan
+          </Button>
+        </div>
       </div>
 
       {/* Expandable Day Grid */}
@@ -210,7 +219,7 @@ export const ReadingPlanProgress: React.FC<ReadingPlanProgressProps> = ({
           >
             <div className="border-t border-slate-700 pt-4">
               <h4 className="text-sm font-medium text-gray-300 mb-3">Daily Progress</h4>
-              <div className="grid grid-cols-10 gap-2">
+              <div className="grid grid-cols-8 sm:grid-cols-10 gap-1 sm:gap-2 overflow-x-auto">
                 {renderDayGrid()}
               </div>
             </div>
