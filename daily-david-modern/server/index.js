@@ -348,6 +348,8 @@ app.get('/api/entries/:date', authenticateToken, async (req, res) => {
         if (readingPlanResult.rows.length > 0) {
           const readingPlan = readingPlanResult.rows[0]
           console.log('🔥 Backend: Processing reading plan:', readingPlan)
+          console.log('🔥 Backend: Raw completed_days from DB:', readingPlan.completed_days)
+          console.log('🔥 Backend: Type of completed_days:', typeof readingPlan.completed_days)
           dataContent.readingPlan = {
             planId: readingPlan.plan_id,
             planName: readingPlan.plan_name,
@@ -357,6 +359,8 @@ app.get('/api/entries/:date', authenticateToken, async (req, res) => {
             completedDays: readingPlan.completed_days || []
           }
           console.log('🔥 Backend: Added reading plan to dataContent:', dataContent.readingPlan)
+          console.log('🔥 Backend: Completed days count:', dataContent.readingPlan.completedDays.length)
+          console.log('🔥 Backend: Progress percentage:', (dataContent.readingPlan.completedDays.length / dataContent.readingPlan.totalDays) * 100, '%')
         } else {
           console.log('❌ Backend: No reading plan found for date:', date, 'user:', userId)
         }

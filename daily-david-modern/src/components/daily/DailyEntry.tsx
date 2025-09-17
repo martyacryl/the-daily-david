@@ -614,9 +614,12 @@ export function DailyEntry() {
       // Continue existing plan
       readingPlan = {
         ...existingProgress,
-        currentDay: existingProgress.currentDay // Keep current day
+        currentDay: existingProgress.currentDay, // Keep current day
+        completedDays: existingProgress.completedDays || [] // Ensure completedDays is loaded
       }
       console.log('🔥 CONTINUING existing plan with progress:', readingPlan)
+      console.log('🔥 Completed days from existing progress:', readingPlan.completedDays)
+      console.log('🔥 Progress percentage:', (readingPlan.completedDays.length / readingPlan.totalDays) * 100, '%')
     } else {
       // Start new plan
       const today = new Date().toISOString().split('T')[0]
@@ -754,14 +757,23 @@ export function DailyEntry() {
       return
     }
     
-    const nextDay = dayData.readingPlan.currentDay + 1
-    console.log('🔥 Current day:', dayData.readingPlan.currentDay, 'Next day:', nextDay)
+    const currentDay = dayData.readingPlan.currentDay
+    const nextDay = currentDay + 1
+    console.log('🔥 Current day:', currentDay, 'Next day:', nextDay)
     console.log('🔥 Total days:', dayData.readingPlan.totalDays)
     
     if (nextDay <= dayData.readingPlan.totalDays) {
+      // Mark the current day as completed before advancing
+      const updatedCompletedDays = [...dayData.readingPlan.completedDays]
+      if (!updatedCompletedDays.includes(currentDay)) {
+        updatedCompletedDays.push(currentDay)
+        console.log('🔥 Marking day', currentDay, 'as completed. Updated completed days:', updatedCompletedDays)
+      }
+      
       const updatedReadingPlan = {
         ...dayData.readingPlan,
         currentDay: nextDay,
+        completedDays: updatedCompletedDays,
         bibleId: (dayData.readingPlan as any).bibleId || 'de4e12af7f28f599-02'
       }
       console.log('🔥 Updating to next day:', updatedReadingPlan)
@@ -865,9 +877,25 @@ export function DailyEntry() {
     console.log('🔥 Current reading plan:', dayData.readingPlan)
     
     if (dayData.readingPlan) {
+      // Mark the current day as completed when manually saving progress
+      const currentDay = dayData.readingPlan.currentDay
+      const updatedCompletedDays = [...dayData.readingPlan.completedDays]
+      if (!updatedCompletedDays.includes(currentDay)) {
+        updatedCompletedDays.push(currentDay)
+        console.log('🔥 Marking day', currentDay, 'as completed when saving progress. Updated completed days:', updatedCompletedDays)
+      }
+      
+      const updatedReadingPlan = {
+        ...dayData.readingPlan,
+        completedDays: updatedCompletedDays
+      }
+      
+      // Update the state with the completed day
+      setDayData(prev => ({ ...prev, readingPlan: updatedReadingPlan }))
+      
       const entryData = {
         ...dayData,
-        readingPlan: dayData.readingPlan,
+        readingPlan: updatedReadingPlan,
         goals: userGoals
       }
       
