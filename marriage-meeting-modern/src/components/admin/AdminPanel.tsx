@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { Users, UserPlus, Trash2, Settings } from 'lucide-react'
+import { Users, UserPlus, Trash2, Settings, Key } from 'lucide-react'
 
 import { useAuthStore } from '../../stores/authStore'
 import { DatabaseManager } from '../../lib/database'
@@ -21,6 +21,13 @@ export function AdminPanel({ dbManager }: AdminPanelProps) {
     password: '',
     isAdmin: false
   })
+  const [passwordChangeForm, setPasswordChangeForm] = useState({
+    userId: '',
+    userName: '',
+    newPassword: '',
+    confirmPassword: ''
+  })
+  const [showPasswordChange, setShowPasswordChange] = useState(false)
 
   // Load users on mount
   useEffect(() => {
@@ -129,6 +136,53 @@ export function AdminPanel({ dbManager }: AdminPanelProps) {
     } catch (error) {
       console.error('Failed to delete user:', error)
       alert(`❌ Failed to delete user: ${error}`)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handlePasswordChange = async (userId: string, userName: string) => {
+    setPasswordChangeForm({
+      userId,
+      userName,
+      newPassword: '',
+      confirmPassword: ''
+    })
+    setShowPasswordChange(true)
+  }
+
+  const submitPasswordChange = async () => {
+    const { userId, userName, newPassword, confirmPassword } = passwordChangeForm
+
+    if (!newPassword || newPassword.length < 6) {
+      alert('❌ Password must be at least 6 characters long')
+      return
+    }
+
+    if (newPassword !== confirmPassword) {
+      alert('❌ Passwords do not match')
+      return
+    }
+
+    try {
+      setLoading(true)
+      const response = await dbManager.changeUserPassword(userId, newPassword)
+      
+      if (response.success) {
+        alert(`✅ ${response.message}`)
+        setShowPasswordChange(false)
+        setPasswordChangeForm({
+          userId: '',
+          userName: '',
+          newPassword: '',
+          confirmPassword: ''
+        })
+      } else {
+        throw new Error(response.error || 'Password change failed')
+      }
+    } catch (error) {
+      console.error('Failed to change password:', error)
+      alert(`❌ Failed to change password: ${error}`)
     } finally {
       setLoading(false)
     }
@@ -292,14 +346,26 @@ export function AdminPanel({ dbManager }: AdminPanelProps) {
                         </div>
                       </div>
                       
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleDeleteUser(user.id, user.display_name)}
-                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handlePasswordChange(user.id, user.display_name)}
+                          className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                          title="Change Password"
+                        >
+                          <Key className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleDeleteUser(user.id, user.display_name)}
+                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                          title="Delete User"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
                     </div>
                   ))
                 )}
@@ -330,6 +396,80 @@ export function AdminPanel({ dbManager }: AdminPanelProps) {
             </div>
           </Card>
         </motion.div>
+
+        {/* Password Change Modal */}
+        {showPasswordChange && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="bg-white rounded-lg p-6 w-full max-w-md mx-4"
+            >
+              <h3 className="text-lg font-bold text-gray-800 mb-4">
+                Change Password for {passwordChangeForm.userName}
+              </h3>
+              
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    New Password
+                  </label>
+                  <input
+                    type="password"
+                    value={passwordChangeForm.newPassword}
+                    onChange={(e) => setPasswordChangeForm(prev => ({
+                      ...prev,
+                      newPassword: e.target.value
+                    }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                    placeholder="Enter new password (min 6 characters)"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Confirm Password
+                  </label>
+                  <input
+                    type="password"
+                    value={passwordChangeForm.confirmPassword}
+                    onChange={(e) => setPasswordChangeForm(prev => ({
+                      ...prev,
+                      confirmPassword: e.target.value
+                    }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                    placeholder="Confirm new password"
+                  />
+                </div>
+              </div>
+              
+              <div className="flex gap-3 mt-6">
+                <Button
+                  onClick={submitPasswordChange}
+                  loading={loading}
+                  className="flex-1"
+                >
+                  Change Password
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setShowPasswordChange(false)
+                    setPasswordChangeForm({
+                      userId: '',
+                      userName: '',
+                      newPassword: '',
+                      confirmPassword: ''
+                    })
+                  }}
+                  className="flex-1"
+                >
+                  Cancel
+                </Button>
+              </div>
+            </motion.div>
+          </div>
+        )}
       </div>
     </div>
   )

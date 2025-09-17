@@ -501,6 +501,44 @@ app.delete('/api/admin/users/:id', authenticateToken, async (req, res) => {
   }
 })
 
+// Change user password endpoint
+app.put('/api/admin/users/:id/password', authenticateToken, async (req, res) => {
+  try {
+    if (!isAdmin(req.user)) {
+      return res.status(403).json({ error: 'Admin access required' })
+    }
+
+    const { id } = req.params
+    const { newPassword } = req.body
+
+    if (!newPassword || newPassword.length < 6) {
+      return res.status(400).json({ error: 'Password must be at least 6 characters long' })
+    }
+
+    // Hash the new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10)
+
+    // Update the password in the database
+    const result = await pool.query(
+      'UPDATE users SET password_hash = $1, updated_at = NOW() WHERE id = $2 RETURNING email, display_name',
+      [hashedPassword, id]
+    )
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'User not found' })
+    }
+
+    console.log(`Password updated for user: ${result.rows[0].email}`)
+    res.json({ 
+      success: true, 
+      message: `Password updated successfully for ${result.rows[0].display_name}` 
+    })
+  } catch (error) {
+    console.error('Error updating password:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
 // Token verification endpoint
 app.get('/api/auth/verify', authenticateToken, async (req, res) => {
   try {

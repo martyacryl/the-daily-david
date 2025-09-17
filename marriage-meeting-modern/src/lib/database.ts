@@ -196,6 +196,29 @@ export class DatabaseManager {
     }
   }
 
+  async changeUserPassword(userId: string, newPassword: string): Promise<{ success: boolean; message?: string; error?: string }> {
+    try {
+      const response = await fetch(`${this.baseUrl}/api/admin/users/${userId}/password`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.getAuthToken()}`,
+        },
+        body: JSON.stringify({ newPassword }),
+      })
+
+      if (!response.ok) {
+        const error = await response.text()
+        return { success: false, error: `Failed to change password: ${error}` }
+      }
+
+      const result = await response.json()
+      return { success: true, message: result.message }
+    } catch (error) {
+      return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
+    }
+  }
+
   async getAllUsers(): Promise<{ success: boolean; data?: any[]; error?: string }> {
     try {
       const response = await fetch(`${this.baseUrl}/api/admin/users`, {
