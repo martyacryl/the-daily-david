@@ -459,11 +459,18 @@ export function DailyEntry() {
         let existingReadingPlan = null
         const sortedEntries = [...allEntries].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
         
+        console.log('🔍 Checking', sortedEntries.length, 'entries for existing reading plan progress...')
         for (const entry of sortedEntries) {
+          console.log('🔍 Checking entry from date:', entry.date)
+          console.log('🔍 Entry readingPlan:', entry.readingPlan)
+          console.log('🔍 Entry data_content:', entry.data_content)
+          console.log('🔍 Entry data_content.readingPlan:', entry.data_content?.readingPlan)
+          
           const readingPlanData = entry.readingPlan || (entry.data_content && entry.data_content.readingPlan)
           if (readingPlanData && readingPlanData.planId) {
             existingReadingPlan = readingPlanData
             console.log('🔥 Found existing reading plan progress from:', entry.date, 'plan:', readingPlanData.planName)
+            console.log('🔥 Reading plan details:', readingPlanData)
             break
           }
         }
@@ -597,17 +604,43 @@ export function DailyEntry() {
       }
     }
     
-    // Load existing progress from database
+    // Load existing progress from database - check ALL entries, not just current day
     let existingProgress = null
     console.log('🔥 Loading reading plan progress from database...')
     
     try {
-      // Load the current day's entry to get the reading plan data
+      // First, try to get reading plan from current day's entry
       const dateString = getLocalDateString(selectedDate)
       const entryData = await loadEntryByDate(dateString)
       if (entryData && entryData.readingPlan) {
         existingProgress = entryData.readingPlan
         console.log('🔥 FOUND existing progress in database for current date:', existingProgress)
+      } else {
+        // If no reading plan found in current day, check all entries for this user
+        console.log('🔥 No reading plan found for current date, checking all entries...')
+        const { loadEntries } = useDailyStore.getState()
+        await loadEntries()
+        const allEntries = useDailyStore.getState().entries
+        
+        // Look for reading plan in any entry (most recent first)
+        console.log('🔍 Checking', allEntries.length, 'entries for plan ID:', plan.id)
+        for (const entry of allEntries) {
+          console.log('🔍 Checking entry from date:', entry.date)
+          console.log('🔍 Entry readingPlan:', entry.readingPlan)
+          console.log('🔍 Entry data_content:', entry.data_content)
+          console.log('🔍 Entry data_content.readingPlan:', entry.data_content?.readingPlan)
+          
+          const readingPlanData = entry.readingPlan || (entry.data_content && entry.data_content.readingPlan)
+          if (readingPlanData && readingPlanData.planId === plan.id) {
+            existingProgress = readingPlanData
+            console.log('🔥 FOUND existing progress in entry from date:', entry.date, 'plan:', existingProgress)
+            break
+          }
+        }
+        
+        if (!existingProgress) {
+          console.log('🔥 No existing progress found for plan:', plan.id)
+        }
       }
     } catch (error) {
       console.error('🔥 Error loading from database:', error)

@@ -274,10 +274,9 @@ app.post('/api/entries', authenticateToken, async (req, res) => {
              VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
              ON CONFLICT (user_id, plan_id)
              DO UPDATE SET 
-               current_day = $5,
-               total_days = $6,
-               start_date = $7,
-               completed_days = $8,
+               current_day = EXCLUDED.current_day,
+               total_days = EXCLUDED.total_days,
+               completed_days = EXCLUDED.completed_days,
                updated_at = CURRENT_TIMESTAMP
              RETURNING *`,
             [
