@@ -419,6 +419,14 @@ export function DailyEntry() {
         // Load existing entry data (but don't auto-show reading plan)
         const readingPlanData = entryData.readingPlan || (entryData.data_content && entryData.data_content.readingPlan)
         console.log('🔥 Found reading plan data in entry (storing but not showing):', readingPlanData)
+        console.log('🔥 Reading plan data structure:', {
+          planId: readingPlanData?.planId,
+          planName: readingPlanData?.planName,
+          currentDay: readingPlanData?.currentDay,
+          totalDays: readingPlanData?.totalDays,
+          completedDays: readingPlanData?.completedDays,
+          startDate: readingPlanData?.startDate
+        })
         setDayData(prev => ({
           ...prev,
           checkIn: entryData.checkIn || prev.checkIn,
@@ -584,7 +592,10 @@ export function DailyEntry() {
     const existingPlan = dayData.readingPlan
     if (existingPlan && existingPlan.planId === plan.id) {
       console.log('🔥 Plan already in progress, continuing...')
+      console.log('🔥 Existing plan details:', existingPlan)
+      console.log('🔥 Setting showReadingPlan to true')
       setShowReadingPlan(true) // Show the reading plan UI
+      console.log('🔥 showReadingPlan should now be true')
       return // Don't reset the plan, just continue with existing progress
     }
     
@@ -1565,6 +1576,7 @@ export function DailyEntry() {
 
             {/* SOAP Section */}
             {/* Reading Plan Progress */}
+        {console.log('🔥 Render check - showReadingPlan:', showReadingPlan, 'dayData.readingPlan:', dayData.readingPlan)}
         {showReadingPlan && dayData.readingPlan && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
