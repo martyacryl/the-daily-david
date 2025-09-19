@@ -186,8 +186,10 @@ export function DailyEntry() {
         return
       }
       
-      console.log('DailyEntry: Auto-save entryData:', entryData)
-        console.log('DailyEntry: ReadingPlan data in entryData:', entryData.readingPlan)
+      console.log('🔥 DailyEntry: Auto-save entryData:', entryData)
+      console.log('🔥 DailyEntry: ReadingPlan data in entryData:', entryData.readingPlan)
+      console.log('🔥 DailyEntry: ReadingPlan completedDays:', entryData.readingPlan?.completedDays)
+      console.log('🔥 DailyEntry: ReadingPlan currentDay:', entryData.readingPlan?.currentDay)
       console.log('DailyEntry: CheckIn data in entryData:', {
         checkIn: entryData.checkIn,
         checkInType: typeof entryData.checkIn,
@@ -637,18 +639,23 @@ export function DailyEntry() {
       console.log('🔥 STARTING new plan:', readingPlan)
     }
     
-    setDayData(prev => ({ ...prev, readingPlan }))
+    setDayData(prev => {
+      const newData = { ...prev, readingPlan }
+      
+      // Trigger auto-save with the new data
+      setTimeout(() => {
+        const entryData = {
+          ...newData,
+          readingPlan,
+          goals: userGoals
+        }
+        console.log('🔥 Auto-saving new reading plan:', entryData)
+        autoSaveToAPI(entryData)
+      }, 100)
+      
+      return newData
+    })
     setShowReadingPlan(true) // Show the reading plan UI
-    
-    // Trigger auto-save
-    setTimeout(() => {
-      const entryData = {
-        ...dayData,
-        readingPlan,
-        goals: userGoals
-      }
-      autoSaveToAPI(entryData)
-    }, 100)
   }
 
   const handleUpdateReadingPlan = (updatedReadingPlan: any) => {
@@ -659,19 +666,20 @@ export function DailyEntry() {
       const newData = { ...prev, readingPlan: updatedReadingPlan }
       console.log('🔥 Updated dayData:', newData)
       console.log('🔥 New reading plan currentDay:', newData.readingPlan?.currentDay)
+      
+      // Trigger auto-save with the new data
+      setTimeout(() => {
+        const entryData = {
+          ...newData,
+          readingPlan: updatedReadingPlan,
+          goals: userGoals
+        }
+        console.log('🔥 Auto-saving reading plan update:', updatedReadingPlan)
+        autoSaveToAPI(entryData)
+      }, 100)
+      
       return newData
     })
-    
-    // Trigger auto-save immediately
-    setTimeout(() => {
-      const entryData = {
-        ...dayData,
-        readingPlan: updatedReadingPlan,
-        goals: userGoals
-      }
-      console.log('🔥 Auto-saving reading plan update:', updatedReadingPlan)
-      autoSaveToAPI(entryData)
-    }, 100)
   }
 
   const handleLoadTodaysDevotion = async (planId: string, targetDay?: number, bibleId?: string) => {
