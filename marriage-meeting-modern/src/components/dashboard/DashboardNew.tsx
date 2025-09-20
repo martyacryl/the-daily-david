@@ -41,7 +41,6 @@ import { useSettingsStore } from '../../stores/settingsStore'
 import { MarriageMeetingWeek, GoalItem, ListItem, EncouragementNote } from '../../types/marriageTypes'
 import { EncouragementSection } from '../EncouragementSection'
 import { WeekOverview } from '../WeekOverview'
-import { DatabaseManager } from '../../lib/database'
 
 export const DashboardNew: React.FC = () => {
   const { user, isAuthenticated } = useAuthStore()
@@ -266,7 +265,7 @@ export const DashboardNew: React.FC = () => {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-slate-100 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-purple-50 flex items-center justify-center">
         <div className="text-center">
           <Mountain className="w-16 h-16 text-slate-500 mx-auto mb-4" />
           <h1 className="text-2xl font-bold text-gray-800 mb-2">Welcome to Daily David</h1>
@@ -282,7 +281,7 @@ export const DashboardNew: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-slate-100 pt-24 sm:pt-16">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-purple-50 pt-24 sm:pt-16">
       <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-8 max-w-7xl">
         {/* Header */}
         <motion.div

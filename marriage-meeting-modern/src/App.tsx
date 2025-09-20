@@ -5,6 +5,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'r
 import { useAuthStore } from './stores/authStore'
 import { useMarriageStore } from './stores/marriageStore'
 import { MarriageMeetingTool } from './components/MarriageMeetingTool'
+import { DailyFocusedMeeting } from './components/DailyFocusedMeeting'
 import { LoginForm } from './components/LoginForm'
 import { Dashboard } from './components/dashboard/Dashboard'
 import { ProgressAnalytics } from './components/dashboard/ProgressAnalytics'
@@ -77,6 +78,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Dashboard />} />
           <Route path="/weekly" element={<MarriageMeetingTool />} />
+          <Route path="/daily" element={<DailyFocusedMeeting />} />
           <Route path="/analytics" element={<ProgressAnalytics />} />
           <Route path="/review" element={<WeeklyReviewWithNavigation />} />
           <Route path="/admin" element={<ProtectedAdminRoute dbManager={dbManager} />} />

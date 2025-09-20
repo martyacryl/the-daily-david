@@ -1,12 +1,12 @@
 import React from 'react'
 import { motion } from 'framer-motion'
-import { Calendar, Target, CheckSquare, Heart, ShoppingCart, AlertTriangle } from 'lucide-react'
+import { Calendar, Target, Heart, AlertTriangle } from 'lucide-react'
 import { Card } from './ui/Card'
 import { Button } from './ui/Button'
 import { GoalsSection } from './GoalsSection'
 import { TasksSection } from './TasksSection'
 import { GroceryErrandsSection } from './GroceryErrandsSection'
-import { ListItem, GoalItem, TaskItem, DayName, EncouragementNote } from '../types/marriageTypes'
+import { ListItem, TaskItem, DayName, EncouragementNote } from '../types/marriageTypes'
 import { EncouragementSection } from './EncouragementSection'
 import { DatabaseManager } from '../lib/database'
 import { calendarService, CalendarEvent } from '../lib/calendarService'
@@ -36,7 +36,6 @@ interface WeeklyMeetingContentProps {
   onUpdateGrocery: (grocery: any[]) => void
   onUpdateEncouragementNotes: (encouragementNotes: EncouragementNote[]) => void
   onSave: () => void
-  isSaving?: boolean
 }
 
 export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
@@ -53,8 +52,7 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
   onUpdateTasks,
   onUpdateGrocery,
   onUpdateEncouragementNotes,
-  onSave,
-  isSaving = false
+  onSave
 }) => {
   // Debug logging
   console.log('📅 WeeklyMeetingContent: Rendering with weekData:', {
@@ -65,8 +63,7 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
   })
   const days: DayName[] = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
   const { settings, loadSettings } = useSettingsStore()
-  const { updateCalendarEvents, saveWeekData } = useMarriageStore()
-  const [isLoadingCalendar, setIsLoadingCalendar] = React.useState(false)
+  const { updateCalendarEvents } = useMarriageStore()
   
   // Get calendar events from the store instead of local state
   const calendarEvents = weekData.calendarEvents || []
@@ -350,7 +347,7 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
         </div>
 
         <div className="space-y-2 sm:space-y-3 lg:space-y-4">
-          {items.map((item, index) => (
+          {items.map((item) => (
             <div key={item.id} className="flex items-center gap-2 sm:gap-3 lg:gap-4 p-2 sm:p-3 lg:p-4 bg-white border border-gray-200 rounded-lg hover:shadow-sm transition-shadow">
               <button
                 onClick={() => {

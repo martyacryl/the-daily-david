@@ -385,7 +385,7 @@ export function AdminPanel({ dbManager }: AdminPanelProps) {
             <h2 className="text-xl font-bold text-gray-800 mb-4">System Information</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
               <div>
-                <span className="font-medium text-gray-700">Version:</span> Weekly Huddle v2.0
+                <span className="font-medium text-gray-700">Version:</span> Weekly Huddle v2.1
               </div>
               <div>
                 <span className="font-medium text-gray-700">Database:</span> Neon PostgreSQL

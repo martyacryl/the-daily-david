@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
 import { Calendar, ChevronLeft, ChevronRight, RotateCcw } from 'lucide-react'
 import { useSearchParams } from 'react-router-dom'
 import { Button } from './ui/Button'
