@@ -496,7 +496,10 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                     </Button>
                   </div>
                   
-                  <WeekOverview currentDate={currentDate} />
+                  <WeekOverview 
+                    weekData={weekData} 
+                    currentDate={currentDate} 
+                  />
                 </Card>
               </div>
             </div>
