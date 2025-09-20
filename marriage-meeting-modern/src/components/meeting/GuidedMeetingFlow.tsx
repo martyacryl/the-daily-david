@@ -178,7 +178,6 @@ export const GuidedMeetingFlow: React.FC<GuidedMeetingFlowProps> = ({
     setCompletedSteps(new Set())
   }
 
-
   const progressPercentage = (completedSteps.size / meetingSteps.length) * 100
 
   return (
@@ -284,7 +283,6 @@ export const GuidedMeetingFlow: React.FC<GuidedMeetingFlowProps> = ({
           )}
         </div>
 
-
         {/* Step Actions */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -379,10 +377,6 @@ export const GuidedMeetingFlow: React.FC<GuidedMeetingFlowProps> = ({
                   )}
                 </div>
                 <p className="text-sm text-gray-600">{step.description}</p>
-              </div>
-              
-              <div className="text-sm text-gray-500">
-                {step.estimatedTime} min
               </div>
             </motion.div>
           ))}
