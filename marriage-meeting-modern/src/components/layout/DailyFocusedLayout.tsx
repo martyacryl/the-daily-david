@@ -308,9 +308,9 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
           </div>
 
           {/* Three Column Layout */}
-          <div className="flex-1 flex overflow-hidden">
+          <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
             {/* Left Column - Navigation Sidebar */}
-            <div className="w-80 bg-white border-r border-gray-200 flex flex-col">
+            <div className="w-full lg:w-80 bg-white border-r border-gray-200 flex flex-col">
               {/* Sidebar Header */}
               <div className="p-4 border-b border-gray-200">
                 <h2 className="text-lg font-semibold text-gray-900 mb-2">Meeting Sections</h2>
@@ -513,12 +513,12 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
             </div>
 
             {/* Middle Column - Daily Focus & Weekly Overview */}
-            <div className="flex-1 p-6 overflow-y-auto">
+            <div className="flex-1 p-4 lg:p-6 overflow-y-auto">
               <div className="space-y-6">
                 {/* Today's Schedule */}
-                <Card className="p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-xl font-bold text-gray-900">Today's Schedule</h2>
+                <Card className="p-4 lg:p-6">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
+                    <h2 className="text-lg lg:text-xl font-bold text-gray-900">Today's Schedule</h2>
                     <Button
                       variant="outline"
                       size="sm"
@@ -553,9 +553,9 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                 </Card>
 
                 {/* Today's Tasks */}
-                <Card className="p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-xl font-bold text-gray-900">Today's Tasks</h2>
+                <Card className="p-4 lg:p-6">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
+                    <h2 className="text-lg lg:text-xl font-bold text-gray-900">Today's Tasks</h2>
                     <Button
                       variant="outline"
                       size="sm"
@@ -601,9 +601,9 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                 </Card>
 
                 {/* Week Overview with Popup */}
-                <Card className="p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-xl font-bold text-gray-900">Week Overview</h2>
+                <Card className="p-4 lg:p-6">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
+                    <h2 className="text-lg lg:text-xl font-bold text-gray-900">Week Overview</h2>
                     <Button
                       variant="outline"
                       size="sm"
@@ -624,13 +624,13 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
             </div>
 
             {/* Right Column - Vision & Spiritual Content */}
-            <div className="w-80 bg-gradient-to-br from-purple-50 to-indigo-50 border-l border-gray-200 p-6 overflow-y-auto">
+            <div className="w-full lg:w-80 bg-gradient-to-br from-purple-50 to-indigo-50 border-l border-gray-200 p-4 lg:p-6 overflow-y-auto">
               <div className="space-y-6">
                 {/* Family Vision */}
-                <Card className="p-4 bg-white/70 backdrop-blur-sm">
+                <Card className="p-3 lg:p-4 bg-white/70 backdrop-blur-sm">
                   <div className="flex items-center gap-2 mb-3">
-                    <Home className="w-5 h-5 text-blue-600" />
-                    <h3 className="font-semibold text-gray-900">Family Vision</h3>
+                    <Home className="w-4 h-4 lg:w-5 lg:h-5 text-blue-600" />
+                    <h3 className="text-sm lg:text-base font-semibold text-gray-900">Family Vision</h3>
                   </div>
                   
                   <div className="space-y-3">
@@ -655,10 +655,10 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                 </Card>
 
                 {/* Spiritual Growth */}
-                <Card className="p-4 bg-white/70 backdrop-blur-sm">
+                <Card className="p-3 lg:p-4 bg-white/70 backdrop-blur-sm">
                   <div className="flex items-center gap-2 mb-3">
-                    <BookOpen className="w-5 h-5 text-purple-600" />
-                    <h3 className="font-semibold text-gray-900">Spiritual Growth</h3>
+                    <BookOpen className="w-4 h-4 lg:w-5 lg:h-5 text-purple-600" />
+                    <h3 className="text-sm lg:text-base font-semibold text-gray-900">Spiritual Growth</h3>
                   </div>
                   
                   <div className="space-y-3">
@@ -686,8 +686,8 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                 </Card>
 
                 {/* Today's Prayers */}
-                <Card className="p-4 bg-white/70 backdrop-blur-sm">
-                  <h3 className="font-semibold text-gray-900 mb-3">Today's Prayers</h3>
+                <Card className="p-3 lg:p-4 bg-white/70 backdrop-blur-sm">
+                  <h3 className="text-sm lg:text-base font-semibold text-gray-900 mb-3">Today's Prayers</h3>
                   <div className="space-y-2">
                     {dailyPrayers.slice(0, 3).map((prayer, index) => (
                       <div key={index} className="flex items-center gap-2 p-2 bg-white/50 rounded-lg">
@@ -707,8 +707,8 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                 </Card>
 
                 {/* Quick Actions */}
-                <Card className="p-4 bg-white/70 backdrop-blur-sm">
-                  <h3 className="font-semibold text-gray-900 mb-3">Quick Actions</h3>
+                <Card className="p-3 lg:p-4 bg-white/70 backdrop-blur-sm">
+                  <h3 className="text-sm lg:text-base font-semibold text-gray-900 mb-3">Quick Actions</h3>
                   <div className="space-y-2">
                     <Button
                       size="sm"
@@ -1377,12 +1377,12 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}
-              className="bg-white rounded-lg shadow-xl max-w-6xl w-full max-h-[90vh] overflow-y-auto"
+              className="bg-white rounded-lg shadow-xl max-w-6xl w-full max-h-[90vh] overflow-y-auto mx-2 sm:mx-4"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="p-6">
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-2xl font-bold text-gray-900">Family Vision Board</h2>
+              <div className="p-4 lg:p-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 lg:mb-6 gap-2">
+                  <h2 className="text-xl lg:text-2xl font-bold text-gray-900">Family Vision Board</h2>
                   <Button
                     variant="outline"
                     onClick={() => setShowVisionModal(false)}

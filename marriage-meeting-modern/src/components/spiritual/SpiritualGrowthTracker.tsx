@@ -200,25 +200,25 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
   }
 
   return (
-    <div className={`space-y-6 ${className}`}>
+    <div className={`space-y-4 lg:space-y-6 ${className}`}>
       {/* Header with Navigation */}
-      <Card className="p-6 bg-gradient-to-r from-purple-50 to-indigo-50">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-3">
+      <Card className="p-4 lg:p-6 bg-gradient-to-r from-purple-50 to-indigo-50">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-3">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3">
             {onBackToVision && (
               <Button
                 variant="outline"
                 size="sm"
                 onClick={onBackToVision}
-                className="text-slate-600 border-slate-200 hover:bg-slate-50"
+                className="text-slate-600 border-slate-200 hover:bg-slate-50 w-full sm:w-auto"
               >
                 <ArrowLeft className="w-4 h-4 mr-1" />
                 Back to Vision
               </Button>
             )}
             <div className="flex items-center gap-2">
-              <BookOpen className="w-6 h-6 text-purple-600" />
-              <h2 className="text-2xl font-bold text-gray-900">Spiritual Growth Tracker</h2>
+              <BookOpen className="w-5 h-5 lg:w-6 lg:h-6 text-purple-600" />
+              <h2 className="text-xl lg:text-2xl font-bold text-gray-900">Spiritual Growth Tracker</h2>
             </div>
           </div>
         </div>
@@ -226,12 +226,12 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
       </Card>
 
       {/* Prayer Requests */}
-      <Card className="p-6">
-        <div className="flex items-center justify-between mb-4">
+      <Card className="p-4 lg:p-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
           <div className="flex items-center gap-2">
-            <Heart className="w-5 h-5 text-red-600" />
-            <h3 className="text-xl font-bold text-gray-900">Prayer Requests</h3>
-            <span className="text-sm text-gray-500">({spiritualGrowth.prayer_requests.length} active)</span>
+            <Heart className="w-4 h-4 lg:w-5 lg:h-5 text-red-600" />
+            <h3 className="text-lg lg:text-xl font-bold text-gray-900">Prayer Requests</h3>
+            <span className="text-xs lg:text-sm text-gray-500">({spiritualGrowth.prayer_requests.length} active)</span>
           </div>
           <Button
             variant="outline"
@@ -330,12 +330,12 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
       </Card>
 
       {/* Answered Prayers */}
-      <Card className="p-6">
-        <div className="flex items-center justify-between mb-4">
+      <Card className="p-4 lg:p-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
           <div className="flex items-center gap-2">
-            <CheckCircle className="w-5 h-5 text-green-600" />
-            <h3 className="text-xl font-bold text-gray-900">Answered Prayers</h3>
-            <span className="text-sm text-gray-500">({spiritualGrowth.answered_prayers.length} answered)</span>
+            <CheckCircle className="w-4 h-4 lg:w-5 lg:h-5 text-green-600" />
+            <h3 className="text-lg lg:text-xl font-bold text-gray-900">Answered Prayers</h3>
+            <span className="text-xs lg:text-sm text-gray-500">({spiritualGrowth.answered_prayers.length} answered)</span>
           </div>
           <Button
             variant="outline"
@@ -413,10 +413,10 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
       </Card>
 
       {/* Bible Reading Progress */}
-      <Card className="p-6">
+      <Card className="p-4 lg:p-6">
         <div className="flex items-center gap-2 mb-4">
-          <BookOpen className="w-5 h-5 text-blue-600" />
-          <h3 className="text-xl font-bold text-gray-900">Bible Reading Progress</h3>
+          <BookOpen className="w-4 h-4 lg:w-5 lg:h-5 text-blue-600" />
+          <h3 className="text-lg lg:text-xl font-bold text-gray-900">Bible Reading Progress</h3>
         </div>
         
         <div className="space-y-4">
@@ -472,12 +472,12 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
       </Card>
 
       {/* Devotionals */}
-      <Card className="p-6">
-        <div className="flex items-center justify-between mb-4">
+      <Card className="p-4 lg:p-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
           <div className="flex items-center gap-2">
-            <Star className="w-5 h-5 text-yellow-600" />
-            <h3 className="text-xl font-bold text-gray-900">Daily Devotionals</h3>
-            <span className="text-sm text-gray-500">({spiritualGrowth.devotionals.length} completed)</span>
+            <Star className="w-4 h-4 lg:w-5 lg:h-5 text-yellow-600" />
+            <h3 className="text-lg lg:text-xl font-bold text-gray-900">Daily Devotionals</h3>
+            <span className="text-xs lg:text-sm text-gray-500">({spiritualGrowth.devotionals.length} completed)</span>
           </div>
           <Button
             variant="outline"
@@ -553,12 +553,12 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
       </Card>
 
       {/* Spiritual Goals */}
-      <Card className="p-6">
-        <div className="flex items-center justify-between mb-4">
+      <Card className="p-4 lg:p-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
           <div className="flex items-center gap-2">
-            <Target className="w-5 h-5 text-purple-600" />
-            <h3 className="text-xl font-bold text-gray-900">Spiritual Goals</h3>
-            <span className="text-sm text-gray-500">({spiritualGrowth.spiritual_goals.length} goals)</span>
+            <Target className="w-4 h-4 lg:w-5 lg:h-5 text-purple-600" />
+            <h3 className="text-lg lg:text-xl font-bold text-gray-900">Spiritual Goals</h3>
+            <span className="text-xs lg:text-sm text-gray-500">({spiritualGrowth.spiritual_goals.length} goals)</span>
           </div>
           <Button
             variant="outline"
@@ -631,10 +631,10 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
       </Card>
 
       {/* Reflection Notes */}
-      <Card className="p-6">
+      <Card className="p-4 lg:p-6">
         <div className="flex items-center gap-2 mb-4">
-          <MessageCircle className="w-5 h-5 text-indigo-600" />
-          <h3 className="text-xl font-bold text-gray-900">Reflection Notes</h3>
+          <MessageCircle className="w-4 h-4 lg:w-5 lg:h-5 text-indigo-600" />
+          <h3 className="text-lg lg:text-xl font-bold text-gray-900">Reflection Notes</h3>
         </div>
         
         <div className="space-y-4">

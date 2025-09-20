@@ -123,13 +123,13 @@ export const FamilyVisionBoard: React.FC<FamilyVisionBoardProps> = ({ className 
   }
 
   return (
-    <div className={`space-y-6 ${className}`}>
+    <div className={`space-y-4 lg:space-y-6 ${className}`}>
       {/* Mission Statement */}
-      <Card className="p-6">
-        <div className="flex items-center justify-between mb-4">
+      <Card className="p-4 lg:p-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
           <div className="flex items-center gap-2">
-            <Home className="w-5 h-5 text-blue-600" />
-            <h2 className="text-xl font-bold text-gray-900">Family Mission Statement</h2>
+            <Home className="w-4 h-4 lg:w-5 lg:h-5 text-blue-600" />
+            <h2 className="text-lg lg:text-xl font-bold text-gray-900">Family Mission Statement</h2>
           </div>
           <Button
             variant="outline"
@@ -176,11 +176,11 @@ export const FamilyVisionBoard: React.FC<FamilyVisionBoardProps> = ({ className 
       </Card>
 
       {/* Core Values */}
-      <Card className="p-6">
-        <div className="flex items-center justify-between mb-4">
+      <Card className="p-4 lg:p-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
           <div className="flex items-center gap-2">
-            <Star className="w-5 h-5 text-purple-600" />
-            <h2 className="text-xl font-bold text-gray-900">Core Values</h2>
+            <Star className="w-4 h-4 lg:w-5 lg:h-5 text-purple-600" />
+            <h2 className="text-lg lg:text-xl font-bold text-gray-900">Core Values</h2>
           </div>
           <Button
             variant="outline"
@@ -241,11 +241,11 @@ export const FamilyVisionBoard: React.FC<FamilyVisionBoardProps> = ({ className 
       </Card>
 
       {/* Vision Goals */}
-      <Card className="p-6">
-        <div className="flex items-center justify-between mb-4">
+      <Card className="p-4 lg:p-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
           <div className="flex items-center gap-2">
-            <Target className="w-5 h-5 text-green-600" />
-            <h2 className="text-xl font-bold text-gray-900">Vision Goals</h2>
+            <Target className="w-4 h-4 lg:w-5 lg:h-5 text-green-600" />
+            <h2 className="text-lg lg:text-xl font-bold text-gray-900">Vision Goals</h2>
           </div>
           <Button
             variant="outline"
