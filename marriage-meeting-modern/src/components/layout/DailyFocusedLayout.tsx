@@ -300,8 +300,8 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
   }
 
   const renderMainContent = () => {
-    // Handle special sections (vision, spiritual, review)
-    if (['vision', 'spiritual', 'review'].includes(activeSection)) {
+    // Handle special sections (spiritual, review) - vision shows daily overview
+    if (['spiritual', 'review'].includes(activeSection)) {
       return renderSidebarContent()
     }
 
@@ -376,6 +376,99 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
     // Default daily overview
     return (
       <div className="space-y-6">
+        {/* Today's Overview - Like Dashboard */}
+        <Card className="p-4 sm:p-6 bg-white shadow-sm border border-slate-200">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
+            <h3 className="text-lg sm:text-xl font-semibold text-gray-900 flex items-center gap-2">
+              <Calendar className="w-5 h-5 text-slate-600" />
+              Today's Overview
+              <span className="text-sm font-normal text-gray-600">
+                {currentDate.toLocaleDateString('en-US', { 
+                  weekday: 'long', 
+                  month: 'short', 
+                  day: 'numeric' 
+                })}
+              </span>
+            </h3>
+            <div className="flex items-center gap-2 self-start sm:self-auto">
+              <div className="relative">
+                <WeekOverview 
+                  weekData={weekData} 
+                  currentDate={currentDate}
+                />
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => window.location.href = '/weekly'}
+                className="text-slate-600 border-slate-200 hover:bg-slate-50"
+              >
+                <Edit3 className="w-4 h-4 mr-1" />
+                Edit Day
+              </Button>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+            {/* Today's Schedule */}
+            <div className="space-y-3">
+              <h4 className="font-medium text-gray-900 flex items-center gap-2">
+                <Clock className="w-4 h-4 text-slate-600" />
+                Today's Schedule
+              </h4>
+              <div className="space-y-2">
+                {(() => {
+                  const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+                  const todayName = dayNames[currentDate.getDay()]
+                  const todaySchedule = weekData.schedule?.[todayName as keyof typeof weekData.schedule] || []
+                  const filteredSchedule = todaySchedule.filter(item => item && item.trim() !== '' && item !== '')
+                  
+                  return filteredSchedule.length > 0 ? (
+                    filteredSchedule.map((item, index) => (
+                      <div key={index} className="p-3 sm:p-4 bg-slate-100 rounded-xl border-l-4 border-slate-400">
+                        <span className="text-sm sm:text-base text-slate-800 font-medium">{item}</span>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-sm text-gray-500 italic p-3">No schedule items for today</p>
+                  )
+                })()}
+              </div>
+            </div>
+
+            {/* Today's Tasks */}
+            <div className="space-y-3">
+              <h4 className="font-medium text-gray-900 flex items-center gap-2">
+                <CheckSquare className="w-4 h-4 text-slate-600" />
+                Today's Tasks
+              </h4>
+              <div className="space-y-2">
+                {(() => {
+                  const todayTasks = (weekData?.todos || []).filter((todo: any) => !todo.completed).slice(0, 5)
+                  
+                  return todayTasks.length > 0 ? (
+                    todayTasks.map((task: any) => (
+                      <div key={task.id} className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg">
+                        <CheckSquare className={`w-4 h-4 ${task.completed ? 'text-green-600' : 'text-gray-400'}`} />
+                        <span className={`flex-1 text-sm ${task.completed ? 'line-through text-gray-500' : 'text-gray-800'}`}>
+                          {task.text}
+                        </span>
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          task.completed ? 'bg-green-100 text-green-800' : 'bg-slate-100 text-slate-800'
+                        }`}>
+                          {task.completed ? 'Done' : 'Pending'}
+                        </span>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-sm text-gray-500 italic p-3">No tasks for today</p>
+                  )
+                })()}
+              </div>
+            </div>
+          </div>
+        </Card>
+
         {/* Weather Section */}
         <Card className="p-6 bg-gradient-to-r from-slate-50 to-purple-50 border-2 border-slate-200">
           <div className="flex items-center justify-between mb-4">
