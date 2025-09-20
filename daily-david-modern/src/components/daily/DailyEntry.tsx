@@ -623,23 +623,27 @@ export function DailyEntry() {
         const result = await response.json()
         
         if (result.success && result.entries) {
-          // Find the most recent entry for this plan (by date, not by currentDay)
+          // Find the entry with the MOST COMPLETED DAYS for this plan
           let bestReadingPlan = null
-          let mostRecentDate = null
+          let mostCompletedDays = 0
           
           for (const entry of result.entries) {
             const readingPlan = entry.data_content?.readingPlan
             if (readingPlan && readingPlan.planId === plan.id) {
-              // Use the most recent entry by date for this plan
-              if (!mostRecentDate || entry.date > mostRecentDate) {
+              const completedCount = readingPlan.completedDays?.length || 0
+              // Use the entry with the most completed days for this plan
+              if (completedCount > mostCompletedDays) {
                 bestReadingPlan = readingPlan
-                mostRecentDate = entry.date
+                mostCompletedDays = completedCount
               }
             }
           }
           
           if (bestReadingPlan) {
             existingProgress = bestReadingPlan
+            console.log('🔥 Found existing progress for plan:', plan.id, 'with currentDay:', bestReadingPlan.currentDay, 'and completedDays:', bestReadingPlan.completedDays)
+          } else {
+            console.log('🔥 No existing progress found for plan:', plan.id)
           }
         }
       } else {
