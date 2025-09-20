@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { 
   Heart, 
@@ -12,24 +12,19 @@ import {
   Target,
   Flame,
   Users,
-  MessageCircle
+  MessageCircle,
+  ArrowLeft,
+  X,
+  Save
 } from 'lucide-react'
 import { Card } from '../ui/Card'
 import { Button } from '../ui/Button'
 import { Input } from '../ui/Input'
 import { Textarea } from '../ui/Textarea'
+import { useVisionStore } from '../../stores/visionStore'
 
 interface SpiritualGrowthTrackerProps {
-  prayerRequests?: PrayerRequest[]
-  praiseReports?: PraiseReport[]
-  bibleReadingPlan?: BibleReadingPlan
-  devotionalSchedule?: DevotionalSchedule
-  spiritualGoals?: SpiritualGoal[]
-  onUpdatePrayers?: (prayers: PrayerRequest[]) => void
-  onUpdatePraise?: (praise: PraiseReport[]) => void
-  onUpdateBiblePlan?: (plan: BibleReadingPlan) => void
-  onUpdateDevotionals?: (schedule: DevotionalSchedule) => void
-  onUpdateGoals?: (goals: SpiritualGoal[]) => void
+  onBackToVision?: () => void
   className?: string
 }
 
@@ -44,484 +39,619 @@ interface PrayerRequest {
   answer?: string
 }
 
-interface PraiseReport {
-  id: number
-  text: string
-  date: string
-  category: 'answered_prayer' | 'blessing' | 'breakthrough' | 'provision' | 'healing' | 'other'
-}
-
-interface BibleReadingPlan {
-  id: string
-  name: string
-  description: string
-  startDate: string
-  endDate: string
-  currentDay: number
-  totalDays: number
-  dailyReading?: string
-  completed: boolean
-}
-
-interface DevotionalSchedule {
-  id: string
-  name: string
-  time: string
-  days: string[]
-  currentStreak: number
-  longestStreak: number
-  completedToday: boolean
-}
-
-interface SpiritualGoal {
-  id: number
-  text: string
-  category: 'prayer' | 'bible_study' | 'worship' | 'service' | 'fellowship' | 'discipleship'
-  timeframe: 'daily' | 'weekly' | 'monthly' | 'yearly'
-  target: number
-  current: number
-  completed: boolean
-  startDate: string
-  endDate: string
-}
-
-const categoryColors = {
-  family: 'bg-slate-100 text-slate-800 border-slate-200',
-  health: 'bg-slate-100 text-slate-800 border-slate-200',
-  work: 'bg-slate-100 text-slate-800 border-slate-200',
-  ministry: 'bg-slate-100 text-slate-800 border-slate-200',
-  personal: 'bg-slate-100 text-slate-800 border-slate-200',
-  world: 'bg-slate-100 text-slate-800 border-slate-200'
-}
-
-const priorityColors = {
-  low: 'bg-gray-100 text-gray-800',
-  medium: 'bg-yellow-100 text-yellow-800',
-  high: 'bg-red-100 text-red-800'
-}
-
-export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
-  prayerRequests = [],
-  praiseReports = [],
-  bibleReadingPlan,
-  devotionalSchedule,
-  spiritualGoals = [],
-  onUpdatePrayers,
-  onUpdatePraise,
-  onUpdateBiblePlan,
-  onUpdateDevotionals,
-  onUpdateGoals,
-  className = ''
+export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({ 
+  onBackToVision,
+  className = '' 
 }) => {
-  const [newPrayer, setNewPrayer] = useState('')
-  const [newPraise, setNewPraise] = useState('')
-  const [selectedCategory, setSelectedCategory] = useState<PrayerRequest['category']>('family')
-  const [selectedPriority, setSelectedPriority] = useState<PrayerRequest['priority']>('medium')
+  const {
+    spiritualGrowth,
+    loadSpiritualGrowth,
+    updateSpiritualGrowth
+  } = useVisionStore()
 
-  const handleAddPrayer = () => {
-    if (newPrayer.trim()) {
-      const prayer: PrayerRequest = {
-        id: Date.now(),
-        text: newPrayer.trim(),
-        category: selectedCategory,
-        priority: selectedPriority,
-        dateAdded: new Date().toISOString().split('T')[0]
-      }
-      onUpdatePrayers?.([...prayerRequests, prayer])
-      setNewPrayer('')
+  const [isAddingPrayer, setIsAddingPrayer] = useState(false)
+  const [isAddingAnswered, setIsAddingAnswered] = useState(false)
+  const [isAddingDevotional, setIsAddingDevotional] = useState(false)
+  const [isAddingGoal, setIsAddingGoal] = useState(false)
+  const [newPrayer, setNewPrayer] = useState({ text: '', category: 'family' as const, priority: 'medium' as const })
+  const [newAnswered, setNewAnswered] = useState('')
+  const [newDevotional, setNewDevotional] = useState('')
+  const [newGoal, setNewGoal] = useState('')
+  const [bibleProgress, setBibleProgress] = useState(0)
+  const [reflectionNotes, setReflectionNotes] = useState('')
+
+  useEffect(() => {
+    loadSpiritualGrowth()
+  }, [loadSpiritualGrowth])
+
+  useEffect(() => {
+    if (spiritualGrowth) {
+      setBibleProgress(spiritualGrowth.bible_reading_progress || 0)
+      setReflectionNotes(spiritualGrowth.reflection_notes || '')
+    }
+  }, [spiritualGrowth])
+
+  const handleAddPrayer = async () => {
+    if (newPrayer.text.trim() && spiritualGrowth) {
+      const updatedPrayers = [...spiritualGrowth.prayer_requests, newPrayer.text.trim()]
+      await updateSpiritualGrowth({
+        ...spiritualGrowth,
+        prayer_requests: updatedPrayers
+      })
+      setNewPrayer({ text: '', category: 'family', priority: 'medium' })
+      setIsAddingPrayer(false)
     }
   }
 
-  const handleAddPraise = () => {
-    if (newPraise.trim()) {
-      const praise: PraiseReport = {
-        id: Date.now(),
-        text: newPraise.trim(),
-        date: new Date().toISOString().split('T')[0],
-        category: 'blessing'
-      }
-      onUpdatePraise?.([...praiseReports, praise])
-      setNewPraise('')
+  const handleRemovePrayer = async (index: number) => {
+    if (spiritualGrowth) {
+      const updatedPrayers = spiritualGrowth.prayer_requests.filter((_, i) => i !== index)
+      await updateSpiritualGrowth({
+        ...spiritualGrowth,
+        prayer_requests: updatedPrayers
+      })
     }
   }
 
-  const handleAnswerPrayer = (prayerId: number, answer: string) => {
-    const updatedPrayers = prayerRequests.map(prayer => 
-      prayer.id === prayerId 
-        ? { 
-            ...prayer, 
-            answered: true, 
-            answerDate: new Date().toISOString().split('T')[0],
-            answer 
-          }
-        : prayer
+  const handleAddAnswered = async () => {
+    if (newAnswered.trim() && spiritualGrowth) {
+      const updatedAnswered = [...spiritualGrowth.answered_prayers, newAnswered.trim()]
+      await updateSpiritualGrowth({
+        ...spiritualGrowth,
+        answered_prayers: updatedAnswered
+      })
+      setNewAnswered('')
+      setIsAddingAnswered(false)
+    }
+  }
+
+  const handleRemoveAnswered = async (index: number) => {
+    if (spiritualGrowth) {
+      const updatedAnswered = spiritualGrowth.answered_prayers.filter((_, i) => i !== index)
+      await updateSpiritualGrowth({
+        ...spiritualGrowth,
+        answered_prayers: updatedAnswered
+      })
+    }
+  }
+
+  const handleAddDevotional = async () => {
+    if (newDevotional.trim() && spiritualGrowth) {
+      const updatedDevotionals = [...spiritualGrowth.devotionals, newDevotional.trim()]
+      await updateSpiritualGrowth({
+        ...spiritualGrowth,
+        devotionals: updatedDevotionals
+      })
+      setNewDevotional('')
+      setIsAddingDevotional(false)
+    }
+  }
+
+  const handleRemoveDevotional = async (index: number) => {
+    if (spiritualGrowth) {
+      const updatedDevotionals = spiritualGrowth.devotionals.filter((_, i) => i !== index)
+      await updateSpiritualGrowth({
+        ...spiritualGrowth,
+        devotionals: updatedDevotionals
+      })
+    }
+  }
+
+  const handleAddGoal = async () => {
+    if (newGoal.trim() && spiritualGrowth) {
+      const updatedGoals = [...spiritualGrowth.spiritual_goals, newGoal.trim()]
+      await updateSpiritualGrowth({
+        ...spiritualGrowth,
+        spiritual_goals: updatedGoals
+      })
+      setNewGoal('')
+      setIsAddingGoal(false)
+    }
+  }
+
+  const handleRemoveGoal = async (index: number) => {
+    if (spiritualGrowth) {
+      const updatedGoals = spiritualGrowth.spiritual_goals.filter((_, i) => i !== index)
+      await updateSpiritualGrowth({
+        ...spiritualGrowth,
+        spiritual_goals: updatedGoals
+      })
+    }
+  }
+
+  const handleUpdateBibleProgress = async (progress: number) => {
+    if (spiritualGrowth) {
+      await updateSpiritualGrowth({
+        ...spiritualGrowth,
+        bible_reading_progress: progress
+      })
+    }
+  }
+
+  const handleUpdateReflection = async () => {
+    if (spiritualGrowth) {
+      await updateSpiritualGrowth({
+        ...spiritualGrowth,
+        reflection_notes: reflectionNotes
+      })
+    }
+  }
+
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'high': return 'text-red-600 bg-red-100'
+      case 'medium': return 'text-yellow-600 bg-yellow-100'
+      case 'low': return 'text-green-600 bg-green-100'
+      default: return 'text-gray-600 bg-gray-100'
+    }
+  }
+
+  if (!spiritualGrowth) {
+    return (
+      <Card className={`p-6 ${className}`}>
+        <div className="flex items-center justify-center py-8">
+          <div className="text-center">
+            <div className="w-8 h-8 border-4 border-purple-200 border-t-purple-600 rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-gray-500">Loading spiritual growth data...</p>
+          </div>
+        </div>
+      </Card>
     )
-    onUpdatePrayers?.(updatedPrayers)
-  }
-
-  const getBibleReadingProgress = () => {
-    if (!bibleReadingPlan) return 0
-    return Math.round((bibleReadingPlan.currentDay / bibleReadingPlan.totalDays) * 100)
   }
 
   return (
     <div className={`space-y-6 ${className}`}>
+      {/* Header with Navigation */}
+      <Card className="p-6 bg-gradient-to-r from-purple-50 to-indigo-50">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
+            {onBackToVision && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onBackToVision}
+                className="text-slate-600 border-slate-200 hover:bg-slate-50"
+              >
+                <ArrowLeft className="w-4 h-4 mr-1" />
+                Back to Vision
+              </Button>
+            )}
+            <div className="flex items-center gap-2">
+              <BookOpen className="w-6 h-6 text-purple-600" />
+              <h2 className="text-2xl font-bold text-gray-900">Spiritual Growth Tracker</h2>
+            </div>
+          </div>
+        </div>
+        <p className="text-gray-600">Track your spiritual journey, prayer requests, and growth goals</p>
+      </Card>
+
       {/* Prayer Requests */}
       <Card className="p-6">
         <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-purple-100 rounded-lg">
-              <Heart className="w-5 h-5 text-purple-600" />
-            </div>
-            <h3 className="text-lg font-bold text-gray-900">Prayer Requests</h3>
-          </div>
           <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-600">
-              {prayerRequests.filter(p => !p.answered).length} Active
-            </span>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {/* Add prayer modal */}}
-              className="text-purple-600 border-purple-200 hover:bg-purple-50"
-            >
-              <Plus className="w-3 h-3 mr-1" />
-              Add
-            </Button>
+            <Heart className="w-5 h-5 text-red-600" />
+            <h3 className="text-xl font-bold text-gray-900">Prayer Requests</h3>
+            <span className="text-sm text-gray-500">({spiritualGrowth.prayer_requests.length} active)</span>
           </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setIsAddingPrayer(!isAddingPrayer)}
+            className="text-slate-600 border-slate-200 hover:bg-slate-50"
+          >
+            <Plus className="w-4 h-4 mr-1" />
+            Add Request
+          </Button>
         </div>
 
-        {/* Add Prayer Form */}
-        <div className="mb-4 p-4 bg-purple-50 rounded-lg">
-          <div className="space-y-3">
-            <Textarea
-              value={newPrayer}
-              onChange={(e) => setNewPrayer(e.target.value)}
-              placeholder="What would you like to pray about?"
-              className="min-h-[80px]"
-            />
-            <div className="flex gap-2">
-              <select
-                value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value as PrayerRequest['category'])}
-                className="px-3 py-2 border border-gray-300 rounded-md text-sm"
-              >
-                <option value="family">Family</option>
-                <option value="health">Health</option>
-                <option value="work">Work</option>
-                <option value="ministry">Ministry</option>
-                <option value="personal">Personal</option>
-                <option value="world">World</option>
-              </select>
-              <select
-                value={selectedPriority}
-                onChange={(e) => setSelectedPriority(e.target.value as PrayerRequest['priority'])}
-                className="px-3 py-2 border border-gray-300 rounded-md text-sm"
-              >
-                <option value="low">Low Priority</option>
-                <option value="medium">Medium Priority</option>
-                <option value="high">High Priority</option>
-              </select>
+        {isAddingPrayer && (
+          <div className="mb-4 p-4 bg-gray-50 rounded-lg">
+            <div className="space-y-3">
+              <Textarea
+                value={newPrayer.text}
+                onChange={(e) => setNewPrayer({ ...newPrayer, text: e.target.value })}
+                placeholder="Enter your prayer request..."
+                className="min-h-[80px]"
+              />
+              <div className="flex items-center gap-2">
+                <select
+                  value={newPrayer.category}
+                  onChange={(e) => setNewPrayer({ ...newPrayer, category: e.target.value as any })}
+                  className="px-3 py-2 border border-gray-300 rounded-md text-sm"
+                >
+                  <option value="family">Family</option>
+                  <option value="health">Health</option>
+                  <option value="work">Work</option>
+                  <option value="ministry">Ministry</option>
+                  <option value="personal">Personal</option>
+                  <option value="world">World</option>
+                </select>
+                <select
+                  value={newPrayer.priority}
+                  onChange={(e) => setNewPrayer({ ...newPrayer, priority: e.target.value as any })}
+                  className="px-3 py-2 border border-gray-300 rounded-md text-sm"
+                >
+                  <option value="low">Low</option>
+                  <option value="medium">Medium</option>
+                  <option value="high">High</option>
+                </select>
+                <Button
+                  onClick={handleAddPrayer}
+                  variant="default"
+                  className="bg-slate-600 hover:bg-slate-700"
+                >
+                  Add
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => setIsAddingPrayer(false)}
+                  className="text-slate-600 border-slate-200 hover:bg-slate-50"
+                >
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        <div className="space-y-3">
+          {spiritualGrowth.prayer_requests.map((prayer, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="flex items-center gap-3 p-4 bg-red-50 rounded-lg border border-red-200"
+            >
+              <Heart className="w-5 h-5 text-red-600 flex-shrink-0" />
+              <div className="flex-1">
+                <p className="text-gray-800">{prayer}</p>
+                <div className="flex items-center gap-2 mt-1">
+                  <span className="text-xs text-gray-500">Added recently</span>
+                </div>
+              </div>
               <Button
+                variant="outline"
                 size="sm"
-                onClick={handleAddPrayer}
-                className="bg-purple-600 hover:bg-purple-700"
+                onClick={() => handleRemovePrayer(index)}
+                className="text-red-600 border-red-200 hover:bg-red-50"
               >
-                Add Prayer
+                <X className="w-4 h-4" />
+              </Button>
+            </motion.div>
+          ))}
+          
+          {spiritualGrowth.prayer_requests.length === 0 && (
+            <div className="text-center py-8 text-gray-500">
+              <Heart className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+              <p>No prayer requests yet. Add your first request to get started!</p>
+            </div>
+          )}
+        </div>
+      </Card>
+
+      {/* Answered Prayers */}
+      <Card className="p-6">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <CheckCircle className="w-5 h-5 text-green-600" />
+            <h3 className="text-xl font-bold text-gray-900">Answered Prayers</h3>
+            <span className="text-sm text-gray-500">({spiritualGrowth.answered_prayers.length} answered)</span>
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setIsAddingAnswered(!isAddingAnswered)}
+            className="text-slate-600 border-slate-200 hover:bg-slate-50"
+          >
+            <Plus className="w-4 h-4 mr-1" />
+            Add Answer
+          </Button>
+        </div>
+
+        {isAddingAnswered && (
+          <div className="mb-4 p-4 bg-gray-50 rounded-lg">
+            <div className="flex items-center gap-2">
+              <Textarea
+                value={newAnswered}
+                onChange={(e) => setNewAnswered(e.target.value)}
+                placeholder="Enter how God answered your prayer..."
+                className="flex-1 min-h-[60px]"
+              />
+              <div className="flex flex-col gap-2">
+                <Button
+                  onClick={handleAddAnswered}
+                  variant="default"
+                  className="bg-slate-600 hover:bg-slate-700"
+                >
+                  Add
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => setIsAddingAnswered(false)}
+                  className="text-slate-600 border-slate-200 hover:bg-slate-50"
+                >
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        <div className="space-y-3">
+          {spiritualGrowth.answered_prayers.map((answer, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="flex items-center gap-3 p-4 bg-green-50 rounded-lg border border-green-200"
+            >
+              <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
+              <div className="flex-1">
+                <p className="text-gray-800">{answer}</p>
+                <div className="flex items-center gap-2 mt-1">
+                  <span className="text-xs text-green-600 font-medium">✓ Answered</span>
+                </div>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handleRemoveAnswered(index)}
+                className="text-red-600 border-red-200 hover:bg-red-50"
+              >
+                <X className="w-4 h-4" />
+              </Button>
+            </motion.div>
+          ))}
+          
+          {spiritualGrowth.answered_prayers.length === 0 && (
+            <div className="text-center py-8 text-gray-500">
+              <CheckCircle className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+              <p>No answered prayers yet. Record God's faithfulness!</p>
+            </div>
+          )}
+        </div>
+      </Card>
+
+      {/* Bible Reading Progress */}
+      <Card className="p-6">
+        <div className="flex items-center gap-2 mb-4">
+          <BookOpen className="w-5 h-5 text-blue-600" />
+          <h3 className="text-xl font-bold text-gray-900">Bible Reading Progress</h3>
+        </div>
+        
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Current Reading Plan: {spiritualGrowth.bible_reading_plan || 'No plan set'}
+            </label>
+            <Input
+              value={spiritualGrowth.bible_reading_plan || ''}
+              onChange={(e) => {
+                if (spiritualGrowth) {
+                  updateSpiritualGrowth({
+                    ...spiritualGrowth,
+                    bible_reading_plan: e.target.value
+                  })
+                }
+              }}
+              placeholder="Enter your Bible reading plan (e.g., 'Read through the Bible in a year')"
+              className="w-full"
+            />
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Progress: {bibleProgress} days
+            </label>
+            <div className="flex items-center gap-3">
+              <Input
+                type="number"
+                value={bibleProgress}
+                onChange={(e) => setBibleProgress(parseInt(e.target.value) || 0)}
+                className="w-24"
+                min="0"
+              />
+              <Button
+                onClick={() => handleUpdateBibleProgress(bibleProgress)}
+                variant="default"
+                className="bg-slate-600 hover:bg-slate-700"
+              >
+                <Save className="w-4 h-4 mr-1" />
+                Update
+              </Button>
+              <Button
+                onClick={() => handleUpdateBibleProgress(bibleProgress + 1)}
+                variant="outline"
+                className="text-slate-600 border-slate-200 hover:bg-slate-50"
+              >
+                +1 Day
               </Button>
             </div>
           </div>
         </div>
-
-        {/* Prayer List */}
-        <div className="space-y-3">
-          {prayerRequests.map((prayer) => (
-            <motion.div
-              key={prayer.id}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className={`p-4 rounded-lg border-2 ${
-                prayer.answered 
-                  ? 'bg-green-50 border-green-200' 
-                  : priorityColors[prayer.priority]
-              }`}
-            >
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${categoryColors[prayer.category]}`}>
-                      {prayer.category.charAt(0).toUpperCase() + prayer.category.slice(1)}
-                    </span>
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${priorityColors[prayer.priority]}`}>
-                      {prayer.priority.charAt(0).toUpperCase() + prayer.priority.slice(1)}
-                    </span>
-                    {prayer.answered && (
-                      <span className="flex items-center gap-1 text-green-600 text-xs font-medium">
-                        <CheckCircle className="w-3 h-3" />
-                        Answered
-                      </span>
-                    )}
-                  </div>
-                  <p className={`text-sm ${prayer.answered ? 'line-through text-gray-600' : 'text-gray-800'}`}>
-                    {prayer.text}
-                  </p>
-                  {prayer.answered && prayer.answer && (
-                    <div className="mt-2 p-2 bg-green-100 rounded text-sm">
-                      <strong>Answer:</strong> {prayer.answer}
-                    </div>
-                  )}
-                  <p className="text-xs text-gray-500 mt-1">
-                    Added: {new Date(prayer.dateAdded).toLocaleDateString()}
-                  </p>
-                </div>
-                {!prayer.answered && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      const answer = prompt('How was this prayer answered?')
-                      if (answer) handleAnswerPrayer(prayer.id, answer)
-                    }}
-                    className="text-green-600 border-green-200 hover:bg-green-50"
-                  >
-                    Mark Answered
-                  </Button>
-                )}
-              </div>
-            </motion.div>
-          ))}
-          
-          {prayerRequests.length === 0 && (
-            <div className="text-center py-8 text-gray-500">
-              <Heart className="w-12 h-12 mx-auto mb-3 text-gray-400" />
-              <p className="text-sm">No prayer requests yet</p>
-              <p className="text-xs">Add your first prayer request above</p>
-            </div>
-          )}
-        </div>
       </Card>
 
-      {/* Praise Reports */}
+      {/* Devotionals */}
       <Card className="p-6">
         <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-yellow-100 rounded-lg">
-              <Star className="w-5 h-5 text-yellow-600" />
-            </div>
-            <h3 className="text-lg font-bold text-gray-900">Praise Reports</h3>
+          <div className="flex items-center gap-2">
+            <Star className="w-5 h-5 text-yellow-600" />
+            <h3 className="text-xl font-bold text-gray-900">Daily Devotionals</h3>
+            <span className="text-sm text-gray-500">({spiritualGrowth.devotionals.length} completed)</span>
           </div>
           <Button
             variant="outline"
             size="sm"
-            onClick={() => {/* Add praise modal */}}
-            className="text-yellow-600 border-yellow-200 hover:bg-yellow-50"
+            onClick={() => setIsAddingDevotional(!isAddingDevotional)}
+            className="text-slate-600 border-slate-200 hover:bg-slate-50"
           >
-            <Plus className="w-3 h-3 mr-1" />
-            Add Praise
+            <Plus className="w-4 h-4 mr-1" />
+            Add Devotional
           </Button>
         </div>
 
-        {/* Add Praise Form */}
-        <div className="mb-4 p-4 bg-yellow-50 rounded-lg">
-          <div className="space-y-3">
-            <Textarea
-              value={newPraise}
-              onChange={(e) => setNewPraise(e.target.value)}
-              placeholder="What are you praising God for today?"
-              className="min-h-[80px]"
-            />
-            <Button
-              size="sm"
-              onClick={handleAddPraise}
-              className="bg-yellow-600 hover:bg-yellow-700"
-            >
-              Add Praise
-            </Button>
+        {isAddingDevotional && (
+          <div className="mb-4 p-4 bg-gray-50 rounded-lg">
+            <div className="flex items-center gap-2">
+              <Input
+                value={newDevotional}
+                onChange={(e) => setNewDevotional(e.target.value)}
+                placeholder="Enter devotional title or description..."
+                className="flex-1"
+              />
+              <Button
+                onClick={handleAddDevotional}
+                variant="default"
+                className="bg-slate-600 hover:bg-slate-700"
+              >
+                Add
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => setIsAddingDevotional(false)}
+                className="text-slate-600 border-slate-200 hover:bg-slate-50"
+              >
+                Cancel
+              </Button>
+            </div>
           </div>
-        </div>
+        )}
 
-        {/* Praise List */}
         <div className="space-y-3">
-          {praiseReports.slice(0, 5).map((praise) => (
+          {spiritualGrowth.devotionals.map((devotional, index) => (
             <motion.div
-              key={praise.id}
+              key={index}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="p-4 bg-yellow-50 rounded-lg border border-yellow-200"
+              className="flex items-center gap-3 p-4 bg-yellow-50 rounded-lg border border-yellow-200"
             >
-              <div className="flex items-start gap-3">
-                <Star className="w-4 h-4 text-yellow-600 mt-0.5 flex-shrink-0" />
-                <div className="flex-1">
-                  <p className="text-sm text-gray-800">{praise.text}</p>
-                  <p className="text-xs text-gray-500 mt-1">
-                    {new Date(praise.date).toLocaleDateString()}
-                  </p>
+              <Star className="w-5 h-5 text-yellow-600 flex-shrink-0" />
+              <div className="flex-1">
+                <p className="text-gray-800">{devotional}</p>
+                <div className="flex items-center gap-2 mt-1">
+                  <span className="text-xs text-yellow-600 font-medium">✓ Completed</span>
                 </div>
               </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handleRemoveDevotional(index)}
+                className="text-red-600 border-red-200 hover:bg-red-50"
+              >
+                <X className="w-4 h-4" />
+              </Button>
             </motion.div>
           ))}
           
-          {praiseReports.length === 0 && (
+          {spiritualGrowth.devotionals.length === 0 && (
             <div className="text-center py-8 text-gray-500">
-              <Star className="w-12 h-12 mx-auto mb-3 text-gray-400" />
-              <p className="text-sm">No praise reports yet</p>
-              <p className="text-xs">Share what God is doing in your life</p>
+              <Star className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+              <p>No devotionals completed yet. Start your spiritual journey!</p>
             </div>
           )}
         </div>
       </Card>
-
-      {/* Bible Reading Plan */}
-      {bibleReadingPlan && (
-        <Card className="p-6">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-blue-100 rounded-lg">
-                <BookOpen className="w-5 h-5 text-blue-600" />
-              </div>
-              <div>
-                <h3 className="text-lg font-bold text-gray-900">Bible Reading Plan</h3>
-                <p className="text-sm text-gray-600">{bibleReadingPlan.name}</p>
-              </div>
-            </div>
-            <Button
-              variant="outline"
-              size="sm"
-              className="text-blue-600 border-blue-200 hover:bg-blue-50"
-            >
-              <Edit3 className="w-3 h-3 mr-1" />
-              Edit Plan
-            </Button>
-          </div>
-
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-600">Progress</span>
-              <span className="text-sm font-medium text-gray-900">
-                Day {bibleReadingPlan.currentDay} of {bibleReadingPlan.totalDays}
-              </span>
-            </div>
-            
-            <div className="w-full bg-gray-200 rounded-full h-3">
-              <div 
-                className="bg-blue-600 h-3 rounded-full transition-all duration-300"
-                style={{ width: `${getBibleReadingProgress()}%` }}
-              />
-            </div>
-            
-            <div className="text-center">
-              <div className="text-2xl font-bold text-blue-600 mb-1">
-                {getBibleReadingProgress()}%
-              </div>
-              <p className="text-sm text-gray-600">Complete</p>
-            </div>
-
-            {bibleReadingPlan.dailyReading && (
-              <div className="p-4 bg-blue-50 rounded-lg">
-                <h4 className="font-medium text-gray-900 mb-2">Today's Reading</h4>
-                <p className="text-sm text-gray-700">{bibleReadingPlan.dailyReading}</p>
-              </div>
-            )}
-          </div>
-        </Card>
-      )}
-
-      {/* Devotional Schedule */}
-      {devotionalSchedule && (
-        <Card className="p-6">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-green-100 rounded-lg">
-                <Clock className="w-5 h-5 text-green-600" />
-              </div>
-              <div>
-                <h3 className="text-lg font-bold text-gray-900">Devotional Time</h3>
-                <p className="text-sm text-gray-600">{devotionalSchedule.name}</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                devotionalSchedule.completedToday 
-                  ? 'bg-green-100 text-green-800' 
-                  : 'bg-gray-100 text-gray-800'
-              }`}>
-                {devotionalSchedule.completedToday ? 'Completed Today' : 'Not Completed'}
-              </span>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-green-600 mb-1">
-                {devotionalSchedule.currentStreak}
-              </div>
-              <p className="text-sm text-gray-600">Current Streak</p>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-blue-600 mb-1">
-                {devotionalSchedule.longestStreak}
-              </div>
-              <p className="text-sm text-gray-600">Longest Streak</p>
-            </div>
-          </div>
-        </Card>
-      )}
 
       {/* Spiritual Goals */}
       <Card className="p-6">
         <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-purple-100 rounded-lg">
-              <Target className="w-5 h-5 text-purple-600" />
-            </div>
-            <h3 className="text-lg font-bold text-gray-900">Spiritual Goals</h3>
+          <div className="flex items-center gap-2">
+            <Target className="w-5 h-5 text-purple-600" />
+            <h3 className="text-xl font-bold text-gray-900">Spiritual Goals</h3>
+            <span className="text-sm text-gray-500">({spiritualGrowth.spiritual_goals.length} goals)</span>
           </div>
           <Button
             variant="outline"
             size="sm"
-            className="text-purple-600 border-purple-200 hover:bg-purple-50"
+            onClick={() => setIsAddingGoal(!isAddingGoal)}
+            className="text-slate-600 border-slate-200 hover:bg-slate-50"
           >
-            <Plus className="w-3 h-3 mr-1" />
+            <Plus className="w-4 h-4 mr-1" />
             Add Goal
           </Button>
         </div>
 
+        {isAddingGoal && (
+          <div className="mb-4 p-4 bg-gray-50 rounded-lg">
+            <div className="flex items-center gap-2">
+              <Input
+                value={newGoal}
+                onChange={(e) => setNewGoal(e.target.value)}
+                placeholder="Enter your spiritual goal..."
+                className="flex-1"
+              />
+              <Button
+                onClick={handleAddGoal}
+                variant="default"
+                className="bg-slate-600 hover:bg-slate-700"
+              >
+                Add
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => setIsAddingGoal(false)}
+                className="text-slate-600 border-slate-200 hover:bg-slate-50"
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
+        )}
+
         <div className="space-y-3">
-          {spiritualGoals.map((goal) => (
+          {spiritualGrowth.spiritual_goals.map((goal, index) => (
             <motion.div
-              key={goal.id}
+              key={index}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="p-4 bg-purple-50 rounded-lg border border-purple-200"
+              className="flex items-center gap-3 p-4 bg-purple-50 rounded-lg border border-purple-200"
             >
-              <div className="flex items-center justify-between mb-2">
-                <h4 className="font-medium text-gray-900">{goal.text}</h4>
-                <span className="text-sm text-gray-600">
-                  {goal.current}/{goal.target} {goal.timeframe}
-                </span>
+              <Target className="w-5 h-5 text-purple-600 flex-shrink-0" />
+              <div className="flex-1">
+                <p className="text-gray-800">{goal}</p>
               </div>
-              
-              <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
-                <div 
-                  className="bg-purple-600 h-2 rounded-full transition-all duration-300"
-                  style={{ width: `${Math.min((goal.current / goal.target) * 100, 100)}%` }}
-                />
-              </div>
-              
-              <div className="flex items-center justify-between text-xs text-gray-600">
-                <span>{goal.category.replace('_', ' ').toUpperCase()}</span>
-                <span>{new Date(goal.endDate).toLocaleDateString()}</span>
-              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handleRemoveGoal(index)}
+                className="text-red-600 border-red-200 hover:bg-red-50"
+              >
+                <X className="w-4 h-4" />
+              </Button>
             </motion.div>
           ))}
           
-          {spiritualGoals.length === 0 && (
+          {spiritualGrowth.spiritual_goals.length === 0 && (
             <div className="text-center py-8 text-gray-500">
-              <Target className="w-12 h-12 mx-auto mb-3 text-gray-400" />
-              <p className="text-sm">No spiritual goals yet</p>
-              <p className="text-xs">Set goals to grow in your faith</p>
+              <Target className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+              <p>No spiritual goals yet. Set your first goal!</p>
             </div>
           )}
+        </div>
+      </Card>
+
+      {/* Reflection Notes */}
+      <Card className="p-6">
+        <div className="flex items-center gap-2 mb-4">
+          <MessageCircle className="w-5 h-5 text-indigo-600" />
+          <h3 className="text-xl font-bold text-gray-900">Reflection Notes</h3>
+        </div>
+        
+        <div className="space-y-4">
+          <Textarea
+            value={reflectionNotes}
+            onChange={(e) => setReflectionNotes(e.target.value)}
+            placeholder="Reflect on your spiritual journey, lessons learned, and growth areas..."
+            className="min-h-[120px]"
+          />
+          <Button
+            onClick={handleUpdateReflection}
+            variant="default"
+            className="bg-slate-600 hover:bg-slate-700"
+          >
+            <Save className="w-4 h-4 mr-1" />
+            Save Reflection
+          </Button>
         </div>
       </Card>
     </div>

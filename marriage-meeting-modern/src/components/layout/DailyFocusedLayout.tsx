@@ -233,35 +233,7 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
         return (
           <div className="p-4">
             <SpiritualGrowthTracker
-              prayerRequests={dailyPrayers}
-              praiseReports={[
-                { id: 1, text: "God provided unexpected financial blessing", date: '2024-01-15', category: 'provision' },
-                { id: 2, text: "Children are growing in their faith", date: '2024-01-14', category: 'blessing' }
-              ]}
-              bibleReadingPlan={{
-                id: '1',
-                name: 'Read Through the Bible in a Year',
-                description: 'Daily reading plan',
-                startDate: '2024-01-01',
-                endDate: '2024-12-31',
-                currentDay: 15,
-                totalDays: 365,
-                dailyReading: 'Genesis 15-17, Matthew 5:1-26',
-                completed: false
-              }}
-              devotionalSchedule={{
-                id: '1',
-                name: 'Morning Devotions',
-                time: '7:00 AM',
-                days: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
-                currentStreak: 12,
-                longestStreak: 30,
-                completedToday: true
-              }}
-              spiritualGoals={[
-                { id: 1, text: "Pray together daily", category: 'prayer', timeframe: 'daily', target: 30, current: 15, completed: false, startDate: '2024-01-01', endDate: '2024-01-31' },
-                { id: 2, text: "Read Bible together weekly", category: 'bible_study', timeframe: 'weekly', target: 4, current: 2, completed: false, startDate: '2024-01-01', endDate: '2024-01-31' }
-              ]}
+              onBackToVision={() => setActiveSection('vision')}
             />
           </div>
         )
