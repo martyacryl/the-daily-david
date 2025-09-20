@@ -605,31 +605,50 @@ export function DailyEntry() {
     console.log('🔥 Loading reading plan progress from database...')
     
     try {
-      // Use the existing store pattern - load entries and get reading plan data
-      const { loadEntries } = useDailyStore.getState()
-      await loadEntries()
-      const allEntries = useDailyStore.getState().entries
-      
-      // Look for reading plan data in the entries (from data_content.readingPlan)
-      console.log('🔥 Checking', allEntries.length, 'entries for reading plan data...')
-      for (const entry of allEntries) {
-        console.log('🔥 Entry date:', entry.date, 'has readingPlan:', !!entry.data_content?.readingPlan)
-        if (entry.data_content?.readingPlan) {
-          console.log('🔥 Reading plan data:', entry.data_content.readingPlan)
-        }
-        
-        const readingPlanData = entry.data_content?.readingPlan
-        if (readingPlanData && readingPlanData.planId === plan.id) {
-          existingProgress = readingPlanData
-          console.log('🔥 FOUND reading plan data from store:', existingProgress)
-          console.log('🔥 Completed days:', existingProgress.completedDays)
-          console.log('🔥 Completed days length:', existingProgress.completedDays?.length)
-          break
-        }
+      // DIRECT API CALL to get the correct reading plan data
+      const token = useAuthStore.getState().token
+      if (!token) {
+        console.error('🔥 No auth token for reading plan lookup')
+        return
       }
       
-      if (!existingProgress) {
-        console.log('🔥 No existing progress found for plan:', plan.id)
+      console.log('🔥 Making direct API call to get reading plan data...')
+      const response = await fetch('/api/entries', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+      
+      if (response.ok) {
+        const result = await response.json()
+        console.log('🔥 API response:', result)
+        
+        if (result.success && result.entries) {
+          // Find the entry with the highest currentDay for this plan
+          let bestReadingPlan = null
+          let highestDay = 0
+          
+          for (const entry of result.entries) {
+            const readingPlan = entry.data_content?.readingPlan
+            if (readingPlan && readingPlan.planId === plan.id && readingPlan.currentDay > highestDay) {
+              bestReadingPlan = readingPlan
+              highestDay = readingPlan.currentDay
+              console.log('🔥 Found better reading plan with day:', readingPlan.currentDay, 'completedDays:', readingPlan.completedDays)
+            }
+          }
+          
+          if (bestReadingPlan) {
+            existingProgress = bestReadingPlan
+            console.log('🔥 FOUND best reading plan:', existingProgress)
+            console.log('🔥 Completed days:', existingProgress.completedDays)
+            console.log('🔥 Completed days length:', existingProgress.completedDays?.length)
+          } else {
+            console.log('🔥 No reading plan found for plan:', plan.id)
+          }
+        }
+      } else {
+        console.error('🔥 Failed to get entries from API:', response.status, response.statusText)
       }
     } catch (error) {
       console.error('🔥 Error loading from database:', error)
