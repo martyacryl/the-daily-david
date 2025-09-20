@@ -391,30 +391,27 @@ app.get('/api/entries', authenticateToken, async (req, res) => {
         [userId, limit]
       )
 
-      // Get reading plans for these entries
-      const readingPlansResult = await client.query(
-        `SELECT * FROM reading_plans 
-         WHERE user_id = $1 
-         ORDER BY date_key DESC, updated_at DESC`,
-        [userId]
-      )
-
-      // Combine the data - use the most recent reading plan for ALL entries
-      const mostRecentReadingPlan = readingPlansResult.rows.length > 0 ? readingPlansResult.rows[0] : null
+      // Find the entry with the most recent reading plan data (highest currentDay)
+      let mostRecentReadingPlan = null
+      let mostRecentEntry = null
+      
+      for (const entry of entriesResult.rows) {
+        const dataContent = entry.data_content || {}
+        const readingPlan = dataContent.readingPlan
+        if (readingPlan && readingPlan.planId && readingPlan.currentDay) {
+          if (!mostRecentReadingPlan || readingPlan.currentDay > mostRecentReadingPlan.currentDay) {
+            mostRecentReadingPlan = readingPlan
+            mostRecentEntry = entry
+          }
+        }
+      }
       
       const entries = entriesResult.rows.map(entry => {
         const dataContent = entry.data_content || {}
         
-        // Use the most recent reading plan for all entries (not just matching date)
+        // Use the most recent reading plan for all entries
         if (mostRecentReadingPlan) {
-          dataContent.readingPlan = {
-            planId: mostRecentReadingPlan.plan_id,
-            planName: mostRecentReadingPlan.plan_name,
-            currentDay: mostRecentReadingPlan.current_day,
-            totalDays: mostRecentReadingPlan.total_days,
-            startDate: mostRecentReadingPlan.start_date,
-            completedDays: mostRecentReadingPlan.completed_days || []
-          }
+          dataContent.readingPlan = mostRecentReadingPlan
         }
 
         return {
