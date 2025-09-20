@@ -1,6 +1,8 @@
 import { create } from 'zustand'
 import { DatabaseManager } from '../lib/database'
 
+const dbManager = new DatabaseManager()
+
 // Vision Data Types
 export interface VisionGoal {
   id: number
@@ -150,18 +152,7 @@ export const useVisionStore = create<VisionState>((set, get) => ({
   loadVisionGoals: async () => {
     set({ isVisionGoalsLoading: true, error: null })
     try {
-      const token = localStorage.getItem('token')
-      const response = await fetch(`${API_BASE_URL}/api/vision-goals`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      })
-
-      if (!response.ok) {
-        throw new Error(`Failed to load vision goals: ${response.statusText}`)
-      }
-
-      const data = await response.json()
+      const data = await dbManager.getVisionGoals()
       set({ visionGoals: data, isVisionGoalsLoading: false })
     } catch (error) {
       console.error('Error loading vision goals:', error)
@@ -174,21 +165,7 @@ export const useVisionStore = create<VisionState>((set, get) => ({
 
   addVisionGoal: async (goalData) => {
     try {
-      const token = localStorage.getItem('token')
-      const response = await fetch(`${API_BASE_URL}/api/vision-goals`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify(goalData),
-      })
-
-      if (!response.ok) {
-        throw new Error(`Failed to add vision goal: ${response.statusText}`)
-      }
-
-      const newGoal = await response.json()
+      const newGoal = await dbManager.addVisionGoal(goalData)
       set(state => ({
         visionGoals: [...state.visionGoals, newGoal],
         lastSaved: new Date()
@@ -201,21 +178,7 @@ export const useVisionStore = create<VisionState>((set, get) => ({
 
   updateVisionGoal: async (id, updates) => {
     try {
-      const token = localStorage.getItem('token')
-      const response = await fetch(`${API_BASE_URL}/api/vision-goals/${id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify(updates),
-      })
-
-      if (!response.ok) {
-        throw new Error(`Failed to update vision goal: ${response.statusText}`)
-      }
-
-      const updatedGoal = await response.json()
+      const updatedGoal = await dbManager.updateVisionGoal(id, updates)
       set(state => ({
         visionGoals: state.visionGoals.map(goal => goal.id === id ? updatedGoal : goal),
         lastSaved: new Date()
@@ -228,18 +191,7 @@ export const useVisionStore = create<VisionState>((set, get) => ({
 
   deleteVisionGoal: async (id) => {
     try {
-      const token = localStorage.getItem('token')
-      const response = await fetch(`${API_BASE_URL}/api/vision-goals/${id}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      })
-
-      if (!response.ok) {
-        throw new Error(`Failed to delete vision goal: ${response.statusText}`)
-      }
-
+      await dbManager.deleteVisionGoal(id)
       set(state => ({
         visionGoals: state.visionGoals.filter(goal => goal.id !== id),
         lastSaved: new Date()
@@ -265,18 +217,7 @@ export const useVisionStore = create<VisionState>((set, get) => ({
   loadSpiritualGrowth: async () => {
     set({ isSpiritualGrowthLoading: true, error: null })
     try {
-      const token = localStorage.getItem('token')
-      const response = await fetch(`${API_BASE_URL}/api/spiritual-growth`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      })
-
-      if (!response.ok) {
-        throw new Error(`Failed to load spiritual growth: ${response.statusText}`)
-      }
-
-      const data = await response.json()
+      const data = await dbManager.getSpiritualGrowth()
       set({ spiritualGrowth: data, isSpiritualGrowthLoading: false })
     } catch (error) {
       console.error('Error loading spiritual growth:', error)
@@ -289,21 +230,7 @@ export const useVisionStore = create<VisionState>((set, get) => ({
 
   updateSpiritualGrowth: async (data) => {
     try {
-      const token = localStorage.getItem('token')
-      const response = await fetch(`${API_BASE_URL}/api/spiritual-growth`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify(data),
-      })
-
-      if (!response.ok) {
-        throw new Error(`Failed to update spiritual growth: ${response.statusText}`)
-      }
-
-      const updatedData = await response.json()
+      const updatedData = await dbManager.updateSpiritualGrowth(data)
       set({ 
         spiritualGrowth: updatedData, 
         lastSaved: new Date() 
@@ -318,18 +245,7 @@ export const useVisionStore = create<VisionState>((set, get) => ({
   loadFamilyPlanning: async () => {
     set({ isFamilyPlanningLoading: true, error: null })
     try {
-      const token = localStorage.getItem('token')
-      const response = await fetch(`${API_BASE_URL}/api/family-planning`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      })
-
-      if (!response.ok) {
-        throw new Error(`Failed to load family planning: ${response.statusText}`)
-      }
-
-      const data = await response.json()
+      const data = await dbManager.getFamilyPlanning()
       set({ familyPlanning: data, isFamilyPlanningLoading: false })
     } catch (error) {
       console.error('Error loading family planning:', error)
@@ -342,21 +258,7 @@ export const useVisionStore = create<VisionState>((set, get) => ({
 
   updateFamilyPlanning: async (data) => {
     try {
-      const token = localStorage.getItem('token')
-      const response = await fetch(`${API_BASE_URL}/api/family-planning`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify(data),
-      })
-
-      if (!response.ok) {
-        throw new Error(`Failed to update family planning: ${response.statusText}`)
-      }
-
-      const updatedData = await response.json()
+      const updatedData = await dbManager.updateFamilyPlanning(data)
       set({ 
         familyPlanning: updatedData, 
         lastSaved: new Date() 
