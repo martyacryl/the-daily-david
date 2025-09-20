@@ -613,6 +613,91 @@ export class DatabaseManager {
 
     return await response.json()
   }
+
+  // Meeting Progress Methods
+  async getMeetingProgress(weekKey?: string): Promise<any[]> {
+    const token = this.getAuthToken()
+    if (!token) {
+      throw new Error('No authentication token available')
+    }
+
+    const url = weekKey 
+      ? `${this.baseUrl}/api/meeting-progress?week_key=${weekKey}`
+      : `${this.baseUrl}/api/meeting-progress`
+
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    })
+
+    if (!response.ok) {
+      const error = await response.text()
+      throw new Error(`Failed to fetch meeting progress: ${error}`)
+    }
+
+    return await response.json()
+  }
+
+  async saveMeetingProgress(data: {
+    meeting_date: string
+    week_key: string
+    steps_completed: string[]
+    total_steps?: number
+    completion_percentage: number
+    meeting_duration_minutes?: number
+    notes?: string
+  }): Promise<any> {
+    const token = this.getAuthToken()
+    if (!token) {
+      throw new Error('No authentication token available')
+    }
+
+    const response = await fetch(`${this.baseUrl}/api/meeting-progress`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify(data),
+    })
+
+    if (!response.ok) {
+      const error = await response.text()
+      throw new Error(`Failed to save meeting progress: ${error}`)
+    }
+
+    return await response.json()
+  }
+
+  async getMeetingStats(): Promise<{
+    current_streak: number
+    longest_streak: number
+    total_meetings: number
+    avg_completion: string
+    total_duration: number
+    recent_meetings: any[]
+  }> {
+    const token = this.getAuthToken()
+    if (!token) {
+      throw new Error('No authentication token available')
+    }
+
+    const response = await fetch(`${this.baseUrl}/api/meeting-stats`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    })
+
+    if (!response.ok) {
+      const error = await response.text()
+      throw new Error(`Failed to fetch meeting stats: ${error}`)
+    }
+
+    return await response.json()
+  }
 }
 
 // Create singleton instance

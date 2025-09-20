@@ -939,4 +939,109 @@ app.put('/api/family-planning', authenticateToken, async (req, res) => {
   }
 })
 
+// Meeting Progress API Endpoints
+app.get('/api/meeting-progress', authenticateToken, async (req, res) => {
+  try {
+    const { week_key } = req.query
+    
+    let query = 'SELECT * FROM meeting_progress WHERE user_id = $1'
+    let params = [req.user.id]
+    
+    if (week_key) {
+      query += ' AND week_key = $2'
+      params.push(week_key)
+    }
+    
+    query += ' ORDER BY meeting_date DESC'
+    
+    const result = await pool.query(query, params)
+    res.json(result.rows)
+  } catch (error) {
+    console.error('Error fetching meeting progress:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
+app.post('/api/meeting-progress', authenticateToken, async (req, res) => {
+  try {
+    const { 
+      meeting_date, 
+      week_key, 
+      steps_completed, 
+      total_steps = 8, 
+      completion_percentage, 
+      meeting_duration_minutes, 
+      notes 
+    } = req.body
+
+    const result = await pool.query(
+      `INSERT INTO meeting_progress (user_id, meeting_date, week_key, steps_completed, total_steps, completion_percentage, meeting_duration_minutes, notes, created_at, updated_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW(), NOW())
+       ON CONFLICT (user_id, meeting_date) 
+       DO UPDATE SET 
+         steps_completed = EXCLUDED.steps_completed,
+         total_steps = EXCLUDED.total_steps,
+         completion_percentage = EXCLUDED.completion_percentage,
+         meeting_duration_minutes = EXCLUDED.meeting_duration_minutes,
+         notes = EXCLUDED.notes,
+         updated_at = NOW()
+       RETURNING *`,
+      [req.user.id, meeting_date, week_key, JSON.stringify(steps_completed || []), total_steps, completion_percentage || 0, meeting_duration_minutes, notes || '']
+    )
+
+    res.json(result.rows[0])
+  } catch (error) {
+    console.error('Error saving meeting progress:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
+app.get('/api/meeting-stats', authenticateToken, async (req, res) => {
+  try {
+    // Get current streak and longest streak
+    const streakResult = await pool.query(
+      `SELECT current_streak, longest_streak 
+       FROM meeting_streaks 
+       WHERE user_id = $1 
+       ORDER BY meeting_date DESC 
+       LIMIT 1`,
+      [req.user.id]
+    )
+
+    // Get total meetings completed
+    const totalResult = await pool.query(
+      `SELECT COUNT(*) as total_meetings, 
+              AVG(completion_percentage) as avg_completion,
+              SUM(meeting_duration_minutes) as total_duration
+       FROM meeting_progress 
+       WHERE user_id = $1 AND completion_percentage >= 50`,
+      [req.user.id]
+    )
+
+    // Get recent meetings (last 4 weeks)
+    const recentResult = await pool.query(
+      `SELECT week_key, meeting_date, completion_percentage, steps_completed
+       FROM meeting_progress 
+       WHERE user_id = $1 
+       ORDER BY meeting_date DESC 
+       LIMIT 4`,
+      [req.user.id]
+    )
+
+    const stats = {
+      current_streak: streakResult.rows[0]?.current_streak || 0,
+      longest_streak: streakResult.rows[0]?.longest_streak || 0,
+      total_meetings: parseInt(totalResult.rows[0]?.total_meetings || 0),
+      avg_completion: parseFloat(totalResult.rows[0]?.avg_completion || 0).toFixed(1),
+      total_duration: parseInt(totalResult.rows[0]?.total_duration || 0),
+      recent_meetings: recentResult.rows
+    }
+
+    res.json(stats)
+  } catch (error) {
+    console.error('Error fetching meeting stats:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
 module.exports = app

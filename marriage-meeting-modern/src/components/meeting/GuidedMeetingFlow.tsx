@@ -1,10 +1,7 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { 
-  Play, 
-  Pause, 
   CheckCircle, 
-  Clock, 
   ArrowRight, 
   ArrowLeft,
   RotateCcw,
@@ -18,6 +15,7 @@ import {
 } from 'lucide-react'
 import { Card } from '../ui/Card'
 import { Button } from '../ui/Button'
+import { dbManager } from '../../lib/database'
 
 interface GuidedMeetingFlowProps {
   onComplete?: () => void
@@ -30,7 +28,6 @@ interface MeetingStep {
   title: string
   description: string
   icon: React.ComponentType<{ className?: string }>
-  estimatedTime: number // in minutes
   completed: boolean
   optional?: boolean
 }
@@ -41,7 +38,6 @@ const meetingSteps: MeetingStep[] = [
     title: 'Opening Prayer & Scripture',
     description: 'Begin with prayer and read a scripture that aligns with your family\'s current focus',
     icon: Heart,
-    estimatedTime: 5,
     completed: false
   },
   {
@@ -49,7 +45,6 @@ const meetingSteps: MeetingStep[] = [
     title: 'Week Reflection',
     description: 'Share highlights, challenges, and lessons learned from the past week',
     icon: Star,
-    estimatedTime: 10,
     completed: false
   },
   {
@@ -57,7 +52,6 @@ const meetingSteps: MeetingStep[] = [
     title: 'Vision & Mission Check',
     description: 'Review your family mission statement and long-term vision alignment',
     icon: Target,
-    estimatedTime: 8,
     completed: false
   },
   {
@@ -65,7 +59,6 @@ const meetingSteps: MeetingStep[] = [
     title: 'Goal Setting & Review',
     description: 'Set new goals and review progress on existing ones',
     icon: Calendar,
-    estimatedTime: 15,
     completed: false
   },
   {
@@ -73,7 +66,6 @@ const meetingSteps: MeetingStep[] = [
     title: 'Spiritual Growth',
     description: 'Share prayer requests, praise reports, and spiritual goals',
     icon: BookOpen,
-    estimatedTime: 12,
     completed: false
   },
   {
@@ -81,7 +73,6 @@ const meetingSteps: MeetingStep[] = [
     title: 'Weekly Planning',
     description: 'Coordinate schedules, assign tasks, and plan family activities',
     icon: Users,
-    estimatedTime: 10,
     completed: false
   },
   {
@@ -89,7 +80,6 @@ const meetingSteps: MeetingStep[] = [
     title: 'Marriage Connection',
     description: 'Share encouragement, appreciation, and plan date nights',
     icon: MessageCircle,
-    estimatedTime: 8,
     completed: false
   },
   {
@@ -97,7 +87,6 @@ const meetingSteps: MeetingStep[] = [
     title: 'Closing Prayer & Blessing',
     description: 'End with prayer, encouragement, and blessings for the week ahead',
     icon: Heart,
-    estimatedTime: 5,
     completed: false
   }
 ]
@@ -108,33 +97,64 @@ export const GuidedMeetingFlow: React.FC<GuidedMeetingFlowProps> = ({
   className = ''
 }) => {
   const [currentStep, setCurrentStep] = useState(0)
-  const [isRunning, setIsRunning] = useState(false)
-  const [timeRemaining, setTimeRemaining] = useState(0)
   const [completedSteps, setCompletedSteps] = useState<Set<string>>(new Set())
+  const [isSaving, setIsSaving] = useState(false)
+  const [meetingStats, setMeetingStats] = useState<any>(null)
 
   const currentStepData = meetingSteps[currentStep]
-  const totalTime = meetingSteps.reduce((sum, step) => sum + step.estimatedTime, 0)
-  const completedTime = meetingSteps
-    .filter(step => completedSteps.has(step.id))
-    .reduce((sum, step) => sum + step.estimatedTime, 0)
 
-  const handleStartStep = () => {
-    setIsRunning(true)
-    setTimeRemaining(currentStepData.estimatedTime * 60) // Convert to seconds
+  // Load meeting stats on component mount
+  useEffect(() => {
+    loadMeetingStats()
+  }, [])
+
+  const loadMeetingStats = async () => {
+    try {
+      const stats = await dbManager.getMeetingStats()
+      setMeetingStats(stats)
+    } catch (error) {
+      console.error('Error loading meeting stats:', error)
+    }
   }
 
-  const handlePauseStep = () => {
-    setIsRunning(false)
-  }
-
-  const handleCompleteStep = () => {
-    setCompletedSteps(prev => new Set([...prev, currentStepData.id]))
-    setIsRunning(false)
+  const handleCompleteStep = async () => {
+    const newCompletedSteps = new Set([...completedSteps, currentStepData.id])
+    setCompletedSteps(newCompletedSteps)
+    
+    // Save progress to database
+    await saveProgressToDatabase(newCompletedSteps)
     
     if (currentStep < meetingSteps.length - 1) {
       setCurrentStep(prev => prev + 1)
     } else {
       onComplete?.()
+    }
+  }
+
+  const saveProgressToDatabase = async (steps: Set<string>) => {
+    try {
+      setIsSaving(true)
+      
+      const today = new Date()
+      const weekKey = dbManager.formatWeekKey(today)
+      const stepsArray = Array.from(steps)
+      const completionPercentage = (stepsArray.length / meetingSteps.length) * 100
+
+      await dbManager.saveMeetingProgress({
+        meeting_date: today.toISOString().split('T')[0],
+        week_key: weekKey,
+        steps_completed: stepsArray,
+        total_steps: meetingSteps.length,
+        completion_percentage: Math.round(completionPercentage),
+        notes: `Completed ${stepsArray.length} of ${meetingSteps.length} steps`
+      })
+
+      // Reload stats after saving
+      await loadMeetingStats()
+    } catch (error) {
+      console.error('Error saving meeting progress:', error)
+    } finally {
+      setIsSaving(false)
     }
   }
 
@@ -156,36 +176,8 @@ export const GuidedMeetingFlow: React.FC<GuidedMeetingFlowProps> = ({
   const handleReset = () => {
     setCurrentStep(0)
     setCompletedSteps(new Set())
-    setIsRunning(false)
-    setTimeRemaining(0)
   }
 
-  // Timer effect
-  React.useEffect(() => {
-    let interval: NodeJS.Timeout | null = null
-    
-    if (isRunning && timeRemaining > 0) {
-      interval = setInterval(() => {
-        setTimeRemaining(time => {
-          if (time <= 1) {
-            setIsRunning(false)
-            return 0
-          }
-          return time - 1
-        })
-      }, 1000)
-    }
-    
-    return () => {
-      if (interval) clearInterval(interval)
-    }
-  }, [isRunning, timeRemaining])
-
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60)
-    const secs = seconds % 60
-    return `${mins}:${secs.toString().padStart(2, '0')}`
-  }
 
   const progressPercentage = (completedSteps.size / meetingSteps.length) * 100
 
@@ -197,10 +189,29 @@ export const GuidedMeetingFlow: React.FC<GuidedMeetingFlowProps> = ({
           <div>
             <h2 className="text-xl font-bold text-gray-900">Guided Meeting Flow</h2>
             <p className="text-sm text-gray-600">
-              Step {currentStep + 1} of {meetingSteps.length} • {completedTime} of {totalTime} minutes completed
+              Step {currentStep + 1} of {meetingSteps.length} • {completedSteps.size} steps completed
             </p>
+            {meetingStats && (
+              <div className="flex items-center gap-4 mt-2 text-sm">
+                <span className="text-green-600 font-medium">
+                  Current Streak: {meetingStats.current_streak} weeks
+                </span>
+                <span className="text-blue-600 font-medium">
+                  Total Meetings: {meetingStats.total_meetings}
+                </span>
+                <span className="text-purple-600 font-medium">
+                  Avg Completion: {meetingStats.avg_completion}%
+                </span>
+              </div>
+            )}
           </div>
           <div className="flex items-center gap-2">
+            {isSaving && (
+              <div className="flex items-center gap-2 text-blue-600">
+                <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                <span className="text-sm">Saving...</span>
+              </div>
+            )}
             <Button
               variant="outline"
               size="sm"
@@ -273,57 +284,6 @@ export const GuidedMeetingFlow: React.FC<GuidedMeetingFlowProps> = ({
           )}
         </div>
 
-        {/* Timer Section */}
-        {!completedSteps.has(currentStepData.id) && (
-          <div className="mb-6 p-4 bg-gray-50 rounded-lg">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-3">
-                <Clock className="w-5 h-5 text-gray-600" />
-                <span className="font-medium text-gray-900">
-                  Estimated Time: {currentStepData.estimatedTime} minutes
-                </span>
-              </div>
-              
-              <div className="flex items-center gap-2">
-                {!isRunning ? (
-                  <Button
-                    size="sm"
-                    onClick={handleStartStep}
-                    className="bg-blue-600 hover:bg-blue-700"
-                  >
-                    <Play className="w-4 h-4 mr-1" />
-                    Start Timer
-                  </Button>
-                ) : (
-                  <Button
-                    size="sm"
-                    onClick={handlePauseStep}
-                    className="bg-yellow-600 hover:bg-yellow-700"
-                  >
-                    <Pause className="w-4 h-4 mr-1" />
-                    Pause
-                  </Button>
-                )}
-              </div>
-            </div>
-
-            {timeRemaining > 0 && (
-              <div className="text-center">
-                <div className="text-3xl font-bold text-blue-600 mb-2">
-                  {formatTime(timeRemaining)}
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div 
-                    className="bg-blue-600 h-2 rounded-full transition-all duration-1000"
-                    style={{ 
-                      width: `${((currentStepData.estimatedTime * 60 - timeRemaining) / (currentStepData.estimatedTime * 60)) * 100}%` 
-                    }}
-                  />
-                </div>
-              </div>
-            )}
-          </div>
-        )}
 
         {/* Step Actions */}
         <div className="flex items-center justify-between">
@@ -354,10 +314,11 @@ export const GuidedMeetingFlow: React.FC<GuidedMeetingFlowProps> = ({
                 )}
                 <Button
                   onClick={handleCompleteStep}
-                  className="bg-green-600 hover:bg-green-700"
+                  disabled={isSaving}
+                  className="bg-green-600 hover:bg-green-700 disabled:opacity-50"
                 >
                   <CheckCircle className="w-4 h-4 mr-1" />
-                  Complete Step
+                  {isSaving ? 'Saving...' : 'Complete Step'}
                 </Button>
               </>
             )}
