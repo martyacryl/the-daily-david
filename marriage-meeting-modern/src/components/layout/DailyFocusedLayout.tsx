@@ -182,7 +182,6 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
   const [showGuidedFlow, setShowGuidedFlow] = useState(false)
   const [showVisionModal, setShowVisionModal] = useState(false)
   const [showSpiritualModal, setShowSpiritualModal] = useState(false)
-  const [isSaving, setIsSaving] = useState(false)
 
   const weather = getWeatherData()
   const dailyTasks = getDailyTasks()
