@@ -185,7 +185,7 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
 
   const weather = getWeatherData()
   const dailyTasks = getDailyTasks()
-  const dailyPrayers = getDailyPrayers()
+  const dailyPrayers = getDailyPrayers() // Force rebuild
 
   // Calculate section counts
   const sectionCounts = {
