@@ -429,6 +429,190 @@ export class DatabaseManager {
 
     console.log('API: Successfully deleted goal')
   }
+
+  // ===== VISION DATA MANAGEMENT =====
+
+  // Family Vision
+  async getFamilyVision(): Promise<any> {
+    const token = this.getAuthToken()
+    const response = await fetch(`${this.baseUrl}/api/family-vision`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    })
+
+    if (!response.ok) {
+      const error = await response.text()
+      throw new Error(`Failed to fetch family vision: ${error}`)
+    }
+
+    return await response.json()
+  }
+
+  async updateFamilyVision(data: any): Promise<any> {
+    const token = this.getAuthToken()
+    const response = await fetch(`${this.baseUrl}/api/family-vision`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify(data),
+    })
+
+    if (!response.ok) {
+      const error = await response.text()
+      throw new Error(`Failed to update family vision: ${error}`)
+    }
+
+    return await response.json()
+  }
+
+  // Vision Goals
+  async getVisionGoals(): Promise<any[]> {
+    const token = this.getAuthToken()
+    const response = await fetch(`${this.baseUrl}/api/vision-goals`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    })
+
+    if (!response.ok) {
+      const error = await response.text()
+      throw new Error(`Failed to fetch vision goals: ${error}`)
+    }
+
+    return await response.json()
+  }
+
+  async addVisionGoal(goal: any): Promise<any> {
+    const token = this.getAuthToken()
+    const response = await fetch(`${this.baseUrl}/api/vision-goals`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify(goal),
+    })
+
+    if (!response.ok) {
+      const error = await response.text()
+      throw new Error(`Failed to add vision goal: ${error}`)
+    }
+
+    return await response.json()
+  }
+
+  async updateVisionGoal(id: number, updates: any): Promise<any> {
+    const token = this.getAuthToken()
+    const response = await fetch(`${this.baseUrl}/api/vision-goals/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify(updates),
+    })
+
+    if (!response.ok) {
+      const error = await response.text()
+      throw new Error(`Failed to update vision goal: ${error}`)
+    }
+
+    return await response.json()
+  }
+
+  async deleteVisionGoal(id: number): Promise<void> {
+    const token = this.getAuthToken()
+    const response = await fetch(`${this.baseUrl}/api/vision-goals/${id}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    })
+
+    if (!response.ok) {
+      const error = await response.text()
+      throw new Error(`Failed to delete vision goal: ${error}`)
+    }
+  }
+
+  // Spiritual Growth
+  async getSpiritualGrowth(): Promise<any> {
+    const token = this.getAuthToken()
+    const response = await fetch(`${this.baseUrl}/api/spiritual-growth`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    })
+
+    if (!response.ok) {
+      const error = await response.text()
+      throw new Error(`Failed to fetch spiritual growth: ${error}`)
+    }
+
+    return await response.json()
+  }
+
+  async updateSpiritualGrowth(data: any): Promise<any> {
+    const token = this.getAuthToken()
+    const response = await fetch(`${this.baseUrl}/api/spiritual-growth`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify(data),
+    })
+
+    if (!response.ok) {
+      const error = await response.text()
+      throw new Error(`Failed to update spiritual growth: ${error}`)
+    }
+
+    return await response.json()
+  }
+
+  // Family Planning
+  async getFamilyPlanning(): Promise<any> {
+    const token = this.getAuthToken()
+    const response = await fetch(`${this.baseUrl}/api/family-planning`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    })
+
+    if (!response.ok) {
+      const error = await response.text()
+      throw new Error(`Failed to fetch family planning: ${error}`)
+    }
+
+    return await response.json()
+  }
+
+  async updateFamilyPlanning(data: any): Promise<any> {
+    const token = this.getAuthToken()
+    const response = await fetch(`${this.baseUrl}/api/family-planning`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify(data),
+    })
+
+    if (!response.ok) {
+      const error = await response.text()
+      throw new Error(`Failed to update family planning: ${error}`)
+    }
+
+    return await response.json()
+  }
 }
 
 // Create singleton instance

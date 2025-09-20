@@ -224,25 +224,7 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
       case 'vision':
         return (
           <div className="p-4">
-            <FamilyVisionBoard
-              missionStatement="Building a Christ-centered family that loves God, serves others, and grows together in faith, love, and purpose."
-              oneYearGoals={[
-                { id: 1, text: "Complete family Bible study program", category: 'spiritual', completed: false, progress: 60 },
-                { id: 2, text: "Plan monthly family outings", category: 'family', completed: false, progress: 30 },
-                { id: 3, text: "Establish emergency fund", category: 'financial', completed: false, progress: 45 }
-              ]}
-              fiveYearGoals={[
-                { id: 1, text: "Lead a small group ministry", category: 'ministry', completed: false },
-                { id: 2, text: "Purchase family home", category: 'family', completed: false },
-                { id: 3, text: "Complete marriage enrichment program", category: 'personal', completed: false }
-              ]}
-              tenYearGoals={[
-                { id: 1, text: "Send children to Christian college", category: 'family', completed: false },
-                { id: 2, text: "Start family business", category: 'financial', completed: false },
-                { id: 3, text: "Mission trip as family", category: 'ministry', completed: false }
-              ]}
-              coreValues={['Faith', 'Love', 'Service', 'Growth', 'Unity', 'Integrity']}
-            />
+            <FamilyVisionBoard />
           </div>
         )
 

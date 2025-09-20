@@ -691,4 +691,252 @@ app.delete('/api/goals/:id', authenticateToken, async (req, res) => {
   }
 })
 
+// ===== VISION API ENDPOINTS =====
+
+// Family Vision Endpoints
+app.get('/api/family-vision', authenticateToken, async (req, res) => {
+  try {
+    const result = await pool.query(
+      'SELECT * FROM family_vision WHERE user_id = $1',
+      [req.user.id]
+    )
+
+    if (result.rows.length === 0) {
+      // Create default family vision if none exists
+      const defaultVision = await pool.query(
+        `INSERT INTO family_vision (user_id, mission_statement, core_values, created_at, updated_at)
+         VALUES ($1, $2, $3, NOW(), NOW())
+         RETURNING *`,
+        [req.user.id, 'Building a Christ-centered family that loves God, serves others, and grows together in faith, love, and purpose.', ['Faith', 'Love', 'Service', 'Growth', 'Unity']]
+      )
+      return res.json(defaultVision.rows[0])
+    }
+
+    res.json(result.rows[0])
+  } catch (error) {
+    console.error('Error fetching family vision:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
+app.put('/api/family-vision', authenticateToken, async (req, res) => {
+  try {
+    const { mission_statement, core_values } = req.body
+
+    const result = await pool.query(
+      `INSERT INTO family_vision (user_id, mission_statement, core_values, created_at, updated_at)
+       VALUES ($1, $2, $3, NOW(), NOW())
+       ON CONFLICT (user_id) 
+       DO UPDATE SET 
+         mission_statement = EXCLUDED.mission_statement,
+         core_values = EXCLUDED.core_values,
+         updated_at = NOW()
+       RETURNING *`,
+      [req.user.id, mission_statement, core_values]
+    )
+
+    res.json(result.rows[0])
+  } catch (error) {
+    console.error('Error updating family vision:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
+// Vision Goals Endpoints
+app.get('/api/vision-goals', authenticateToken, async (req, res) => {
+  try {
+    const result = await pool.query(
+      'SELECT * FROM vision_goals WHERE user_id = $1 ORDER BY timeframe, created_at DESC',
+      [req.user.id]
+    )
+
+    res.json(result.rows)
+  } catch (error) {
+    console.error('Error fetching vision goals:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
+app.post('/api/vision-goals', authenticateToken, async (req, res) => {
+  try {
+    const { text, category, timeframe, completed, progress, target_date, description, priority } = req.body
+
+    if (!text || !category || !timeframe) {
+      return res.status(400).json({ error: 'Missing required fields: text, category, and timeframe' })
+    }
+
+    const result = await pool.query(
+      `INSERT INTO vision_goals (user_id, text, category, timeframe, completed, progress, target_date, description, priority, created_at, updated_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW(), NOW())
+       RETURNING *`,
+      [req.user.id, text, category, timeframe, completed || false, progress || 0, target_date, description || '', priority || 'medium']
+    )
+
+    res.json(result.rows[0])
+  } catch (error) {
+    console.error('Error creating vision goal:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
+app.put('/api/vision-goals/:id', authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params
+    const { text, category, timeframe, completed, progress, target_date, description, priority } = req.body
+
+    const result = await pool.query(
+      `UPDATE vision_goals 
+       SET text = COALESCE($2, text),
+           category = COALESCE($3, category),
+           timeframe = COALESCE($4, timeframe),
+           completed = COALESCE($5, completed),
+           progress = COALESCE($6, progress),
+           target_date = COALESCE($7, target_date),
+           description = COALESCE($8, description),
+           priority = COALESCE($9, priority),
+           updated_at = NOW()
+       WHERE id = $1 AND user_id = $10
+       RETURNING *`,
+      [id, text, category, timeframe, completed, progress, target_date, description, priority, req.user.id]
+    )
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Vision goal not found' })
+    }
+
+    res.json(result.rows[0])
+  } catch (error) {
+    console.error('Error updating vision goal:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
+app.delete('/api/vision-goals/:id', authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params
+
+    const result = await pool.query(
+      'DELETE FROM vision_goals WHERE id = $1 AND user_id = $2 RETURNING *',
+      [id, req.user.id]
+    )
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Vision goal not found' })
+    }
+
+    res.json({ message: 'Vision goal deleted successfully' })
+  } catch (error) {
+    console.error('Error deleting vision goal:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
+// Spiritual Growth Endpoints
+app.get('/api/spiritual-growth', authenticateToken, async (req, res) => {
+  try {
+    const result = await pool.query(
+      'SELECT * FROM spiritual_growth WHERE user_id = $1',
+      [req.user.id]
+    )
+
+    if (result.rows.length === 0) {
+      // Create default spiritual growth if none exists
+      const defaultSpiritual = await pool.query(
+        `INSERT INTO spiritual_growth (user_id, prayer_requests, answered_prayers, bible_reading_plan, bible_reading_progress, devotionals, spiritual_goals, reflection_notes, created_at, updated_at)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW(), NOW())
+         RETURNING *`,
+        [req.user.id, [], [], 'Read through the Bible in one year', 0, [], [], '']
+      )
+      return res.json(defaultSpiritual.rows[0])
+    }
+
+    res.json(result.rows[0])
+  } catch (error) {
+    console.error('Error fetching spiritual growth:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
+app.put('/api/spiritual-growth', authenticateToken, async (req, res) => {
+  try {
+    const { prayer_requests, answered_prayers, bible_reading_plan, bible_reading_progress, devotionals, spiritual_goals, reflection_notes } = req.body
+
+    const result = await pool.query(
+      `INSERT INTO spiritual_growth (user_id, prayer_requests, answered_prayers, bible_reading_plan, bible_reading_progress, devotionals, spiritual_goals, reflection_notes, created_at, updated_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW(), NOW())
+       ON CONFLICT (user_id) 
+       DO UPDATE SET 
+         prayer_requests = EXCLUDED.prayer_requests,
+         answered_prayers = EXCLUDED.answered_prayers,
+         bible_reading_plan = EXCLUDED.bible_reading_plan,
+         bible_reading_progress = EXCLUDED.bible_reading_progress,
+         devotionals = EXCLUDED.devotionals,
+         spiritual_goals = EXCLUDED.spiritual_goals,
+         reflection_notes = EXCLUDED.reflection_notes,
+         updated_at = NOW()
+       RETURNING *`,
+      [req.user.id, prayer_requests || [], answered_prayers || [], bible_reading_plan || '', bible_reading_progress || 0, devotionals || [], spiritual_goals || [], reflection_notes || '']
+    )
+
+    res.json(result.rows[0])
+  } catch (error) {
+    console.error('Error updating spiritual growth:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
+// Family Planning Endpoints
+app.get('/api/family-planning', authenticateToken, async (req, res) => {
+  try {
+    const result = await pool.query(
+      'SELECT * FROM family_planning WHERE user_id = $1',
+      [req.user.id]
+    )
+
+    if (result.rows.length === 0) {
+      // Create default family planning if none exists
+      const defaultPlanning = await pool.query(
+        `INSERT INTO family_planning (user_id, family_events, financial_goals, home_goals, education_goals, vacation_plans, milestone_dates, notes, created_at, updated_at)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW(), NOW())
+         RETURNING *`,
+        [req.user.id, [], [], [], [], [], '{}', '']
+      )
+      return res.json(defaultPlanning.rows[0])
+    }
+
+    res.json(result.rows[0])
+  } catch (error) {
+    console.error('Error fetching family planning:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
+app.put('/api/family-planning', authenticateToken, async (req, res) => {
+  try {
+    const { family_events, financial_goals, home_goals, education_goals, vacation_plans, milestone_dates, notes } = req.body
+
+    const result = await pool.query(
+      `INSERT INTO family_planning (user_id, family_events, financial_goals, home_goals, education_goals, vacation_plans, milestone_dates, notes, created_at, updated_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW(), NOW())
+       ON CONFLICT (user_id) 
+       DO UPDATE SET 
+         family_events = EXCLUDED.family_events,
+         financial_goals = EXCLUDED.financial_goals,
+         home_goals = EXCLUDED.home_goals,
+         education_goals = EXCLUDED.education_goals,
+         vacation_plans = EXCLUDED.vacation_plans,
+         milestone_dates = EXCLUDED.milestone_dates,
+         notes = EXCLUDED.notes,
+         updated_at = NOW()
+       RETURNING *`,
+      [req.user.id, family_events || [], financial_goals || [], home_goals || [], education_goals || [], vacation_plans || [], milestone_dates || '{}', notes || '']
+    )
+
+    res.json(result.rows[0])
+  } catch (error) {
+    console.error('Error updating family planning:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
 module.exports = app
