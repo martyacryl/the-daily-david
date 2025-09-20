@@ -198,6 +198,7 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
   }
 
   const handleSectionChange = (section: string) => {
+    console.log('🔄 Section changing from', activeSection, 'to', section)
     setActiveSection(section)
   }
 
@@ -282,13 +283,17 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
   }
 
   const renderMainContent = () => {
+    console.log('🎯 renderMainContent called with activeSection:', activeSection)
+    
     // Handle special sections (spiritual, review) - vision shows daily overview
     if (['spiritual', 'review'].includes(activeSection)) {
+      console.log('🎯 Rendering sidebar content for special section:', activeSection)
       return renderSidebarContent()
     }
 
     // Handle practical sections using WeeklyMeetingContent
     if (['schedule', 'todos', 'goals', 'grocery', 'prayers', 'unconfessed', 'encouragement'].includes(activeSection)) {
+      console.log('🎯 Rendering WeeklyMeetingContent for practical section:', activeSection)
       return (
         <WeeklyMeetingContent
           activeSection={activeSection}
