@@ -336,64 +336,210 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
 
           {/* Three Column Layout */}
           <div className="flex-1 flex overflow-hidden">
-            {/* Left Column - Spiritual Content */}
-            <div className="w-80 bg-gradient-to-br from-purple-50 to-indigo-50 border-r border-gray-200 p-6 overflow-y-auto">
-              <div className="space-y-6">
-                {/* Spiritual Growth Quick View */}
-                <Card className="p-4 bg-white/70 backdrop-blur-sm">
-                  <div className="flex items-center gap-2 mb-3">
-                    <BookOpen className="w-5 h-5 text-purple-600" />
-                    <h3 className="font-semibold text-gray-900">Spiritual Growth</h3>
-                  </div>
-                  
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-gray-600">Prayer requests:</span>
-                      <span className="font-medium text-purple-600">3 active</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-gray-600">Bible reading:</span>
-                      <span className="font-medium text-green-600">Day 15</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-gray-600">Devotional streak:</span>
-                      <span className="font-medium text-blue-600">12 days</span>
-                    </div>
-                  </div>
-                  
-                  <Button
-                    size="sm"
-                    onClick={() => setActiveSection('spiritual')}
-                    className="w-full mt-3 bg-purple-600 hover:bg-purple-700"
-                  >
-                    View Spiritual Growth
-                  </Button>
-                </Card>
+            {/* Left Column - Navigation Sidebar */}
+            <div className="w-80 bg-white border-r border-gray-200 flex flex-col">
+              {/* Sidebar Header */}
+              <div className="p-4 border-b border-gray-200">
+                <h2 className="text-lg font-semibold text-gray-900 mb-2">Meeting Sections</h2>
+                <p className="text-sm text-gray-600">Navigate between sections</p>
+              </div>
 
-                {/* Prayer Requests */}
-                <Card className="p-4 bg-white/70 backdrop-blur-sm">
-                  <h3 className="font-semibold text-gray-900 mb-3">Today's Prayers</h3>
-                  <div className="space-y-2">
-                    {dailyPrayers.slice(0, 3).map((prayer, index) => (
-                      <div key={index} className="flex items-center gap-2 p-2 bg-white/50 rounded-lg">
-                        <Heart className="w-4 h-4 text-pink-500" />
-                        <span className="text-sm text-gray-700">{prayer.text}</span>
-                      </div>
-                    ))}
+              {/* Sidebar Navigation */}
+              <div className="flex-1 overflow-y-auto p-2">
+                <div className="space-y-1">
+                  {/* Vision & Foundation Section */}
+                  <div className="mb-4">
+                    <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 px-2">
+                      Foundation
+                    </h3>
+                    {sidebarItems.filter(item => item.category === 'vision').map((item) => {
+                      const IconComponent = item.icon
+                      const isActive = activeSection === item.id
+                      
+                      return (
+                        <motion.button
+                          key={item.id}
+                          onClick={() => handleSectionChange(item.id)}
+                          className={`w-full flex items-center gap-3 p-3 rounded-lg text-left transition-all duration-200 ${
+                            isActive
+                              ? 'bg-slate-50 border-2 border-blue-200 text-blue-700'
+                              : 'hover:bg-gray-50 text-gray-700'
+                          }`}
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                        >
+                          <div className={`p-2 rounded-lg ${
+                            isActive ? 'bg-slate-100' : 'bg-gray-100'
+                          }`}>
+                            <IconComponent className={`w-4 h-4 ${
+                              isActive ? 'text-blue-600' : 'text-gray-500'
+                            }`} />
+                          </div>
+                          <div className="flex-1">
+                            <div className="font-medium text-sm">{item.label}</div>
+                            <div className="text-xs text-gray-500">Vision & Mission</div>
+                          </div>
+                          <ChevronRight className={`w-4 h-4 transition-transform ${
+                            isActive ? 'rotate-90' : ''
+                          }`} />
+                        </motion.button>
+                      )
+                    })}
                   </div>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => setActiveSection('prayers')}
-                    className="w-full mt-3 text-purple-600 border-purple-200 hover:bg-purple-50"
-                  >
-                    Add Prayer Request
-                  </Button>
-                </Card>
+
+                  {/* Practical Planning Section */}
+                  <div className="mb-4">
+                    <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 px-2">
+                      Planning
+                    </h3>
+                    {sidebarItems.filter(item => item.category === 'practical').map((item) => {
+                      const IconComponent = item.icon
+                      const isActive = activeSection === item.id
+                      const count = sectionCounts[item.id as keyof typeof sectionCounts] || 0
+                      
+                      return (
+                        <motion.button
+                          key={item.id}
+                          onClick={() => handleSectionChange(item.id)}
+                          className={`w-full flex items-center gap-3 p-3 rounded-lg text-left transition-all duration-200 ${
+                            isActive
+                              ? 'bg-slate-50 border-2 border-slate-200 text-slate-700'
+                              : 'hover:bg-gray-50 text-gray-700'
+                          }`}
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                        >
+                          <div className={`p-2 rounded-lg ${
+                            isActive ? 'bg-slate-100' : 'bg-gray-100'
+                          }`}>
+                            <IconComponent className={`w-4 h-4 ${
+                              isActive ? 'text-slate-600' : 'text-gray-500'
+                            }`} />
+                          </div>
+                          <div className="flex-1">
+                            <div className="font-medium text-sm">{item.label}</div>
+                            <div className="text-xs text-gray-500">
+                              {item.id === 'schedule' && 'Weekly planning'}
+                              {item.id === 'goals' && 'Short & long-term goals'}
+                              {item.id === 'todos' && 'Tasks & responsibilities'}
+                              {item.id === 'grocery' && 'Shopping lists'}
+                            </div>
+                          </div>
+                          {count > 0 && (
+                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                              isActive
+                                ? 'bg-slate-200 text-slate-800'
+                                : 'bg-gray-200 text-gray-600'
+                            }`}>
+                              {count}
+                            </span>
+                          )}
+                          <ChevronRight className={`w-4 h-4 transition-transform ${
+                            isActive ? 'rotate-90' : ''
+                          }`} />
+                        </motion.button>
+                      )
+                    })}
+                  </div>
+
+                  {/* Spiritual Growth Section */}
+                  <div className="mb-4">
+                    <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 px-2">
+                      Spiritual
+                    </h3>
+                    {sidebarItems.filter(item => item.category === 'spiritual').map((item) => {
+                      const IconComponent = item.icon
+                      const isActive = activeSection === item.id
+                      const count = sectionCounts[item.id as keyof typeof sectionCounts] || 0
+                      
+                      return (
+                        <motion.button
+                          key={item.id}
+                          onClick={() => handleSectionChange(item.id)}
+                          className={`w-full flex items-center gap-3 p-3 rounded-lg text-left transition-all duration-200 ${
+                            isActive
+                              ? 'bg-slate-50 border-2 border-purple-200 text-purple-700'
+                              : 'hover:bg-gray-50 text-gray-700'
+                          }`}
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                        >
+                          <div className={`p-2 rounded-lg ${
+                            isActive ? 'bg-slate-100' : 'bg-gray-100'
+                          }`}>
+                            <IconComponent className={`w-4 h-4 ${
+                              isActive ? 'text-purple-600' : 'text-gray-500'
+                            }`} />
+                          </div>
+                          <div className="flex-1">
+                            <div className="font-medium text-sm">{item.label}</div>
+                            <div className="text-xs text-gray-500">
+                              {item.id === 'prayers' && 'Prayer requests & praise'}
+                              {item.id === 'unconfessed' && 'Accountability & growth'}
+                              {item.id === 'encouragement' && 'Love notes & encouragement'}
+                            </div>
+                          </div>
+                          {count > 0 && (
+                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                              isActive
+                                ? 'bg-slate-200 text-slate-800'
+                                : 'bg-gray-200 text-gray-600'
+                            }`}>
+                              {count}
+                            </span>
+                          )}
+                          <ChevronRight className={`w-4 h-4 transition-transform ${
+                            isActive ? 'rotate-90' : ''
+                          }`} />
+                        </motion.button>
+                      )
+                    })}
+                  </div>
+
+                  {/* Review Section */}
+                  <div>
+                    <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 px-2">
+                      Review
+                    </h3>
+                    {sidebarItems.filter(item => item.category === 'review').map((item) => {
+                      const IconComponent = item.icon
+                      const isActive = activeSection === item.id
+                      
+                      return (
+                        <motion.button
+                          key={item.id}
+                          onClick={() => handleSectionChange(item.id)}
+                          className={`w-full flex items-center gap-3 p-3 rounded-lg text-left transition-all duration-200 ${
+                            isActive
+                              ? 'bg-slate-50 border-2 border-green-200 text-green-700'
+                              : 'hover:bg-gray-50 text-gray-700'
+                          }`}
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                        >
+                          <div className={`p-2 rounded-lg ${
+                            isActive ? 'bg-slate-100' : 'bg-gray-100'
+                          }`}>
+                            <IconComponent className={`w-4 h-4 ${
+                              isActive ? 'text-green-600' : 'text-gray-500'
+                            }`} />
+                          </div>
+                          <div className="flex-1">
+                            <div className="font-medium text-sm">{item.label}</div>
+                            <div className="text-xs text-gray-500">Analytics & insights</div>
+                          </div>
+                          <ChevronRight className={`w-4 h-4 transition-transform ${
+                            isActive ? 'rotate-90' : ''
+                          }`} />
+                        </motion.button>
+                      )
+                    })}
+                  </div>
+                </div>
               </div>
             </div>
 
-            {/* Middle Column - Daily Focus */}
+            {/* Middle Column - Daily Focus & Weekly Overview */}
             <div className="flex-1 p-6 overflow-y-auto">
               <div className="space-y-6">
                 {/* Today's Schedule */}
@@ -504,10 +650,10 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
               </div>
             </div>
 
-            {/* Right Column - Vision Content */}
-            <div className="w-80 bg-gradient-to-br from-blue-50 to-indigo-50 border-l border-gray-200 p-6 overflow-y-auto">
+            {/* Right Column - Vision & Spiritual Content */}
+            <div className="w-80 bg-gradient-to-br from-purple-50 to-indigo-50 border-l border-gray-200 p-6 overflow-y-auto">
               <div className="space-y-6">
-                {/* Family Vision Quick View */}
+                {/* Family Vision */}
                 <Card className="p-4 bg-white/70 backdrop-blur-sm">
                   <div className="flex items-center gap-2 mb-3">
                     <Home className="w-5 h-5 text-blue-600" />
@@ -535,6 +681,58 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                   </Button>
                 </Card>
 
+                {/* Spiritual Growth */}
+                <Card className="p-4 bg-white/70 backdrop-blur-sm">
+                  <div className="flex items-center gap-2 mb-3">
+                    <BookOpen className="w-5 h-5 text-purple-600" />
+                    <h3 className="font-semibold text-gray-900">Spiritual Growth</h3>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-600">Prayer requests:</span>
+                      <span className="font-medium text-purple-600">3 active</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-600">Bible reading:</span>
+                      <span className="font-medium text-green-600">Day 15</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-600">Devotional streak:</span>
+                      <span className="font-medium text-blue-600">12 days</span>
+                    </div>
+                  </div>
+                  
+                  <Button
+                    size="sm"
+                    onClick={() => setActiveSection('spiritual')}
+                    className="w-full mt-3 bg-purple-600 hover:bg-purple-700"
+                  >
+                    View Spiritual Growth
+                  </Button>
+                </Card>
+
+                {/* Today's Prayers */}
+                <Card className="p-4 bg-white/70 backdrop-blur-sm">
+                  <h3 className="font-semibold text-gray-900 mb-3">Today's Prayers</h3>
+                  <div className="space-y-2">
+                    {dailyPrayers.slice(0, 3).map((prayer, index) => (
+                      <div key={index} className="flex items-center gap-2 p-2 bg-white/50 rounded-lg">
+                        <Heart className="w-4 h-4 text-pink-500" />
+                        <span className="text-sm text-gray-700">{prayer.text}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setActiveSection('prayers')}
+                    className="w-full mt-3 text-purple-600 border-purple-200 hover:bg-purple-50"
+                  >
+                    Add Prayer Request
+                  </Button>
+                </Card>
+
                 {/* Quick Actions */}
                 <Card className="p-4 bg-white/70 backdrop-blur-sm">
                   <h3 className="font-semibold text-gray-900 mb-3">Quick Actions</h3>
@@ -543,7 +741,7 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                       size="sm"
                       variant="outline"
                       onClick={() => setActiveSection('prayers')}
-                      className="w-full text-blue-600 border-blue-200 hover:bg-blue-50"
+                      className="w-full text-purple-600 border-purple-200 hover:bg-purple-50"
                     >
                       Add Prayer Request
                     </Button>
@@ -551,7 +749,7 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                       size="sm"
                       variant="outline"
                       onClick={() => setActiveSection('todos')}
-                      className="w-full text-blue-600 border-blue-200 hover:bg-blue-50"
+                      className="w-full text-slate-600 border-slate-200 hover:bg-slate-50"
                     >
                       Add Task
                     </Button>
@@ -559,7 +757,7 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                       size="sm"
                       variant="outline"
                       onClick={() => setActiveSection('goals')}
-                      className="w-full text-blue-600 border-blue-200 hover:bg-blue-50"
+                      className="w-full text-slate-600 border-slate-200 hover:bg-slate-50"
                     >
                       Set Goals
                     </Button>
@@ -1005,209 +1203,6 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
       </div>
 
       <div className="flex h-[calc(100vh-80px)]">
-        {/* Enhanced Sidebar */}
-        <div className="w-80 bg-white border-r border-gray-200 flex flex-col">
-          {/* Sidebar Header */}
-          <div className="p-4 border-b border-gray-200">
-            <h2 className="text-lg font-semibold text-gray-900 mb-2">Meeting Sections</h2>
-            <p className="text-sm text-gray-600">Navigate between sections</p>
-          </div>
-
-          {/* Sidebar Navigation */}
-          <div className="flex-1 overflow-y-auto p-2">
-            <div className="space-y-1">
-              {/* Vision & Foundation Section */}
-              <div className="mb-4">
-                <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 px-2">
-                  Foundation
-                </h3>
-                {sidebarItems.filter(item => item.category === 'vision').map((item) => {
-                  const IconComponent = item.icon
-                  const isActive = activeSection === item.id
-                  
-                  return (
-                    <motion.button
-                      key={item.id}
-                      onClick={() => handleSectionChange(item.id)}
-                      className={`w-full flex items-center gap-3 p-3 rounded-lg text-left transition-all duration-200 ${
-                        isActive
-                          ? 'bg-slate-50 border-2 border-blue-200 text-blue-700'
-                          : 'hover:bg-gray-50 text-gray-700'
-                      }`}
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                    >
-                      <div className={`p-2 rounded-lg ${
-                        isActive ? 'bg-slate-100' : 'bg-gray-100'
-                      }`}>
-                        <IconComponent className={`w-4 h-4 ${
-                          isActive ? 'text-blue-600' : 'text-gray-500'
-                        }`} />
-                      </div>
-                      <div className="flex-1">
-                        <div className="font-medium text-sm">{item.label}</div>
-                        <div className="text-xs text-gray-500">Vision & Mission</div>
-                      </div>
-                      <ChevronRight className={`w-4 h-4 transition-transform ${
-                        isActive ? 'rotate-90' : ''
-                      }`} />
-                    </motion.button>
-                  )
-                })}
-              </div>
-
-              {/* Practical Planning Section */}
-              <div className="mb-4">
-                <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 px-2">
-                  Planning
-                </h3>
-                {sidebarItems.filter(item => item.category === 'practical').map((item) => {
-                  const IconComponent = item.icon
-                  const isActive = activeSection === item.id
-                  const count = sectionCounts[item.id as keyof typeof sectionCounts] || 0
-                  
-                  return (
-                    <motion.button
-                      key={item.id}
-                      onClick={() => handleSectionChange(item.id)}
-                      className={`w-full flex items-center gap-3 p-3 rounded-lg text-left transition-all duration-200 ${
-                        isActive
-                          ? 'bg-slate-50 border-2 border-slate-200 text-slate-700'
-                          : 'hover:bg-gray-50 text-gray-700'
-                      }`}
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                    >
-                      <div className={`p-2 rounded-lg ${
-                        isActive ? 'bg-slate-100' : 'bg-gray-100'
-                      }`}>
-                        <IconComponent className={`w-4 h-4 ${
-                          isActive ? 'text-slate-600' : 'text-gray-500'
-                        }`} />
-                      </div>
-                      <div className="flex-1">
-                        <div className="font-medium text-sm">{item.label}</div>
-                        <div className="text-xs text-gray-500">
-                          {item.id === 'schedule' && 'Weekly planning'}
-                          {item.id === 'goals' && 'Short & long-term goals'}
-                          {item.id === 'todos' && 'Tasks & responsibilities'}
-                          {item.id === 'grocery' && 'Shopping lists'}
-                        </div>
-                      </div>
-                      {count > 0 && (
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                          isActive
-                            ? 'bg-slate-200 text-slate-800'
-                            : 'bg-gray-200 text-gray-600'
-                        }`}>
-                          {count}
-                        </span>
-                      )}
-                      <ChevronRight className={`w-4 h-4 transition-transform ${
-                        isActive ? 'rotate-90' : ''
-                      }`} />
-                    </motion.button>
-                  )
-                })}
-              </div>
-
-              {/* Spiritual Growth Section */}
-              <div className="mb-4">
-                <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 px-2">
-                  Spiritual
-                </h3>
-                {sidebarItems.filter(item => item.category === 'spiritual').map((item) => {
-                  const IconComponent = item.icon
-                  const isActive = activeSection === item.id
-                  const count = sectionCounts[item.id as keyof typeof sectionCounts] || 0
-                  
-                  return (
-                    <motion.button
-                      key={item.id}
-                      onClick={() => handleSectionChange(item.id)}
-                      className={`w-full flex items-center gap-3 p-3 rounded-lg text-left transition-all duration-200 ${
-                        isActive
-                          ? 'bg-slate-50 border-2 border-purple-200 text-purple-700'
-                          : 'hover:bg-gray-50 text-gray-700'
-                      }`}
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                    >
-                      <div className={`p-2 rounded-lg ${
-                        isActive ? 'bg-slate-100' : 'bg-gray-100'
-                      }`}>
-                        <IconComponent className={`w-4 h-4 ${
-                          isActive ? 'text-purple-600' : 'text-gray-500'
-                        }`} />
-                      </div>
-                      <div className="flex-1">
-                        <div className="font-medium text-sm">{item.label}</div>
-                        <div className="text-xs text-gray-500">
-                          {item.id === 'prayers' && 'Prayer requests & praise'}
-                          {item.id === 'unconfessed' && 'Accountability & growth'}
-                          {item.id === 'encouragement' && 'Love notes & encouragement'}
-                        </div>
-                      </div>
-                      {count > 0 && (
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                          isActive
-                            ? 'bg-slate-200 text-slate-800'
-                            : 'bg-gray-200 text-gray-600'
-                        }`}>
-                          {count}
-                        </span>
-                      )}
-                      <ChevronRight className={`w-4 h-4 transition-transform ${
-                        isActive ? 'rotate-90' : ''
-                      }`} />
-                    </motion.button>
-                  )
-                })}
-              </div>
-
-              {/* Review Section */}
-              <div>
-                <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 px-2">
-                  Review
-                </h3>
-                {sidebarItems.filter(item => item.category === 'review').map((item) => {
-                  const IconComponent = item.icon
-                  const isActive = activeSection === item.id
-                  
-                  return (
-                    <motion.button
-                      key={item.id}
-                      onClick={() => handleSectionChange(item.id)}
-                      className={`w-full flex items-center gap-3 p-3 rounded-lg text-left transition-all duration-200 ${
-                        isActive
-                          ? 'bg-slate-50 border-2 border-green-200 text-green-700'
-                          : 'hover:bg-gray-50 text-gray-700'
-                      }`}
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                    >
-                      <div className={`p-2 rounded-lg ${
-                        isActive ? 'bg-slate-100' : 'bg-gray-100'
-                      }`}>
-                        <IconComponent className={`w-4 h-4 ${
-                          isActive ? 'text-green-600' : 'text-gray-500'
-                        }`} />
-                      </div>
-                      <div className="flex-1">
-                        <div className="font-medium text-sm">{item.label}</div>
-                        <div className="text-xs text-gray-500">Analytics & insights</div>
-                      </div>
-                      <ChevronRight className={`w-4 h-4 transition-transform ${
-                        isActive ? 'rotate-90' : ''
-                      }`} />
-                    </motion.button>
-                  )
-                })}
-              </div>
-            </div>
-          </div>
-        </div>
-
         {/* Main Content Area */}
         <div className="flex-1 overflow-y-auto p-6">
           <AnimatePresence mode="wait">
