@@ -395,16 +395,24 @@ app.get('/api/entries', authenticateToken, async (req, res) => {
       let mostRecentReadingPlan = null
       let mostRecentEntry = null
       
+      console.log('🔥 Backend: Looking for reading plan data in', entriesResult.rows.length, 'entries...')
       for (const entry of entriesResult.rows) {
         const dataContent = entry.data_content || {}
         const readingPlan = dataContent.readingPlan
+        console.log('🔥 Backend: Entry', entry.date_key, 'has readingPlan:', !!readingPlan)
+        if (readingPlan) {
+          console.log('🔥 Backend: Reading plan data:', readingPlan)
+        }
         if (readingPlan && readingPlan.planId && readingPlan.currentDay) {
           if (!mostRecentReadingPlan || readingPlan.currentDay > mostRecentReadingPlan.currentDay) {
             mostRecentReadingPlan = readingPlan
             mostRecentEntry = entry
+            console.log('🔥 Backend: Found better reading plan with currentDay:', readingPlan.currentDay)
           }
         }
       }
+      
+      console.log('🔥 Backend: Most recent reading plan found:', mostRecentReadingPlan)
       
       const entries = entriesResult.rows.map(entry => {
         const dataContent = entry.data_content || {}
