@@ -627,14 +627,18 @@ export function DailyEntry() {
           let bestReadingPlan = null
           let mostCompletedDays = 0
           
+          console.log('🔥 Searching through', result.entries.length, 'entries for plan:', plan.id)
+          
           for (const entry of result.entries) {
             const readingPlan = entry.data_content?.readingPlan
             if (readingPlan && readingPlan.planId === plan.id) {
               const completedCount = readingPlan.completedDays?.length || 0
-              // Use the entry with the most completed days for this plan
-              if (completedCount > mostCompletedDays) {
+              console.log('🔥 Found plan entry on', entry.date_key, 'with', completedCount, 'completed days:', readingPlan.completedDays)
+              // Only consider entries that have actual progress (completedDays.length > 0)
+              if (completedCount > 0 && completedCount > mostCompletedDays) {
                 bestReadingPlan = readingPlan
                 mostCompletedDays = completedCount
+                console.log('🔥 New best plan found with', completedCount, 'completed days')
               }
             }
           }
