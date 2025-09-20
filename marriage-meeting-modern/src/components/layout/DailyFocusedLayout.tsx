@@ -291,113 +291,280 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
       return renderSidebarContent()
     }
 
-    // Handle vision section - show daily overview with tasks, plans, and weekly popup
+    // Handle vision section - show three-column layout like home page
     if (activeSection === 'vision') {
-      console.log('🎯 Rendering daily overview for vision section')
+      console.log('🎯 Rendering three-column layout for vision section')
       return (
-        <div className="space-y-6">
-          {/* Today's Schedule */}
-          <Card className="p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold text-gray-900">Today's Schedule</h2>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setActiveSection('schedule')}
-                className="text-slate-600 border-slate-200 hover:bg-slate-50"
-              >
-                <Edit3 className="w-4 h-4 mr-1" />
-                Edit Schedule
-              </Button>
-            </div>
-            
-            <div className="space-y-3">
-              {(() => {
-                const today = new Date()
-                const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
-                const todayName = dayNames[today.getDay()]
-                const todaySchedule = weekData?.schedule?.[todayName] || []
-                const filteredSchedule = todaySchedule.filter((item: any) => item && item.trim() !== '')
+        <div className="h-full flex flex-col">
+          {/* Top Section - Weekly Meeting Buttons */}
+          <div className="bg-white border-b border-gray-200 p-4 sticky top-0 z-10">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <h1 className="text-2xl font-bold text-gray-900">Foundation & Daily Focus</h1>
+                <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <Calendar className="w-4 h-4" />
+                  <span>{currentDate.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-3">
+                <Button
+                  onClick={handleStartGuidedMeeting}
+                  variant="outline"
+                  className="text-slate-600 border-slate-200 hover:bg-slate-50"
+                >
+                  <Play className="w-4 h-4 mr-2" />
+                  Guided Meeting
+                </Button>
                 
-                return filteredSchedule.length > 0 ? (
-                  filteredSchedule.map((item: any, index: number) => (
-                    <div key={index} className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg">
-                      <Clock className="w-4 h-4 text-slate-600" />
-                      <span className="text-gray-700">{item}</span>
-                    </div>
-                  ))
-                ) : (
-                  <p className="text-gray-500 italic text-center py-4">No schedule items for today</p>
-                )
-              })()}
-            </div>
-          </Card>
-
-          {/* Today's Tasks */}
-          <Card className="p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold text-gray-900">Today's Tasks</h2>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setActiveSection('todos')}
-                className="text-slate-600 border-slate-200 hover:bg-slate-50"
-              >
-                <Plus className="w-4 h-4 mr-1" />
-                Add Task
-              </Button>
-            </div>
-            
-            <div className="space-y-3">
-              {(() => {
-                const today = new Date()
-                const todayTasks = (weekData?.todos || []).filter((task: any) => {
-                  if (task.dueDate) {
-                    const dueDate = new Date(task.dueDate)
-                    return dueDate.toDateString() === today.toDateString() || dueDate < today
-                  }
-                  return task.priority === 'high'
-                }).slice(0, 5)
+                {isSaving && (
+                  <div className="flex items-center gap-2 text-blue-600">
+                    <Clock className="w-4 h-4 animate-spin" />
+                    <span className="text-sm">Saving...</span>
+                  </div>
+                )}
                 
-                return todayTasks.length > 0 ? (
-                  todayTasks.map((task: any) => (
-                    <div key={task.id} className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg">
-                      <button className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                        task.completed
-                          ? 'bg-slate-500 border-slate-500 text-white'
-                          : 'border-gray-300 hover:border-gray-400'
-                      }`}>
-                        {task.completed && <span className="text-xs">✓</span>}
-                      </button>
-                      <span className={`flex-1 ${task.completed ? 'line-through text-gray-500' : 'text-gray-800'}`}>
-                        {task.text}
-                      </span>
-                    </div>
-                  ))
-                ) : (
-                  <p className="text-gray-500 italic text-center py-4">No tasks for today</p>
-                )
-              })()}
+                <Button
+                  onClick={onSave}
+                  className="bg-slate-600 hover:bg-slate-700"
+                >
+                  Save Changes
+                </Button>
+              </div>
             </div>
-          </Card>
+          </div>
 
-          {/* Week Overview with Popup */}
-          <Card className="p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold text-gray-900">Week Overview</h2>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => window.location.href = '/weekly'}
-                className="text-slate-600 border-slate-200 hover:bg-slate-50"
-              >
-                <Edit3 className="w-4 h-4 mr-1" />
-                Edit Day
-              </Button>
+          {/* Three Column Layout */}
+          <div className="flex-1 flex overflow-hidden">
+            {/* Left Column - Spiritual Content */}
+            <div className="w-80 bg-gradient-to-br from-purple-50 to-indigo-50 border-r border-gray-200 p-6 overflow-y-auto">
+              <div className="space-y-6">
+                {/* Spiritual Growth Quick View */}
+                <Card className="p-4 bg-white/70 backdrop-blur-sm">
+                  <div className="flex items-center gap-2 mb-3">
+                    <BookOpen className="w-5 h-5 text-purple-600" />
+                    <h3 className="font-semibold text-gray-900">Spiritual Growth</h3>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-600">Prayer requests:</span>
+                      <span className="font-medium text-purple-600">3 active</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-600">Bible reading:</span>
+                      <span className="font-medium text-green-600">Day 15</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-600">Devotional streak:</span>
+                      <span className="font-medium text-blue-600">12 days</span>
+                    </div>
+                  </div>
+                  
+                  <Button
+                    size="sm"
+                    onClick={() => setActiveSection('spiritual')}
+                    className="w-full mt-3 bg-purple-600 hover:bg-purple-700"
+                  >
+                    View Spiritual Growth
+                  </Button>
+                </Card>
+
+                {/* Prayer Requests */}
+                <Card className="p-4 bg-white/70 backdrop-blur-sm">
+                  <h3 className="font-semibold text-gray-900 mb-3">Today's Prayers</h3>
+                  <div className="space-y-2">
+                    {dailyPrayers.slice(0, 3).map((prayer, index) => (
+                      <div key={index} className="flex items-center gap-2 p-2 bg-white/50 rounded-lg">
+                        <Heart className="w-4 h-4 text-pink-500" />
+                        <span className="text-sm text-gray-700">{prayer}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setActiveSection('prayers')}
+                    className="w-full mt-3 text-purple-600 border-purple-200 hover:bg-purple-50"
+                  >
+                    Add Prayer Request
+                  </Button>
+                </Card>
+              </div>
             </div>
-            
-            <WeekOverview currentDate={currentDate} />
-          </Card>
+
+            {/* Middle Column - Daily Focus */}
+            <div className="flex-1 p-6 overflow-y-auto">
+              <div className="space-y-6">
+                {/* Today's Schedule */}
+                <Card className="p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-xl font-bold text-gray-900">Today's Schedule</h2>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setActiveSection('schedule')}
+                      className="text-slate-600 border-slate-200 hover:bg-slate-50"
+                    >
+                      <Edit3 className="w-4 h-4 mr-1" />
+                      Edit Schedule
+                    </Button>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    {(() => {
+                      const today = new Date()
+                      const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+                      const todayName = dayNames[today.getDay()]
+                      const todaySchedule = weekData?.schedule?.[todayName] || []
+                      const filteredSchedule = todaySchedule.filter((item: any) => item && item.trim() !== '')
+                      
+                      return filteredSchedule.length > 0 ? (
+                        filteredSchedule.map((item: any, index: number) => (
+                          <div key={index} className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg">
+                            <Clock className="w-4 h-4 text-slate-600" />
+                            <span className="text-gray-700">{item}</span>
+                          </div>
+                        ))
+                      ) : (
+                        <p className="text-gray-500 italic text-center py-4">No schedule items for today</p>
+                      )
+                    })()}
+                  </div>
+                </Card>
+
+                {/* Today's Tasks */}
+                <Card className="p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-xl font-bold text-gray-900">Today's Tasks</h2>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setActiveSection('todos')}
+                      className="text-slate-600 border-slate-200 hover:bg-slate-50"
+                    >
+                      <Plus className="w-4 h-4 mr-1" />
+                      Add Task
+                    </Button>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    {(() => {
+                      const today = new Date()
+                      const todayTasks = (weekData?.todos || []).filter((task: any) => {
+                        if (task.dueDate) {
+                          const dueDate = new Date(task.dueDate)
+                          return dueDate.toDateString() === today.toDateString() || dueDate < today
+                        }
+                        return task.priority === 'high'
+                      }).slice(0, 5)
+                      
+                      return todayTasks.length > 0 ? (
+                        todayTasks.map((task: any) => (
+                          <div key={task.id} className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg">
+                            <button className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                              task.completed
+                                ? 'bg-slate-500 border-slate-500 text-white'
+                                : 'border-gray-300 hover:border-gray-400'
+                            }`}>
+                              {task.completed && <span className="text-xs">✓</span>}
+                            </button>
+                            <span className={`flex-1 ${task.completed ? 'line-through text-gray-500' : 'text-gray-800'}`}>
+                              {task.text}
+                            </span>
+                          </div>
+                        ))
+                      ) : (
+                        <p className="text-gray-500 italic text-center py-4">No tasks for today</p>
+                      )
+                    })()}
+                  </div>
+                </Card>
+
+                {/* Week Overview with Popup */}
+                <Card className="p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-xl font-bold text-gray-900">Week Overview</h2>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => window.location.href = '/weekly'}
+                      className="text-slate-600 border-slate-200 hover:bg-slate-50"
+                    >
+                      <Edit3 className="w-4 h-4 mr-1" />
+                      Edit Day
+                    </Button>
+                  </div>
+                  
+                  <WeekOverview currentDate={currentDate} />
+                </Card>
+              </div>
+            </div>
+
+            {/* Right Column - Vision Content */}
+            <div className="w-80 bg-gradient-to-br from-blue-50 to-indigo-50 border-l border-gray-200 p-6 overflow-y-auto">
+              <div className="space-y-6">
+                {/* Family Vision Quick View */}
+                <Card className="p-4 bg-white/70 backdrop-blur-sm">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Home className="w-5 h-5 text-blue-600" />
+                    <h3 className="font-semibold text-gray-900">Family Vision</h3>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    <div className="text-sm text-gray-600">
+                      <p className="font-medium mb-2">Mission Statement:</p>
+                      <p className="italic">"Building a Christ-centered family that loves God, serves others, and grows together in faith, love, and purpose."</p>
+                    </div>
+                    
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-600">Core values:</span>
+                      <span className="font-medium text-blue-600">Faith, Love, Service</span>
+                    </div>
+                  </div>
+                  
+                  <Button
+                    size="sm"
+                    onClick={() => setActiveSection('vision')}
+                    className="w-full mt-3 bg-blue-600 hover:bg-blue-700"
+                  >
+                    View Full Vision
+                  </Button>
+                </Card>
+
+                {/* Quick Actions */}
+                <Card className="p-4 bg-white/70 backdrop-blur-sm">
+                  <h3 className="font-semibold text-gray-900 mb-3">Quick Actions</h3>
+                  <div className="space-y-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => setActiveSection('prayers')}
+                      className="w-full text-blue-600 border-blue-200 hover:bg-blue-50"
+                    >
+                      Add Prayer Request
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => setActiveSection('todos')}
+                      className="w-full text-blue-600 border-blue-200 hover:bg-blue-50"
+                    >
+                      Add Task
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => setActiveSection('goals')}
+                      className="w-full text-blue-600 border-blue-200 hover:bg-blue-50"
+                    >
+                      Set Goals
+                    </Button>
+                  </div>
+                </Card>
+              </div>
+            </div>
+          </div>
         </div>
       )
     }
