@@ -195,6 +195,7 @@ export const useDailyStore = create<DailyStore>((set, get) => ({
             leadershipRating: dataContent.leadershipRating || entry.leadershipRating || { wisdom: 0, courage: 0, patience: 0, integrity: 0 },
             deletedGoalIds: dataContent.deletedGoalIds || entry.deletedGoalIds || [],
             completed: dataContent.completed || entry.completed || false,
+            readingPlan: dataContent.readingPlan || entry.readingPlan,
             createdAt: new Date(entry.created_at),
             created_at: new Date(entry.created_at),
             updatedAt: new Date(entry.updated_at),

@@ -605,17 +605,17 @@ export function DailyEntry() {
     console.log('🔥 Loading reading plan progress from database...')
     
     try {
-      // Always check all entries for reading plan data from the reading_plans table
+      // Use the existing store pattern - load entries and get reading plan data
       const { loadEntries } = useDailyStore.getState()
       await loadEntries()
       const allEntries = useDailyStore.getState().entries
       
-      // Look for reading plan in any entry (most recent first)
+      // Look for reading plan data in the entries (from data_content.readingPlan)
       for (const entry of allEntries) {
-        // Use data_content.readingPlan which comes from the backend's reading_plans table
         const readingPlanData = entry.data_content?.readingPlan
         if (readingPlanData && readingPlanData.planId === plan.id) {
           existingProgress = readingPlanData
+          console.log('🔥 FOUND reading plan data from store:', existingProgress)
           break
         }
       }
@@ -675,9 +675,12 @@ export function DailyEntry() {
     setTimeout(() => {
       const readingPlanElement = document.querySelector('[data-reading-plan-section]')
       if (readingPlanElement) {
-        readingPlanElement.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        const elementRect = readingPlanElement.getBoundingClientRect()
+        const absoluteElementTop = elementRect.top + window.pageYOffset
+        const middle = absoluteElementTop - (window.innerHeight / 2)
+        window.scrollTo({ top: middle, behavior: 'smooth' })
       }
-    }, 100)
+    }, 200)
   }
 
   const handleUpdateReadingPlan = (updatedReadingPlan: any) => {

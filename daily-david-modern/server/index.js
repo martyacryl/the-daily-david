@@ -399,21 +399,21 @@ app.get('/api/entries', authenticateToken, async (req, res) => {
         [userId]
       )
 
-      // Combine the data
+      // Combine the data - use the most recent reading plan for ALL entries
+      const mostRecentReadingPlan = readingPlansResult.rows.length > 0 ? readingPlansResult.rows[0] : null
+      
       const entries = entriesResult.rows.map(entry => {
         const dataContent = entry.data_content || {}
         
-        // Find reading plan for this date
-        const readingPlan = readingPlansResult.rows.find(rp => rp.date_key === entry.date_key)
-        
-        if (readingPlan) {
+        // Use the most recent reading plan for all entries (not just matching date)
+        if (mostRecentReadingPlan) {
           dataContent.readingPlan = {
-            planId: readingPlan.plan_id,
-            planName: readingPlan.plan_name,
-            currentDay: readingPlan.current_day,
-            totalDays: readingPlan.total_days,
-            startDate: readingPlan.start_date,
-            completedDays: readingPlan.completed_days || []
+            planId: mostRecentReadingPlan.plan_id,
+            planName: mostRecentReadingPlan.plan_name,
+            currentDay: mostRecentReadingPlan.current_day,
+            totalDays: mostRecentReadingPlan.total_days,
+            startDate: mostRecentReadingPlan.start_date,
+            completedDays: mostRecentReadingPlan.completed_days || []
           }
         }
 
