@@ -628,13 +628,32 @@ export function DailyEntry() {
           // Find the entry with the highest currentDay for this plan
           let bestReadingPlan = null
           let highestDay = 0
+          let mostRecentEntry = null
           
           for (const entry of result.entries) {
             const readingPlan = entry.data_content?.readingPlan
-            if (readingPlan && readingPlan.planId === plan.id && readingPlan.currentDay > highestDay) {
-              bestReadingPlan = readingPlan
-              highestDay = readingPlan.currentDay
-              console.log('🔥 Found better reading plan with day:', readingPlan.currentDay, 'completedDays:', readingPlan.completedDays)
+            if (readingPlan && readingPlan.planId === plan.id) {
+              // Check if this is a restart (currentDay = 1 and completedDays = [])
+              const isRestart = readingPlan.currentDay === 1 && readingPlan.completedDays.length === 0
+              
+              // Check if this is a finished plan (currentDay > totalDays)
+              const isFinished = readingPlan.currentDay > readingPlan.totalDays
+              
+              // If it's a restart or finished, use this as the most recent state
+              if (isRestart || isFinished) {
+                bestReadingPlan = readingPlan
+                mostRecentEntry = entry
+                console.log('🔥 Found restart/finished plan:', readingPlan.currentDay, 'completedDays:', readingPlan.completedDays)
+                break // Use the most recent restart/finished state
+              }
+              
+              // Otherwise, find the one with highest currentDay
+              if (readingPlan.currentDay > highestDay) {
+                bestReadingPlan = readingPlan
+                highestDay = readingPlan.currentDay
+                mostRecentEntry = entry
+                console.log('🔥 Found better reading plan with day:', readingPlan.currentDay, 'completedDays:', readingPlan.completedDays)
+              }
             }
           }
           
