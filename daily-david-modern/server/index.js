@@ -320,12 +320,12 @@ app.get('/api/entries/:date', authenticateToken, async (req, res) => {
     const client = await pool.connect()
     
     try {
-      // Get the most recent entry with reading plan data, not just the current date
+      // Get the entry with the highest currentDay for reading plan data
       const entryResult = await client.query(
         `SELECT * FROM daily_david_entries 
          WHERE user_id = $1 
          AND data_content->'readingPlan'->>'planId' IS NOT NULL
-         ORDER BY updated_at DESC 
+         ORDER BY (data_content->'readingPlan'->>'currentDay')::int DESC 
          LIMIT 1`,
         [userId]
       )
