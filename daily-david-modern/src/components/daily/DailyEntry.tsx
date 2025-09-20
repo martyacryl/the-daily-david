@@ -605,32 +605,23 @@ export function DailyEntry() {
     console.log('🔥 Loading reading plan progress from database...')
     
     try {
-      // First, try to get reading plan from current day's entry
-      const dateString = getLocalDateString(selectedDate)
-      const entryData = await loadEntryByDate(dateString)
-      if (entryData && entryData.readingPlan) {
-        existingProgress = entryData.readingPlan
-        console.log('🔥 FOUND existing progress in database for current date:', existingProgress)
-      } else {
-        // If no reading plan found in current day, check all entries for this user
-        console.log('🔥 No reading plan found for current date, checking all entries...')
-        const { loadEntries } = useDailyStore.getState()
-        await loadEntries()
-        const allEntries = useDailyStore.getState().entries
-        
-        // Look for reading plan in any entry (most recent first)
-        for (const entry of allEntries) {
-          // Use data_content.readingPlan which comes from the backend's reading_plans table
-          const readingPlanData = entry.data_content?.readingPlan
-          if (readingPlanData && readingPlanData.planId === plan.id) {
-            existingProgress = readingPlanData
-            break
-          }
+      // Always check all entries for reading plan data from the reading_plans table
+      const { loadEntries } = useDailyStore.getState()
+      await loadEntries()
+      const allEntries = useDailyStore.getState().entries
+      
+      // Look for reading plan in any entry (most recent first)
+      for (const entry of allEntries) {
+        // Use data_content.readingPlan which comes from the backend's reading_plans table
+        const readingPlanData = entry.data_content?.readingPlan
+        if (readingPlanData && readingPlanData.planId === plan.id) {
+          existingProgress = readingPlanData
+          break
         }
-        
-        if (!existingProgress) {
-          console.log('🔥 No existing progress found for plan:', plan.id)
-        }
+      }
+      
+      if (!existingProgress) {
+        console.log('🔥 No existing progress found for plan:', plan.id)
       }
     } catch (error) {
       console.error('🔥 Error loading from database:', error)
@@ -679,6 +670,14 @@ export function DailyEntry() {
       return newData
     })
     setShowReadingPlan(true) // Show the reading plan UI
+    
+    // Scroll to the reading plan section after a short delay
+    setTimeout(() => {
+      const readingPlanElement = document.querySelector('[data-reading-plan-section]')
+      if (readingPlanElement) {
+        readingPlanElement.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }
+    }, 100)
   }
 
   const handleUpdateReadingPlan = (updatedReadingPlan: any) => {
@@ -1557,6 +1556,7 @@ export function DailyEntry() {
             {/* Reading Plan Progress */}
         {showReadingPlan && dayData.readingPlan && (
           <motion.div
+            data-reading-plan-section
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
