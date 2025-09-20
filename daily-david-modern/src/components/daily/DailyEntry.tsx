@@ -611,11 +611,19 @@ export function DailyEntry() {
       const allEntries = useDailyStore.getState().entries
       
       // Look for reading plan data in the entries (from data_content.readingPlan)
+      console.log('🔥 Checking', allEntries.length, 'entries for reading plan data...')
       for (const entry of allEntries) {
+        console.log('🔥 Entry date:', entry.date, 'has readingPlan:', !!entry.data_content?.readingPlan)
+        if (entry.data_content?.readingPlan) {
+          console.log('🔥 Reading plan data:', entry.data_content.readingPlan)
+        }
+        
         const readingPlanData = entry.data_content?.readingPlan
         if (readingPlanData && readingPlanData.planId === plan.id) {
           existingProgress = readingPlanData
           console.log('🔥 FOUND reading plan data from store:', existingProgress)
+          console.log('🔥 Completed days:', existingProgress.completedDays)
+          console.log('🔥 Completed days length:', existingProgress.completedDays?.length)
           break
         }
       }
