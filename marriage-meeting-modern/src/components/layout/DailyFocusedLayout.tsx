@@ -29,7 +29,8 @@ import {
   Wind,
   Droplets,
   Sunrise,
-  Sunset
+  Sunset,
+  X
 } from 'lucide-react'
 import { Card } from '../ui/Card'
 import { Button } from '../ui/Button'
@@ -646,7 +647,7 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                   
                   <Button
                     size="sm"
-                    onClick={() => setActiveSection('vision')}
+                    onClick={() => setShowVisionModal(true)}
                     className="w-full mt-3 bg-blue-600 hover:bg-blue-700"
                   >
                     View Full Vision
@@ -1246,7 +1247,7 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                 <Button
                   variant="default"
                   size="sm"
-                  onClick={() => setActiveSection('vision')}
+                  onClick={() => setShowVisionModal(true)}
                   className="w-full mt-3 bg-slate-600 hover:bg-slate-700"
                 >
                   View Full Vision
@@ -1357,6 +1358,42 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                 onComplete={handleCompleteGuidedMeeting}
                 onSkip={() => setShowGuidedFlow(false)}
               />
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Vision Modal */}
+      <AnimatePresence>
+        {showVisionModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+            onClick={() => setShowVisionModal(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              className="bg-white rounded-lg shadow-xl max-w-6xl w-full max-h-[90vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-2xl font-bold text-gray-900">Family Vision Board</h2>
+                  <Button
+                    variant="outline"
+                    onClick={() => setShowVisionModal(false)}
+                    className="text-gray-600 border-gray-200 hover:bg-gray-50"
+                  >
+                    <X className="w-4 h-4 mr-1" />
+                    Close
+                  </Button>
+                </div>
+                <FamilyVisionBoard />
+              </div>
             </motion.div>
           </motion.div>
         )}
