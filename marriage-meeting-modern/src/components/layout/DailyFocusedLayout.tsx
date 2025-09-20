@@ -285,10 +285,121 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
   const renderMainContent = () => {
     console.log('🎯 renderMainContent called with activeSection:', activeSection)
     
-    // Handle special sections (vision, spiritual, review) - these show their respective content
-    if (['vision', 'spiritual', 'review'].includes(activeSection)) {
+    // Handle special sections (spiritual, review) - these show their respective content
+    if (['spiritual', 'review'].includes(activeSection)) {
       console.log('🎯 Rendering sidebar content for special section:', activeSection)
       return renderSidebarContent()
+    }
+
+    // Handle vision section - show daily overview with tasks, plans, and weekly popup
+    if (activeSection === 'vision') {
+      console.log('🎯 Rendering daily overview for vision section')
+      return (
+        <div className="space-y-6">
+          {/* Today's Schedule */}
+          <Card className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-bold text-gray-900">Today's Schedule</h2>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setActiveSection('schedule')}
+                className="text-slate-600 border-slate-200 hover:bg-slate-50"
+              >
+                <Edit3 className="w-4 h-4 mr-1" />
+                Edit Schedule
+              </Button>
+            </div>
+            
+            <div className="space-y-3">
+              {(() => {
+                const today = new Date()
+                const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+                const todayName = dayNames[today.getDay()]
+                const todaySchedule = weekData?.schedule?.[todayName] || []
+                const filteredSchedule = todaySchedule.filter((item: any) => item && item.trim() !== '')
+                
+                return filteredSchedule.length > 0 ? (
+                  filteredSchedule.map((item: any, index: number) => (
+                    <div key={index} className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg">
+                      <Clock className="w-4 h-4 text-slate-600" />
+                      <span className="text-gray-700">{item}</span>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-gray-500 italic text-center py-4">No schedule items for today</p>
+                )
+              })()}
+            </div>
+          </Card>
+
+          {/* Today's Tasks */}
+          <Card className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-bold text-gray-900">Today's Tasks</h2>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setActiveSection('todos')}
+                className="text-slate-600 border-slate-200 hover:bg-slate-50"
+              >
+                <Plus className="w-4 h-4 mr-1" />
+                Add Task
+              </Button>
+            </div>
+            
+            <div className="space-y-3">
+              {(() => {
+                const today = new Date()
+                const todayTasks = (weekData?.todos || []).filter((task: any) => {
+                  if (task.dueDate) {
+                    const dueDate = new Date(task.dueDate)
+                    return dueDate.toDateString() === today.toDateString() || dueDate < today
+                  }
+                  return task.priority === 'high'
+                }).slice(0, 5)
+                
+                return todayTasks.length > 0 ? (
+                  todayTasks.map((task: any) => (
+                    <div key={task.id} className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg">
+                      <button className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                        task.completed
+                          ? 'bg-slate-500 border-slate-500 text-white'
+                          : 'border-gray-300 hover:border-gray-400'
+                      }`}>
+                        {task.completed && <span className="text-xs">✓</span>}
+                      </button>
+                      <span className={`flex-1 ${task.completed ? 'line-through text-gray-500' : 'text-gray-800'}`}>
+                        {task.text}
+                      </span>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-gray-500 italic text-center py-4">No tasks for today</p>
+                )
+              })()}
+            </div>
+          </Card>
+
+          {/* Week Overview with Popup */}
+          <Card className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-bold text-gray-900">Week Overview</h2>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => window.location.href = '/weekly'}
+                className="text-slate-600 border-slate-200 hover:bg-slate-50"
+              >
+                <Edit3 className="w-4 h-4 mr-1" />
+                Edit Day
+              </Button>
+            </div>
+            
+            <WeekOverview currentDate={currentDate} />
+          </Card>
+        </div>
+      )
     }
 
     // Handle practical sections using WeeklyMeetingContent
