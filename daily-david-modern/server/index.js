@@ -235,7 +235,22 @@ app.post('/api/entries', authenticateToken, async (req, res) => {
     const client = await pool.connect()
     
     try {
-      // Save main entry data (without readingPlan)
+      // Save main entry data (including readingPlan)
+      const dataContent = {
+        goals,
+        gratitude,
+        soap,
+        dailyIntention,
+        growthQuestion,
+        leadershipRating,
+        checkIn,
+        readingPlan,
+        deletedGoalIds,
+        completed
+      }
+      
+      console.log('🔥 Backend: Saving data_content with readingPlan:', dataContent.readingPlan)
+      
       const result = await client.query(
         `INSERT INTO daily_david_entries 
          (date_key, user_id, data_content) 
@@ -246,18 +261,7 @@ app.post('/api/entries', authenticateToken, async (req, res) => {
         [
           dateKey,
           userId,
-          JSON.stringify({
-            goals,
-            gratitude,
-            soap,
-            dailyIntention,
-            growthQuestion,
-            leadershipRating,
-            checkIn,
-            readingPlan,
-            deletedGoalIds,
-            completed
-          })
+          JSON.stringify(dataContent)
         ]
       )
 
