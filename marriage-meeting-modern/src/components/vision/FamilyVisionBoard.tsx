@@ -91,7 +91,7 @@ export const FamilyVisionBoard: React.FC<FamilyVisionBoardProps> = ({
           variant="outline"
           size="sm"
           onClick={() => {/* Add goal functionality */}}
-          className="text-xs"
+          className="text-xs text-slate-600 border-slate-200 hover:bg-slate-50"
         >
           <Edit3 className="w-3 h-3 mr-1" />
           Add Goal
@@ -176,6 +176,7 @@ export const FamilyVisionBoard: React.FC<FamilyVisionBoardProps> = ({
             />
             <div className="flex gap-2">
               <Button
+                variant="default"
                 size="sm"
                 onClick={() => setIsEditingMission(false)}
                 className="bg-slate-600 hover:bg-slate-700"
@@ -186,6 +187,7 @@ export const FamilyVisionBoard: React.FC<FamilyVisionBoardProps> = ({
                 variant="outline"
                 size="sm"
                 onClick={() => setIsEditingMission(false)}
+                className="text-slate-600 border-slate-200 hover:bg-slate-50"
               >
                 Cancel
               </Button>
@@ -261,6 +263,7 @@ export const FamilyVisionBoard: React.FC<FamilyVisionBoardProps> = ({
                 onKeyPress={(e) => e.key === 'Enter' && handleAddValue()}
               />
               <Button
+                variant="default"
                 size="sm"
                 onClick={handleAddValue}
                 className="bg-slate-600 hover:bg-slate-700"
