@@ -178,7 +178,7 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
   isSaving = false,
   className = ''
 }) => {
-  const [activeSection, setActiveSection] = useState('schedule')
+  const [activeSection, setActiveSection] = useState('vision')
   const [showGuidedFlow, setShowGuidedFlow] = useState(false)
   const [showVisionModal, setShowVisionModal] = useState(false)
   const [showSpiritualModal, setShowSpiritualModal] = useState(false)
@@ -285,8 +285,8 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
   const renderMainContent = () => {
     console.log('🎯 renderMainContent called with activeSection:', activeSection)
     
-    // Handle special sections (spiritual, review) - vision shows daily overview
-    if (['spiritual', 'review'].includes(activeSection)) {
+    // Handle special sections (vision, spiritual, review) - these show their respective content
+    if (['vision', 'spiritual', 'review'].includes(activeSection)) {
       console.log('🎯 Rendering sidebar content for special section:', activeSection)
       return renderSidebarContent()
     }
