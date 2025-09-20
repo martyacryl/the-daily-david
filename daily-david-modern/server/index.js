@@ -320,30 +320,50 @@ app.get('/api/entries/:date', authenticateToken, async (req, res) => {
     const client = await pool.connect()
     
     try {
-      // Get the entry with the highest currentDay for reading plan data
+      // Get the current day's entry
       const entryResult = await client.query(
         `SELECT * FROM daily_david_entries 
+         WHERE user_id = $1 AND date_key = $2`,
+        [userId, date]
+      )
+
+      let entry = null
+      if (entryResult.rows.length > 0) {
+        entry = entryResult.rows[0]
+      }
+
+      // Get the reading plan data from the reading_plans table (this has the correct progress)
+      const readingPlanResult = await client.query(
+        `SELECT * FROM reading_plans 
          WHERE user_id = $1 
-         AND data_content->'readingPlan'->>'planId' IS NOT NULL
-         ORDER BY (data_content->'readingPlan'->>'currentDay')::int DESC 
+         ORDER BY updated_at DESC 
          LIMIT 1`,
         [userId]
       )
 
-      if (entryResult.rows.length > 0) {
-        const entry = entryResult.rows[0]
-        const dataContent = entry.data_content || {}
-        
-        res.json({ 
-          success: true, 
-          entry: {
-            ...entry,
-            data_content: dataContent
-          }
-        })
-      } else {
-        res.json({ success: true, entry: null })
+      let dataContent = entry?.data_content || {}
+      
+      // If we have reading plan data from the dedicated table, use that
+      if (readingPlanResult.rows.length > 0) {
+        const readingPlan = readingPlanResult.rows[0]
+        dataContent.readingPlan = {
+          planId: readingPlan.plan_id,
+          planName: readingPlan.plan_name,
+          currentDay: readingPlan.current_day,
+          totalDays: readingPlan.total_days,
+          startDate: readingPlan.start_date,
+          completedDays: readingPlan.completed_days || [],
+          bibleId: dataContent.readingPlan?.bibleId // Preserve bibleId if it exists
+        }
       }
+
+      res.json({ 
+        success: true, 
+        entry: entry ? {
+          ...entry,
+          data_content: dataContent
+        } : null
+      })
     } finally {
       client.release()
     }
