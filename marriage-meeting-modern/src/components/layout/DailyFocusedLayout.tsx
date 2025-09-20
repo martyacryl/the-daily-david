@@ -377,7 +377,7 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                     {dailyPrayers.slice(0, 3).map((prayer, index) => (
                       <div key={index} className="flex items-center gap-2 p-2 bg-white/50 rounded-lg">
                         <Heart className="w-4 h-4 text-pink-500" />
-                        <span className="text-sm text-gray-700">{prayer}</span>
+                        <span className="text-sm text-gray-700">{prayer.text}</span>
                       </div>
                     ))}
                   </div>
