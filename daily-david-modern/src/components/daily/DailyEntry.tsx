@@ -417,16 +417,8 @@ export function DailyEntry() {
         currentEntryIdRef.current = entryData.id
         
         // Load existing entry data (but don't auto-show reading plan)
-        const readingPlanData = entryData.readingPlan || (entryData.data_content && entryData.data_content.readingPlan)
-        console.log('🔥 Found reading plan data in entry (storing but not showing):', readingPlanData)
-        console.log('🔥 Reading plan data structure:', {
-          planId: readingPlanData?.planId,
-          planName: readingPlanData?.planName,
-          currentDay: readingPlanData?.currentDay,
-          totalDays: readingPlanData?.totalDays,
-          completedDays: readingPlanData?.completedDays,
-          startDate: readingPlanData?.startDate
-        })
+        // Use data_content.readingPlan which comes from the backend's reading_plans table
+        const readingPlanData = entryData.data_content?.readingPlan
         setDayData(prev => ({
           ...prev,
           checkIn: entryData.checkIn || prev.checkIn,
@@ -467,18 +459,11 @@ export function DailyEntry() {
         let existingReadingPlan = null
         const sortedEntries = [...allEntries].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
         
-        console.log('🔍 Checking', sortedEntries.length, 'entries for existing reading plan progress...')
         for (const entry of sortedEntries) {
-          console.log('🔍 Checking entry from date:', entry.date)
-          console.log('🔍 Entry readingPlan:', entry.readingPlan)
-          console.log('🔍 Entry data_content:', entry.data_content)
-          console.log('🔍 Entry data_content.readingPlan:', entry.data_content?.readingPlan)
-          
-          const readingPlanData = entry.readingPlan || (entry.data_content && entry.data_content.readingPlan)
+          // Use data_content.readingPlan which comes from the backend's reading_plans table
+          const readingPlanData = entry.data_content?.readingPlan
           if (readingPlanData && readingPlanData.planId) {
             existingReadingPlan = readingPlanData
-            console.log('🔥 Found existing reading plan progress from:', entry.date, 'plan:', readingPlanData.planName)
-            console.log('🔥 Reading plan details:', readingPlanData)
             break
           }
         }
@@ -634,17 +619,11 @@ export function DailyEntry() {
         const allEntries = useDailyStore.getState().entries
         
         // Look for reading plan in any entry (most recent first)
-        console.log('🔍 Checking', allEntries.length, 'entries for plan ID:', plan.id)
         for (const entry of allEntries) {
-          console.log('🔍 Checking entry from date:', entry.date)
-          console.log('🔍 Entry readingPlan:', entry.readingPlan)
-          console.log('🔍 Entry data_content:', entry.data_content)
-          console.log('🔍 Entry data_content.readingPlan:', entry.data_content?.readingPlan)
-          
-          const readingPlanData = entry.readingPlan || (entry.data_content && entry.data_content.readingPlan)
+          // Use data_content.readingPlan which comes from the backend's reading_plans table
+          const readingPlanData = entry.data_content?.readingPlan
           if (readingPlanData && readingPlanData.planId === plan.id) {
             existingProgress = readingPlanData
-            console.log('🔥 FOUND existing progress in entry from date:', entry.date, 'plan:', existingProgress)
             break
           }
         }
