@@ -160,11 +160,12 @@ export const EnhancedWeeklyReview: React.FC<EnhancedWeeklyReviewProps> = ({
       variant={variant}
       size="sm"
       onClick={() => onNavigateToSection?.(section)}
-      className="flex items-center gap-2"
+      className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-3 py-1.5 sm:py-2"
     >
       {icon}
-      {label}
-      <ArrowRight className="w-3 h-3" />
+      <span className="hidden xs:inline">{label}</span>
+      <span className="xs:hidden">{label.split(' ')[0]}</span>
+      <ArrowRight className="w-3 h-3 flex-shrink-0" />
     </Button>
   )
 
@@ -307,36 +308,46 @@ export const EnhancedWeeklyReview: React.FC<EnhancedWeeklyReviewProps> = ({
           </Card>
         </motion.div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6 lg:gap-8 mb-8">
           {/* Accomplishments */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.2 }}
+            className="flex flex-col"
           >
-            <Card className="p-6 h-full bg-white shadow-sm">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-slate-100 rounded-lg">
-                    <Award className="w-5 h-5 text-slate-600" />
+            <Card className="p-4 sm:p-6 flex-1 bg-white shadow-sm">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 mb-4">
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <div className="p-2 bg-slate-100 rounded-lg flex-shrink-0">
+                    <Award className="w-4 h-4 sm:w-5 sm:h-5 text-slate-600" />
                   </div>
-                  <h3 className="text-xl font-bold text-gray-900">Accomplishments</h3>
+                  <h3 className="text-lg sm:text-xl font-bold text-gray-900">Accomplishments</h3>
                 </div>
                 {insights.accomplishments.length > 0 && (
-                  <div className="flex gap-2">
-                    {getSectionButton('planning', 'View Tasks', <CheckCircle className="w-4 h-4" />, 'primary')}
-                    {getSectionButton('foundation', 'View Goals', <Target className="w-4 h-4" />, 'primary')}
-                    {getSectionButton('connection', 'View Prayers', <Heart className="w-4 h-4" />, 'primary')}
+                  <div className="flex flex-wrap gap-2">
+                    {getSectionButton('planning', 'View Tasks', <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4" />, 'primary')}
+                    {getSectionButton('foundation', 'View Goals', <Target className="w-3 h-3 sm:w-4 sm:h-4" />, 'primary')}
+                    {getSectionButton('connection', 'View Prayers', <Heart className="w-3 h-3 sm:w-4 sm:h-4" />, 'primary')}
                   </div>
                 )}
               </div>
-              <div className="space-y-3">
+              <div className="space-y-2 sm:space-y-3">
                 {insights.accomplishments.map((accomplishment, index) => (
-                  <div key={index} className="flex items-center gap-3">
-                    <CheckCircle className="w-5 h-5 text-slate-500 flex-shrink-0" />
-                    <span className="text-gray-700">{accomplishment}</span>
+                  <div key={index} className="flex items-start gap-2 sm:gap-3">
+                    <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-slate-500 flex-shrink-0 mt-0.5" />
+                    <span className="text-sm sm:text-base text-gray-700 leading-relaxed">{accomplishment}</span>
                   </div>
                 ))}
+                {insights.accomplishments.length === 0 && (
+                  <div className="text-center py-6 sm:py-8">
+                    <p className="text-sm sm:text-base text-gray-500 italic mb-4">No specific accomplishments recorded this week</p>
+                    <div className="flex flex-wrap gap-2 justify-center">
+                      {getSectionButton('planning', 'Add Tasks', <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4" />)}
+                      {getSectionButton('foundation', 'Set Goals', <Target className="w-3 h-3 sm:w-4 sm:h-4" />)}
+                    </div>
+                  </div>
+                )}
               </div>
             </Card>
           </motion.div>
@@ -346,30 +357,40 @@ export const EnhancedWeeklyReview: React.FC<EnhancedWeeklyReviewProps> = ({
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.3 }}
+            className="flex flex-col"
           >
-            <Card className="p-6 h-full bg-white shadow-sm">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-slate-100 rounded-lg">
-                    <Lightbulb className="w-5 h-5 text-slate-600" />
+            <Card className="p-4 sm:p-6 flex-1 bg-white shadow-sm">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 mb-4">
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <div className="p-2 bg-slate-100 rounded-lg flex-shrink-0">
+                    <Lightbulb className="w-4 h-4 sm:w-5 sm:h-5 text-slate-600" />
                   </div>
-                  <h3 className="text-xl font-bold text-gray-900">Growth Opportunities</h3>
+                  <h3 className="text-lg sm:text-xl font-bold text-gray-900">Growth Opportunities</h3>
                 </div>
                 {insights.growthAreas.length > 0 && (
-                  <div className="flex gap-2">
-                    {getSectionButton('planning', 'Improve Tasks', <CheckCircle className="w-4 h-4" />)}
-                    {getSectionButton('foundation', 'Refine Goals', <Target className="w-4 h-4" />)}
-                    {getSectionButton('connection', 'Add Prayers', <Heart className="w-4 h-4" />)}
+                  <div className="flex flex-wrap gap-2">
+                    {getSectionButton('planning', 'Improve Tasks', <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4" />)}
+                    {getSectionButton('foundation', 'Refine Goals', <Target className="w-3 h-3 sm:w-4 sm:h-4" />)}
+                    {getSectionButton('connection', 'Add Prayers', <Heart className="w-3 h-3 sm:w-4 sm:h-4" />)}
                   </div>
                 )}
               </div>
-              <div className="space-y-3">
+              <div className="space-y-2 sm:space-y-3">
                 {insights.growthAreas.map((area, index) => (
-                  <div key={index} className="flex items-start gap-3">
-                    <TrendingUp className="w-5 h-5 text-slate-500 flex-shrink-0 mt-0.5" />
-                    <span className="text-gray-700">{area}</span>
+                  <div key={index} className="flex items-start gap-2 sm:gap-3">
+                    <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-slate-500 flex-shrink-0 mt-0.5" />
+                    <span className="text-sm sm:text-base text-gray-700 leading-relaxed">{area}</span>
                   </div>
                 ))}
+                {insights.growthAreas.length === 0 && (
+                  <div className="text-center py-6 sm:py-8">
+                    <p className="text-sm sm:text-base text-gray-500 italic mb-4">You're doing great! Keep up the excellent work</p>
+                    <div className="flex flex-wrap gap-2 justify-center">
+                      {getSectionButton('planning', 'View Tasks', <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4" />)}
+                      {getSectionButton('foundation', 'Set Goals', <Target className="w-3 h-3 sm:w-4 sm:h-4" />)}
+                    </div>
+                  </div>
+                )}
               </div>
             </Card>
           </motion.div>
