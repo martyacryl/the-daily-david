@@ -612,7 +612,6 @@ export function DailyEntry() {
         return
       }
       
-      console.log('🔥 Making direct API call to get reading plan data...')
       const response = await fetch('/api/entries', {
         method: 'GET',
         headers: {
@@ -622,7 +621,6 @@ export function DailyEntry() {
       
       if (response.ok) {
         const result = await response.json()
-        console.log('🔥 API response:', result)
         
         if (result.success && result.entries) {
           // Find the most recent entry for this plan (by date, not by currentDay)
@@ -636,18 +634,12 @@ export function DailyEntry() {
               if (!mostRecentDate || entry.date > mostRecentDate) {
                 bestReadingPlan = readingPlan
                 mostRecentDate = entry.date
-                console.log('🔥 Found reading plan for', plan.id, 'from date:', entry.date, 'currentDay:', readingPlan.currentDay, 'completedDays:', readingPlan.completedDays)
               }
             }
           }
           
           if (bestReadingPlan) {
             existingProgress = bestReadingPlan
-            console.log('🔥 FOUND best reading plan:', existingProgress)
-            console.log('🔥 Completed days:', existingProgress.completedDays)
-            console.log('🔥 Completed days length:', existingProgress.completedDays?.length)
-          } else {
-            console.log('🔥 No reading plan found for plan:', plan.id)
           }
         }
       } else {

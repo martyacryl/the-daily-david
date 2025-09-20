@@ -249,7 +249,6 @@ app.post('/api/entries', authenticateToken, async (req, res) => {
         completed
       }
       
-      console.log('🔥 Backend: Saving data_content with readingPlan:', dataContent.readingPlan)
       
       const result = await client.query(
         `INSERT INTO daily_david_entries 
@@ -267,9 +266,6 @@ app.post('/api/entries', authenticateToken, async (req, res) => {
 
       // Save reading plan data separately if it exists
       if (readingPlan && readingPlan.planId) {
-        console.log('🔥 Saving reading plan to dedicated table:', readingPlan)
-        console.log('🔥 User ID:', userId, 'Date Key:', dateKey)
-        console.log('🔥 Plan ID:', readingPlan.planId, 'Current Day:', readingPlan.currentDay)
         
         try {
           const readingPlanResult = await client.query(
@@ -294,16 +290,9 @@ app.post('/api/entries', authenticateToken, async (req, res) => {
               readingPlan.completedDays || []
             ]
           )
-          console.log('✅ Reading plan saved successfully:', readingPlanResult.rows[0])
         } catch (error) {
-          console.error('❌ Error saving reading plan:', error)
-          console.error('❌ Error details:', error.message)
-          console.error('❌ Error code:', error.code)
+          console.error('Error saving reading plan:', error)
         }
-      } else {
-        console.log('❌ No reading plan data to save or missing planId')
-        console.log('❌ readingPlan:', readingPlan)
-        console.log('❌ readingPlan.planId:', readingPlan?.planId)
       }
 
       res.json({ success: true, entry: result.rows[0] })
