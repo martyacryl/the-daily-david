@@ -11,7 +11,11 @@ import {
   Users,
   Star,
   BookOpen,
-  MessageCircle
+  MessageCircle,
+  DollarSign,
+  FileText,
+  Home,
+  ShoppingCart
 } from 'lucide-react'
 import { Card } from '../ui/Card'
 import { Button } from '../ui/Button'
@@ -69,10 +73,31 @@ const meetingSteps: MeetingStep[] = [
     completed: false
   },
   {
+    id: 'budget',
+    title: 'Budget & Finances',
+    description: 'Review weekly budget, upcoming bills, and financial goals',
+    icon: DollarSign,
+    completed: false
+  },
+  {
+    id: 'household',
+    title: 'Household Responsibilities',
+    description: 'Assign chores, maintenance tasks, and household management duties',
+    icon: Home,
+    completed: false
+  },
+  {
     id: 'planning',
     title: 'Weekly Planning',
     description: 'Coordinate schedules, assign tasks, and plan family activities',
     icon: Users,
+    completed: false
+  },
+  {
+    id: 'grocery',
+    title: 'Grocery & Shopping',
+    description: 'Plan meals, create shopping lists, and coordinate errands',
+    icon: ShoppingCart,
     completed: false
   },
   {
