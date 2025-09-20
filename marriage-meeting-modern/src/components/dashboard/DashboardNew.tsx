@@ -48,6 +48,11 @@ export const DashboardNew: React.FC = () => {
   const { goals, loadGoals, getCurrentMonthGoals, getCurrentYearGoals, getLongTermGoals } = useGoalsStore()
   const { settings, loadSettings } = useSettingsStore()
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
+
+  // Scroll to top when dashboard loads for better UX
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }, [])
   
   // New actionable insights state
   const [insights, setInsights] = useState({

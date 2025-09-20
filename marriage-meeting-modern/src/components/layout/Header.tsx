@@ -1,5 +1,5 @@
 import React from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Mountain, Home, BarChart3, Calendar, LogOut, User, Settings, Sun } from 'lucide-react'
 import { useAuthStore } from '../../stores/authStore'
@@ -11,6 +11,15 @@ interface HeaderProps {
 export const Header: React.FC<HeaderProps> = () => {
   const { user, logout } = useAuthStore()
   const location = useLocation()
+  const navigate = useNavigate()
+
+  const handleNavigation = (path: string) => {
+    navigate(path)
+    // Scroll to top when navigating to dashboard for better UX
+    if (path === '/') {
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
+  }
 
   const navItems = [
     { path: '/', label: 'Dashboard', icon: Home },
@@ -47,9 +56,9 @@ export const Header: React.FC<HeaderProps> = () => {
             {navItems.map((item) => {
               const Icon = item.icon
               return (
-                <Link
+                <button
                   key={item.path}
-                  to={item.path}
+                  onClick={() => handleNavigation(item.path)}
                   className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                     isActive(item.path)
                       ? 'bg-slate-100 text-slate-700'
@@ -58,7 +67,7 @@ export const Header: React.FC<HeaderProps> = () => {
                 >
                   <Icon className="w-4 h-4" />
                   {item.label}
-                </Link>
+                </button>
               )
             })}
           </nav>
@@ -87,9 +96,9 @@ export const Header: React.FC<HeaderProps> = () => {
             {navItems.map((item) => {
               const Icon = item.icon
               return (
-                <Link
+                <button
                   key={item.path}
-                  to={item.path}
+                  onClick={() => handleNavigation(item.path)}
                   className={`flex flex-col items-center gap-1 px-3 py-2 rounded-lg text-xs font-medium transition-colors ${
                     isActive(item.path)
                       ? 'bg-slate-100 text-slate-700'
@@ -98,7 +107,7 @@ export const Header: React.FC<HeaderProps> = () => {
                 >
                   <Icon className="w-4 h-4" />
                   {item.label}
-                </Link>
+                </button>
               )
             })}
           </nav>
