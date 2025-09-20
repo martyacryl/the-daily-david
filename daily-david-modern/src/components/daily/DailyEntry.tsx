@@ -1576,7 +1576,6 @@ export function DailyEntry() {
 
             {/* SOAP Section */}
             {/* Reading Plan Progress */}
-        {console.log('🔥 Render check - showReadingPlan:', showReadingPlan, 'dayData.readingPlan:', dayData.readingPlan)}
         {showReadingPlan && dayData.readingPlan && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}

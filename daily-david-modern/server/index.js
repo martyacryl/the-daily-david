@@ -320,58 +320,20 @@ app.get('/api/entries/:date', authenticateToken, async (req, res) => {
     const client = await pool.connect()
     
     try {
-      // Get main entry
-      console.log('🔥 Backend: Getting entry for date:', date, 'user:', userId, 'v2')
+      // Get the most recent entry with reading plan data, not just the current date
       const entryResult = await client.query(
         `SELECT * FROM daily_david_entries 
-         WHERE date_key = $1 AND user_id = $2`,
-        [date, userId]
+         WHERE user_id = $1 
+         AND data_content->'readingPlan'->>'planId' IS NOT NULL
+         ORDER BY updated_at DESC 
+         LIMIT 1`,
+        [userId]
       )
-      console.log('🔥 Backend: Entry result:', entryResult.rows.length > 0 ? 'Found' : 'Not found')
 
       if (entryResult.rows.length > 0) {
         const entry = entryResult.rows[0]
         const dataContent = entry.data_content || {}
         
-        // Get reading plan for this user - prioritize data_content over reading_plans table
-        console.log('🔥 Backend: Getting reading plan for user:', userId)
-        
-        // First check if there's reading plan data in the current entry's data_content
-        if (dataContent.readingPlan && dataContent.readingPlan.planId) {
-          console.log('🔥 Backend: Found reading plan in data_content:', dataContent.readingPlan)
-          console.log('🔥 Backend: Using data_content reading plan (most recent)')
-        } else {
-          // Fallback to reading_plans table
-          const readingPlanResult = await client.query(
-            `SELECT * FROM reading_plans 
-             WHERE user_id = $1
-             ORDER BY updated_at DESC`,
-            [userId]
-          )
-          console.log('🔥 Backend: Reading plan result:', readingPlanResult.rows.length > 0 ? 'Found' : 'Not found')
-          console.log('🔥 Backend: Raw reading plan data:', readingPlanResult.rows)
-          
-          if (readingPlanResult.rows.length > 0) {
-            const readingPlan = readingPlanResult.rows[0]
-            console.log('🔥 Backend: Processing reading plan from table:', readingPlan)
-            console.log('🔥 Backend: Raw completed_days from DB:', readingPlan.completed_days)
-            console.log('🔥 Backend: Type of completed_days:', typeof readingPlan.completed_days)
-            dataContent.readingPlan = {
-              planId: readingPlan.plan_id,
-              planName: readingPlan.plan_name,
-              currentDay: readingPlan.current_day,
-              totalDays: readingPlan.total_days,
-              startDate: readingPlan.start_date,
-              completedDays: readingPlan.completed_days || []
-            }
-            console.log('🔥 Backend: Added reading plan to dataContent:', dataContent.readingPlan)
-            console.log('🔥 Backend: Completed days count:', dataContent.readingPlan.completedDays.length)
-            console.log('🔥 Backend: Progress percentage:', (dataContent.readingPlan.completedDays.length / dataContent.readingPlan.totalDays) * 100, '%')
-          } else {
-            console.log('❌ Backend: No reading plan found for date:', date, 'user:', userId)
-          }
-        }
-
         res.json({ 
           success: true, 
           entry: {
