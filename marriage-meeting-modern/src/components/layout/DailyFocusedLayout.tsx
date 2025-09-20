@@ -515,6 +515,7 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-bold text-gray-900">Today's Schedule</h2>
             <Button
+              variant="outline"
               size="sm"
               onClick={() => setActiveSection('schedule')}
               className="text-slate-600 border-slate-200 hover:bg-slate-50"
@@ -551,6 +552,7 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-bold text-gray-900">Today's Tasks</h2>
             <Button
+              variant="outline"
               size="sm"
               onClick={() => setActiveSection('todos')}
               className="text-slate-600 border-slate-200 hover:bg-slate-50"
@@ -598,6 +600,7 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-bold text-gray-900">Today's Prayers</h2>
             <Button
+              variant="outline"
               size="sm"
               onClick={() => setActiveSection('prayers')}
               className="text-slate-600 border-slate-200 hover:bg-slate-50"
@@ -646,6 +649,7 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-bold text-gray-900">Weekly Goals</h2>
             <Button
+              variant="outline"
               size="sm"
               onClick={() => setActiveSection('goals')}
               className="text-slate-600 border-slate-200 hover:bg-slate-50"
@@ -722,6 +726,7 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
             )}
             
             <Button
+              variant="default"
               onClick={onSave}
               className="bg-slate-600 hover:bg-slate-700"
             >
@@ -975,6 +980,7 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                   </div>
                 </div>
                 <Button
+                  variant="default"
                   size="sm"
                   onClick={() => setActiveSection('spiritual')}
                   className="w-full mt-3 bg-slate-600 hover:bg-slate-700"
@@ -1003,6 +1009,7 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                   </div>
                 </div>
                 <Button
+                  variant="default"
                   size="sm"
                   onClick={() => setActiveSection('vision')}
                   className="w-full mt-3 bg-slate-600 hover:bg-slate-700"
@@ -1047,6 +1054,7 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                   </div>
                 </div>
                 <Button
+                  variant="default"
                   size="sm"
                   onClick={() => setActiveSection('review')}
                   className="w-full mt-3 bg-slate-600 hover:bg-slate-700"

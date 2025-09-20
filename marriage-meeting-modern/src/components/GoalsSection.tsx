@@ -221,7 +221,12 @@ export const GoalsSection: React.FC = () => {
               </div>
               
               <div className="flex gap-3">
-                <Button onClick={handleAddGoal} disabled={!newGoal.text.trim()}>
+                <Button 
+                  variant="default"
+                  onClick={handleAddGoal} 
+                  disabled={!newGoal.text.trim()}
+                  className="bg-slate-600 hover:bg-slate-700"
+                >
                   Add Goal
                 </Button>
                 <Button 
