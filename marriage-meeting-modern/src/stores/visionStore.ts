@@ -100,8 +100,6 @@ interface VisionState {
   clearError: () => void
 }
 
-const dbManager = new DatabaseManager()
-
 export const useVisionStore = create<VisionState>((set, get) => ({
   // Initial state
   familyVision: null,
