@@ -104,6 +104,20 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
   const [currentDevotion, setCurrentDevotion] = useState<DevotionDay | null>(null)
   const [isLoadingDevotion, setIsLoadingDevotion] = useState(false)
 
+  // Helper function to get auth token
+  const getAuthToken = () => {
+    try {
+      const authData = localStorage.getItem('auth-storage')
+      if (authData) {
+        const parsed = JSON.parse(authData)
+        return parsed.state?.token || ''
+      }
+    } catch (error) {
+      console.error('Error getting auth token:', error)
+    }
+    return ''
+  }
+
   useEffect(() => {
     loadSpiritualGrowth()
     loadReadingPlans()
@@ -112,9 +126,10 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
 
   const loadReadingPlans = async () => {
     try {
+      const token = getAuthToken()
       const response = await fetch('/api/reading-plans', {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${token}`
         }
       })
       
@@ -150,9 +165,10 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
 
   const loadAvailablePlans = async () => {
     try {
+      const token = getAuthToken()
       const response = await fetch('/api/available-reading-plans', {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${token}`
         }
       })
       
@@ -171,11 +187,12 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
 
   const handleStartReadingPlan = async (plan: BibleReadingPlan) => {
     try {
+      const token = getAuthToken()
       const response = await fetch('/api/reading-plans', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
           plan_id: plan.id,
@@ -235,7 +252,7 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
+            'Authorization': `Bearer ${getAuthToken()}`
           },
           body: JSON.stringify({
             current_day: plan.currentDay + 1,
@@ -268,7 +285,7 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
+            'Authorization': `Bearer ${getAuthToken()}`
           },
           body: JSON.stringify({
             current_day: plan.currentDay - 1,
@@ -309,7 +326,7 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
+            'Authorization': `Bearer ${getAuthToken()}`
           },
           body: JSON.stringify({
             current_day: 1,
@@ -334,7 +351,7 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
+            'Authorization': `Bearer ${getAuthToken()}`
           },
           body: JSON.stringify({
             current_day: plan.currentDay,
