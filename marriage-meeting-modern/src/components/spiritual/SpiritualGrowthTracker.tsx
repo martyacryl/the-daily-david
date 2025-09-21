@@ -736,6 +736,7 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
                 Add Answer
               </Button>
             </div>
+          </Card>
         </div>
       )}
 
