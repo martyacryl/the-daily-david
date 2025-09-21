@@ -1070,13 +1070,28 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
                 placeholder="Reflect on your spiritual journey, lessons learned, and areas for growth..."
                 className="min-h-[200px] border-slate-300 focus:border-slate-500 focus:ring-slate-500"
               />
-              <Button
-                onClick={handleUpdateReflection}
-                className="bg-gradient-to-r from-slate-600 to-slate-700 hover:from-slate-700 hover:to-slate-800 text-white"
-              >
-                <Save className="w-4 h-4 mr-2" />
-                Save Reflection
-              </Button>
+              <div className="flex justify-between items-center">
+                <Button
+                  onClick={handleUpdateReflection}
+                  className="bg-gradient-to-r from-slate-600 to-slate-700 hover:from-slate-700 hover:to-slate-800 text-white"
+                >
+                  <Save className="w-4 h-4 mr-2" />
+                  Save Reflection
+                </Button>
+                <div className="text-sm text-slate-500">
+                  {reflectionNotes.trim() ? (
+                    <span>
+                      {reflectionNotes.trim().split(/\s+/).length} words • 
+                      {reflectionNotes.includes('prayer') || reflectionNotes.includes('pray') ? ' 🙏' : ''}
+                      {reflectionNotes.includes('gratitude') || reflectionNotes.includes('thankful') ? ' 🙏' : ''}
+                      {reflectionNotes.includes('growth') || reflectionNotes.includes('learn') ? ' 📈' : ''}
+                      {reflectionNotes.includes('challenge') || reflectionNotes.includes('struggle') ? ' 💪' : ''}
+                    </span>
+                  ) : (
+                    <span>Start your reflection...</span>
+                  )}
+                </div>
+              </div>
             </div>
           </Card>
         </div>
