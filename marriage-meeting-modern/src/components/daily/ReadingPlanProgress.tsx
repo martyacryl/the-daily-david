@@ -50,12 +50,6 @@ export const ReadingPlanProgress: React.FC<ReadingPlanProgressProps> = ({
   
   // Debug logging
   console.log(`📖 ReadingPlanProgress for ${readingPlan.planName}: isExpanded = ${isExpanded}`)
-  
-  // Force collapsed state on mount and whenever planId changes
-  useEffect(() => {
-    console.log(`📖 Mounting ReadingPlanProgress for ${readingPlan.planName}, forcing collapsed`)
-    setIsExpanded(false)
-  }, [readingPlan.planId])
 
   const progressPercentage = (readingPlan.completedDays.length / readingPlan.totalDays) * 100
   const daysRemaining = readingPlan.totalDays - readingPlan.completedDays.length

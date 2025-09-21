@@ -210,12 +210,13 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
     }
   }, [searchParams])
 
-  // Save active section to localStorage whenever it changes
+  // Save active section to localStorage whenever it changes (but not on initial load)
   useEffect(() => {
-    if (activeSection && activeSection !== 'vision') {
+    // Only save if we're not in the initial render cycle
+    if (activeSection && activeSection !== 'vision' && activeSection !== initialSection) {
       localStorage.setItem('lastActiveSection', activeSection)
     }
-  }, [activeSection])
+  }, [activeSection, initialSection])
 
   const weather = getWeatherData()
   const dailyTasks = getDailyTasks()
