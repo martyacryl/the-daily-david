@@ -202,6 +202,10 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
       if (lastSection && lastSection !== 'vision') {
         console.log('🎯 Using saved section from localStorage:', lastSection)
         setActiveSection(lastSection)
+      } else {
+        // Default to vision if no saved section or if saved section is vision
+        console.log('🎯 Defaulting to vision section')
+        setActiveSection('vision')
       }
     }
   }, [searchParams])

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { 
   ChevronDown, 
@@ -50,6 +50,12 @@ export const ReadingPlanProgress: React.FC<ReadingPlanProgressProps> = ({
   
   // Debug logging
   console.log(`📖 ReadingPlanProgress for ${readingPlan.planName}: isExpanded = ${isExpanded}`)
+  
+  // Force collapsed state on mount
+  useEffect(() => {
+    console.log(`📖 Mounting ReadingPlanProgress for ${readingPlan.planName}, ensuring collapsed`)
+    setIsExpanded(false)
+  }, [readingPlan.planId])
 
   const progressPercentage = (readingPlan.completedDays.length / readingPlan.totalDays) * 100
   const daysRemaining = readingPlan.totalDays - readingPlan.completedDays.length
