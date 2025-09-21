@@ -684,11 +684,13 @@ app.delete('/api/goals/:id', authenticateToken, async (req, res) => {
 // Get all reading plans for a user
 app.get('/api/reading-plans', authenticateToken, async (req, res) => {
   try {
+    console.log('📖 Reading Plans: Fetching for user:', req.user.id)
     const result = await pool.query(
       'SELECT * FROM reading_plans WHERE user_id = $1 ORDER BY created_at DESC',
       [req.user.id]
     )
 
+    console.log('📖 Reading Plans: Found', result.rows.length, 'plans')
     res.json(result.rows)
   } catch (error) {
     console.error('Error fetching reading plans:', error)
@@ -699,9 +701,13 @@ app.get('/api/reading-plans', authenticateToken, async (req, res) => {
 // Create a new reading plan
 app.post('/api/reading-plans', authenticateToken, async (req, res) => {
   try {
+    console.log('📖 Reading Plans: Creating for user:', req.user.id)
+    console.log('📖 Reading Plans: Request body:', req.body)
+    
     const { plan_id, plan_name, total_days, bible_id } = req.body
 
     if (!plan_id || !plan_name || !total_days) {
+      console.log('📖 Reading Plans: Missing required fields')
       return res.status(400).json({ error: 'Missing required fields: plan_id, plan_name, total_days' })
     }
 
@@ -711,9 +717,10 @@ app.post('/api/reading-plans', authenticateToken, async (req, res) => {
       `INSERT INTO reading_plans (user_id, plan_id, plan_name, total_days, start_date, bible_id, created_at, updated_at)
        VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW())
        RETURNING *`,
-      [req.user.id, plan_id, plan_name, total_days, startDate, bible_id || 'de4e12af7f28f599-02']
+      [req.user.id, plan_id, plan_name, total_days, startDate, bible_id || '65eec8e0b60e656b-01']
     )
 
+    console.log('📖 Reading Plans: Created successfully:', result.rows[0])
     res.json(result.rows[0])
   } catch (error) {
     console.error('Error creating reading plan:', error)
