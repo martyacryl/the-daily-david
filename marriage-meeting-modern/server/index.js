@@ -737,42 +737,15 @@ app.post('/api/reading-plans', authenticateToken, async (req, res) => {
   }
 })
 
-// Update reading plan progress
-app.put('/api/reading-plans/:id', authenticateToken, async (req, res) => {
-  try {
-    const { id } = req.params
-    const { current_day, completed_days, bible_id } = req.body
-
-    const result = await pool.query(
-      `UPDATE reading_plans 
-       SET current_day = COALESCE($2, current_day),
-           completed_days = COALESCE($3, completed_days),
-           bible_id = COALESCE($4, bible_id),
-           updated_at = NOW()
-       WHERE id = $1 AND user_id = $5
-       RETURNING *`,
-      [id, current_day, completed_days, bible_id, req.user.id]
-    )
-
-    if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Reading plan not found' })
-    }
-
-    res.json(result.rows[0])
-  } catch (error) {
-    console.error('Error updating reading plan:', error)
-    res.status(500).json({ error: 'Internal server error' })
-  }
-})
 
 // Delete a reading plan
-app.delete('/api/reading-plans/:id', authenticateToken, async (req, res) => {
+app.delete('/api/reading-plans/:planId', authenticateToken, async (req, res) => {
   try {
-    const { id } = req.params
+    const { planId } = req.params
 
     const result = await pool.query(
-      'DELETE FROM reading_plans WHERE id = $1 AND user_id = $2 RETURNING *',
-      [id, req.user.id]
+      'DELETE FROM reading_plans WHERE plan_id = $1 AND user_id = $2 RETURNING *',
+      [planId, req.user.id]
     )
 
     if (result.rows.length === 0) {
