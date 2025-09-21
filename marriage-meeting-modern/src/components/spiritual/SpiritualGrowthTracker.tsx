@@ -145,8 +145,6 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
 
   useEffect(() => {
     loadSpiritualGrowth()
-    loadAvailablePlans()
-    loadReadingPlans()
   }, [loadSpiritualGrowth])
 
   const loadReadingPlans = async () => {
