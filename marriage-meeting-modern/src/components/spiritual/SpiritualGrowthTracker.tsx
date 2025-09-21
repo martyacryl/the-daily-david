@@ -204,9 +204,9 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
   }
 
   const handleAdvanceToNextDay = () => {
-    const plan = readingPlans.find(p => p.planId === currentDevotion?.verses[0]?.id)
+    const plan = (readingPlans || []).find(p => p.planId === currentDevotion?.verses[0]?.id)
     if (plan && plan.currentDay < plan.totalDays) {
-      const updatedPlans = readingPlans.map(p => 
+      const updatedPlans = (readingPlans || []).map(p => 
         p.planId === plan.planId 
           ? { ...p, currentDay: p.currentDay + 1 }
           : p
@@ -216,9 +216,9 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
   }
 
   const handleGoToPreviousDay = () => {
-    const plan = readingPlans.find(p => p.planId === currentDevotion?.verses[0]?.id)
+    const plan = (readingPlans || []).find(p => p.planId === currentDevotion?.verses[0]?.id)
     if (plan && plan.currentDay > 1) {
-      const updatedPlans = readingPlans.map(p => 
+      const updatedPlans = (readingPlans || []).map(p => 
         p.planId === plan.planId 
           ? { ...p, currentDay: p.currentDay - 1 }
           : p
@@ -236,9 +236,9 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
   }
 
   const handleRestartPlan = () => {
-    const plan = readingPlans.find(p => p.planId === currentDevotion?.verses[0]?.id)
+    const plan = (readingPlans || []).find(p => p.planId === currentDevotion?.verses[0]?.id)
     if (plan) {
-      const updatedPlans = readingPlans.map(p => 
+      const updatedPlans = (readingPlans || []).map(p => 
         p.planId === plan.planId 
           ? { ...p, currentDay: 1, completedDays: [] }
           : p
@@ -268,7 +268,7 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
         if (response.ok) {
           const savedPlan = await response.json()
           // Update the plan with the saved ID
-          const updatedPlans = readingPlans.map(p => 
+          const updatedPlans = (readingPlans || []).map(p => 
             p.planId === plan.planId ? { ...p, id: savedPlan.id } : p
           )
           setReadingPlans(updatedPlans)
@@ -855,7 +855,7 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
           )}
 
           {/* Reading Plan Progress */}
-          {readingPlans.map((plan) => (
+          {(readingPlans || []).map((plan) => (
             <ReadingPlanProgress
               key={plan.planId}
               readingPlan={plan}
@@ -882,7 +882,7 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {availablePlans.map((plan) => (
+              {(availablePlans || []).map((plan) => (
                 <div key={plan.id} className="p-4 bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl border border-slate-200 hover:shadow-md transition-shadow duration-200">
                   <div className="flex items-start justify-between mb-3">
                     <div>
