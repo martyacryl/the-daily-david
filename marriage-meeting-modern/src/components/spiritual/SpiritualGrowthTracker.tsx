@@ -1039,7 +1039,7 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
           {/* Reading Plan Progress */}
           {(readingPlans || []).map((plan) => (
             <ReadingPlanProgress
-              key={plan.planId}
+              key={`${plan.planId}-${plan.currentDay}`}
               readingPlan={plan}
               onLoadTodaysDevotion={handleLoadTodaysDevotion}
               onAdvanceToNextDay={() => handleAdvanceToNextDay(plan.planId)}
