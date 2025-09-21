@@ -691,15 +691,10 @@ app.delete('/api/goals/:id', authenticateToken, async (req, res) => {
 app.get('/api/reading-plans', authenticateToken, async (req, res) => {
   try {
     console.log('📖 Reading Plans: Fetching for user:', req.user.id, 'type:', typeof req.user.id)
-    console.log('📖 Reading Plans: User object:', req.user)
-    
-    // Convert user ID to integer if it's a string
-    const userId = parseInt(req.user.id)
-    console.log('📖 Reading Plans: Converted user ID:', userId)
     
     const result = await pool.query(
       'SELECT * FROM reading_plans WHERE user_id = $1 ORDER BY created_at DESC',
-      [userId]
+      [req.user.id]
     )
 
     console.log('📖 Reading Plans: Found', result.rows.length, 'plans')
@@ -725,14 +720,12 @@ app.post('/api/reading-plans', authenticateToken, async (req, res) => {
     }
 
     const startDate = new Date().toISOString().split('T')[0]
-    const userId = parseInt(req.user.id)
-    console.log('📖 Reading Plans: Converted user ID:', userId)
 
     const result = await pool.query(
       `INSERT INTO reading_plans (user_id, plan_id, plan_name, total_days, start_date, bible_id, created_at, updated_at)
        VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW())
        RETURNING *`,
-      [userId, plan_id, plan_name, total_days, startDate, bible_id || '65eec8e0b60e656b-01']
+      [req.user.id, plan_id, plan_name, total_days, startDate, bible_id || '65eec8e0b60e656b-01']
     )
 
     console.log('📖 Reading Plans: Created successfully:', result.rows[0])
@@ -749,7 +742,6 @@ app.put('/api/reading-plans/:id', authenticateToken, async (req, res) => {
   try {
     const { id } = req.params
     const { current_day, completed_days, bible_id } = req.body
-    const userId = parseInt(req.user.id)
 
     const result = await pool.query(
       `UPDATE reading_plans 
@@ -759,7 +751,7 @@ app.put('/api/reading-plans/:id', authenticateToken, async (req, res) => {
            updated_at = NOW()
        WHERE id = $1 AND user_id = $5
        RETURNING *`,
-      [id, current_day, completed_days, bible_id, userId]
+      [id, current_day, completed_days, bible_id, req.user.id]
     )
 
     if (result.rows.length === 0) {
@@ -777,11 +769,10 @@ app.put('/api/reading-plans/:id', authenticateToken, async (req, res) => {
 app.delete('/api/reading-plans/:id', authenticateToken, async (req, res) => {
   try {
     const { id } = req.params
-    const userId = parseInt(req.user.id)
 
     const result = await pool.query(
       'DELETE FROM reading_plans WHERE id = $1 AND user_id = $2 RETURNING *',
-      [id, userId]
+      [id, req.user.id]
     )
 
     if (result.rows.length === 0) {
@@ -806,10 +797,9 @@ app.post('/api/reading-plans/:id/complete-day', authenticateToken, async (req, r
     }
 
     // Get the reading plan
-    const userId = parseInt(req.user.id)
     const planResult = await pool.query(
       'SELECT * FROM reading_plans WHERE id = $1 AND user_id = $2',
-      [id, userId]
+      [id, req.user.id]
     )
 
     if (planResult.rows.length === 0) {
@@ -839,7 +829,7 @@ app.post('/api/reading-plans/:id/complete-day', authenticateToken, async (req, r
        VALUES ($1, $2, $3, NOW(), $4, $5)
        ON CONFLICT (user_id, plan_id, day_number)
        DO UPDATE SET completed_at = NOW(), notes = $4, rating = $5`,
-      [userId, plan.plan_id, day_number, notes, rating]
+      [req.user.id, plan.plan_id, day_number, notes, rating]
     )
 
     res.json({ message: 'Day marked as completed', completed_days: completedDays })
@@ -854,14 +844,13 @@ app.get('/api/reading-plans/:id/progress', authenticateToken, async (req, res) =
   try {
     const { id } = req.params
 
-    const userId = parseInt(req.user.id)
     const result = await pool.query(
       `SELECT rp.*, rpp.day_number, rpp.completed_at, rpp.notes, rpp.rating
        FROM reading_plans rp
        LEFT JOIN reading_plan_progress rpp ON rp.plan_id = rpp.plan_id AND rp.user_id = rpp.user_id
        WHERE rp.id = $1 AND rp.user_id = $2
        ORDER BY rpp.day_number`,
-      [id, userId]
+      [id, req.user.id]
     )
 
     if (result.rows.length === 0) {
