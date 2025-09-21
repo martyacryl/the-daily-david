@@ -194,7 +194,7 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
     if (sectionParam) {
       console.log('🎯 URL section parameter found:', sectionParam)
       setActiveSection(sectionParam)
-      // Save to localStorage for persistence
+      // Always save URL parameter to localStorage, even if it's vision
       localStorage.setItem('lastActiveSection', sectionParam)
     } else {
       // No URL parameter, check localStorage for last active section
@@ -212,11 +212,12 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
 
   // Save active section to localStorage whenever it changes (but not on initial load)
   useEffect(() => {
-    // Only save if we're not in the initial render cycle
-    if (activeSection && activeSection !== 'vision' && activeSection !== initialSection) {
+    // Only save if we're not in the initial render cycle and not from URL parameter
+    const sectionParam = searchParams.get('section')
+    if (activeSection && activeSection !== 'vision' && activeSection !== initialSection && !sectionParam) {
       localStorage.setItem('lastActiveSection', activeSection)
     }
-  }, [activeSection, initialSection])
+  }, [activeSection, initialSection, searchParams])
 
   const weather = getWeatherData()
   const dailyTasks = getDailyTasks()
