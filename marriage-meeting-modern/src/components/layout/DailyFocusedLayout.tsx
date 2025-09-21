@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useSearchParams, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { 
   Calendar, 
@@ -183,6 +183,7 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
   initialSection = 'vision'
 }) => {
   const [searchParams] = useSearchParams()
+  const navigate = useNavigate()
   const [activeSection, setActiveSection] = useState(initialSection)
   const [showGuidedFlow, setShowGuidedFlow] = useState(false)
   const [showVisionModal, setShowVisionModal] = useState(false)
@@ -726,7 +727,13 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                   
                   <Button
                     size="sm"
-                    onClick={() => setActiveSection('spiritual')}
+                    onClick={() => {
+                      setActiveSection('spiritual')
+                      // Update URL to preserve state on refresh
+                      const newSearchParams = new URLSearchParams(searchParams)
+                      newSearchParams.set('section', 'spiritual')
+                      navigate(`?${newSearchParams.toString()}`, { replace: true })
+                    }}
                     className="w-full mt-3 bg-purple-600 hover:bg-purple-700"
                   >
                     View Spiritual Growth
@@ -1266,7 +1273,13 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                 <Button
                   variant="default"
                   size="sm"
-                  onClick={() => setActiveSection('spiritual')}
+                  onClick={() => {
+                    setActiveSection('spiritual')
+                    // Update URL to preserve state on refresh
+                    const newSearchParams = new URLSearchParams(searchParams)
+                    newSearchParams.set('section', 'spiritual')
+                    navigate(`?${newSearchParams.toString()}`, { replace: true })
+                  }}
                   className="w-full mt-3 bg-slate-600 hover:bg-slate-700"
                 >
                   View Spiritual Growth
