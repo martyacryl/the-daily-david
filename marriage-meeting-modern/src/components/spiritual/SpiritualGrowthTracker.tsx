@@ -86,7 +86,7 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
     if (activeTab === 'devotionals') {
       console.log('📖 Devotional tab activated - forcing all plans to be collapsed')
       // Force re-render of all ReadingPlanProgress components by updating their keys
-      setDevotionalTabKey(prev => prev + 1)
+      setDevotionalTabKey(Date.now()) // Use timestamp to force complete re-mount
     }
   }, [activeTab])
   

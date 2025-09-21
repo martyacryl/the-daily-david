@@ -51,11 +51,19 @@ export const ReadingPlanProgress: React.FC<ReadingPlanProgressProps> = ({
   // Debug logging
   console.log(`📖 ReadingPlanProgress for ${readingPlan.planName}: isExpanded = ${isExpanded}`)
   
-  // Force collapsed state on mount
+  // Force collapsed state on mount and whenever component re-mounts
   useEffect(() => {
     console.log(`📖 ReadingPlanProgress for ${readingPlan.planName}: Forcing collapsed state on mount`)
     setIsExpanded(false)
   }, [readingPlan.planId])
+  
+  // Force collapsed state whenever component mounts (including re-mounts)
+  useEffect(() => {
+    console.log(`📖 ReadingPlanProgress for ${readingPlan.planName}: Component mounted, forcing collapsed`)
+    setIsExpanded(false)
+    // Force a re-render to ensure visual state matches
+    setTimeout(() => setIsExpanded(false), 0)
+  }, [])
 
   const progressPercentage = (readingPlan.completedDays.length / readingPlan.totalDays) * 100
   const daysRemaining = readingPlan.totalDays - readingPlan.completedDays.length
@@ -226,7 +234,7 @@ export const ReadingPlanProgress: React.FC<ReadingPlanProgressProps> = ({
       </div>
 
       {/* Expandable Day Grid - Only show when explicitly expanded */}
-      {isExpanded && (
+      {isExpanded === true && (
         <AnimatePresence>
           <motion.div
             initial={{ height: 0, opacity: 0 }}
