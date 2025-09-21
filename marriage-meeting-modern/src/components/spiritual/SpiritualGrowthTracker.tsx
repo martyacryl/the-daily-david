@@ -204,7 +204,7 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
   }
 
   const handleAdvanceToNextDay = () => {
-    const plan = (readingPlans || []).find(p => p.planId === currentDevotion?.verses[0]?.id)
+    const plan = (readingPlans || []).find(p => p.planId === currentDevotion?.verses?.[0]?.id)
     if (plan && plan.currentDay < plan.totalDays) {
       const updatedPlans = (readingPlans || []).map(p => 
         p.planId === plan.planId 
@@ -216,7 +216,7 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
   }
 
   const handleGoToPreviousDay = () => {
-    const plan = (readingPlans || []).find(p => p.planId === currentDevotion?.verses[0]?.id)
+    const plan = (readingPlans || []).find(p => p.planId === currentDevotion?.verses?.[0]?.id)
     if (plan && plan.currentDay > 1) {
       const updatedPlans = (readingPlans || []).map(p => 
         p.planId === plan.planId 
@@ -236,7 +236,7 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
   }
 
   const handleRestartPlan = () => {
-    const plan = (readingPlans || []).find(p => p.planId === currentDevotion?.verses[0]?.id)
+    const plan = (readingPlans || []).find(p => p.planId === currentDevotion?.verses?.[0]?.id)
     if (plan) {
       const updatedPlans = (readingPlans || []).map(p => 
         p.planId === plan.planId 
@@ -833,12 +833,12 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
                 </div>
                 <div>
                   <h3 className="text-xl font-bold text-slate-800">Today's Devotion</h3>
-                  <p className="text-slate-600">{currentDevotion.title}</p>
+                  <p className="text-slate-600">{currentDevotion?.title || ''}</p>
                 </div>
               </div>
               
               <div className="space-y-4">
-                {currentDevotion.verses.map((verse, index) => (
+                {(currentDevotion.verses || []).map((verse, index) => (
                   <div key={index} className="p-4 bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl border border-slate-200">
                     <h4 className="font-semibold text-slate-800 mb-2">{verse.reference}</h4>
                     <p className="text-slate-700 leading-relaxed mb-3">{verse.content}</p>
@@ -848,7 +848,7 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
                 
                 <div className="p-4 bg-gradient-to-br from-purple-50 to-violet-50 rounded-xl border border-purple-200">
                   <h4 className="font-semibold text-slate-800 mb-2">Reflection</h4>
-                  <p className="text-slate-700 leading-relaxed">{currentDevotion.content}</p>
+                  <p className="text-slate-700 leading-relaxed">{currentDevotion?.content || ''}</p>
                 </div>
               </div>
             </Card>
