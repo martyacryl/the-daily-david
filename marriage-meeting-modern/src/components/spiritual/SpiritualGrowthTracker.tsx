@@ -21,7 +21,7 @@ import { Input } from '../ui/Input'
 import { Textarea } from '../ui/Textarea'
 import { useVisionStore } from '../../stores/visionStore'
 import { ReadingPlanProgress, ReadingPlan } from '../daily/ReadingPlanProgress'
-import { bibleService, ReadingPlan as BibleReadingPlanType, DevotionDay } from '../../lib/bibleService'
+import { bibleService, DevotionDay } from '../../lib/bibleService'
 
 interface SpiritualGrowthTrackerProps {
   onBackToVision?: () => void
@@ -40,15 +40,6 @@ interface PrayerRequest {
   tags?: string[]
 }
 
-interface DevotionalEntry {
-  id: string
-  title: string
-  author?: string
-  dateCompleted: string
-  notes?: string
-  rating?: number
-  category: 'daily' | 'study' | 'meditation' | 'worship' | 'reflection'
-}
 
 interface SpiritualGoal {
   id: string
@@ -93,7 +84,6 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
     priority: 'medium' as const,
     tags: [] as string[]
   })
-  const [newAnswered, setNewAnswered] = useState('')
   
   const [bibleProgress, setBibleProgress] = useState(0)
   const [reflectionNotes, setReflectionNotes] = useState('')
@@ -102,7 +92,7 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
   const [readingPlans, setReadingPlans] = useState<ReadingPlan[]>([])
   const [availablePlans, setAvailablePlans] = useState<BibleReadingPlan[]>([])
   const [currentDevotion, setCurrentDevotion] = useState<DevotionDay | null>(null)
-  const [isLoadingDevotion, setIsLoadingDevotion] = useState(false)
+  const [currentPlanId, setCurrentPlanId] = useState<string | null>(null)
 
   // Helper function to get auth token
   const getAuthToken = () => {
@@ -225,29 +215,24 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
   }
 
   const handleLoadTodaysDevotion = async (planId: string, targetDay?: number, bibleId?: string) => {
-    setIsLoadingDevotion(true)
     try {
+      setCurrentPlanId(planId)
       const devotion = await bibleService.getTodaysDevotion(planId, bibleId, targetDay)
       setCurrentDevotion(devotion)
     } catch (error) {
       console.error('Error loading devotion:', error)
-    } finally {
-      setIsLoadingDevotion(false)
     }
   }
 
-  const handleAdvanceToNextDay = async () => {
-    const plan = (readingPlans || []).find(p => p.planId === currentDevotion?.verses?.[0]?.id)
+  const handleAdvanceToNextDay = async (planId?: string) => {
+    const targetPlanId = planId || currentPlanId
+    const plan = (readingPlans || []).find(p => p.planId === targetPlanId)
     if (plan && plan.currentDay < plan.totalDays) {
-      const updatedPlans = (readingPlans || []).map(p => 
-        p.planId === plan.planId 
-          ? { ...p, currentDay: p.currentDay + 1 }
-          : p
-      )
-      setReadingPlans(updatedPlans)
-      
-      // Save progress to database
+      // Save progress to database first
       try {
+        const newCurrentDay = plan.currentDay + 1
+        const newCompletedDays = [...(plan.completedDays || []), plan.currentDay]
+        
         const response = await fetch(`/api/reading-plans/${plan.planId}`, {
           method: 'PUT',
           headers: {
@@ -255,12 +240,29 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
             'Authorization': `Bearer ${getAuthToken()}`
           },
           body: JSON.stringify({
-            current_day: plan.currentDay + 1,
-            completed_days: plan.completedDays
+            current_day: newCurrentDay,
+            completed_days: newCompletedDays
           })
         })
         
-        if (!response.ok) {
+        if (response.ok) {
+          // Update local state with database response
+          const updatedPlan = await response.json()
+          const transformedPlan = {
+            planId: updatedPlan.plan_id,
+            planName: updatedPlan.plan_name,
+            currentDay: updatedPlan.current_day,
+            totalDays: updatedPlan.total_days,
+            startDate: updatedPlan.start_date,
+            completedDays: updatedPlan.completed_days || [],
+            bibleId: updatedPlan.bible_id
+          }
+          
+          const updatedPlans = (readingPlans || []).map(p => 
+            p.planId === plan.planId ? transformedPlan : p
+          )
+          setReadingPlans(updatedPlans)
+        } else {
           console.error('Error saving progress:', response.statusText)
         }
       } catch (error) {
@@ -269,18 +271,15 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
     }
   }
 
-  const handleGoToPreviousDay = async () => {
-    const plan = (readingPlans || []).find(p => p.planId === currentDevotion?.verses?.[0]?.id)
+  const handleGoToPreviousDay = async (planId?: string) => {
+    const targetPlanId = planId || currentPlanId
+    const plan = (readingPlans || []).find(p => p.planId === targetPlanId)
     if (plan && plan.currentDay > 1) {
-      const updatedPlans = (readingPlans || []).map(p => 
-        p.planId === plan.planId 
-          ? { ...p, currentDay: p.currentDay - 1 }
-          : p
-      )
-      setReadingPlans(updatedPlans)
-      
-      // Save progress to database
+      // Save progress to database first
       try {
+        const newCurrentDay = plan.currentDay - 1
+        const newCompletedDays = (plan.completedDays || []).filter(day => day !== plan.currentDay - 1)
+        
         const response = await fetch(`/api/reading-plans/${plan.planId}`, {
           method: 'PUT',
           headers: {
@@ -288,39 +287,96 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
             'Authorization': `Bearer ${getAuthToken()}`
           },
           body: JSON.stringify({
-            current_day: plan.currentDay - 1,
-            completed_days: plan.completedDays
+            current_day: newCurrentDay,
+            completed_days: newCompletedDays
           })
         })
         
-        if (!response.ok) {
+        if (response.ok) {
+          // Update local state with database response
+          const updatedPlan = await response.json()
+          const transformedPlan = {
+            planId: updatedPlan.plan_id,
+            planName: updatedPlan.plan_name,
+            currentDay: updatedPlan.current_day,
+            totalDays: updatedPlan.total_days,
+            startDate: updatedPlan.start_date,
+            completedDays: updatedPlan.completed_days || [],
+            bibleId: updatedPlan.bible_id
+          }
+          
+          const updatedPlans = (readingPlans || []).map(p => 
+            p.planId === plan.planId ? transformedPlan : p
+          )
+          setReadingPlans(updatedPlans)
+        } else {
           console.error('Error saving progress:', response.statusText)
         }
       } catch (error) {
         console.error('Error saving progress:', error)
+      }
+    }
+  }
+
+  const handleMarkDayCompleted = async () => {
+    const plan = (readingPlans || []).find(p => p.planId === currentPlanId)
+    if (plan && !plan.completedDays?.includes(plan.currentDay)) {
+      // Save progress to database first
+      try {
+        const newCompletedDays = [...(plan.completedDays || []), plan.currentDay]
+        
+        const response = await fetch(`/api/reading-plans/${plan.planId}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${getAuthToken()}`
+          },
+          body: JSON.stringify({
+            current_day: plan.currentDay,
+            completed_days: newCompletedDays
+          })
+        })
+        
+        if (response.ok) {
+          // Update local state with database response
+          const updatedPlan = await response.json()
+          const transformedPlan = {
+            planId: updatedPlan.plan_id,
+            planName: updatedPlan.plan_name,
+            currentDay: updatedPlan.current_day,
+            totalDays: updatedPlan.total_days,
+            startDate: updatedPlan.start_date,
+            completedDays: updatedPlan.completed_days || [],
+            bibleId: updatedPlan.bible_id
+          }
+          
+          const updatedPlans = (readingPlans || []).map(p => 
+            p.planId === plan.planId ? transformedPlan : p
+          )
+          setReadingPlans(updatedPlans)
+        } else {
+          console.error('Error marking day as completed:', response.statusText)
+        }
+      } catch (error) {
+        console.error('Error marking day as completed:', error)
       }
     }
   }
 
   const handleClosePlan = () => {
     setCurrentDevotion(null)
+    setCurrentPlanId(null)
   }
 
   const handleStartNewPlan = () => {
     setCurrentDevotion(null)
   }
 
-  const handleRestartPlan = async () => {
-    const plan = (readingPlans || []).find(p => p.planId === currentDevotion?.verses?.[0]?.id)
+  const handleRestartPlan = async (planId?: string) => {
+    const targetPlanId = planId || currentPlanId
+    const plan = (readingPlans || []).find(p => p.planId === targetPlanId)
     if (plan) {
-      const updatedPlans = (readingPlans || []).map(p => 
-        p.planId === plan.planId 
-          ? { ...p, currentDay: 1, completedDays: [] }
-          : p
-      )
-      setReadingPlans(updatedPlans)
-      
-      // Save progress to database
+      // Save progress to database first
       try {
         const response = await fetch(`/api/reading-plans/${plan.planId}`, {
           method: 'PUT',
@@ -334,7 +390,24 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
           })
         })
         
-        if (!response.ok) {
+        if (response.ok) {
+          // Update local state with database response
+          const updatedPlan = await response.json()
+          const transformedPlan = {
+            planId: updatedPlan.plan_id,
+            planName: updatedPlan.plan_name,
+            currentDay: updatedPlan.current_day,
+            totalDays: updatedPlan.total_days,
+            startDate: updatedPlan.start_date,
+            completedDays: updatedPlan.completed_days || [],
+            bibleId: updatedPlan.bible_id
+          }
+          
+          const updatedPlans = (readingPlans || []).map(p => 
+            p.planId === plan.planId ? transformedPlan : p
+          )
+          setReadingPlans(updatedPlans)
+        } else {
           console.error('Error saving progress:', response.statusText)
         }
       } catch (error) {
@@ -884,11 +957,11 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
               key={plan.planId}
               readingPlan={plan}
               onLoadTodaysDevotion={handleLoadTodaysDevotion}
-              onAdvanceToNextDay={handleAdvanceToNextDay}
-              onGoToPreviousDay={handleGoToPreviousDay}
+              onAdvanceToNextDay={() => handleAdvanceToNextDay(plan.planId)}
+              onGoToPreviousDay={() => handleGoToPreviousDay(plan.planId)}
               onClosePlan={handleClosePlan}
               onStartNewPlan={handleStartNewPlan}
-              onRestartPlan={handleRestartPlan}
+              onRestartPlan={() => handleRestartPlan(plan.planId)}
               onSaveProgress={handleSaveProgress}
             />
           ))}
