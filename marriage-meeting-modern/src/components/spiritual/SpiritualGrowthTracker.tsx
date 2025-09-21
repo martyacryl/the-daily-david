@@ -743,7 +743,7 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
             )}
 
             <div className="space-y-4">
-              {spiritualGrowth.prayer_requests.map((prayer, index) => (
+              {spiritualGrowth?.prayer_requests?.map((prayer, index) => (
                 <motion.div
                   key={index}
                   initial={{ opacity: 0, y: 10 }}
@@ -778,7 +778,7 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
                 </motion.div>
               ))}
               
-              {spiritualGrowth.prayer_requests.length === 0 && (
+              {(!spiritualGrowth?.prayer_requests || spiritualGrowth.prayer_requests.length === 0) && (
                 <div className="text-center py-12">
                   <div className="p-4 bg-gradient-to-br from-slate-100 to-slate-200 rounded-full w-20 h-20 mx-auto mb-4 flex items-center justify-center border border-slate-300">
                     <Heart className="w-10 h-10 text-slate-600" />
@@ -806,7 +806,7 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
                 </div>
                 <div>
                   <h3 className="text-xl font-bold text-slate-800">Answered Prayers</h3>
-                  <p className="text-slate-600">{spiritualGrowth.answered_prayers.length} answered prayers</p>
+                  <p className="text-slate-600">{spiritualGrowth?.answered_prayers?.length || 0} answered prayers</p>
                 </div>
               </div>
               <Button
