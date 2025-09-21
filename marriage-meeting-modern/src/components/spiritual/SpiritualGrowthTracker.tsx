@@ -602,7 +602,7 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
               <div className="flex justify-between items-center">
                 <span className="text-slate-600">Words Written</span>
                 <span className="text-xl font-bold text-slate-700">
-                  {reflectionNotes.trim() ? reflectionNotes.trim().split(/\s+/).length : 0}
+                  {reflectionNotes?.trim() ? reflectionNotes.trim().split(/\s+/).length : 0}
                 </span>
               </div>
               <div className="flex justify-between items-center">
@@ -1060,13 +1060,13 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
                   Save Reflection
                 </Button>
                 <div className="text-sm text-slate-500">
-                  {reflectionNotes.trim() ? (
+                  {reflectionNotes?.trim() ? (
                     <span>
-                      {reflectionNotes.trim().split(/\s+/).length} words • 
-                      {reflectionNotes.includes('prayer') || reflectionNotes.includes('pray') ? ' 🙏' : ''}
-                      {reflectionNotes.includes('gratitude') || reflectionNotes.includes('thankful') ? ' 🙏' : ''}
-                      {reflectionNotes.includes('growth') || reflectionNotes.includes('learn') ? ' 📈' : ''}
-                      {reflectionNotes.includes('challenge') || reflectionNotes.includes('struggle') ? ' 💪' : ''}
+                      {reflectionNotes?.trim()?.split(/\s+/)?.length || 0} words • 
+                      {reflectionNotes?.includes('prayer') || reflectionNotes?.includes('pray') ? ' 🙏' : ''}
+                      {reflectionNotes?.includes('gratitude') || reflectionNotes?.includes('thankful') ? ' 🙏' : ''}
+                      {reflectionNotes?.includes('growth') || reflectionNotes?.includes('learn') ? ' 📈' : ''}
+                      {reflectionNotes?.includes('challenge') || reflectionNotes?.includes('struggle') ? ' 💪' : ''}
                     </span>
                   ) : (
                     <span>Start your reflection...</span>
