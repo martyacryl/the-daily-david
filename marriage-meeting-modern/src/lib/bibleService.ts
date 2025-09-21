@@ -35,7 +35,7 @@ export interface DevotionDay {
 class BibleService {
   private apiKey: string;
   private baseUrl = 'https://api.scripture.api.bible/v1';
-  private defaultBibleId = 'de4e12af7f28f599-02'; // ESV Bible ID
+  private defaultBibleId = '65eec8e0b60e656b-01'; // NIV Bible ID
 
   constructor(apiKey?: string) {
     // API.Bible API key for The Daily David app
@@ -44,10 +44,10 @@ class BibleService {
 
   // Get available Bible versions
   async getBibleVersions(): Promise<BibleVersion[]> {
-    // Return only ESV and NIV for now
+    // Return NIV first as default, then ESV
     return [
-      { id: 'de4e12af7f28f599-02', name: 'English Standard Version', language: 'English', abbreviation: 'ESV' },
-      { id: '65eec8e0b60e656b-01', name: 'New International Version', language: 'English', abbreviation: 'NIV' }
+      { id: '65eec8e0b60e656b-01', name: 'New International Version', language: 'English', abbreviation: 'NIV' },
+      { id: 'de4e12af7f28f599-02', name: 'English Standard Version', language: 'English', abbreviation: 'ESV' }
     ];
   }
 
