@@ -196,8 +196,10 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
     if (sectionParam) {
       console.log('🎯 URL section parameter found, setting activeSection to:', sectionParam)
       setActiveSection(sectionParam)
-      // Always save URL parameter to localStorage, even if it's vision
-      localStorage.setItem('lastActiveSection', sectionParam)
+      // Only save non-vision sections to localStorage
+      if (sectionParam !== 'vision') {
+        localStorage.setItem('lastActiveSection', sectionParam)
+      }
     } else {
       // No URL parameter, check localStorage for last active section
       const lastSection = localStorage.getItem('lastActiveSection')

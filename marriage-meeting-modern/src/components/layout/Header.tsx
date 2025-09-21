@@ -14,7 +14,13 @@ export const Header: React.FC<HeaderProps> = () => {
   const navigate = useNavigate()
 
   const handleNavigation = (path: string) => {
-    navigate(path)
+    // If clicking vision button, always go to vision section and clear localStorage
+    if (path === '/daily') {
+      localStorage.removeItem('lastActiveSection')
+      navigate('/daily?section=vision')
+    } else {
+      navigate(path)
+    }
     // Scroll to top when navigating to dashboard for better UX
     if (path === '/') {
       window.scrollTo({ top: 0, behavior: 'smooth' })
