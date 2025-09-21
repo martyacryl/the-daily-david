@@ -188,14 +188,30 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
   const [showVisionModal, setShowVisionModal] = useState(false)
   const [showSpiritualModal, setShowSpiritualModal] = useState(false)
 
-  // Check for section parameter in URL
+  // Check for section parameter in URL or use saved section from localStorage
   useEffect(() => {
     const sectionParam = searchParams.get('section')
     if (sectionParam) {
       console.log('🎯 URL section parameter found:', sectionParam)
       setActiveSection(sectionParam)
+      // Save to localStorage for persistence
+      localStorage.setItem('lastActiveSection', sectionParam)
+    } else {
+      // No URL parameter, check localStorage for last active section
+      const lastSection = localStorage.getItem('lastActiveSection')
+      if (lastSection && lastSection !== 'vision') {
+        console.log('🎯 Using saved section from localStorage:', lastSection)
+        setActiveSection(lastSection)
+      }
     }
   }, [searchParams])
+
+  // Save active section to localStorage whenever it changes
+  useEffect(() => {
+    if (activeSection && activeSection !== 'vision') {
+      localStorage.setItem('lastActiveSection', activeSection)
+    }
+  }, [activeSection])
 
   const weather = getWeatherData()
   const dailyTasks = getDailyTasks()

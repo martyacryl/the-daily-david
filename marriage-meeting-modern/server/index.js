@@ -722,8 +722,14 @@ app.post('/api/reading-plans', authenticateToken, async (req, res) => {
     const startDate = new Date().toISOString().split('T')[0]
 
     const result = await pool.query(
-      `INSERT INTO reading_plans (user_id, plan_id, plan_name, total_days, start_date, bible_id, created_at, updated_at)
-       VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW())
+      `INSERT INTO reading_plans (user_id, plan_id, plan_name, current_day, total_days, start_date, bible_id, created_at, updated_at)
+       VALUES ($1, $2, $3, 1, $4, $5, $6, NOW(), NOW())
+       ON CONFLICT (user_id, plan_id) 
+       DO UPDATE SET 
+         plan_name = EXCLUDED.plan_name,
+         total_days = EXCLUDED.total_days,
+         bible_id = EXCLUDED.bible_id,
+         updated_at = CURRENT_TIMESTAMP
        RETURNING *`,
       [req.user.id, plan_id, plan_name, total_days, startDate, bible_id || '65eec8e0b60e656b-01']
     )
@@ -1222,35 +1228,6 @@ app.get('/api/reading-plans', authenticateToken, async (req, res) => {
 })
 
 // Create a new reading plan
-app.post('/api/reading-plans', authenticateToken, async (req, res) => {
-  try {
-    const { plan_id, plan_name, total_days, bible_id = '65eec8e0b60e656b-01' } = req.body
-    
-    if (!plan_id || !plan_name || !total_days) {
-      return res.status(400).json({ error: 'Missing required fields' })
-    }
-    
-    const startDate = new Date().toISOString().split('T')[0]
-    
-    const result = await pool.query(
-      `INSERT INTO reading_plans (user_id, plan_id, plan_name, total_days, start_date, bible_id)
-       VALUES ($1, $2, $3, $4, $5, $6)
-       ON CONFLICT (user_id, plan_id) 
-       DO UPDATE SET 
-         plan_name = EXCLUDED.plan_name,
-         total_days = EXCLUDED.total_days,
-         bible_id = EXCLUDED.bible_id,
-         updated_at = CURRENT_TIMESTAMP
-       RETURNING *`,
-      [req.user.id, plan_id, plan_name, total_days, startDate, bible_id]
-    )
-    
-    res.json(result.rows[0])
-  } catch (error) {
-    console.error('Error creating reading plan:', error)
-    res.status(500).json({ error: 'Internal server error' })
-  }
-})
 
 // Update reading plan progress
 app.put('/api/reading-plans/:planId', authenticateToken, async (req, res) => {

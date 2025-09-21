@@ -208,6 +208,7 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
       
       if (response.ok) {
         const savedPlan = await response.json()
+        console.log('📖 Saved plan from server:', savedPlan)
         // Transform API response to match component interface
         const transformedPlan = {
           planId: savedPlan.plan_id,
@@ -218,6 +219,7 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
           completedDays: savedPlan.completed_days || [],
           bibleId: savedPlan.bible_id
         }
+        console.log('📖 Transformed plan:', transformedPlan)
         setReadingPlans([...(readingPlans || []), transformedPlan])
         console.log('Reading plan started and saved!')
       } else {
