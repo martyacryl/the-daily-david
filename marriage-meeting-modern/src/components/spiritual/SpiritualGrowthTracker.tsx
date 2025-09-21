@@ -641,7 +641,7 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
               <div className="flex justify-between items-center">
                 <span className="text-slate-600">Goals Completion</span>
                 <span className="text-lg font-bold text-slate-700">
-                  {spiritualGoals && spiritualGoals.length > 0 
+                  {spiritualGoals && spiritualGoals?.length > 0 
                     ? Math.round(((spiritualGoals.filter(g => g.completed)?.length || 0) / (spiritualGoals?.length || 1)) * 100)
                     : 0}%
                 </span>
