@@ -429,47 +429,35 @@ app.get('/api/admin/users', authenticateToken, async (req, res) => {
 
 app.post('/api/admin/users', authenticateToken, async (req, res) => {
   try {
-    console.log('🔍 Admin: Creating user request received')
-    console.log('🔍 Admin: Request body:', req.body)
-    
     if (!isAdmin(req.user)) {
-      console.log('❌ Admin: User is not admin')
       return res.status(403).json({ error: 'Admin access required' })
     }
 
-    const { email, displayName, password, isAdmin } = req.body
-    console.log('🔍 Admin: Extracted fields:', { email, displayName, password: password ? '[REDACTED]' : 'MISSING', isAdmin })
+    const { email, displayName, password, isAdmin: userIsAdmin } = req.body
 
     if (!email || !displayName || !password) {
-      console.log('❌ Admin: Missing required fields')
       return res.status(400).json({ error: 'Email, display name, and password are required' })
     }
 
     // Check if user already exists
-    console.log('🔍 Admin: Checking if user exists...')
     const existingUser = await pool.query(
       'SELECT id FROM users WHERE email = $1',
       [email]
     )
 
     if (existingUser.rows.length > 0) {
-      console.log('❌ Admin: User already exists')
       return res.status(400).json({ error: 'User with this email already exists' })
     }
 
     // Hash password
-    console.log('🔍 Admin: Hashing password...')
     const saltRounds = 10
     const passwordHash = await bcrypt.hash(password, saltRounds)
-    console.log('✅ Admin: Password hashed successfully')
 
     // Create user
-    console.log('🔍 Admin: Inserting user into database...')
     const result = await pool.query(
       'INSERT INTO users (email, display_name, password_hash, is_admin, created_at) VALUES ($1, $2, $3, $4, NOW()) RETURNING id, email, display_name, is_admin, created_at',
-      [email, displayName, passwordHash, isAdmin || false]
+      [email, displayName, passwordHash, userIsAdmin || false]
     )
-    console.log('✅ Admin: User created successfully:', result.rows[0])
 
     res.json(result.rows[0])
   } catch (error) {
