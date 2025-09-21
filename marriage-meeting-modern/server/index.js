@@ -679,6 +679,187 @@ app.delete('/api/goals/:id', authenticateToken, async (req, res) => {
   }
 })
 
+// ===== READING PLANS API ENDPOINTS =====
+
+// Get all reading plans for a user
+app.get('/api/reading-plans', authenticateToken, async (req, res) => {
+  try {
+    const result = await pool.query(
+      'SELECT * FROM reading_plans WHERE user_id = $1 ORDER BY created_at DESC',
+      [req.user.id]
+    )
+
+    res.json(result.rows)
+  } catch (error) {
+    console.error('Error fetching reading plans:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
+// Create a new reading plan
+app.post('/api/reading-plans', authenticateToken, async (req, res) => {
+  try {
+    const { plan_id, plan_name, total_days, bible_id } = req.body
+
+    if (!plan_id || !plan_name || !total_days) {
+      return res.status(400).json({ error: 'Missing required fields: plan_id, plan_name, total_days' })
+    }
+
+    const startDate = new Date().toISOString().split('T')[0]
+
+    const result = await pool.query(
+      `INSERT INTO reading_plans (user_id, plan_id, plan_name, total_days, start_date, bible_id, created_at, updated_at)
+       VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW())
+       RETURNING *`,
+      [req.user.id, plan_id, plan_name, total_days, startDate, bible_id || 'de4e12af7f28f599-02']
+    )
+
+    res.json(result.rows[0])
+  } catch (error) {
+    console.error('Error creating reading plan:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
+// Update reading plan progress
+app.put('/api/reading-plans/:id', authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params
+    const { current_day, completed_days, bible_id } = req.body
+
+    const result = await pool.query(
+      `UPDATE reading_plans 
+       SET current_day = COALESCE($2, current_day),
+           completed_days = COALESCE($3, completed_days),
+           bible_id = COALESCE($4, bible_id),
+           updated_at = NOW()
+       WHERE id = $1 AND user_id = $5
+       RETURNING *`,
+      [id, current_day, completed_days, bible_id, req.user.id]
+    )
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Reading plan not found' })
+    }
+
+    res.json(result.rows[0])
+  } catch (error) {
+    console.error('Error updating reading plan:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
+// Delete a reading plan
+app.delete('/api/reading-plans/:id', authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params
+
+    const result = await pool.query(
+      'DELETE FROM reading_plans WHERE id = $1 AND user_id = $2 RETURNING *',
+      [id, req.user.id]
+    )
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Reading plan not found' })
+    }
+
+    res.json({ message: 'Reading plan deleted successfully' })
+  } catch (error) {
+    console.error('Error deleting reading plan:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
+// Mark a day as completed
+app.post('/api/reading-plans/:id/complete-day', authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params
+    const { day_number, notes, rating } = req.body
+
+    if (!day_number) {
+      return res.status(400).json({ error: 'Day number is required' })
+    }
+
+    // Get the reading plan
+    const planResult = await pool.query(
+      'SELECT * FROM reading_plans WHERE id = $1 AND user_id = $2',
+      [id, req.user.id]
+    )
+
+    if (planResult.rows.length === 0) {
+      return res.status(404).json({ error: 'Reading plan not found' })
+    }
+
+    const plan = planResult.rows[0]
+
+    // Add day to completed days if not already there
+    const completedDays = plan.completed_days || []
+    if (!completedDays.includes(day_number)) {
+      completedDays.push(day_number)
+      completedDays.sort((a, b) => a - b)
+    }
+
+    // Update the reading plan
+    await pool.query(
+      `UPDATE reading_plans 
+       SET completed_days = $2, updated_at = NOW()
+       WHERE id = $1`,
+      [id, completedDays]
+    )
+
+    // Record detailed progress
+    await pool.query(
+      `INSERT INTO reading_plan_progress (user_id, plan_id, day_number, completed_at, notes, rating)
+       VALUES ($1, $2, $3, NOW(), $4, $5)
+       ON CONFLICT (user_id, plan_id, day_number)
+       DO UPDATE SET completed_at = NOW(), notes = $4, rating = $5`,
+      [req.user.id, plan.plan_id, day_number, notes, rating]
+    )
+
+    res.json({ message: 'Day marked as completed', completed_days: completedDays })
+  } catch (error) {
+    console.error('Error completing day:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
+// Get reading plan progress details
+app.get('/api/reading-plans/:id/progress', authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params
+
+    const result = await pool.query(
+      `SELECT rp.*, rpp.day_number, rpp.completed_at, rpp.notes, rpp.rating
+       FROM reading_plans rp
+       LEFT JOIN reading_plan_progress rpp ON rp.plan_id = rpp.plan_id AND rp.user_id = rpp.user_id
+       WHERE rp.id = $1 AND rp.user_id = $2
+       ORDER BY rpp.day_number`,
+      [id, req.user.id]
+    )
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Reading plan not found' })
+    }
+
+    // Group the results
+    const plan = result.rows[0]
+    const progress = result.rows.map(row => ({
+      day_number: row.day_number,
+      completed_at: row.completed_at,
+      notes: row.notes,
+      rating: row.rating
+    })).filter(p => p.day_number !== null)
+
+    res.json({
+      ...plan,
+      progress
+    })
+  } catch (error) {
+    console.error('Error fetching reading plan progress:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
 // ===== VISION API ENDPOINTS =====
 
 // Family Vision Endpoints
