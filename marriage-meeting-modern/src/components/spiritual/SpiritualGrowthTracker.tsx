@@ -778,7 +778,7 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
                 </motion.div>
               ))}
               
-              {(!spiritualGrowth?.prayer_requests || spiritualGrowth.prayer_requests.length === 0) && (
+              {(!spiritualGrowth?.prayer_requests || spiritualGrowth.prayer_requests?.length === 0) && (
                 <div className="text-center py-12">
                   <div className="p-4 bg-gradient-to-br from-slate-100 to-slate-200 rounded-full w-20 h-20 mx-auto mb-4 flex items-center justify-center border border-slate-300">
                     <Heart className="w-10 h-10 text-slate-600" />
