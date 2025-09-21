@@ -191,14 +191,18 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
   // Check for section parameter in URL or use saved section from localStorage
   useEffect(() => {
     const sectionParam = searchParams.get('section')
+    console.log('🎯 URL section parameter:', sectionParam)
+    
     if (sectionParam) {
-      console.log('🎯 URL section parameter found:', sectionParam)
+      console.log('🎯 URL section parameter found, setting activeSection to:', sectionParam)
       setActiveSection(sectionParam)
       // Always save URL parameter to localStorage, even if it's vision
       localStorage.setItem('lastActiveSection', sectionParam)
     } else {
       // No URL parameter, check localStorage for last active section
       const lastSection = localStorage.getItem('lastActiveSection')
+      console.log('🎯 No URL parameter, checking localStorage:', lastSection)
+      
       if (lastSection && lastSection !== 'vision') {
         console.log('🎯 Using saved section from localStorage:', lastSection)
         setActiveSection(lastSection)
@@ -214,7 +218,10 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
   useEffect(() => {
     // Only save if we're not in the initial render cycle and not from URL parameter
     const sectionParam = searchParams.get('section')
+    console.log('🎯 Second useEffect - activeSection:', activeSection, 'sectionParam:', sectionParam, 'initialSection:', initialSection)
+    
     if (activeSection && activeSection !== 'vision' && activeSection !== initialSection && !sectionParam) {
+      console.log('🎯 Saving activeSection to localStorage:', activeSection)
       localStorage.setItem('lastActiveSection', activeSection)
     }
   }, [activeSection, initialSection, searchParams])
