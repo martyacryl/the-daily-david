@@ -184,7 +184,7 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
         total_days: plan.duration,
         bible_id: '65eec8e0b60e656b-01' // NIV Bible ID
       })
-      setReadingPlans([...readingPlans, savedPlan])
+      setReadingPlans([...(readingPlans || []), savedPlan])
       console.log('Reading plan started and saved!')
     } catch (error) {
       console.error('Error starting reading plan:', error)
@@ -282,7 +282,7 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
 
   const handleAddPrayer = async () => {
     if (newPrayer.text.trim() && spiritualGrowth) {
-      const updatedPrayers = [...spiritualGrowth.prayer_requests, newPrayer.text.trim()]
+      const updatedPrayers = [...(spiritualGrowth.prayer_requests || []), newPrayer.text.trim()]
       await updateSpiritualGrowth({
         ...spiritualGrowth,
         prayer_requests: updatedPrayers
@@ -304,7 +304,7 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
 
   const handleAddAnswered = async () => {
     if (newAnswered.trim() && spiritualGrowth) {
-      const updatedAnswered = [...spiritualGrowth.answered_prayers, newAnswered.trim()]
+      const updatedAnswered = [...(spiritualGrowth.answered_prayers || []), newAnswered.trim()]
       await updateSpiritualGrowth({
         ...spiritualGrowth,
         answered_prayers: updatedAnswered
@@ -326,7 +326,7 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
 
   const handleAddDevotional = async () => {
     if (newDevotional.trim() && spiritualGrowth) {
-      const updatedDevotionals = [...spiritualGrowth.devotionals, newDevotional.trim()]
+      const updatedDevotionals = [...(spiritualGrowth.devotionals || []), newDevotional.trim()]
       await updateSpiritualGrowth({
         ...spiritualGrowth,
         devotionals: updatedDevotionals
@@ -348,7 +348,7 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
 
   const handleAddGoal = async () => {
     if (newGoal.trim() && spiritualGrowth) {
-      const updatedGoals = [...spiritualGrowth.spiritual_goals, newGoal.trim()]
+      const updatedGoals = [...(spiritualGrowth.spiritual_goals || []), newGoal.trim()]
       await updateSpiritualGrowth({
         ...spiritualGrowth,
         spiritual_goals: updatedGoals
