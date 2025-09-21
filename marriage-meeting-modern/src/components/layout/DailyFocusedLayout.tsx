@@ -270,38 +270,42 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
       return (
         <div className="h-full flex flex-col">
           {/* Top Section - Weekly Meeting Buttons */}
-          <div className="bg-white border-b border-gray-200 p-4 sticky top-0 z-10">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <h1 className="text-2xl font-bold text-gray-900">Foundation & Daily Focus</h1>
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <Calendar className="w-4 h-4" />
-                  <span>{currentDate.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
+          <div className="bg-white border-b border-gray-200 p-3 lg:p-4 sticky top-0 z-10">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+                <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">Foundation & Daily Focus</h1>
+                <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-600">
+                  <Calendar className="w-3 h-3 sm:w-4 sm:h-4" />
+                  <span className="hidden sm:inline">{currentDate.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
+                  <span className="sm:hidden">{currentDate.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}</span>
                 </div>
               </div>
               
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 sm:gap-3">
                 <Button
                   onClick={handleStartGuidedMeeting}
                   variant="outline"
-                  className="text-slate-600 border-slate-200 hover:bg-slate-50"
+                  size="sm"
+                  className="text-slate-600 border-slate-200 hover:bg-slate-50 text-xs sm:text-sm"
                 >
-                  <Play className="w-4 h-4 mr-2" />
-                  Guided Meeting
+                  <Play className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                  <span className="hidden sm:inline">Guided Meeting</span>
+                  <span className="sm:hidden">Meeting</span>
                 </Button>
                 
                 {isSaving && (
-                  <div className="flex items-center gap-2 text-blue-600">
-                    <Clock className="w-4 h-4 animate-spin" />
-                    <span className="text-sm">Saving...</span>
+                  <div className="flex items-center gap-1 sm:gap-2 text-blue-600">
+                    <Clock className="w-3 h-3 sm:w-4 sm:h-4 animate-spin" />
+                    <span className="text-xs sm:text-sm">Saving...</span>
                   </div>
                 )}
                 
                 <Button
                   onClick={onSave}
-                  className="bg-slate-600 hover:bg-slate-700"
+                  size="sm"
+                  className="bg-slate-600 hover:bg-slate-700 text-xs sm:text-sm"
                 >
-                  Save Changes
+                  Save
                 </Button>
               </div>
             </div>
@@ -312,17 +316,17 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
             {/* Left Column - Navigation Sidebar */}
             <div className="w-full lg:w-80 bg-white border-r border-gray-200 flex flex-col">
               {/* Sidebar Header */}
-              <div className="p-4 border-b border-gray-200">
-                <h2 className="text-lg font-semibold text-gray-900 mb-2">Meeting Sections</h2>
-                <p className="text-sm text-gray-600">Navigate between sections</p>
+              <div className="p-3 lg:p-4 border-b border-gray-200">
+                <h2 className="text-base lg:text-lg font-semibold text-gray-900 mb-1">Meeting Sections</h2>
+                <p className="text-xs lg:text-sm text-gray-600">Navigate between sections</p>
               </div>
 
               {/* Sidebar Navigation */}
               <div className="flex-1 overflow-y-auto p-2">
                 <div className="space-y-1">
                   {/* Vision & Foundation Section */}
-                  <div className="mb-4">
-                    <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 px-2">
+                  <div className="mb-3">
+                    <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5 px-2">
                       Foundation
                     </h3>
                     {sidebarItems.filter(item => item.category === 'vision').map((item) => {
@@ -333,7 +337,7 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                         <motion.button
                           key={item.id}
                           onClick={() => handleSectionChange(item.id)}
-                          className={`w-full flex items-center gap-3 p-3 rounded-lg text-left transition-all duration-200 ${
+                          className={`w-full flex items-center gap-2 sm:gap-3 p-2 sm:p-3 rounded-lg text-left transition-all duration-200 ${
                             isActive
                               ? 'bg-slate-50 border-2 border-blue-200 text-blue-700'
                               : 'hover:bg-gray-50 text-gray-700'
@@ -341,18 +345,18 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                           whileHover={{ scale: 1.02 }}
                           whileTap={{ scale: 0.98 }}
                         >
-                          <div className={`p-2 rounded-lg ${
+                          <div className={`p-1.5 sm:p-2 rounded-lg ${
                             isActive ? 'bg-slate-100' : 'bg-gray-100'
                           }`}>
-                            <IconComponent className={`w-4 h-4 ${
+                            <IconComponent className={`w-3 h-3 sm:w-4 sm:h-4 ${
                               isActive ? 'text-blue-600' : 'text-gray-500'
                             }`} />
                           </div>
-                          <div className="flex-1">
-                            <div className="font-medium text-sm">{item.label}</div>
-                            <div className="text-xs text-gray-500">Vision & Mission</div>
+                          <div className="flex-1 min-w-0">
+                            <div className="font-medium text-xs sm:text-sm truncate">{item.label}</div>
+                            <div className="text-xs text-gray-500 hidden sm:block">Vision & Mission</div>
                           </div>
-                          <ChevronRight className={`w-4 h-4 transition-transform ${
+                          <ChevronRight className={`w-3 h-3 sm:w-4 sm:h-4 transition-transform flex-shrink-0 ${
                             isActive ? 'rotate-90' : ''
                           }`} />
                         </motion.button>
@@ -361,8 +365,8 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                   </div>
 
                   {/* Practical Planning Section */}
-                  <div className="mb-4">
-                    <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 px-2">
+                  <div className="mb-3">
+                    <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5 px-2">
                       Planning
                     </h3>
                     {sidebarItems.filter(item => item.category === 'practical').map((item) => {
@@ -374,7 +378,7 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                         <motion.button
                           key={item.id}
                           onClick={() => handleSectionChange(item.id)}
-                          className={`w-full flex items-center gap-3 p-3 rounded-lg text-left transition-all duration-200 ${
+                          className={`w-full flex items-center gap-2 sm:gap-3 p-2 sm:p-3 rounded-lg text-left transition-all duration-200 ${
                             isActive
                               ? 'bg-slate-50 border-2 border-slate-200 text-slate-700'
                               : 'hover:bg-gray-50 text-gray-700'
@@ -382,16 +386,16 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                           whileHover={{ scale: 1.02 }}
                           whileTap={{ scale: 0.98 }}
                         >
-                          <div className={`p-2 rounded-lg ${
+                          <div className={`p-1.5 sm:p-2 rounded-lg ${
                             isActive ? 'bg-slate-100' : 'bg-gray-100'
                           }`}>
-                            <IconComponent className={`w-4 h-4 ${
+                            <IconComponent className={`w-3 h-3 sm:w-4 sm:h-4 ${
                               isActive ? 'text-slate-600' : 'text-gray-500'
                             }`} />
                           </div>
-                          <div className="flex-1">
-                            <div className="font-medium text-sm">{item.label}</div>
-                            <div className="text-xs text-gray-500">
+                          <div className="flex-1 min-w-0">
+                            <div className="font-medium text-xs sm:text-sm truncate">{item.label}</div>
+                            <div className="text-xs text-gray-500 hidden sm:block">
                               {item.id === 'schedule' && 'Weekly planning'}
                               {item.id === 'goals' && 'Short & long-term goals'}
                               {item.id === 'todos' && 'Tasks & responsibilities'}
@@ -399,7 +403,7 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                             </div>
                           </div>
                           {count > 0 && (
-                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                            <span className={`px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full text-xs font-medium flex-shrink-0 ${
                               isActive
                                 ? 'bg-slate-200 text-slate-800'
                                 : 'bg-gray-200 text-gray-600'
@@ -407,7 +411,7 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                               {count}
                             </span>
                           )}
-                          <ChevronRight className={`w-4 h-4 transition-transform ${
+                          <ChevronRight className={`w-3 h-3 sm:w-4 sm:h-4 transition-transform flex-shrink-0 ${
                             isActive ? 'rotate-90' : ''
                           }`} />
                         </motion.button>
@@ -416,8 +420,8 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                   </div>
 
                   {/* Spiritual Growth Section */}
-                  <div className="mb-4">
-                    <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 px-2">
+                  <div className="mb-3">
+                    <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5 px-2">
                       Spiritual
                     </h3>
                     {sidebarItems.filter(item => item.category === 'spiritual').map((item) => {
@@ -429,7 +433,7 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                         <motion.button
                           key={item.id}
                           onClick={() => handleSectionChange(item.id)}
-                          className={`w-full flex items-center gap-3 p-3 rounded-lg text-left transition-all duration-200 ${
+                          className={`w-full flex items-center gap-2 sm:gap-3 p-2 sm:p-3 rounded-lg text-left transition-all duration-200 ${
                             isActive
                               ? 'bg-slate-50 border-2 border-purple-200 text-purple-700'
                               : 'hover:bg-gray-50 text-gray-700'
@@ -437,23 +441,23 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                           whileHover={{ scale: 1.02 }}
                           whileTap={{ scale: 0.98 }}
                         >
-                          <div className={`p-2 rounded-lg ${
+                          <div className={`p-1.5 sm:p-2 rounded-lg ${
                             isActive ? 'bg-slate-100' : 'bg-gray-100'
                           }`}>
-                            <IconComponent className={`w-4 h-4 ${
+                            <IconComponent className={`w-3 h-3 sm:w-4 sm:h-4 ${
                               isActive ? 'text-purple-600' : 'text-gray-500'
                             }`} />
                           </div>
-                          <div className="flex-1">
-                            <div className="font-medium text-sm">{item.label}</div>
-                            <div className="text-xs text-gray-500">
+                          <div className="flex-1 min-w-0">
+                            <div className="font-medium text-xs sm:text-sm truncate">{item.label}</div>
+                            <div className="text-xs text-gray-500 hidden sm:block">
                               {item.id === 'prayers' && 'Prayer requests & praise'}
                               {item.id === 'unconfessed' && 'Accountability & growth'}
                               {item.id === 'encouragement' && 'Love notes & encouragement'}
                             </div>
                           </div>
                           {count > 0 && (
-                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                            <span className={`px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full text-xs font-medium flex-shrink-0 ${
                               isActive
                                 ? 'bg-slate-200 text-slate-800'
                                 : 'bg-gray-200 text-gray-600'
@@ -461,7 +465,7 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                               {count}
                             </span>
                           )}
-                          <ChevronRight className={`w-4 h-4 transition-transform ${
+                          <ChevronRight className={`w-3 h-3 sm:w-4 sm:h-4 transition-transform flex-shrink-0 ${
                             isActive ? 'rotate-90' : ''
                           }`} />
                         </motion.button>
@@ -471,7 +475,7 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
 
                   {/* Review Section */}
                   <div>
-                    <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 px-2">
+                    <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5 px-2">
                       Review
                     </h3>
                     {sidebarItems.filter(item => item.category === 'review').map((item) => {
@@ -482,7 +486,7 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                         <motion.button
                           key={item.id}
                           onClick={() => handleSectionChange(item.id)}
-                          className={`w-full flex items-center gap-3 p-3 rounded-lg text-left transition-all duration-200 ${
+                          className={`w-full flex items-center gap-2 sm:gap-3 p-2 sm:p-3 rounded-lg text-left transition-all duration-200 ${
                             isActive
                               ? 'bg-slate-50 border-2 border-green-200 text-green-700'
                               : 'hover:bg-gray-50 text-gray-700'
@@ -490,18 +494,18 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                           whileHover={{ scale: 1.02 }}
                           whileTap={{ scale: 0.98 }}
                         >
-                          <div className={`p-2 rounded-lg ${
+                          <div className={`p-1.5 sm:p-2 rounded-lg ${
                             isActive ? 'bg-slate-100' : 'bg-gray-100'
                           }`}>
-                            <IconComponent className={`w-4 h-4 ${
+                            <IconComponent className={`w-3 h-3 sm:w-4 sm:h-4 ${
                               isActive ? 'text-green-600' : 'text-gray-500'
                             }`} />
                           </div>
-                          <div className="flex-1">
-                            <div className="font-medium text-sm">{item.label}</div>
-                            <div className="text-xs text-gray-500">Analytics & insights</div>
+                          <div className="flex-1 min-w-0">
+                            <div className="font-medium text-xs sm:text-sm truncate">{item.label}</div>
+                            <div className="text-xs text-gray-500 hidden sm:block">Analytics & insights</div>
                           </div>
-                          <ChevronRight className={`w-4 h-4 transition-transform ${
+                          <ChevronRight className={`w-3 h-3 sm:w-4 sm:h-4 transition-transform flex-shrink-0 ${
                             isActive ? 'rotate-90' : ''
                           }`} />
                         </motion.button>
