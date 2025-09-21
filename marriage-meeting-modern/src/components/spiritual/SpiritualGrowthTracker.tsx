@@ -517,7 +517,7 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-slate-600">Answered Prayers</span>
-                <span className="text-xl font-bold text-slate-700">{spiritualGrowth?.answered_prayers.length || 0}</span>
+                <span className="text-xl font-bold text-slate-700">{spiritualGrowth?.answered_prayers?.length || 0}</span>
               </div>
               <Button
                 onClick={() => setActiveTab('prayer')}
