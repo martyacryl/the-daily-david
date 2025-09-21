@@ -51,9 +51,9 @@ export const ReadingPlanProgress: React.FC<ReadingPlanProgressProps> = ({
   // Debug logging
   console.log(`📖 ReadingPlanProgress for ${readingPlan.planName}: isExpanded = ${isExpanded}`)
   
-  // Force collapsed state on mount
+  // Force collapsed state on mount and whenever planId changes
   useEffect(() => {
-    console.log(`📖 Mounting ReadingPlanProgress for ${readingPlan.planName}, ensuring collapsed`)
+    console.log(`📖 Mounting ReadingPlanProgress for ${readingPlan.planName}, forcing collapsed`)
     setIsExpanded(false)
   }, [readingPlan.planId])
 
@@ -225,9 +225,9 @@ export const ReadingPlanProgress: React.FC<ReadingPlanProgressProps> = ({
         </div>
       </div>
 
-      {/* Expandable Day Grid */}
-      <AnimatePresence>
-        {isExpanded && (
+      {/* Expandable Day Grid - Only show when explicitly expanded */}
+      {isExpanded && (
+        <AnimatePresence>
           <motion.div
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
@@ -241,8 +241,8 @@ export const ReadingPlanProgress: React.FC<ReadingPlanProgressProps> = ({
               </div>
             </div>
           </motion.div>
-        )}
-      </AnimatePresence>
+        </AnimatePresence>
+      )}
     </motion.div>
   )
 }
