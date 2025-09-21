@@ -108,6 +108,9 @@ export function AdminPanel({ dbManager }: AdminPanelProps) {
         setUsers(prev => [newUser, ...prev])
         setNewUserForm({ email: '', displayName: '', password: '', isAdmin: false })
         
+        // Reload users from database to ensure consistency
+        await loadUsers()
+        
         alert(`✅ User created successfully!\n\nEmail: ${newUser.email}\nDisplay Name: ${newUser.display_name}`)
       }
     } catch (error) {
@@ -129,6 +132,8 @@ export function AdminPanel({ dbManager }: AdminPanelProps) {
       
       if (response.success) {
         setUsers(prev => prev.filter(u => u.id !== userId))
+        // Reload users from database to ensure consistency
+        await loadUsers()
         alert(`✅ User "${userName}" deleted successfully`)
       } else {
         throw new Error(response.error || 'Delete operation failed')

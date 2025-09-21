@@ -438,3 +438,4 @@ export const EnhancedWeeklyLayout: React.FC<EnhancedWeeklyLayoutProps> = ({
     </div>
   )
 }
+

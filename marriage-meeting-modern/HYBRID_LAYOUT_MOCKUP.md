@@ -127,3 +127,4 @@ This hybrid layout combines your existing practical daily flow with the new visi
 4. **End with Review**: Comprehensive analytics and insights
 
 This hybrid approach gives you the best of both worlds - keeping your practical daily flow while adding the vision-centered, spiritually-integrated elements that enhance your marriage meetings.
+
