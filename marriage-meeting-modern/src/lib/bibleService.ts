@@ -111,11 +111,8 @@ class BibleService {
     }
   }
 
-  // Get reading plans (Note: API.Bible doesn't provide reading plans)
-  // This would need to be custom content or integration with other services
+  // Get marriage-focused reading plans using API.Bible scripture
   async getReadingPlans(): Promise<ReadingPlan[]> {
-    // API.Bible doesn't provide reading plans - this would be custom content
-    // We can create our own marriage-focused devotional tracks using their scripture API
     return [
       {
         id: 'marriage-foundation',
@@ -248,6 +245,57 @@ class BibleService {
           'GAL.6.5', 'TIT.2.7', 'DEU.6.7', 'COL.3.12', '1TH.5.11',
           'DEU.6.7', 'PSA.78.4', '1TH.5.18', 'GAL.5.13', 'PSA.78.4'
         ]
+      },
+      {
+        id: 'intimacy-marriage',
+        name: 'Intimacy in Marriage',
+        description: 'Biblical principles for emotional, spiritual, and physical intimacy',
+        duration: 25,
+        titles: [
+          'One Flesh', 'Love Your Wife', 'Respect Your Husband', 'Be Intimate', 'Cherish Each Other',
+          'Be Vulnerable', 'Share Your Heart', 'Be Present', 'Listen Deeply', 'Connect Spiritually',
+          'Pray Together', 'Worship Together', 'Serve Together', 'Grow Together', 'Dream Together',
+          'Be Patient', 'Be Kind', 'Be Gentle', 'Be Understanding', 'Be Forgiving',
+          'Be Faithful', 'Be Committed', 'Be Devoted', 'Be Loyal', 'Be True'
+        ],
+        themes: [
+          'The biblical concept of becoming one flesh in marriage', 'Loving your wife as Christ loves the church', 'Respecting your husband as the head of the household', 'Maintaining physical intimacy within marriage', 'Cherishing your spouse as a precious gift',
+          'Being emotionally vulnerable and open with your spouse', 'Sharing your deepest thoughts and feelings', 'Being fully present in your relationship', 'Listening with your heart, not just your ears', 'Connecting on a spiritual level',
+          'Praying together for your marriage and family', 'Worshipping God together as a couple', 'Serving others together in ministry', 'Growing in faith and character together', 'Sharing dreams and aspirations',
+          'Being patient with each other\'s flaws and growth', 'Showing kindness in words and actions', 'Being gentle in your approach and responses', 'Seeking to understand your spouse\'s perspective', 'Being quick to forgive and slow to anger',
+          'Remaining faithful in thought, word, and deed', 'Being committed to your marriage covenant', 'Being devoted to your spouse\'s well-being', 'Being loyal through good times and bad', 'Being true to your marriage vows'
+        ],
+        verses: [
+          'GEN.2.24', 'EPH.5.25', 'EPH.5.33', 'HEB.13.4', 'EPH.5.28',
+          'EPH.4.25', 'PRO.4.23', 'PSA.46.10', 'JAM.1.19', '1CO.6.17',
+          'MAT.18.19', 'PSA.95.6', 'GAL.5.13', '2PE.3.18', 'JER.29.11',
+          '1CO.13.4', '1CO.13.4', 'GAL.5.22', 'PHI.2.4', 'COL.3.13',
+          'PRO.5.15', 'MAL.2.14', 'RUT.1.16', 'PRO.17.17', 'REV.2.10'
+        ]
+      },
+      {
+        id: 'financial-wisdom',
+        name: 'Financial Wisdom for Couples',
+        description: 'Biblical principles for managing money together in marriage',
+        duration: 20,
+        titles: [
+          'Honor God with Wealth', 'Avoid Debt', 'Save for Future', 'Give Generously', 'Be Content',
+          'Work Diligently', 'Plan Together', 'Be Honest', 'Avoid Greed', 'Trust God',
+          'Be Stewards', 'Avoid Coveting', 'Be Generous', 'Plan Ahead', 'Be Wise',
+          'Avoid Waste', 'Be Patient', 'Be Grateful', 'Be Faithful', 'Be Prudent'
+        ],
+        themes: [
+          'Honoring God with your financial resources and decisions', 'Avoiding unnecessary debt and living within your means', 'Saving for the future and unexpected expenses', 'Giving generously to God\'s work and those in need', 'Being content with what God has provided',
+          'Working diligently to provide for your family', 'Planning your finances together as a couple', 'Being honest about money matters and spending', 'Avoiding the love of money and material possessions', 'Trusting God to provide for your needs',
+          'Being good stewards of the resources God has given you', 'Avoiding coveting what others have', 'Being generous with your time, talents, and treasures', 'Planning for major purchases and life events', 'Making wise financial decisions together',
+          'Avoiding wasteful spending and unnecessary purchases', 'Being patient with financial goals and dreams', 'Being grateful for God\'s provision', 'Being faithful in small financial matters', 'Being prudent and careful with money'
+        ],
+        verses: [
+          'PRO.3.9', 'PRO.22.7', 'PRO.21.20', '2CO.9.7', 'HEB.13.5',
+          'PRO.10.4', 'PRO.15.22', 'LEV.19.11', '1TI.6.10', 'MAT.6.33',
+          '1CO.4.2', 'EXO.20.17', 'ACT.20.35', 'PRO.21.5', 'PRO.1.5',
+          'PRO.21.17', 'PRO.14.29', '1TH.5.18', 'MAT.25.21', 'PRO.22.3'
+        ]
       }
     ];
   }
@@ -333,6 +381,44 @@ class BibleService {
           'Teaching children about God\'s ways and commandments',
           'Being consistent in your parenting approach',
           'Praying regularly for your children\'s well-being'
+        ]
+      },
+      'intimacy-marriage': {
+        verses: [
+          'GEN.2.24', 'EPH.5.25', 'EPH.5.33', 'HEB.13.4', 'EPH.5.28'
+        ],
+        titles: [
+          'One Flesh',
+          'Love Your Wife',
+          'Respect Your Husband',
+          'Be Intimate',
+          'Cherish Each Other'
+        ],
+        themes: [
+          'The biblical concept of becoming one flesh in marriage',
+          'Loving your wife as Christ loves the church',
+          'Respecting your husband as the head of the household',
+          'Maintaining physical intimacy within marriage',
+          'Cherishing your spouse as a precious gift'
+        ]
+      },
+      'financial-wisdom': {
+        verses: [
+          'PRO.3.9', 'PRO.22.7', 'PRO.21.20', '2CO.9.7', 'HEB.13.5'
+        ],
+        titles: [
+          'Honor God with Wealth',
+          'Avoid Debt',
+          'Save for Future',
+          'Give Generously',
+          'Be Content'
+        ],
+        themes: [
+          'Honoring God with your financial resources and decisions',
+          'Avoiding unnecessary debt and living within your means',
+          'Saving for the future and unexpected expenses',
+          'Giving generously to God\'s work and those in need',
+          'Being content with what God has provided'
         ]
       }
     };

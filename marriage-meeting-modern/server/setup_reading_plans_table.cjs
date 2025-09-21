@@ -1,3 +1,6 @@
+// Setup Reading Plans Table for Marriage Meeting Tool
+// This creates the reading_plans table for tracking devotional progress
+
 const { Pool } = require('pg')
 
 // Neon Database Connection
@@ -13,10 +16,10 @@ const pool = new Pool({
 
 async function setupReadingPlansTable() {
   try {
-    console.log('🔧 Setting up reading plans table...')
-
+    console.log('🔧 Setting up reading_plans table...')
+    
     // Create reading_plans table
-    await pool.query(`
+    const createTableQuery = `
       CREATE TABLE IF NOT EXISTS reading_plans (
         id SERIAL PRIMARY KEY,
         user_id INTEGER NOT NULL,
@@ -26,66 +29,68 @@ async function setupReadingPlansTable() {
         total_days INTEGER NOT NULL,
         start_date VARCHAR(10) NOT NULL,
         completed_days INTEGER[] DEFAULT '{}',
-        bible_id VARCHAR(50) DEFAULT 'de4e12af7f28f599-02',
+        bible_id VARCHAR(50) DEFAULT '65eec8e0b60e656b-01',
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         UNIQUE(user_id, plan_id)
-      )
-    `)
-
+      );
+    `
+    
+    await pool.query(createTableQuery)
+    console.log('✅ reading_plans table created successfully')
+    
     // Create index for performance
-    await pool.query(`
+    const createIndexQuery = `
       CREATE INDEX IF NOT EXISTS idx_reading_plans_user_plan 
-      ON reading_plans(user_id, plan_id)
-    `)
-
-    // Create reading_plan_progress table for detailed tracking
-    await pool.query(`
-      CREATE TABLE IF NOT EXISTS reading_plan_progress (
-        id SERIAL PRIMARY KEY,
-        user_id INTEGER NOT NULL,
-        plan_id VARCHAR(50) NOT NULL,
-        day_number INTEGER NOT NULL,
-        completed_at TIMESTAMP,
-        notes TEXT,
-        rating INTEGER CHECK (rating >= 1 AND rating <= 5),
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        UNIQUE(user_id, plan_id, day_number)
-      )
-    `)
-
-    // Create index for performance
-    await pool.query(`
-      CREATE INDEX IF NOT EXISTS idx_reading_plan_progress_user_plan 
-      ON reading_plan_progress(user_id, plan_id)
-    `)
-
-    console.log('✅ Reading plans tables created successfully!')
+      ON reading_plans(user_id, plan_id);
+    `
     
-    // Test the tables
-    const result = await pool.query(`
-      SELECT table_name 
-      FROM information_schema.tables 
-      WHERE table_schema = 'public' 
-      AND table_name IN ('reading_plans', 'reading_plan_progress')
-    `)
+    await pool.query(createIndexQuery)
+    console.log('✅ Index created successfully')
     
-    console.log('📋 Created tables:', result.rows.map(row => row.table_name))
+    // Create trigger to update updated_at timestamp
+    const createTriggerQuery = `
+      CREATE OR REPLACE FUNCTION update_reading_plans_updated_at()
+      RETURNS TRIGGER AS $$
+      BEGIN
+        NEW.updated_at = CURRENT_TIMESTAMP;
+        RETURN NEW;
+      END;
+      $$ language 'plpgsql';
+      
+      DROP TRIGGER IF EXISTS update_reading_plans_updated_at ON reading_plans;
+      CREATE TRIGGER update_reading_plans_updated_at
+        BEFORE UPDATE ON reading_plans
+        FOR EACH ROW
+        EXECUTE FUNCTION update_reading_plans_updated_at();
+    `
+    
+    await pool.query(createTriggerQuery)
+    console.log('✅ Trigger created successfully')
+    
+    // Test the table
+    const testQuery = `
+      SELECT column_name, data_type, is_nullable 
+      FROM information_schema.columns 
+      WHERE table_name = 'reading_plans'
+      ORDER BY ordinal_position;
+    `
+    
+    const result = await pool.query(testQuery)
+    console.log('📋 Table structure:')
+    result.rows.forEach(row => {
+      console.log(`  - ${row.column_name}: ${row.data_type} (${row.is_nullable === 'YES' ? 'nullable' : 'not null'})`)
+    })
+    
+    console.log('🎉 Reading plans table setup completed successfully!')
     
   } catch (error) {
-    console.error('❌ Error setting up reading plans tables:', error)
-    throw error
+    console.error('❌ Error setting up reading_plans table:', error.message)
+    console.error('Full error:', error)
   } finally {
     await pool.end()
   }
 }
 
+// Run the setup
 setupReadingPlansTable()
-  .then(() => {
-    console.log('🎉 Reading plans setup complete!')
-    process.exit(0)
-  })
-  .catch((error) => {
-    console.error('💥 Setup failed:', error)
-    process.exit(1)
-  })
