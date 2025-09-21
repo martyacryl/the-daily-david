@@ -698,6 +698,137 @@ export class DatabaseManager {
 
     return await response.json()
   }
+
+  // Reading Plans
+  async getReadingPlans(): Promise<any[]> {
+    const token = this.getAuthToken()
+    if (!token) {
+      throw new Error('No authentication token available')
+    }
+
+    const response = await fetch(`${this.baseUrl}/api/reading-plans`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    })
+
+    if (!response.ok) {
+      const error = await response.text()
+      throw new Error(`Failed to fetch reading plans: ${error}`)
+    }
+
+    return await response.json()
+  }
+
+  async createReadingPlan(plan: any): Promise<any> {
+    const token = this.getAuthToken()
+    if (!token) {
+      throw new Error('No authentication token available')
+    }
+
+    const response = await fetch(`${this.baseUrl}/api/reading-plans`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify(plan),
+    })
+
+    if (!response.ok) {
+      const error = await response.text()
+      throw new Error(`Failed to create reading plan: ${error}`)
+    }
+
+    return await response.json()
+  }
+
+  async updateReadingPlan(id: string, updates: any): Promise<any> {
+    const token = this.getAuthToken()
+    if (!token) {
+      throw new Error('No authentication token available')
+    }
+
+    const response = await fetch(`${this.baseUrl}/api/reading-plans/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify(updates),
+    })
+
+    if (!response.ok) {
+      const error = await response.text()
+      throw new Error(`Failed to update reading plan: ${error}`)
+    }
+
+    return await response.json()
+  }
+
+  async deleteReadingPlan(id: string): Promise<void> {
+    const token = this.getAuthToken()
+    if (!token) {
+      throw new Error('No authentication token available')
+    }
+
+    const response = await fetch(`${this.baseUrl}/api/reading-plans/${id}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    })
+
+    if (!response.ok) {
+      const error = await response.text()
+      throw new Error(`Failed to delete reading plan: ${error}`)
+    }
+  }
+
+  async completeReadingPlanDay(id: string, dayNumber: number, notes?: string, rating?: number): Promise<any> {
+    const token = this.getAuthToken()
+    if (!token) {
+      throw new Error('No authentication token available')
+    }
+
+    const response = await fetch(`${this.baseUrl}/api/reading-plans/${id}/complete-day`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify({ day_number: dayNumber, notes, rating }),
+    })
+
+    if (!response.ok) {
+      const error = await response.text()
+      throw new Error(`Failed to complete reading plan day: ${error}`)
+    }
+
+    return await response.json()
+  }
+
+  async getReadingPlanProgress(id: string): Promise<any> {
+    const token = this.getAuthToken()
+    if (!token) {
+      throw new Error('No authentication token available')
+    }
+
+    const response = await fetch(`${this.baseUrl}/api/reading-plans/${id}/progress`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    })
+
+    if (!response.ok) {
+      const error = await response.text()
+      throw new Error(`Failed to fetch reading plan progress: ${error}`)
+    }
+
+    return await response.json()
+  }
 }
 
 // Create singleton instance

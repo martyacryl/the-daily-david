@@ -151,16 +151,9 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
 
   const loadReadingPlans = async () => {
     try {
-      const response = await fetch('/api/reading-plans', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      })
-      
-      if (response.ok) {
-        const plans = await response.json()
-        setReadingPlans(plans)
-      }
+      const { dbManager } = await import('../../lib/database')
+      const plans = await dbManager.getReadingPlans()
+      setReadingPlans(plans)
     } catch (error) {
       console.error('Error loading reading plans:', error)
     }
@@ -184,27 +177,15 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
 
   const handleStartReadingPlan = async (plan: BibleReadingPlan) => {
     try {
-      const response = await fetch('/api/reading-plans', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify({
-          plan_id: plan.id,
-          plan_name: plan.name,
-          total_days: plan.duration,
-          bible_id: '65eec8e0b60e656b-01' // NIV Bible ID
-        })
+      const { dbManager } = await import('../../lib/database')
+      const savedPlan = await dbManager.createReadingPlan({
+        plan_id: plan.id,
+        plan_name: plan.name,
+        total_days: plan.duration,
+        bible_id: '65eec8e0b60e656b-01' // NIV Bible ID
       })
-      
-      if (response.ok) {
-        const savedPlan = await response.json()
-        setReadingPlans([...readingPlans, savedPlan])
-        console.log('Reading plan started and saved!')
-      } else {
-        console.error('Failed to save reading plan')
-      }
+      setReadingPlans([...readingPlans, savedPlan])
+      console.log('Reading plan started and saved!')
     } catch (error) {
       console.error('Error starting reading plan:', error)
     }
