@@ -79,6 +79,16 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
   const [isAddingPrayer, setIsAddingPrayer] = useState(false)
   const [isAddingAnswered, setIsAddingAnswered] = useState(false)
   const [activeTab, setActiveTab] = useState<'overview' | 'prayer' | 'devotionals' | 'goals' | 'reflection'>('overview')
+  const [devotionalTabKey, setDevotionalTabKey] = useState(0)
+  
+  // Force all reading plans to be collapsed when devotional tab is activated
+  useEffect(() => {
+    if (activeTab === 'devotionals') {
+      console.log('📖 Devotional tab activated - forcing all plans to be collapsed')
+      // Force re-render of all ReadingPlanProgress components by updating their keys
+      setDevotionalTabKey(prev => prev + 1)
+    }
+  }, [activeTab])
   
   const [newPrayer, setNewPrayer] = useState({ 
     text: '', 
@@ -1039,7 +1049,7 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
           {/* Reading Plan Progress */}
           {(readingPlans || []).map((plan) => (
             <ReadingPlanProgress
-              key={`${plan.planId}-${plan.currentDay}`}
+              key={`${plan.planId}-${plan.currentDay}-${devotionalTabKey}`}
               readingPlan={plan}
               onLoadTodaysDevotion={handleLoadTodaysDevotion}
               onAdvanceToNextDay={() => handleAdvanceToNextDay(plan.planId)}
