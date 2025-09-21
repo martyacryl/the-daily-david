@@ -619,9 +619,9 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
             </div>
             <div className="space-y-3">
               <div className="flex justify-between items-center">
-                <span className="text-slate-600">Notes Length</span>
+                <span className="text-slate-600">Words Written</span>
                 <span className="text-xl font-bold text-slate-700">
-                  {reflectionNotes.length} chars
+                  {reflectionNotes.trim() ? reflectionNotes.trim().split(/\s+/).length : 0}
                 </span>
               </div>
               <div className="flex justify-between items-center">

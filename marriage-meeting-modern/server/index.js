@@ -58,14 +58,20 @@ const authenticateToken = (req, res, next) => {
   const authHeader = req.headers['authorization']
   const token = authHeader && authHeader.split(' ')[1]
 
+  console.log('🔐 Auth: Checking token for', req.path)
+  console.log('🔐 Auth: Token present:', !!token)
+
   if (!token) {
+    console.log('🔐 Auth: No token provided')
     return res.status(401).json({ error: 'Access token required' })
   }
 
   jwt.verify(token, JWT_SECRET, (err, user) => {
     if (err) {
+      console.log('🔐 Auth: Token verification failed:', err.message)
       return res.status(403).json({ error: 'Invalid or expired token' })
     }
+    console.log('🔐 Auth: Token valid for user:', user.id)
     req.user = user
     next()
   })
