@@ -749,6 +749,7 @@ app.put('/api/reading-plans/:id', authenticateToken, async (req, res) => {
   try {
     const { id } = req.params
     const { current_day, completed_days, bible_id } = req.body
+    const userId = parseInt(req.user.id)
 
     const result = await pool.query(
       `UPDATE reading_plans 
@@ -758,7 +759,7 @@ app.put('/api/reading-plans/:id', authenticateToken, async (req, res) => {
            updated_at = NOW()
        WHERE id = $1 AND user_id = $5
        RETURNING *`,
-      [id, current_day, completed_days, bible_id, req.user.id]
+      [id, current_day, completed_days, bible_id, userId]
     )
 
     if (result.rows.length === 0) {
@@ -776,10 +777,11 @@ app.put('/api/reading-plans/:id', authenticateToken, async (req, res) => {
 app.delete('/api/reading-plans/:id', authenticateToken, async (req, res) => {
   try {
     const { id } = req.params
+    const userId = parseInt(req.user.id)
 
     const result = await pool.query(
       'DELETE FROM reading_plans WHERE id = $1 AND user_id = $2 RETURNING *',
-      [id, req.user.id]
+      [id, userId]
     )
 
     if (result.rows.length === 0) {
@@ -804,9 +806,10 @@ app.post('/api/reading-plans/:id/complete-day', authenticateToken, async (req, r
     }
 
     // Get the reading plan
+    const userId = parseInt(req.user.id)
     const planResult = await pool.query(
       'SELECT * FROM reading_plans WHERE id = $1 AND user_id = $2',
-      [id, req.user.id]
+      [id, userId]
     )
 
     if (planResult.rows.length === 0) {
@@ -836,7 +839,7 @@ app.post('/api/reading-plans/:id/complete-day', authenticateToken, async (req, r
        VALUES ($1, $2, $3, NOW(), $4, $5)
        ON CONFLICT (user_id, plan_id, day_number)
        DO UPDATE SET completed_at = NOW(), notes = $4, rating = $5`,
-      [req.user.id, plan.plan_id, day_number, notes, rating]
+      [userId, plan.plan_id, day_number, notes, rating]
     )
 
     res.json({ message: 'Day marked as completed', completed_days: completedDays })
@@ -851,13 +854,14 @@ app.get('/api/reading-plans/:id/progress', authenticateToken, async (req, res) =
   try {
     const { id } = req.params
 
+    const userId = parseInt(req.user.id)
     const result = await pool.query(
       `SELECT rp.*, rpp.day_number, rpp.completed_at, rpp.notes, rpp.rating
        FROM reading_plans rp
        LEFT JOIN reading_plan_progress rpp ON rp.plan_id = rpp.plan_id AND rp.user_id = rpp.user_id
        WHERE rp.id = $1 AND rp.user_id = $2
        ORDER BY rpp.day_number`,
-      [id, req.user.id]
+      [id, userId]
     )
 
     if (result.rows.length === 0) {
