@@ -230,8 +230,10 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
 
   const handleLoadTodaysDevotion = async (planId: string, targetDay?: number, bibleId?: string) => {
     try {
+      console.log('🔄 Loading devotion for plan:', planId, 'day:', targetDay, 'bibleId:', bibleId)
       setCurrentPlanId(planId)
       const devotion = await bibleService.getTodaysDevotion(planId, bibleId, targetDay)
+      console.log('📖 Devotion loaded:', devotion)
       setCurrentDevotion(devotion)
       
       // If a specific day is requested, update the plan's current day

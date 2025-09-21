@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { 
   Calendar, 
@@ -48,6 +49,7 @@ interface DailyFocusedLayoutProps {
   onSave: () => void
   isSaving?: boolean
   className?: string
+  initialSection?: string
 }
 
 interface SidebarItem {
@@ -177,12 +179,23 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
   onUpdateWeekData,
   onSave,
   isSaving = false,
-  className = ''
+  className = '',
+  initialSection = 'vision'
 }) => {
-  const [activeSection, setActiveSection] = useState('vision')
+  const [searchParams] = useSearchParams()
+  const [activeSection, setActiveSection] = useState(initialSection)
   const [showGuidedFlow, setShowGuidedFlow] = useState(false)
   const [showVisionModal, setShowVisionModal] = useState(false)
   const [showSpiritualModal, setShowSpiritualModal] = useState(false)
+
+  // Check for section parameter in URL
+  useEffect(() => {
+    const sectionParam = searchParams.get('section')
+    if (sectionParam) {
+      console.log('🎯 URL section parameter found:', sectionParam)
+      setActiveSection(sectionParam)
+    }
+  }, [searchParams])
 
   const weather = getWeatherData()
   const dailyTasks = getDailyTasks()
