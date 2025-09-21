@@ -153,9 +153,10 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
     try {
       const { dbManager } = await import('../../lib/database')
       const plans = await dbManager.getReadingPlans()
-      setReadingPlans(plans)
+      setReadingPlans(plans || [])
     } catch (error) {
       console.error('Error loading reading plans:', error)
+      setReadingPlans([])
     }
   }
 
@@ -169,9 +170,10 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
   const loadAvailablePlans = async () => {
     try {
       const plans = await bibleService.getReadingPlans()
-      setAvailablePlans(plans)
+      setAvailablePlans(plans || [])
     } catch (error) {
       console.error('Error loading reading plans:', error)
+      setAvailablePlans([])
     }
   }
 
