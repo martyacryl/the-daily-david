@@ -677,8 +677,8 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
           <Card className={`p-6 ${getGradientClass('card')} border-0 shadow-md`}>
             <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-gradient-to-br from-pink-500 to-rose-600 rounded-lg">
-                  <Heart className="w-5 h-5 text-white" />
+                <div className="p-2 bg-gradient-to-br from-slate-100 to-slate-200 rounded-lg border border-slate-300">
+                  <Heart className="w-5 h-5 text-slate-600" />
                 </div>
                 <div>
                   <h3 className="text-xl font-bold text-slate-800">Prayer Requests</h3>
@@ -687,7 +687,7 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
               </div>
               <Button
                 onClick={() => setIsAddingPrayer(!isAddingPrayer)}
-                className="bg-gradient-to-r from-pink-500 to-rose-600 hover:from-pink-600 hover:to-rose-700 text-white"
+                className="bg-gradient-to-r from-slate-600 to-slate-700 hover:from-slate-700 hover:to-slate-800 text-white"
               >
                 <Plus className="w-4 h-4 mr-2" />
                 Add Request
@@ -699,7 +699,7 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
                 exit={{ opacity: 0, height: 0 }}
-                className="mb-6 p-6 bg-gradient-to-br from-slate-50 to-gray-100 rounded-xl border border-slate-200"
+                className="mb-6 p-6 bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl border border-slate-200"
               >
                 <h4 className="text-lg font-semibold text-slate-800 mb-4">Add New Prayer Request</h4>
                 <div className="space-y-4">
@@ -707,7 +707,7 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
                     value={newPrayer.text}
                     onChange={(e) => setNewPrayer({ ...newPrayer, text: e.target.value })}
                     placeholder="Share your heart with God... What would you like to pray about?"
-                    className="min-h-[100px] border-slate-300 focus:border-pink-500 focus:ring-pink-500"
+                    className="min-h-[100px] border-slate-300 focus:border-slate-500 focus:ring-slate-500"
                   />
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
@@ -715,7 +715,7 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
                       <select
                         value={newPrayer.category}
                         onChange={(e) => setNewPrayer({ ...newPrayer, category: e.target.value as any })}
-                        className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:border-pink-500 focus:ring-pink-500"
+                        className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:border-slate-500 focus:ring-slate-500"
                       >
                         <option value="family">Family</option>
                         <option value="health">Health</option>
@@ -732,7 +732,7 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
                       <select
                         value={newPrayer.priority}
                         onChange={(e) => setNewPrayer({ ...newPrayer, priority: e.target.value as any })}
-                        className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:border-pink-500 focus:ring-pink-500"
+                        className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:border-slate-500 focus:ring-slate-500"
                       >
                         <option value="low">Low</option>
                         <option value="medium">Medium</option>
@@ -744,7 +744,7 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
                   <div className="flex gap-3">
                     <Button
                       onClick={handleAddPrayer}
-                      className="bg-gradient-to-r from-pink-500 to-rose-600 hover:from-pink-600 hover:to-rose-700 text-white"
+                      className="bg-gradient-to-r from-slate-600 to-slate-700 hover:from-slate-700 hover:to-slate-800 text-white"
                     >
                       <Plus className="w-4 h-4 mr-2" />
                       Add Prayer
@@ -767,11 +767,11 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
                   key={index}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="group p-5 bg-gradient-to-r from-pink-50 to-rose-50 rounded-xl border border-pink-200 hover:shadow-md transition-all duration-200"
+                  className="group p-5 bg-gradient-to-r from-slate-50 to-slate-100 rounded-xl border border-slate-200 hover:shadow-md transition-all duration-200"
                 >
                   <div className="flex items-start gap-4">
-                    <div className="p-2 bg-gradient-to-br from-pink-500 to-rose-600 rounded-lg flex-shrink-0">
-                      <Heart className="w-5 h-5 text-white" />
+                    <div className="p-2 bg-gradient-to-br from-slate-100 to-slate-200 rounded-lg border border-slate-300 flex-shrink-0">
+                      <Heart className="w-5 h-5 text-slate-600" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-slate-800 leading-relaxed">{prayer}</p>
@@ -799,14 +799,14 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
               
               {spiritualGrowth.prayer_requests.length === 0 && (
                 <div className="text-center py-12">
-                  <div className="p-4 bg-gradient-to-br from-pink-100 to-rose-100 rounded-full w-20 h-20 mx-auto mb-4 flex items-center justify-center">
-                    <Heart className="w-10 h-10 text-pink-400" />
+                  <div className="p-4 bg-gradient-to-br from-slate-100 to-slate-200 rounded-full w-20 h-20 mx-auto mb-4 flex items-center justify-center border border-slate-300">
+                    <Heart className="w-10 h-10 text-slate-600" />
                   </div>
                   <h3 className="text-lg font-semibold text-slate-800 mb-2">No prayer requests yet</h3>
                   <p className="text-slate-600 mb-4">Share your heart with God and start your prayer journey</p>
                   <Button
                     onClick={() => setIsAddingPrayer(true)}
-                    className="bg-gradient-to-r from-pink-500 to-rose-600 hover:from-pink-600 hover:to-rose-700 text-white"
+                    className="bg-gradient-to-r from-slate-600 to-slate-700 hover:from-slate-700 hover:to-slate-800 text-white"
                   >
                     <Plus className="w-4 h-4 mr-2" />
                     Add Your First Prayer
@@ -820,8 +820,8 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
           <Card className={`p-6 ${getGradientClass('card')} border-0 shadow-md`}>
             <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg">
-                  <CheckCircle className="w-5 h-5 text-white" />
+                <div className="p-2 bg-gradient-to-br from-slate-100 to-slate-200 rounded-lg border border-slate-300">
+                  <CheckCircle className="w-5 h-5 text-slate-600" />
                 </div>
                 <div>
                   <h3 className="text-xl font-bold text-slate-800">Answered Prayers</h3>
@@ -830,7 +830,7 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
               </div>
               <Button
                 onClick={() => setIsAddingAnswered(!isAddingAnswered)}
-                className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white"
+                className="bg-gradient-to-r from-slate-600 to-slate-700 hover:from-slate-700 hover:to-slate-800 text-white"
               >
                 <Plus className="w-4 h-4 mr-2" />
                 Add Answer
@@ -1029,8 +1029,8 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
         <div className="space-y-6">
           <Card className={`p-6 ${getGradientClass('card')} border-0 shadow-md`}>
             <div className="flex items-center gap-3 mb-6">
-              <div className="p-2 bg-gradient-to-br from-purple-500 to-violet-600 rounded-lg">
-                <Target className="w-5 h-5 text-white" />
+              <div className="p-2 bg-gradient-to-br from-slate-100 to-slate-200 rounded-lg border border-slate-300">
+                <Target className="w-5 h-5 text-slate-600" />
               </div>
               <div>
                 <h3 className="text-xl font-bold text-slate-800">Spiritual Goals</h3>
@@ -1039,8 +1039,8 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
             </div>
             
             <div className="text-center py-12">
-              <div className="p-4 bg-gradient-to-br from-purple-100 to-violet-100 rounded-full w-20 h-20 mx-auto mb-4 flex items-center justify-center">
-                <Target className="w-10 h-10 text-purple-400" />
+              <div className="p-4 bg-gradient-to-br from-slate-100 to-slate-200 rounded-full w-20 h-20 mx-auto mb-4 flex items-center justify-center border border-slate-300">
+                <Target className="w-10 h-10 text-slate-600" />
               </div>
               <h3 className="text-lg font-semibold text-slate-800 mb-2">Goals Coming Soon</h3>
               <p className="text-slate-600">Set meaningful spiritual goals and track your progress</p>
@@ -1054,8 +1054,8 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
         <div className="space-y-6">
           <Card className={`p-6 ${getGradientClass('card')} border-0 shadow-md`}>
             <div className="flex items-center gap-3 mb-6">
-              <div className="p-2 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg">
-                <MessageCircle className="w-5 h-5 text-white" />
+              <div className="p-2 bg-gradient-to-br from-slate-100 to-slate-200 rounded-lg border border-slate-300">
+                <MessageCircle className="w-5 h-5 text-slate-600" />
               </div>
               <div>
                 <h3 className="text-xl font-bold text-slate-800">Reflection Notes</h3>
@@ -1068,11 +1068,11 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
                 value={reflectionNotes}
                 onChange={(e) => setReflectionNotes(e.target.value)}
                 placeholder="Reflect on your spiritual journey, lessons learned, and areas for growth..."
-                className="min-h-[200px] border-slate-300 focus:border-indigo-500 focus:ring-indigo-500"
+                className="min-h-[200px] border-slate-300 focus:border-slate-500 focus:ring-slate-500"
               />
               <Button
                 onClick={handleUpdateReflection}
-                className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white"
+                className="bg-gradient-to-r from-slate-600 to-slate-700 hover:from-slate-700 hover:to-slate-800 text-white"
               >
                 <Save className="w-4 h-4 mr-2" />
                 Save Reflection
