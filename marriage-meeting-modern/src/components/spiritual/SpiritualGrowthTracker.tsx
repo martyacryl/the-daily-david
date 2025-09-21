@@ -602,7 +602,7 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
               <div className="flex justify-between items-center">
                 <span className="text-slate-600">Words Written</span>
                 <span className="text-xl font-bold text-slate-700">
-                  {reflectionNotes?.trim() ? reflectionNotes.trim().split(/\s+/).length : 0}
+                  {reflectionNotes?.trim() ? reflectionNotes.trim().split(/\s+/)?.length || 0 : 0}
                 </span>
               </div>
               <div className="flex justify-between items-center">
@@ -642,7 +642,7 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
                 <span className="text-slate-600">Goals Completion</span>
                 <span className="text-lg font-bold text-slate-700">
                   {spiritualGoals && spiritualGoals.length > 0 
-                    ? Math.round((spiritualGoals.filter(g => g.completed).length / spiritualGoals.length) * 100)
+                    ? Math.round(((spiritualGoals.filter(g => g.completed)?.length || 0) / (spiritualGoals?.length || 1)) * 100)
                     : 0}%
                 </span>
               </div>
