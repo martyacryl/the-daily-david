@@ -115,226 +115,224 @@ class BibleService {
   // This would need to be custom content or integration with other services
   async getReadingPlans(): Promise<ReadingPlan[]> {
     // API.Bible doesn't provide reading plans - this would be custom content
-    // We can create our own manly devotional tracks using their scripture API
+    // We can create our own marriage-focused devotional tracks using their scripture API
     return [
       {
-        id: 'warrior-psalms',
-        name: 'Warrior Psalms',
-        description: '30 days of Psalms focused on strength, courage, and leadership',
+        id: 'marriage-foundation',
+        name: 'Marriage Foundation',
+        description: '30 days of scripture focused on building a strong marriage foundation',
         duration: 30,
         titles: [
-          'The Warrior\'s Strength', 'Courage in Battle', 'Stand Strong', 'God Our Fortress', 'Divine Protection',
-          'Victory Through Faith', 'The Lord is My Rock', 'Fearless in Battle', 'God\'s Right Hand', 'Mighty Warrior',
-          'Strength in Weakness', 'Unshakeable Faith', 'Divine Shield', 'Conquering Spirit', 'God\'s Army',
-          'Battle Cry', 'Victory Song', 'Divine Justice', 'Unstoppable Force', 'God\'s Champion',
-          'Rising Above', 'Divine Power', 'Unbreakable Bond', 'God\'s Victory', 'Eternal Strength',
-          'Spiritual Warfare', 'Divine Authority', 'Unconquerable Spirit', 'God\'s Might', 'Final Victory'
+          'Two Become One', 'Love is Patient', 'Honor Your Spouse', 'Submit to One Another', 'Forgive as Christ Forgave',
+          'Bear Each Other\'s Burdens', 'Rejoice Together', 'Weep Together', 'Live in Harmony', 'Be Kind and Compassionate',
+          'Speak Truth in Love', 'Build Each Other Up', 'Encourage One Another', 'Pray Together', 'Seek God First',
+          'Trust in the Lord', 'Delight in Each Other', 'Cherish Your Spouse', 'Respect One Another', 'Serve Each Other',
+          'Be Quick to Listen', 'Slow to Anger', 'Abound in Love', 'Walk in Unity', 'Glorify God Together',
+          'Bear Fruit Together', 'Grow in Grace', 'Endure Together', 'Hope in Christ', 'Love Never Fails'
         ],
         themes: [
-          'Finding strength in God during spiritual battles', 'Courage to face life\'s challenges with faith', 'Standing firm in your convictions', 'Trusting God as your ultimate refuge', 'Resting in God\'s protection and care',
-          'Victory comes through faith, not strength', 'God as your unshakeable foundation', 'Facing fears with divine courage', 'God\'s power working through you', 'Being God\'s instrument of justice',
-          'Finding power in humility and dependence', 'Faith that moves mountains', 'God\'s protection in every storm', 'The spirit of a conqueror', 'Being part of God\'s eternal army',
-          'Raising your voice for truth', 'Celebrating God\'s victories', 'Seeking divine justice in the world', 'Unstoppable when aligned with God', 'Being God\'s chosen champion',
-          'Rising above circumstances', 'Accessing God\'s unlimited power', 'Unbreakable connection with the divine', 'God\'s ultimate victory over evil', 'Drawing from eternal strength',
-          'Engaging in spiritual battles', 'Operating in divine authority', 'Spirit that cannot be defeated', 'Experiencing God\'s mighty power', 'The final victory that awaits'
+          'The biblical foundation of marriage as two becoming one', 'The patience required in loving your spouse daily', 'Honoring your spouse as a gift from God', 'Mutual submission as the key to harmony', 'Forgiveness as the cornerstone of lasting love',
+          'Carrying each other\'s burdens with grace and compassion', 'Celebrating victories and joys together', 'Supporting each other through difficult times', 'Living in unity despite differences', 'Showing kindness in words and actions',
+          'Speaking truth with love and gentleness', 'Building up rather than tearing down', 'Encouraging each other\'s dreams and goals', 'Praying together for your marriage and family', 'Putting God at the center of your relationship',
+          'Trusting God with your marriage and future', 'Finding joy and delight in your spouse', 'Cherishing your spouse as a precious gift', 'Showing respect in all circumstances', 'Serving each other with love and humility',
+          'Listening with an open heart and mind', 'Controlling anger and choosing peace', 'Allowing love to grow and flourish', 'Walking together in unity and purpose', 'Glorifying God through your marriage',
+          'Bearing spiritual fruit together', 'Growing in God\'s grace as a couple', 'Enduring trials and challenges together', 'Placing your hope in Christ', 'Understanding that true love never fails'
         ],
         verses: [
-          'PSA.18.1-PSA.18.3', 'PSA.27.1-PSA.27.3', 'PSA.31.24', 'PSA.46.1-PSA.46.3', 'PSA.91.1-PSA.91.4',
-          'PSA.20.7', 'PSA.18.2', 'PSA.23.4', 'PSA.16.8', 'PSA.144.1',
-          'PSA.73.26', 'PSA.37.5', 'PSA.3.3', 'PSA.18.39', 'PSA.68.17',
-          'PSA.47.1', 'PSA.98.1', 'PSA.7.11', 'PSA.18.32', 'PSA.89.19',
-          'PSA.30.1', 'PSA.62.11', 'PSA.63.8', 'PSA.21.1', 'PSA.29.11',
-          'PSA.144.1', 'PSA.29.4', 'PSA.18.37', 'PSA.68.35', 'PSA.21.13'
+          'GEN.2.24', '1CO.13.4', 'HEB.13.4', 'EPH.5.21', 'COL.3.13',
+          'GAL.6.2', 'ROM.12.15', 'ROM.12.15', 'ROM.12.16', 'EPH.4.32',
+          'EPH.4.15', '1TH.5.11', 'HEB.3.13', 'MAT.18.19', 'MAT.6.33',
+          'PRO.3.5', 'PRO.5.18', 'EPH.5.28', 'EPH.5.33', 'GAL.5.13',
+          'JAM.1.19', 'JAM.1.19', '1TH.3.12', 'PSA.133.1', '1CO.10.31',
+          'JOH.15.8', '2PE.3.18', 'HEB.12.1', 'ROM.15.13', '1CO.13.8'
         ]
       },
       {
-        id: 'leadership-proverbs',
-        name: 'Leadership Proverbs',
-        description: 'Daily wisdom from Proverbs for godly leadership',
-        duration: 31,
+        id: 'love-languages',
+        name: 'Love Languages in Scripture',
+        description: 'Daily devotionals exploring the five love languages through biblical wisdom',
+        duration: 35,
         titles: [
-          'Divine Planning', 'Iron Sharpens Iron', 'Vision & Leadership', 'Speak Up for Justice', 'Diligent Work',
-          'Wise Counsel', 'Patient Leadership', 'Righteous Judgment', 'Humble Service', 'Integrity First',
-          'Disciplined Life', 'Generous Heart', 'Peaceful Resolution', 'Honest Communication', 'Faithful Stewardship',
-          'Mentoring Others', 'Courageous Decisions', 'Servant Leadership', 'Wise Investments', 'Righteous Anger',
-          'Team Building', 'Conflict Resolution', 'Long-term Thinking', 'Character Development', 'Spiritual Growth',
-          'Leading by Example', 'Building Trust', 'Making Sacrifices', 'Seeking Wisdom', 'Finishing Strong', 'Legacy Building'
+          'Words of Affirmation', 'Quality Time Together', 'Acts of Service', 'Physical Touch', 'Gifts of Love',
+          'Speaking Life', 'Being Present', 'Serving with Joy', 'Gentle Touch', 'Thoughtful Gifts',
+          'Encouraging Words', 'Undivided Attention', 'Helping Hands', 'Comforting Embrace', 'Meaningful Tokens',
+          'Building Up', 'Creating Memories', 'Lightening Loads', 'Showing Affection', 'Celebrating Moments',
+          'Positive Reinforcement', 'Focused Listening', 'Practical Help', 'Physical Comfort', 'Surprise Blessings',
+          'Complimenting Character', 'Date Night Ideas', 'Household Chores', 'Hugs and Kisses', 'Special Occasions',
+          'Praising Efforts', 'Deep Conversations', 'Running Errands', 'Holding Hands', 'Anniversary Gifts',
+          'Acknowledging Growth', 'Shared Activities', 'Taking Initiative', 'Back Rubs', 'Love Notes'
         ],
         themes: [
-          'Planning your path while trusting God\'s direction', 'The importance of godly friendships and accountability', 'Leading with vision and purpose', 'Using your voice to defend the vulnerable', 'The value of hard work and diligence',
-          'Seeking wise counsel before making decisions', 'Leading with patience and understanding', 'Making fair and just decisions', 'Leading through humble service', 'Maintaining integrity in all situations',
-          'Living a disciplined and ordered life', 'Leading with generosity and compassion', 'Resolving conflicts peacefully', 'Communicating with honesty and clarity', 'Managing resources faithfully',
-          'Investing in the next generation', 'Making difficult decisions with courage', 'Leading by serving others', 'Making wise investments in people and resources', 'Channeling anger into righteous action',
-          'Building strong, unified teams', 'Resolving conflicts with wisdom', 'Thinking beyond immediate results', 'Developing character in yourself and others', 'Prioritizing spiritual growth',
-          'Leading through your actions, not just words', 'Building trust through consistency', 'Making personal sacrifices for the team', 'Continuously seeking divine wisdom', 'Finishing what you start', 'Building a lasting legacy'
+          'Using words to build up and encourage your spouse', 'Making time for meaningful connection and conversation', 'Showing love through helpful actions and service', 'Expressing love through appropriate physical affection', 'Demonstrating love through thoughtful gifts and gestures',
+          'Speaking life-giving words that inspire and motivate', 'Being fully present and engaged when together', 'Serving your spouse with a joyful and willing heart', 'Using gentle touch to comfort and connect', 'Giving gifts that show you know and care for your spouse',
+          'Using encouraging words to support your spouse\'s dreams', 'Giving your spouse your undivided attention', 'Lightening your spouse\'s load through practical help', 'Providing physical comfort during difficult times', 'Giving meaningful tokens of your love and appreciation',
+          'Building up your spouse\'s confidence and self-worth', 'Creating special memories together', 'Taking on tasks to make your spouse\'s life easier', 'Showing physical affection regularly', 'Celebrating special moments and milestones',
+          'Using positive reinforcement to encourage good habits', 'Practicing focused listening without distractions', 'Offering practical help with daily tasks', 'Providing physical comfort and reassurance', 'Surprising your spouse with unexpected blessings',
+          'Complimenting your spouse\'s character and virtues', 'Planning special date nights and activities', 'Taking care of household responsibilities', 'Using hugs and kisses to express love', 'Remembering and celebrating special occasions',
+          'Praising your spouse\'s efforts and achievements', 'Engaging in deep, meaningful conversations', 'Running errands to help your spouse', 'Holding hands as a sign of connection', 'Giving thoughtful anniversary gifts',
+          'Acknowledging your spouse\'s personal growth', 'Participating in activities your spouse enjoys', 'Taking initiative to help without being asked', 'Giving relaxing back rubs and massages', 'Writing love notes and letters'
         ],
         verses: [
-          'PRO.16.9', 'PRO.27.17', 'PRO.29.18', 'PRO.31.8-PRO.31.9', 'PRO.14.23',
-          'PRO.11.14', 'PRO.15.18', 'PRO.21.3', 'PRO.27.18', 'PRO.10.9',
-          'PRO.25.28', 'PRO.11.25', 'PRO.15.1', 'PRO.12.22', 'PRO.27.23',
-          'PRO.22.6', 'PRO.28.1', 'PRO.27.2', 'PRO.13.11', 'PRO.15.1',
-          'PRO.15.22', 'PRO.16.7', 'PRO.19.21', 'PRO.22.1', 'PRO.9.10',
-          'PRO.20.7', 'PRO.3.5', 'PRO.17.17', 'PRO.2.6', 'PRO.16.3', 'PRO.13.22'
+          'PRO.16.24', 'ECC.4.9-12', 'GAL.5.13', 'SON.2.6', 'MAT.7.11',
+          'PRO.18.21', 'PSA.46.10', 'COL.3.23', 'ISA.40.11', 'JAM.1.17',
+          '1TH.5.11', 'JAM.1.19', 'GAL.6.2', 'ISA.66.13', 'PSA.68.19',
+          'EPH.4.29', 'PSA.133.1', 'PHI.2.4', 'SON.8.3', 'PSA.118.24',
+          'PRO.12.25', 'JAM.1.19', 'ROM.12.10', 'ISA.40.11', 'LUK.6.38',
+          'PRO.31.28', 'SON.7.12', 'TIT.2.5', 'SON.1.2', 'PSA.20.4',
+          'PRO.31.31', 'PRO.20.5', 'ROM.12.13', 'SON.2.16', 'PSA.45.11',
+          'PRO.27.17', 'ECC.4.9', 'PHI.2.4', 'SON.8.6', 'PSA.103.2'
         ]
       },
       {
-        id: 'courage-joshua',
-        name: 'Courage & Conquest',
-        description: 'Study Joshua and Judges for lessons in courage and faith',
-        duration: 24,
+        id: 'communication-couples',
+        name: 'Communication for Couples',
+        description: 'Biblical wisdom for healthy communication in marriage',
+        duration: 28,
         titles: [
-          'Be Strong and Courageous', 'Crossing the Jordan', 'The Battle of Jericho', 'Standing Firm', 'Victory Through Faith',
-          'Spy Mission', 'Rahab\'s Faith', 'Memorial Stones', 'Circumcision at Gilgal', 'Commander\'s Sword',
-          'Achan\'s Sin', 'Ai Defeat', 'Ai Victory', 'Altar on Mount Ebal', 'Reading the Law',
-          'Gibeon\'s Deception', 'Sun Stands Still', 'Southern Campaign', 'Northern Campaign', 'Land Division',
-          'Cities of Refuge', 'Levitical Cities', 'Eastern Tribes Return', 'Joshua\'s Farewell'
+          'Listen Before Speaking', 'Speak Truth in Love', 'Be Quick to Listen', 'Slow to Anger', 'Avoid Harsh Words',
+          'Use Gentle Answers', 'Seek Understanding', 'Avoid Quarrels', 'Be Patient', 'Choose Your Words Wisely',
+          'Don\'t Let the Sun Go Down', 'Forgive Quickly', 'Seek Peace', 'Be Humble', 'Show Respect',
+          'Avoid Gossip', 'Build Up Don\'t Tear Down', 'Be Honest', 'Show Kindness', 'Be Encouraging',
+          'Avoid Sarcasm', 'Be Direct', 'Show Appreciation', 'Be Gracious', 'Seek Reconciliation',
+          'Avoid Criticism', 'Be Supportive', 'Show Empathy', 'Be Forgiving', 'Speak Life'
         ],
         themes: [
-          'God\'s command to be strong and courageous', 'Trusting God to lead you through impossible situations', 'Following God\'s unconventional battle plans', 'Standing firm when others fall away', 'Victory comes through faith, not strength',
-          'Gathering intelligence and preparing for battle', 'Faith that transcends background and circumstances', 'Remembering God\'s faithfulness in the past', 'Renewing your commitment to God', 'Recognizing God\'s authority in your life',
-          'The consequences of disobedience and hidden sin', 'Learning from failure and defeat', 'Victory through obedience and strategy', 'Worship and commitment to God\'s law', 'The importance of knowing God\'s word',
-          'Dealing with deception and making wise alliances', 'God\'s miraculous intervention in impossible situations', 'Systematic conquest of obstacles', 'Completing the work God has given you', 'Fair distribution of blessings and responsibilities',
-          'Providing safety and refuge for others', 'Supporting those who serve God', 'Keeping your promises and commitments', 'Leaving a legacy of faithfulness'
+          'The importance of listening before responding in marriage', 'Speaking truth with love and gentleness', 'Being quick to listen and slow to speak', 'Controlling anger and choosing patience', 'Avoiding harsh words that wound the heart',
+          'Using gentle answers to turn away wrath', 'Seeking to understand before being understood', 'Avoiding unnecessary quarrels and arguments', 'Practicing patience in difficult conversations', 'Choosing words that build up rather than tear down',
+          'Resolving conflicts before the day ends', 'Forgiving quickly and completely', 'Seeking peace and harmony in your relationship', 'Approaching conversations with humility', 'Showing respect even in disagreement',
+          'Avoiding gossip and harmful speech', 'Building up your spouse with your words', 'Being honest while remaining loving', 'Showing kindness in all communication', 'Being encouraging and supportive',
+          'Avoiding sarcasm and hurtful humor', 'Being direct and clear in your communication', 'Showing appreciation for your spouse', 'Being gracious in your responses', 'Seeking reconciliation and healing',
+          'Avoiding constant criticism and negativity', 'Being supportive of your spouse\'s dreams', 'Showing empathy and understanding', 'Being quick to forgive and forget', 'Speaking words that bring life and hope'
         ],
         verses: [
-          'JOS.1.9', 'JOS.3.15-JOS.3.17', 'JOS.6.20', 'JOS.24.15', 'JOS.21.45',
-          'JOS.2.1', 'JOS.2.11', 'JOS.4.7', 'JOS.5.9', 'JOS.5.14',
-          'JOS.7.11', 'JOS.7.5', 'JOS.8.1', 'JOS.8.30', 'JOS.8.34',
-          'JOS.9.14', 'JOS.10.13', 'JOS.10.40', 'JOS.11.23', 'JOS.14.2',
-          'JOS.20.2', 'JOS.21.2', 'JOS.22.4', 'JOS.24.15'
+          'JAM.1.19', 'EPH.4.15', 'JAM.1.19', 'JAM.1.19', 'COL.3.8',
+          'PRO.15.1', 'PRO.18.2', 'PRO.17.14', '1CO.13.4', 'COL.4.6',
+          'EPH.4.26', 'COL.3.13', 'ROM.12.18', 'PHI.2.3', 'EPH.5.33',
+          'LEV.19.16', '1TH.5.11', 'EPH.4.25', 'COL.3.12', 'HEB.3.13',
+          'PRO.26.18', 'MAT.5.37', '1TH.5.18', 'COL.4.6', 'MAT.5.24',
+          'PRO.21.19', 'GAL.6.2', 'ROM.12.15', 'EPH.4.32', 'PRO.18.21'
         ]
       },
       {
-        id: 'strength-isaiah',
-        name: 'Strength in Isaiah',
-        description: 'Isaiah\'s messages of strength and hope for men',
-        duration: 66,
+        id: 'parenting-together',
+        name: 'Parenting Together',
+        description: 'Biblical principles for raising children as a united couple',
+        duration: 40,
         titles: [
-          'Wings Like Eagles', 'The Lord is My Strength', 'Fear Not', 'God\'s Power', 'Everlasting Strength',
-          'Holy One of Israel', 'Prince of Peace', 'Wonderful Counselor', 'Mighty God', 'Everlasting Father',
-          'Light in Darkness', 'Refuge in Storm', 'Healer of Broken Hearts', 'Restorer of Hope', 'Comforter in Sorrow',
-          'Righteous Judge', 'King of Kings', 'Lord of Hosts', 'Alpha and Omega', 'Beginning and End',
-          'Shepherd of Souls', 'Bread of Life', 'Living Water', 'Way, Truth, Life', 'Resurrection Power',
-          'Grace Abounding', 'Mercy Enduring', 'Love Unfailing', 'Victory Assured'
+          'Train Up a Child', 'Discipline with Love', 'Teach God\'s Ways', 'Be Consistent', 'Pray for Your Children',
+          'Lead by Example', 'Show Unconditional Love', 'Set Boundaries', 'Encourage Growth', 'Be Patient',
+          'Teach Respect', 'Model Forgiveness', 'Celebrate Progress', 'Correct with Grace', 'Build Character',
+          'Create Memories', 'Share Responsibilities', 'Support Each Other', 'Seek Wisdom', 'Trust God',
+          'Be United', 'Show Affection', 'Teach Values', 'Encourage Dreams', 'Provide Security',
+          'Be Present', 'Listen Well', 'Guide Gently', 'Celebrate Uniqueness', 'Build Confidence',
+          'Teach Responsibility', 'Model Integrity', 'Encourage Faith', 'Show Compassion', 'Be Encouraging',
+          'Create Traditions', 'Share Stories', 'Teach Gratitude', 'Model Service', 'Build Legacy'
         ],
         themes: [
-          'Soaring above life\'s challenges with God\'s strength', 'Finding strength in the Lord when you feel weak', 'Overcoming fear through God\'s presence', 'Experiencing God\'s mighty power in your life', 'Drawing from God\'s inexhaustible strength',
-          'Recognizing God\'s holiness and majesty', 'Finding peace in the midst of chaos', 'Seeking divine wisdom and guidance', 'Trusting in God\'s unlimited power', 'Resting in God\'s eternal fatherhood',
-          'Finding illumination in dark times', 'Taking shelter in God during life\'s storms', 'Experiencing God\'s healing touch', 'Finding renewed hope in God\'s promises', 'Receiving comfort in times of grief',
-          'Trusting in God\'s perfect justice', 'Acknowledging God\'s supreme authority', 'Relying on God\'s military might', 'Understanding God\'s eternal nature', 'Recognizing God\'s complete sovereignty',
-          'Following God\'s gentle guidance', 'Finding sustenance in God\'s word', 'Drinking from God\'s living water', 'Following God\'s path of truth', 'Experiencing God\'s resurrection power',
-          'Receiving God\'s abundant grace', 'Trusting in God\'s enduring mercy', 'Resting in God\'s unfailing love', 'Confident in God\'s ultimate victory'
+          'Training children in the way they should go according to God\'s word', 'Disciplining children with love and consistency', 'Teaching children about God\'s ways and commandments', 'Being consistent in your parenting approach', 'Praying regularly for your children\'s well-being',
+          'Leading by example in your own behavior and choices', 'Showing unconditional love even during difficult times', 'Setting clear and appropriate boundaries', 'Encouraging your children\'s growth and development', 'Being patient with your children\'s learning process',
+          'Teaching children to respect others and authority', 'Modeling forgiveness and reconciliation', 'Celebrating your children\'s progress and achievements', 'Correcting with grace and understanding', 'Building strong character in your children',
+          'Creating meaningful memories and traditions', 'Sharing parenting responsibilities equally', 'Supporting each other in parenting decisions', 'Seeking God\'s wisdom in difficult situations', 'Trusting God with your children\'s future',
+          'Being united in your parenting approach', 'Showing affection and love to your children', 'Teaching important values and principles', 'Encouraging your children\'s dreams and aspirations', 'Providing a secure and stable home environment',
+          'Being present and engaged in your children\'s lives', 'Listening to your children with patience and understanding', 'Guiding your children gently and lovingly', 'Celebrating each child\'s unique gifts and talents', 'Building your children\'s confidence and self-worth',
+          'Teaching children to be responsible and accountable', 'Modeling integrity and honesty in all situations', 'Encouraging your children\'s faith and spiritual growth', 'Showing compassion and empathy to others', 'Being encouraging and supportive of your children',
+          'Creating family traditions and rituals', 'Sharing stories and experiences with your children', 'Teaching children to be grateful and appreciative', 'Modeling service and helping others', 'Building a legacy of faith and love for future generations'
         ],
         verses: [
-          'ISA.40.31', 'ISA.12.2', 'ISA.41.10', 'ISA.40.29', 'ISA.26.4',
-          'ISA.1.4', 'ISA.9.6', 'ISA.9.6', 'ISA.9.6', 'ISA.9.6',
-          'ISA.9.2', 'ISA.25.4', 'ISA.61.1', 'ISA.40.1', 'ISA.51.12',
-          'ISA.33.22', 'ISA.6.5', 'ISA.6.3', 'ISA.44.6', 'ISA.48.12',
-          'ISA.40.11', 'ISA.55.1', 'ISA.55.1', 'ISA.35.8', 'ISA.26.19',
-          'ISA.55.7', 'ISA.54.8', 'ISA.54.10', 'ISA.25.8'
+          'PRO.22.6', 'HEB.12.6', 'DEU.6.7', 'EPH.6.4', 'JAM.5.16',
+          '1CO.11.1', 'JOH.3.16', 'PRO.29.17', '1TH.5.11', '1CO.13.4',
+          'EPH.6.2', 'COL.3.13', 'PSA.127.3', 'PRO.15.1', 'PRO.22.6',
+          'PSA.78.4', 'GAL.6.2', 'PRO.31.28', 'JAM.1.5', 'PSA.127.3',
+          'AMO.3.3', 'SON.8.6', 'DEU.6.7', 'JER.29.11', 'PSA.91.1',
+          'PSA.127.3', 'JAM.1.19', 'ISA.40.11', 'PSA.139.14', 'PSA.139.14',
+          'GAL.6.5', 'TIT.2.7', 'DEU.6.7', 'COL.3.12', '1TH.5.11',
+          'DEU.6.7', 'PSA.78.4', '1TH.5.18', 'GAL.5.13', 'PSA.78.4'
         ]
       }
     ];
   }
 
   // Get today's devotion from a custom reading plan
-  async getTodaysDevotion(planId: string, bibleId?: string): Promise<DevotionDay | null> {
-    // Use a simple counter that increments each time to simulate different days
+  async getTodaysDevotion(planId: string, bibleId?: string, day?: number): Promise<DevotionDay | null> {
     const now = new Date();
-    const timeBasedIndex = Math.floor(now.getTime() / (1000 * 60 * 60 * 24)) % 5; // Changes every day
+    const timeBasedIndex = day !== undefined ? (day - 1) : Math.floor(now.getTime() / (1000 * 60 * 60 * 24)) % 5;
     
-    // Custom manly devotional tracks using API.Bible scripture
+    // Custom marriage-focused devotional tracks using API.Bible scripture
     const devotionPlans = {
-      'warrior-psalms': {
+      'marriage-foundation': {
         verses: [
-          'PSA.18.1-PSA.18.3', // Psalm 18:1-3 - Warrior's strength
-          'PSA.27.1-PSA.27.3', // Psalm 27:1-3 - Courage
-          'PSA.31.24',         // Psalm 31:24 - Be strong
-          'PSA.46.1-PSA.46.3', // Psalm 46:1-3 - God our refuge
-          'PSA.91.1-PSA.91.4'  // Psalm 91:1-4 - Protection
+          'GEN.2.24', '1CO.13.4', 'HEB.13.4', 'EPH.5.21', 'COL.3.13'
         ],
         titles: [
-          'The Warrior\'s Strength',
-          'Courage in Battle',
-          'Stand Strong',
-          'God Our Fortress',
-          'Divine Protection'
+          'Two Become One',
+          'Love is Patient',
+          'Honor Your Spouse',
+          'Submit to One Another',
+          'Forgive as Christ Forgave'
         ],
         themes: [
-          'Finding strength in God during spiritual battles',
-          'Courage to face life\'s challenges with faith',
-          'Standing firm in your convictions',
-          'Trusting God as your ultimate refuge',
-          'Resting in God\'s protection and care'
+          'The biblical foundation of marriage as two becoming one',
+          'The patience required in loving your spouse daily',
+          'Honoring your spouse as a gift from God',
+          'Mutual submission as the key to harmony',
+          'Forgiveness as the cornerstone of lasting love'
         ]
       },
-      'leadership-proverbs': {
+      'love-languages': {
         verses: [
-          'PRO.16.9',          // Proverbs 16:9 - Planning
-          'PRO.27.17',         // Proverbs 27:17 - Iron sharpens iron
-          'PRO.29.18',         // Proverbs 29:18 - Vision
-          'PRO.31.8-PRO.31.9', // Proverbs 31:8-9 - Speak up
-          'PRO.14.23'          // Proverbs 14:23 - Work
+          'PRO.16.24', 'ECC.4.9-12', 'GAL.5.13', 'SON.2.6', 'MAT.7.11'
         ],
         titles: [
-          'Divine Planning',
-          'Iron Sharpens Iron',
-          'Vision & Leadership',
-          'Speak Up for Justice',
-          'Diligent Work'
+          'Words of Affirmation',
+          'Quality Time Together',
+          'Acts of Service',
+          'Physical Touch',
+          'Gifts of Love'
         ],
         themes: [
-          'Planning your path while trusting God\'s direction',
-          'The importance of godly friendships and accountability',
-          'Leading with vision and purpose',
-          'Using your voice to defend the vulnerable',
-          'The value of hard work and diligence'
+          'Using words to build up and encourage your spouse',
+          'Making time for meaningful connection and conversation',
+          'Showing love through helpful actions and service',
+          'Expressing love through appropriate physical affection',
+          'Demonstrating love through thoughtful gifts and gestures'
         ]
       },
-      'courage-joshua': {
+      'communication-couples': {
         verses: [
-          'JOS.1.9',           // Joshua 1:9 - Be strong and courageous
-          'JOS.1.6',           // Joshua 1:6 - Be strong and courageous
-          'JOS.1.7',           // Joshua 1:7 - Be strong and very courageous
-          'JOS.1.8',           // Joshua 1:8 - Keep this Book of the Law
-          'JOS.1.5'            // Joshua 1:5 - I will never leave you
+          'JAM.1.19', 'EPH.4.15', 'JAM.1.19', 'JAM.1.19', 'COL.3.8'
         ],
         titles: [
-          'Be Strong and Courageous',
-          'God\'s Command to Joshua',
-          'Very Courageous',
-          'Meditate on God\'s Word',
-          'God\'s Promise'
+          'Listen Before Speaking',
+          'Speak Truth in Love',
+          'Be Quick to Listen',
+          'Slow to Anger',
+          'Avoid Harsh Words'
         ],
         themes: [
-          'God\'s command to be strong and courageous in all circumstances',
-          'The foundation of courage is trust in God\'s presence',
-          'Courage comes from obedience to God\'s commands',
-          'Strength comes from meditating on God\'s Word',
-          'God\'s promise to never leave or forsake us'
+          'The importance of listening before responding in marriage',
+          'Speaking truth with love and gentleness',
+          'Being quick to listen and slow to speak',
+          'Controlling anger and choosing patience',
+          'Avoiding harsh words that wound the heart'
         ]
       },
-      'strength-isaiah': {
+      'parenting-together': {
         verses: [
-          'ISA.40.31',         // Isaiah 40:31 - Those who hope in the Lord
-          'ISA.41.10',         // Isaiah 41:10 - Do not fear
-          'ISA.43.2',          // Isaiah 43:2 - When you pass through waters
-          'ISA.54.17',         // Isaiah 54:17 - No weapon formed against you
-          'ISA.26.3'           // Isaiah 26:3 - Perfect peace
+          'PRO.22.6', 'HEB.12.6', 'DEU.6.7', 'EPH.6.4', 'JAM.5.16'
         ],
         titles: [
-          'Renewed Strength',
-          'Do Not Fear',
-          'Through the Waters',
-          'No Weapon Formed',
-          'Perfect Peace'
+          'Train Up a Child',
+          'Discipline with Love',
+          'Teach God\'s Ways',
+          'Be Consistent',
+          'Pray for Your Children'
         ],
         themes: [
-          'Those who hope in the Lord will renew their strength',
-          'God\'s command to not fear because He is with us',
-          'God\'s promise to be with us through trials',
-          'No weapon formed against us will prosper',
-          'Perfect peace comes from trusting in God'
+          'Training children in the way they should go according to God\'s word',
+          'Disciplining children with love and consistency',
+          'Teaching children about God\'s ways and commandments',
+          'Being consistent in your parenting approach',
+          'Praying regularly for your children\'s well-being'
         ]
       }
     };

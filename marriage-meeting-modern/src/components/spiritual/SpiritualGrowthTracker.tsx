@@ -26,13 +26,17 @@ import {
   Activity,
   Zap,
   Shield,
-  Crown
+  Crown,
+  Play,
+  CheckCircle2
 } from 'lucide-react'
 import { Card } from '../ui/Card'
 import { Button } from '../ui/Button'
 import { Input } from '../ui/Input'
 import { Textarea } from '../ui/Textarea'
 import { useVisionStore } from '../../stores/visionStore'
+import { ReadingPlanProgress, ReadingPlan } from '../daily/ReadingPlanProgress'
+import { bibleService, ReadingPlan as BibleReadingPlan, DevotionDay } from '../../lib/bibleService'
 
 interface SpiritualGrowthTrackerProps {
   onBackToVision?: () => void
@@ -134,9 +138,14 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
   const [devotionals, setDevotionals] = useState<DevotionalEntry[]>([])
   const [spiritualGoals, setSpiritualGoals] = useState<SpiritualGoal[]>([])
   const [biblePlans, setBiblePlans] = useState<BibleReadingPlan[]>([])
+  const [readingPlans, setReadingPlans] = useState<ReadingPlan[]>([])
+  const [availablePlans, setAvailablePlans] = useState<BibleReadingPlan[]>([])
+  const [currentDevotion, setCurrentDevotion] = useState<DevotionDay | null>(null)
+  const [isLoadingDevotion, setIsLoadingDevotion] = useState(false)
 
   useEffect(() => {
     loadSpiritualGrowth()
+    loadAvailablePlans()
   }, [loadSpiritualGrowth])
 
   useEffect(() => {
@@ -145,6 +154,94 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
       setReflectionNotes(spiritualGrowth.reflection_notes || '')
     }
   }, [spiritualGrowth])
+
+  const loadAvailablePlans = async () => {
+    try {
+      const plans = await bibleService.getReadingPlans()
+      setAvailablePlans(plans)
+    } catch (error) {
+      console.error('Error loading reading plans:', error)
+    }
+  }
+
+  const handleStartReadingPlan = async (plan: BibleReadingPlan) => {
+    try {
+      const newPlan: ReadingPlan = {
+        planId: plan.id,
+        planName: plan.name,
+        currentDay: 1,
+        totalDays: plan.duration,
+        startDate: new Date().toISOString().split('T')[0],
+        completedDays: [],
+        bibleId: 'de4e12af7f28f599-02'
+      }
+      
+      setReadingPlans([...readingPlans, newPlan])
+    } catch (error) {
+      console.error('Error starting reading plan:', error)
+    }
+  }
+
+  const handleLoadTodaysDevotion = async (planId: string, targetDay?: number, bibleId?: string) => {
+    setIsLoadingDevotion(true)
+    try {
+      const devotion = await bibleService.getTodaysDevotion(planId, bibleId, targetDay)
+      setCurrentDevotion(devotion)
+    } catch (error) {
+      console.error('Error loading devotion:', error)
+    } finally {
+      setIsLoadingDevotion(false)
+    }
+  }
+
+  const handleAdvanceToNextDay = () => {
+    const plan = readingPlans.find(p => p.planId === currentDevotion?.verses[0]?.id)
+    if (plan && plan.currentDay < plan.totalDays) {
+      const updatedPlans = readingPlans.map(p => 
+        p.planId === plan.planId 
+          ? { ...p, currentDay: p.currentDay + 1 }
+          : p
+      )
+      setReadingPlans(updatedPlans)
+    }
+  }
+
+  const handleGoToPreviousDay = () => {
+    const plan = readingPlans.find(p => p.planId === currentDevotion?.verses[0]?.id)
+    if (plan && plan.currentDay > 1) {
+      const updatedPlans = readingPlans.map(p => 
+        p.planId === plan.planId 
+          ? { ...p, currentDay: p.currentDay - 1 }
+          : p
+      )
+      setReadingPlans(updatedPlans)
+    }
+  }
+
+  const handleClosePlan = () => {
+    setCurrentDevotion(null)
+  }
+
+  const handleStartNewPlan = () => {
+    setCurrentDevotion(null)
+  }
+
+  const handleRestartPlan = () => {
+    const plan = readingPlans.find(p => p.planId === currentDevotion?.verses[0]?.id)
+    if (plan) {
+      const updatedPlans = readingPlans.map(p => 
+        p.planId === plan.planId 
+          ? { ...p, currentDay: 1, completedDays: [] }
+          : p
+      )
+      setReadingPlans(updatedPlans)
+    }
+  }
+
+  const handleSaveProgress = () => {
+    // Save progress to database
+    console.log('Saving reading plan progress...')
+  }
 
   const handleAddPrayer = async () => {
     if (newPrayer.text.trim() && spiritualGrowth) {
@@ -255,35 +352,17 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
   // Utility functions for modern gray-to-purple theme
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case 'urgent': return 'text-red-600 bg-red-50 border-red-200'
-      case 'high': return 'text-purple-600 bg-purple-50 border-purple-200'
+      case 'urgent': return 'text-slate-800 bg-slate-100 border-slate-300'
+      case 'high': return 'text-slate-700 bg-slate-50 border-slate-200'
       case 'medium': return 'text-slate-600 bg-slate-50 border-slate-200'
-      case 'low': return 'text-gray-500 bg-gray-50 border-gray-200'
-      default: return 'text-gray-600 bg-gray-50 border-gray-200'
+      case 'low': return 'text-slate-500 bg-slate-50 border-slate-200'
+      default: return 'text-slate-600 bg-slate-50 border-slate-200'
     }
   }
 
   const getCategoryColor = (category: string) => {
-    const colors = {
-      family: 'text-pink-600 bg-pink-50 border-pink-200',
-      health: 'text-emerald-600 bg-emerald-50 border-emerald-200',
-      work: 'text-blue-600 bg-blue-50 border-blue-200',
-      ministry: 'text-purple-600 bg-purple-50 border-purple-200',
-      personal: 'text-indigo-600 bg-indigo-50 border-indigo-200',
-      world: 'text-orange-600 bg-orange-50 border-orange-200',
-      community: 'text-teal-600 bg-teal-50 border-teal-200',
-      spiritual: 'text-violet-600 bg-violet-50 border-violet-200',
-      prayer: 'text-purple-600 bg-purple-50 border-purple-200',
-      study: 'text-blue-600 bg-blue-50 border-blue-200',
-      service: 'text-green-600 bg-green-50 border-green-200',
-      worship: 'text-yellow-600 bg-yellow-50 border-yellow-200',
-      discipleship: 'text-indigo-600 bg-indigo-50 border-indigo-200',
-      character: 'text-slate-600 bg-slate-50 border-slate-200',
-      daily: 'text-purple-600 bg-purple-50 border-purple-200',
-      meditation: 'text-blue-600 bg-blue-50 border-blue-200',
-      reflection: 'text-indigo-600 bg-indigo-50 border-indigo-200'
-    }
-    return colors[category as keyof typeof colors] || 'text-gray-600 bg-gray-50 border-gray-200'
+    // All categories use the same elegant slate/purple theme
+    return 'text-slate-600 bg-slate-50 border-slate-200'
   }
 
   const getGradientClass = (type: 'header' | 'card' | 'accent') => {
@@ -328,8 +407,8 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
               </Button>
             )}
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-gradient-to-br from-purple-500 to-violet-600 rounded-xl shadow-lg">
-                <Cross className="w-6 h-6 text-white" />
+              <div className="p-3 bg-gradient-to-br from-slate-100 to-slate-200 rounded-xl border border-slate-300">
+                <Cross className="w-6 h-6 text-slate-600" />
               </div>
               <div>
                 <h2 className="text-2xl lg:text-3xl font-bold text-slate-800">Spiritual Growth</h2>
@@ -341,15 +420,15 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
           {/* Quick Stats */}
           <div className="flex gap-4">
             <div className="text-center">
-              <div className="text-2xl font-bold text-purple-600">{prayerRequests.length}</div>
+              <div className="text-2xl font-bold text-slate-700">{prayerRequests.length}</div>
               <div className="text-xs text-slate-600">Prayers</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-violet-600">{spiritualGoals.filter(g => g.completed).length}</div>
+              <div className="text-2xl font-bold text-slate-700">{spiritualGoals.filter(g => g.completed).length}</div>
               <div className="text-xs text-slate-600">Goals</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-slate-600">{bibleProgress}</div>
+              <div className="text-2xl font-bold text-slate-700">{bibleProgress}</div>
               <div className="text-xs text-slate-600">Days</div>
             </div>
           </div>
@@ -387,8 +466,8 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
           {/* Prayer Overview */}
           <Card className={`p-6 ${getGradientClass('card')} border-0 shadow-md hover:shadow-lg transition-shadow duration-200`}>
             <div className="flex items-center gap-3 mb-4">
-              <div className="p-2 bg-gradient-to-br from-pink-500 to-rose-600 rounded-lg">
-                <Heart className="w-5 h-5 text-white" />
+              <div className="p-2 bg-gradient-to-br from-slate-100 to-slate-200 rounded-lg border border-slate-300">
+                <Heart className="w-5 h-5 text-slate-600" />
               </div>
               <div>
                 <h3 className="text-lg font-bold text-slate-800">Prayer Life</h3>
@@ -398,15 +477,15 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
             <div className="space-y-3">
               <div className="flex justify-between items-center">
                 <span className="text-slate-600">Active Requests</span>
-                <span className="text-xl font-bold text-pink-600">{prayerRequests.length}</span>
+                <span className="text-xl font-bold text-slate-700">{prayerRequests.length}</span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-slate-600">Answered Prayers</span>
-                <span className="text-xl font-bold text-green-600">{spiritualGrowth?.answered_prayers.length || 0}</span>
+                <span className="text-xl font-bold text-slate-700">{spiritualGrowth?.answered_prayers.length || 0}</span>
               </div>
               <Button
                 onClick={() => setActiveTab('prayer')}
-                className="w-full bg-gradient-to-r from-pink-500 to-rose-600 hover:from-pink-600 hover:to-rose-700 text-white"
+                className="w-full bg-gradient-to-r from-slate-600 to-slate-700 hover:from-slate-700 hover:to-slate-800 text-white"
               >
                 View Prayer Center
               </Button>
@@ -416,8 +495,8 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
           {/* Bible Study Overview */}
           <Card className={`p-6 ${getGradientClass('card')} border-0 shadow-md hover:shadow-lg transition-shadow duration-200`}>
             <div className="flex items-center gap-3 mb-4">
-              <div className="p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg">
-                <BookOpen className="w-5 h-5 text-white" />
+              <div className="p-2 bg-gradient-to-br from-slate-100 to-slate-200 rounded-lg border border-slate-300">
+                <BookOpen className="w-5 h-5 text-slate-600" />
               </div>
               <div>
                 <h3 className="text-lg font-bold text-slate-800">Bible Study</h3>
@@ -427,7 +506,7 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
             <div className="space-y-3">
               <div className="flex justify-between items-center">
                 <span className="text-slate-600">Days Completed</span>
-                <span className="text-xl font-bold text-blue-600">{bibleProgress}</span>
+                <span className="text-xl font-bold text-slate-700">{bibleProgress}</span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-slate-600">Current Plan</span>
@@ -437,7 +516,7 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
               </div>
               <Button
                 onClick={() => setActiveTab('bible')}
-                className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white"
+                className="w-full bg-gradient-to-r from-slate-600 to-slate-700 hover:from-slate-700 hover:to-slate-800 text-white"
               >
                 View Bible Study
               </Button>
@@ -447,8 +526,8 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
           {/* Goals Overview */}
           <Card className={`p-6 ${getGradientClass('card')} border-0 shadow-md hover:shadow-lg transition-shadow duration-200`}>
             <div className="flex items-center gap-3 mb-4">
-              <div className="p-2 bg-gradient-to-br from-purple-500 to-violet-600 rounded-lg">
-                <Target className="w-5 h-5 text-white" />
+              <div className="p-2 bg-gradient-to-br from-slate-100 to-slate-200 rounded-lg border border-slate-300">
+                <Target className="w-5 h-5 text-slate-600" />
               </div>
               <div>
                 <h3 className="text-lg font-bold text-slate-800">Spiritual Goals</h3>
@@ -458,15 +537,15 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
             <div className="space-y-3">
               <div className="flex justify-between items-center">
                 <span className="text-slate-600">Total Goals</span>
-                <span className="text-xl font-bold text-purple-600">{spiritualGoals.length}</span>
+                <span className="text-xl font-bold text-slate-700">{spiritualGoals.length}</span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-slate-600">Completed</span>
-                <span className="text-xl font-bold text-green-600">{spiritualGoals.filter(g => g.completed).length}</span>
+                <span className="text-xl font-bold text-slate-700">{spiritualGoals.filter(g => g.completed).length}</span>
               </div>
               <Button
                 onClick={() => setActiveTab('goals')}
-                className="w-full bg-gradient-to-r from-purple-500 to-violet-600 hover:from-purple-600 hover:to-violet-700 text-white"
+                className="w-full bg-gradient-to-r from-slate-600 to-slate-700 hover:from-slate-700 hover:to-slate-800 text-white"
               >
                 View Goals
               </Button>
@@ -476,8 +555,8 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
           {/* Devotionals Overview */}
           <Card className={`p-6 ${getGradientClass('card')} border-0 shadow-md hover:shadow-lg transition-shadow duration-200`}>
             <div className="flex items-center gap-3 mb-4">
-              <div className="p-2 bg-gradient-to-br from-yellow-500 to-orange-600 rounded-lg">
-                <Star className="w-5 h-5 text-white" />
+              <div className="p-2 bg-gradient-to-br from-slate-100 to-slate-200 rounded-lg border border-slate-300">
+                <Star className="w-5 h-5 text-slate-600" />
               </div>
               <div>
                 <h3 className="text-lg font-bold text-slate-800">Devotionals</h3>
@@ -487,11 +566,11 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
             <div className="space-y-3">
               <div className="flex justify-between items-center">
                 <span className="text-slate-600">Completed</span>
-                <span className="text-xl font-bold text-yellow-600">{devotionals.length}</span>
+                <span className="text-xl font-bold text-slate-700">{devotionals.length}</span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-slate-600">This Month</span>
-                <span className="text-xl font-bold text-orange-600">
+                <span className="text-xl font-bold text-slate-700">
                   {devotionals.filter(d => 
                     new Date(d.dateCompleted) > new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
                   ).length}
@@ -499,7 +578,7 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
               </div>
               <Button
                 onClick={() => setActiveTab('devotionals')}
-                className="w-full bg-gradient-to-r from-yellow-500 to-orange-600 hover:from-yellow-600 hover:to-orange-700 text-white"
+                className="w-full bg-gradient-to-r from-slate-600 to-slate-700 hover:from-slate-700 hover:to-slate-800 text-white"
               >
                 View Devotionals
               </Button>
@@ -509,8 +588,8 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
           {/* Reflection Overview */}
           <Card className={`p-6 ${getGradientClass('card')} border-0 shadow-md hover:shadow-lg transition-shadow duration-200`}>
             <div className="flex items-center gap-3 mb-4">
-              <div className="p-2 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg">
-                <MessageCircle className="w-5 h-5 text-white" />
+              <div className="p-2 bg-gradient-to-br from-slate-100 to-slate-200 rounded-lg border border-slate-300">
+                <MessageCircle className="w-5 h-5 text-slate-600" />
               </div>
               <div>
                 <h3 className="text-lg font-bold text-slate-800">Reflection</h3>
@@ -520,7 +599,7 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
             <div className="space-y-3">
               <div className="flex justify-between items-center">
                 <span className="text-slate-600">Notes Length</span>
-                <span className="text-xl font-bold text-indigo-600">
+                <span className="text-xl font-bold text-slate-700">
                   {reflectionNotes.length} chars
                 </span>
               </div>
@@ -530,7 +609,7 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
               </div>
               <Button
                 onClick={() => setActiveTab('reflection')}
-                className="w-full bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white"
+                className="w-full bg-gradient-to-r from-slate-600 to-slate-700 hover:from-slate-700 hover:to-slate-800 text-white"
               >
                 View Reflection
               </Button>
@@ -540,8 +619,8 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
           {/* Spiritual Growth Metrics */}
           <Card className={`p-6 ${getGradientClass('card')} border-0 shadow-md hover:shadow-lg transition-shadow duration-200 lg:col-span-2 xl:col-span-1`}>
             <div className="flex items-center gap-3 mb-4">
-              <div className="p-2 bg-gradient-to-br from-slate-500 to-gray-600 rounded-lg">
-                <TrendingUp className="w-5 h-5 text-white" />
+              <div className="p-2 bg-gradient-to-br from-slate-100 to-slate-200 rounded-lg border border-slate-300">
+                <TrendingUp className="w-5 h-5 text-slate-600" />
               </div>
               <div>
                 <h3 className="text-lg font-bold text-slate-800">Growth Metrics</h3>
@@ -551,15 +630,15 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
             <div className="space-y-4">
               <div className="flex justify-between items-center">
                 <span className="text-slate-600">Prayer Streak</span>
-                <span className="text-lg font-bold text-purple-600">7 days</span>
+                <span className="text-lg font-bold text-slate-700">7 days</span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-slate-600">Bible Reading Streak</span>
-                <span className="text-lg font-bold text-blue-600">12 days</span>
+                <span className="text-lg font-bold text-slate-700">12 days</span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-slate-600">Goals Completion</span>
-                <span className="text-lg font-bold text-green-600">
+                <span className="text-lg font-bold text-slate-700">
                   {spiritualGoals.length > 0 
                     ? Math.round((spiritualGoals.filter(g => g.completed).length / spiritualGoals.length) * 100)
                     : 0}%
@@ -743,14 +822,108 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
       {/* Bible Study Tab */}
       {activeTab === 'bible' && (
         <div className="space-y-6">
+          {/* Current Devotion Display */}
+          {currentDevotion && (
+            <Card className={`p-6 ${getGradientClass('card')} border-0 shadow-lg`}>
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-2 bg-gradient-to-br from-slate-100 to-slate-200 rounded-lg border border-slate-300">
+                  <BookOpen className="w-5 h-5 text-slate-600" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-slate-800">Today's Devotion</h3>
+                  <p className="text-slate-600">{currentDevotion.title}</p>
+                </div>
+              </div>
+              
+              <div className="space-y-4">
+                {currentDevotion.verses.map((verse, index) => (
+                  <div key={index} className="p-4 bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl border border-slate-200">
+                    <h4 className="font-semibold text-slate-800 mb-2">{verse.reference}</h4>
+                    <p className="text-slate-700 leading-relaxed mb-3">{verse.content}</p>
+                    <p className="text-sm text-slate-500 italic">{verse.copyright}</p>
+                  </div>
+                ))}
+                
+                <div className="p-4 bg-gradient-to-br from-purple-50 to-violet-50 rounded-xl border border-purple-200">
+                  <h4 className="font-semibold text-slate-800 mb-2">Reflection</h4>
+                  <p className="text-slate-700 leading-relaxed">{currentDevotion.content}</p>
+                </div>
+              </div>
+            </Card>
+          )}
+
+          {/* Reading Plan Progress */}
+          {readingPlans.map((plan) => (
+            <ReadingPlanProgress
+              key={plan.planId}
+              readingPlan={plan}
+              onLoadTodaysDevotion={handleLoadTodaysDevotion}
+              onAdvanceToNextDay={handleAdvanceToNextDay}
+              onGoToPreviousDay={handleGoToPreviousDay}
+              onClosePlan={handleClosePlan}
+              onStartNewPlan={handleStartNewPlan}
+              onRestartPlan={handleRestartPlan}
+              onSaveProgress={handleSaveProgress}
+            />
+          ))}
+
+          {/* Available Reading Plans */}
           <Card className={`p-6 ${getGradientClass('card')} border-0 shadow-md`}>
             <div className="flex items-center gap-3 mb-6">
-              <div className="p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg">
-                <BookOpen className="w-5 h-5 text-white" />
+              <div className="p-2 bg-gradient-to-br from-slate-100 to-slate-200 rounded-lg border border-slate-300">
+                <BookOpen className="w-5 h-5 text-slate-600" />
               </div>
               <div>
-                <h3 className="text-xl font-bold text-slate-800">Bible Reading Progress</h3>
-                <p className="text-slate-600">Track your daily Bible study journey</p>
+                <h3 className="text-xl font-bold text-slate-800">Marriage Reading Plans</h3>
+                <p className="text-slate-600">Choose a devotional plan for your spiritual growth</p>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {availablePlans.map((plan) => (
+                <div key={plan.id} className="p-4 bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl border border-slate-200 hover:shadow-md transition-shadow duration-200">
+                  <div className="flex items-start justify-between mb-3">
+                    <div>
+                      <h4 className="font-semibold text-slate-800 mb-1">{plan.name}</h4>
+                      <p className="text-sm text-slate-600">{plan.description}</p>
+                    </div>
+                    <span className="text-xs text-slate-500 bg-slate-200 px-2 py-1 rounded-full">
+                      {plan.duration} days
+                    </span>
+                  </div>
+                  
+                  <div className="flex items-center gap-2">
+                    <Button
+                      onClick={() => handleStartReadingPlan(plan)}
+                      size="sm"
+                      className="bg-gradient-to-r from-slate-600 to-slate-700 hover:from-slate-700 hover:to-slate-800 text-white"
+                    >
+                      <Play className="w-4 h-4 mr-2" />
+                      Start Plan
+                    </Button>
+                    <Button
+                      onClick={() => handleLoadTodaysDevotion(plan.id)}
+                      variant="outline"
+                      size="sm"
+                      className="text-slate-600 border-slate-300 hover:bg-slate-100"
+                    >
+                      Preview
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </Card>
+
+          {/* Manual Progress Tracking */}
+          <Card className={`p-6 ${getGradientClass('card')} border-0 shadow-md`}>
+            <div className="flex items-center gap-3 mb-6">
+              <div className="p-2 bg-gradient-to-br from-slate-100 to-slate-200 rounded-lg border border-slate-300">
+                <TrendingUp className="w-5 h-5 text-slate-600" />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-slate-800">Manual Progress</h3>
+                <p className="text-slate-600">Track your general Bible reading progress</p>
               </div>
             </div>
             
@@ -771,7 +944,7 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
                       }
                     }}
                     placeholder="e.g., 'Read through the Bible in one year'"
-                    className="w-full border-slate-300 focus:border-blue-500 focus:ring-blue-500"
+                    className="w-full border-slate-300 focus:border-slate-500 focus:ring-slate-500"
                   />
                 </div>
                 
@@ -784,12 +957,12 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
                       type="number"
                       value={bibleProgress}
                       onChange={(e) => setBibleProgress(parseInt(e.target.value) || 0)}
-                      className="w-24 border-slate-300 focus:border-blue-500 focus:ring-blue-500"
+                      className="w-24 border-slate-300 focus:border-slate-500 focus:ring-slate-500"
                       min="0"
                     />
                     <Button
                       onClick={() => handleUpdateBibleProgress(bibleProgress)}
-                      className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white"
+                      className="bg-gradient-to-r from-slate-600 to-slate-700 hover:from-slate-700 hover:to-slate-800 text-white"
                     >
                       <Save className="w-4 h-4 mr-2" />
                       Update
@@ -806,20 +979,20 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
               </div>
               
               <div className="space-y-4">
-                <div className="p-4 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-200">
+                <div className="p-4 bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl border border-slate-200">
                   <h4 className="font-semibold text-slate-800 mb-2">Progress Overview</h4>
                   <div className="space-y-2">
                     <div className="flex justify-between">
                       <span className="text-slate-600">Current Streak</span>
-                      <span className="font-semibold text-blue-600">12 days</span>
+                      <span className="font-semibold text-slate-700">12 days</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-slate-600">Longest Streak</span>
-                      <span className="font-semibold text-blue-600">45 days</span>
+                      <span className="font-semibold text-slate-700">45 days</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-slate-600">Total Days</span>
-                      <span className="font-semibold text-blue-600">{bibleProgress}</span>
+                      <span className="font-semibold text-slate-700">{bibleProgress}</span>
                     </div>
                   </div>
                 </div>
