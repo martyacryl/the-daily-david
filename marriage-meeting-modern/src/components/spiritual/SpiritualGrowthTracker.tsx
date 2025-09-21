@@ -20,6 +20,7 @@ import { Button } from '../ui/Button'
 import { Input } from '../ui/Input'
 import { Textarea } from '../ui/Textarea'
 import { useVisionStore } from '../../stores/visionStore'
+import { useAuthStore } from '../../stores/authStore'
 import { ReadingPlanProgress, ReadingPlan } from '../daily/ReadingPlanProgress'
 import { bibleService, DevotionDay } from '../../lib/bibleService'
 
@@ -73,6 +74,7 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
     loadSpiritualGrowth,
     updateSpiritualGrowth
   } = useVisionStore()
+  const { logout } = useAuthStore()
 
   const [isAddingPrayer, setIsAddingPrayer] = useState(false)
   const [isAddingAnswered, setIsAddingAnswered] = useState(false)
@@ -108,6 +110,16 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
     return ''
   }
 
+  // Helper function to handle authentication errors
+  const handleAuthError = (response: Response) => {
+    if (response.status === 401 || response.status === 403) {
+      console.log('Authentication error, logging out...')
+      logout()
+      // Optionally redirect to login page or show a message
+      window.location.reload()
+    }
+  }
+
   useEffect(() => {
     loadSpiritualGrowth()
     loadReadingPlans()
@@ -137,6 +149,7 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
         }))
         setReadingPlans(transformedPlans || [])
       } else {
+        handleAuthError(response)
         console.error('Error loading reading plans:', response.statusText)
         setReadingPlans([])
       }
@@ -166,6 +179,7 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
         const plans = await response.json()
         setAvailablePlans(plans || [])
       } else {
+        handleAuthError(response)
         console.error('Error loading available plans:', response.statusText)
         setAvailablePlans([])
       }
