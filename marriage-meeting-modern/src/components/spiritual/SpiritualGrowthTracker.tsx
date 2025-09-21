@@ -233,6 +233,47 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
       setCurrentPlanId(planId)
       const devotion = await bibleService.getTodaysDevotion(planId, bibleId, targetDay)
       setCurrentDevotion(devotion)
+      
+      // If a specific day is requested, update the plan's current day
+      if (targetDay && targetDay > 0) {
+        const plan = readingPlans.find(p => p.planId === planId)
+        if (plan) {
+          // Update the plan's current day in the database
+          const token = getAuthToken()
+          const response = await fetch(`/api/reading-plans/${planId}`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+              current_day: targetDay,
+              completed_days: plan.completedDays
+            })
+          })
+          
+          if (response.ok) {
+            // Update local state with the new current day
+            const updatedPlan = await response.json()
+            const transformedPlan = {
+              planId: updatedPlan.plan_id,
+              planName: updatedPlan.plan_name,
+              currentDay: updatedPlan.current_day,
+              totalDays: updatedPlan.total_days,
+              startDate: updatedPlan.start_date,
+              completedDays: updatedPlan.completed_days || [],
+              bibleId: updatedPlan.bible_id
+            }
+            
+            setReadingPlans(prev => prev.map(p => 
+              p.planId === planId ? transformedPlan : p
+            ))
+          } else {
+            handleAuthError(response)
+            console.error('Error updating current day:', response.statusText)
+          }
+        }
+      }
     } catch (error) {
       console.error('Error loading devotion:', error)
     }
