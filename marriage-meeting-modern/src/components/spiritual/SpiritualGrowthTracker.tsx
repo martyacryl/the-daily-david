@@ -377,9 +377,35 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
     }
   }
 
-  const handleClosePlan = () => {
-    setCurrentDevotion(null)
-    setCurrentPlanId(null)
+  const handleClosePlan = async (planId?: string) => {
+    const targetPlanId = planId || currentPlanId
+    if (targetPlanId) {
+      try {
+        const token = getAuthToken()
+        const response = await fetch(`/api/reading-plans/${targetPlanId}`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        })
+        
+        if (response.ok) {
+          // Remove the plan from local state
+          setReadingPlans(prev => prev.filter(plan => plan.planId !== targetPlanId))
+          setCurrentDevotion(null)
+          setCurrentPlanId(null)
+        } else {
+          handleAuthError(response)
+          console.error('Error deleting reading plan:', response.statusText)
+        }
+      } catch (error) {
+        console.error('Error deleting reading plan:', error)
+      }
+    } else {
+      // If no plan ID, just clear the current devotion
+      setCurrentDevotion(null)
+      setCurrentPlanId(null)
+    }
   }
 
   const handleStartNewPlan = () => {
@@ -973,7 +999,7 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
               onLoadTodaysDevotion={handleLoadTodaysDevotion}
               onAdvanceToNextDay={() => handleAdvanceToNextDay(plan.planId)}
               onGoToPreviousDay={() => handleGoToPreviousDay(plan.planId)}
-              onClosePlan={handleClosePlan}
+              onClosePlan={() => handleClosePlan(plan.planId)}
               onStartNewPlan={handleStartNewPlan}
               onRestartPlan={() => handleRestartPlan(plan.planId)}
               onSaveProgress={handleSaveProgress}
