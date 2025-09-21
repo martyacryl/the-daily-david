@@ -457,11 +457,11 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
           {/* Quick Stats */}
           <div className="flex gap-4">
             <div className="text-center">
-              <div className="text-2xl font-bold text-slate-700">{prayerRequests.length}</div>
+              <div className="text-2xl font-bold text-slate-700">{prayerRequests?.length || 0}</div>
               <div className="text-xs text-slate-600">Prayers</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-slate-700">{spiritualGoals.filter(g => g.completed).length}</div>
+              <div className="text-2xl font-bold text-slate-700">{spiritualGoals?.filter(g => g.completed)?.length || 0}</div>
               <div className="text-xs text-slate-600">Goals</div>
             </div>
             <div className="text-center">
@@ -513,7 +513,7 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
             <div className="space-y-3">
               <div className="flex justify-between items-center">
                 <span className="text-slate-600">Active Requests</span>
-                <span className="text-xl font-bold text-slate-700">{prayerRequests.length}</span>
+                <span className="text-xl font-bold text-slate-700">{prayerRequests?.length || 0}</span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-slate-600">Answered Prayers</span>
@@ -542,7 +542,7 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
             <div className="space-y-3">
               <div className="flex justify-between items-center">
                 <span className="text-slate-600">Active Plans</span>
-                <span className="text-xl font-bold text-slate-700">{readingPlans.length}</span>
+                <span className="text-xl font-bold text-slate-700">{readingPlans?.length || 0}</span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-slate-600">Days Completed</span>
@@ -571,11 +571,11 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
             <div className="space-y-3">
               <div className="flex justify-between items-center">
                 <span className="text-slate-600">Total Goals</span>
-                <span className="text-xl font-bold text-slate-700">{spiritualGoals.length}</span>
+                <span className="text-xl font-bold text-slate-700">{spiritualGoals?.length || 0}</span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-slate-600">Completed</span>
-                <span className="text-xl font-bold text-slate-700">{spiritualGoals.filter(g => g.completed).length}</span>
+                <span className="text-xl font-bold text-slate-700">{spiritualGoals?.filter(g => g.completed)?.length || 0}</span>
               </div>
               <Button
                 onClick={() => setActiveTab('goals')}
@@ -641,7 +641,7 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
               <div className="flex justify-between items-center">
                 <span className="text-slate-600">Goals Completion</span>
                 <span className="text-lg font-bold text-slate-700">
-                  {spiritualGoals.length > 0 
+                  {spiritualGoals && spiritualGoals.length > 0 
                     ? Math.round((spiritualGoals.filter(g => g.completed).length / spiritualGoals.length) * 100)
                     : 0}%
                 </span>
@@ -663,7 +663,7 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
                 </div>
                 <div>
                   <h3 className="text-xl font-bold text-slate-800">Prayer Requests</h3>
-                  <p className="text-slate-600">{prayerRequests.length} active requests</p>
+                  <p className="text-slate-600">{prayerRequests?.length || 0} active requests</p>
                 </div>
               </div>
               <Button
