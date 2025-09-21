@@ -294,7 +294,7 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
 
   const handleRemovePrayer = async (index: number) => {
     if (spiritualGrowth) {
-      const updatedPrayers = spiritualGrowth.prayer_requests.filter((_, i) => i !== index)
+      const updatedPrayers = (spiritualGrowth.prayer_requests || []).filter((_, i) => i !== index)
       await updateSpiritualGrowth({
         ...spiritualGrowth,
         prayer_requests: updatedPrayers
@@ -316,7 +316,7 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
 
   const handleRemoveAnswered = async (index: number) => {
     if (spiritualGrowth) {
-      const updatedAnswered = spiritualGrowth.answered_prayers.filter((_, i) => i !== index)
+      const updatedAnswered = (spiritualGrowth.answered_prayers || []).filter((_, i) => i !== index)
       await updateSpiritualGrowth({
         ...spiritualGrowth,
         answered_prayers: updatedAnswered
@@ -338,7 +338,7 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
 
   const handleRemoveDevotional = async (index: number) => {
     if (spiritualGrowth) {
-      const updatedDevotionals = spiritualGrowth.devotionals.filter((_, i) => i !== index)
+      const updatedDevotionals = (spiritualGrowth.devotionals || []).filter((_, i) => i !== index)
       await updateSpiritualGrowth({
         ...spiritualGrowth,
         devotionals: updatedDevotionals
@@ -360,7 +360,7 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
 
   const handleRemoveGoal = async (index: number) => {
     if (spiritualGrowth) {
-      const updatedGoals = spiritualGrowth.spiritual_goals.filter((_, i) => i !== index)
+      const updatedGoals = (spiritualGrowth.spiritual_goals || []).filter((_, i) => i !== index)
       await updateSpiritualGrowth({
         ...spiritualGrowth,
         spiritual_goals: updatedGoals
