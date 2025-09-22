@@ -167,15 +167,9 @@ export class CalendarService {
         console.log('📅 parseICalData: Parsed event:', event ? event.title : 'null')
         
         if (event) {
-          const isInWeek = this.isEventInWeek(event, weekStartDate, weekEnd)
-          console.log('📅 parseICalData: Event in week?', isInWeek, 'for event:', event.title)
-          
-          if (isInWeek) {
-            events.push(event)
-            console.log('📅 parseICalData: Added event to results:', event.title)
-          } else {
-            console.log('📅 parseICalData: Event not in week range:', event.title)
-          }
+          // Add all events - let the component filter by specific dates
+          events.push(event)
+          console.log('📅 parseICalData: Added event to results:', event.title)
         } else {
           console.log('📅 parseICalData: Failed to parse event block')
         }
@@ -379,27 +373,6 @@ export class CalendarService {
     throw new Error(`Unsupported date format: ${dateStr}`)
   }
 
-  /**
-   * Check if event is within the specified week
-   */
-  private isEventInWeek(event: CalendarEvent, weekStart: Date, weekEnd: Date): boolean {
-    const eventStart = event.start
-    const eventEnd = event.end
-
-    // Check if event overlaps with the week
-    const isInWeek = (eventStart < weekEnd && eventEnd > weekStart)
-    
-    console.log('📅 isEventInWeek check:', {
-      title: event.title,
-      eventStart: eventStart.toISOString().split('T')[0],
-      eventEnd: eventEnd.toISOString().split('T')[0],
-      weekStart: weekStart.toISOString().split('T')[0],
-      weekEnd: weekEnd.toISOString().split('T')[0],
-      isInWeek
-    })
-    
-    return isInWeek
-  }
 
   /**
    * Check if cache is still valid
@@ -585,8 +558,9 @@ export class CalendarService {
     try {
       console.log('📅 Fetching Google Calendar events for week starting:', weekStart)
       
+      // Fetch a wider range to ensure we get all relevant events
       const weekEnd = new Date(weekStart)
-      weekEnd.setDate(weekEnd.getDate() + 6)
+      weekEnd.setDate(weekEnd.getDate() + 13) // 2 weeks to be safe
       weekEnd.setHours(23, 59, 59, 999)
 
       const response = await window.gapi.client.calendar.events.list({

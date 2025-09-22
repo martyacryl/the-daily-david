@@ -107,29 +107,34 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
       const handleEventsUpdate = async (events: CalendarEvent[]) => {
         console.log('📅 Calendar events updated:', events.length)
         
-        // Filter events to only include those that actually belong to the current week
+        // Get all 7 dates for the current week
+        const weekDates: string[] = []
+        for (let i = 0; i < 7; i++) {
+          const date = new Date(weekStart.getTime() + i * 24 * 60 * 60 * 1000)
+          weekDates.push(date.toISOString().split('T')[0])
+        }
+        
+        console.log('📅 Current week dates:', weekDates)
+        
+        // Filter events to only include those that occur on any day of the current week
         const currentWeekEvents = events.filter(event => {
           const eventStartDate = event.start.toISOString().split('T')[0]
           const eventEndDate = event.end.toISOString().split('T')[0]
-          const weekStartDate = weekStart.toISOString().split('T')[0]
-          // Week ends on Sunday (6 days after Monday), not Monday of next week
-          const weekEndDate = new Date(weekStart.getTime() + 6 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
           
-          // Event belongs to current week if it starts or ends within the week
-          const belongsToWeek = (eventStartDate >= weekStartDate && eventStartDate <= weekEndDate) ||
-                               (eventEndDate >= weekStartDate && eventEndDate <= weekEndDate) ||
-                               (eventStartDate < weekStartDate && eventEndDate > weekEndDate)
+          // Check if event starts or ends on any day of the current week
+          const eventOnWeekDay = weekDates.some(weekDate => 
+            eventStartDate === weekDate || eventEndDate === weekDate
+          )
           
-          console.log('📅 Event week filter check:', {
+          console.log('📅 Event date check:', {
             title: event.title,
             eventStartDate,
             eventEndDate,
-            weekStartDate,
-            weekEndDate,
-            belongsToWeek
+            weekDates,
+            eventOnWeekDay
           })
           
-          return belongsToWeek
+          return eventOnWeekDay
         })
         
         console.log('📅 Filtered events for current week:', currentWeekEvents.length, 'out of', events.length)
