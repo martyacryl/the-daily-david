@@ -1249,8 +1249,6 @@ export const DashboardNew: React.FC = () => {
         isOpen={isSettingsOpen} 
         onClose={() => setIsSettingsOpen(false)} 
       />
-        </div>
-      </div>
     </div>
   )
 }
