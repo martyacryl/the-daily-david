@@ -38,6 +38,7 @@ import { useAuthStore } from '../../stores/authStore'
 import { useMarriageStore } from '../../stores/marriageStore'
 import { useGoalsStore } from '../../stores/goalsStore'
 import { useSettingsStore } from '../../stores/settingsStore'
+import { calendarService } from '../../lib/calendarService'
 import { MarriageMeetingWeek, GoalItem, ListItem, EncouragementNote } from '../../types/marriageTypes'
 import { EncouragementSection } from '../EncouragementSection'
 import { WeekOverview } from '../WeekOverview'
@@ -412,43 +413,42 @@ export const DashboardNew: React.FC = () => {
                     console.log('Dashboard Debug - Filtered schedule:', filteredSchedule)
                     console.log('Dashboard Debug - Calendar events:', todayCalendarEvents.length)
                     
-                    // Combine schedule items and calendar events
-                    const allItems = [
-                      ...filteredSchedule.map((item, index) => ({
-                        type: 'schedule',
-                        content: item,
-                        key: `schedule-${index}`
-                      })),
-                      ...todayCalendarEvents.map((event, index) => ({
-                        type: 'calendar',
-                        content: event.title,
-                        time: event.start.toLocaleTimeString('en-US', { 
-                          hour: 'numeric', 
-                          minute: '2-digit',
-                          hour12: true,
-                          timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
-                        }),
-                        key: `calendar-${index}`
-                      }))
-                    ]
-                    
-                    return allItems.length > 0 ? (
-                      allItems.map((item) => (
-                        <div key={item.key} className={`p-3 sm:p-4 rounded-xl border-l-4 ${
-                          item.type === 'calendar' 
-                            ? 'bg-blue-50 border-blue-400' 
-                            : 'bg-slate-100 border-slate-400'
-                        }`}>
-                          <div className="flex items-center justify-between">
-                            <span className="text-sm sm:text-base text-slate-800 font-medium">{item.content}</span>
-                            {item.type === 'calendar' && item.time && (
-                              <span className="text-xs text-blue-600 font-medium">{item.time}</span>
-                            )}
+                    // Display schedule items and calendar events like the weekly schedule
+                    return (
+                      <div className="space-y-2">
+                        {/* Calendar Events - same style as weekly schedule */}
+                        {todayCalendarEvents.map((event, index) => (
+                          <div key={`calendar-${index}`} className="flex gap-2 sm:gap-3 items-start">
+                            <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-green-500 rounded-full mt-2 sm:mt-3 flex-shrink-0"></div>
+                            <div className="flex-1">
+                              <div className="text-sm sm:text-base text-gray-800 font-medium">
+                                {calendarService.formatEventForDisplay(event)}
+                              </div>
+                              {event.location && (
+                                <div className="text-xs text-gray-500 mt-1">
+                                  📍 {event.location}
+                                </div>
+                              )}
+                            </div>
                           </div>
-                        </div>
-                      ))
-                    ) : (
-                      <p className="text-sm text-gray-500 italic p-3">No schedule items for today</p>
+                        ))}
+                        
+                        {/* Custom Schedule Items - same style as weekly schedule */}
+                        {filteredSchedule.map((item, index) => (
+                          <div key={`schedule-${index}`} className="flex gap-2 sm:gap-3 items-start">
+                            <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-blue-500 rounded-full mt-2 sm:mt-3 flex-shrink-0"></div>
+                            <div className="flex-1">
+                              <div className="text-sm sm:text-base text-gray-800 font-medium">
+                                {item}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                        
+                        {todayCalendarEvents.length === 0 && filteredSchedule.length === 0 && (
+                          <p className="text-sm text-gray-500 italic p-3">No schedule items for today</p>
+                        )}
+                      </div>
                     )
                   })()}
                 </div>
