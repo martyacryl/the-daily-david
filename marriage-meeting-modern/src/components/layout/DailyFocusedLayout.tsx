@@ -1343,7 +1343,7 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button
-              onClick={() => setActiveSection('vision')}
+              onClick={() => navigate('/daily')}
               className="flex items-center gap-2 text-slate-600 hover:text-slate-800 transition-colors"
             >
               <Home className="w-6 h-6" />
