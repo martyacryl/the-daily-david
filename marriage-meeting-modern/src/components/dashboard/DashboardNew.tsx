@@ -339,9 +339,9 @@ export const DashboardNew: React.FC = () => {
               variant="outline"
               size="sm"
               onClick={() => setIsSettingsOpen(true)}
-              className="flex items-center gap-2"
+              className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm"
             >
-              <Settings className="w-4 h-4" />
+              <Settings className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               <span className="hidden sm:inline">Settings</span>
             </Button>
           </div>
