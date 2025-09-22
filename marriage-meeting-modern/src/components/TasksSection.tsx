@@ -285,9 +285,12 @@ export const TasksSection: React.FC<TasksSectionProps> = ({ tasks, onUpdate }) =
               <input
                 type="number"
                 value={newTask.estimatedDuration}
-                onChange={(e) => setNewTask({ ...newTask, estimatedDuration: parseInt(e.target.value) || 30 })}
-                min="5"
-                step="5"
+                onChange={(e) => {
+                  const value = parseInt(e.target.value)
+                  setNewTask({ ...newTask, estimatedDuration: value > 0 ? value : 30 })
+                }}
+                min="1"
+                placeholder="Enter duration in minutes"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
               />
             </div>
@@ -406,9 +409,12 @@ export const TasksSection: React.FC<TasksSectionProps> = ({ tasks, onUpdate }) =
                       <input
                         type="number"
                         value={editTaskData.estimatedDuration || 30}
-                        onChange={(e) => setEditTaskData({ ...editTaskData, estimatedDuration: parseInt(e.target.value) || 30 })}
-                        min="5"
-                        step="5"
+                        onChange={(e) => {
+                          const value = parseInt(e.target.value)
+                          setEditTaskData({ ...editTaskData, estimatedDuration: value > 0 ? value : 30 })
+                        }}
+                        min="1"
+                        placeholder="Enter duration in minutes"
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                       />
                     </div>
