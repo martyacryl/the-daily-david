@@ -6,7 +6,14 @@ export interface CalendarEvent {
   allDay: boolean
   description?: string
   location?: string
-  source: 'ical' | 'google'
+  source: 'ical' | 'google' | 'caldav'
+}
+
+export interface CalDAVConfig {
+  username: string
+  password: string
+  server: string
+  calendarPath?: string
 }
 
 // Type declaration for timer
@@ -73,8 +80,7 @@ export class CalendarService {
             headers: {
               'Accept': 'text/calendar, application/calendar+json, */*',
               'User-Agent': 'Mozilla/5.0 (compatible; WeeklyHuddle/1.0)'
-            },
-            timeout: 10000 // 10 second timeout
+            }
           })
 
           console.log(`📅 CORS proxy ${i + 1} response status:`, response.status)
@@ -169,6 +175,9 @@ export class CalendarService {
                 console.log('📅 Total VEVENT blocks found:', veventBlocks.length - 1) // -1 because first split creates empty string
                 
                 // Show the week range we're looking for
+                const weekStartDate = new Date(weekStart)
+                const weekEnd = new Date(weekStart)
+                weekEnd.setDate(weekEnd.getDate() + 6)
                 console.log('📅 Looking for events in week range:', {
                   weekStart: weekStartDate.toISOString().split('T')[0],
                   weekEnd: weekEnd.toISOString().split('T')[0],
@@ -435,6 +444,195 @@ export class CalendarService {
     throw new Error(`Unsupported date format: ${dateStr}`)
   }
 
+
+  /**
+   * Get CalDAV events from Apple iCloud
+   */
+  async getCalDAVEvents(config: CalDAVConfig, weekStart: Date): Promise<CalendarEvent[]> {
+    const cacheKey = `caldav_${config.username}_${weekStart.toISOString().split('T')[0]}`
+    
+    // Check cache first
+    if (this.isCacheValid(cacheKey)) {
+      return this.cache.get(cacheKey) || []
+    }
+
+    try {
+      console.log('📅 Fetching CalDAV events from:', config.server)
+      
+      // Get calendar list first
+      const calendars = await this.getCalDAVCalendars(config)
+      console.log('📅 Available calendars:', calendars)
+      
+      const allEvents: CalendarEvent[] = []
+      
+      // Fetch events from each calendar
+      for (const calendar of calendars) {
+        const events = await this.fetchCalDAVEvents(config, calendar, weekStart)
+        allEvents.push(...events)
+      }
+      
+      // Cache the results
+      this.cache.set(cacheKey, allEvents)
+      this.cacheExpiry.set(cacheKey, Date.now() + (60 * 60 * 1000)) // 1 hour cache
+      
+      console.log(`📅 Found ${allEvents.length} CalDAV events for the week`)
+      return allEvents
+      
+    } catch (error) {
+      console.error('❌ Error fetching CalDAV events:', error)
+      return []
+    }
+  }
+
+  /**
+   * Get list of available CalDAV calendars
+   */
+  private async getCalDAVCalendars(config: CalDAVConfig): Promise<string[]> {
+    try {
+      const serverUrl = config.server || 'https://caldav.icloud.com'
+      const calendarPath = config.calendarPath || '/calendars/'
+      
+      const response = await fetch(`${serverUrl}${calendarPath}`, {
+        method: 'PROPFIND',
+        headers: {
+          'Authorization': `Basic ${btoa(`${config.username}:${config.password}`)}`,
+          'Content-Type': 'application/xml',
+          'Depth': '1'
+        },
+        body: `<?xml version="1.0" encoding="utf-8"?>
+          <D:propfind xmlns:D="DAV:">
+            <D:prop>
+              <D:displayname/>
+              <D:resourcetype/>
+            </D:prop>
+          </D:propfind>`
+      })
+
+      if (!response.ok) {
+        throw new Error(`CalDAV request failed: ${response.status} ${response.statusText}`)
+      }
+
+      const xmlText = await response.text()
+      console.log('📅 CalDAV calendars response:', xmlText)
+      
+      // Parse XML to extract calendar paths
+      const parser = new DOMParser()
+      const xmlDoc = parser.parseFromString(xmlText, 'text/xml')
+      const responses = xmlDoc.getElementsByTagName('D:response')
+      
+      const calendars: string[] = []
+      for (let i = 0; i < responses.length; i++) {
+        const response = responses[i]
+        const href = response.getElementsByTagName('D:href')[0]?.textContent
+        const resourceType = response.getElementsByTagName('D:resourcetype')[0]
+        const isCollection = resourceType?.getElementsByTagName('D:collection').length > 0
+        
+        if (href && isCollection && href !== calendarPath) {
+          calendars.push(href)
+        }
+      }
+      
+      console.log('📅 Parsed calendars:', calendars)
+      return calendars
+      
+    } catch (error) {
+      console.error('❌ Error getting CalDAV calendars:', error)
+      return []
+    }
+  }
+
+  /**
+   * Fetch events from a specific CalDAV calendar
+   */
+  private async fetchCalDAVEvents(config: CalDAVConfig, calendarPath: string, weekStart: Date): Promise<CalendarEvent[]> {
+    try {
+      const serverUrl = config.server || 'https://caldav.icloud.com'
+      const weekEnd = new Date(weekStart)
+      weekEnd.setDate(weekEnd.getDate() + 6)
+      weekEnd.setHours(23, 59, 59, 999)
+      
+      const response = await fetch(`${serverUrl}${calendarPath}`, {
+        method: 'REPORT',
+        headers: {
+          'Authorization': `Basic ${btoa(`${config.username}:${config.password}`)}`,
+          'Content-Type': 'application/xml',
+          'Depth': '1'
+        },
+        body: `<?xml version="1.0" encoding="utf-8"?>
+          <C:calendar-query xmlns:D="DAV:" xmlns:C="urn:ietf:params:xml:ns:caldav">
+            <D:prop>
+              <D:getetag/>
+              <C:calendar-data/>
+            </D:prop>
+            <C:filter>
+              <C:comp-filter name="VCALENDAR">
+                <C:comp-filter name="VEVENT">
+                  <C:time-range start="${weekStart.toISOString()}" end="${weekEnd.toISOString()}"/>
+                </C:comp-filter>
+              </C:comp-filter>
+            </C:filter>
+          </C:calendar-query>`
+      })
+
+      if (!response.ok) {
+        throw new Error(`CalDAV events request failed: ${response.status} ${response.statusText}`)
+      }
+
+      const xmlText = await response.text()
+      console.log('📅 CalDAV events response:', xmlText)
+      
+      // Parse XML to extract calendar data
+      const parser = new DOMParser()
+      const xmlDoc = parser.parseFromString(xmlText, 'text/xml')
+      const calendarDataElements = xmlDoc.getElementsByTagName('C:calendar-data')
+      
+      const events: CalendarEvent[] = []
+      for (let i = 0; i < calendarDataElements.length; i++) {
+        const calendarData = calendarDataElements[i].textContent
+        if (calendarData) {
+          const parsedEvents = this.parseICalData(calendarData, weekStart)
+          events.push(...parsedEvents.map(event => ({ ...event, source: 'caldav' as const })))
+        }
+      }
+      
+      console.log(`📅 Parsed ${events.length} events from calendar ${calendarPath}`)
+      return events
+      
+    } catch (error) {
+      console.error('❌ Error fetching CalDAV events from calendar:', error)
+      return []
+    }
+  }
+
+  /**
+   * Test CalDAV connection
+   */
+  async testCalDAVConnection(config: CalDAVConfig): Promise<{ success: boolean; message: string; calendars?: string[] }> {
+    try {
+      console.log('📅 Testing CalDAV connection...')
+      
+      const calendars = await this.getCalDAVCalendars(config)
+      
+      if (calendars.length > 0) {
+        return {
+          success: true,
+          message: `Connected successfully! Found ${calendars.length} calendar(s).`,
+          calendars
+        }
+      } else {
+        return {
+          success: false,
+          message: 'Connected but no calendars found. Check your Apple ID permissions.'
+        }
+      }
+    } catch (error) {
+      console.error('❌ CalDAV connection test failed:', error)
+      return {
+        success: false,
+        message: `Connection failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+      }
+    }
+  }
 
   /**
    * Check if cache is still valid

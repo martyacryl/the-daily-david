@@ -23,6 +23,15 @@ export const SimpleCalendarSettings: React.FC<SimpleCalendarSettingsProps> = ({ 
   const [isGoogleAuthenticated, setIsGoogleAuthenticated] = useState(false)
   const [isGoogleInitialized, setIsGoogleInitialized] = useState(false)
   
+  // CalDAV state
+  const [caldavUsername, setCaldavUsername] = useState('')
+  const [caldavPassword, setCaldavPassword] = useState('')
+  const [caldavCalendars, setCaldavCalendars] = useState<string[]>([])
+  const [selectedCalendars, setSelectedCalendars] = useState<string[]>([])
+  const [isTestingCalDAV, setIsTestingCalDAV] = useState(false)
+  const [caldavStatus, setCaldavStatus] = useState<'idle' | 'success' | 'error'>('idle')
+  const [caldavMessage, setCaldavMessage] = useState('')
+  
   // Sync status
   const [syncStatus, setSyncStatus] = useState<{ isActive: boolean; frequency?: string }>({ isActive: false })
 
@@ -190,6 +199,82 @@ export const SimpleCalendarSettings: React.FC<SimpleCalendarSettingsProps> = ({ 
     }
   }
 
+  // CalDAV handlers
+  const handleTestCalDAVConnection = async () => {
+    if (!caldavUsername.trim() || !caldavPassword.trim()) {
+      setCaldavStatus('error')
+      setCaldavMessage('Please enter both Apple ID and password')
+      return
+    }
+
+    setIsTestingCalDAV(true)
+    setCaldavStatus('idle')
+    setCaldavMessage('Testing CalDAV connection...')
+
+    try {
+      const { calendarService } = await import('../../lib/calendarService')
+      
+      const config = {
+        username: caldavUsername.trim(),
+        password: caldavPassword.trim(),
+        server: 'https://caldav.icloud.com'
+      }
+      
+      const result = await calendarService.testCalDAVConnection(config)
+      
+      if (result.success) {
+        setCaldavStatus('success')
+        setCaldavMessage(result.message)
+        setCaldavCalendars(result.calendars || [])
+        setSelectedCalendars(result.calendars || []) // Select all by default
+      } else {
+        setCaldavStatus('error')
+        setCaldavMessage(result.message)
+      }
+    } catch (error) {
+      console.error('Error testing CalDAV connection:', error)
+      setCaldavStatus('error')
+      setCaldavMessage(`Connection failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
+    } finally {
+      setIsTestingCalDAV(false)
+    }
+  }
+
+  const handleSaveCalDAVSettings = async () => {
+    if (!caldavUsername.trim() || !caldavPassword.trim()) {
+      setCaldavStatus('error')
+      setCaldavMessage('Please enter both Apple ID and password')
+      return
+    }
+
+    try {
+      await updateCalendarSettings({
+        ...settings.calendar,
+        caldavConfig: {
+          username: caldavUsername.trim(),
+          password: caldavPassword.trim(),
+          server: 'https://caldav.icloud.com'
+        },
+        selectedCalendars: selectedCalendars
+      })
+      
+      setCaldavStatus('success')
+      setCaldavMessage('CalDAV settings saved! Calendar events will sync automatically.')
+    } catch (error) {
+      console.error('Error saving CalDAV settings:', error)
+      setCaldavStatus('error')
+      setCaldavMessage('Failed to save CalDAV settings')
+    }
+  }
+
+  const handleCalendarToggle = (calendarPath: string) => {
+    setSelectedCalendars(prev => 
+      prev.includes(calendarPath) 
+        ? prev.filter(path => path !== calendarPath)
+        : [...prev, calendarPath]
+    )
+  }
+
   if (!isOpen) return null
 
   return (
@@ -282,25 +367,31 @@ export const SimpleCalendarSettings: React.FC<SimpleCalendarSettingsProps> = ({ 
                 <div className="space-y-3">
                   <Input
                     type="email"
+                    value={caldavUsername}
+                    onChange={(e) => setCaldavUsername(e.target.value)}
                     placeholder="your-apple-id@icloud.com"
                     className="text-sm"
                   />
                   <Input
                     type="password"
-                    placeholder="Apple ID Password"
+                    value={caldavPassword}
+                    onChange={(e) => setCaldavPassword(e.target.value)}
+                    placeholder="App-Specific Password"
                     className="text-sm"
                   />
                   <Button
+                    onClick={handleTestCalDAVConnection}
+                    disabled={!caldavUsername.trim() || !caldavPassword.trim() || isTestingCalDAV}
                     className="bg-green-600 hover:bg-green-700 text-sm px-4 py-2"
                   >
-                    Connect to Apple Calendar
+                    {isTestingCalDAV ? 'Testing...' : 'Test Connection'}
                   </Button>
                 </div>
                 <p className="text-xs text-gray-500 mt-1">
                   Direct connection to your iCloud Calendar - no expiring URLs
                 </p>
                 <div className="mt-2 p-3 bg-blue-50 rounded-lg">
-                  <p className="text-xs text-blue-800 font-medium mb-1">How to get your CalDAV URL:</p>
+                  <p className="text-xs text-blue-800 font-medium mb-1">How to get your App-Specific Password:</p>
                   <ol className="text-xs text-blue-700 space-y-1 list-decimal list-inside">
                     <li>Go to <a href="https://appleid.apple.com" target="_blank" className="underline">appleid.apple.com</a></li>
                     <li>Sign in with your Apple ID</li>
@@ -309,6 +400,54 @@ export const SimpleCalendarSettings: React.FC<SimpleCalendarSettingsProps> = ({ 
                     <li>Use your Apple ID email and this app-specific password above</li>
                   </ol>
                 </div>
+
+                {/* CalDAV Connection Status */}
+                {caldavStatus !== 'idle' && (
+                  <div className={`flex items-center gap-2 p-3 rounded-lg mt-3 ${
+                    caldavStatus === 'success' 
+                      ? 'bg-green-50 text-green-800 border border-green-200' 
+                      : 'bg-red-50 text-red-800 border border-red-200'
+                  }`}>
+                    {caldavStatus === 'success' ? (
+                      <CheckCircle className="w-5 h-5" />
+                    ) : (
+                      <AlertCircle className="w-5 h-5" />
+                    )}
+                    <span className="text-sm font-medium">{caldavMessage}</span>
+                  </div>
+                )}
+
+                {/* Calendar Selection */}
+                {caldavCalendars.length > 0 && (
+                  <div className="mt-4">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Select Calendars to Sync
+                    </label>
+                    <div className="space-y-2 max-h-32 overflow-y-auto">
+                      {caldavCalendars.map((calendarPath, index) => {
+                        const calendarName = calendarPath.split('/').pop() || `Calendar ${index + 1}`
+                        return (
+                          <label key={calendarPath} className="flex items-center gap-2">
+                            <input
+                              type="checkbox"
+                              checked={selectedCalendars.includes(calendarPath)}
+                              onChange={() => handleCalendarToggle(calendarPath)}
+                              className="w-4 h-4 text-green-600 rounded focus:ring-green-500"
+                            />
+                            <span className="text-sm text-gray-700">{calendarName}</span>
+                          </label>
+                        )
+                      })}
+                    </div>
+                    <Button
+                      onClick={handleSaveCalDAVSettings}
+                      disabled={selectedCalendars.length === 0}
+                      className="mt-3 bg-green-600 hover:bg-green-700 text-sm px-4 py-2"
+                    >
+                      Save CalDAV Settings
+                    </Button>
+                  </div>
+                )}
               </div>
 
               {/* Connection Status */}
