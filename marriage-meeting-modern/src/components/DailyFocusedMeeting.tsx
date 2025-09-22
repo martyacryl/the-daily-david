@@ -60,15 +60,22 @@ export const DailyFocusedMeeting: React.FC = () => {
 
   // Set up automatic calendar sync when component mounts or settings change
   React.useEffect(() => {
+    // Only start calendar sync if we have settings loaded and week data loaded
+    if (!settings.calendar?.icalUrl || !weekData) {
+      console.log('📅 Calendar sync skipped - missing settings or weekData:', {
+        hasSettings: !!settings.calendar?.icalUrl,
+        hasWeekData: !!weekData
+      })
+      return
+    }
+
     const mondayKey = DatabaseManager.formatWeekKey(currentDate)
     const [year, month, day] = mondayKey.split('-').map(Number)
     const weekStart = new Date(year, month - 1, day)
     
     // Stop any existing sync and clear cache for this week
-    if (settings.calendar?.icalUrl) {
-      calendarService.stopAutoSync(settings.calendar.icalUrl)
-      calendarService.clearCacheForWeek(settings.calendar.icalUrl, weekStart)
-    }
+    calendarService.stopAutoSync(settings.calendar.icalUrl)
+    calendarService.clearCacheForWeek(settings.calendar.icalUrl, weekStart)
     
     // Start auto-sync if calendar events are enabled
     console.log('📅 Calendar sync check:', {
@@ -78,58 +85,55 @@ export const DailyFocusedMeeting: React.FC = () => {
       hasCalendar: !!settings.calendar
     })
     
-    // Force sync to start if we have an iCal URL, regardless of other settings
-    if (settings.calendar?.icalUrl) {
-      console.log('📅 Starting automatic calendar sync...')
+    console.log('📅 Starting automatic calendar sync...')
+    
+    const handleEventsUpdate = async (events: CalendarEvent[]) => {
+      console.log('📅 Calendar events updated:', events.length)
       
-      const handleEventsUpdate = async (events: CalendarEvent[]) => {
-        console.log('📅 Calendar events updated:', events.length)
+      // Get all 7 dates for the current week
+      const weekDates: string[] = []
+      for (let i = 0; i < 7; i++) {
+        const date = new Date(weekStart.getTime() + i * 24 * 60 * 60 * 1000)
+        weekDates.push(date.toISOString().split('T')[0])
+      }
+      
+      console.log('📅 Current week dates:', weekDates)
+      
+      // Filter events to only include those that occur on any day of the current week
+      const currentWeekEvents = events.filter(event => {
+        const eventStartDate = event.start.toISOString().split('T')[0]
+        const eventEndDate = event.end.toISOString().split('T')[0]
         
-        // Get all 7 dates for the current week
-        const weekDates: string[] = []
-        for (let i = 0; i < 7; i++) {
-          const date = new Date(weekStart.getTime() + i * 24 * 60 * 60 * 1000)
-          weekDates.push(date.toISOString().split('T')[0])
-        }
+        // Check if event starts or ends on any day of the current week
+        const eventOnWeekDay = weekDates.some(weekDate => 
+          eventStartDate === weekDate || eventEndDate === weekDate
+        )
         
-        console.log('📅 Current week dates:', weekDates)
-        
-        // Filter events to only include those that occur on any day of the current week
-        const currentWeekEvents = events.filter(event => {
-          const eventStartDate = event.start.toISOString().split('T')[0]
-          const eventEndDate = event.end.toISOString().split('T')[0]
-          
-          // Check if event starts or ends on any day of the current week
-          const eventOnWeekDay = weekDates.some(weekDate => 
-            eventStartDate === weekDate || eventEndDate === weekDate
-          )
-          
-          console.log('📅 Event date check:', {
-            title: event.title,
-            eventStartDate,
-            eventEndDate,
-            weekDates,
-            eventOnWeekDay
-          })
-          
-          return eventOnWeekDay
+        console.log('📅 Event date check:', {
+          title: event.title,
+          eventStartDate,
+          eventEndDate,
+          weekDates,
+          eventOnWeekDay
         })
         
-        console.log('📅 Filtered events for current week:', currentWeekEvents.length, 'out of', events.length)
-        
-        // Update the store with filtered calendar events
-        updateCalendarEvents(currentWeekEvents)
-      }
-
-      // Start auto-sync
-      calendarService.startAutoSync(
-        settings.calendar.icalUrl,
-        settings.calendar.googleCalendarEnabled || false,
-        settings.calendar.syncFrequency || 'realtime',
-        weekStart,
-        handleEventsUpdate
-      )
+        return eventOnWeekDay
+      })
+      
+      console.log('📅 Filtered events for current week:', currentWeekEvents.length, 'out of', events.length)
+      
+      // Update the store with filtered calendar events
+      updateCalendarEvents(currentWeekEvents)
     }
+
+    // Start auto-sync
+    calendarService.startAutoSync(
+      settings.calendar.icalUrl,
+      settings.calendar.googleCalendarEnabled || false,
+      settings.calendar.syncFrequency || 'realtime',
+      weekStart,
+      handleEventsUpdate
+    )
 
     // Cleanup function
     return () => {
@@ -137,7 +141,7 @@ export const DailyFocusedMeeting: React.FC = () => {
         calendarService.stopAutoSync(settings.calendar.icalUrl)
       }
     }
-  }, [settings.calendar?.icalUrl, settings.calendar?.googleCalendarEnabled, settings.calendar?.showCalendarEvents, settings.calendar?.syncFrequency, currentDate, updateCalendarEvents])
+  }, [settings.calendar?.icalUrl, settings.calendar?.googleCalendarEnabled, settings.calendar?.showCalendarEvents, settings.calendar?.syncFrequency, currentDate, updateCalendarEvents, weekData])
 
   if (!isAuthenticated) {
     return (
