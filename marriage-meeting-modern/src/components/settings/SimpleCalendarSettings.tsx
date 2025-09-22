@@ -42,6 +42,20 @@ export const SimpleCalendarSettings: React.FC<SimpleCalendarSettingsProps> = ({ 
     }
   }, [isOpen, settings.calendar])
 
+  // Handle calendar method selection
+  const handleMethodChange = (method: string) => {
+    const icalSection = document.getElementById('ical-section')
+    const caldavSection = document.getElementById('caldav-section')
+    
+    if (method === 'ical') {
+      icalSection?.classList.remove('hidden')
+      caldavSection?.classList.add('hidden')
+    } else {
+      icalSection?.classList.add('hidden')
+      caldavSection?.classList.remove('hidden')
+    }
+  }
+
   // iCal handlers
   const handleTestConnection = async () => {
     if (!icalUrl.trim()) {
@@ -200,11 +214,42 @@ export const SimpleCalendarSettings: React.FC<SimpleCalendarSettingsProps> = ({ 
           <div className="mb-6 sm:mb-8">
             <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-3 sm:mb-4 flex items-center gap-2">
               <SettingsIcon className="w-4 h-4 sm:w-5 sm:h-5" />
-              Apple Calendar / iCal Feed
+              Apple Calendar Integration
             </h3>
             
+            {/* Calendar Method Selection */}
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Connection Method
+              </label>
+              <div className="space-y-2">
+                <label className="flex items-center">
+                  <input
+                    type="radio"
+                    name="calendarMethod"
+                    value="ical"
+                    className="mr-2"
+                    defaultChecked
+                    onChange={(e) => handleMethodChange(e.target.value)}
+                  />
+                  <span className="text-sm">iCal URL (Public Feed)</span>
+                </label>
+                <label className="flex items-center">
+                  <input
+                    type="radio"
+                    name="calendarMethod"
+                    value="caldav"
+                    className="mr-2"
+                    onChange={(e) => handleMethodChange(e.target.value)}
+                  />
+                  <span className="text-sm">CalDAV (Direct Connection - No Expiration)</span>
+                </label>
+              </div>
+            </div>
+            
             <div className="space-y-4">
-              <div>
+              {/* iCal URL Section */}
+              <div id="ical-section">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   iCal URL
                 </label>
@@ -223,6 +268,46 @@ export const SimpleCalendarSettings: React.FC<SimpleCalendarSettingsProps> = ({ 
                   >
                     {isTestingConnection ? 'Testing...' : 'Test'}
                   </Button>
+                </div>
+                <p className="text-xs text-gray-500 mt-1">
+                  Note: iCal URLs may expire and need to be regenerated periodically
+                </p>
+              </div>
+
+              {/* CalDAV Section */}
+              <div id="caldav-section" className="hidden">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Apple ID Credentials
+                </label>
+                <div className="space-y-3">
+                  <Input
+                    type="email"
+                    placeholder="your-apple-id@icloud.com"
+                    className="text-sm"
+                  />
+                  <Input
+                    type="password"
+                    placeholder="Apple ID Password"
+                    className="text-sm"
+                  />
+                  <Button
+                    className="bg-green-600 hover:bg-green-700 text-sm px-4 py-2"
+                  >
+                    Connect to Apple Calendar
+                  </Button>
+                </div>
+                <p className="text-xs text-gray-500 mt-1">
+                  Direct connection to your iCloud Calendar - no expiring URLs
+                </p>
+                <div className="mt-2 p-3 bg-blue-50 rounded-lg">
+                  <p className="text-xs text-blue-800 font-medium mb-1">How to get your CalDAV URL:</p>
+                  <ol className="text-xs text-blue-700 space-y-1 list-decimal list-inside">
+                    <li>Go to <a href="https://appleid.apple.com" target="_blank" className="underline">appleid.apple.com</a></li>
+                    <li>Sign in with your Apple ID</li>
+                    <li>Go to "App-Specific Passwords"</li>
+                    <li>Generate a new password for "Weekly Huddle"</li>
+                    <li>Use your Apple ID email and this app-specific password above</li>
+                  </ol>
                 </div>
               </div>
 
