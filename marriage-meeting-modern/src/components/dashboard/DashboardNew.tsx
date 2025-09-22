@@ -44,7 +44,7 @@ import { WeekOverview } from '../WeekOverview'
 
 export const DashboardNew: React.FC = () => {
   const { user, isAuthenticated } = useAuthStore()
-  const { currentWeek, weekData, loadWeekData, saveWeekData, updateEncouragementNotes, loadAllWeeks, calculateMeetingStreak, calculateConsistencyScore } = useMarriageStore()
+  const { currentWeek, weekData, loadWeekData, saveWeekData, updateEncouragementNotes, loadAllWeeks, calculateMeetingStreak, calculateConsistencyScore, lastCalendarUpdate } = useMarriageStore()
   const { goals, loadGoals, getCurrentMonthGoals, getCurrentYearGoals, getLongTermGoals } = useGoalsStore()
   const { settings, loadSettings } = useSettingsStore()
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
@@ -133,6 +133,14 @@ export const DashboardNew: React.FC = () => {
       calculateInsights().catch(console.error)
     }
   }, [goals])
+
+  // Force re-render when calendar events are updated
+  useEffect(() => {
+    if (lastCalendarUpdate) {
+      console.log('Dashboard: Calendar events updated, forcing re-render at:', lastCalendarUpdate)
+      // The component will automatically re-render due to the lastCalendarUpdate dependency
+    }
+  }, [lastCalendarUpdate])
 
   const calculateInsights = async () => {
     if (!weekData && goals.length === 0) return
@@ -378,6 +386,7 @@ export const DashboardNew: React.FC = () => {
                     const filteredSchedule = todaySchedule.filter(item => item && item.trim() !== '' && item !== '')
                     
                     // Get calendar events for today using user's current timezone
+                    // Force re-calculation when calendar events are updated
                     const todayCalendarEvents = (weekData.calendarEvents || []).filter((event: any) => {
                       const eventStart = new Date(event.start)
                       const today = new Date()
@@ -390,6 +399,11 @@ export const DashboardNew: React.FC = () => {
                       // Event is on today if it starts today in user's timezone
                       return eventStartDate === todayDateString
                     })
+                    
+                    // Log calendar update timestamp to ensure reactivity
+                    if (lastCalendarUpdate) {
+                      console.log('Dashboard: Calendar events filtered with lastCalendarUpdate:', lastCalendarUpdate)
+                    }
                     
                     console.log('Dashboard Debug - Today:', todayName)
                     console.log('Dashboard Debug - Schedule data:', weekData.schedule)
