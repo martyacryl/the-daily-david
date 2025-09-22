@@ -142,6 +142,28 @@ export const DashboardNew: React.FC = () => {
     }
   }, [lastCalendarUpdate])
 
+  // Calculate today's calendar events reactively
+  const todayCalendarEvents = React.useMemo(() => {
+    if (!weekData?.calendarEvents) return []
+    
+    const today = new Date()
+    const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone
+    const todayDateString = today.toLocaleDateString('en-CA', { timeZone })
+    
+    const events = weekData.calendarEvents.filter((event: any) => {
+      const eventStart = new Date(event.start)
+      const eventStartDate = eventStart.toLocaleDateString('en-CA', { timeZone })
+      
+      // Event is on today if it starts today in user's timezone
+      return eventStartDate === todayDateString
+    })
+    
+    console.log('Dashboard: Today calendar events calculated:', events.length, 'events')
+    console.log('Dashboard: Last calendar update:', lastCalendarUpdate)
+    
+    return events
+  }, [weekData?.calendarEvents, lastCalendarUpdate])
+
   const calculateInsights = async () => {
     if (!weekData && goals.length === 0) return
 
@@ -379,31 +401,10 @@ export const DashboardNew: React.FC = () => {
                 <div className="space-y-2">
                   {(() => {
                     const today = new Date()
-                    const todayDateString = today.toISOString().split('T')[0]
                     const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
                     const todayName = dayNames[today.getDay()]
                     const todaySchedule = weekData.schedule?.[todayName as keyof typeof weekData.schedule] || []
                     const filteredSchedule = todaySchedule.filter(item => item && item.trim() !== '' && item !== '')
-                    
-                    // Get calendar events for today using user's current timezone
-                    // Force re-calculation when calendar events are updated
-                    const todayCalendarEvents = (weekData.calendarEvents || []).filter((event: any) => {
-                      const eventStart = new Date(event.start)
-                      const today = new Date()
-                      
-                      // Use user's current timezone for date comparison
-                      const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone
-                      const eventStartDate = eventStart.toLocaleDateString('en-CA', { timeZone }) // YYYY-MM-DD format
-                      const todayDateString = today.toLocaleDateString('en-CA', { timeZone }) // YYYY-MM-DD format
-                      
-                      // Event is on today if it starts today in user's timezone
-                      return eventStartDate === todayDateString
-                    })
-                    
-                    // Log calendar update timestamp to ensure reactivity
-                    if (lastCalendarUpdate) {
-                      console.log('Dashboard: Calendar events filtered with lastCalendarUpdate:', lastCalendarUpdate)
-                    }
                     
                     console.log('Dashboard Debug - Today:', todayName)
                     console.log('Dashboard Debug - Schedule data:', weekData.schedule)

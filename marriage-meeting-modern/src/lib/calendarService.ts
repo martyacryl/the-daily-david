@@ -301,8 +301,8 @@ export class CalendarService {
         } catch (error) {
           const errorMessage = error instanceof Error ? error.message : String(error)
           console.warn('⚠️ Skipping invalid DTSTART line (likely timezone definition):', trimmedLine, errorMessage)
-          // Set a fallback date to prevent undefined errors
-          event.start = new Date()
+          // Don't set a fallback date - this will cause the event to be skipped entirely
+          return null
         }
       } else if (trimmedLine.startsWith('DTEND')) {
         console.log('📅 RAW DTEND line:', trimmedLine)
@@ -322,8 +322,8 @@ export class CalendarService {
         } catch (error) {
           const errorMessage = error instanceof Error ? error.message : String(error)
           console.warn('⚠️ Skipping invalid DTEND line (likely timezone definition):', trimmedLine, errorMessage)
-          // Set a fallback date to prevent undefined errors
-          event.end = new Date()
+          // Don't set a fallback date - this will cause the event to be skipped entirely
+          return null
         }
       } else if (trimmedLine.startsWith('DESCRIPTION:')) {
         event.description = trimmedLine.substring(12).replace(/\\,/g, ',').replace(/\\;/g, ';')
