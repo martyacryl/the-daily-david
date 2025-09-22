@@ -112,19 +112,18 @@ export const WeeklyMeetingSidebarLayout: React.FC = () => {
   const [activeSection, setActiveSection] = useState('schedule')
   const [isSaving, setIsSaving] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
-  const [showSidebar, setShowSidebar] = useState(false)
+  const [showSidebar, setShowSidebar] = useState(true) // Start with sidebar visible
 
   // Detect mobile and handle sidebar visibility
   useEffect(() => {
     const checkMobile = () => {
       const mobile = window.innerWidth < 1024
       setIsMobile(mobile)
-      // On mobile, hide sidebar by default unless explicitly shown
+      // Only hide sidebar on mobile, always show on desktop
       if (mobile) {
         setShowSidebar(false)
-      } else {
-        setShowSidebar(true)
       }
+      // Don't change showSidebar on desktop - let it stay true
     }
     
     checkMobile()
@@ -337,8 +336,8 @@ export const WeeklyMeetingSidebarLayout: React.FC = () => {
           </div>
         )}
 
-        {/* Sidebar - Hidden on mobile unless showSidebar is true */}
-        {(showSidebar || !isMobile) && (
+        {/* Sidebar - Always show on desktop, conditional on mobile */}
+        {(!isMobile || showSidebar) && (
           <WeeklyMeetingSidebar
             activeSection={activeSection}
             onSectionChange={(section) => {
