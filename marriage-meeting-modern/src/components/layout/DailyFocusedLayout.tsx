@@ -388,7 +388,13 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                       return (
                         <motion.button
                           key={item.id}
-                          onClick={() => handleSectionChange(item.id)}
+                          onClick={() => {
+                            if (item.id === 'schedule') {
+                              navigate('/weekly?section=schedule')
+                            } else {
+                              handleSectionChange(item.id)
+                            }
+                          }}
                           className={`w-full flex items-center gap-2 sm:gap-3 p-2 sm:p-3 rounded-lg text-left transition-all duration-200 ${
                             isActive
                               ? 'bg-slate-50 border-2 border-blue-200 text-blue-700'
@@ -429,7 +435,13 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                       return (
                         <motion.button
                           key={item.id}
-                          onClick={() => handleSectionChange(item.id)}
+                          onClick={() => {
+                            if (item.id === 'schedule') {
+                              navigate('/weekly?section=schedule')
+                            } else {
+                              handleSectionChange(item.id)
+                            }
+                          }}
                           className={`w-full flex items-center gap-2 sm:gap-3 p-2 sm:p-3 rounded-lg text-left transition-all duration-200 ${
                             isActive
                               ? 'bg-slate-50 border-2 border-slate-200 text-slate-700'
@@ -484,7 +496,13 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                       return (
                         <motion.button
                           key={item.id}
-                          onClick={() => handleSectionChange(item.id)}
+                          onClick={() => {
+                            if (item.id === 'schedule') {
+                              navigate('/weekly?section=schedule')
+                            } else {
+                              handleSectionChange(item.id)
+                            }
+                          }}
                           className={`w-full flex items-center gap-2 sm:gap-3 p-2 sm:p-3 rounded-lg text-left transition-all duration-200 ${
                             isActive
                               ? 'bg-slate-50 border-2 border-purple-200 text-purple-700'
@@ -537,7 +555,13 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                       return (
                         <motion.button
                           key={item.id}
-                          onClick={() => handleSectionChange(item.id)}
+                          onClick={() => {
+                            if (item.id === 'schedule') {
+                              navigate('/weekly?section=schedule')
+                            } else {
+                              handleSectionChange(item.id)
+                            }
+                          }}
                           className={`w-full flex items-center gap-2 sm:gap-3 p-2 sm:p-3 rounded-lg text-left transition-all duration-200 ${
                             isActive
                               ? 'bg-slate-50 border-2 border-green-200 text-green-700'
