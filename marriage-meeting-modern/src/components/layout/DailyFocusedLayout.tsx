@@ -666,7 +666,7 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => window.location.href = '/weekly'}
+                      onClick={() => navigate('/weekly?section=schedule')}
                       className="text-slate-600 border-slate-200 hover:bg-slate-50"
                     >
                       <Edit3 className="w-4 h-4 mr-1" />
@@ -1008,7 +1008,7 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => window.location.href = '/weekly'}
+                onClick={() => navigate('/weekly?section=schedule')}
                 className="text-slate-600 border-slate-200 hover:bg-slate-50"
               >
                 <Edit3 className="w-4 h-4 mr-1" />
@@ -1399,7 +1399,7 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
         </div>
 
         {/* Right Panel - Quick Insights */}
-        {!['vision', 'spiritual', 'review'].includes(activeSection) && (
+        {!['vision', 'spiritual', 'review', 'schedule'].includes(activeSection) && (
           <div className="w-80 bg-white border-l border-gray-200 p-4 overflow-y-auto">
             <div className="space-y-6">
               {/* Quick Spiritual Check-in */}
