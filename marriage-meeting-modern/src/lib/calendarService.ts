@@ -440,8 +440,8 @@ export class CalendarService {
           title: event.title,
           startYear,
           endYear,
-          start: event.start.toISOString(),
-          end: event.end.toISOString()
+          start: event.start ? event.start.toISOString() : 'undefined',
+          end: event.end ? event.end.toISOString() : 'undefined'
         })
         return false
       }
