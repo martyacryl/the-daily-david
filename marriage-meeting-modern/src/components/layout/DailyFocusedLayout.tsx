@@ -916,11 +916,26 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
       }
       
       return (
-        <WeeklyMeetingContent
-          activeSection={activeSection}
-          currentDate={currentDate}
-          weekData={weekData}
-          onUpdateSchedule={onUpdateWeekData}
+        <div className="h-full flex flex-col">
+          {/* Back to Vision Button */}
+          <div className="mb-4 flex items-center gap-3">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setActiveSection('vision')}
+              className="text-slate-600 border-slate-200 hover:bg-slate-50"
+            >
+              <ChevronLeft className="w-4 h-4 mr-1" />
+              Back to Vision
+            </Button>
+            <h2 className="text-lg font-semibold text-gray-900">Weekly Schedule</h2>
+          </div>
+          
+          <WeeklyMeetingContent
+            activeSection={activeSection}
+            currentDate={currentDate}
+            weekData={weekData}
+            onUpdateSchedule={onUpdateWeekData}
           onAddScheduleLine={(day, line) => {
             const updatedData = { ...weekData }
             if (!updatedData.schedule) updatedData.schedule = {}
@@ -978,6 +993,7 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
           onSave={onSave}
           isSaving={isSaving}
         />
+        </div>
       )
     }
 
