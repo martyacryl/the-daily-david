@@ -414,13 +414,23 @@ export class CalendarService {
     
     console.log('📅 Events details:', events.map(e => ({
       title: e.title,
-      start: e.start.toISOString(),
-      end: e.end.toISOString(),
-      startDate: e.start.toISOString().split('T')[0],
-      endDate: e.end.toISOString().split('T')[0]
+      start: e.start ? e.start.toISOString() : 'undefined',
+      end: e.end ? e.end.toISOString() : 'undefined',
+      startDate: e.start ? e.start.toISOString().split('T')[0] : 'undefined',
+      endDate: e.end ? e.end.toISOString().split('T')[0] : 'undefined'
     })))
 
     const filteredEvents = events.filter(event => {
+      // Skip events with missing or invalid dates
+      if (!event.start || !event.end) {
+        console.warn('⚠️ Skipping event with missing start/end date:', {
+          title: event.title,
+          hasStart: !!event.start,
+          hasEnd: !!event.end
+        })
+        return false
+      }
+
       // Skip events with invalid dates (before 2020)
       const startYear = event.start.getFullYear()
       const endYear = event.end.getFullYear()
