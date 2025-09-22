@@ -371,20 +371,57 @@ export const DashboardNew: React.FC = () => {
                 <div className="space-y-2">
                   {(() => {
                     const today = new Date()
+                    const todayDateString = today.toISOString().split('T')[0]
                     const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
                     const todayName = dayNames[today.getDay()]
                     const todaySchedule = weekData.schedule?.[todayName as keyof typeof weekData.schedule] || []
                     const filteredSchedule = todaySchedule.filter(item => item && item.trim() !== '' && item !== '')
                     
+                    // Get calendar events for today
+                    const todayCalendarEvents = (weekData.calendarEvents || []).filter((event: any) => {
+                      const eventStartDate = event.start.toISOString().split('T')[0]
+                      const eventEndDate = event.end.toISOString().split('T')[0]
+                      return eventStartDate === todayDateString || eventEndDate === todayDateString
+                    })
+                    
                     console.log('Dashboard Debug - Today:', todayName)
                     console.log('Dashboard Debug - Schedule data:', weekData.schedule)
                     console.log('Dashboard Debug - Today schedule:', todaySchedule)
                     console.log('Dashboard Debug - Filtered schedule:', filteredSchedule)
+                    console.log('Dashboard Debug - Calendar events:', todayCalendarEvents.length)
                     
-                    return filteredSchedule.length > 0 ? (
-                      filteredSchedule.map((item, index) => (
-                        <div key={index} className="p-3 sm:p-4 bg-slate-100 rounded-xl border-l-4 border-slate-400">
-                          <span className="text-sm sm:text-base text-slate-800 font-medium">{item}</span>
+                    // Combine schedule items and calendar events
+                    const allItems = [
+                      ...filteredSchedule.map((item, index) => ({
+                        type: 'schedule',
+                        content: item,
+                        key: `schedule-${index}`
+                      })),
+                      ...todayCalendarEvents.map((event, index) => ({
+                        type: 'calendar',
+                        content: event.title,
+                        time: event.start.toLocaleTimeString('en-US', { 
+                          hour: 'numeric', 
+                          minute: '2-digit',
+                          hour12: true 
+                        }),
+                        key: `calendar-${index}`
+                      }))
+                    ]
+                    
+                    return allItems.length > 0 ? (
+                      allItems.map((item) => (
+                        <div key={item.key} className={`p-3 sm:p-4 rounded-xl border-l-4 ${
+                          item.type === 'calendar' 
+                            ? 'bg-blue-50 border-blue-400' 
+                            : 'bg-slate-100 border-slate-400'
+                        }`}>
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm sm:text-base text-slate-800 font-medium">{item.content}</span>
+                            {item.type === 'calendar' && item.time && (
+                              <span className="text-xs text-blue-600 font-medium">{item.time}</span>
+                            )}
+                          </div>
                         </div>
                       ))
                     ) : (
