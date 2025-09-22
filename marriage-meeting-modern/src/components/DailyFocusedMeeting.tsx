@@ -83,58 +83,78 @@ export const DailyFocusedMeeting: React.FC = () => {
       console.log('📅 Starting automatic calendar sync...')
       
       const handleEventsUpdate = async (events: CalendarEvent[]) => {
-        console.log('📅 Calendar events updated:', events.length)
-        
-        // Get all 7 dates for the current week
-        const weekDates: string[] = []
-        for (let i = 0; i < 7; i++) {
-          const date = new Date(weekStart.getTime() + i * 24 * 60 * 60 * 1000)
-          weekDates.push(date.toISOString().split('T')[0])
-        }
-        
-        console.log('📅 Current week dates:', weekDates)
-        
-        // Filter events to only include those that occur on any day of the current week
-        const currentWeekEvents = events.filter(event => {
-          const eventStartDate = event.start.toISOString().split('T')[0]
-          const eventEndDate = event.end.toISOString().split('T')[0]
+        try {
+          console.log('📅 Calendar events updated:', events.length)
           
-          // Check if event starts or ends on any day of the current week
-          const eventOnWeekDay = weekDates.some(weekDate => 
-            eventStartDate === weekDate || eventEndDate === weekDate
-          )
+          // Get all 7 dates for the current week
+          const weekDates: string[] = []
+          for (let i = 0; i < 7; i++) {
+            const date = new Date(weekStart.getTime() + i * 24 * 60 * 60 * 1000)
+            weekDates.push(date.toISOString().split('T')[0])
+          }
           
-          console.log('📅 Event date check:', {
-            title: event.title,
-            eventStartDate,
-            eventEndDate,
-            weekDates,
-            eventOnWeekDay
+          console.log('📅 Current week dates:', weekDates)
+          
+          // Filter events to only include those that occur on any day of the current week
+          const currentWeekEvents = events.filter(event => {
+            // Skip events with missing or invalid dates
+            if (!event.start || !event.end) {
+              console.warn('⚠️ Skipping event with missing start/end date:', event.title)
+              return false
+            }
+
+            const eventStartDate = event.start.toISOString().split('T')[0]
+            const eventEndDate = event.end.toISOString().split('T')[0]
+            
+            // Check if event starts or ends on any day of the current week
+            const eventOnWeekDay = weekDates.some(weekDate => 
+              eventStartDate === weekDate || eventEndDate === weekDate
+            )
+            
+            console.log('📅 Event date check:', {
+              title: event.title,
+              eventStartDate,
+              eventEndDate,
+              weekDates,
+              eventOnWeekDay
+            })
+            
+            return eventOnWeekDay
           })
           
-          return eventOnWeekDay
-        })
-        
-        console.log('📅 Filtered events for current week:', currentWeekEvents.length, 'out of', events.length)
-        
-        // Update the store with filtered calendar events
-        updateCalendarEvents(currentWeekEvents)
+          console.log('📅 Filtered events for current week:', currentWeekEvents.length, 'out of', events.length)
+          
+          // Update the store with filtered calendar events
+          updateCalendarEvents(currentWeekEvents)
+        } catch (error) {
+          console.error('❌ Error in handleEventsUpdate:', error)
+          // Set empty array on error to prevent undefined state
+          updateCalendarEvents([])
+        }
       }
 
       // Start iCal sync if URL is provided
       if (settings.calendar.icalUrl) {
         console.log('📅 Starting iCal sync for:', settings.calendar.icalUrl)
-        calendarService.startAutoSync(
-          settings.calendar.icalUrl, 
-          handleEventsUpdate, 
-          settings.calendar.syncFrequency || 30
-        )
+        try {
+          calendarService.startAutoSync(
+            settings.calendar.icalUrl, 
+            handleEventsUpdate, 
+            settings.calendar.syncFrequency || 30
+          )
+        } catch (error) {
+          console.error('❌ Error starting iCal sync:', error)
+        }
       }
 
       // Start Google Calendar sync if enabled
       if (settings.calendar.googleCalendarEnabled) {
         console.log('📅 Starting Google Calendar sync')
-        calendarService.getGoogleCalendarEvents(currentDate, handleEventsUpdate)
+        try {
+          calendarService.getGoogleCalendarEvents(currentDate, handleEventsUpdate)
+        } catch (error) {
+          console.error('❌ Error starting Google Calendar sync:', error)
+        }
       }
     }
 
