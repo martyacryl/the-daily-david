@@ -41,6 +41,8 @@ import { SpiritualGrowthTracker } from '../spiritual/SpiritualGrowthTracker'
 import { GuidedMeetingFlow } from '../meeting/GuidedMeetingFlow'
 import { EnhancedWeeklyReview } from '../review/EnhancedWeeklyReview'
 import { WeekOverview } from '../WeekOverview'
+import { FamilyCreedDisplay } from '../FamilyCreedDisplay'
+import { WeatherSection } from '../WeatherSection'
 
 interface DailyFocusedLayoutProps {
   currentDate: Date
@@ -356,6 +358,11 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
             </div>
           </div>
 
+          {/* Family Creed Section */}
+          <div className="bg-slate-50 border-b border-gray-200 p-3 lg:p-4">
+            <FamilyCreedDisplay />
+          </div>
+
           {/* Three Column Layout */}
           <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
             {/* Left Column - Navigation Sidebar */}
@@ -600,6 +607,9 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                     })()}
                   </div>
                 </Card>
+
+                {/* Weather Section */}
+                <WeatherSection />
 
                 {/* Today's Tasks */}
                 <Card className="p-4 lg:p-6">
