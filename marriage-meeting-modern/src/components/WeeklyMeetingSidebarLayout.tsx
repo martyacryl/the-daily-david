@@ -94,8 +94,6 @@ export const WeeklyMeetingSidebarLayout: React.FC = () => {
     error,
     lastSaved,
     setCurrentDate,
-    setCurrentWeek,
-    initializeStore,
     loadWeekData,
     saveWeekData,
     updateSchedule,
@@ -105,7 +103,6 @@ export const WeeklyMeetingSidebarLayout: React.FC = () => {
     addListItem,
     toggleListItem,
     removeListItem,
-    updateGoals,
     updateTasks,
     updateGrocery,
     updateEncouragementNotes
@@ -114,7 +111,26 @@ export const WeeklyMeetingSidebarLayout: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams()
   const [activeSection, setActiveSection] = useState('schedule')
   const [isSaving, setIsSaving] = useState(false)
-  const [hasLoadedInitialData, setHasLoadedInitialData] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
+  const [showSidebar, setShowSidebar] = useState(false)
+
+  // Detect mobile and handle sidebar visibility
+  useEffect(() => {
+    const checkMobile = () => {
+      const mobile = window.innerWidth < 1024
+      setIsMobile(mobile)
+      // On mobile, hide sidebar by default unless explicitly shown
+      if (mobile) {
+        setShowSidebar(false)
+      } else {
+        setShowSidebar(true)
+      }
+    }
+    
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
 
   // Initialize store with correct current date on mount
   useEffect(() => {
@@ -132,10 +148,12 @@ export const WeeklyMeetingSidebarLayout: React.FC = () => {
       } else {
         // No week in URL, use current week
         console.log('Weekly Planner: No week in URL, using current week')
-        initializeStore()
+        // Just load the current week data
+        const weekKey = DatabaseManager.formatWeekKey(new Date())
+        loadWeekData(weekKey)
       }
     }
-  }, [isAuthenticated, initializeStore, searchParams])
+  }, [isAuthenticated, loadWeekData, searchParams])
 
   // Force re-render when currentDate changes
   useEffect(() => {
@@ -158,17 +176,15 @@ export const WeeklyMeetingSidebarLayout: React.FC = () => {
   // Load week data when date changes OR when first authenticated
   useEffect(() => {
     if (isAuthenticated) {
-      setHasLoadedInitialData(false) // Reset flag when date changes
       const weekKey = DatabaseManager.formatWeekKey(currentDate)
       console.log('🔍 Weekly Planner: Loading week data for:', weekKey)
       console.log('🔍 Weekly Planner: Current date:', currentDate.toISOString())
       console.log('🔍 Weekly Planner: Week key calculated:', weekKey)
       loadWeekData(weekKey).then(() => {
-        setHasLoadedInitialData(true)
         console.log('🔍 Weekly Planner: Week data loaded successfully')
       })
     }
-  }, [currentDate, isAuthenticated]) // Removed loadWeekData from dependency array
+  }, [currentDate, isAuthenticated, loadWeekData])
 
   // USER INTENT: Manual save function (no auto-save)
   const handleSaveWeek = async () => {
@@ -209,12 +225,11 @@ export const WeeklyMeetingSidebarLayout: React.FC = () => {
 
   const handleCurrentWeek = () => {
     // Set to Monday of current week, not today
-    setCurrentWeek()
-    // Update URL to current week
     const today = new Date()
     const mondayKey = DatabaseManager.formatWeekKey(today)
     const [year, month, day] = mondayKey.split('-').map(Number)
     const mondayDate = new Date(year, month - 1, day)
+    setCurrentDate(mondayDate)
     updateWeekInURL(mondayDate)
   }
 
@@ -244,6 +259,7 @@ export const WeeklyMeetingSidebarLayout: React.FC = () => {
   // Calculate section counts for sidebar
   const sectionCounts = {
     schedule: Object.values(weekData.schedule || {}).flat().filter((item: any) => item && item.trim()).length,
+    goals: 0, // Goals are not stored in weekData, they're in a separate store
     todos: (weekData.todos || []).length,
     prayers: (weekData.prayers || []).length,
     grocery: (weekData.grocery || []).reduce((total, storeList) => total + (storeList.items?.length || 0), 0),
@@ -306,12 +322,35 @@ export const WeeklyMeetingSidebarLayout: React.FC = () => {
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
-        {/* Sidebar */}
-        <WeeklyMeetingSidebar
-          activeSection={activeSection}
-          onSectionChange={handleSectionChange}
-          sectionCounts={sectionCounts}
-        />
+        {/* Mobile Menu Button */}
+        {isMobile && (
+          <div className="lg:hidden bg-white border-b border-gray-200 p-4 flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-gray-900 capitalize">{activeSection} Planning</h2>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowSidebar(!showSidebar)}
+              className="text-slate-600 border-slate-200 hover:bg-slate-50"
+            >
+              {showSidebar ? 'Hide Menu' : 'Show Menu'}
+            </Button>
+          </div>
+        )}
+
+        {/* Sidebar - Hidden on mobile unless showSidebar is true */}
+        {(showSidebar || !isMobile) && (
+          <WeeklyMeetingSidebar
+            activeSection={activeSection}
+            onSectionChange={(section) => {
+              handleSectionChange(section)
+              // On mobile, hide sidebar after selecting a section
+              if (isMobile) {
+                setShowSidebar(false)
+              }
+            }}
+            sectionCounts={sectionCounts}
+          />
+        )}
 
         {/* Content Area */}
         <div className="flex-1 overflow-y-auto">
@@ -322,15 +361,14 @@ export const WeeklyMeetingSidebarLayout: React.FC = () => {
             onUpdateSchedule={updateSchedule}
             onAddScheduleLine={addScheduleLine}
             onRemoveScheduleLine={removeScheduleLine}
-            onUpdateListItem={updateListItem}
-            onAddListItem={addListItem}
-            onToggleListItem={toggleListItem}
-            onRemoveListItem={removeListItem}
+            onUpdateListItem={(type, id, text) => updateListItem(type as any, id, text)}
+            onAddListItem={(type, text) => addListItem(type as any, text)}
+            onToggleListItem={(type, id) => toggleListItem(type as any, id)}
+            onRemoveListItem={(type, id) => removeListItem(type as any, id)}
             onUpdateTasks={updateTasks}
             onUpdateGrocery={updateGrocery}
             onUpdateEncouragementNotes={updateEncouragementNotes}
             onSave={handleSaveWeek}
-            isSaving={isSaving}
           />
         </div>
       </div>
