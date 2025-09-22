@@ -662,11 +662,13 @@ export class CalendarService {
    * Get events for a specific day
    */
   getEventsForDay(events: CalendarEvent[], date: Date): CalendarEvent[] {
-    // Get the target date in YYYY-MM-DD format using local timezone
-    const targetDateStr = date.toLocaleDateString('en-CA') // YYYY-MM-DD format
+    // Get the target date in YYYY-MM-DD format using user's current timezone
+    const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone
+    const targetDateStr = date.toLocaleDateString('en-CA', { timeZone }) // YYYY-MM-DD format
 
     console.log('📅 getEventsForDay called with:', {
       date: targetDateStr,
+      timeZone: timeZone,
       eventsCount: events.length
     })
     
@@ -674,8 +676,8 @@ export class CalendarService {
       title: e.title,
       start: e.start ? e.start.toISOString() : 'undefined',
       end: e.end ? e.end.toISOString() : 'undefined',
-      startDateLocal: e.start ? e.start.toLocaleDateString('en-CA') : 'undefined',
-      endDateLocal: e.end ? e.end.toLocaleDateString('en-CA') : 'undefined'
+      startDateLocal: e.start ? e.start.toLocaleDateString('en-CA', { timeZone }) : 'undefined',
+      endDateLocal: e.end ? e.end.toLocaleDateString('en-CA', { timeZone }) : 'undefined'
     })))
 
     const filteredEvents = events.filter(event => {
@@ -704,15 +706,16 @@ export class CalendarService {
         return false
       }
       
-      // Get the start date in YYYY-MM-DD format using local timezone
-      const eventStartDateStr = event.start.toLocaleDateString('en-CA')
+      // Get the start date in YYYY-MM-DD format using user's current timezone
+      const eventStartDateStr = event.start.toLocaleDateString('en-CA', { timeZone })
       
-      // Show event only on the day it starts (in local timezone)
+      // Show event only on the day it starts (in user's timezone)
       const isOnStartDay = eventStartDateStr === targetDateStr
       
       console.log('📅 Event filter check for', event.title, ':', {
         eventStartDate: eventStartDateStr,
         targetDate: targetDateStr,
+        timeZone: timeZone,
         isOnStartDay
       })
       

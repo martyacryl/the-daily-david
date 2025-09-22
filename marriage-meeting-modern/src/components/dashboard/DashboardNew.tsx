@@ -377,16 +377,17 @@ export const DashboardNew: React.FC = () => {
                     const todaySchedule = weekData.schedule?.[todayName as keyof typeof weekData.schedule] || []
                     const filteredSchedule = todaySchedule.filter(item => item && item.trim() !== '' && item !== '')
                     
-                    // Get calendar events for today using local timezone
+                    // Get calendar events for today using user's current timezone
                     const todayCalendarEvents = (weekData.calendarEvents || []).filter((event: any) => {
                       const eventStart = new Date(event.start)
                       const today = new Date()
                       
-                      // Use local timezone for date comparison (not UTC)
-                      const eventStartDate = eventStart.toLocaleDateString('en-CA') // YYYY-MM-DD format
-                      const todayDateString = today.toLocaleDateString('en-CA') // YYYY-MM-DD format
+                      // Use user's current timezone for date comparison
+                      const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone
+                      const eventStartDate = eventStart.toLocaleDateString('en-CA', { timeZone }) // YYYY-MM-DD format
+                      const todayDateString = today.toLocaleDateString('en-CA', { timeZone }) // YYYY-MM-DD format
                       
-                      // Event is on today if it starts today in local timezone
+                      // Event is on today if it starts today in user's timezone
                       return eventStartDate === todayDateString
                     })
                     
@@ -409,7 +410,8 @@ export const DashboardNew: React.FC = () => {
                         time: event.start.toLocaleTimeString('en-US', { 
                           hour: 'numeric', 
                           minute: '2-digit',
-                          hour12: true 
+                          hour12: true,
+                          timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
                         }),
                         key: `calendar-${index}`
                       }))
