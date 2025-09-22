@@ -377,16 +377,16 @@ export const DashboardNew: React.FC = () => {
                     const todaySchedule = weekData.schedule?.[todayName as keyof typeof weekData.schedule] || []
                     const filteredSchedule = todaySchedule.filter(item => item && item.trim() !== '' && item !== '')
                     
-                    // Get calendar events for today using the same logic as weekly schedule
+                    // Get calendar events for today using local timezone
                     const todayCalendarEvents = (weekData.calendarEvents || []).filter((event: any) => {
                       const eventStart = new Date(event.start)
                       const today = new Date()
                       
-                      // Check if event occurs on today's date - only show events that START today
-                      const eventStartDate = eventStart.toISOString().split('T')[0]
-                      const todayDateString = today.toISOString().split('T')[0]
+                      // Use local timezone for date comparison (not UTC)
+                      const eventStartDate = eventStart.toLocaleDateString('en-CA') // YYYY-MM-DD format
+                      const todayDateString = today.toLocaleDateString('en-CA') // YYYY-MM-DD format
                       
-                      // Event is on today if it starts today (same logic as getEventsForDay)
+                      // Event is on today if it starts today in local timezone
                       return eventStartDate === todayDateString
                     })
                     
