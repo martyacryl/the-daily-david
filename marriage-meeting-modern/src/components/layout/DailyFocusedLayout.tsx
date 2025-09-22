@@ -916,22 +916,7 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
       }
       
       return (
-        <div className="h-full flex flex-col">
-          {/* Back to Vision Button */}
-          <div className="mb-4 flex items-center gap-3">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setActiveSection('vision')}
-              className="text-slate-600 border-slate-200 hover:bg-slate-50"
-            >
-              <ChevronLeft className="w-4 h-4 mr-1" />
-              Back to Vision
-            </Button>
-            <h2 className="text-lg font-semibold text-gray-900">Weekly Schedule</h2>
-          </div>
-          
-          <WeeklyMeetingContent
+        <WeeklyMeetingContent
             activeSection={activeSection}
             currentDate={currentDate}
             weekData={weekData}
@@ -993,7 +978,6 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
           onSave={onSave}
           isSaving={isSaving}
         />
-        </div>
       )
     }
 
@@ -1357,17 +1341,26 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
       {/* Header */}
       <div className="bg-white border-b border-gray-200 px-4 py-4">
         <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Daily Focused Meeting</h1>
-            <p className="text-sm text-gray-600">
-              {currentDate.toLocaleDateString('en-US', { 
-                weekday: 'long', 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric' 
-              })}
-            </p>
-            
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setActiveSection('vision')}
+              className="flex items-center gap-2 text-slate-600 hover:text-slate-800 transition-colors"
+            >
+              <Home className="w-6 h-6" />
+              <span className="text-sm font-medium">Vision</span>
+            </button>
+            <div className="h-6 w-px bg-gray-300"></div>
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">Daily Focused Meeting</h1>
+              <p className="text-sm text-gray-600">
+                {currentDate.toLocaleDateString('en-US', { 
+                  weekday: 'long', 
+                  year: 'numeric', 
+                  month: 'long', 
+                  day: 'numeric' 
+                })}
+              </p>
+            </div>
           </div>
           
           <div className="flex items-center gap-3">
