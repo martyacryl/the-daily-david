@@ -147,7 +147,7 @@ export class CalendarService {
     // Use the exact week start date - don't extend to previous weekend
     const weekStartDate = new Date(weekStart)
     const weekEnd = new Date(weekStart)
-    weekEnd.setDate(weekEnd.getDate() + 7)
+    weekEnd.setDate(weekEnd.getDate() + 6) // Week ends on Sunday (6 days after Monday)
 
     console.log('📅 parseICalData: Week range:', {
       weekStart: weekStartDate.toISOString().split('T')[0],

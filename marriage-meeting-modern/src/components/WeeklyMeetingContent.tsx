@@ -112,12 +112,13 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
           const eventStartDate = event.start.toISOString().split('T')[0]
           const eventEndDate = event.end.toISOString().split('T')[0]
           const weekStartDate = weekStart.toISOString().split('T')[0]
-          const weekEndDate = new Date(weekStart.getTime() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+          // Week ends on Sunday (6 days after Monday), not Monday of next week
+          const weekEndDate = new Date(weekStart.getTime() + 6 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
           
           // Event belongs to current week if it starts or ends within the week
-          const belongsToWeek = (eventStartDate >= weekStartDate && eventStartDate < weekEndDate) ||
-                               (eventEndDate > weekStartDate && eventEndDate <= weekEndDate) ||
-                               (eventStartDate < weekStartDate && eventEndDate >= weekEndDate)
+          const belongsToWeek = (eventStartDate >= weekStartDate && eventStartDate <= weekEndDate) ||
+                               (eventEndDate >= weekStartDate && eventEndDate <= weekEndDate) ||
+                               (eventStartDate < weekStartDate && eventEndDate > weekEndDate)
           
           console.log('📅 Event week filter check:', {
             title: event.title,
