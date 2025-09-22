@@ -325,26 +325,28 @@ export const DashboardNew: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-purple-50 pt-24 sm:pt-16">
-      <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-8 max-w-7xl">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-8"
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-purple-50">
+      {/* Fixed Settings Button - Always visible */}
+      <div className="fixed top-20 right-4 z-40 sm:top-24">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setIsSettingsOpen(true)}
+          className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm bg-white shadow-md border-gray-300"
         >
-          {/* Settings Button - Mobile First */}
-          <div className="flex justify-end mb-4">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setIsSettingsOpen(true)}
-              className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm"
-            >
-              <Settings className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-              <span className="hidden sm:inline">Settings</span>
-            </Button>
-          </div>
+          <Settings className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+          <span className="hidden sm:inline">Settings</span>
+        </Button>
+      </div>
+      
+      <div className="pt-24 sm:pt-16">
+        <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-8 max-w-7xl">
+          {/* Header */}
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-center mb-8"
+          >
           
           <h1 className="text-3xl sm:text-4xl font-bold text-gray-800 mb-2">
             {getGreeting()}, {user?.name || 'David'}!

@@ -125,7 +125,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
           initial={{ scale: 0.95, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.95, opacity: 0 }}
-          className="bg-white rounded-lg shadow-xl w-full max-w-4xl h-[95vh] sm:h-[90vh] flex items-center justify-center mx-2 sm:mx-4"
+          className="bg-white rounded-lg shadow-xl w-full max-w-4xl h-[98vh] sm:h-[90vh] flex items-center justify-center mx-1 sm:mx-4"
         >
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
@@ -142,16 +142,16 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-2 sm:p-4"
+        className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-1 sm:p-4"
       >
         <motion.div
           initial={{ scale: 0.95, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.95, opacity: 0 }}
-          className="bg-white rounded-lg shadow-xl w-full max-w-4xl h-[95vh] sm:h-[90vh] flex flex-col mx-2 sm:mx-4"
+          className="bg-white rounded-lg shadow-xl w-full max-w-4xl h-[98vh] sm:h-[90vh] flex flex-col mx-1 sm:mx-4"
         >
-          {/* Header */}
-          <div className="flex items-center justify-between p-3 sm:p-4 lg:p-6 border-b border-gray-200">
+          {/* Header - Sticky on mobile */}
+          <div className="flex items-center justify-between p-3 sm:p-4 lg:p-6 border-b border-gray-200 bg-white sticky top-0 z-10">
             <div className="flex items-center gap-2 sm:gap-3">
               <Settings className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" />
               <h2 className="text-lg sm:text-xl font-semibold text-gray-900">Settings</h2>
@@ -159,7 +159,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
             <Button
               onClick={onClose}
               variant="ghost"
-              className="text-gray-400 hover:text-gray-600 p-1 sm:p-2"
+              className="text-gray-400 hover:text-gray-600 p-2 sm:p-2 bg-gray-100 hover:bg-gray-200 rounded-full"
             >
               <X className="w-5 h-5 sm:w-6 sm:h-6" />
             </Button>
@@ -170,21 +170,21 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
             <div className="h-full flex flex-col sm:flex-row">
               {/* Sidebar - Mobile: Horizontal scroll, Desktop: Vertical */}
               <div className="w-full sm:w-64 bg-gray-50 border-b sm:border-b-0 sm:border-r border-gray-200 p-2 sm:p-4">
-                <nav className="flex sm:flex-col space-x-2 sm:space-x-0 sm:space-y-2 overflow-x-auto sm:overflow-x-visible">
+                <nav className="flex sm:flex-col space-x-1 sm:space-x-0 sm:space-y-2 overflow-x-auto sm:overflow-x-visible">
                   {tabs.map((tab) => {
                     const Icon = tab.icon
                     return (
                       <button
                         key={tab.id}
                         onClick={() => setActiveTab(tab.id)}
-                        className={`flex-shrink-0 flex items-center gap-2 sm:gap-3 px-2 sm:px-3 py-2 text-xs sm:text-sm font-medium rounded-lg transition-colors whitespace-nowrap ${
+                        className={`flex-shrink-0 flex items-center gap-2 sm:gap-3 px-3 sm:px-3 py-3 sm:py-2 text-sm sm:text-sm font-medium rounded-lg transition-colors whitespace-nowrap min-w-[80px] sm:min-w-0 ${
                           activeTab === tab.id
                             ? 'bg-blue-100 text-blue-700'
                             : 'text-gray-700 hover:bg-gray-100'
                         }`}
                       >
                         <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
-                        <span className="hidden xs:inline sm:inline">{tab.label}</span>
+                        <span className="text-xs sm:text-sm">{tab.label}</span>
                       </button>
                     )
                   })}
