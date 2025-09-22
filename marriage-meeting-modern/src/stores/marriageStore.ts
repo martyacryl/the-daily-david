@@ -206,6 +206,13 @@ export const useMarriageStore = create<MarriageState>((set, get) => ({
                 return true
               })
         
+        // Preserve existing calendar events if they exist, otherwise use database events
+        const currentState = get()
+        const existingCalendarEvents = currentState.weekData.calendarEvents || []
+        const finalCalendarEvents = existingCalendarEvents.length > 0 ? existingCalendarEvents : calendarEvents
+        
+        console.log('Store: Preserving calendar events - existing:', existingCalendarEvents.length, 'database:', calendarEvents.length, 'final:', finalCalendarEvents.length)
+        
         const weekDataToSet = {
           schedule: normalizedSchedule,
           todos: migratedTodos,
@@ -214,7 +221,7 @@ export const useMarriageStore = create<MarriageState>((set, get) => ({
           unconfessedSin: week.unconfessedSin,
           weeklyWinddown: week.weeklyWinddown,
           encouragementNotes: week.encouragementNotes || [],
-          calendarEvents: calendarEvents
+          calendarEvents: finalCalendarEvents
         }
         
         console.log('Store: Setting weekData with calendarEvents:', calendarEvents.length, 'events')
