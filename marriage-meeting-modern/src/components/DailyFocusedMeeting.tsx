@@ -2,10 +2,13 @@ import React, { useEffect } from 'react'
 import { DailyFocusedLayout } from './layout/DailyFocusedLayout'
 import { useMarriageStore } from '../stores/marriageStore'
 import { useAuthStore } from '../stores/authStore'
+import { useSettingsStore } from '../stores/settingsStore'
 import { DatabaseManager } from '../lib/database'
+import { calendarService } from '../lib/calendarService'
 
 export const DailyFocusedMeeting: React.FC = () => {
   const { isAuthenticated, user } = useAuthStore()
+  const { settings, loadSettings } = useSettingsStore()
   const {
     weekData,
     currentDate,
@@ -24,6 +27,7 @@ export const DailyFocusedMeeting: React.FC = () => {
     updateTasks,
     updateGrocery,
     updateEncouragementNotes,
+    updateCalendarEvents,
     setCurrentDate
   } = useMarriageStore()
 
@@ -43,6 +47,51 @@ export const DailyFocusedMeeting: React.FC = () => {
       loadWeekData(mondayKey)
     }
   }, [isAuthenticated, user, setCurrentDate, loadWeekData])
+
+  // Load settings and set up calendar sync
+  useEffect(() => {
+    const loadSettingsAndSync = async () => {
+      console.log('📅 DailyFocusedMeeting: Loading settings...')
+      await loadSettings()
+    }
+
+    loadSettingsAndSync()
+  }, [loadSettings])
+
+  // Set up calendar sync when settings are loaded
+  useEffect(() => {
+    if (!settings.calendar?.icalUrl && !settings.calendar?.googleCalendarEnabled) {
+      console.log('📅 DailyFocusedMeeting: No calendar configured')
+      return
+    }
+
+    if (!settings.calendar?.showCalendarEvents) {
+      console.log('📅 DailyFocusedMeeting: Calendar events disabled')
+      return
+    }
+
+    console.log('📅 DailyFocusedMeeting: Setting up calendar sync...')
+    
+    const handleEventsUpdate = async (events: any[]) => {
+      console.log('📅 DailyFocusedMeeting: Calendar events updated:', events.length)
+      updateCalendarEvents(events)
+    }
+
+    // Start calendar sync
+    if (settings.calendar.icalUrl) {
+      calendarService.startAutoSync(settings.calendar.icalUrl, handleEventsUpdate, settings.calendar.syncFrequency || 30)
+    }
+
+    if (settings.calendar.googleCalendarEnabled) {
+      calendarService.getGoogleCalendarEvents(currentDate, handleEventsUpdate)
+    }
+
+    return () => {
+      if (settings.calendar?.icalUrl) {
+        calendarService.stopAutoSync(settings.calendar.icalUrl)
+      }
+    }
+  }, [settings.calendar?.icalUrl, settings.calendar?.googleCalendarEnabled, settings.calendar?.showCalendarEvents, settings.calendar?.syncFrequency, currentDate, updateCalendarEvents])
 
   if (!isAuthenticated) {
     return (
