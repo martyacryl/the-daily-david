@@ -1,7 +1,7 @@
 import React from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Mountain, Home, BarChart3, Calendar, LogOut, User, Settings, Sun } from 'lucide-react'
+import { Mountain, Home, BarChart3, Calendar, LogOut, User, Settings, Sun, Target } from 'lucide-react'
 import { useAuthStore } from '../../stores/authStore'
 import { Button } from '../ui/Button'
 
@@ -31,6 +31,7 @@ export const Header: React.FC<HeaderProps> = () => {
     { path: '/', label: 'Dashboard', icon: Home },
     { path: '/weekly', label: 'Weekly Planning', icon: Calendar },
     { path: '/daily', label: 'Vision', icon: Sun },
+    { path: '/planning', label: 'Strategic Planning', icon: Target },
     { path: '/analytics', label: 'Analytics', icon: BarChart3 }
   ]
 
