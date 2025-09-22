@@ -48,44 +48,60 @@ export const DailyFocusedMeeting: React.FC = () => {
     }
   }, [isAuthenticated, user, setCurrentDate, loadWeekData])
 
-  // Load settings and set up calendar sync
+  // Load settings first, then set up calendar sync
   useEffect(() => {
     const loadSettingsAndSync = async () => {
       console.log('📅 DailyFocusedMeeting: Loading settings...')
       await loadSettings()
     }
-
+    
     loadSettingsAndSync()
   }, [loadSettings])
 
-  // Set up calendar sync when settings are loaded
+  // Set up automatic calendar sync when component mounts or settings change
   useEffect(() => {
-    if (!settings.calendar?.icalUrl && !settings.calendar?.googleCalendarEnabled) {
-      console.log('📅 DailyFocusedMeeting: No calendar configured')
-      return
-    }
-
-    if (!settings.calendar?.showCalendarEvents) {
-      console.log('📅 DailyFocusedMeeting: Calendar events disabled')
-      return
-    }
-
-    console.log('📅 DailyFocusedMeeting: Setting up calendar sync...')
+    const mondayKey = DatabaseManager.formatWeekKey(currentDate)
+    const [year, month, day] = mondayKey.split('-').map(Number)
+    const weekStart = new Date(year, month - 1, day)
     
-    const handleEventsUpdate = async (events: any[]) => {
-      console.log('📅 DailyFocusedMeeting: Calendar events updated:', events.length)
-      updateCalendarEvents(events)
+    // Stop any existing sync and clear cache for this week
+    if (settings.calendar?.icalUrl) {
+      calendarService.stopAutoSync(settings.calendar.icalUrl)
+      calendarService.clearCacheForWeek(settings.calendar.icalUrl, weekStart)
+    }
+    
+    // Start auto-sync if calendar events are enabled
+    console.log('📅 Calendar sync check:', {
+      showCalendarEvents: settings.calendar?.showCalendarEvents,
+      icalUrl: settings.calendar?.icalUrl,
+      syncFrequency: settings.calendar?.syncFrequency,
+      googleCalendarEnabled: settings.calendar?.googleCalendarEnabled
+    })
+    
+    if (settings.calendar?.showCalendarEvents) {
+      const handleEventsUpdate = async (events: any[]) => {
+        console.log('📅 Calendar events updated:', events.length)
+        updateCalendarEvents(events)
+      }
+
+      // Start iCal sync if URL is provided
+      if (settings.calendar.icalUrl) {
+        console.log('📅 Starting iCal sync for:', settings.calendar.icalUrl)
+        calendarService.startAutoSync(
+          settings.calendar.icalUrl, 
+          handleEventsUpdate, 
+          settings.calendar.syncFrequency || 30
+        )
+      }
+
+      // Start Google Calendar sync if enabled
+      if (settings.calendar.googleCalendarEnabled) {
+        console.log('📅 Starting Google Calendar sync')
+        calendarService.getGoogleCalendarEvents(currentDate, handleEventsUpdate)
+      }
     }
 
-    // Start calendar sync
-    if (settings.calendar.icalUrl) {
-      calendarService.startAutoSync(settings.calendar.icalUrl, handleEventsUpdate, settings.calendar.syncFrequency || 30)
-    }
-
-    if (settings.calendar.googleCalendarEnabled) {
-      calendarService.getGoogleCalendarEvents(currentDate, handleEventsUpdate)
-    }
-
+    // Cleanup function
     return () => {
       if (settings.calendar?.icalUrl) {
         calendarService.stopAutoSync(settings.calendar.icalUrl)
