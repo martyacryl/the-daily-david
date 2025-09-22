@@ -217,6 +217,8 @@ export const useMarriageStore = create<MarriageState>((set, get) => ({
           calendarEvents: calendarEvents
         }
         
+        console.log('Store: Setting weekData with calendarEvents:', calendarEvents.length, 'events')
+        
         console.log('🔍 Store: Complete weekData being set for week', weekKey, ':', weekDataToSet)
         console.log('🔍 Store: Final prayers data being set:', weekDataToSet.prayers)
         console.log('🔍 Store: Final prayers count:', weekDataToSet.prayers?.length || 0)
@@ -443,6 +445,12 @@ export const useMarriageStore = create<MarriageState>((set, get) => ({
   },
 
   updateCalendarEvents: (calendarEvents: CalendarEvent[]) => {
+    console.log('Store: updateCalendarEvents called with', calendarEvents.length, 'events')
+    console.log('Store: Calendar events details:', calendarEvents.map(e => ({
+      title: e.title,
+      start: e.start.toISOString(),
+      end: e.end.toISOString()
+    })))
     set((state) => ({
       weekData: {
         ...state.weekData,

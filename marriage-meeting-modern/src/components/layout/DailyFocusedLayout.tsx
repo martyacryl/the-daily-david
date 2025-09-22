@@ -626,8 +626,26 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                       const todayCalendarEvents = (weekData?.calendarEvents || []).filter((event: any) => {
                         const eventStartDate = event.start.toISOString().split('T')[0]
                         const eventEndDate = event.end.toISOString().split('T')[0]
-                        return eventStartDate === todayDateString || eventEndDate === todayDateString
+                        const isToday = eventStartDate === todayDateString || eventEndDate === todayDateString
+                        
+                        console.log('📅 Today calendar event check:', {
+                          title: event.title,
+                          eventStartDate,
+                          eventEndDate,
+                          todayDateString,
+                          isToday
+                        })
+                        
+                        return isToday
                       })
+                      
+                      console.log('📅 Today calendar events found:', todayCalendarEvents.length)
+                      console.log('📅 All calendar events in weekData:', weekData?.calendarEvents?.length || 0)
+                      console.log('📅 Calendar events details:', weekData?.calendarEvents?.map(e => ({
+                        title: e.title,
+                        start: e.start.toISOString(),
+                        end: e.end.toISOString()
+                      })) || [])
                       
                       // Combine schedule items and calendar events
                       const allItems = [
