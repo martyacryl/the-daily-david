@@ -115,7 +115,7 @@ export const AnnualPlanning: React.FC = () => {
         category: 'marriage',
         title: 'Strengthen Our Marriage Foundation',
         description: 'Build a stronger, more intimate marriage through consistent practices and growth',
-        targetDate: '2024-12-31',
+        targetDate: '2025-12-31',
         progress: 35,
         quarterlyBreakdown: {
           Q1: ['Establish weekly date nights', 'Start couples devotionals'],
@@ -134,7 +134,7 @@ export const AnnualPlanning: React.FC = () => {
         category: 'spiritual',
         title: 'Deepen Our Spiritual Walk',
         description: 'Grow closer to God individually and as a couple',
-        targetDate: '2024-12-31',
+        targetDate: '2025-12-31',
         progress: 20,
         quarterlyBreakdown: {
           Q1: ['Daily individual prayer', 'Weekly family devotions'],
@@ -153,7 +153,7 @@ export const AnnualPlanning: React.FC = () => {
     const mockThemes: AnnualTheme[] = [
       {
         id: '1',
-        year: 2024,
+        year: 2025,
         theme: 'Building on the Rock',
         verse: 'Therefore everyone who hears these words of mine and puts them into practice is like a wise man who built his house on the rock. - Matthew 7:24',
         focus: 'Establishing strong foundations in all areas of life',
@@ -169,7 +169,7 @@ export const AnnualPlanning: React.FC = () => {
 
     const mockVision: VisionStatement = {
       id: '1',
-      title: 'Our Family Vision 2024',
+      title: 'Our Family Vision 2025',
       statement: 'To build a Christ-centered home that serves as a beacon of love, faith, and hope in our community, while raising children who know and love God.',
       values: ['Faith', 'Love', 'Integrity', 'Service', 'Growth', 'Unity'],
       priorities: ['Marriage', 'Children', 'Spiritual Growth', 'Community', 'Health', 'Ministry']
@@ -347,7 +347,7 @@ export const AnnualPlanning: React.FC = () => {
               label="Vision Title"
               value={newVision.title || ''}
               onChange={(e) => setNewVision({ ...newVision, title: e.target.value })}
-              placeholder="e.g., Our Family Vision 2024"
+              placeholder="e.g., Our Family Vision 2025"
             />
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Vision Statement</label>

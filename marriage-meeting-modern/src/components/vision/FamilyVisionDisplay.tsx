@@ -78,18 +78,18 @@ export const FamilyVisionDisplay: React.FC = () => {
     // Mock data - in real app, load from API
     const mockVision: FamilyVision = {
       id: '1',
-      title: 'Our Family Vision 2024',
+      title: 'Our Family Vision 2025',
       statement: 'To build a Christ-centered home that serves as a beacon of love, faith, and hope in our community, while raising children who know and love God.',
       values: ['Faith', 'Love', 'Integrity', 'Service', 'Growth', 'Unity'],
       priorities: ['Marriage', 'Children', 'Spiritual Growth', 'Community', 'Health', 'Ministry'],
-      year: 2024,
-      lastUpdated: '2024-01-15'
+      year: 2025,
+      lastUpdated: '2025-01-15'
     }
 
     const mockQuarterlyTheme: QuarterlyTheme = {
       id: '1',
       quarter: 'Q1',
-      year: 2024,
+      year: 2025,
       theme: 'Foundation Building',
       focus: 'Establishing strong habits and routines that will carry us through the year',
       scripture: 'Therefore everyone who hears these words of mine and puts them into practice is like a wise man who built his house on the rock. - Matthew 7:24',
