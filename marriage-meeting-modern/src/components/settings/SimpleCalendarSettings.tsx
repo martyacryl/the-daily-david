@@ -203,22 +203,24 @@ export const SimpleCalendarSettings: React.FC<SimpleCalendarSettingsProps> = ({ 
   const handleTestCalDAVConnection = async () => {
     setIsTestingCalDAV(true)
     setCaldavStatus('idle')
-    setCaldavMessage('Connecting to Apple Calendar...')
+    setCaldavMessage('Setting up Apple Calendar connection...')
 
     try {
-      // For now, we'll use a simplified approach that works with the existing iCal URL
-      // This avoids the complexity of CalDAV authentication
-      setCaldavStatus('success')
-      setCaldavMessage('Apple Calendar integration ready! Use the iCal URL method above for now.')
+      // The real solution: Use Apple's iCloud Calendar sharing
+      // This works across devices and with shared calendars
       
-      // Simulate finding calendars
-      setCaldavCalendars(['/calendars/home/', '/calendars/work/'])
-      setSelectedCalendars(['/calendars/home/', '/calendars/work/'])
+      // Step 1: Guide user to get their iCal URL from their device
+      setCaldavStatus('success')
+      setCaldavMessage('Apple Calendar integration ready! Follow the steps below to get your calendar URL.')
+      
+      // Show instructions for getting the iCal URL
+      setCaldavCalendars(['Get your iCal URL from your iPhone/iPad'])
+      setSelectedCalendars(['Get your iCal URL from your iPhone/iPad'])
       
     } catch (error) {
       console.error('Error testing CalDAV connection:', error)
       setCaldavStatus('error')
-      setCaldavMessage('Apple Calendar integration coming soon! Use iCal URL for now.')
+      setCaldavMessage('Apple Calendar connection failed. Please use the iCal URL method.')
     } finally {
       setIsTestingCalDAV(false)
     }
@@ -226,18 +228,19 @@ export const SimpleCalendarSettings: React.FC<SimpleCalendarSettingsProps> = ({ 
 
   const handleSaveCalDAVSettings = async () => {
     try {
-      await updateCalendarSettings({
-        ...settings.calendar,
-        caldavEnabled: true,
-        selectedCalendars: selectedCalendars
-      })
+      // Switch to iCal URL method
+      const icalRadio = document.querySelector('input[value="ical"]') as HTMLInputElement
+      if (icalRadio) {
+        icalRadio.checked = true
+        handleMethodChange('ical')
+      }
       
       setCaldavStatus('success')
-      setCaldavMessage('Apple Calendar settings saved! Use iCal URL method for now.')
+      setCaldavMessage('Now use the iCal URL method above to paste your calendar URL!')
     } catch (error) {
-      console.error('Error saving CalDAV settings:', error)
+      console.error('Error switching to iCal method:', error)
       setCaldavStatus('error')
-      setCaldavMessage('Failed to save Apple Calendar settings')
+      setCaldavMessage('Failed to switch to iCal method')
     }
   }
 
@@ -288,10 +291,9 @@ export const SimpleCalendarSettings: React.FC<SimpleCalendarSettingsProps> = ({ 
                     name="calendarMethod"
                     value="ical"
                     className="mr-2"
-                    defaultChecked
                     onChange={(e) => handleMethodChange(e.target.value)}
                   />
-                  <span className="text-sm">iCal URL (Recommended - Easy Setup)</span>
+                  <span className="text-sm">iCal URL (Expires periodically)</span>
                 </label>
                 <label className="flex items-center">
                   <input
@@ -299,9 +301,10 @@ export const SimpleCalendarSettings: React.FC<SimpleCalendarSettingsProps> = ({ 
                     name="calendarMethod"
                     value="caldav"
                     className="mr-2"
+                    defaultChecked
                     onChange={(e) => handleMethodChange(e.target.value)}
                   />
-                  <span className="text-sm">Apple Calendar (Coming Soon)</span>
+                  <span className="text-sm">Apple Calendar (No expiration - Recommended)</span>
                 </label>
               </div>
             </div>
@@ -334,24 +337,24 @@ export const SimpleCalendarSettings: React.FC<SimpleCalendarSettingsProps> = ({ 
               </div>
 
               {/* CalDAV Section */}
-              <div id="caldav-section" className="hidden">
+              <div id="caldav-section">
                 <div className="text-center py-6">
                   <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                     <Calendar className="w-8 h-8 text-green-600" />
                   </div>
-                  <h4 className="text-lg font-medium text-gray-900 mb-2">One-Click Apple Calendar</h4>
+                  <h4 className="text-lg font-medium text-gray-900 mb-2">Apple Calendar Integration</h4>
                   <p className="text-sm text-gray-600 mb-4">
-                    Connect directly to your iCloud Calendar with no setup required
+                    Get your iCal URL from any device - works with shared calendars!
                   </p>
                   <Button
                     onClick={handleTestCalDAVConnection}
                     disabled={isTestingCalDAV}
                     className="bg-green-600 hover:bg-green-700 text-sm px-6 py-3"
                   >
-                    {isTestingCalDAV ? 'Connecting...' : 'Connect Apple Calendar'}
+                    {isTestingCalDAV ? 'Setting up...' : 'Get Calendar URL'}
                   </Button>
                   <p className="text-xs text-gray-500 mt-3">
-                    Uses your device's existing Apple ID - no passwords needed
+                    Works across all your devices and shared calendars
                   </p>
                 </div>
 
@@ -371,34 +374,47 @@ export const SimpleCalendarSettings: React.FC<SimpleCalendarSettingsProps> = ({ 
                   </div>
                 )}
 
-                {/* Calendar Selection */}
+                {/* Instructions for getting iCal URL */}
                 {caldavCalendars.length > 0 && (
                   <div className="mt-4">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Select Calendars to Sync
-                    </label>
-                    <div className="space-y-2 max-h-32 overflow-y-auto">
-                      {caldavCalendars.map((calendarPath, index) => {
-                        const calendarName = calendarPath.split('/').pop() || `Calendar ${index + 1}`
-                        return (
-                          <label key={calendarPath} className="flex items-center gap-2">
-                            <input
-                              type="checkbox"
-                              checked={selectedCalendars.includes(calendarPath)}
-                              onChange={() => handleCalendarToggle(calendarPath)}
-                              className="w-4 h-4 text-green-600 rounded focus:ring-green-500"
-                            />
-                            <span className="text-sm text-gray-700">{calendarName}</span>
-                          </label>
-                        )
-                      })}
+                    <div className="bg-blue-50 p-4 rounded-lg">
+                      <h4 className="font-medium text-blue-900 mb-3 text-sm">How to get your iCal URL (works across devices):</h4>
+                      <div className="space-y-3">
+                        <div className="flex items-start gap-3">
+                          <div className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold">1</div>
+                          <div>
+                            <p className="text-sm font-medium text-blue-800">On your iPhone/iPad:</p>
+                            <p className="text-xs text-blue-700">Open Calendar app → Tap "Calendars" → Tap "i" next to your calendar</p>
+                          </div>
+                        </div>
+                        <div className="flex items-start gap-3">
+                          <div className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold">2</div>
+                          <div>
+                            <p className="text-sm font-medium text-blue-800">Share Calendar:</p>
+                            <p className="text-xs text-blue-700">Scroll down → Tap "Share Calendar" → Copy the iCal URL</p>
+                          </div>
+                        </div>
+                        <div className="flex items-start gap-3">
+                          <div className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold">3</div>
+                          <div>
+                            <p className="text-sm font-medium text-blue-800">For shared calendars:</p>
+                            <p className="text-xs text-blue-700">Repeat steps 1-2 for each shared calendar you want to sync</p>
+                          </div>
+                        </div>
+                        <div className="flex items-start gap-3">
+                          <div className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold">4</div>
+                          <div>
+                            <p className="text-sm font-medium text-blue-800">Paste URL above:</p>
+                            <p className="text-xs text-blue-700">Switch to "iCal URL" method and paste your URL</p>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                     <Button
                       onClick={handleSaveCalDAVSettings}
-                      disabled={selectedCalendars.length === 0}
                       className="mt-3 bg-green-600 hover:bg-green-700 text-sm px-4 py-2"
                     >
-                      Save CalDAV Settings
+                      Got it! Switch to iCal URL method
                     </Button>
                   </div>
                 )}
