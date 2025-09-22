@@ -571,6 +571,9 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
             {/* Middle Column - Daily Focus & Weekly Overview */}
             <div className="flex-1 p-4 lg:p-6 overflow-y-auto">
               <div className="space-y-6">
+                {/* Weather Section */}
+                <WeatherSection />
+
                 {/* Today's Schedule */}
                 <Card className="p-4 lg:p-6">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
@@ -607,9 +610,6 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                     })()}
                   </div>
                 </Card>
-
-                {/* Weather Section */}
-                <WeatherSection />
 
                 {/* Today's Tasks */}
                 <Card className="p-4 lg:p-6">
