@@ -1328,4 +1328,363 @@ app.get('/api/available-reading-plans', authenticateToken, async (req, res) => {
   }
 })
 
+// =============================================================================
+// PLANNING SYSTEM API ENDPOINTS
+// =============================================================================
+
+// Family Vision Endpoints
+app.get('/api/family-vision', authenticateToken, async (req, res) => {
+  try {
+    console.log('👨‍👩‍👧‍👦 Family Vision: Fetching for user:', req.user.id)
+    
+    const result = await pool.query(
+      'SELECT * FROM family_vision WHERE user_id = $1 AND is_active = true ORDER BY year DESC LIMIT 1',
+      [req.user.id]
+    )
+    
+    if (result.rows.length === 0) {
+      return res.json(null)
+    }
+    
+    console.log('👨‍👩‍👧‍👦 Family Vision: Found vision:', result.rows[0].title)
+    res.json(result.rows[0])
+  } catch (error) {
+    console.error('❌ Error fetching family vision:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
+app.post('/api/family-vision', authenticateToken, async (req, res) => {
+  try {
+    console.log('👨‍👩‍👧‍👦 Family Vision: Creating for user:', req.user.id)
+    console.log('👨‍👩‍👧‍👦 Family Vision: Request body:', req.body)
+    
+    const { title, statement, values, priorities, year } = req.body
+
+    if (!title || !statement || !year) {
+      return res.status(400).json({ error: 'Missing required fields: title, statement, year' })
+    }
+
+    // Deactivate any existing vision for this year
+    await pool.query(
+      'UPDATE family_vision SET is_active = false WHERE user_id = $1 AND year = $2',
+      [req.user.id, year]
+    )
+
+    const result = await pool.query(
+      `INSERT INTO family_vision (user_id, title, statement, values, priorities, year, created_at, updated_at)
+       VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW())
+       RETURNING *`,
+      [req.user.id, title, statement, values || [], priorities || [], year]
+    )
+
+    console.log('👨‍👩‍👧‍👦 Family Vision: Created successfully:', result.rows[0].title)
+    res.json(result.rows[0])
+  } catch (error) {
+    console.error('❌ Error creating family vision:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
+app.put('/api/family-vision/:id', authenticateToken, async (req, res) => {
+  try {
+    console.log('👨‍👩‍👧‍👦 Family Vision: Updating for user:', req.user.id, 'vision:', req.params.id)
+    
+    const { title, statement, values, priorities } = req.body
+
+    const result = await pool.query(
+      `UPDATE family_vision 
+       SET title = $1, statement = $2, values = $3, priorities = $4, updated_at = NOW()
+       WHERE id = $5 AND user_id = $6
+       RETURNING *`,
+      [title, statement, values, priorities, req.params.id, req.user.id]
+    )
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Family vision not found' })
+    }
+
+    console.log('👨‍👩‍👧‍👦 Family Vision: Updated successfully:', result.rows[0].title)
+    res.json(result.rows[0])
+  } catch (error) {
+    console.error('❌ Error updating family vision:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
+// Annual Goals Endpoints
+app.get('/api/annual-goals', authenticateToken, async (req, res) => {
+  try {
+    console.log('🎯 Annual Goals: Fetching for user:', req.user.id)
+    
+    const year = req.query.year || new Date().getFullYear()
+    
+    const result = await pool.query(
+      'SELECT * FROM annual_goals WHERE user_id = $1 AND year = $2 ORDER BY priority DESC, created_at ASC',
+      [req.user.id, year]
+    )
+    
+    console.log('🎯 Annual Goals: Found', result.rows.length, 'goals for year', year)
+    res.json(result.rows)
+  } catch (error) {
+    console.error('❌ Error fetching annual goals:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
+app.post('/api/annual-goals', authenticateToken, async (req, res) => {
+  try {
+    console.log('🎯 Annual Goals: Creating for user:', req.user.id)
+    console.log('🎯 Annual Goals: Request body:', req.body)
+    
+    const { title, description, category, target_date, priority, vision, impact, quarterly_breakdown, year } = req.body
+
+    if (!title || !category || !year) {
+      return res.status(400).json({ error: 'Missing required fields: title, category, year' })
+    }
+
+    const result = await pool.query(
+      `INSERT INTO annual_goals (user_id, title, description, category, target_date, priority, vision, impact, quarterly_breakdown, year, created_at, updated_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, NOW(), NOW())
+       RETURNING *`,
+      [req.user.id, title, description, category, target_date, priority, vision, impact, quarterly_breakdown || {}, year]
+    )
+
+    console.log('🎯 Annual Goals: Created successfully:', result.rows[0].title)
+    res.json(result.rows[0])
+  } catch (error) {
+    console.error('❌ Error creating annual goal:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
+app.put('/api/annual-goals/:id', authenticateToken, async (req, res) => {
+  try {
+    console.log('🎯 Annual Goals: Updating for user:', req.user.id, 'goal:', req.params.id)
+    
+    const { title, description, category, target_date, progress, status, priority, vision, impact, quarterly_breakdown, completed_milestones } = req.body
+
+    const result = await pool.query(
+      `UPDATE annual_goals 
+       SET title = $1, description = $2, category = $3, target_date = $4, progress = $5, status = $6, 
+           priority = $7, vision = $8, impact = $9, quarterly_breakdown = $10, completed_milestones = $11, updated_at = NOW()
+       WHERE id = $12 AND user_id = $13
+       RETURNING *`,
+      [title, description, category, target_date, progress, status, priority, vision, impact, 
+       quarterly_breakdown, completed_milestones, req.params.id, req.user.id]
+    )
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Annual goal not found' })
+    }
+
+    console.log('🎯 Annual Goals: Updated successfully:', result.rows[0].title)
+    res.json(result.rows[0])
+  } catch (error) {
+    console.error('❌ Error updating annual goal:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
+app.delete('/api/annual-goals/:id', authenticateToken, async (req, res) => {
+  try {
+    console.log('🎯 Annual Goals: Deleting for user:', req.user.id, 'goal:', req.params.id)
+    
+    const result = await pool.query(
+      'DELETE FROM annual_goals WHERE id = $1 AND user_id = $2 RETURNING *',
+      [req.params.id, req.user.id]
+    )
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Annual goal not found' })
+    }
+
+    console.log('🎯 Annual Goals: Deleted successfully:', result.rows[0].title)
+    res.json({ message: 'Annual goal deleted successfully' })
+  } catch (error) {
+    console.error('❌ Error deleting annual goal:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
+// Quarterly Themes Endpoints
+app.get('/api/quarterly-themes', authenticateToken, async (req, res) => {
+  try {
+    console.log('📅 Quarterly Themes: Fetching for user:', req.user.id)
+    
+    const year = req.query.year || new Date().getFullYear()
+    
+    const result = await pool.query(
+      'SELECT * FROM quarterly_themes WHERE user_id = $1 AND year = $2 AND is_active = true ORDER BY quarter ASC',
+      [req.user.id, year]
+    )
+    
+    console.log('📅 Quarterly Themes: Found', result.rows.length, 'themes for year', year)
+    res.json(result.rows)
+  } catch (error) {
+    console.error('❌ Error fetching quarterly themes:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
+app.post('/api/quarterly-themes', authenticateToken, async (req, res) => {
+  try {
+    console.log('📅 Quarterly Themes: Creating for user:', req.user.id)
+    console.log('📅 Quarterly Themes: Request body:', req.body)
+    
+    const { quarter, year, theme, focus, scripture, color, goals } = req.body
+
+    if (!quarter || !year || !theme) {
+      return res.status(400).json({ error: 'Missing required fields: quarter, year, theme' })
+    }
+
+    // Deactivate any existing theme for this quarter/year
+    await pool.query(
+      'UPDATE quarterly_themes SET is_active = false WHERE user_id = $1 AND quarter = $2 AND year = $3',
+      [req.user.id, quarter, year]
+    )
+
+    const result = await pool.query(
+      `INSERT INTO quarterly_themes (user_id, quarter, year, theme, focus, scripture, color, goals, created_at, updated_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), NOW())
+       RETURNING *`,
+      [req.user.id, quarter, year, theme, focus, scripture, color, goals || []]
+    )
+
+    console.log('📅 Quarterly Themes: Created successfully:', result.rows[0].theme)
+    res.json(result.rows[0])
+  } catch (error) {
+    console.error('❌ Error creating quarterly theme:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
+app.put('/api/quarterly-themes/:id', authenticateToken, async (req, res) => {
+  try {
+    console.log('📅 Quarterly Themes: Updating for user:', req.user.id, 'theme:', req.params.id)
+    
+    const { theme, focus, scripture, color, goals, progress } = req.body
+
+    const result = await pool.query(
+      `UPDATE quarterly_themes 
+       SET theme = $1, focus = $2, scripture = $3, color = $4, goals = $5, progress = $6, updated_at = NOW()
+       WHERE id = $7 AND user_id = $8
+       RETURNING *`,
+      [theme, focus, scripture, color, goals, progress, req.params.id, req.user.id]
+    )
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Quarterly theme not found' })
+    }
+
+    console.log('📅 Quarterly Themes: Updated successfully:', result.rows[0].theme)
+    res.json(result.rows[0])
+  } catch (error) {
+    console.error('❌ Error updating quarterly theme:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
+// Quarterly Goals Endpoints
+app.get('/api/quarterly-goals', authenticateToken, async (req, res) => {
+  try {
+    console.log('🎯 Quarterly Goals: Fetching for user:', req.user.id)
+    
+    const quarter = req.query.quarter
+    const year = req.query.year || new Date().getFullYear()
+    
+    let query = 'SELECT * FROM quarterly_goals WHERE user_id = $1 AND year = $2'
+    let params = [req.user.id, year]
+    
+    if (quarter) {
+      query += ' AND quarter = $3'
+      params.push(quarter)
+    }
+    
+    query += ' ORDER BY priority DESC, created_at ASC'
+    
+    const result = await pool.query(query, params)
+    
+    console.log('🎯 Quarterly Goals: Found', result.rows.length, 'goals')
+    res.json(result.rows)
+  } catch (error) {
+    console.error('❌ Error fetching quarterly goals:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
+app.post('/api/quarterly-goals', authenticateToken, async (req, res) => {
+  try {
+    console.log('🎯 Quarterly Goals: Creating for user:', req.user.id)
+    console.log('🎯 Quarterly Goals: Request body:', req.body)
+    
+    const { annual_goal_id, title, description, category, target_date, priority, milestones, quarter, year } = req.body
+
+    if (!title || !category || !quarter || !year) {
+      return res.status(400).json({ error: 'Missing required fields: title, category, quarter, year' })
+    }
+
+    const result = await pool.query(
+      `INSERT INTO quarterly_goals (user_id, annual_goal_id, title, description, category, target_date, priority, milestones, quarter, year, created_at, updated_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, NOW(), NOW())
+       RETURNING *`,
+      [req.user.id, annual_goal_id, title, description, category, target_date, priority, milestones || [], quarter, year]
+    )
+
+    console.log('🎯 Quarterly Goals: Created successfully:', result.rows[0].title)
+    res.json(result.rows[0])
+  } catch (error) {
+    console.error('❌ Error creating quarterly goal:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
+app.put('/api/quarterly-goals/:id', authenticateToken, async (req, res) => {
+  try {
+    console.log('🎯 Quarterly Goals: Updating for user:', req.user.id, 'goal:', req.params.id)
+    
+    const { title, description, category, target_date, progress, status, priority, milestones, completed_milestones } = req.body
+
+    const result = await pool.query(
+      `UPDATE quarterly_goals 
+       SET title = $1, description = $2, category = $3, target_date = $4, progress = $5, status = $6, 
+           priority = $7, milestones = $8, completed_milestones = $9, updated_at = NOW()
+       WHERE id = $10 AND user_id = $11
+       RETURNING *`,
+      [title, description, category, target_date, progress, status, priority, milestones, completed_milestones, req.params.id, req.user.id]
+    )
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Quarterly goal not found' })
+    }
+
+    console.log('🎯 Quarterly Goals: Updated successfully:', result.rows[0].title)
+    res.json(result.rows[0])
+  } catch (error) {
+    console.error('❌ Error updating quarterly goal:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
+app.delete('/api/quarterly-goals/:id', authenticateToken, async (req, res) => {
+  try {
+    console.log('🎯 Quarterly Goals: Deleting for user:', req.user.id, 'goal:', req.params.id)
+    
+    const result = await pool.query(
+      'DELETE FROM quarterly_goals WHERE id = $1 AND user_id = $2 RETURNING *',
+      [req.params.id, req.user.id]
+    )
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Quarterly goal not found' })
+    }
+
+    console.log('🎯 Quarterly Goals: Deleted successfully:', result.rows[0].title)
+    res.json({ message: 'Quarterly goal deleted successfully' })
+  } catch (error) {
+    console.error('❌ Error deleting quarterly goal:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
 module.exports = app
