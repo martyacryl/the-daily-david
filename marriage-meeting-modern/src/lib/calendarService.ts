@@ -53,9 +53,11 @@ export class CalendarService {
       
       // Try multiple CORS proxies as fallbacks
       const corsProxies = [
-        `https://corsproxy.io/?${encodeURIComponent(fetchUrl)}`,
         `https://api.allorigins.win/raw?url=${encodeURIComponent(fetchUrl)}`,
-        `https://cors-anywhere.herokuapp.com/${fetchUrl}`
+        `https://corsproxy.io/?${encodeURIComponent(fetchUrl)}`,
+        `https://cors-anywhere.herokuapp.com/${fetchUrl}`,
+        `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(fetchUrl)}`,
+        `https://thingproxy.freeboard.io/fetch/${fetchUrl}`
       ]
       
       let response: Response | null = null
@@ -69,19 +71,37 @@ export class CalendarService {
           response = await fetch(proxyUrl, {
             method: 'GET',
             headers: {
-              'Accept': 'text/calendar, application/calendar+json, */*'
-            }
+              'Accept': 'text/calendar, application/calendar+json, */*',
+              'User-Agent': 'Mozilla/5.0 (compatible; WeeklyHuddle/1.0)'
+            },
+            timeout: 10000 // 10 second timeout
           })
 
           console.log(`📅 CORS proxy ${i + 1} response status:`, response.status)
           console.log(`📅 CORS proxy ${i + 1} response headers:`, Object.fromEntries(response.headers.entries()))
 
           if (response.ok) {
-            console.log(`✅ CORS proxy ${i + 1} succeeded`)
-            break
+            const responseText = await response.text()
+            console.log(`📅 CORS proxy ${i + 1} response length:`, responseText.length)
+            
+            // Check if we got actual calendar data, not an error page
+            if (responseText.includes('BEGIN:VCALENDAR') || responseText.includes('VEVENT')) {
+              console.log(`✅ CORS proxy ${i + 1} succeeded with valid calendar data`)
+              // Recreate response with the text content
+              response = new Response(responseText, {
+                status: response.status,
+                statusText: response.statusText,
+                headers: response.headers
+              })
+              break
+            } else {
+              console.warn(`⚠️ CORS proxy ${i + 1} returned non-calendar data:`, responseText.substring(0, 200))
+              lastError = new Error(`CORS proxy ${i + 1} returned non-calendar data`)
+              response = null
+            }
           } else {
             const errorText = await response.text()
-            console.warn(`⚠️ CORS proxy ${i + 1} failed:`, response.status, errorText)
+            console.warn(`⚠️ CORS proxy ${i + 1} failed:`, response.status, errorText.substring(0, 200))
             lastError = new Error(`CORS proxy ${i + 1} failed: ${response.status} ${response.statusText}`)
             response = null
           }
@@ -93,13 +113,43 @@ export class CalendarService {
       }
       
       if (!response) {
-        throw lastError || new Error('All CORS proxies failed')
+        // Try direct access as last resort
+        console.log('📅 All CORS proxies failed, trying direct access...')
+        try {
+          response = await fetch(fetchUrl, {
+            method: 'GET',
+            headers: {
+              'Accept': 'text/calendar, application/calendar+json, */*',
+              'User-Agent': 'Mozilla/5.0 (compatible; WeeklyHuddle/1.0)'
+            },
+            mode: 'cors'
+          })
+          
+          if (response.ok) {
+            const responseText = await response.text()
+            if (responseText.includes('BEGIN:VCALENDAR') || responseText.includes('VEVENT')) {
+              console.log('✅ Direct access succeeded')
+              response = new Response(responseText, {
+                status: response.status,
+                statusText: response.statusText,
+                headers: response.headers
+              })
+            } else {
+              throw new Error('Direct access returned non-calendar data')
+            }
+          } else {
+            throw new Error(`Direct access failed: ${response.status}`)
+          }
+        } catch (directError) {
+          console.warn('⚠️ Direct access also failed:', directError)
+          throw lastError || new Error('All CORS proxies and direct access failed')
+        }
       }
 
       const icalData = await response.text()
       
                 // DEBUG: Log the raw iCal data
-                console.log('📅 RAW iCal data:', icalData)
+                console.log('📅 RAW iCal data (first 1000 chars):', icalData.substring(0, 1000))
                 console.log('📅 iCal data length:', icalData.length)
                 
                 // Find all DTSTART lines in the raw data
@@ -110,10 +160,6 @@ export class CalendarService {
                 const dtendLines = icalData.split('\n').filter(line => line.includes('DTEND'))
                 console.log('📅 All DTEND lines in raw data:', dtendLines)
                 
-                // Find Test event 3 specifically
-                const testEvent3Lines = icalData.split('\n').filter(line => line.includes('Test event 3'))
-                console.log('📅 Test event 3 lines:', testEvent3Lines)
-                
                 // Find all SUMMARY lines to see all event titles
                 const summaryLines = icalData.split('\n').filter(line => line.includes('SUMMARY:'))
                 console.log('📅 All SUMMARY lines in raw data:', summaryLines)
@@ -121,6 +167,14 @@ export class CalendarService {
                 // Count total VEVENT blocks
                 const veventBlocks = icalData.split('BEGIN:VEVENT')
                 console.log('📅 Total VEVENT blocks found:', veventBlocks.length - 1) // -1 because first split creates empty string
+                
+                // Show the week range we're looking for
+                console.log('📅 Looking for events in week range:', {
+                  weekStart: weekStartDate.toISOString().split('T')[0],
+                  weekEnd: weekEnd.toISOString().split('T')[0],
+                  weekStartLocal: weekStartDate.toLocaleDateString(),
+                  weekEndLocal: weekEnd.toLocaleDateString()
+                })
       
       const events = this.parseICalData(icalData, weekStart)
       
@@ -169,7 +223,13 @@ export class CalendarService {
         if (event) {
           // Add all events - let the component filter by specific dates
           events.push(event)
-          console.log('📅 parseICalData: Added event to results:', event.title)
+          console.log('📅 parseICalData: Added event to results:', {
+            title: event.title,
+            start: event.start.toISOString(),
+            end: event.end.toISOString(),
+            startDate: event.start.toISOString().split('T')[0],
+            endDate: event.end.toISOString().split('T')[0]
+          })
         } else {
           console.log('📅 parseICalData: Failed to parse event block')
         }
