@@ -377,11 +377,17 @@ export const DashboardNew: React.FC = () => {
                     const todaySchedule = weekData.schedule?.[todayName as keyof typeof weekData.schedule] || []
                     const filteredSchedule = todaySchedule.filter(item => item && item.trim() !== '' && item !== '')
                     
-                    // Get calendar events for today
+                    // Get calendar events for today using the same logic as weekly schedule
                     const todayCalendarEvents = (weekData.calendarEvents || []).filter((event: any) => {
-                      const eventStartDate = event.start.toISOString().split('T')[0]
-                      const eventEndDate = event.end.toISOString().split('T')[0]
-                      return eventStartDate === todayDateString || eventEndDate === todayDateString
+                      const eventStart = new Date(event.start)
+                      const today = new Date()
+                      
+                      // Check if event occurs on today's date - only show events that START today
+                      const eventStartDate = eventStart.toISOString().split('T')[0]
+                      const todayDateString = today.toISOString().split('T')[0]
+                      
+                      // Event is on today if it starts today (same logic as getEventsForDay)
+                      return eventStartDate === todayDateString
                     })
                     
                     console.log('Dashboard Debug - Today:', todayName)
