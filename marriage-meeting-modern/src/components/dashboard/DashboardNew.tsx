@@ -347,12 +347,11 @@ export const DashboardNew: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             className="text-center mb-8"
           >
-          
-          <h1 className="text-3xl sm:text-4xl font-bold text-gray-800 mb-2">
-            {getGreeting()}, {user?.name || 'David'}!
-          </h1>
-          <p className="text-gray-600 text-base sm:text-lg">{scripture}</p>
-        </motion.div>
+            <h1 className="text-3xl sm:text-4xl font-bold text-gray-800 mb-2">
+              {getGreeting()}, {user?.name || 'David'}!
+            </h1>
+            <p className="text-gray-600 text-base sm:text-lg">{scripture}</p>
+          </motion.div>
 
         {/* Family Creed Display - Moved to top */}
         <FamilyCreedDisplay className="mb-8" />
@@ -1250,6 +1249,8 @@ export const DashboardNew: React.FC = () => {
         isOpen={isSettingsOpen} 
         onClose={() => setIsSettingsOpen(false)} 
       />
+        </div>
+      </div>
     </div>
   )
 }
