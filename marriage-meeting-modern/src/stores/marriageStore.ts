@@ -114,6 +114,7 @@ export const useMarriageStore = create<MarriageState>((set, get) => ({
 
   loadWeekData: async (weekKey: string) => {
     console.log('🔍 Store: loadWeekData called with weekKey:', weekKey)
+    console.log('🔍 Store: Current calendar events before loadWeekData:', get().weekData.calendarEvents?.length || 0)
     set({ isLoading: true, error: null })
     
     try {
@@ -208,12 +209,12 @@ export const useMarriageStore = create<MarriageState>((set, get) => ({
                 return true
               })
         
-        // Preserve existing calendar events if they exist, otherwise use database events
+        // Use database calendar events if they exist, otherwise preserve existing ones
         const currentState = get()
         const existingCalendarEvents = currentState.weekData.calendarEvents || []
-        const finalCalendarEvents = existingCalendarEvents.length > 0 ? existingCalendarEvents : calendarEvents
+        const finalCalendarEvents = calendarEvents.length > 0 ? calendarEvents : existingCalendarEvents
         
-        console.log('Store: Preserving calendar events - existing:', existingCalendarEvents.length, 'database:', calendarEvents.length, 'final:', finalCalendarEvents.length)
+        console.log('Store: Calendar events priority - database:', calendarEvents.length, 'existing:', existingCalendarEvents.length, 'final:', finalCalendarEvents.length)
         
         const weekDataToSet = {
           schedule: normalizedSchedule,
@@ -237,6 +238,8 @@ export const useMarriageStore = create<MarriageState>((set, get) => ({
           currentWeek: week,
           weekData: weekDataToSet
         })
+        
+        console.log('🔍 Store: loadWeekData completed - final calendar events:', get().weekData.calendarEvents?.length || 0)
       } else {
         console.log('🔍 Store: No existing data, using empty week data')
         set({ 
@@ -460,12 +463,16 @@ export const useMarriageStore = create<MarriageState>((set, get) => ({
       start: e.start.toISOString(),
       end: e.end.toISOString()
     })))
+    console.log('Store: Current calendar events before update:', get().weekData.calendarEvents?.length || 0)
+    
     set((state) => ({
       weekData: {
         ...state.weekData,
         calendarEvents
       }
     }))
+    
+    console.log('Store: Calendar events after update:', get().weekData.calendarEvents?.length || 0)
     
     // Force a re-render by updating a timestamp
     set((state) => ({
