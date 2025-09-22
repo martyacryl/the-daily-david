@@ -49,8 +49,11 @@ export const TasksSection: React.FC<TasksSectionProps> = ({ tasks, onUpdate }) =
     assignedTo: 'both'
   })
   
+  const [durationInput, setDurationInput] = useState<string>('30')
+  
   const [editingTask, setEditingTask] = useState<string | null>(null)
   const [editTaskData, setEditTaskData] = useState<Partial<TaskItem>>({})
+  const [editDurationInput, setEditDurationInput] = useState<string>('30')
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
@@ -121,13 +124,15 @@ export const TasksSection: React.FC<TasksSectionProps> = ({ tasks, onUpdate }) =
   const addTask = () => {
     if (!newTask.text?.trim()) return
 
+    const duration = parseInt(durationInput) || 30
+
     const task: TaskItem = {
       id: Date.now(),
       text: newTask.text,
       completed: false,
       priority: newTask.priority || 'medium',
       dueDate: newTask.dueDate || undefined,
-      estimatedDuration: newTask.estimatedDuration || 30,
+      estimatedDuration: duration,
       category: newTask.category || undefined,
       notes: newTask.notes || undefined,
       assignedTo: newTask.assignedTo || 'both'
@@ -143,6 +148,7 @@ export const TasksSection: React.FC<TasksSectionProps> = ({ tasks, onUpdate }) =
       notes: '',
       assignedTo: 'both'
     })
+    setDurationInput('30')
   }
 
   const startEditTask = (task: TaskItem) => {
@@ -156,17 +162,20 @@ export const TasksSection: React.FC<TasksSectionProps> = ({ tasks, onUpdate }) =
       category: task.category || '',
       notes: task.notes || ''
     })
+    setEditDurationInput(task.estimatedDuration?.toString() || '30')
   }
 
   const saveEditTask = () => {
     if (!editingTask || !editTaskData.text?.trim()) return
+
+    const duration = parseInt(editDurationInput) || 30
 
     const updatedTask: Partial<TaskItem> = {
       text: editTaskData.text.trim(),
       priority: editTaskData.priority || 'medium',
       assignedTo: editTaskData.assignedTo || 'both',
       dueDate: editTaskData.dueDate || undefined,
-      estimatedDuration: editTaskData.estimatedDuration || 30,
+      estimatedDuration: duration,
       category: editTaskData.category || undefined,
       notes: editTaskData.notes || undefined
     }
@@ -174,11 +183,13 @@ export const TasksSection: React.FC<TasksSectionProps> = ({ tasks, onUpdate }) =
     updateTask(parseInt(editingTask), updatedTask)
     setEditingTask(null)
     setEditTaskData({})
+    setEditDurationInput('30')
   }
 
   const cancelEditTask = () => {
     setEditingTask(null)
     setEditTaskData({})
+    setEditDurationInput('30')
   }
 
   const updateTask = (id: number, updates: Partial<TaskItem>) => {
@@ -283,13 +294,15 @@ export const TasksSection: React.FC<TasksSectionProps> = ({ tasks, onUpdate }) =
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Duration (minutes)</label>
               <input
-                type="number"
-                value={newTask.estimatedDuration}
+                type="text"
+                value={durationInput}
                 onChange={(e) => {
+                  setDurationInput(e.target.value)
                   const value = parseInt(e.target.value)
-                  setNewTask({ ...newTask, estimatedDuration: value > 0 ? value : 30 })
+                  if (!isNaN(value) && value > 0) {
+                    setNewTask({ ...newTask, estimatedDuration: value })
+                  }
                 }}
-                min="1"
                 placeholder="Enter duration in minutes"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
               />
@@ -407,13 +420,15 @@ export const TasksSection: React.FC<TasksSectionProps> = ({ tasks, onUpdate }) =
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">Duration (minutes)</label>
                       <input
-                        type="number"
-                        value={editTaskData.estimatedDuration || 30}
+                        type="text"
+                        value={editDurationInput}
                         onChange={(e) => {
+                          setEditDurationInput(e.target.value)
                           const value = parseInt(e.target.value)
-                          setEditTaskData({ ...editTaskData, estimatedDuration: value > 0 ? value : 30 })
+                          if (!isNaN(value) && value > 0) {
+                            setEditTaskData({ ...editTaskData, estimatedDuration: value })
+                          }
                         }}
-                        min="1"
                         placeholder="Enter duration in minutes"
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                       />
