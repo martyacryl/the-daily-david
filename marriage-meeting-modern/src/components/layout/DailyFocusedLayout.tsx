@@ -1112,15 +1112,8 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                   const todaySchedule = weekData.schedule?.[todayName as keyof typeof weekData.schedule] || []
                   const filteredSchedule = todaySchedule.filter(item => item && item.trim() !== '' && item !== '')
                   
-                  // Get calendar events for today using user's timezone
-                  const todayCalendarEvents = (weekData?.calendarEvents || []).filter((event: any) => {
-                    const eventStart = new Date(event.start)
-                    const today = new Date()
-                    const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone
-                    const eventStartDate = eventStart.toLocaleDateString('en-CA', { timeZone })
-                    const todayDateString = today.toLocaleDateString('en-CA', { timeZone })
-                    return eventStartDate === todayDateString
-                  })
+                  // Get calendar events for today using the same logic as weekly schedule
+                  const todayCalendarEvents = calendarService.getEventsForDay(weekData?.calendarEvents || [], currentDate)
                   
                   return (
                     <div className="space-y-2">
@@ -1259,14 +1252,8 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
               const todaySchedule = weekData?.schedule?.[todayName] || []
               const filteredSchedule = todaySchedule.filter((item: any) => item && item.trim() !== '')
               
-              // Get calendar events for today using user's timezone
-              const todayCalendarEvents = (weekData?.calendarEvents || []).filter((event: any) => {
-                const eventStart = new Date(event.start)
-                const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone
-                const eventStartDate = eventStart.toLocaleDateString('en-CA', { timeZone })
-                const todayDateString = today.toLocaleDateString('en-CA', { timeZone })
-                return eventStartDate === todayDateString
-              })
+              // Get calendar events for today using the same logic as weekly schedule
+              const todayCalendarEvents = calendarService.getEventsForDay(weekData?.calendarEvents || [], today)
               
               return (
                 <div className="space-y-2">

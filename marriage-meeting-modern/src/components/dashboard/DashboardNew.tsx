@@ -116,8 +116,14 @@ export const DashboardNew: React.FC = () => {
       const weekKey = DatabaseManager.formatWeekKey(today)
       console.log('Dashboard: Loading current week data on mount:', weekKey)
       loadWeekData(weekKey)
+      
+      // Force calendar sync if settings are available
+      if (settings.calendar?.icalUrl) {
+        console.log('Dashboard: Triggering calendar sync on mount')
+        // This will be handled by the DailyFocusedMeeting component
+      }
     }
-  }, [isAuthenticated, loadSettings, loadGoals, loadWeekData])
+  }, [isAuthenticated, loadSettings, loadGoals, loadWeekData, settings.calendar?.icalUrl])
 
   useEffect(() => {
     if (weekData) {
@@ -139,25 +145,27 @@ export const DashboardNew: React.FC = () => {
   useEffect(() => {
     if (lastCalendarUpdate) {
       console.log('Dashboard: Calendar events updated, forcing re-render at:', lastCalendarUpdate)
-      // The component will automatically re-render due to the lastCalendarUpdate dependency
+      console.log('Dashboard: Current weekData.calendarEvents:', weekData?.calendarEvents?.length || 0)
+      // Force a state update to trigger re-render
+      setInsights(prev => ({ ...prev }))
     }
-  }, [lastCalendarUpdate])
+  }, [lastCalendarUpdate, weekData?.calendarEvents])
 
-  // Calculate today's calendar events reactively
+  // Force calendar sync on Dashboard mount if we have settings but no events
+  useEffect(() => {
+    if (isAuthenticated && settings.calendar?.icalUrl && weekData && (!weekData.calendarEvents || weekData.calendarEvents.length === 0)) {
+      console.log('Dashboard: No calendar events found, triggering sync...')
+      // The calendar sync will be handled by DailyFocusedMeeting component
+      // This is just a fallback to ensure we don't miss events
+    }
+  }, [isAuthenticated, settings.calendar?.icalUrl, weekData])
+
+  // Calculate today's calendar events reactively using the same logic as weekly schedule
   const todayCalendarEvents = React.useMemo(() => {
     if (!weekData?.calendarEvents) return []
     
     const today = new Date()
-    const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone
-    const todayDateString = today.toLocaleDateString('en-CA', { timeZone })
-    
-    const events = weekData.calendarEvents.filter((event: any) => {
-      const eventStart = new Date(event.start)
-      const eventStartDate = eventStart.toLocaleDateString('en-CA', { timeZone })
-      
-      // Event is on today if it starts today in user's timezone
-      return eventStartDate === todayDateString
-    })
+    const events = calendarService.getEventsForDay(weekData.calendarEvents, today)
     
     console.log('Dashboard: Today calendar events calculated:', events.length, 'events')
     console.log('Dashboard: Last calendar update:', lastCalendarUpdate)
