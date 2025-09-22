@@ -1125,7 +1125,7 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
             <Button
               variant="outline"
               size="sm"
-              onClick={() => window.location.href = '/weekly'}
+              onClick={() => navigate('/weekly?section=schedule')}
               className="text-slate-600 border-slate-200 hover:bg-slate-50"
             >
               <Edit3 className="w-4 h-4 mr-1" />
