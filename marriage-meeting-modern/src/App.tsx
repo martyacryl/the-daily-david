@@ -8,7 +8,7 @@ import { MarriageMeetingTool } from './components/MarriageMeetingTool'
 import { DailyFocusedMeeting } from './components/DailyFocusedMeeting'
 import { LoginForm } from './components/LoginForm'
 import { Dashboard } from './components/dashboard/Dashboard'
-import { ProgressAnalytics } from './components/dashboard/ProgressAnalytics'
+import { AnalyticsPage } from './components/analytics/AnalyticsPage'
 import { WeeklyReview } from './components/WeeklyReview'
 import { Header } from './components/layout/Header'
 import { LoadingSpinner } from './components/ui/LoadingSpinner'
@@ -79,7 +79,7 @@ function App() {
           <Route path="/" element={<Dashboard />} />
           <Route path="/weekly" element={<MarriageMeetingTool />} />
           <Route path="/daily" element={<DailyFocusedMeeting />} />
-          <Route path="/analytics" element={<ProgressAnalytics />} />
+          <Route path="/analytics" element={<AnalyticsPage />} />
           <Route path="/review" element={<WeeklyReviewWithNavigation />} />
           <Route path="/admin" element={<ProtectedAdminRoute dbManager={dbManager} />} />
           <Route path="*" element={<Navigate to="/" replace />} />
