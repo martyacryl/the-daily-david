@@ -271,7 +271,19 @@ export const AnnualPlanning: React.FC = () => {
       </div>
 
       {/* Vision Statement */}
-      <Card className="p-8 bg-gradient-to-r from-slate-700 to-purple-700 text-white">
+      <Card className="p-8 bg-gradient-to-r from-slate-700 to-purple-700 text-white relative overflow-hidden">
+        {/* Background Pattern - Mountain Outlines */}
+        <div className="absolute inset-0 opacity-5">
+          <svg className="absolute top-0 right-0 w-48 h-48 -translate-y-24 translate-x-24" viewBox="0 0 100 100" fill="none">
+            <path d="M10 80 L25 60 L40 70 L55 45 L70 55 L85 35 L90 80 Z" stroke="currentColor" strokeWidth="0.5" fill="none"/>
+            <path d="M5 85 L20 65 L35 75 L50 50 L65 60 L80 40 L85 85 Z" stroke="currentColor" strokeWidth="0.3" fill="none"/>
+          </svg>
+          <svg className="absolute bottom-0 left-0 w-32 h-32 translate-y-16 -translate-x-16" viewBox="0 0 100 100" fill="none">
+            <path d="M15 70 L30 50 L45 60 L60 35 L75 45 L85 70 Z" stroke="currentColor" strokeWidth="0.4" fill="none"/>
+          </svg>
+        </div>
+        
+        <div className="relative z-10">
         <div className="flex items-start justify-between mb-6">
           <div className="flex items-center gap-3">
             <Compass className="w-8 h-8" />
@@ -323,6 +335,7 @@ export const AnnualPlanning: React.FC = () => {
             </Button>
           </div>
         )}
+        </div>
       </Card>
 
       {/* Edit Vision Form */}

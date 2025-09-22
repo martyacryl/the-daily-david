@@ -171,10 +171,16 @@ export const FamilyVisionDisplay: React.FC = () => {
         className="relative"
       >
         <Card className={`p-8 bg-gradient-to-r from-slate-700 to-purple-700 text-white overflow-hidden`}>
-          {/* Background Pattern */}
-          <div className="absolute inset-0 opacity-10">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-white rounded-full -translate-y-32 translate-x-32"></div>
-            <div className="absolute bottom-0 left-0 w-48 h-48 bg-white rounded-full translate-y-24 -translate-x-24"></div>
+          {/* Background Pattern - Mountain Outlines */}
+          <div className="absolute inset-0 opacity-5">
+            <svg className="absolute top-0 right-0 w-64 h-64 -translate-y-32 translate-x-32" viewBox="0 0 100 100" fill="none">
+              <path d="M10 80 L25 60 L40 70 L55 45 L70 55 L85 35 L90 80 Z" stroke="currentColor" strokeWidth="0.5" fill="none"/>
+              <path d="M5 85 L20 65 L35 75 L50 50 L65 60 L80 40 L85 85 Z" stroke="currentColor" strokeWidth="0.3" fill="none"/>
+            </svg>
+            <svg className="absolute bottom-0 left-0 w-48 h-48 translate-y-24 -translate-x-24" viewBox="0 0 100 100" fill="none">
+              <path d="M15 70 L30 50 L45 60 L60 35 L75 45 L85 70 Z" stroke="currentColor" strokeWidth="0.4" fill="none"/>
+              <path d="M10 75 L25 55 L40 65 L55 40 L70 50 L80 75 Z" stroke="currentColor" strokeWidth="0.2" fill="none"/>
+            </svg>
           </div>
           
           <div className="relative z-10">
@@ -246,7 +252,18 @@ export const FamilyVisionDisplay: React.FC = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
         >
-          <Card className={`p-6 bg-gradient-to-r from-slate-600 to-purple-600 text-white`}>
+          <Card className={`p-6 bg-gradient-to-r from-slate-600 to-purple-600 text-white relative overflow-hidden`}>
+          {/* Background Pattern - Mountain Outlines */}
+          <div className="absolute inset-0 opacity-5">
+            <svg className="absolute top-0 right-0 w-32 h-32 -translate-y-16 translate-x-16" viewBox="0 0 100 100" fill="none">
+              <path d="M10 80 L25 60 L40 70 L55 45 L70 55 L85 35 L90 80 Z" stroke="currentColor" strokeWidth="0.5" fill="none"/>
+            </svg>
+            <svg className="absolute bottom-0 left-0 w-24 h-24 translate-y-12 -translate-x-12" viewBox="0 0 100 100" fill="none">
+              <path d="M15 70 L30 50 L45 60 L60 35 L75 45 L85 70 Z" stroke="currentColor" strokeWidth="0.4" fill="none"/>
+            </svg>
+          </div>
+          
+          <div className="relative z-10">
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
@@ -296,7 +313,8 @@ export const FamilyVisionDisplay: React.FC = () => {
                 ))}
               </div>
             </div>
-          </Card>
+          </div>
+        </Card>
         </motion.div>
       )}
 
