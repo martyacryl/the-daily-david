@@ -253,7 +253,8 @@ export class CalendarService {
         } catch (error) {
           const errorMessage = error instanceof Error ? error.message : String(error)
           console.warn('⚠️ Skipping invalid DTEND line (likely timezone definition):', trimmedLine, errorMessage)
-          // Don't return null here - continue parsing to find valid dates
+          // Set a fallback date to prevent undefined errors
+          event.end = new Date()
         }
       } else if (trimmedLine.startsWith('DESCRIPTION:')) {
         event.description = trimmedLine.substring(12).replace(/\\,/g, ',').replace(/\\;/g, ';')
