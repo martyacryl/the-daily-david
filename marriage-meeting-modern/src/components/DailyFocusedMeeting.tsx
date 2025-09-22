@@ -121,21 +121,14 @@ export const DailyFocusedMeeting: React.FC = () => {
         updateCalendarEvents(currentWeekEvents)
       }
 
-      // Start iCal sync if URL is provided
-      if (settings.calendar.icalUrl) {
-        console.log('📅 Starting iCal sync for:', settings.calendar.icalUrl)
-        calendarService.startAutoSync(
-          settings.calendar.icalUrl, 
-          handleEventsUpdate, 
-          settings.calendar.syncFrequency || 30
-        )
-      }
-
-      // Start Google Calendar sync if enabled
-      if (settings.calendar.googleCalendarEnabled) {
-        console.log('📅 Starting Google Calendar sync')
-        calendarService.getGoogleCalendarEvents(currentDate, handleEventsUpdate)
-      }
+      // Start auto-sync
+      calendarService.startAutoSync(
+        settings.calendar.icalUrl,
+        settings.calendar.googleCalendarEnabled || false,
+        settings.calendar.syncFrequency || 'realtime',
+        weekStart,
+        handleEventsUpdate
+      )
     }
 
     // Cleanup function
