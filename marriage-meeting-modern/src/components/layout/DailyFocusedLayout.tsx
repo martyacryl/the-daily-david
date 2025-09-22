@@ -581,12 +581,7 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => {
-                        const newSearchParams = new URLSearchParams(searchParams)
-                        newSearchParams.set('section', 'schedule')
-                        newSearchParams.set('from', 'vision')
-                        navigate(`?${newSearchParams.toString()}`, { replace: true })
-                      }}
+                      onClick={() => window.location.href = '/weekly'}
                       className="text-slate-600 border-slate-200 hover:bg-slate-50"
                     >
                       <Edit3 className="w-4 h-4 mr-1" />
@@ -675,7 +670,7 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                       className="text-slate-600 border-slate-200 hover:bg-slate-50"
                     >
                       <Edit3 className="w-4 h-4 mr-1" />
-                      Edit Day
+                      Edit Week
                     </Button>
                   </div>
                   
@@ -1017,7 +1012,7 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                 className="text-slate-600 border-slate-200 hover:bg-slate-50"
               >
                 <Edit3 className="w-4 h-4 mr-1" />
-                Edit Day
+                Edit Week
               </Button>
             </div>
           </div>
@@ -1130,12 +1125,7 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
             <Button
               variant="outline"
               size="sm"
-              onClick={() => {
-                const newSearchParams = new URLSearchParams(searchParams)
-                newSearchParams.set('section', 'schedule')
-                newSearchParams.set('from', 'vision')
-                navigate(`?${newSearchParams.toString()}`, { replace: true })
-              }}
+              onClick={() => window.location.href = '/weekly'}
               className="text-slate-600 border-slate-200 hover:bg-slate-50"
             >
               <Edit3 className="w-4 h-4 mr-1" />
