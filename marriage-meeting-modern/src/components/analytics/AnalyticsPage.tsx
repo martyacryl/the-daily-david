@@ -3,7 +3,7 @@ import { motion } from 'framer-motion'
 import { BarChart3, Calendar, TrendingUp, Users, Target, Award } from 'lucide-react'
 import { Card } from '../ui/Card'
 import { Button } from '../ui/Button'
-import { ProgressAnalytics } from './ProgressAnalytics'
+import { ProgressAnalytics } from '../dashboard/ProgressAnalytics'
 import { WeeklyMeetingAnalytics } from './WeeklyMeetingAnalytics'
 
 type AnalyticsTab = 'overview' | 'weekly-meetings'
