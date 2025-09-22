@@ -317,7 +317,7 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
       return (
         <div className="h-full flex flex-col">
           {/* Top Section - Weekly Meeting Buttons */}
-          <div className="bg-white border-b border-gray-200 p-3 lg:p-4 sticky top-0 z-10">
+          <div className="bg-white border-b border-gray-200 p-3 lg:p-4 lg:sticky lg:top-0 z-10">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
                 <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">Foundation & Daily Focus</h1>
@@ -581,7 +581,12 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => setActiveSection('schedule')}
+                      onClick={() => {
+                        const newSearchParams = new URLSearchParams(searchParams)
+                        newSearchParams.set('section', 'schedule')
+                        newSearchParams.set('from', 'vision')
+                        navigate(`?${newSearchParams.toString()}`, { replace: true })
+                      }}
                       className="text-slate-600 border-slate-200 hover:bg-slate-50"
                     >
                       <Edit3 className="w-4 h-4 mr-1" />
@@ -811,6 +816,110 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
     // Handle practical sections using WeeklyMeetingContent
     if (['schedule', 'todos', 'goals', 'grocery', 'prayers', 'unconfessed', 'encouragement'].includes(activeSection)) {
       console.log('🎯 Rendering WeeklyMeetingContent for practical section:', activeSection)
+      
+      // For mobile, show a simplified version when coming from vision page
+      const isMobile = window.innerWidth < 1024
+      const isFromVision = searchParams.get('from') === 'vision'
+      
+      if (isMobile && isFromVision && activeSection === 'schedule') {
+        return (
+          <div className="h-full flex flex-col">
+            {/* Mobile Header */}
+            <div className="bg-white border-b border-gray-200 p-4 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    const newSearchParams = new URLSearchParams(searchParams)
+                    newSearchParams.delete('from')
+                    newSearchParams.set('section', 'vision')
+                    navigate(`?${newSearchParams.toString()}`, { replace: true })
+                  }}
+                  className="text-slate-600 border-slate-200 hover:bg-slate-50"
+                >
+                  ← Back
+                </Button>
+                <h1 className="text-lg font-bold text-gray-900">Edit Schedule</h1>
+              </div>
+              <Button
+                onClick={onSave}
+                size="sm"
+                className="bg-slate-600 hover:bg-slate-700"
+              >
+                Save
+              </Button>
+            </div>
+
+            {/* Mobile Schedule Content */}
+            <div className="flex-1 overflow-y-auto p-4">
+              <WeeklyMeetingContent
+                activeSection={activeSection}
+                currentDate={currentDate}
+                weekData={weekData}
+                onUpdateSchedule={onUpdateWeekData}
+                onAddScheduleLine={(day, line) => {
+                  const updatedData = { ...weekData }
+                  if (!updatedData.schedule) updatedData.schedule = {}
+                  if (!updatedData.schedule[day]) updatedData.schedule[day] = []
+                  updatedData.schedule[day].push(line)
+                  onUpdateWeekData(updatedData)
+                }}
+                onRemoveScheduleLine={(day, index) => {
+                  const updatedData = { ...weekData }
+                  if (updatedData.schedule?.[day]) {
+                    updatedData.schedule[day].splice(index, 1)
+                    onUpdateWeekData(updatedData)
+                  }
+                }}
+                onUpdateListItem={(type, items) => {
+                  const updatedData = { ...weekData }
+                  updatedData[type] = items
+                  onUpdateWeekData(updatedData)
+                }}
+                onAddListItem={(type, item) => {
+                  const updatedData = { ...weekData }
+                  if (!updatedData[type]) updatedData[type] = []
+                  updatedData[type].push(item)
+                  onUpdateWeekData(updatedData)
+                }}
+                onToggleListItem={(type, id) => {
+                  const updatedData = { ...weekData }
+                  if (updatedData[type]) {
+                    const item = updatedData[type].find((item: any) => item.id === id)
+                    if (item) {
+                      item.completed = !item.completed
+                      onUpdateWeekData(updatedData)
+                    }
+                  }
+                }}
+                onRemoveListItem={(type, id) => {
+                  const updatedData = { ...weekData }
+                  if (updatedData[type]) {
+                    updatedData[type] = updatedData[type].filter((item: any) => item.id !== id)
+                    onUpdateWeekData(updatedData)
+                  }
+                }}
+                onUpdateTasks={(tasks) => {
+                  const updatedData = { ...weekData, todos: tasks }
+                  onUpdateWeekData(updatedData)
+                }}
+                onUpdateGrocery={(grocery) => {
+                  const updatedData = { ...weekData, grocery }
+                  onUpdateWeekData(updatedData)
+                }}
+                onUpdateEncouragementNotes={(notes) => {
+                  const updatedData = { ...weekData, encouragementNotes: notes }
+                  onUpdateWeekData(updatedData)
+                }}
+                onSave={onSave}
+                isSaving={isSaving}
+              />
+            </div>
+          </div>
+        )
+      }
+      
       return (
         <WeeklyMeetingContent
           activeSection={activeSection}
@@ -1021,7 +1130,12 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setActiveSection('schedule')}
+              onClick={() => {
+                const newSearchParams = new URLSearchParams(searchParams)
+                newSearchParams.set('section', 'schedule')
+                newSearchParams.set('from', 'vision')
+                navigate(`?${newSearchParams.toString()}`, { replace: true })
+              }}
               className="text-slate-600 border-slate-200 hover:bg-slate-50"
             >
               <Edit3 className="w-4 h-4 mr-1" />
