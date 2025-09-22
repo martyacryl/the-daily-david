@@ -60,9 +60,9 @@ export const DailyFocusedMeeting: React.FC = () => {
 
   // Set up automatic calendar sync when component mounts or settings change
   React.useEffect(() => {
-    // Only start calendar sync if we have settings loaded
-    if (!settings.calendar?.icalUrl) {
-      console.log('📅 Calendar sync skipped - missing iCal URL')
+    // Only start calendar sync if we have settings loaded AND week data loaded
+    if (!settings.calendar?.icalUrl || !weekData) {
+      console.log('📅 Calendar sync skipped - missing iCal URL or week data not loaded yet')
       return
     }
 
@@ -79,7 +79,8 @@ export const DailyFocusedMeeting: React.FC = () => {
       showCalendarEvents: settings.calendar?.showCalendarEvents,
       icalUrl: settings.calendar?.icalUrl,
       syncFrequency: settings.calendar?.syncFrequency,
-      hasCalendar: !!settings.calendar
+      hasCalendar: !!settings.calendar,
+      weekDataLoaded: !!weekData
     })
     
     console.log('📅 Starting automatic calendar sync...')
@@ -138,7 +139,7 @@ export const DailyFocusedMeeting: React.FC = () => {
         calendarService.stopAutoSync(settings.calendar.icalUrl)
       }
     }
-  }, [settings.calendar?.icalUrl, settings.calendar?.googleCalendarEnabled, settings.calendar?.showCalendarEvents, settings.calendar?.syncFrequency, currentDate, updateCalendarEvents])
+  }, [settings.calendar?.icalUrl, settings.calendar?.googleCalendarEnabled, settings.calendar?.showCalendarEvents, settings.calendar?.syncFrequency, currentDate, updateCalendarEvents, weekData])
 
   if (!isAuthenticated) {
     return (

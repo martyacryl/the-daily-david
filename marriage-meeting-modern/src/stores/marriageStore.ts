@@ -14,6 +14,7 @@ interface MarriageState {
   isLoading: boolean
   error: string | null
   lastSaved: Date | null
+  lastCalendarUpdate: number | null
 
   // Actions
   setCurrentDate: (date: Date) => void
@@ -72,6 +73,7 @@ export const useMarriageStore = create<MarriageState>((set, get) => ({
   isLoading: false,
   error: null,
   lastSaved: null,
+  lastCalendarUpdate: null,
 
   // Actions
   setCurrentDate: (date: Date) => {
@@ -463,6 +465,11 @@ export const useMarriageStore = create<MarriageState>((set, get) => ({
         ...state.weekData,
         calendarEvents
       }
+    }))
+    
+    // Force a re-render by updating a timestamp
+    set((state) => ({
+      lastCalendarUpdate: Date.now()
     }))
   },
 
