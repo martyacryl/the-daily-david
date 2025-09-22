@@ -59,7 +59,7 @@ export const DailyFocusedMeeting: React.FC = () => {
   }, [loadSettings])
 
   // Set up automatic calendar sync when component mounts or settings change
-  useEffect(() => {
+  React.useEffect(() => {
     const mondayKey = DatabaseManager.formatWeekKey(currentDate)
     const [year, month, day] = mondayKey.split('-').map(Number)
     const weekStart = new Date(year, month - 1, day)
@@ -75,13 +75,50 @@ export const DailyFocusedMeeting: React.FC = () => {
       showCalendarEvents: settings.calendar?.showCalendarEvents,
       icalUrl: settings.calendar?.icalUrl,
       syncFrequency: settings.calendar?.syncFrequency,
-      googleCalendarEnabled: settings.calendar?.googleCalendarEnabled
+      hasCalendar: !!settings.calendar
     })
     
-    if (settings.calendar?.showCalendarEvents) {
-      const handleEventsUpdate = async (events: any[]) => {
+    // Force sync to start if we have an iCal URL, regardless of other settings
+    if (settings.calendar?.icalUrl) {
+      console.log('📅 Starting automatic calendar sync...')
+      
+      const handleEventsUpdate = async (events: CalendarEvent[]) => {
         console.log('📅 Calendar events updated:', events.length)
-        updateCalendarEvents(events)
+        
+        // Get all 7 dates for the current week
+        const weekDates: string[] = []
+        for (let i = 0; i < 7; i++) {
+          const date = new Date(weekStart.getTime() + i * 24 * 60 * 60 * 1000)
+          weekDates.push(date.toISOString().split('T')[0])
+        }
+        
+        console.log('📅 Current week dates:', weekDates)
+        
+        // Filter events to only include those that occur on any day of the current week
+        const currentWeekEvents = events.filter(event => {
+          const eventStartDate = event.start.toISOString().split('T')[0]
+          const eventEndDate = event.end.toISOString().split('T')[0]
+          
+          // Check if event starts or ends on any day of the current week
+          const eventOnWeekDay = weekDates.some(weekDate => 
+            eventStartDate === weekDate || eventEndDate === weekDate
+          )
+          
+          console.log('📅 Event date check:', {
+            title: event.title,
+            eventStartDate,
+            eventEndDate,
+            weekDates,
+            eventOnWeekDay
+          })
+          
+          return eventOnWeekDay
+        })
+        
+        console.log('📅 Filtered events for current week:', currentWeekEvents.length, 'out of', events.length)
+        
+        // Update the store with filtered calendar events
+        updateCalendarEvents(currentWeekEvents)
       }
 
       // Start iCal sync if URL is provided
