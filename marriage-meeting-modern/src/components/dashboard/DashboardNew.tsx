@@ -45,7 +45,7 @@ import { WeekOverview } from '../WeekOverview'
 
 export const DashboardNew: React.FC = () => {
   const { user, isAuthenticated } = useAuthStore()
-  const { currentWeek, weekData, loadWeekData, saveWeekData, updateEncouragementNotes, loadAllWeeks, calculateMeetingStreak, calculateConsistencyScore, lastCalendarUpdate } = useMarriageStore()
+  const { currentWeek, weekData, loadWeekData, saveWeekData, updateEncouragementNotes, loadAllWeeks, calculateMeetingStreak, calculateConsistencyScore, lastCalendarUpdate, updateCalendarEvents } = useMarriageStore()
   const { goals, loadGoals, getCurrentMonthGoals, getCurrentYearGoals, getLongTermGoals } = useGoalsStore()
   const { settings, loadSettings } = useSettingsStore()
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
@@ -151,14 +151,40 @@ export const DashboardNew: React.FC = () => {
     }
   }, [lastCalendarUpdate, weekData?.calendarEvents])
 
-  // Force calendar sync on Dashboard mount if we have settings but no events
+  // Force calendar sync on Dashboard mount - always sync to get latest events
   useEffect(() => {
-    if (isAuthenticated && settings.calendar?.icalUrl && weekData && (!weekData.calendarEvents || weekData.calendarEvents.length === 0)) {
-      console.log('Dashboard: No calendar events found, triggering sync...')
-      // The calendar sync will be handled by DailyFocusedMeeting component
-      // This is just a fallback to ensure we don't miss events
+    if (isAuthenticated && settings.calendar?.icalUrl && weekData) {
+      console.log('Dashboard: Triggering calendar sync on mount...')
+      
+      // Trigger calendar sync directly from Dashboard
+      const syncCalendar = async () => {
+        try {
+          const today = new Date()
+          const weekKey = DatabaseManager.formatWeekKey(today)
+          const [year, month, day] = weekKey.split('-').map(Number)
+          const weekStart = new Date(year, month - 1, day)
+          
+          console.log('Dashboard: Starting calendar sync for week:', weekKey)
+          
+          // Stop any existing sync and clear cache
+          calendarService.stopAutoSync(settings.calendar.icalUrl)
+          calendarService.clearCacheForWeek(settings.calendar.icalUrl, weekStart)
+          
+          // Fetch events for this week
+          const events = await calendarService.getICalEvents(settings.calendar.icalUrl, weekStart)
+          console.log('Dashboard: Fetched calendar events:', events.length)
+          
+          // Update the store with the events
+          updateCalendarEvents(events)
+          
+        } catch (error) {
+          console.error('Dashboard: Calendar sync failed:', error)
+        }
+      }
+      
+      syncCalendar()
     }
-  }, [isAuthenticated, settings.calendar?.icalUrl, weekData])
+  }, [isAuthenticated, settings.calendar?.icalUrl, weekData, updateCalendarEvents])
 
   // Calculate today's calendar events reactively using the same logic as weekly schedule
   const todayCalendarEvents = React.useMemo(() => {
