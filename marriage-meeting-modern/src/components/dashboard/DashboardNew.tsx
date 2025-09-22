@@ -1244,6 +1244,9 @@ export const DashboardNew: React.FC = () => {
         </div>
       </div>
 
+        </div>
+      </div>
+
       {/* Settings Panel */}
       <SettingsPanel 
         isOpen={isSettingsOpen} 
