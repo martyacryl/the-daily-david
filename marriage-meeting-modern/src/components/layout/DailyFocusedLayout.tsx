@@ -1136,20 +1136,58 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
           <div className="space-y-3">
             {(() => {
               const today = new Date()
+              const todayDateString = today.toISOString().split('T')[0]
               const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
               const todayName = dayNames[today.getDay()]
               const todaySchedule = weekData?.schedule?.[todayName] || []
               const filteredSchedule = todaySchedule.filter((item: any) => item && item.trim() !== '')
               
-              return filteredSchedule.length > 0 ? (
-                filteredSchedule.map((item: any, index: number) => (
-                  <div key={index} className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg">
-                    <Clock className="w-4 h-4 text-slate-600" />
-                    <span className="text-gray-700">{item}</span>
+              // Get calendar events for today
+              const todayCalendarEvents = (weekData?.calendarEvents || []).filter((event: any) => {
+                const eventStartDate = event.start.toISOString().split('T')[0]
+                const eventEndDate = event.end.toISOString().split('T')[0]
+                return eventStartDate === todayDateString || eventEndDate === todayDateString
+              })
+              
+              // Combine schedule items and calendar events
+              const allItems = [
+                ...filteredSchedule.map((item: any, index: number) => ({
+                  type: 'schedule',
+                  content: item,
+                  key: `schedule-${index}`,
+                  icon: Clock,
+                  bgColor: 'bg-slate-50',
+                  iconColor: 'text-slate-600'
+                })),
+                ...todayCalendarEvents.map((event: any, index: number) => ({
+                  type: 'calendar',
+                  content: event.title,
+                  key: `calendar-${index}`,
+                  icon: Calendar,
+                  bgColor: 'bg-blue-50',
+                  iconColor: 'text-blue-600',
+                  time: event.start.toLocaleTimeString('en-US', { 
+                    hour: 'numeric', 
+                    minute: '2-digit',
+                    hour12: true 
+                  })
+                }))
+              ]
+              
+              return allItems.length > 0 ? (
+                allItems.map((item: any) => (
+                  <div key={item.key} className={`flex items-center gap-3 p-3 rounded-lg border-l-4 ${item.type === 'calendar' ? 'bg-blue-50 border-blue-400' : 'bg-slate-50 border-slate-400'}`}>
+                    <item.icon className={`w-4 h-4 ${item.iconColor}`} />
+                    <div className="flex-1">
+                      <span className="text-gray-700">{item.content}</span>
+                      {item.time && (
+                        <span className="text-sm text-gray-500 ml-2">({item.time})</span>
+                      )}
+                    </div>
                   </div>
                 ))
               ) : (
-                <p className="text-gray-500 italic text-center py-4">No schedule items for today</p>
+                <p className="text-gray-500 italic text-center py-4">No schedule items or events for today</p>
               )
             })()}
           </div>
