@@ -199,7 +199,8 @@ export const SimpleCalendarSettings: React.FC<SimpleCalendarSettingsProps> = ({ 
     }
   }
 
-  // Apple Calendar handlers
+  // Apple Calendar handlers - COMMENTED OUT FOR LATER USE
+  /*
   const handleTestCalDAVConnection = async () => {
     setIsTestingCalDAV(true)
     setCaldavStatus('idle')
@@ -274,6 +275,7 @@ export const SimpleCalendarSettings: React.FC<SimpleCalendarSettingsProps> = ({ 
         : [...prev, calendarPath]
     )
   }
+  */
 
   if (!isOpen) return null
 
@@ -311,7 +313,34 @@ export const SimpleCalendarSettings: React.FC<SimpleCalendarSettingsProps> = ({ 
             </div>
             
             <div className="space-y-4">
-              {/* Apple Calendar Direct Connection */}
+              {/* iCal URL Section - Primary Method */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  iCal URL
+                </label>
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <Input
+                    type="url"
+                    value={icalUrl}
+                    onChange={(e) => setIcalUrl(e.target.value)}
+                    placeholder="webcal://p119-caldav.icloud.com/..."
+                    className="flex-1 text-sm"
+                  />
+                  <Button
+                    onClick={handleTestConnection}
+                    disabled={!icalUrl.trim() || isTestingConnection}
+                    className="bg-green-600 hover:bg-green-700 text-sm px-4 py-2"
+                  >
+                    {isTestingConnection ? 'Testing...' : 'Test & Connect'}
+                  </Button>
+                </div>
+                <p className="text-xs text-gray-500 mt-1">
+                  Get your iCal URL from iPhone Calendar app → Tap "Calendars" → Tap "i" → "Share Calendar"
+                </p>
+              </div>
+
+              {/* Apple Calendar Direct Connection - COMMENTED OUT FOR LATER USE */}
+              {/* 
               <div className="text-center py-6">
                 <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Calendar className="w-8 h-8 text-green-600" />
@@ -332,7 +361,6 @@ export const SimpleCalendarSettings: React.FC<SimpleCalendarSettingsProps> = ({ 
                 </p>
               </div>
 
-              {/* Apple Calendar Connection Status */}
               {caldavStatus !== 'idle' && (
                 <div className={`flex items-center gap-2 p-3 rounded-lg ${
                   caldavStatus === 'success' 
@@ -348,7 +376,6 @@ export const SimpleCalendarSettings: React.FC<SimpleCalendarSettingsProps> = ({ 
                 </div>
               )}
 
-              {/* Calendar Selection */}
               {caldavCalendars.length > 0 && caldavStatus === 'success' && (
                 <div className="bg-green-50 p-4 rounded-lg">
                   <h4 className="font-medium text-green-900 mb-2 text-sm">Select Calendars to Sync:</h4>
@@ -373,40 +400,7 @@ export const SimpleCalendarSettings: React.FC<SimpleCalendarSettingsProps> = ({ 
                   </Button>
                 </div>
               )}
-
-              {/* Fallback: Manual iCal URL */}
-              <div className="border-t pt-4">
-                <details className="group">
-                  <summary className="cursor-pointer text-sm font-medium text-gray-700 mb-2">
-                    Or use iCal URL (if direct connection doesn't work)
-                  </summary>
-                  <div className="mt-3 space-y-3">
-                    <div className="bg-blue-50 p-3 rounded-lg">
-                      <h5 className="font-medium text-blue-900 mb-2 text-xs">Get iCal URL from iPhone/iPad:</h5>
-                      <div className="space-y-1">
-                        <p className="text-xs text-blue-700">1. Open Calendar app → Tap "Calendars" → Tap "i" next to calendar</p>
-                        <p className="text-xs text-blue-700">2. Scroll down → Tap "Share Calendar" → Copy the URL</p>
-                      </div>
-                    </div>
-                    <div className="flex flex-col sm:flex-row gap-2">
-                      <Input
-                        type="url"
-                        value={icalUrl}
-                        onChange={(e) => setIcalUrl(e.target.value)}
-                        placeholder="webcal://p119-caldav.icloud.com/..."
-                        className="flex-1 text-sm"
-                      />
-                      <Button
-                        onClick={handleTestConnection}
-                        disabled={!icalUrl.trim() || isTestingConnection}
-                        className="bg-blue-600 hover:bg-blue-700 text-sm px-4 py-2"
-                      >
-                        {isTestingConnection ? 'Testing...' : 'Test URL'}
-                      </Button>
-                    </div>
-                  </div>
-                </details>
-              </div>
+              */}
 
               {/* Connection Status */}
               {connectionStatus !== 'idle' && (
