@@ -93,9 +93,9 @@ export const FamilyVisionBoard: React.FC<FamilyVisionBoardProps> = ({ className 
 
   const getTimeframeColor = (timeframe: string) => {
     switch (timeframe) {
-      case '1year': return 'text-green-600 bg-green-100'
-      case '5year': return 'text-blue-600 bg-blue-100'
-      case '10year': return 'text-purple-600 bg-purple-100'
+      case '1year': return 'text-slate-600 bg-slate-100'
+      case '5year': return 'text-purple-600 bg-purple-100'
+      case '10year': return 'text-slate-700 bg-slate-200'
       default: return 'text-gray-600 bg-gray-100'
     }
   }
@@ -114,7 +114,7 @@ export const FamilyVisionBoard: React.FC<FamilyVisionBoardProps> = ({ className 
       <Card className={`p-6 ${className}`}>
         <div className="flex items-center justify-center py-8">
           <div className="text-center">
-            <div className="w-8 h-8 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
+            <div className="w-8 h-8 border-4 border-slate-200 border-t-slate-600 rounded-full animate-spin mx-auto mb-4"></div>
             <p className="text-gray-500">Loading family vision...</p>
           </div>
         </div>
@@ -128,7 +128,7 @@ export const FamilyVisionBoard: React.FC<FamilyVisionBoardProps> = ({ className 
       <Card className="p-4 lg:p-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
           <div className="flex items-center gap-2">
-            <Home className="w-4 h-4 lg:w-5 lg:h-5 text-blue-600" />
+            <Home className="w-4 h-4 lg:w-5 lg:h-5 text-purple-600" />
             <h2 className="text-lg lg:text-xl font-bold text-gray-900">Family Mission Statement</h2>
           </div>
           <Button
@@ -244,7 +244,7 @@ export const FamilyVisionBoard: React.FC<FamilyVisionBoardProps> = ({ className 
       <Card className="p-4 lg:p-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
           <div className="flex items-center gap-2">
-            <Target className="w-4 h-4 lg:w-5 lg:h-5 text-green-600" />
+            <Target className="w-4 h-4 lg:w-5 lg:h-5 text-slate-600" />
             <h2 className="text-lg lg:text-xl font-bold text-gray-900">Vision Goals</h2>
           </div>
           <Button
@@ -314,7 +314,7 @@ export const FamilyVisionBoard: React.FC<FamilyVisionBoardProps> = ({ className 
               animate={{ opacity: 1, y: 0 }}
               className={`flex items-center gap-3 p-4 rounded-lg border-2 transition-all duration-200 ${
                 goal.completed
-                  ? 'bg-green-50 border-green-200'
+                  ? 'bg-slate-50 border-slate-200'
                   : 'bg-white border-gray-200 hover:border-gray-300'
               }`}
             >
@@ -322,7 +322,7 @@ export const FamilyVisionBoard: React.FC<FamilyVisionBoardProps> = ({ className 
                 onClick={() => toggleVisionGoal(goal.id)}
                 className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-200 ${
                   goal.completed
-                    ? 'bg-green-500 border-green-500 text-white'
+                    ? 'bg-slate-500 border-slate-500 text-white'
                     : 'border-gray-300 hover:border-gray-400'
                 }`}
               >
@@ -357,7 +357,7 @@ export const FamilyVisionBoard: React.FC<FamilyVisionBoardProps> = ({ className 
                   variant="outline"
                   size="sm"
                   onClick={() => deleteVisionGoal(goal.id)}
-                  className="text-red-600 border-red-200 hover:bg-red-50"
+                  className="text-slate-600 border-slate-200 hover:bg-slate-50"
                 >
                   <X className="w-3 h-3" />
                 </Button>

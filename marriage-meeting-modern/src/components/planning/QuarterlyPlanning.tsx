@@ -38,18 +38,18 @@ const categoryIcons = {
 }
 
 const categoryColors = {
-  marriage: 'from-pink-500 to-rose-500',
-  family: 'from-blue-500 to-cyan-500',
-  spiritual: 'from-purple-500 to-violet-500',
-  financial: 'from-green-500 to-emerald-500',
-  personal: 'from-orange-500 to-amber-500',
-  health: 'from-red-500 to-pink-500'
+  marriage: 'from-slate-600 to-slate-700',
+  family: 'from-slate-500 to-slate-600',
+  spiritual: 'from-purple-600 to-purple-700',
+  financial: 'from-slate-700 to-slate-800',
+  personal: 'from-purple-500 to-purple-600',
+  health: 'from-slate-600 to-purple-600'
 }
 
 const priorityColors = {
-  high: 'bg-red-100 text-red-800 border-red-200',
-  medium: 'bg-yellow-100 text-yellow-800 border-yellow-200',
-  low: 'bg-green-100 text-green-800 border-green-200'
+  high: 'bg-slate-100 text-slate-800 border-slate-300',
+  medium: 'bg-purple-100 text-purple-800 border-purple-300',
+  low: 'bg-slate-50 text-slate-600 border-slate-200'
 }
 
 export const QuarterlyPlanning: React.FC = () => {
@@ -228,7 +228,7 @@ export const QuarterlyPlanning: React.FC = () => {
         
         {/* Current Quarter Theme */}
         {themes.length > 0 && (
-          <Card className={`p-6 bg-gradient-to-r ${themes[0].color} text-white mb-6`}>
+          <Card className={`p-6 bg-gradient-to-r from-slate-600 to-purple-600 text-white mb-6`}>
             <h2 className="text-2xl font-bold mb-2">{themes[0].theme}</h2>
             <p className="text-lg mb-3">{themes[0].focus}</p>
             {themes[0].scripture && (
@@ -241,24 +241,24 @@ export const QuarterlyPlanning: React.FC = () => {
       {/* Stats Overview */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <Card className="p-4 text-center">
-          <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
-            <Target className="w-6 h-6 text-blue-600" />
+          <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-3">
+            <Target className="w-6 h-6 text-slate-600" />
           </div>
           <h3 className="text-2xl font-bold text-gray-900">{stats.totalGoals}</h3>
           <p className="text-sm text-gray-600">Total Goals</p>
         </Card>
         
         <Card className="p-4 text-center">
-          <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
-            <CheckCircle className="w-6 h-6 text-green-600" />
+          <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-3">
+            <CheckCircle className="w-6 h-6 text-slate-600" />
           </div>
           <h3 className="text-2xl font-bold text-gray-900">{stats.completedGoals}</h3>
           <p className="text-sm text-gray-600">Completed</p>
         </Card>
         
         <Card className="p-4 text-center">
-          <div className="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-3">
-            <TrendingUp className="w-6 h-6 text-yellow-600" />
+          <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3">
+            <TrendingUp className="w-6 h-6 text-purple-600" />
           </div>
           <h3 className="text-2xl font-bold text-gray-900">{stats.inProgressGoals}</h3>
           <p className="text-sm text-gray-600">In Progress</p>
@@ -375,7 +375,7 @@ export const QuarterlyPlanning: React.FC = () => {
                       <Button size="sm" variant="outline">
                         <Edit3 className="w-4 h-4" />
                       </Button>
-                      <Button size="sm" variant="outline" className="text-red-600 hover:text-red-700">
+                      <Button size="sm" variant="outline" className="text-slate-600 hover:text-slate-700">
                         <Trash2 className="w-4 h-4" />
                       </Button>
                     </div>
@@ -409,8 +409,8 @@ export const QuarterlyPlanning: React.FC = () => {
                               onClick={() => handleToggleMilestone(goal.id, milestone)}
                               className={`w-4 h-4 rounded border-2 flex items-center justify-center ${
                                 isCompleted 
-                                  ? 'bg-green-500 border-green-500 text-white' 
-                                  : 'border-gray-300 hover:border-green-500'
+                                  ? 'bg-slate-500 border-slate-500 text-white' 
+                                  : 'border-gray-300 hover:border-slate-500'
                               }`}
                             >
                               {isCompleted && <CheckCircle className="w-3 h-3" />}
@@ -428,9 +428,9 @@ export const QuarterlyPlanning: React.FC = () => {
                     <div className="flex justify-between items-center text-xs text-gray-500">
                       <span>Target: {goal.targetDate}</span>
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        goal.status === 'completed' ? 'bg-green-100 text-green-800' :
-                        goal.status === 'in-progress' ? 'bg-blue-100 text-blue-800' :
-                        'bg-gray-100 text-gray-800'
+                        goal.status === 'completed' ? 'bg-slate-100 text-slate-800' :
+                        goal.status === 'in-progress' ? 'bg-purple-100 text-purple-800' :
+                        'bg-slate-100 text-slate-800'
                       }`}>
                         {goal.status.replace('-', ' ')}
                       </span>
@@ -451,19 +451,19 @@ export const QuarterlyPlanning: React.FC = () => {
             <h3 className="font-semibold text-gray-800 mb-2">How to Use in Weekly Meetings:</h3>
             <ul className="space-y-2 text-sm text-gray-600">
               <li className="flex items-start gap-2">
-                <ArrowRight className="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" />
+                <ArrowRight className="w-4 h-4 text-purple-500 mt-0.5 flex-shrink-0" />
                 Review quarterly theme and focus
               </li>
               <li className="flex items-start gap-2">
-                <ArrowRight className="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" />
+                <ArrowRight className="w-4 h-4 text-purple-500 mt-0.5 flex-shrink-0" />
                 Check progress on quarterly goals
               </li>
               <li className="flex items-start gap-2">
-                <ArrowRight className="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" />
+                <ArrowRight className="w-4 h-4 text-purple-500 mt-0.5 flex-shrink-0" />
                 Set weekly actions toward goals
               </li>
               <li className="flex items-start gap-2">
-                <ArrowRight className="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" />
+                <ArrowRight className="w-4 h-4 text-purple-500 mt-0.5 flex-shrink-0" />
                 Celebrate milestone completions
               </li>
             </ul>
@@ -472,15 +472,15 @@ export const QuarterlyPlanning: React.FC = () => {
             <h3 className="font-semibold text-gray-800 mb-2">Monthly Reviews:</h3>
             <ul className="space-y-2 text-sm text-gray-600">
               <li className="flex items-start gap-2">
-                <ArrowRight className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                <ArrowRight className="w-4 h-4 text-slate-500 mt-0.5 flex-shrink-0" />
                 Assess goal progress and adjust
               </li>
               <li className="flex items-start gap-2">
-                <ArrowRight className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                <ArrowRight className="w-4 h-4 text-slate-500 mt-0.5 flex-shrink-0" />
                 Plan next month's priorities
               </li>
               <li className="flex items-start gap-2">
-                <ArrowRight className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                <ArrowRight className="w-4 h-4 text-slate-500 mt-0.5 flex-shrink-0" />
                 Update quarterly theme if needed
               </li>
             </ul>

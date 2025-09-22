@@ -60,21 +60,21 @@ const categoryIcons = {
 }
 
 const categoryColors = {
-  marriage: 'from-pink-500 to-rose-500',
-  family: 'from-blue-500 to-cyan-500',
-  spiritual: 'from-purple-500 to-violet-500',
-  financial: 'from-green-500 to-emerald-500',
-  personal: 'from-orange-500 to-amber-500',
-  health: 'from-red-500 to-pink-500',
-  ministry: 'from-indigo-500 to-purple-500',
-  career: 'from-slate-500 to-gray-500'
+  marriage: 'from-slate-600 to-slate-700',
+  family: 'from-slate-500 to-slate-600',
+  spiritual: 'from-purple-600 to-purple-700',
+  financial: 'from-slate-700 to-slate-800',
+  personal: 'from-purple-500 to-purple-600',
+  health: 'from-slate-600 to-purple-600',
+  ministry: 'from-purple-700 to-purple-800',
+  career: 'from-slate-500 to-purple-500'
 }
 
 const priorityColors = {
-  critical: 'bg-red-100 text-red-800 border-red-200',
-  high: 'bg-orange-100 text-orange-800 border-orange-200',
-  medium: 'bg-yellow-100 text-yellow-800 border-yellow-200',
-  low: 'bg-green-100 text-green-800 border-green-200'
+  critical: 'bg-slate-100 text-slate-800 border-slate-300',
+  high: 'bg-purple-100 text-purple-800 border-purple-300',
+  medium: 'bg-slate-200 text-slate-700 border-slate-400',
+  low: 'bg-slate-50 text-slate-600 border-slate-200'
 }
 
 export const AnnualPlanning: React.FC = () => {
@@ -271,7 +271,7 @@ export const AnnualPlanning: React.FC = () => {
       </div>
 
       {/* Vision Statement */}
-      <Card className="p-8 bg-gradient-to-r from-indigo-500 to-purple-600 text-white">
+      <Card className="p-8 bg-gradient-to-r from-slate-700 to-purple-700 text-white">
         <div className="flex items-start justify-between mb-6">
           <div className="flex items-center gap-3">
             <Compass className="w-8 h-8" />
@@ -280,7 +280,7 @@ export const AnnualPlanning: React.FC = () => {
           <Button 
             variant="outline" 
             onClick={() => setIsEditingVision(true)}
-            className="text-white border-white hover:bg-white hover:text-indigo-600"
+            className="text-slate-700 border-slate-300 hover:bg-slate-50 hover:text-slate-800"
           >
             <Edit3 className="w-4 h-4 mr-2" />
             Edit
@@ -373,7 +373,7 @@ export const AnnualPlanning: React.FC = () => {
 
       {/* Annual Theme */}
       {themes.length > 0 && (
-        <Card className={`p-6 bg-gradient-to-r ${themes[0].color} text-white`}>
+        <Card className={`p-6 bg-gradient-to-r from-slate-600 to-purple-600 text-white`}>
           <h2 className="text-2xl font-bold mb-2">{themes[0].theme}</h2>
           <p className="text-lg mb-3">{themes[0].focus}</p>
           {themes[0].verse && (
@@ -394,24 +394,24 @@ export const AnnualPlanning: React.FC = () => {
       {/* Stats Overview */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
         <Card className="p-4 text-center">
-          <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
-            <Target className="w-6 h-6 text-blue-600" />
+          <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-3">
+            <Target className="w-6 h-6 text-slate-600" />
           </div>
           <h3 className="text-2xl font-bold text-gray-900">{stats.totalGoals}</h3>
           <p className="text-sm text-gray-600">Total Goals</p>
         </Card>
         
         <Card className="p-4 text-center">
-          <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
-            <CheckCircle className="w-6 h-6 text-green-600" />
+          <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-3">
+            <CheckCircle className="w-6 h-6 text-slate-600" />
           </div>
           <h3 className="text-2xl font-bold text-gray-900">{stats.completedGoals}</h3>
           <p className="text-sm text-gray-600">Completed</p>
         </Card>
         
         <Card className="p-4 text-center">
-          <div className="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-3">
-            <TrendingUp className="w-6 h-6 text-yellow-600" />
+          <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3">
+            <TrendingUp className="w-6 h-6 text-purple-600" />
           </div>
           <h3 className="text-2xl font-bold text-gray-900">{stats.inProgressGoals}</h3>
           <p className="text-sm text-gray-600">In Progress</p>
@@ -426,8 +426,8 @@ export const AnnualPlanning: React.FC = () => {
         </Card>
         
         <Card className="p-4 text-center">
-          <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-3">
-            <Award className="w-6 h-6 text-red-600" />
+          <div className="w-12 h-12 bg-slate-200 rounded-full flex items-center justify-center mx-auto mb-3">
+            <Award className="w-6 h-6 text-slate-700" />
           </div>
           <h3 className="text-2xl font-bold text-gray-900">{stats.criticalGoals}</h3>
           <p className="text-sm text-gray-600">Critical</p>
@@ -557,7 +557,7 @@ export const AnnualPlanning: React.FC = () => {
                       <Button size="sm" variant="outline">
                         <Edit3 className="w-4 h-4" />
                       </Button>
-                      <Button size="sm" variant="outline" className="text-red-600 hover:text-red-700">
+                      <Button size="sm" variant="outline" className="text-slate-600 hover:text-slate-700">
                         <Trash2 className="w-4 h-4" />
                       </Button>
                     </div>
@@ -567,16 +567,16 @@ export const AnnualPlanning: React.FC = () => {
                   
                   {/* Vision & Impact */}
                   {goal.vision && (
-                    <div className="mb-4 p-3 bg-blue-50 rounded-lg">
-                      <h4 className="text-sm font-medium text-blue-800 mb-1">Vision</h4>
-                      <p className="text-xs text-blue-700">{goal.vision}</p>
+                    <div className="mb-4 p-3 bg-slate-50 rounded-lg">
+                      <h4 className="text-sm font-medium text-slate-800 mb-1">Vision</h4>
+                      <p className="text-xs text-slate-700">{goal.vision}</p>
                     </div>
                   )}
                   
                   {goal.impact && (
-                    <div className="mb-4 p-3 bg-green-50 rounded-lg">
-                      <h4 className="text-sm font-medium text-green-800 mb-1">Impact</h4>
-                      <p className="text-xs text-green-700">{goal.impact}</p>
+                    <div className="mb-4 p-3 bg-purple-50 rounded-lg">
+                      <h4 className="text-sm font-medium text-purple-800 mb-1">Impact</h4>
+                      <p className="text-xs text-purple-700">{goal.impact}</p>
                     </div>
                   )}
                   
@@ -613,9 +613,9 @@ export const AnnualPlanning: React.FC = () => {
                     <div className="flex justify-between items-center text-xs text-gray-500">
                       <span>Target: {goal.targetDate}</span>
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        goal.status === 'completed' ? 'bg-green-100 text-green-800' :
-                        goal.status === 'in-progress' ? 'bg-blue-100 text-blue-800' :
-                        'bg-gray-100 text-gray-800'
+                        goal.status === 'completed' ? 'bg-slate-100 text-slate-800' :
+                        goal.status === 'in-progress' ? 'bg-purple-100 text-purple-800' :
+                        'bg-slate-100 text-slate-800'
                       }`}>
                         {goal.status.replace('-', ' ')}
                       </span>
@@ -636,15 +636,15 @@ export const AnnualPlanning: React.FC = () => {
             <h3 className="font-semibold text-gray-800 mb-2">Annual → Quarterly</h3>
             <ul className="space-y-2 text-sm text-gray-600">
               <li className="flex items-start gap-2">
-                <ArrowRight className="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" />
+                <ArrowRight className="w-4 h-4 text-purple-500 mt-0.5 flex-shrink-0" />
                 Break annual goals into quarterly milestones
               </li>
               <li className="flex items-start gap-2">
-                <ArrowRight className="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" />
+                <ArrowRight className="w-4 h-4 text-purple-500 mt-0.5 flex-shrink-0" />
                 Set quarterly themes that support annual vision
               </li>
               <li className="flex items-start gap-2">
-                <ArrowRight className="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" />
+                <ArrowRight className="w-4 h-4 text-purple-500 mt-0.5 flex-shrink-0" />
                 Review and adjust quarterly goals monthly
               </li>
             </ul>
@@ -653,15 +653,15 @@ export const AnnualPlanning: React.FC = () => {
             <h3 className="font-semibold text-gray-800 mb-2">Quarterly → Monthly</h3>
             <ul className="space-y-2 text-sm text-gray-600">
               <li className="flex items-start gap-2">
-                <ArrowRight className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                <ArrowRight className="w-4 h-4 text-slate-500 mt-0.5 flex-shrink-0" />
                 Focus on 2-3 quarterly goals per month
               </li>
               <li className="flex items-start gap-2">
-                <ArrowRight className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                <ArrowRight className="w-4 h-4 text-slate-500 mt-0.5 flex-shrink-0" />
                 Plan specific actions for the month
               </li>
               <li className="flex items-start gap-2">
-                <ArrowRight className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                <ArrowRight className="w-4 h-4 text-slate-500 mt-0.5 flex-shrink-0" />
                 Track progress and celebrate wins
               </li>
             </ul>
