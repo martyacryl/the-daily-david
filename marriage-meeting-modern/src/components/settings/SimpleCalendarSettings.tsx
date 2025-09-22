@@ -212,7 +212,7 @@ export const SimpleCalendarSettings: React.FC<SimpleCalendarSettingsProps> = ({ 
       const response = await fetch('https://api.allorigins.win/raw?url=https%3A%2F%2Fcaldav.icloud.com%2Fcalendars%2F', {
         method: 'GET',
         headers: {
-          'Accept': 'application/xml, text/xml, */*',
+          'Accept': 'application/xml, text/xml, application/json',
           'User-Agent': 'Mozilla/5.0 (compatible; WeeklyHuddle/1.0)'
         }
       })
