@@ -398,8 +398,8 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                           }}
                           className={`w-full flex items-center gap-2 sm:gap-3 p-2 sm:p-3 rounded-lg text-left transition-all duration-200 ${
                             isActive
-                              ? 'bg-slate-50 border-2 border-blue-200 text-blue-700'
-                              : 'hover:bg-gray-50 text-gray-700 dark:text-gray-300'
+                              ? 'bg-slate-50 dark:bg-slate-700 border-2 border-blue-200 dark:border-blue-600 text-blue-700 dark:text-blue-300'
+                              : 'hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300'
                           }`}
                           whileHover={{ scale: 1.02 }}
                           whileTap={{ scale: 0.98 }}
@@ -408,7 +408,7 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                             isActive ? 'bg-slate-100 dark:bg-slate-700' : 'bg-gray-100 dark:bg-gray-700'
                           }`}>
                             <IconComponent className={`w-3 h-3 sm:w-4 sm:h-4 ${
-                              isActive ? 'text-blue-600' : 'text-gray-500'
+                              isActive ? 'text-blue-600 dark:text-blue-400' : 'text-gray-500 dark:text-gray-400'
                             }`} />
                           </div>
                           <div className="flex-1 min-w-0">
@@ -445,8 +445,8 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                           }}
                           className={`w-full flex items-center gap-2 sm:gap-3 p-2 sm:p-3 rounded-lg text-left transition-all duration-200 ${
                             isActive
-                              ? 'bg-slate-50 border-2 border-slate-200 text-slate-700'
-                              : 'hover:bg-gray-50 text-gray-700 dark:text-gray-300'
+                              ? 'bg-slate-50 dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-300'
+                              : 'hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300'
                           }`}
                           whileHover={{ scale: 1.02 }}
                           whileTap={{ scale: 0.98 }}
@@ -737,7 +737,7 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
             </div>
 
             {/* Right Column - Vision & Spiritual Content */}
-            <div className="w-full lg:w-80 bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 border-l border-gray-200 dark:border-gray-700 p-4 lg:p-6 overflow-y-auto">
+            <div className="w-full lg:w-80 bg-gradient-to-br from-slate-50 to-gray-100 dark:from-gray-800 dark:to-gray-700 border-l border-gray-200 dark:border-gray-600 p-4 lg:p-6 overflow-y-auto">
               <div className="space-y-6">
                 {/* Family Vision */}
                 <Card className="p-3 lg:p-4 bg-white dark:bg-gray-800/70 backdrop-blur-sm border border-gray-200 dark:border-gray-700">
