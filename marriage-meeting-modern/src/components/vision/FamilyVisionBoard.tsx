@@ -125,7 +125,7 @@ export const FamilyVisionBoard: React.FC<FamilyVisionBoardProps> = ({ className 
   return (
     <div className={`space-y-4 lg:space-y-6 ${className}`}>
       {/* Mission Statement */}
-      <Card className="p-4 lg:p-6 bg-gradient-to-br from-slate-100 to-purple-100 border-slate-300">
+      <Card className="p-4 lg:p-6 bg-gradient-to-br from-slate-50/80 to-purple-50/60 border-slate-200/60">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
           <div className="flex items-center gap-2">
             <Home className="w-4 h-4 lg:w-5 lg:h-5 text-slate-600" />
@@ -176,7 +176,7 @@ export const FamilyVisionBoard: React.FC<FamilyVisionBoardProps> = ({ className 
       </Card>
 
       {/* Core Values */}
-      <Card className="p-4 lg:p-6 bg-gradient-to-br from-slate-100 to-purple-100 border-slate-300">
+      <Card className="p-4 lg:p-6 bg-gradient-to-br from-slate-50/80 to-purple-50/60 border-slate-200/60">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
           <div className="flex items-center gap-2">
             <Star className="w-4 h-4 lg:w-5 lg:h-5 text-slate-600" />
@@ -241,7 +241,7 @@ export const FamilyVisionBoard: React.FC<FamilyVisionBoardProps> = ({ className 
       </Card>
 
       {/* Vision Goals */}
-      <Card className="p-4 lg:p-6 bg-gradient-to-br from-slate-100 to-purple-100 border-slate-300">
+      <Card className="p-4 lg:p-6 bg-gradient-to-br from-slate-50/80 to-purple-50/60 border-slate-200/60">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
           <div className="flex items-center gap-2">
             <Target className="w-4 h-4 lg:w-5 lg:h-5 text-slate-600" />
