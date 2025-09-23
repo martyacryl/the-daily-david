@@ -112,8 +112,8 @@ export const EnhancedWeeklyLayout: React.FC<EnhancedWeeklyLayoutProps> = ({
             <Card className="p-6 bg-gradient-to-r from-blue-50 to-purple-50 border-2 border-blue-200">
               <div className="flex items-center justify-between mb-4">
                 <div>
-                  <h2 className="text-xl font-bold text-gray-900">Week's Foundation</h2>
-                  <p className="text-sm text-gray-600">
+                  <h2 className="text-xl font-bold text-gray-900 dark:text-white">Week's Foundation</h2>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">
                     Week of {currentDate.toLocaleDateString('en-US', { 
                       weekday: 'long', 
                       year: 'numeric', 
@@ -132,20 +132,20 @@ export const EnhancedWeeklyLayout: React.FC<EnhancedWeeklyLayoutProps> = ({
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="text-center p-4 bg-white rounded-lg">
-                  <Heart className="w-8 h-8 text-blue-600 mx-auto mb-2" />
-                  <h3 className="font-semibold text-gray-900">Opening Prayer</h3>
-                  <p className="text-sm text-gray-600">Begin with God's presence</p>
+                <div className="text-center p-4 bg-white dark:bg-gray-800 rounded-lg">
+                  <Heart className="w-8 h-8 text-blue-600 dark:text-blue-400 mx-auto mb-2" />
+                  <h3 className="font-semibold text-gray-900 dark:text-white">Opening Prayer</h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">Begin with God's presence</p>
                 </div>
-                <div className="text-center p-4 bg-white rounded-lg">
-                  <Target className="w-8 h-8 text-purple-600 mx-auto mb-2" />
-                  <h3 className="font-semibold text-gray-900">Vision Check</h3>
-                  <p className="text-sm text-gray-600">Align with family mission</p>
+                <div className="text-center p-4 bg-white dark:bg-gray-800 rounded-lg">
+                  <Target className="w-8 h-8 text-purple-600 dark:text-purple-400 mx-auto mb-2" />
+                  <h3 className="font-semibold text-gray-900 dark:text-white">Vision Check</h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">Align with family mission</p>
                 </div>
-                <div className="text-center p-4 bg-white rounded-lg">
-                  <Star className="w-8 h-8 text-yellow-600 mx-auto mb-2" />
-                  <h3 className="font-semibold text-gray-900">Reflection</h3>
-                  <p className="text-sm text-gray-600">Review the past week</p>
+                <div className="text-center p-4 bg-white dark:bg-gray-800 rounded-lg">
+                  <Star className="w-8 h-8 text-yellow-600 dark:text-yellow-400 mx-auto mb-2" />
+                  <h3 className="font-semibold text-gray-900 dark:text-white">Reflection</h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">Review the past week</p>
                 </div>
               </div>
             </Card>
@@ -179,7 +179,7 @@ export const EnhancedWeeklyLayout: React.FC<EnhancedWeeklyLayoutProps> = ({
             <Card className="p-6">
               <div className="flex items-center gap-3 mb-4">
                 <Calendar className="w-6 h-6 text-green-600" />
-                <h2 className="text-xl font-bold text-gray-900">Weekly Planning</h2>
+                <h2 className="text-xl font-bold text-gray-900 dark:text-white">Weekly Planning</h2>
               </div>
               <WeeklyMeetingContent
                 activeSection="schedule"
@@ -208,13 +208,13 @@ export const EnhancedWeeklyLayout: React.FC<EnhancedWeeklyLayoutProps> = ({
             <Card className="p-6">
               <div className="flex items-center gap-3 mb-4">
                 <Heart className="w-6 h-6 text-pink-600" />
-                <h2 className="text-xl font-bold text-gray-900">Marriage & Family Connection</h2>
+                <h2 className="text-xl font-bold text-gray-900 dark:text-white">Marriage & Family Connection</h2>
               </div>
               
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Spiritual Growth */}
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Spiritual Growth</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Spiritual Growth</h3>
                   <SpiritualGrowthTracker
                     prayerRequests={[
                       { id: 1, text: "Wisdom in parenting decisions", category: 'family', priority: 'high', dateAdded: '2024-01-15' },
@@ -254,11 +254,11 @@ export const EnhancedWeeklyLayout: React.FC<EnhancedWeeklyLayoutProps> = ({
 
                 {/* Marriage Connection */}
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Marriage Connection</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Marriage Connection</h3>
                   <div className="space-y-4">
                     <Card className="p-4 bg-pink-50 border-pink-200">
-                      <h4 className="font-semibold text-gray-900 mb-2">Date Night Ideas</h4>
-                      <ul className="space-y-1 text-sm text-gray-700">
+                      <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Date Night Ideas</h4>
+                      <ul className="space-y-1 text-sm text-gray-700 dark:text-gray-300">
                         <li>• Cook dinner together</li>
                         <li>• Take a walk in the park</li>
                         <li>• Watch a movie at home</li>
@@ -267,12 +267,12 @@ export const EnhancedWeeklyLayout: React.FC<EnhancedWeeklyLayoutProps> = ({
                     </Card>
                     
                     <Card className="p-4 bg-yellow-50 border-yellow-200">
-                      <h4 className="font-semibold text-gray-900 mb-2">Appreciation Notes</h4>
+                      <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Appreciation Notes</h4>
                       <div className="space-y-2">
-                        <div className="p-2 bg-white rounded text-sm">
+                        <div className="p-2 bg-white dark:bg-gray-800 rounded text-sm text-gray-900 dark:text-white">
                           "Thank you for always making me coffee in the morning ❤️"
                         </div>
-                        <div className="p-2 bg-white rounded text-sm">
+                        <div className="p-2 bg-white dark:bg-gray-800 rounded text-sm text-gray-900 dark:text-white">
                           "I love how you play with the kids after work"
                         </div>
                       </div>
@@ -304,9 +304,9 @@ export const EnhancedWeeklyLayout: React.FC<EnhancedWeeklyLayoutProps> = ({
             <Card className="p-6">
               <div className="flex items-center gap-3 mb-4">
                 <Settings className="w-6 h-6 text-gray-600" />
-                <h2 className="text-xl font-bold text-gray-900">Settings & Preferences</h2>
+                <h2 className="text-xl font-bold text-gray-900 dark:text-white">Settings & Preferences</h2>
               </div>
-              <p className="text-gray-600">Settings panel would go here...</p>
+              <p className="text-gray-600 dark:text-gray-300">Settings panel would go here...</p>
             </Card>
           </div>
         )
@@ -319,11 +319,11 @@ export const EnhancedWeeklyLayout: React.FC<EnhancedWeeklyLayoutProps> = ({
   return (
     <div className={`min-h-screen bg-gradient-to-br from-slate-50 to-purple-50 ${className}`}>
       {/* Header */}
-      <div className="bg-white border-b border-gray-200 px-4 py-4">
+      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-4">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Weekly Marriage Meeting</h1>
-            <p className="text-sm text-gray-600">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Weekly Marriage Meeting</h1>
+            <p className="text-sm text-gray-600 dark:text-gray-300">
               {currentDate.toLocaleDateString('en-US', { 
                 weekday: 'long', 
                 year: 'numeric', 
@@ -352,7 +352,7 @@ export const EnhancedWeeklyLayout: React.FC<EnhancedWeeklyLayoutProps> = ({
 
       <div className="flex h-[calc(100vh-80px)]">
         {/* Tab Navigation */}
-        <div className="w-64 bg-white border-r border-gray-200 p-4">
+        <div className="w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 p-4">
           <nav className="space-y-2">
             {tabs.map((tab) => {
               const IconComponent = tab.icon
@@ -365,7 +365,7 @@ export const EnhancedWeeklyLayout: React.FC<EnhancedWeeklyLayoutProps> = ({
                   className={`w-full flex items-center gap-3 p-3 rounded-lg text-left transition-all duration-200 ${
                     isActive
                       ? `bg-${tab.color}-50 border-2 border-${tab.color}-200 text-${tab.color}-700`
-                      : 'hover:bg-gray-50 text-gray-700'
+                      : 'hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300'
                   }`}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
@@ -424,7 +424,7 @@ export const EnhancedWeeklyLayout: React.FC<EnhancedWeeklyLayoutProps> = ({
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}
-              className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto"
+              className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto"
               onClick={(e) => e.stopPropagation()}
             >
               <GuidedMeetingFlow
