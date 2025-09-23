@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react'
 import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom'
 import { useAuthStore } from './stores/authStore'
 import { useMarriageStore } from './stores/marriageStore'
+import { useTheme } from './hooks/useTheme'
 import { MarriageMeetingTool } from './components/MarriageMeetingTool'
 import { DailyFocusedMeeting } from './components/DailyFocusedMeeting'
 import { LoginForm } from './components/LoginForm'
@@ -36,6 +37,9 @@ const WeeklyReviewWithNavigation = () => {
 function App() {
   const { isAuthenticated, isLoading, initialize } = useAuthStore()
   const { initializeStore } = useMarriageStore()
+  
+  // Initialize theme system
+  useTheme()
   
   // Initialize database manager
   const dbManager = new DatabaseManager()

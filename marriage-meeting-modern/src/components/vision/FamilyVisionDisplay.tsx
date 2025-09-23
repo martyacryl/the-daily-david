@@ -170,21 +170,21 @@ export const FamilyVisionDisplay: React.FC = () => {
         animate={{ opacity: 1, y: 0 }}
         className="relative"
       >
-        <Card className={`p-6 bg-gradient-to-br from-slate-100 to-purple-100 border-slate-300 overflow-hidden`}>
+        <Card className={`p-6 bg-gradient-to-br from-slate-100 to-purple-100 dark:from-slate-700 dark:to-purple-800 border-slate-300 dark:border-slate-600 overflow-hidden`}>
           <div className="flex items-start justify-between mb-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center">
-                <Compass className="w-5 h-5 text-slate-600" />
+              <div className="w-10 h-10 bg-slate-100 dark:bg-slate-600 rounded-full flex items-center justify-center">
+                <Compass className="w-5 h-5 text-slate-600 dark:text-slate-300" />
               </div>
               <div>
-                <h1 className="text-xl font-medium text-slate-800">{vision?.title || 'Our Family Vision'}</h1>
-                <p className="text-slate-500 text-sm">Last updated: {vision?.lastUpdated || 'Recently'}</p>
+                <h1 className="text-xl font-medium text-slate-800 dark:text-slate-200">{vision?.title || 'Our Family Vision'}</h1>
+                <p className="text-slate-500 dark:text-slate-400 text-sm">Last updated: {vision?.lastUpdated || 'Recently'}</p>
               </div>
             </div>
             <Button 
               variant="outline" 
               onClick={() => setIsEditing(true)}
-              className="text-slate-700 border-slate-300 hover:bg-slate-50 hover:text-slate-800"
+              className="text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-slate-800 dark:hover:text-slate-200"
             >
               <Edit3 className="w-4 h-4 mr-2" />
               Edit Vision
@@ -238,7 +238,7 @@ export const FamilyVisionDisplay: React.FC = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
         >
-          <Card className={`p-6 bg-gradient-to-br from-slate-50/60 to-purple-50/40 border-slate-200/60 relative overflow-hidden`}>
+          <Card className={`p-6 bg-gradient-to-br from-slate-50/60 to-purple-50/40 dark:from-slate-800/60 dark:to-purple-900/40 border-slate-200/60 dark:border-slate-700/60 relative overflow-hidden`}>
           {/* Background Pattern - Mountain Outlines */}
           <div className="absolute inset-0 opacity-5">
             <svg className="absolute top-0 right-0 w-32 h-32 -translate-y-16 translate-x-16" viewBox="0 0 100 100" fill="none">
@@ -252,48 +252,48 @@ export const FamilyVisionDisplay: React.FC = () => {
           <div className="relative z-10">
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
-                  <Calendar className="w-5 h-5" />
+                <div className="w-10 h-10 bg-white dark:bg-gray-600 bg-opacity-20 rounded-full flex items-center justify-center">
+                  <Calendar className="w-5 h-5 text-slate-700 dark:text-slate-300" />
                 </div>
                 <div>
-                  <h2 className="text-2xl font-bold text-slate-800">{quarterlyTheme.quarter} {quarterlyTheme.year}</h2>
-                  <p className="text-sm text-slate-600">Current Quarter Focus</p>
+                  <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-200">{quarterlyTheme.quarter} {quarterlyTheme.year}</h2>
+                  <p className="text-sm text-slate-600 dark:text-slate-400">Current Quarter Focus</p>
                 </div>
               </div>
               <div className="text-right">
-                <div className="text-2xl font-bold text-slate-800">{quarterlyTheme.progress}%</div>
-                <div className="text-sm text-slate-600">Complete</div>
+                <div className="text-2xl font-bold text-slate-800 dark:text-slate-200">{quarterlyTheme.progress}%</div>
+                <div className="text-sm text-slate-600 dark:text-slate-400">Complete</div>
               </div>
             </div>
             
-            <h3 className="text-xl font-semibold mb-2 text-slate-800">{quarterlyTheme.theme}</h3>
-            <p className="text-lg mb-4 text-slate-700">{quarterlyTheme.focus}</p>
+            <h3 className="text-xl font-semibold mb-2 text-slate-800 dark:text-slate-200">{quarterlyTheme.theme}</h3>
+            <p className="text-lg mb-4 text-slate-700 dark:text-slate-300">{quarterlyTheme.focus}</p>
             
             {quarterlyTheme.scripture && (
-              <blockquote className="text-sm italic mb-4 p-3 bg-slate-100/50 rounded-lg text-slate-700">
+              <blockquote className="text-sm italic mb-4 p-3 bg-slate-100/50 dark:bg-slate-700/50 rounded-lg text-slate-700 dark:text-slate-300">
                 "{quarterlyTheme.scripture}"
               </blockquote>
             )}
             
             <div className="mb-4">
-              <div className="flex justify-between text-sm mb-1 text-slate-700">
+              <div className="flex justify-between text-sm mb-1 text-slate-700 dark:text-slate-300">
                 <span>Quarterly Progress</span>
                 <span>{quarterlyTheme.progress}%</span>
               </div>
-              <div className="w-full bg-slate-200 rounded-full h-2">
+              <div className="w-full bg-slate-200 dark:bg-slate-600 rounded-full h-2">
                 <div 
-                  className="bg-slate-600 h-2 rounded-full transition-all duration-300"
+                  className="bg-slate-600 dark:bg-slate-400 h-2 rounded-full transition-all duration-300"
                   style={{ width: `${quarterlyTheme.progress}%` }}
                 ></div>
               </div>
             </div>
             
             <div>
-              <h4 className="font-semibold mb-2">Quarterly Goals</h4>
+              <h4 className="font-semibold mb-2 text-slate-800 dark:text-slate-200">Quarterly Goals</h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                 {quarterlyTheme.goals.map((goal, index) => (
-                  <div key={index} className="flex items-center gap-2 text-sm">
-                    <CheckCircle className="w-4 h-4 opacity-60" />
+                  <div key={index} className="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
+                    <CheckCircle className="w-4 h-4 opacity-60 text-slate-600 dark:text-slate-400" />
                     <span>{goal}</span>
                   </div>
                 ))}

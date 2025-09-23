@@ -27,6 +27,7 @@ import { Input } from '../ui/Input'
 import { Textarea } from '../ui/Textarea'
 import { useSettingsStore } from '../../stores/settingsStore'
 import { useAuthStore } from '../../stores/authStore'
+import { useTheme } from '../../hooks/useTheme'
 
 interface SettingsPanelProps {
   isOpen: boolean
@@ -35,6 +36,7 @@ interface SettingsPanelProps {
 
 export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose }) => {
   const { isAuthenticated } = useAuthStore()
+  const { theme, setTheme } = useTheme()
   const {
     settings,
     updateSpouse1,
@@ -395,7 +397,55 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
                 {activeTab === 'general' && (
                   <div className="space-y-6">
                     <div>
-                      <h3 className="text-lg font-semibold text-gray-900 mb-4">General Settings</h3>
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">General Settings</h3>
+                      
+                      {/* Theme Settings */}
+                      <Card className="p-4 mb-6">
+                        <h4 className="text-md font-medium text-gray-800 dark:text-gray-200 mb-4">Appearance</h4>
+                        <div className="space-y-4">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                              Theme
+                            </label>
+                            <div className="flex space-x-4">
+                              <button
+                                onClick={() => setTheme('light')}
+                                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                                  theme === 'light'
+                                    ? 'bg-blue-500 text-white'
+                                    : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                                }`}
+                              >
+                                Light
+                              </button>
+                              <button
+                                onClick={() => setTheme('dark')}
+                                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                                  theme === 'dark'
+                                    ? 'bg-blue-500 text-white'
+                                    : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                                }`}
+                              >
+                                Dark
+                              </button>
+                              <button
+                                onClick={() => setTheme('auto')}
+                                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                                  theme === 'auto'
+                                    ? 'bg-blue-500 text-white'
+                                    : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                                }`}
+                              >
+                                Auto
+                              </button>
+                            </div>
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                              Auto follows your system preference
+                            </p>
+                          </div>
+                        </div>
+                      </Card>
+
                       <Card className="p-4">
                         <div className="space-y-4">
                           <Input
