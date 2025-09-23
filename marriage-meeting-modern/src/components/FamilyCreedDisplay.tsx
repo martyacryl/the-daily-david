@@ -22,7 +22,7 @@ export const FamilyCreedDisplay: React.FC<FamilyCreedDisplayProps> = ({ classNam
       animate={{ opacity: 1, y: 0 }}
       className={className}
     >
-      <Card className="p-4 bg-gradient-to-br from-slate-200 to-purple-200 dark:from-slate-700 dark:to-purple-800 border-slate-300 dark:border-slate-600 backdrop-blur-sm">
+      <div className="p-4 bg-gradient-to-br from-slate-200 to-purple-200 dark:from-slate-700 dark:to-purple-800 border border-slate-300 dark:border-slate-600 rounded-xl backdrop-blur-sm shadow-sm dark:shadow-gray-900/20">
         <div className="flex items-start gap-3">
           <div className="flex-shrink-0">
             <div className="w-8 h-8 bg-slate-100/50 dark:bg-slate-600/50 rounded-full flex items-center justify-center">
@@ -41,7 +41,7 @@ export const FamilyCreedDisplay: React.FC<FamilyCreedDisplayProps> = ({ classNam
             </div>
           </div>
         </div>
-      </Card>
+      </div>
     </motion.div>
   )
 }

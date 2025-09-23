@@ -372,20 +372,20 @@ export const EnhancedWeeklyLayout: React.FC<EnhancedWeeklyLayoutProps> = ({
                 >
                   <div className={`p-2 rounded-lg ${
                     isActive 
-                      ? `bg-${tab.color}-100` 
-                      : 'bg-gray-100'
+                      ? `bg-${tab.color}-100 dark:bg-${tab.color}-900/20` 
+                      : 'bg-gray-100 dark:bg-gray-700'
                   }`}>
                     <IconComponent className={`w-4 h-4 ${
                       isActive 
-                        ? `text-${tab.color}-600` 
-                        : 'text-gray-500'
+                        ? `text-${tab.color}-600 dark:text-${tab.color}-400` 
+                        : 'text-gray-500 dark:text-gray-400'
                     }`} />
                   </div>
                   <div className="flex-1">
-                    <div className="font-medium text-sm">{tab.label}</div>
-                    <div className="text-xs text-gray-500">{tab.description}</div>
+                    <div className="font-medium text-sm text-gray-900 dark:text-white">{tab.label}</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">{tab.description}</div>
                   </div>
-                  <ChevronRight className={`w-4 h-4 transition-transform ${
+                  <ChevronRight className={`w-4 h-4 transition-transform text-gray-400 dark:text-gray-500 ${
                     isActive ? 'rotate-90' : ''
                   }`} />
                 </motion.button>

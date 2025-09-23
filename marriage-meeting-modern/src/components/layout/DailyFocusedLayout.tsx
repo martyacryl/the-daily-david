@@ -455,7 +455,7 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                             isActive ? 'bg-slate-100 dark:bg-slate-700' : 'bg-gray-100 dark:bg-gray-700'
                           }`}>
                             <IconComponent className={`w-3 h-3 sm:w-4 sm:h-4 ${
-                              isActive ? 'text-slate-600' : 'text-gray-500'
+                              isActive ? 'text-slate-600 dark:text-slate-400' : 'text-gray-500 dark:text-gray-400'
                             }`} />
                           </div>
                           <div className="flex-1 min-w-0">
@@ -516,7 +516,7 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                             isActive ? 'bg-slate-100 dark:bg-slate-700' : 'bg-gray-100 dark:bg-gray-700'
                           }`}>
                             <IconComponent className={`w-3 h-3 sm:w-4 sm:h-4 ${
-                              isActive ? 'text-purple-600' : 'text-gray-500'
+                              isActive ? 'text-purple-600 dark:text-purple-400' : 'text-gray-500 dark:text-gray-400'
                             }`} />
                           </div>
                           <div className="flex-1 min-w-0">
@@ -575,7 +575,7 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                             isActive ? 'bg-slate-100 dark:bg-slate-700' : 'bg-gray-100 dark:bg-gray-700'
                           }`}>
                             <IconComponent className={`w-3 h-3 sm:w-4 sm:h-4 ${
-                              isActive ? 'text-green-600' : 'text-gray-500'
+                              isActive ? 'text-green-600 dark:text-green-400' : 'text-gray-500 dark:text-gray-400'
                             }`} />
                           </div>
                           <div className="flex-1 min-w-0">
