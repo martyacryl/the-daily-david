@@ -563,6 +563,41 @@ app.get('/api/auth/verify', authenticateToken, async (req, res) => {
   }
 })
 
+// Calendar proxy endpoint to handle CORS issues
+app.get('/api/calendar-proxy', async (req, res) => {
+  try {
+    const { url } = req.query
+    
+    if (!url) {
+      return res.status(400).json({ error: 'URL parameter is required' })
+    }
+
+    console.log('📅 Calendar Proxy: Fetching URL:', url)
+    
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Accept': 'text/calendar, application/calendar+json, */*',
+        'User-Agent': 'Mozilla/5.0 (compatible; WeeklyHuddle/1.0)'
+      }
+    })
+
+    if (!response.ok) {
+      console.error('📅 Calendar Proxy: Failed to fetch:', response.status, response.statusText)
+      return res.status(response.status).json({ error: `Failed to fetch calendar: ${response.statusText}` })
+    }
+
+    const data = await response.text()
+    console.log('📅 Calendar Proxy: Successfully fetched', data.length, 'characters')
+    
+    res.set('Content-Type', 'text/calendar')
+    res.send(data)
+  } catch (error) {
+    console.error('📅 Calendar Proxy: Error:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
 // Health check
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() })

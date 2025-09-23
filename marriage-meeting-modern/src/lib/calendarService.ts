@@ -58,13 +58,20 @@ export class CalendarService {
       const fetchUrl = icalUrl.replace(/^webcal:\/\//, 'https://')
       console.log('📅 Converted URL for fetch:', fetchUrl)
       
-      // Try multiple CORS proxies as fallbacks
+      // Try backend proxy first, then CORS proxies as fallbacks
+      const apiUrl = (window as any).location?.origin?.includes('localhost') 
+        ? 'http://localhost:3001' 
+        : 'https://marriage-meeting-tool.vercel.app'
+      const backendProxy = `${apiUrl}/api/calendar-proxy?url=${encodeURIComponent(fetchUrl)}`
       const corsProxies = [
+        backendProxy,
         `https://api.allorigins.win/raw?url=${encodeURIComponent(fetchUrl)}`,
         `https://corsproxy.io/?${encodeURIComponent(fetchUrl)}`,
-        `https://cors-anywhere.herokuapp.com/${fetchUrl}`,
         `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(fetchUrl)}`,
-        `https://thingproxy.freeboard.io/fetch/${fetchUrl}`
+        `https://thingproxy.freeboard.io/fetch/${fetchUrl}`,
+        `https://cors-anywhere.herokuapp.com/${fetchUrl}`,
+        `https://proxy.cors.sh/${fetchUrl}`,
+        `https://cors.bridged.cc/${fetchUrl}`
       ]
       
       let response: Response | null = null
@@ -898,8 +905,8 @@ export class CalendarService {
     weekStart: Date,
     onEventsUpdate: (events: CalendarEvent[]) => void
   ): void {
-    // Clear any existing sync for this configuration
-    this.stopAutoSync(icalUrl)
+    // Only clear existing sync for this specific configuration, not all callbacks
+    this.stopAutoSyncForConfig(icalUrl, googleCalendarEnabled, syncFrequency)
     
     // Add callback
     this.syncCallbacks.add(onEventsUpdate)
@@ -935,7 +942,26 @@ export class CalendarService {
   }
   
   /**
-   * Stop automatic calendar sync
+   * Stop automatic calendar sync for a specific configuration
+   */
+  stopAutoSyncForConfig(
+    icalUrl: string, 
+    googleCalendarEnabled: boolean, 
+    syncFrequency: 'realtime' | 'hourly' | 'daily'
+  ): void {
+    const syncKey = `${icalUrl}_${googleCalendarEnabled}_${syncFrequency}`
+    
+    // Clear interval for this specific configuration
+    const interval = this.syncIntervals.get(syncKey)
+    if (interval) {
+      clearInterval(interval)
+      this.syncIntervals.delete(syncKey)
+      console.log('📅 Auto-sync stopped for config:', syncKey)
+    }
+  }
+
+  /**
+   * Stop automatic calendar sync for all configurations with this URL
    */
   stopAutoSync(icalUrl: string): void {
     // Clear all intervals for this URL
@@ -949,7 +975,7 @@ export class CalendarService {
     // Remove callbacks
     this.syncCallbacks.clear()
     
-    console.log('📅 Auto-sync stopped')
+    console.log('📅 Auto-sync stopped for URL:', icalUrl)
   }
   
   /**
