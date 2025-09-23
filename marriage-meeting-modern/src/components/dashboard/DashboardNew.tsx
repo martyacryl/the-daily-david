@@ -737,10 +737,10 @@ export const DashboardNew: React.FC = () => {
                   return (
                     <div 
                       key={note.id} 
-                      className={`bg-white rounded-lg p-3 sm:p-4 transition-all duration-300 ${
+                      className={`bg-white dark:bg-gray-700 rounded-lg p-3 sm:p-4 transition-all duration-300 ${
                         !note.isRead 
-                          ? 'ring-2 ring-pink-200 opacity-100' 
-                          : 'opacity-60 border border-gray-100'
+                          ? 'ring-2 ring-pink-200 dark:ring-pink-700 opacity-100' 
+                          : 'opacity-60 border border-gray-100 dark:border-gray-600'
                       }`}
                     >
                       <div className="flex items-start justify-between mb-2">
@@ -752,11 +752,11 @@ export const DashboardNew: React.FC = () => {
                             {formatDate(note.createdAt)}
                           </span>
                           {!note.isRead ? (
-                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-800">
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-slate-100 dark:bg-slate-600 text-slate-800 dark:text-slate-200">
                               New
                             </span>
                           ) : (
-                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600 dark:text-gray-300">
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-600 text-gray-600 dark:text-gray-300">
                               <CheckCircle className="w-3 h-3 mr-1" />
                               Read
                             </span>
@@ -953,7 +953,7 @@ export const DashboardNew: React.FC = () => {
               </div>
               <div className="space-y-3">
                 {weekData.grocery.filter(store => store.items && store.items.some(item => item.text && item.text.trim() !== '')).slice(0, 3).map((storeList, storeIndex) => (
-                  <div key={storeList.storeId} className="bg-white rounded-lg p-3">
+                  <div key={storeList.storeId} className="bg-white dark:bg-gray-700 rounded-lg p-3">
                     <div className="flex items-center gap-2 mb-2">
                       <Store className="w-4 h-4 text-slate-600 dark:text-slate-300" />
                       <span className="font-medium text-gray-900 dark:text-white">{storeList.storeName}</span>
