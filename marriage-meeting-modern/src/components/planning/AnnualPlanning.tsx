@@ -271,7 +271,7 @@ export const AnnualPlanning: React.FC = () => {
       </div>
 
       {/* Vision Statement */}
-      <Card className="p-6 bg-gradient-to-br from-slate-50/30 to-purple-50/20 border-slate-200/30 relative overflow-hidden">
+      <Card className="p-6 bg-gradient-to-br from-slate-100 to-purple-100 border-slate-300 relative overflow-hidden">
         <div className="relative z-10">
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center gap-3">
@@ -375,7 +375,7 @@ export const AnnualPlanning: React.FC = () => {
 
       {/* Annual Theme */}
       {themes.length > 0 && (
-        <Card className={`p-6 bg-gradient-to-br from-slate-50/20 to-purple-50/10 border-slate-200/20`}>
+        <Card className={`p-6 bg-gradient-to-br from-slate-50/60 to-purple-50/40 border-slate-200/60`}>
           <h2 className="text-2xl font-bold mb-2 text-slate-800">{themes[0].theme}</h2>
           <p className="text-lg mb-3 text-slate-700">{themes[0].focus}</p>
           {themes[0].verse && (

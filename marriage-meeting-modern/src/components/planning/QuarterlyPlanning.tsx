@@ -228,7 +228,7 @@ export const QuarterlyPlanning: React.FC = () => {
         
         {/* Current Quarter Theme */}
         {themes.length > 0 && (
-          <Card className={`p-6 bg-gradient-to-br from-slate-50/20 to-purple-50/10 border-slate-200/20 mb-6 relative overflow-hidden`}>
+          <Card className={`p-6 bg-gradient-to-br from-slate-100 to-purple-100 border-slate-300 mb-6 relative overflow-hidden`}>
           {/* Background Pattern - Mountain Outlines */}
           <div className="absolute inset-0 opacity-5">
             <svg className="absolute top-0 right-0 w-32 h-32 -translate-y-16 translate-x-16" viewBox="0 0 100 100" fill="none">
@@ -240,10 +240,10 @@ export const QuarterlyPlanning: React.FC = () => {
           </div>
           
           <div className="relative z-10">
-            <h2 className="text-2xl font-bold mb-2">{themes[0].theme}</h2>
-            <p className="text-lg mb-3">{themes[0].focus}</p>
+            <h2 className="text-2xl font-bold mb-2 text-slate-800">{themes[0].theme}</h2>
+            <p className="text-lg mb-3 text-slate-700">{themes[0].focus}</p>
             {themes[0].scripture && (
-              <p className="text-sm italic opacity-90">"{themes[0].scripture}"</p>
+              <p className="text-sm italic text-slate-600">"{themes[0].scripture}"</p>
             )}
           </div>
           </Card>

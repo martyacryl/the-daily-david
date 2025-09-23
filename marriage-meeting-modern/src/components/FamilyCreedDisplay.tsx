@@ -31,7 +31,7 @@ export const FamilyCreedDisplay: React.FC<FamilyCreedDisplayProps> = ({ classNam
           </div>
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-2">
-              <h3 className="text-sm font-medium text-slate-600">Family Creed</h3>
+              <h3 className="text-sm font-bold text-slate-700">Family Creed</h3>
               <Quote className="w-3 h-3 text-slate-400" />
             </div>
             <div className="prose prose-slate max-w-none">
