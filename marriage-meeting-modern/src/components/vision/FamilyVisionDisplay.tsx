@@ -181,15 +181,15 @@ export const FamilyVisionDisplay: React.FC = () => {
                 <p className="text-slate-500 text-sm">Last updated: {vision?.lastUpdated || 'Recently'}</p>
               </div>
             </div>
-              <Button 
-                variant="outline" 
-                onClick={() => setIsEditing(true)}
-                className="text-slate-700 border-slate-300 hover:bg-slate-50 hover:text-slate-800"
-              >
-                <Edit3 className="w-4 h-4 mr-2" />
-                Edit Vision
-              </Button>
-            </div>
+            <Button 
+              variant="outline" 
+              onClick={() => setIsEditing(true)}
+              className="text-slate-700 border-slate-300 hover:bg-slate-50 hover:text-slate-800"
+            >
+              <Edit3 className="w-4 h-4 mr-2" />
+              Edit Vision
+            </Button>
+          </div>
             
             <p className="text-xl leading-relaxed mb-8 max-w-4xl">
               {vision?.statement || 'Our family vision statement will appear here...'}
