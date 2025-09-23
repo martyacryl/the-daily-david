@@ -137,7 +137,7 @@ export const EncouragementSection: React.FC<EncouragementSectionProps> = ({
           <h3 className="text-lg font-semibold text-gray-900">Encouragement</h3>
           <span className="text-sm text-gray-500">({totalCount})</span>
           {unreadCount > 0 && (
-            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-pink-100 text-pink-800">
+            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-pink-100 dark:bg-pink-900/20 text-pink-800 dark:text-pink-200">
               {unreadCount} new
             </span>
           )}
@@ -161,7 +161,7 @@ export const EncouragementSection: React.FC<EncouragementSectionProps> = ({
             exit={{ opacity: 0, height: 0 }}
             className="overflow-hidden"
           >
-            <Card className="p-4 bg-pink-50 border-pink-200">
+            <Card className="p-4 bg-pink-50 dark:bg-pink-900/20 border-pink-200 dark:border-pink-700">
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <h4 className="font-medium text-gray-900">Add Encouragement</h4>
@@ -189,8 +189,8 @@ export const EncouragementSection: React.FC<EncouragementSectionProps> = ({
                           onClick={() => setNewNote(prev => ({ ...prev, type: type.id as LoveNote['type'] }))}
                           className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
                             newNote.type === type.id
-                              ? 'bg-pink-100 text-pink-700 border border-pink-300'
-                              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                              ? 'bg-pink-100 dark:bg-pink-900/20 text-pink-700 dark:text-pink-200 border border-pink-300 dark:border-pink-600'
+                              : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                           }`}
                         >
                           <IconComponent className="w-3 h-3" />
@@ -269,8 +269,8 @@ export const EncouragementSection: React.FC<EncouragementSectionProps> = ({
                   exit={{ opacity: 0, y: -20 }}
                   className={`relative transition-all duration-300 ${
                     !note.isRead 
-                      ? 'ring-2 ring-pink-200 bg-pink-50 opacity-100' 
-                      : 'opacity-60 border border-gray-100'
+                      ? 'ring-2 ring-pink-200 dark:ring-pink-700 bg-pink-50 dark:bg-pink-900/20 opacity-100' 
+                      : 'opacity-60 border border-gray-100 dark:border-gray-700'
                   }`}
                 >
                   <Card className={`p-4 transition-all duration-300 ${
@@ -302,8 +302,8 @@ export const EncouragementSection: React.FC<EncouragementSectionProps> = ({
                                   onClick={() => updateNote(note.id, note.text, type.id as LoveNote['type'])}
                                   className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
                                     note.type === type.id
-                                      ? 'bg-pink-100 text-pink-700 border border-pink-300'
-                                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                      ? 'bg-pink-100 dark:bg-pink-900/20 text-pink-700 dark:text-pink-200 border border-pink-300 dark:border-pink-600'
+                                      : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                                   }`}
                                 >
                                   <TypeIcon className="w-3 h-3" />
@@ -357,11 +357,11 @@ export const EncouragementSection: React.FC<EncouragementSectionProps> = ({
                               {formatDate(note.createdAt)}
                             </span>
                             {!note.isRead ? (
-                              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-pink-100 text-pink-800">
+                              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-pink-100 dark:bg-pink-900/20 text-pink-800 dark:text-pink-200">
                                 New
                               </span>
                             ) : (
-                              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+                              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
                                 <Check className="w-3 h-3 mr-1" />
                                 Read
                               </span>
@@ -380,7 +380,7 @@ export const EncouragementSection: React.FC<EncouragementSectionProps> = ({
                               variant="outline"
                               size="sm"
                               onClick={() => deleteNote(note.id)}
-                              className="p-1 h-6 w-6 text-red-600 hover:text-red-700 hover:bg-red-50"
+                              className="p-1 h-6 w-6 text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20"
                             >
                               <Trash2 className="w-3 h-3" />
                             </Button>
@@ -401,7 +401,7 @@ export const EncouragementSection: React.FC<EncouragementSectionProps> = ({
                               variant="outline"
                               size="sm"
                               onClick={() => markAsRead(note.id)}
-                              className="text-pink-600 border-pink-200 hover:bg-pink-50"
+                              className="text-pink-600 dark:text-pink-400 border-pink-200 dark:border-pink-700 hover:bg-pink-50 dark:hover:bg-pink-900/20"
                             >
                               <Check className="w-3 h-3 mr-1" />
                               Mark as Read

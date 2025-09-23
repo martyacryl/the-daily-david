@@ -159,8 +159,8 @@ export const GroceryErrandsSection: React.FC<GroceryErrandsSectionProps> = ({ it
     >
       <Card className="p-6">
         <div className="flex items-center gap-3 mb-6">
-          <div className="p-3 bg-green-100 rounded-lg">
-            <ShoppingCart className="w-6 h-6 text-green-600" />
+          <div className="p-3 bg-green-100 dark:bg-green-900/20 rounded-lg">
+            <ShoppingCart className="w-6 h-6 text-green-600 dark:text-green-400" />
           </div>
           <div>
             <h2 className="text-2xl font-bold text-gray-900">Grocery & Errands</h2>
@@ -170,7 +170,7 @@ export const GroceryErrandsSection: React.FC<GroceryErrandsSectionProps> = ({ it
 
         {/* Success Message */}
         {showSuccessMessage && (
-          <div className="mb-4 p-3 bg-green-100 border border-green-300 rounded-lg text-green-800 text-sm">
+          <div className="mb-4 p-3 bg-green-100 dark:bg-green-900/20 border border-green-300 dark:border-green-600 rounded-lg text-green-800 dark:text-green-200 text-sm">
             ✅ Store added successfully! You can now create a list for it.
           </div>
         )}
@@ -276,7 +276,7 @@ export const GroceryErrandsSection: React.FC<GroceryErrandsSectionProps> = ({ it
                   onClick={() => removeStoreList(storeList.storeId)}
                   variant="outline"
                   size="sm"
-                  className="text-red-600 hover:bg-red-50 border-red-200"
+                  className="text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 border-red-200 dark:border-red-700"
                 >
                   <X className="w-4 h-4" />
                 </Button>
@@ -285,13 +285,13 @@ export const GroceryErrandsSection: React.FC<GroceryErrandsSectionProps> = ({ it
               {/* Items in this store */}
               <div className="space-y-2 mb-4">
                 {(storeList.items || []).map((item) => (
-                  <div key={item.id} className="flex items-center gap-3 p-2 bg-gray-50 rounded-lg">
+                  <div key={item.id} className="flex items-center gap-3 p-2 bg-gray-50 dark:bg-gray-700 rounded-lg">
                     <button
                       onClick={() => toggleItemInStore(storeList.storeId, item.id)}
                       className={`w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
                         item.completed
                           ? 'bg-green-500 border-green-500 text-white'
-                          : 'border-gray-300 hover:border-gray-400'
+                          : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500'
                       }`}
                     >
                       {item.completed && <CheckCircle className="w-3 h-3" />}
@@ -301,14 +301,14 @@ export const GroceryErrandsSection: React.FC<GroceryErrandsSectionProps> = ({ it
                       value={item.text}
                       onChange={(e) => updateItemInStore(storeList.storeId, item.id, e.target.value)}
                       className={`flex-1 bg-transparent border-none outline-none text-sm ${
-                        item.completed ? 'line-through text-gray-500' : 'text-gray-800'
+                        item.completed ? 'line-through text-gray-500 dark:text-gray-400' : 'text-gray-800 dark:text-white'
                       }`}
                     />
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={() => removeItemFromStore(storeList.storeId, item.id)}
-                      className="text-red-600 hover:bg-red-50 border-red-200 p-1 h-6 w-6"
+                      className="text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 border-red-200 dark:border-red-700 p-1 h-6 w-6"
                     >
                       <Trash2 className="w-3 h-3" />
                     </Button>

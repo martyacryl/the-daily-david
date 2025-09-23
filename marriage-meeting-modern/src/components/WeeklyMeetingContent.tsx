@@ -212,8 +212,8 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
     >
       <Card className="p-3 sm:p-6 lg:p-8">
         <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6 lg:mb-8">
-          <div className="p-2 sm:p-3 bg-blue-100 rounded-lg">
-            <Calendar className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-blue-600" />
+          <div className="p-2 sm:p-3 bg-blue-100 dark:bg-blue-900/20 rounded-lg">
+            <Calendar className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-blue-600 dark:text-blue-400" />
           </div>
           <div>
             <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 dark:text-white">Weekly Schedule</h2>
@@ -239,7 +239,7 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
                     // Save immediately when schedule is added
                     onSave()
                   }}
-                  className="text-blue-600 border-blue-200 hover:bg-blue-50 text-xs sm:text-sm px-2 py-1 sm:px-3 sm:py-2"
+                  className="text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-700 hover:bg-blue-50 dark:hover:bg-blue-900/20 text-xs sm:text-sm px-2 py-1 sm:px-3 sm:py-2"
                 >
                   + Add
                 </Button>
@@ -330,8 +330,8 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
       <Card className="p-3 sm:p-6 lg:p-8">
         <div className="flex items-center justify-between mb-4 sm:mb-6">
           <div className="flex items-center gap-2 sm:gap-3">
-            <div className={`p-2 sm:p-3 bg-${color}-100 rounded-lg`}>
-              {React.createElement(icon, { className: `w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-${color}-600` })}
+            <div className={`p-2 sm:p-3 bg-${color}-100 dark:bg-${color}-900/20 rounded-lg`}>
+              {React.createElement(icon, { className: `w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-${color}-600 dark:text-${color}-400` })}
             </div>
             <div>
               <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 dark:text-white">{title}</h2>
@@ -350,7 +350,7 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
               // Auto-save for sections that need it
               if (needsAutoSave && onSave) onSave()
             }}
-            className={`text-${color}-600 border-${color}-200 hover:bg-${color}-50 text-xs sm:text-sm px-2 py-1 sm:px-3 sm:py-2`}
+            className={`text-${color}-600 dark:text-${color}-400 border-${color}-200 dark:border-${color}-700 hover:bg-${color}-50 dark:hover:bg-${color}-900/20 text-xs sm:text-sm px-2 py-1 sm:px-3 sm:py-2`}
           >
             + Add {isAccountability ? 'Action' : title.slice(0, -1)}
           </Button>
@@ -368,7 +368,7 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
                 className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
                   item.completed
                     ? `bg-${color}-500 border-${color}-500 text-white`
-                    : 'border-gray-300 hover:border-gray-400'
+                    : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500'
                 }`}
               >
                 {item.completed && <span className="text-xs sm:text-sm">✓</span>}
@@ -394,7 +394,7 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
                   // Auto-save for sections that need it
                   if (needsAutoSave && onSave) onSave()
                 }}
-                className="text-red-600 hover:bg-red-50 border-red-200 flex-shrink-0 text-xs sm:text-sm px-2 py-1 sm:px-3 sm:py-2"
+                className="text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 border-red-200 dark:border-red-700 flex-shrink-0 text-xs sm:text-sm px-2 py-1 sm:px-3 sm:py-2"
               >
                 ×
               </Button>
@@ -432,8 +432,8 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
     >
       <Card className="p-3 sm:p-6 lg:p-8">
         <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
-          <div className="p-2 sm:p-3 bg-green-100 rounded-lg">
-            <Target className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-green-600" />
+          <div className="p-2 sm:p-3 bg-green-100 dark:bg-green-900/20 rounded-lg">
+            <Target className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-green-600 dark:text-green-400" />
           </div>
           <div>
             <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 dark:text-white">Goals</h2>
@@ -478,8 +478,8 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
     >
       <Card className="p-3 sm:p-6 lg:p-8">
         <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
-          <div className="p-2 sm:p-3 bg-pink-100 rounded-lg">
-            <Heart className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-pink-600" />
+          <div className="p-2 sm:p-3 bg-pink-100 dark:bg-pink-900/20 rounded-lg">
+            <Heart className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-pink-600 dark:text-pink-400" />
           </div>
           <div>
             <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 dark:text-white">Encouragement</h2>
