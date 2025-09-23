@@ -229,6 +229,7 @@ export const FamilyVisionDisplay: React.FC = () => {
               </div>
             </div>
           </div>
+        </div>
         </Card>
       </motion.div>
 
