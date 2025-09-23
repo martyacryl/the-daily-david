@@ -170,7 +170,7 @@ export const FamilyVisionDisplay: React.FC = () => {
         animate={{ opacity: 1, y: 0 }}
         className="relative"
       >
-        <Card className={`p-6 bg-gradient-to-br from-slate-50/60 to-purple-50/40 border-slate-200/50 overflow-hidden`}>
+        <Card className={`p-6 bg-gradient-to-br from-slate-100 to-purple-100 border-slate-300 overflow-hidden`}>
           <div className="flex items-start justify-between mb-4">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center">
