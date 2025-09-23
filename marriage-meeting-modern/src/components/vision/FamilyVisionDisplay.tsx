@@ -171,7 +171,7 @@ export const FamilyVisionDisplay: React.FC = () => {
         animate={{ opacity: 1, y: 0 }}
         className="relative"
       >
-        <Card className={`p-6 bg-gradient-to-br from-slate-100 to-purple-100 dark:from-slate-700 dark:to-purple-800 border-slate-300 dark:border-slate-600 overflow-hidden`}>
+        <div className={`p-6 bg-gradient-to-br from-slate-100 to-purple-100 dark:from-slate-700 dark:to-purple-800 border border-slate-300 dark:border-slate-600 rounded-xl overflow-hidden shadow-sm dark:shadow-gray-900/20`}>
           <div className="flex items-start justify-between mb-4">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-slate-100 dark:bg-slate-600 rounded-full flex items-center justify-center">
@@ -229,7 +229,7 @@ export const FamilyVisionDisplay: React.FC = () => {
                 </div>
               </div>
             </div>
-        </Card>
+        </div>
       </motion.div>
 
       {/* Current Quarter Focus */}
