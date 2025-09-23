@@ -1422,60 +1422,7 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
 
   return (
     <div className={`min-h-screen bg-gradient-to-br from-slate-50 to-purple-50 dark:from-gray-900 dark:to-gray-800 ${className}`}>
-      {/* Header */}
-      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-4 pt-24 md:pt-20">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => navigate('/daily')}
-              className="flex items-center gap-2 text-slate-600 hover:text-slate-800 transition-colors"
-            >
-              <Home className="w-6 h-6" />
-              <span className="text-sm font-medium">Vision</span>
-            </button>
-            <div className="h-6 w-px bg-gray-300"></div>
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Daily Focused Meeting</h1>
-              <p className="text-sm text-gray-600 dark:text-gray-300">
-                {currentDate.toLocaleDateString('en-US', { 
-                  weekday: 'long', 
-                  year: 'numeric', 
-                  month: 'long', 
-                  day: 'numeric' 
-                })}
-              </p>
-            </div>
-          </div>
-          
-          <div className="flex items-center gap-3">
-            <Button
-              onClick={handleStartGuidedMeeting}
-              variant="outline"
-              className="text-slate-600 border-slate-200 hover:bg-slate-50"
-            >
-              <Play className="w-4 h-4 mr-2" />
-              Guided Meeting
-            </Button>
-            
-            {isSaving && (
-              <div className="flex items-center gap-2 text-blue-600">
-                <Clock className="w-4 h-4 animate-spin" />
-                <span className="text-sm">Saving...</span>
-              </div>
-            )}
-            
-            <Button
-              variant="default"
-              onClick={onSave}
-              className="bg-slate-600 hover:bg-slate-700"
-            >
-              Save Changes
-            </Button>
-          </div>
-        </div>
-      </div>
-
-      <div className="flex h-[calc(100vh-120px)] md:h-[calc(100vh-140px)]">
+      <div className="flex h-screen">
         {/* Main Content Area */}
         <div className="flex-1 overflow-y-auto p-6">
           <AnimatePresence mode="wait">

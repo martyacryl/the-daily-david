@@ -68,7 +68,7 @@ interface BibleReadingPlan {
 
 export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({ 
   onBackToVision,
-  className = '' 
+  className = ''
 }) => {
   const {
     spiritualGrowth,
@@ -657,30 +657,30 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
     <div className={`space-y-4 sm:space-y-6 ${className}`}>
       {/* Modern Header */}
       <Card className={`p-4 sm:p-6 ${getGradientClass('header')} dark:from-slate-700 dark:to-purple-800 border-0 shadow-lg`}>
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-6 gap-4">
-          <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-            {onBackToVision && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={onBackToVision}
-                className="text-slate-600 dark:text-slate-300 border-slate-300 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-700 hover:border-slate-400 dark:hover:border-slate-500 transition-all duration-200 w-full sm:w-auto"
-              >
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                <span className="hidden sm:inline">Back to Vision</span>
-                <span className="sm:hidden">Back</span>
-              </Button>
-            )}
-            <div className="flex items-center gap-3">
-              <div className="p-2 sm:p-3 bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-600 dark:to-slate-700 rounded-xl border border-slate-300 dark:border-slate-600">
-                <Cross className="w-5 h-5 sm:w-6 sm:h-6 text-slate-600 dark:text-slate-300" />
-              </div>
-              <div>
-                <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-slate-800 dark:text-slate-200">Spiritual Growth</h2>
-                <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300">Track your journey with God</p>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-6 gap-4">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+              {onBackToVision && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={onBackToVision}
+                  className="text-slate-600 dark:text-slate-300 border-slate-300 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-700 hover:border-slate-400 dark:hover:border-slate-500 transition-all duration-200 w-full sm:w-auto"
+                >
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  <span className="hidden sm:inline">Back to Vision</span>
+                  <span className="sm:hidden">Back</span>
+                </Button>
+              )}
+              <div className="flex items-center gap-3">
+                <div className="p-2 sm:p-3 bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-600 dark:to-slate-700 rounded-xl border border-slate-300 dark:border-slate-600">
+                  <Cross className="w-5 h-5 sm:w-6 sm:h-6 text-slate-600 dark:text-slate-300" />
+                </div>
+                <div>
+                  <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-slate-800 dark:text-slate-200">Spiritual Growth</h2>
+                  <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300">Track your journey with God</p>
+                </div>
               </div>
             </div>
-          </div>
           
           {/* Quick Stats */}
           <div className="flex gap-2 sm:gap-4 justify-center sm:justify-end">
