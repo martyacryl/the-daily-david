@@ -1414,7 +1414,7 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
   return (
     <div className={`min-h-screen bg-gradient-to-br from-slate-50 to-purple-50 dark:from-gray-900 dark:to-gray-800 ${className}`}>
       {/* Header */}
-      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-4">
+      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-4 pt-16 md:pt-20">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button
@@ -1466,7 +1466,7 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
         </div>
       </div>
 
-      <div className="flex h-[calc(100vh-80px)]">
+      <div className="flex h-[calc(100vh-120px)] md:h-[calc(100vh-140px)]">
         {/* Main Content Area */}
         <div className="flex-1 overflow-y-auto p-6">
           <AnimatePresence mode="wait">
