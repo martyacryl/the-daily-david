@@ -3,6 +3,7 @@ import { motion } from 'framer-motion'
 import { Compass, Calendar, Target, Heart, Users, BookOpen, Star, Edit3, CheckCircle, ArrowRight, TrendingUp } from 'lucide-react'
 import { Card } from '../ui/Card'
 import { Button } from '../ui/Button'
+import { FamilyCreedDisplay } from '../FamilyCreedDisplay'
 
 interface FamilyVision {
   id: string
@@ -417,6 +418,9 @@ export const FamilyVisionDisplay: React.FC = () => {
           </div>
         </Card>
       </motion.div>
+
+      {/* Family Creed Section */}
+      <FamilyCreedDisplay className="mt-6" />
     </div>
   )
 }
