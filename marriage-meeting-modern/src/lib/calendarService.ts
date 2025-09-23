@@ -32,6 +32,7 @@ export class CalendarService {
   private cacheExpiry: Map<string, number> = new Map()
   private syncIntervals: Map<string, Timer> = new Map()
   private syncCallbacks: Set<(events: CalendarEvent[]) => void> = new Set()
+  private activeSyncs: Set<string> = new Set() // Track active syncs to prevent duplicates
 
   static getInstance(): CalendarService {
     if (!CalendarService.instance) {
@@ -76,8 +77,9 @@ export class CalendarService {
       
       let response: Response | null = null
       let lastError: Error | null = null
+      let success = false
       
-      for (let i = 0; i < corsProxies.length; i++) {
+      for (let i = 0; i < corsProxies.length && !success; i++) {
         const proxyUrl = corsProxies[i]
         console.log(`📅 Trying CORS proxy ${i + 1}/${corsProxies.length}:`, proxyUrl)
         
@@ -106,6 +108,7 @@ export class CalendarService {
                 statusText: response.statusText,
                 headers: response.headers
               })
+              success = true
               break
             } else {
               console.warn(`⚠️ CORS proxy ${i + 1} returned non-calendar data:`, responseText.substring(0, 200))
@@ -125,38 +128,9 @@ export class CalendarService {
         }
       }
       
-      if (!response) {
-        // Try direct access as last resort
-        console.log('📅 All CORS proxies failed, trying direct access...')
-        try {
-          response = await fetch(fetchUrl, {
-            method: 'GET',
-            headers: {
-              'Accept': 'text/calendar, application/calendar+json, */*',
-              'User-Agent': 'Mozilla/5.0 (compatible; WeeklyHuddle/1.0)'
-            },
-            mode: 'cors'
-          })
-          
-          if (response.ok) {
-            const responseText = await response.text()
-            if (responseText.includes('BEGIN:VCALENDAR') || responseText.includes('VEVENT')) {
-              console.log('✅ Direct access succeeded')
-              response = new Response(responseText, {
-                status: response.status,
-                statusText: response.statusText,
-                headers: response.headers
-              })
-            } else {
-              throw new Error('Direct access returned non-calendar data')
-            }
-          } else {
-            throw new Error(`Direct access failed: ${response.status}`)
-          }
-        } catch (directError) {
-          console.warn('⚠️ Direct access also failed:', directError)
-          throw lastError || new Error('All CORS proxies and direct access failed')
-        }
+      if (!success || !response) {
+        console.error('❌ All CORS proxies failed')
+        throw lastError || new Error('All CORS proxies failed')
       }
 
       const icalData = await response.text()
@@ -987,6 +961,16 @@ export class CalendarService {
     weekStart: Date,
     onEventsUpdate: (events: CalendarEvent[]) => void
   ): Promise<void> {
+    const syncKey = `${icalUrl}_${googleCalendarEnabled}_${weekStart.toISOString().split('T')[0]}`
+    
+    // Prevent duplicate syncs
+    if (this.activeSyncs.has(syncKey)) {
+      console.log('📅 Sync already in progress, skipping...')
+      return
+    }
+    
+    this.activeSyncs.add(syncKey)
+    
     try {
       console.log('📅 Performing calendar sync...')
       
@@ -1011,6 +995,9 @@ export class CalendarService {
       console.log(`📅 Sync completed: ${allEvents.length} events found`)
     } catch (error) {
       console.error('❌ Error during calendar sync:', error)
+    } finally {
+      // Remove from active syncs
+      this.activeSyncs.delete(syncKey)
     }
   }
   
