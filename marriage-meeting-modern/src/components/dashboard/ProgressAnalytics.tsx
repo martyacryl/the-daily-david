@@ -102,25 +102,25 @@ export const ProgressAnalytics: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-100">
+      <div className="min-h-screen flex items-center justify-center bg-slate-100 dark:bg-gray-900">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-slate-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading analytics...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-slate-600 dark:border-slate-300 mx-auto mb-4"></div>
+          <p className="text-gray-600 dark:text-gray-300">Loading analytics...</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-slate-100 pt-24 sm:pt-16">
+    <div className="min-h-screen bg-slate-100 dark:bg-gray-900 pt-24 sm:pt-16">
       <div className="container mx-auto px-4 py-8">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-8"
         >
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">Marriage Progress Analytics</h1>
-          <p className="text-lg text-gray-600 mb-4">
+          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">Marriage Progress Analytics</h1>
+          <p className="text-lg text-gray-600 dark:text-gray-300 mb-4">
             "But grow in the grace and knowledge of our Lord and Savior Jesus Christ" - 2 Peter 3:18
           </p>
         </motion.div>
@@ -131,12 +131,12 @@ export const ProgressAnalytics: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
           >
-            <Card className="p-6 text-center bg-white shadow-sm">
-              <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Target className="w-6 h-6 text-slate-600" />
+            <Card className="p-6 text-center bg-white dark:bg-gray-800 shadow-sm">
+              <div className="w-12 h-12 bg-slate-100 dark:bg-slate-700 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Target className="w-6 h-6 text-slate-600 dark:text-slate-300" />
               </div>
-              <h3 className="text-2xl font-bold text-gray-900">{analyticsData.completionRate}%</h3>
-              <p className="text-gray-600">Completion Rate</p>
+              <h3 className="text-2xl font-bold text-gray-900 dark:text-white">{analyticsData.completionRate}%</h3>
+              <p className="text-gray-600 dark:text-gray-300">Completion Rate</p>
             </Card>
           </motion.div>
 
@@ -145,12 +145,12 @@ export const ProgressAnalytics: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
           >
-            <Card className="p-6 text-center bg-white shadow-sm">
-              <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <CheckCircle className="w-6 h-6 text-slate-600" />
+            <Card className="p-6 text-center bg-white dark:bg-gray-800 shadow-sm">
+              <div className="w-12 h-12 bg-slate-100 dark:bg-slate-700 rounded-full flex items-center justify-center mx-auto mb-4">
+                <CheckCircle className="w-6 h-6 text-slate-600 dark:text-slate-300" />
               </div>
-              <h3 className="text-2xl font-bold text-gray-900">{analyticsData.goalAchievement}%</h3>
-              <p className="text-gray-600">Goal Achievement</p>
+              <h3 className="text-2xl font-bold text-gray-900 dark:text-white">{analyticsData.goalAchievement}%</h3>
+              <p className="text-gray-600 dark:text-gray-300">Goal Achievement</p>
             </Card>
           </motion.div>
 
@@ -159,12 +159,12 @@ export const ProgressAnalytics: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
           >
-            <Card className="p-6 text-center bg-white shadow-sm">
-              <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Mountain className="w-6 h-6 text-slate-600" />
+            <Card className="p-6 text-center bg-white dark:bg-gray-800 shadow-sm">
+              <div className="w-12 h-12 bg-slate-100 dark:bg-slate-700 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Mountain className="w-6 h-6 text-slate-600 dark:text-slate-300" />
               </div>
-              <h3 className="text-2xl font-bold text-gray-900">{analyticsData.prayerConsistency}%</h3>
-              <p className="text-gray-600">Prayer Consistency</p>
+              <h3 className="text-2xl font-bold text-gray-900 dark:text-white">{analyticsData.prayerConsistency}%</h3>
+              <p className="text-gray-600 dark:text-gray-300">Prayer Consistency</p>
             </Card>
           </motion.div>
 
@@ -173,12 +173,12 @@ export const ProgressAnalytics: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
           >
-            <Card className="p-6 text-center bg-white shadow-sm">
-              <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Users className="w-6 h-6 text-slate-600" />
+            <Card className="p-6 text-center bg-white dark:bg-gray-800 shadow-sm">
+              <div className="w-12 h-12 bg-slate-100 dark:bg-slate-700 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Users className="w-6 h-6 text-slate-600 dark:text-slate-300" />
               </div>
-              <h3 className="text-2xl font-bold text-gray-900">{analyticsData.taskCompletion}%</h3>
-              <p className="text-gray-600">Task Completion</p>
+              <h3 className="text-2xl font-bold text-gray-900 dark:text-white">{analyticsData.taskCompletion}%</h3>
+              <p className="text-gray-600 dark:text-gray-300">Task Completion</p>
             </Card>
           </motion.div>
 
@@ -187,12 +187,12 @@ export const ProgressAnalytics: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 }}
           >
-            <Card className="p-6 text-center bg-white shadow-sm">
-              <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Flame className="w-6 h-6 text-slate-600" />
+            <Card className="p-6 text-center bg-white dark:bg-gray-800 shadow-sm">
+              <div className="w-12 h-12 bg-slate-100 dark:bg-slate-700 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Flame className="w-6 h-6 text-slate-600 dark:text-slate-300" />
               </div>
-              <h3 className="text-2xl font-bold text-gray-900">{analyticsData.meetingStreak}</h3>
-              <p className="text-gray-600">Meeting Streak</p>
+              <h3 className="text-2xl font-bold text-gray-900 dark:text-white">{analyticsData.meetingStreak}</h3>
+              <p className="text-gray-600 dark:text-gray-300">Meeting Streak</p>
             </Card>
           </motion.div>
 
@@ -201,12 +201,12 @@ export const ProgressAnalytics: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6 }}
           >
-            <Card className="p-6 text-center bg-white shadow-sm">
-              <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <TrendingUp className="w-6 h-6 text-slate-600" />
+            <Card className="p-6 text-center bg-white dark:bg-gray-800 shadow-sm">
+              <div className="w-12 h-12 bg-slate-100 dark:bg-slate-700 rounded-full flex items-center justify-center mx-auto mb-4">
+                <TrendingUp className="w-6 h-6 text-slate-600 dark:text-slate-300" />
               </div>
-              <h3 className="text-2xl font-bold text-gray-900">{analyticsData.consistencyScore}%</h3>
-              <p className="text-gray-600">Consistency Score</p>
+              <h3 className="text-2xl font-bold text-gray-900 dark:text-white">{analyticsData.consistencyScore}%</h3>
+              <p className="text-gray-600 dark:text-gray-300">Consistency Score</p>
             </Card>
           </motion.div>
         </div>
@@ -216,40 +216,40 @@ export const ProgressAnalytics: React.FC = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
         >
-          <Card className="p-6 bg-white shadow-sm">
-            <h3 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
-              <TrendingUp className="w-5 h-5 text-slate-600" />
+          <Card className="p-6 bg-white dark:bg-gray-800 shadow-sm">
+            <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+              <TrendingUp className="w-5 h-5 text-slate-600 dark:text-slate-300" />
               Insights & Recommendations
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-3">
-                <h4 className="font-medium text-gray-900">Strengths</h4>
-                <ul className="space-y-2 text-sm text-gray-600">
+                <h4 className="font-medium text-gray-900 dark:text-white">Strengths</h4>
+                <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-300">
                   {analyticsData.completionRate > 50 && (
                     <li className="flex items-center gap-2">
-                      <div className="w-2 h-2 bg-slate-500 rounded-full"></div>
+                      <div className="w-2 h-2 bg-slate-500 dark:bg-slate-400 rounded-full"></div>
                       Great consistency in weekly planning
                     </li>
                   )}
                   {analyticsData.prayerConsistency > 0 && (
                     <li className="flex items-center gap-2">
-                      <div className="w-2 h-2 bg-slate-500 rounded-full"></div>
+                      <div className="w-2 h-2 bg-slate-500 dark:bg-slate-400 rounded-full"></div>
                       Strong prayer and spiritual focus
                     </li>
                   )}
                 </ul>
               </div>
               <div className="space-y-3">
-                <h4 className="font-medium text-gray-900">Growth Areas</h4>
-                <ul className="space-y-2 text-sm text-gray-600">
+                <h4 className="font-medium text-gray-900 dark:text-white">Growth Areas</h4>
+                <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-300">
                   {analyticsData.completionRate < 50 && (
                     <li className="flex items-center gap-2">
-                      <div className="w-2 h-2 bg-slate-500 rounded-full"></div>
+                      <div className="w-2 h-2 bg-slate-500 dark:bg-slate-400 rounded-full"></div>
                       Focus on completing all weekly sections
                     </li>
                   )}
                   <li className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-slate-500 rounded-full"></div>
+                    <div className="w-2 h-2 bg-slate-500 dark:bg-slate-400 rounded-full"></div>
                     Consider adding more prayer requests
                   </li>
                 </ul>
