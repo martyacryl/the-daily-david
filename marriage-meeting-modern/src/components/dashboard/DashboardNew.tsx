@@ -816,7 +816,7 @@ export const DashboardNew: React.FC = () => {
               </h3>
               <div className="space-y-3">
                 {insights.urgentTodos.map((todo, index) => (
-                  <div key={index} className="flex items-start gap-2 p-2 sm:p-3 bg-slate-50 rounded-lg">
+                  <div key={index} className="flex items-start gap-2 p-2 sm:p-3 bg-slate-50 dark:bg-slate-700 rounded-lg">
                     <div className={`w-3 h-3 rounded-full mt-1 ${
                       todo.priority === 'high' ? 'bg-slate-600' : 
                       todo.priority === 'medium' ? 'bg-slate-500' : 'bg-slate-400'
@@ -826,9 +826,9 @@ export const DashboardNew: React.FC = () => {
                       <div className="flex items-center gap-2 mt-1 text-xs sm:text-sm text-gray-600 dark:text-gray-300 flex-wrap">
                         {todo.priority && (
                           <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                            todo.priority === 'high' ? 'bg-slate-200 text-slate-700' :
-                            todo.priority === 'medium' ? 'bg-slate-100 text-slate-600 dark:text-slate-300' :
-                            'bg-slate-50 text-slate-500'
+                            todo.priority === 'high' ? 'bg-slate-200 dark:bg-slate-600 text-slate-700 dark:text-slate-200' :
+                            todo.priority === 'medium' ? 'bg-slate-100 dark:bg-slate-600 text-slate-600 dark:text-slate-300' :
+                            'bg-slate-50 dark:bg-slate-600 text-slate-500 dark:text-slate-400'
                           }`}>
                             {todo.priority}
                           </span>
@@ -907,10 +907,10 @@ export const DashboardNew: React.FC = () => {
               </h3>
               <div className="space-y-3">
                 {insights.overdueTasks.length > 0 && (
-                  <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg border border-slate-200">
+                  <div className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-600">
                     <AlertTriangle className="w-5 h-5 text-slate-600 dark:text-slate-300 flex-shrink-0" />
                     <div>
-                      <p className="font-medium text-slate-800">
+                      <p className="font-medium text-slate-800 dark:text-slate-200">
                         {insights.overdueTasks.length} task{insights.overdueTasks.length > 1 ? 's' : ''} overdue
                       </p>
                       <p className="text-sm text-slate-600 dark:text-slate-300">Check your task list to catch up</p>
@@ -918,10 +918,10 @@ export const DashboardNew: React.FC = () => {
                   </div>
                 )}
                 {insights.highPriorityTasks.length > 0 && (
-                  <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg border border-slate-200">
+                  <div className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-600">
                     <Zap className="w-5 h-5 text-slate-600 dark:text-slate-300 flex-shrink-0" />
                     <div>
-                      <p className="font-medium text-slate-800">
+                      <p className="font-medium text-slate-800 dark:text-slate-200">
                         {insights.highPriorityTasks.length} high priority task{insights.highPriorityTasks.length > 1 ? 's' : ''} need attention
                       </p>
                       <p className="text-sm text-slate-600 dark:text-slate-300">Focus on these first today</p>
