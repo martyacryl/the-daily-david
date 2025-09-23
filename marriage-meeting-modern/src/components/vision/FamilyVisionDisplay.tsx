@@ -197,33 +197,33 @@ export const FamilyVisionDisplay: React.FC = () => {
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div>
-                <h3 className="text-base font-medium mb-3 flex items-center gap-2 text-slate-700">
+                <h3 className="text-base font-medium mb-3 flex items-center gap-2 text-slate-700 dark:text-slate-300">
                   <Heart className="w-4 h-4" />
                   Our Values
                 </h3>
                 <div className="flex flex-wrap gap-2">
                   {vision?.values.map((value, index) => (
-                    <span key={index} className="px-3 py-1 bg-slate-100 rounded-full text-sm text-slate-600">
+                    <span key={index} className="px-3 py-1 bg-slate-100 dark:bg-slate-700 rounded-full text-sm text-slate-600 dark:text-slate-300">
                       {value}
                     </span>
                   )) || (
-                    <span className="text-slate-500">Values will be displayed here</span>
+                    <span className="text-slate-500 dark:text-slate-400">Values will be displayed here</span>
                   )}
                 </div>
               </div>
               
               <div>
-                <h3 className="text-base font-medium mb-3 flex items-center gap-2 text-slate-700">
+                <h3 className="text-base font-medium mb-3 flex items-center gap-2 text-slate-700 dark:text-slate-300">
                   <Target className="w-4 h-4" />
                   Our Priorities
                 </h3>
                 <div className="flex flex-wrap gap-2">
                   {vision?.priorities.map((priority, index) => (
-                    <span key={index} className="px-3 py-1 bg-slate-100 rounded-full text-sm text-slate-600">
+                    <span key={index} className="px-3 py-1 bg-slate-100 dark:bg-slate-700 rounded-full text-sm text-slate-600 dark:text-slate-300">
                       {priority}
                     </span>
                   )) || (
-                    <span className="text-slate-500">Priorities will be displayed here</span>
+                    <span className="text-slate-500 dark:text-slate-400">Priorities will be displayed here</span>
                   )}
                 </div>
               </div>
@@ -312,29 +312,29 @@ export const FamilyVisionDisplay: React.FC = () => {
       >
         <Card className="p-6">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
               <Target className="w-6 h-6 text-purple-600" />
               Annual Goals Progress
             </h2>
             <div className="text-right">
               <div className="text-3xl font-bold text-purple-600">{overallProgress}%</div>
-              <div className="text-sm text-gray-600">Overall Progress</div>
+              <div className="text-sm text-gray-600 dark:text-gray-300">Overall Progress</div>
             </div>
           </div>
           
           {/* Progress Overview */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-            <div className="text-center p-4 bg-slate-50 rounded-lg">
-              <div className="text-2xl font-bold text-slate-600">{completedGoals}</div>
-              <div className="text-sm text-slate-700">Completed</div>
+            <div className="text-center p-4 bg-slate-50 dark:bg-slate-700 rounded-lg">
+              <div className="text-2xl font-bold text-slate-600 dark:text-slate-300">{completedGoals}</div>
+              <div className="text-sm text-slate-700 dark:text-slate-300">Completed</div>
             </div>
-            <div className="text-center p-4 bg-purple-50 rounded-lg">
-              <div className="text-2xl font-bold text-purple-600">{inProgressGoals}</div>
-              <div className="text-sm text-purple-700">In Progress</div>
+            <div className="text-center p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+              <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">{inProgressGoals}</div>
+              <div className="text-sm text-purple-700 dark:text-purple-300">In Progress</div>
             </div>
-            <div className="text-center p-4 bg-slate-100 rounded-lg">
-              <div className="text-2xl font-bold text-slate-600">{annualGoals.length - completedGoals - inProgressGoals}</div>
-              <div className="text-sm text-slate-700">Not Started</div>
+            <div className="text-center p-4 bg-slate-100 dark:bg-slate-700 rounded-lg">
+              <div className="text-2xl font-bold text-slate-600 dark:text-slate-300">{annualGoals.length - completedGoals - inProgressGoals}</div>
+              <div className="text-sm text-slate-700 dark:text-slate-300">Not Started</div>
             </div>
           </div>
           
@@ -346,28 +346,28 @@ export const FamilyVisionDisplay: React.FC = () => {
               const priorityClass = priorityColors[goal.priority]
               
               return (
-                <div key={goal.id} className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
+                <div key={goal.id} className="flex items-center gap-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
                   <div className={`w-10 h-10 bg-gradient-to-r ${colorClass} rounded-lg flex items-center justify-center`}>
                     <Icon className="w-5 h-5 text-white" />
                   </div>
                   
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
-                      <h3 className="font-semibold text-gray-900">{goal.title}</h3>
+                      <h3 className="font-semibold text-gray-900 dark:text-white">{goal.title}</h3>
                       <span className={`px-2 py-1 text-xs font-medium rounded-full border ${priorityClass}`}>
                         {goal.priority}
                       </span>
                     </div>
                     <div className="flex items-center gap-4">
                       <div className="flex-1">
-                        <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div className="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-2">
                           <div 
                             className={`bg-gradient-to-r ${colorClass} h-2 rounded-full transition-all duration-300`}
                             style={{ width: `${goal.progress}%` }}
                           ></div>
                         </div>
                       </div>
-                      <span className="text-sm font-medium text-gray-600">{goal.progress}%</span>
+                      <span className="text-sm font-medium text-gray-600 dark:text-gray-300">{goal.progress}%</span>
                     </div>
                   </div>
                   
@@ -393,21 +393,21 @@ export const FamilyVisionDisplay: React.FC = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
       >
-        <Card className="p-6 bg-gradient-to-r from-slate-50 to-slate-100 border-l-4 border-purple-500">
-          <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
+        <Card className="p-6 bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-700 dark:to-slate-800 border-l-4 border-purple-500">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
             <ArrowRight className="w-5 h-5 text-purple-600" />
             This Week's Focus
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <h4 className="font-medium text-gray-800 mb-2">From Your Vision:</h4>
-              <p className="text-sm text-gray-600">
+              <h4 className="font-medium text-gray-800 dark:text-gray-200 mb-2">From Your Vision:</h4>
+              <p className="text-sm text-gray-600 dark:text-gray-300">
                 {quarterlyTheme?.focus || 'Focus on your quarterly theme and work toward your annual goals.'}
               </p>
             </div>
             <div>
-              <h4 className="font-medium text-gray-800 mb-2">Action Items:</h4>
-              <ul className="text-sm text-gray-600 space-y-1">
+              <h4 className="font-medium text-gray-800 dark:text-gray-200 mb-2">Action Items:</h4>
+              <ul className="text-sm text-gray-600 dark:text-gray-300 space-y-1">
                 <li>• Review quarterly goals in weekly meeting</li>
                 <li>• Set 2-3 specific actions for the week</li>
                 <li>• Check progress on annual goals</li>

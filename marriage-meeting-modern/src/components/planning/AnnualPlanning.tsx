@@ -264,8 +264,8 @@ export const AnnualPlanning: React.FC = () => {
     <div className="space-y-8">
       {/* Header */}
       <div className="text-center mb-8">
-        <h1 className="text-4xl font-bold text-gray-900 mb-2">Annual Planning</h1>
-        <p className="text-lg text-gray-600 mb-6">
+        <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">Annual Planning</h1>
+        <p className="text-lg text-gray-600 dark:text-gray-300 mb-6">
           Set your vision, themes, and goals for the year ahead
         </p>
       </div>
@@ -276,12 +276,12 @@ export const AnnualPlanning: React.FC = () => {
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center gap-3">
             <Compass className="w-6 h-6 text-slate-600" />
-            <h2 className="text-xl font-medium text-slate-800">Our Family Vision</h2>
+            <h2 className="text-xl font-medium text-slate-800 dark:text-slate-200">Our Family Vision</h2>
           </div>
           <Button 
             variant="outline" 
             onClick={() => setIsEditingVision(true)}
-            className="text-slate-700 border-slate-300 hover:bg-slate-50 hover:text-slate-800"
+            className="text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-slate-800 dark:hover:text-slate-200"
           >
             <Edit3 className="w-4 h-4 mr-2" />
             Edit
@@ -290,25 +290,25 @@ export const AnnualPlanning: React.FC = () => {
         
         {vision ? (
           <div>
-            <h3 className="text-lg font-medium mb-3 text-slate-800">{vision.title}</h3>
-            <p className="text-base mb-6 leading-relaxed text-slate-600">{vision.statement}</p>
+            <h3 className="text-lg font-medium mb-3 text-slate-800 dark:text-slate-200">{vision.title}</h3>
+            <p className="text-base mb-6 leading-relaxed text-slate-600 dark:text-slate-300">{vision.statement}</p>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <h4 className="font-medium mb-2 text-slate-700">Our Values</h4>
+                <h4 className="font-medium mb-2 text-slate-700 dark:text-slate-300">Our Values</h4>
                 <div className="flex flex-wrap gap-2">
                   {vision.values.map((value, index) => (
-                    <span key={index} className="px-3 py-1 bg-slate-100 rounded-full text-sm text-slate-600">
+                    <span key={index} className="px-3 py-1 bg-slate-100 dark:bg-slate-700 rounded-full text-sm text-slate-600 dark:text-slate-300">
                       {value}
                     </span>
                   ))}
                 </div>
               </div>
               <div>
-                <h4 className="font-medium mb-2 text-slate-700">Our Priorities</h4>
+                <h4 className="font-medium mb-2 text-slate-700 dark:text-slate-300">Our Priorities</h4>
                 <div className="flex flex-wrap gap-2">
                   {vision.priorities.map((priority, index) => (
-                    <span key={index} className="px-3 py-1 bg-slate-100 rounded-full text-sm text-slate-600">
+                    <span key={index} className="px-3 py-1 bg-slate-100 dark:bg-slate-700 rounded-full text-sm text-slate-600 dark:text-slate-300">
                       {priority}
                     </span>
                   ))}
@@ -318,7 +318,7 @@ export const AnnualPlanning: React.FC = () => {
           </div>
         ) : (
           <div className="text-center py-8">
-            <p className="text-lg mb-4">No vision statement yet</p>
+            <p className="text-lg mb-4 text-gray-600 dark:text-gray-300">No vision statement yet</p>
             <Button onClick={() => setIsEditingVision(true)}>
               Create Our Vision
             </Button>
@@ -330,7 +330,7 @@ export const AnnualPlanning: React.FC = () => {
       {/* Edit Vision Form */}
       {isEditingVision && (
         <Card className="p-6">
-          <h3 className="text-lg font-semibold mb-4">Edit Vision Statement</h3>
+          <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Edit Vision Statement</h3>
           <div className="space-y-4">
             <Input
               label="Vision Title"
@@ -339,17 +339,17 @@ export const AnnualPlanning: React.FC = () => {
               placeholder="e.g., Our Family Vision 2025"
             />
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Vision Statement</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Vision Statement</label>
               <textarea
                 value={newVision.statement || ''}
                 onChange={(e) => setNewVision({ ...newVision, statement: e.target.value })}
                 placeholder="Describe your family's vision for the year..."
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 h-24"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 h-24 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
               />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Values (comma-separated)</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Values (comma-separated)</label>
                 <Input
                   value={newVision.values?.join(', ') || ''}
                   onChange={(e) => setNewVision({ ...newVision, values: e.target.value.split(',').map(v => v.trim()).filter(v => v) })}
@@ -357,7 +357,7 @@ export const AnnualPlanning: React.FC = () => {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Priorities (comma-separated)</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Priorities (comma-separated)</label>
                 <Input
                   value={newVision.priorities?.join(', ') || ''}
                   onChange={(e) => setNewVision({ ...newVision, priorities: e.target.value.split(',').map(p => p.trim()).filter(p => p) })}
@@ -376,17 +376,17 @@ export const AnnualPlanning: React.FC = () => {
       {/* Annual Theme */}
       {themes.length > 0 && (
         <Card className={`p-6 bg-gradient-to-br from-slate-50/60 to-purple-50/40 border-slate-200/60`}>
-          <h2 className="text-2xl font-bold mb-2 text-slate-800">{themes[0].theme}</h2>
-          <p className="text-lg mb-3 text-slate-700">{themes[0].focus}</p>
+          <h2 className="text-2xl font-bold mb-2 text-slate-800 dark:text-slate-200">{themes[0].theme}</h2>
+          <p className="text-lg mb-3 text-slate-700 dark:text-slate-300">{themes[0].focus}</p>
           {themes[0].verse && (
-            <p className="text-sm italic text-slate-600 mb-4">"{themes[0].verse}"</p>
+            <p className="text-sm italic text-slate-600 dark:text-slate-400 mb-4">"{themes[0].verse}"</p>
           )}
           
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {Object.entries(themes[0].quarterlyThemes).map(([quarter, theme]) => (
               <div key={quarter} className="text-center">
-                <h4 className="font-semibold text-sm text-slate-700">{quarter}</h4>
-                <p className="text-sm text-slate-600">{theme}</p>
+                <h4 className="font-semibold text-sm text-slate-700 dark:text-slate-300">{quarter}</h4>
+                <p className="text-sm text-slate-600 dark:text-slate-400">{theme}</p>
               </div>
             ))}
           </div>
@@ -399,47 +399,47 @@ export const AnnualPlanning: React.FC = () => {
           <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-3">
             <Target className="w-6 h-6 text-slate-600" />
           </div>
-          <h3 className="text-2xl font-bold text-gray-900">{stats.totalGoals}</h3>
-          <p className="text-sm text-gray-600">Total Goals</p>
+          <h3 className="text-2xl font-bold text-gray-900 dark:text-white">{stats.totalGoals}</h3>
+          <p className="text-sm text-gray-600 dark:text-gray-300">Total Goals</p>
         </Card>
         
         <Card className="p-4 text-center">
           <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-3">
             <CheckCircle className="w-6 h-6 text-slate-600" />
           </div>
-          <h3 className="text-2xl font-bold text-gray-900">{stats.completedGoals}</h3>
-          <p className="text-sm text-gray-600">Completed</p>
+          <h3 className="text-2xl font-bold text-gray-900 dark:text-white">{stats.completedGoals}</h3>
+          <p className="text-sm text-gray-600 dark:text-gray-300">Completed</p>
         </Card>
         
         <Card className="p-4 text-center">
           <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3">
             <TrendingUp className="w-6 h-6 text-purple-600" />
           </div>
-          <h3 className="text-2xl font-bold text-gray-900">{stats.inProgressGoals}</h3>
-          <p className="text-sm text-gray-600">In Progress</p>
+          <h3 className="text-2xl font-bold text-gray-900 dark:text-white">{stats.inProgressGoals}</h3>
+          <p className="text-sm text-gray-600 dark:text-gray-300">In Progress</p>
         </Card>
         
         <Card className="p-4 text-center">
           <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3">
             <Calendar className="w-6 h-6 text-purple-600" />
           </div>
-          <h3 className="text-2xl font-bold text-gray-900">{stats.avgProgress}%</h3>
-          <p className="text-sm text-gray-600">Avg Progress</p>
+          <h3 className="text-2xl font-bold text-gray-900 dark:text-white">{stats.avgProgress}%</h3>
+          <p className="text-sm text-gray-600 dark:text-gray-300">Avg Progress</p>
         </Card>
         
         <Card className="p-4 text-center">
           <div className="w-12 h-12 bg-slate-200 rounded-full flex items-center justify-center mx-auto mb-3">
             <Award className="w-6 h-6 text-slate-700" />
           </div>
-          <h3 className="text-2xl font-bold text-gray-900">{stats.criticalGoals}</h3>
-          <p className="text-sm text-gray-600">Critical</p>
+          <h3 className="text-2xl font-bold text-gray-900 dark:text-white">{stats.criticalGoals}</h3>
+          <p className="text-sm text-gray-600 dark:text-gray-300">Critical</p>
         </Card>
       </div>
 
       {/* Goals Section */}
       <div className="space-y-6">
         <div className="flex justify-between items-center">
-          <h2 className="text-2xl font-bold text-gray-900">Annual Goals</h2>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Annual Goals</h2>
           <Button onClick={() => setIsAddingGoal(true)} className="flex items-center gap-2">
             <Plus className="w-4 h-4" />
             Add Goal
@@ -449,7 +449,7 @@ export const AnnualPlanning: React.FC = () => {
         {/* Add Goal Form */}
         {isAddingGoal && (
           <Card className="p-6">
-            <h3 className="text-lg font-semibold mb-4">Add New Annual Goal</h3>
+            <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Add New Annual Goal</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Input
                 label="Goal Title"
@@ -458,11 +458,11 @@ export const AnnualPlanning: React.FC = () => {
                 placeholder="e.g., Strengthen Our Marriage Foundation"
               />
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Category</label>
                 <select
                   value={newGoal.category || 'marriage'}
                   onChange={(e) => setNewGoal({ ...newGoal, category: e.target.value as any })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                 >
                   <option value="marriage">Marriage</option>
                   <option value="family">Family</option>
@@ -475,12 +475,12 @@ export const AnnualPlanning: React.FC = () => {
                 </select>
               </div>
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Description</label>
                 <textarea
                   value={newGoal.description || ''}
                   onChange={(e) => setNewGoal({ ...newGoal, description: e.target.value })}
                   placeholder="Describe your goal in detail..."
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 h-20"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 h-20 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                 />
               </div>
               <Input
@@ -490,11 +490,11 @@ export const AnnualPlanning: React.FC = () => {
                 onChange={(e) => setNewGoal({ ...newGoal, targetDate: e.target.value })}
               />
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Priority</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Priority</label>
                 <select
                   value={newGoal.priority || 'medium'}
                   onChange={(e) => setNewGoal({ ...newGoal, priority: e.target.value as any })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                 >
                   <option value="critical">Critical</option>
                   <option value="high">High</option>
@@ -503,21 +503,21 @@ export const AnnualPlanning: React.FC = () => {
                 </select>
               </div>
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Vision (Why this goal matters)</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Vision (Why this goal matters)</label>
                 <textarea
                   value={newGoal.vision || ''}
                   onChange={(e) => setNewGoal({ ...newGoal, vision: e.target.value })}
                   placeholder="Why is this goal important to your family's vision?"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 h-16"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 h-16 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                 />
               </div>
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Impact (What this will achieve)</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Impact (What this will achieve)</label>
                 <textarea
                   value={newGoal.impact || ''}
                   onChange={(e) => setNewGoal({ ...newGoal, impact: e.target.value })}
                   placeholder="What positive impact will achieving this goal have?"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 h-16"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 h-16 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                 />
               </div>
             </div>

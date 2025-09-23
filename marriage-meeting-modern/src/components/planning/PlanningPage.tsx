@@ -50,7 +50,7 @@ export const PlanningPage: React.FC = () => {
       </div>
 
       {/* Planning Hierarchy */}
-      <Card className="p-8 bg-gradient-to-r from-slate-50 to-purple-50">
+      <Card className="p-8 bg-gradient-to-r from-slate-50 to-purple-50 dark:from-slate-700 dark:to-purple-800">
         <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 text-center">Planning Hierarchy</h2>
         <div className="space-y-6">
           {/* Annual Level */}
@@ -62,7 +62,7 @@ export const PlanningPage: React.FC = () => {
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Annual Planning</h3>
               <p className="text-gray-600 dark:text-gray-300">Vision, themes, and major goals for the year</p>
             </div>
-            <div className="text-sm text-gray-500">
+            <div className="text-sm text-gray-500 dark:text-gray-400">
               <div>• Family vision statement</div>
               <div>• Annual theme & verse</div>
               <div>• 3-5 major goals</div>
@@ -71,7 +71,7 @@ export const PlanningPage: React.FC = () => {
           </div>
 
           <div className="flex justify-center">
-            <ArrowRight className="w-6 h-6 text-gray-400" />
+            <ArrowRight className="w-6 h-6 text-gray-400 dark:text-gray-500" />
           </div>
 
           {/* Quarterly Level */}
@@ -83,7 +83,7 @@ export const PlanningPage: React.FC = () => {
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Quarterly Planning</h3>
               <p className="text-gray-600 dark:text-gray-300">Specific goals and themes for each quarter</p>
             </div>
-            <div className="text-sm text-gray-500">
+            <div className="text-sm text-gray-500 dark:text-gray-400">
               <div>• Quarterly theme</div>
               <div>• 2-3 quarterly goals</div>
               <div>• Monthly milestones</div>
@@ -92,7 +92,7 @@ export const PlanningPage: React.FC = () => {
           </div>
 
           <div className="flex justify-center">
-            <ArrowRight className="w-6 h-6 text-gray-400" />
+            <ArrowRight className="w-6 h-6 text-gray-400 dark:text-gray-500" />
           </div>
 
           {/* Monthly Level */}
@@ -104,7 +104,7 @@ export const PlanningPage: React.FC = () => {
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Monthly Planning</h3>
               <p className="text-gray-600 dark:text-gray-300">Focus areas and actions for the month</p>
             </div>
-            <div className="text-sm text-gray-500">
+            <div className="text-sm text-gray-500 dark:text-gray-400">
               <div>• Monthly focus areas</div>
               <div>• Specific actions</div>
               <div>• Weekly priorities</div>
@@ -113,7 +113,7 @@ export const PlanningPage: React.FC = () => {
           </div>
 
           <div className="flex justify-center">
-            <ArrowRight className="w-6 h-6 text-gray-400" />
+            <ArrowRight className="w-6 h-6 text-gray-400 dark:text-gray-500" />
           </div>
 
           {/* Weekly Level */}
@@ -125,7 +125,7 @@ export const PlanningPage: React.FC = () => {
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Weekly Meetings</h3>
               <p className="text-gray-600 dark:text-gray-300">Daily actions and progress tracking</p>
             </div>
-            <div className="text-sm text-gray-500">
+            <div className="text-sm text-gray-500 dark:text-gray-400">
               <div>• Weekly action items</div>
               <div>• Progress updates</div>
               <div>• Goal check-ins</div>
@@ -144,7 +144,7 @@ export const PlanningPage: React.FC = () => {
           </h3>
           <div className="space-y-4">
             <div className="flex items-start gap-3">
-              <div className="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+              <div className="w-6 h-6 bg-purple-100 dark:bg-purple-900 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
                 <span className="text-xs font-bold text-purple-600">1</span>
               </div>
               <div>
@@ -154,7 +154,7 @@ export const PlanningPage: React.FC = () => {
             </div>
             
             <div className="flex items-start gap-3">
-              <div className="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+              <div className="w-6 h-6 bg-purple-100 dark:bg-purple-900 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
                 <span className="text-xs font-bold text-purple-600">2</span>
               </div>
               <div>
@@ -164,7 +164,7 @@ export const PlanningPage: React.FC = () => {
             </div>
             
             <div className="flex items-start gap-3">
-              <div className="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+              <div className="w-6 h-6 bg-purple-100 dark:bg-purple-900 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
                 <span className="text-xs font-bold text-purple-600">3</span>
               </div>
               <div>
@@ -174,7 +174,7 @@ export const PlanningPage: React.FC = () => {
             </div>
             
             <div className="flex items-start gap-3">
-              <div className="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+              <div className="w-6 h-6 bg-purple-100 dark:bg-purple-900 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
                 <span className="text-xs font-bold text-purple-600">4</span>
               </div>
               <div>
@@ -192,7 +192,7 @@ export const PlanningPage: React.FC = () => {
           </h3>
           <div className="space-y-4">
             <div className="flex items-start gap-3">
-              <div className="w-6 h-6 bg-slate-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+              <div className="w-6 h-6 bg-slate-100 dark:bg-slate-700 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
                 <span className="text-xs font-bold text-slate-600">1</span>
               </div>
               <div>
@@ -202,7 +202,7 @@ export const PlanningPage: React.FC = () => {
             </div>
             
             <div className="flex items-start gap-3">
-              <div className="w-6 h-6 bg-slate-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+              <div className="w-6 h-6 bg-slate-100 dark:bg-slate-700 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
                 <span className="text-xs font-bold text-slate-600">2</span>
               </div>
               <div>
@@ -212,7 +212,7 @@ export const PlanningPage: React.FC = () => {
             </div>
             
             <div className="flex items-start gap-3">
-              <div className="w-6 h-6 bg-slate-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+              <div className="w-6 h-6 bg-slate-100 dark:bg-slate-700 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
                 <span className="text-xs font-bold text-slate-600">3</span>
               </div>
               <div>
@@ -222,7 +222,7 @@ export const PlanningPage: React.FC = () => {
             </div>
             
             <div className="flex items-start gap-3">
-              <div className="w-6 h-6 bg-slate-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+              <div className="w-6 h-6 bg-slate-100 dark:bg-slate-700 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
                 <span className="text-xs font-bold text-slate-600">4</span>
               </div>
               <div>
@@ -235,14 +235,14 @@ export const PlanningPage: React.FC = () => {
       </div>
 
       {/* Quarterly Review Process */}
-      <Card className="p-6 bg-gradient-to-r from-purple-50 to-pink-50">
+      <Card className="p-6 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20">
         <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
           <Calendar className="w-5 h-5 text-purple-600" />
           Quarterly Review Process
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div>
-            <h4 className="font-semibold text-gray-800 mb-2">Week 1: Assessment</h4>
+            <h4 className="font-semibold text-gray-800 dark:text-gray-200 mb-2">Week 1: Assessment</h4>
             <ul className="space-y-1 text-sm text-gray-600 dark:text-gray-300">
               <li>• Review quarterly goals</li>
               <li>• Assess progress made</li>
@@ -251,7 +251,7 @@ export const PlanningPage: React.FC = () => {
             </ul>
           </div>
           <div>
-            <h4 className="font-semibold text-gray-800 mb-2">Week 2: Planning</h4>
+            <h4 className="font-semibold text-gray-800 dark:text-gray-200 mb-2">Week 2: Planning</h4>
             <ul className="space-y-1 text-sm text-gray-600 dark:text-gray-300">
               <li>• Set next quarter's goals</li>
               <li>• Choose quarterly theme</li>
@@ -260,7 +260,7 @@ export const PlanningPage: React.FC = () => {
             </ul>
           </div>
           <div>
-            <h4 className="font-semibold text-gray-800 mb-2">Week 3: Integration</h4>
+            <h4 className="font-semibold text-gray-800 dark:text-gray-200 mb-2">Week 3: Integration</h4>
             <ul className="space-y-1 text-sm text-gray-600 dark:text-gray-300">
               <li>• Update weekly meeting agenda</li>
               <li>• Set up tracking systems</li>
@@ -279,35 +279,35 @@ export const PlanningPage: React.FC = () => {
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <h4 className="font-semibold text-gray-800 mb-3">Keep It Simple</h4>
+            <h4 className="font-semibold text-gray-800 dark:text-gray-200 mb-3">Keep It Simple</h4>
             <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-300">
               <li className="flex items-start gap-2">
-                <span className="text-slate-500 mt-1">✓</span>
+                <span className="text-slate-500 dark:text-slate-400 mt-1">✓</span>
                 Start with 2-3 annual goals maximum
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-slate-500 mt-1">✓</span>
+                <span className="text-slate-500 dark:text-slate-400 mt-1">✓</span>
                 Focus on one quarterly goal per month
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-slate-500 mt-1">✓</span>
+                <span className="text-slate-500 dark:text-slate-400 mt-1">✓</span>
                 Keep weekly actions specific and achievable
               </li>
             </ul>
           </div>
           <div>
-            <h4 className="font-semibold text-gray-800 mb-3">Stay Flexible</h4>
+            <h4 className="font-semibold text-gray-800 dark:text-gray-200 mb-3">Stay Flexible</h4>
             <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-300">
               <li className="flex items-start gap-2">
-                <span className="text-purple-500 mt-1">✓</span>
+                <span className="text-purple-500 dark:text-purple-400 mt-1">✓</span>
                 Adjust goals as life changes
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-purple-500 mt-1">✓</span>
+                <span className="text-purple-500 dark:text-purple-400 mt-1">✓</span>
                 Don't be afraid to pause or modify
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-purple-500 mt-1">✓</span>
+                <span className="text-purple-500 dark:text-purple-400 mt-1">✓</span>
                 Focus on progress, not perfection
               </li>
             </ul>
@@ -350,7 +350,7 @@ export const PlanningPage: React.FC = () => {
                     className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-medium transition-all duration-200 ${
                       activeTab === tab.id
                         ? 'bg-slate-600 text-white shadow-lg'
-                        : 'text-slate-600 hover:bg-slate-100 hover:text-slate-800'
+                        : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-slate-800 dark:hover:text-slate-200'
                     }`}
                   >
                     <Icon className="w-4 h-4" />
