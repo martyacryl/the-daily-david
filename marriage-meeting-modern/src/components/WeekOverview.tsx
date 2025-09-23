@@ -150,17 +150,17 @@ export const WeekOverview: React.FC<WeekOverviewProps> = ({
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: index * 0.05 }}
                         className={`
-                          relative bg-white rounded-lg border-2 p-3 sm:p-4 cursor-pointer transition-all duration-200 
+                          relative bg-white dark:bg-gray-800 rounded-lg border-2 p-3 sm:p-4 cursor-pointer transition-all duration-200 
                           min-h-[80px] sm:min-h-[100px] lg:min-h-[120px]
                           select-none touch-manipulation
                           active:scale-95 active:shadow-lg
                           ${expandedDay === dayKey 
-                            ? 'border-blue-400 bg-blue-50 shadow-lg' 
+                            ? 'border-blue-400 bg-blue-50 dark:bg-blue-900/20 shadow-lg' 
                             : isToday 
-                              ? 'border-slate-400 bg-slate-50 shadow-md' 
+                              ? 'border-slate-400 bg-slate-50 dark:bg-slate-700 shadow-md' 
                               : hasItems 
-                                ? 'border-slate-200 hover:border-slate-300 hover:shadow-sm active:bg-slate-50' 
-                                : 'border-gray-100 hover:border-gray-200 active:bg-gray-50'
+                                ? 'border-slate-200 dark:border-slate-600 hover:border-slate-300 dark:hover:border-slate-500 hover:shadow-sm active:bg-slate-50 dark:active:bg-slate-700' 
+                                : 'border-gray-100 dark:border-gray-700 hover:border-gray-200 dark:hover:border-gray-600 active:bg-gray-50 dark:active:bg-gray-700'
                           }
                         `}
                         onClick={() => {
@@ -171,21 +171,21 @@ export const WeekOverview: React.FC<WeekOverviewProps> = ({
                         <div className="flex items-center justify-between mb-2 sm:mb-3">
                           <div>
                             <div className={`text-sm sm:text-base font-semibold ${
-                              isToday ? 'text-slate-800' : 'text-gray-600'
+                              isToday ? 'text-slate-800 dark:text-slate-200' : 'text-gray-600 dark:text-gray-300'
                             }`}>
                               {day.dayName}
                             </div>
                             <div className={`text-xs ${
-                              isToday ? 'text-slate-700 font-medium' : 'text-gray-500'
+                              isToday ? 'text-slate-700 dark:text-slate-300 font-medium' : 'text-gray-500 dark:text-gray-400'
                             }`}>
                               {day.month} {day.dayNumber}
                             </div>
                           </div>
                           <div className="flex items-center gap-2">
                             {isToday && (
-                              <div className="w-2 h-2 bg-slate-600 rounded-full"></div>
+                              <div className="w-2 h-2 bg-slate-600 dark:bg-slate-400 rounded-full"></div>
                             )}
-                            <div className="text-xs text-gray-400 sm:hidden">
+                            <div className="text-xs text-gray-400 dark:text-gray-500 sm:hidden">
                               Tap
                             </div>
                           </div>
@@ -197,21 +197,21 @@ export const WeekOverview: React.FC<WeekOverviewProps> = ({
                             scheduleItems.map((item, itemIndex) => (
                               <div
                                 key={itemIndex}
-                                className="text-xs sm:text-sm text-gray-700 bg-slate-100 rounded px-2 py-1.5 break-words"
+                                className="text-xs sm:text-sm text-gray-700 dark:text-gray-200 bg-slate-100 dark:bg-slate-700 rounded px-2 py-1.5 break-words"
                                 title={item}
                               >
                                 {truncateText(item, 25)}
                               </div>
                             ))
                           ) : (
-                            <div className="text-xs text-gray-400 italic text-center py-2">
+                            <div className="text-xs text-gray-400 dark:text-gray-500 italic text-center py-2">
                               No plans
                             </div>
                           )}
                           
                           {/* Show "more" indicator if there are more than 3 items */}
                           {weekData?.schedule?.[dayKey]?.filter(item => item && item.trim() !== '').length > 3 && (
-                            <div className="text-xs text-slate-500 text-center mt-1 flex items-center justify-center gap-1">
+                            <div className="text-xs text-slate-500 dark:text-slate-400 text-center mt-1 flex items-center justify-center gap-1">
                               <MoreHorizontal className="w-3 h-3" />
                               +{weekData.schedule[dayKey].filter(item => item && item.trim() !== '').length - 3} more
                             </div>
@@ -224,7 +224,7 @@ export const WeekOverview: React.FC<WeekOverviewProps> = ({
 
 
                 {/* Action Buttons */}
-                <div className="flex flex-wrap gap-3 pt-4 border-t border-slate-200">
+                <div className="flex flex-wrap gap-3 pt-4 border-t border-slate-200 dark:border-slate-600">
                   <Button
                     variant="outline"
                     size="sm"
@@ -259,17 +259,17 @@ export const WeekOverview: React.FC<WeekOverviewProps> = ({
                 <motion.div
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="mt-4 p-4 bg-blue-50 rounded-lg border-2 border-blue-200"
+                  className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border-2 border-blue-200 dark:border-blue-700"
                 >
                   <div className="flex items-center justify-between mb-3">
-                    <h4 className="text-lg font-semibold text-gray-900">
+                    <h4 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
                       {expandedDay} - Full Schedule
                     </h4>
                     <Button
                       variant="ghost"
                       size="sm"
                       onClick={() => setExpandedDay(null)}
-                      className="text-gray-500 hover:text-gray-700"
+                      className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
                     >
                       <X className="w-4 h-4" />
                     </Button>
@@ -284,19 +284,19 @@ export const WeekOverview: React.FC<WeekOverviewProps> = ({
                         filteredItems.map((item, index) => (
                           <div
                             key={index}
-                            className="p-3 bg-white rounded-lg border border-slate-200 text-sm text-gray-800"
+                            className="p-3 bg-white dark:bg-gray-800 rounded-lg border border-slate-200 dark:border-slate-600 text-sm text-gray-800 dark:text-gray-200"
                           >
                             {item}
                           </div>
                         ))
                       ) : (
-                        <p className="text-gray-500 italic text-center py-4">
+                        <p className="text-gray-500 dark:text-gray-400 italic text-center py-4">
                           No schedule items for this day
                         </p>
                       )
                     })()}
                   </div>
-                  <div className="mt-4 pt-3 border-t border-slate-200">
+                  <div className="mt-4 pt-3 border-t border-slate-200 dark:border-slate-600">
                     <Button
                       variant="outline"
                       size="sm"
