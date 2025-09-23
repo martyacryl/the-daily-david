@@ -31,7 +31,7 @@ export class CalendarService {
   private cache: Map<string, CalendarEvent[]> = new Map()
   private cacheExpiry: Map<string, number> = new Map()
   private syncIntervals: Map<string, Timer> = new Map()
-  private syncCallbacks: Set<(events: CalendarEvent[]) => void> = new Set()
+  private syncCallbacks: Map<string, Set<(events: CalendarEvent[]) => void>> = new Map()
   private activeSyncs: Set<string> = new Set() // Track active syncs to prevent duplicates
 
   static getInstance(): CalendarService {
@@ -879,11 +879,15 @@ export class CalendarService {
     weekStart: Date,
     onEventsUpdate: (events: CalendarEvent[]) => void
   ): void {
-    // Only clear existing sync for this specific configuration, not all callbacks
-    this.stopAutoSyncForConfig(icalUrl, googleCalendarEnabled, syncFrequency)
+    const syncKey = `${icalUrl}_${googleCalendarEnabled}_${syncFrequency}`
     
-    // Add callback
-    this.syncCallbacks.add(onEventsUpdate)
+    // Get or create callback set for this sync configuration
+    if (!this.syncCallbacks.has(syncKey)) {
+      this.syncCallbacks.set(syncKey, new Set())
+    }
+    
+    // Add callback to the set
+    this.syncCallbacks.get(syncKey)!.add(onEventsUpdate)
     
     // Calculate sync interval in milliseconds
     const getSyncInterval = () => {
@@ -896,32 +900,41 @@ export class CalendarService {
     }
     
     const syncInterval = getSyncInterval()
-    const syncKey = `${icalUrl}_${googleCalendarEnabled}_${syncFrequency}`
     
     console.log(`📅 Starting auto-sync for ${syncFrequency} (every ${syncInterval / 1000 / 60} minutes)`)
     console.log('📅 Sync URL:', icalUrl)
     console.log('📅 Google Calendar enabled:', googleCalendarEnabled)
     
-    // Initial sync
-    console.log('📅 Performing initial sync...')
-    this.performSync(icalUrl, googleCalendarEnabled, weekStart, onEventsUpdate)
-    
-    // Set up recurring sync - but only if we don't already have events
-    const interval = setInterval(() => {
-      console.log('📅 Auto-sync triggered for', syncFrequency, 'sync')
-      // Check if we already have events in cache before attempting sync
-      const cacheKey = `ical_${icalUrl}_${weekStart.toISOString().split('T')[0]}`
-      const cachedEvents = this.cache.get(cacheKey)
+    // Only create a new interval if one doesn't already exist for this configuration
+    if (!this.syncIntervals.has(syncKey)) {
+      console.log('📅 Creating new sync interval for:', syncKey)
       
-      if (cachedEvents && cachedEvents.length > 0) {
-        console.log('📅 Skipping auto-sync - already have events cached')
-        return
-      }
+      // Initial sync
+      console.log('📅 Performing initial sync...')
+      this.performSync(icalUrl, googleCalendarEnabled, syncFrequency, weekStart, onEventsUpdate)
       
-      this.performSync(icalUrl, googleCalendarEnabled, weekStart, onEventsUpdate)
-    }, syncInterval)
-    
-    this.syncIntervals.set(syncKey, interval)
+      // Set up recurring sync - but only if we don't already have events
+      const interval = setInterval(() => {
+        console.log('📅 Auto-sync triggered for', syncFrequency, 'sync')
+        // Check if we already have events in cache before attempting sync
+        const cacheKey = `ical_${icalUrl}_${weekStart.toISOString().split('T')[0]}`
+        const cachedEvents = this.cache.get(cacheKey)
+        
+        if (cachedEvents && cachedEvents.length > 0) {
+          console.log('📅 Skipping auto-sync - already have events cached')
+          return
+        }
+        
+        this.performSync(icalUrl, googleCalendarEnabled, syncFrequency, weekStart, onEventsUpdate)
+      }, syncInterval)
+      
+      this.syncIntervals.set(syncKey, interval)
+    } else {
+      console.log('📅 Sync interval already exists for:', syncKey)
+      // Still perform initial sync for new callback
+      console.log('📅 Performing initial sync for new callback...')
+      this.performSync(icalUrl, googleCalendarEnabled, syncFrequency, weekStart, onEventsUpdate)
+    }
   }
   
   /**
@@ -944,6 +957,36 @@ export class CalendarService {
   }
 
   /**
+   * Remove a specific callback from auto-sync
+   */
+  removeCallback(
+    icalUrl: string, 
+    googleCalendarEnabled: boolean, 
+    syncFrequency: 'realtime' | 'hourly' | 'daily',
+    callback: (events: CalendarEvent[]) => void
+  ): void {
+    try {
+      const syncKey = `${icalUrl}_${googleCalendarEnabled}_${syncFrequency}`
+      const callbacks = this.syncCallbacks.get(syncKey)
+      if (callbacks) {
+        callbacks.delete(callback)
+        // If no more callbacks, stop the interval
+        if (callbacks.size === 0) {
+          const interval = this.syncIntervals.get(syncKey)
+          if (interval) {
+            clearInterval(interval)
+            this.syncIntervals.delete(syncKey)
+          }
+          this.syncCallbacks.delete(syncKey)
+          console.log('📅 Auto-sync stopped - no more callbacks for:', syncKey)
+        }
+      }
+    } catch (error) {
+      console.error('📅 Error removing callback:', error)
+    }
+  }
+
+  /**
    * Stop automatic calendar sync for all configurations with this URL
    */
   stopAutoSync(icalUrl: string): void {
@@ -955,8 +998,12 @@ export class CalendarService {
       }
     }
     
-    // Remove callbacks
-    this.syncCallbacks.clear()
+    // Remove callbacks for this URL
+    for (const [key] of this.syncCallbacks.entries()) {
+      if (key.startsWith(icalUrl)) {
+        this.syncCallbacks.delete(key)
+      }
+    }
     
     console.log('📅 Auto-sync stopped for URL:', icalUrl)
   }
@@ -967,6 +1014,7 @@ export class CalendarService {
   private async performSync(
     icalUrl: string,
     googleCalendarEnabled: boolean,
+    syncFrequency: 'realtime' | 'hourly' | 'daily',
     weekStart: Date,
     onEventsUpdate: (events: CalendarEvent[]) => void
   ): Promise<void> {
@@ -999,8 +1047,12 @@ export class CalendarService {
       
       // Only notify callbacks if we have events to prevent overwriting existing data
       if (allEvents.length > 0) {
-        // Notify all callbacks
-        this.syncCallbacks.forEach(callback => callback(allEvents))
+        // Notify callbacks for this specific sync configuration
+        const configSyncKey = `${icalUrl}_${googleCalendarEnabled}_${syncFrequency}`
+        const callbacks = this.syncCallbacks.get(configSyncKey)
+        if (callbacks) {
+          callbacks.forEach(callback => callback(allEvents))
+        }
         onEventsUpdate(allEvents)
         console.log(`📅 Sync completed: ${allEvents.length} events found`)
       } else {
@@ -1020,6 +1072,7 @@ export class CalendarService {
   async forceSync(
     icalUrl: string,
     googleCalendarEnabled: boolean,
+    syncFrequency: 'realtime' | 'hourly' | 'daily',
     weekStart: Date,
     onEventsUpdate: (events: CalendarEvent[]) => void
   ): Promise<void> {
@@ -1034,7 +1087,7 @@ export class CalendarService {
     }
     
     // Perform sync
-    await this.performSync(icalUrl, googleCalendarEnabled, weekStart, onEventsUpdate)
+    await this.performSync(icalUrl, googleCalendarEnabled, syncFrequency, weekStart, onEventsUpdate)
   }
 
   /**
