@@ -93,10 +93,10 @@ export const FamilyVisionBoard: React.FC<FamilyVisionBoardProps> = ({ className 
 
   const getTimeframeColor = (timeframe: string) => {
     switch (timeframe) {
-      case '1year': return 'text-slate-600 bg-slate-100'
-      case '5year': return 'text-purple-600 bg-purple-100'
-      case '10year': return 'text-slate-700 bg-slate-200'
-      default: return 'text-gray-600 bg-gray-100'
+      case '1year': return 'text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-700'
+      case '5year': return 'text-purple-600 dark:text-purple-400 bg-purple-100 dark:bg-purple-900/20'
+      case '10year': return 'text-slate-700 dark:text-slate-300 bg-slate-200 dark:bg-slate-600'
+      default: return 'text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-700'
     }
   }
 
@@ -114,7 +114,7 @@ export const FamilyVisionBoard: React.FC<FamilyVisionBoardProps> = ({ className 
       <Card className={`p-6 ${className}`}>
         <div className="flex items-center justify-center py-8">
           <div className="text-center">
-            <div className="w-8 h-8 border-4 border-slate-200 border-t-slate-600 rounded-full animate-spin mx-auto mb-4"></div>
+            <div className="w-8 h-8 border-4 border-slate-200 dark:border-slate-700 border-t-slate-600 dark:border-t-slate-300 rounded-full animate-spin mx-auto mb-4"></div>
             <p className="text-gray-500 dark:text-gray-400">Loading family vision...</p>
           </div>
         </div>
@@ -125,10 +125,10 @@ export const FamilyVisionBoard: React.FC<FamilyVisionBoardProps> = ({ className 
   return (
     <div className={`space-y-4 lg:space-y-6 ${className}`}>
       {/* Mission Statement */}
-      <Card className="p-4 lg:p-6 bg-gradient-to-br from-slate-50/30 to-purple-50/20 border-slate-200/30">
+      <Card className="p-4 lg:p-6 bg-gradient-to-br from-slate-50/30 to-purple-50/20 dark:from-slate-700/30 dark:to-purple-800/20 border-slate-200/30 dark:border-slate-600/30">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
           <div className="flex items-center gap-2">
-            <Home className="w-4 h-4 lg:w-5 lg:h-5 text-slate-600" />
+            <Home className="w-4 h-4 lg:w-5 lg:h-5 text-slate-600 dark:text-slate-300" />
             <h2 className="text-base lg:text-lg font-medium text-slate-800 dark:text-slate-200">Family Mission Statement</h2>
           </div>
           <Button
@@ -176,10 +176,10 @@ export const FamilyVisionBoard: React.FC<FamilyVisionBoardProps> = ({ className 
       </Card>
 
       {/* Core Values */}
-      <Card className="p-4 lg:p-6 bg-gradient-to-br from-slate-50/30 to-purple-50/20 border-slate-200/30">
+      <Card className="p-4 lg:p-6 bg-gradient-to-br from-slate-50/30 to-purple-50/20 dark:from-slate-700/30 dark:to-purple-800/20 border-slate-200/30 dark:border-slate-600/30">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
           <div className="flex items-center gap-2">
-            <Star className="w-4 h-4 lg:w-5 lg:h-5 text-slate-600" />
+            <Star className="w-4 h-4 lg:w-5 lg:h-5 text-slate-600 dark:text-slate-300" />
             <h2 className="text-base lg:text-lg font-medium text-slate-800 dark:text-slate-200">Core Values</h2>
           </div>
           <Button
@@ -241,10 +241,10 @@ export const FamilyVisionBoard: React.FC<FamilyVisionBoardProps> = ({ className 
       </Card>
 
       {/* Vision Goals */}
-      <Card className="p-4 lg:p-6 bg-gradient-to-br from-slate-50/30 to-purple-50/20 border-slate-200/30">
+      <Card className="p-4 lg:p-6 bg-gradient-to-br from-slate-50/30 to-purple-50/20 dark:from-slate-700/30 dark:to-purple-800/20 border-slate-200/30 dark:border-slate-600/30">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
           <div className="flex items-center gap-2">
-            <Target className="w-4 h-4 lg:w-5 lg:h-5 text-slate-600" />
+            <Target className="w-4 h-4 lg:w-5 lg:h-5 text-slate-600 dark:text-slate-300" />
             <h2 className="text-base lg:text-lg font-medium text-slate-800 dark:text-slate-200">Vision Goals</h2>
           </div>
           <Button

@@ -310,14 +310,14 @@ export const FamilyVisionDisplay: React.FC = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
       >
-        <Card className="p-6">
+        <Card className="p-6 bg-white dark:bg-gray-800">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-              <Target className="w-6 h-6 text-purple-600" />
+              <Target className="w-6 h-6 text-purple-600 dark:text-purple-400" />
               Annual Goals Progress
             </h2>
             <div className="text-right">
-              <div className="text-3xl font-bold text-purple-600">{overallProgress}%</div>
+              <div className="text-3xl font-bold text-purple-600 dark:text-purple-400">{overallProgress}%</div>
               <div className="text-sm text-gray-600 dark:text-gray-300">Overall Progress</div>
             </div>
           </div>
@@ -373,9 +373,9 @@ export const FamilyVisionDisplay: React.FC = () => {
                   
                   <div className="text-right">
                     <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                      goal.status === 'completed' ? 'bg-slate-100 text-slate-800' :
-                      goal.status === 'in-progress' ? 'bg-purple-100 text-purple-800' :
-                      'bg-slate-100 text-slate-800'
+                      goal.status === 'completed' ? 'bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-200' :
+                      goal.status === 'in-progress' ? 'bg-purple-100 dark:bg-purple-900/20 text-purple-800 dark:text-purple-200' :
+                      'bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-200'
                     }`}>
                       {goal.status.replace('-', ' ')}
                     </span>
@@ -393,9 +393,9 @@ export const FamilyVisionDisplay: React.FC = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
       >
-        <Card className="p-6 bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-700 dark:to-slate-800 border-l-4 border-purple-500">
+        <Card className="p-6 bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-700 dark:to-slate-800 border-l-4 border-purple-500 dark:border-purple-400">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
-            <ArrowRight className="w-5 h-5 text-purple-600" />
+            <ArrowRight className="w-5 h-5 text-purple-600 dark:text-purple-400" />
             This Week's Focus
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
