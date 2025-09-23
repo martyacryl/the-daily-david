@@ -549,7 +549,7 @@ export const AnnualPlanning: React.FC = () => {
                         <Icon className="w-5 h-5 text-white" />
                       </div>
                       <div>
-                        <h3 className="font-semibold text-gray-900">{goal.title}</h3>
+                        <h3 className="font-semibold text-gray-900 dark:text-white">{goal.title}</h3>
                         <span className={`inline-block px-2 py-1 text-xs font-medium rounded-full border ${priorityClass}`}>
                           {goal.priority} priority
                         </span>
@@ -565,30 +565,30 @@ export const AnnualPlanning: React.FC = () => {
                     </div>
                   </div>
                   
-                  <p className="text-gray-600 text-sm mb-4">{goal.description}</p>
+                  <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">{goal.description}</p>
                   
                   {/* Vision & Impact */}
                   {goal.vision && (
-                    <div className="mb-4 p-3 bg-slate-50 rounded-lg">
-                      <h4 className="text-sm font-medium text-slate-800 mb-1">Vision</h4>
-                      <p className="text-xs text-slate-700">{goal.vision}</p>
+                    <div className="mb-4 p-3 bg-slate-50 dark:bg-slate-700 rounded-lg">
+                      <h4 className="text-sm font-medium text-slate-800 dark:text-slate-200 mb-1">Vision</h4>
+                      <p className="text-xs text-slate-700 dark:text-slate-300">{goal.vision}</p>
                     </div>
                   )}
                   
                   {goal.impact && (
-                    <div className="mb-4 p-3 bg-purple-50 rounded-lg">
-                      <h4 className="text-sm font-medium text-purple-800 mb-1">Impact</h4>
-                      <p className="text-xs text-purple-700">{goal.impact}</p>
+                    <div className="mb-4 p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+                      <h4 className="text-sm font-medium text-purple-800 dark:text-purple-200 mb-1">Impact</h4>
+                      <p className="text-xs text-purple-700 dark:text-purple-300">{goal.impact}</p>
                     </div>
                   )}
                   
                   {/* Progress Bar */}
                   <div className="mb-4">
-                    <div className="flex justify-between text-sm text-gray-600 mb-1">
+                    <div className="flex justify-between text-sm text-gray-600 dark:text-gray-300 mb-1">
                       <span>Progress</span>
                       <span>{goal.progress}%</span>
                     </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div className="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-2">
                       <div 
                         className={`bg-gradient-to-r ${colorClass} h-2 rounded-full transition-all duration-300`}
                         style={{ width: `${goal.progress}%` }}
@@ -598,26 +598,26 @@ export const AnnualPlanning: React.FC = () => {
                   
                   {/* Quarterly Breakdown */}
                   <div className="space-y-2">
-                    <h4 className="text-sm font-medium text-gray-700">Quarterly Breakdown</h4>
+                      <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">Quarterly Breakdown</h4>
                     {Object.entries(goal.quarterlyBreakdown).map(([quarter, milestones]) => (
                       <div key={quarter} className="text-xs">
-                        <span className="font-medium text-gray-600">{quarter}:</span>
+                        <span className="font-medium text-gray-600 dark:text-gray-400">{quarter}:</span>
                         <ul className="ml-2 mt-1 space-y-1">
                           {milestones.map((milestone, index) => (
-                            <li key={index} className="text-gray-500">• {milestone}</li>
+                            <li key={index} className="text-gray-500 dark:text-gray-400">• {milestone}</li>
                           ))}
                         </ul>
                       </div>
                     ))}
                   </div>
                   
-                  <div className="mt-4 pt-4 border-t border-gray-100">
-                    <div className="flex justify-between items-center text-xs text-gray-500">
+                  <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
+                    <div className="flex justify-between items-center text-xs text-gray-500 dark:text-gray-400">
                       <span>Target: {goal.targetDate}</span>
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        goal.status === 'completed' ? 'bg-slate-100 text-slate-800' :
-                        goal.status === 'in-progress' ? 'bg-purple-100 text-purple-800' :
-                        'bg-slate-100 text-slate-800'
+                        goal.status === 'completed' ? 'bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-200' :
+                        goal.status === 'in-progress' ? 'bg-purple-100 dark:bg-purple-900/20 text-purple-800 dark:text-purple-200' :
+                        'bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-200'
                       }`}>
                         {goal.status.replace('-', ' ')}
                       </span>
@@ -632,11 +632,11 @@ export const AnnualPlanning: React.FC = () => {
 
       {/* Integration Guide */}
       <Card className="p-6 bg-gradient-to-r from-slate-50 to-slate-100">
-        <h2 className="text-xl font-bold text-gray-900 mb-4">How This Guides Your Planning</h2>
+        <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">How This Guides Your Planning</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div>
-            <h3 className="font-semibold text-gray-800 mb-2">Annual → Quarterly</h3>
-            <ul className="space-y-2 text-sm text-gray-600">
+            <h3 className="font-semibold text-gray-800 dark:text-gray-200 mb-2">Annual → Quarterly</h3>
+            <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-300">
               <li className="flex items-start gap-2">
                 <ArrowRight className="w-4 h-4 text-purple-500 mt-0.5 flex-shrink-0" />
                 Break annual goals into quarterly milestones
@@ -652,8 +652,8 @@ export const AnnualPlanning: React.FC = () => {
             </ul>
           </div>
           <div>
-            <h3 className="font-semibold text-gray-800 mb-2">Quarterly → Monthly</h3>
-            <ul className="space-y-2 text-sm text-gray-600">
+            <h3 className="font-semibold text-gray-800 dark:text-gray-200 mb-2">Quarterly → Monthly</h3>
+            <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-300">
               <li className="flex items-start gap-2">
                 <ArrowRight className="w-4 h-4 text-slate-500 mt-0.5 flex-shrink-0" />
                 Focus on 2-3 quarterly goals per month
@@ -669,8 +669,8 @@ export const AnnualPlanning: React.FC = () => {
             </ul>
           </div>
           <div>
-            <h3 className="font-semibold text-gray-800 mb-2">Monthly → Weekly</h3>
-            <ul className="space-y-2 text-sm text-gray-600">
+            <h3 className="font-semibold text-gray-800 dark:text-gray-200 mb-2">Monthly → Weekly</h3>
+            <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-300">
               <li className="flex items-start gap-2">
                 <ArrowRight className="w-4 h-4 text-purple-500 mt-0.5 flex-shrink-0" />
                 Set weekly actions toward monthly goals
