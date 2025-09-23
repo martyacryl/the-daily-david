@@ -360,7 +360,7 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
           </div>
 
           {/* Family Creed Section */}
-          <div className="bg-slate-50 border-b border-gray-200 dark:border-gray-700 p-3 lg:p-4">
+          <div className="bg-slate-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-3 lg:p-4">
             <FamilyCreedDisplay />
           </div>
 
