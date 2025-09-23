@@ -470,8 +470,8 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                           {count > 0 && (
                             <span className={`px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full text-xs font-medium flex-shrink-0 ${
                               isActive
-                                ? 'bg-slate-200 text-slate-800'
-                                : 'bg-gray-200 text-gray-600 dark:text-gray-300'
+                                ? 'bg-slate-200 dark:bg-slate-600 text-slate-800 dark:text-slate-200'
+                                : 'bg-gray-200 dark:bg-gray-600 text-gray-600 dark:text-gray-200'
                             }`}>
                               {count}
                             </span>
@@ -530,8 +530,8 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                           {count > 0 && (
                             <span className={`px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full text-xs font-medium flex-shrink-0 ${
                               isActive
-                                ? 'bg-slate-200 text-slate-800'
-                                : 'bg-gray-200 text-gray-600 dark:text-gray-300'
+                                ? 'bg-slate-200 dark:bg-slate-600 text-slate-800 dark:text-slate-200'
+                                : 'bg-gray-200 dark:bg-gray-600 text-gray-600 dark:text-gray-200'
                             }`}>
                               {count}
                             </span>
