@@ -988,11 +988,15 @@ export class CalendarService {
         allEvents.push(...googleEvents)
       }
       
-      // Notify all callbacks
-      this.syncCallbacks.forEach(callback => callback(allEvents))
-      onEventsUpdate(allEvents)
-      
-      console.log(`📅 Sync completed: ${allEvents.length} events found`)
+      // Only notify callbacks if we have events to prevent overwriting existing data
+      if (allEvents.length > 0) {
+        // Notify all callbacks
+        this.syncCallbacks.forEach(callback => callback(allEvents))
+        onEventsUpdate(allEvents)
+        console.log(`📅 Sync completed: ${allEvents.length} events found`)
+      } else {
+        console.log('📅 Sync completed: No events found, keeping existing events')
+      }
     } catch (error) {
       console.error('❌ Error during calendar sync:', error)
     } finally {
