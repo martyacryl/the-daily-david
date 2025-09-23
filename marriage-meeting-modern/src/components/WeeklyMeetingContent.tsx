@@ -165,7 +165,12 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
     // Cleanup on unmount or when settings change
     return () => {
       if (settings.calendar?.icalUrl) {
-        calendarService.stopAutoSync(settings.calendar.icalUrl)
+        calendarService.removeCallback(
+          settings.calendar.icalUrl,
+          settings.calendar.googleCalendarEnabled || false,
+          settings.calendar.syncFrequency || 'realtime',
+          handleEventsUpdate
+        )
       }
     }
   }, [settings.calendar?.icalUrl, settings.calendar?.googleCalendarEnabled, settings.calendar?.showCalendarEvents, settings.calendar?.syncFrequency, currentDate, updateCalendarEvents])

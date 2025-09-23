@@ -888,7 +888,7 @@ export class CalendarService {
     // Calculate sync interval in milliseconds
     const getSyncInterval = () => {
       switch (syncFrequency) {
-        case 'realtime': return 30 * 60 * 1000 // 30 minutes
+        case 'realtime': return 4 * 60 * 60 * 1000 // 4 hours (much less frequent)
         case 'hourly': return 60 * 60 * 1000 // 1 hour
         case 'daily': return 24 * 60 * 60 * 1000 // 24 hours
         default: return 60 * 60 * 1000 // Default to hourly
@@ -906,9 +906,18 @@ export class CalendarService {
     console.log('📅 Performing initial sync...')
     this.performSync(icalUrl, googleCalendarEnabled, weekStart, onEventsUpdate)
     
-    // Set up recurring sync
+    // Set up recurring sync - but only if we don't already have events
     const interval = setInterval(() => {
       console.log('📅 Auto-sync triggered for', syncFrequency, 'sync')
+      // Check if we already have events in cache before attempting sync
+      const cacheKey = `ical_${icalUrl}_${weekStart.toISOString().split('T')[0]}`
+      const cachedEvents = this.cache.get(cacheKey)
+      
+      if (cachedEvents && cachedEvents.length > 0) {
+        console.log('📅 Skipping auto-sync - already have events cached')
+        return
+      }
+      
       this.performSync(icalUrl, googleCalendarEnabled, weekStart, onEventsUpdate)
     }, syncInterval)
     

@@ -70,8 +70,7 @@ export const DailyFocusedMeeting: React.FC = () => {
     const [year, month, day] = mondayKey.split('-').map(Number)
     const weekStart = new Date(year, month - 1, day)
     
-    // Stop any existing sync and clear cache for this week
-    calendarService.stopAutoSync(settings.calendar.icalUrl)
+    // Clear cache for this week to ensure fresh data
     calendarService.clearCacheForWeek(settings.calendar.icalUrl, weekStart)
     
     // Start auto-sync if calendar events are enabled
@@ -136,7 +135,12 @@ export const DailyFocusedMeeting: React.FC = () => {
     // Cleanup function
     return () => {
       if (settings.calendar?.icalUrl) {
-        calendarService.stopAutoSync(settings.calendar.icalUrl)
+        calendarService.removeCallback(
+          settings.calendar.icalUrl,
+          settings.calendar.googleCalendarEnabled || false,
+          settings.calendar.syncFrequency || 'realtime',
+          handleEventsUpdate
+        )
       }
     }
   }, [settings.calendar?.icalUrl, settings.calendar?.googleCalendarEnabled, settings.calendar?.showCalendarEvents, settings.calendar?.syncFrequency, currentDate, updateCalendarEvents, weekData])
