@@ -632,11 +632,11 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                             <div key={`calendar-${index}`} className="flex gap-2 sm:gap-3 items-start">
                               <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-green-500 rounded-full mt-2 sm:mt-3 flex-shrink-0"></div>
                               <div className="flex-1">
-                                <div className="text-sm sm:text-base text-gray-800 font-medium">
+                                <div className="text-sm sm:text-base text-gray-800 dark:text-gray-200 font-medium">
                                   {calendarService.formatEventForDisplay(event)}
                                 </div>
                                 {event.location && (
-                                  <div className="text-xs text-gray-500 mt-1">
+                                  <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                                     📍 {event.location}
                                   </div>
                                 )}
@@ -649,7 +649,7 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                             <div key={`schedule-${index}`} className="flex gap-2 sm:gap-3 items-start">
                               <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-blue-500 rounded-full mt-2 sm:mt-3 flex-shrink-0"></div>
                               <div className="flex-1">
-                                <div className="text-sm sm:text-base text-gray-800 font-medium">
+                                <div className="text-sm sm:text-base text-gray-800 dark:text-gray-200 font-medium">
                                   {item}
                                 </div>
                               </div>
@@ -657,7 +657,7 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                           ))}
                           
                           {todayCalendarEvents.length === 0 && filteredSchedule.length === 0 && (
-                            <p className="text-gray-500 italic text-center py-4">No schedule items or events for today</p>
+                            <p className="text-gray-500 dark:text-gray-400 italic text-center py-4">No schedule items or events for today</p>
                           )}
                         </div>
                       )
@@ -1095,11 +1095,11 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                         <div key={`calendar-${index}`} className="flex gap-2 sm:gap-3 items-start">
                           <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-green-500 rounded-full mt-2 sm:mt-3 flex-shrink-0"></div>
                           <div className="flex-1">
-                            <div className="text-sm sm:text-base text-gray-800 font-medium">
+                            <div className="text-sm sm:text-base text-gray-800 dark:text-gray-200 font-medium">
                               {calendarService.formatEventForDisplay(event)}
                             </div>
                             {event.location && (
-                              <div className="text-xs text-gray-500 mt-1">
+                              <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                                 📍 {event.location}
                               </div>
                             )}
@@ -1112,7 +1112,7 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                         <div key={`schedule-${index}`} className="flex gap-2 sm:gap-3 items-start">
                           <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-blue-500 rounded-full mt-2 sm:mt-3 flex-shrink-0"></div>
                           <div className="flex-1">
-                            <div className="text-sm sm:text-base text-gray-800 font-medium">
+                            <div className="text-sm sm:text-base text-gray-800 dark:text-gray-200 font-medium">
                               {item}
                             </div>
                           </div>
@@ -1120,7 +1120,7 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                       ))}
                       
                       {todayCalendarEvents.length === 0 && filteredSchedule.length === 0 && (
-                        <p className="text-sm text-gray-500 italic p-3">No schedule items for today</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400 italic p-3">No schedule items for today</p>
                       )}
                     </div>
                   )
@@ -1235,11 +1235,11 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                     <div key={`calendar-${index}`} className="flex gap-2 sm:gap-3 items-start">
                       <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-green-500 rounded-full mt-2 sm:mt-3 flex-shrink-0"></div>
                       <div className="flex-1">
-                        <div className="text-sm sm:text-base text-gray-800 font-medium">
+                        <div className="text-sm sm:text-base text-gray-800 dark:text-gray-200 font-medium">
                           {calendarService.formatEventForDisplay(event)}
                         </div>
                         {event.location && (
-                          <div className="text-xs text-gray-500 mt-1">
+                          <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                             📍 {event.location}
                           </div>
                         )}
@@ -1252,7 +1252,7 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                     <div key={`schedule-${index}`} className="flex gap-2 sm:gap-3 items-start">
                       <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-blue-500 rounded-full mt-2 sm:mt-3 flex-shrink-0"></div>
                       <div className="flex-1">
-                        <div className="text-sm sm:text-base text-gray-800 font-medium">
+                        <div className="text-sm sm:text-base text-gray-800 dark:text-gray-200 font-medium">
                           {item}
                         </div>
                       </div>
@@ -1260,7 +1260,7 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                   ))}
                   
                   {todayCalendarEvents.length === 0 && filteredSchedule.length === 0 && (
-                    <p className="text-gray-500 italic text-center py-4">No schedule items or events for today</p>
+                    <p className="text-gray-500 dark:text-gray-400 italic text-center py-4">No schedule items or events for today</p>
                   )}
                 </div>
               )
