@@ -25,6 +25,7 @@ import {
   Eye,
   ChevronDown,
   ChevronUp,
+  ArrowLeft,
   Sun,
   Cloud,
   CloudRain,
@@ -308,8 +309,35 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
     
     // Handle special sections (spiritual, review) - these show their respective content
     if (['spiritual', 'review'].includes(activeSection)) {
-      console.log('🎯 Rendering sidebar content for special section:', activeSection)
-      return renderSidebarContent()
+      console.log('🎯 Rendering full content for special section:', activeSection)
+      return (
+        <div className="h-full flex flex-col">
+          {/* Header for spiritual section */}
+          {activeSection === 'spiritual' && (
+            <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-3 lg:p-4 lg:sticky lg:top-0 z-10">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Button
+                    onClick={() => setActiveSection('vision')}
+                    variant="outline"
+                    size="sm"
+                    className="text-gray-600 dark:text-gray-300 border-gray-300 dark:border-gray-600"
+                  >
+                    <ArrowLeft className="w-4 h-4 mr-2" />
+                    Back to Vision
+                  </Button>
+                  <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 dark:text-white">Spiritual Growth</h1>
+                </div>
+              </div>
+            </div>
+          )}
+          
+          {/* Full content area */}
+          <div className="flex-1 overflow-y-auto">
+            {renderSidebarContent()}
+          </div>
+        </div>
+      )
     }
 
     // Handle vision section - show three-column layout like home page
@@ -818,7 +846,11 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                   <Button
                     size="sm"
                     variant="outline"
-                    onClick={() => setActiveSection('prayers')}
+                    onClick={() => {
+                      setActiveSection('spiritual')
+                      // Navigate to prayer tab in spiritual section
+                      navigate('/daily?section=spiritual&tab=prayer')
+                    }}
                     className="w-full mt-3 text-purple-600 dark:text-purple-400 border-purple-200 dark:border-purple-600 hover:bg-purple-50 dark:hover:bg-purple-900/20"
                   >
                     Add Prayer Request
@@ -832,7 +864,11 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                     <Button
                       size="sm"
                       variant="outline"
-                      onClick={() => setActiveSection('prayers')}
+                      onClick={() => {
+                      setActiveSection('spiritual')
+                      // Navigate to prayer tab in spiritual section
+                      navigate('/daily?section=spiritual&tab=prayer')
+                    }}
                       className="w-full text-purple-600 border-purple-200 hover:bg-purple-50"
                     >
                       Add Prayer Request
@@ -1603,7 +1639,11 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                   <Button
                     size="sm"
                     variant="outline"
-                    onClick={() => setActiveSection('prayers')}
+                    onClick={() => {
+                      setActiveSection('spiritual')
+                      // Navigate to prayer tab in spiritual section
+                      navigate('/daily?section=spiritual&tab=prayer')
+                    }}
                     className="w-full justify-start text-pink-600 border-pink-200 hover:bg-slate-50"
                   >
                     <Heart className="w-4 h-4 mr-2" />
