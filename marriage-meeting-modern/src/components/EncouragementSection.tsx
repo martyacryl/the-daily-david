@@ -32,11 +32,11 @@ interface EncouragementSectionProps {
 }
 
 const noteTypes = [
-  { id: 'encouragement', label: 'Encouragement', icon: Heart, color: 'text-pink-600' },
-  { id: 'bible', label: 'Bible Verse', icon: BookOpen, color: 'text-blue-600' },
-  { id: 'reminder', label: 'Reminder', icon: Calendar, color: 'text-orange-600' },
-  { id: 'love', label: 'Love Note', icon: MessageCircle, color: 'text-red-600' },
-  { id: 'general', label: 'General', icon: Lightbulb, color: 'text-gray-600' }
+  { id: 'encouragement', label: 'Encouragement', icon: Heart, color: 'text-pink-600 dark:text-pink-400' },
+  { id: 'bible', label: 'Bible Verse', icon: BookOpen, color: 'text-blue-600 dark:text-blue-400' },
+  { id: 'reminder', label: 'Reminder', icon: Calendar, color: 'text-orange-600 dark:text-orange-400' },
+  { id: 'love', label: 'Love Note', icon: MessageCircle, color: 'text-red-600 dark:text-red-400' },
+  { id: 'general', label: 'General', icon: Lightbulb, color: 'text-gray-600 dark:text-gray-400' }
 ]
 
 export const EncouragementSection: React.FC<EncouragementSectionProps> = ({ 
@@ -133,9 +133,9 @@ export const EncouragementSection: React.FC<EncouragementSectionProps> = ({
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Heart className="w-5 h-5 text-pink-600" />
-          <h3 className="text-lg font-semibold text-gray-900">Encouragement</h3>
-          <span className="text-sm text-gray-500">({totalCount})</span>
+          <Heart className="w-5 h-5 text-pink-600 dark:text-pink-400" />
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Encouragement</h3>
+          <span className="text-sm text-gray-500 dark:text-gray-400">({totalCount})</span>
           {unreadCount > 0 && (
             <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-pink-100 dark:bg-pink-900/20 text-pink-800 dark:text-pink-200">
               {unreadCount} new
@@ -164,7 +164,7 @@ export const EncouragementSection: React.FC<EncouragementSectionProps> = ({
             <Card className="p-4 bg-pink-50 dark:bg-pink-900/20 border-pink-200 dark:border-pink-700">
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <h4 className="font-medium text-gray-900">Add Encouragement</h4>
+                  <h4 className="font-medium text-gray-900 dark:text-white">Add Encouragement</h4>
                   <Button
                     variant="outline"
                     size="sm"
@@ -179,7 +179,7 @@ export const EncouragementSection: React.FC<EncouragementSectionProps> = ({
 
                 {/* Note Type Selection */}
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-700">Type</label>
+                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Type</label>
                   <div className="flex flex-wrap gap-2">
                     {noteTypes.map((type) => {
                       const IconComponent = type.icon
@@ -203,7 +203,7 @@ export const EncouragementSection: React.FC<EncouragementSectionProps> = ({
 
                 {/* Note Text */}
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-700">Message</label>
+                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Message</label>
                   <Textarea
                     value={newNote.text}
                     onChange={(e) => setNewNote(prev => ({ ...prev, text: e.target.value }))}
@@ -211,7 +211,7 @@ export const EncouragementSection: React.FC<EncouragementSectionProps> = ({
                     className="min-h-[80px] resize-none"
                     maxLength={500}
                   />
-                  <div className="text-xs text-gray-500 text-right">
+                  <div className="text-xs text-gray-500 dark:text-gray-400 text-right">
                     {newNote.text.length}/500 characters
                   </div>
                 </div>
@@ -249,9 +249,9 @@ export const EncouragementSection: React.FC<EncouragementSectionProps> = ({
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="text-center py-8 text-gray-500"
+              className="text-center py-8 text-gray-500 dark:text-gray-400"
             >
-              <Heart className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+              <Heart className="w-12 h-12 mx-auto mb-3 text-gray-300 dark:text-gray-500" />
               <p className="text-lg font-medium mb-1">No encouragement yet</p>
               <p className="text-sm">Add your first note to encourage your spouse!</p>
             </motion.div>
@@ -280,7 +280,7 @@ export const EncouragementSection: React.FC<EncouragementSectionProps> = ({
                       <div className="space-y-3">
                         {/* Edit Form */}
                         <div className="flex items-center justify-between">
-                          <h4 className="font-medium text-gray-900">Edit Note</h4>
+                          <h4 className="font-medium text-gray-900 dark:text-white">Edit Note</h4>
                           <Button
                             variant="outline"
                             size="sm"
@@ -292,7 +292,7 @@ export const EncouragementSection: React.FC<EncouragementSectionProps> = ({
 
                         {/* Type Selection */}
                         <div className="space-y-2">
-                          <label className="text-sm font-medium text-gray-700">Type</label>
+                          <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Type</label>
                           <div className="flex flex-wrap gap-2">
                             {noteTypes.map((type) => {
                               const TypeIcon = type.icon
@@ -353,7 +353,7 @@ export const EncouragementSection: React.FC<EncouragementSectionProps> = ({
                             <span className={`text-sm font-medium ${typeInfo.color}`}>
                               {typeInfo.label}
                             </span>
-                            <span className="text-xs text-gray-500">
+                            <span className="text-xs text-gray-500 dark:text-gray-400">
                               {formatDate(note.createdAt)}
                             </span>
                             {!note.isRead ? (
@@ -389,7 +389,7 @@ export const EncouragementSection: React.FC<EncouragementSectionProps> = ({
 
                         {/* Note Content */}
                         <div className={`leading-relaxed whitespace-pre-wrap ${
-                          note.isRead ? 'text-gray-600' : 'text-gray-800'
+                          note.isRead ? 'text-gray-600 dark:text-gray-300' : 'text-gray-800 dark:text-white'
                         }`}>
                           {note.text}
                         </div>

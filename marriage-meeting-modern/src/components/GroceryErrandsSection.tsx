@@ -163,8 +163,8 @@ export const GroceryErrandsSection: React.FC<GroceryErrandsSectionProps> = ({ it
             <ShoppingCart className="w-6 h-6 text-green-600 dark:text-green-400" />
           </div>
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">Grocery & Errands</h2>
-            <p className="text-gray-600">Organize your shopping by store</p>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Grocery & Errands</h2>
+            <p className="text-gray-600 dark:text-gray-300">Organize your shopping by store</p>
           </div>
         </div>
 
@@ -177,7 +177,7 @@ export const GroceryErrandsSection: React.FC<GroceryErrandsSectionProps> = ({ it
 
         {/* Add New Store List */}
         <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-700 mb-2">Create a new store list</label>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Create a new store list</label>
           <div className="flex gap-2">
             <select
               key={settings.groceryStores.length}
@@ -224,7 +224,7 @@ export const GroceryErrandsSection: React.FC<GroceryErrandsSectionProps> = ({ it
                 value={customStore}
                 onChange={(e) => setCustomStore(e.target.value)}
                 placeholder="Enter store name"
-                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                 autoFocus
               />
               <Button
@@ -269,8 +269,8 @@ export const GroceryErrandsSection: React.FC<GroceryErrandsSectionProps> = ({ it
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
                   <Store className="w-5 h-5 text-green-600" />
-                  <h3 className="text-lg font-semibold text-gray-900">{storeList.storeName}</h3>
-                  <span className="text-sm text-gray-500">({storeList.items?.length || 0} items)</span>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{storeList.storeName}</h3>
+                  <span className="text-sm text-gray-500 dark:text-gray-400">({storeList.items?.length || 0} items)</span>
                 </div>
                 <Button
                   onClick={() => removeStoreList(storeList.storeId)}
@@ -323,7 +323,7 @@ export const GroceryErrandsSection: React.FC<GroceryErrandsSectionProps> = ({ it
                   value={newItemTexts[storeList.storeId] || ''}
                   onChange={(e) => setNewItemTexts(prev => ({ ...prev, [storeList.storeId]: e.target.value }))}
                   placeholder={`Add item to ${storeList.storeName}...`}
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
+                  className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm"
                   onKeyPress={(e) => e.key === 'Enter' && addItemToStore(storeList.storeId)}
                 />
                 <Button
@@ -341,8 +341,8 @@ export const GroceryErrandsSection: React.FC<GroceryErrandsSectionProps> = ({ it
         </div>
 
         {items.length === 0 && (
-          <div className="text-center py-12 text-gray-500">
-            <ShoppingCart className="w-12 h-12 mx-auto mb-4 text-gray-400" />
+          <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+            <ShoppingCart className="w-12 h-12 mx-auto mb-4 text-gray-400 dark:text-gray-500" />
             <p className="text-lg">No store lists yet</p>
             <p className="text-sm">Create a list for a store above to get started</p>
           </div>
