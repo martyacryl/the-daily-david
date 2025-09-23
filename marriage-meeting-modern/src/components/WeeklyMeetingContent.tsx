@@ -278,7 +278,10 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
                       value={activity}
                       onChange={(e) => {
                         onUpdateSchedule(day, index, e.target.value)
-                        // Save immediately when schedule is updated
+                        // Don't save on every keystroke - let the parent handle debounced saving
+                      }}
+                      onBlur={() => {
+                        // Save when user finishes editing
                         onSave()
                       }}
                       placeholder={`What's planned for ${day}?`}
@@ -290,7 +293,7 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
                       size="sm"
                       onClick={() => {
                         onRemoveScheduleLine(day, index)
-                        // Save immediately when schedule is removed
+                        // Save when schedule is removed
                         onSave()
                       }}
                       className="px-2 py-1 sm:px-3 sm:py-2 text-red-600 hover:bg-red-50 border-red-200 flex-shrink-0 text-xs sm:text-sm"

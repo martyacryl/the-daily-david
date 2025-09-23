@@ -888,7 +888,7 @@ export class CalendarService {
     // Calculate sync interval in milliseconds
     const getSyncInterval = () => {
       switch (syncFrequency) {
-        case 'realtime': return 5 * 60 * 1000 // 5 minutes
+        case 'realtime': return 30 * 60 * 1000 // 30 minutes
         case 'hourly': return 60 * 60 * 1000 // 1 hour
         case 'daily': return 24 * 60 * 60 * 1000 // 24 hours
         default: return 60 * 60 * 1000 // Default to hourly
