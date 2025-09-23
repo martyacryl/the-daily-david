@@ -564,6 +564,15 @@ app.get('/api/auth/verify', authenticateToken, async (req, res) => {
 })
 
 // Calendar proxy endpoint to handle CORS issues
+app.options('/api/calendar-proxy', (req, res) => {
+  res.set({
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+  })
+  res.sendStatus(200)
+})
+
 app.get('/api/calendar-proxy', async (req, res) => {
   try {
     const { url } = req.query
@@ -590,7 +599,13 @@ app.get('/api/calendar-proxy', async (req, res) => {
     const data = await response.text()
     console.log('📅 Calendar Proxy: Successfully fetched', data.length, 'characters')
     
-    res.set('Content-Type', 'text/calendar')
+    // Set CORS headers explicitly
+    res.set({
+      'Content-Type': 'text/calendar',
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+    })
     res.send(data)
   } catch (error) {
     console.error('📅 Calendar Proxy: Error:', error)
