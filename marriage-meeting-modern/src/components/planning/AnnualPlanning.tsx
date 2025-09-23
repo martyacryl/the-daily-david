@@ -271,7 +271,7 @@ export const AnnualPlanning: React.FC = () => {
       </div>
 
       {/* Vision Statement */}
-      <Card className="p-6 bg-gradient-to-br from-slate-50 to-slate-100 border-slate-200 relative overflow-hidden">
+      <Card className="p-6 bg-gradient-to-br from-slate-50/60 to-purple-50/40 border-slate-200/50 relative overflow-hidden">
         <div className="relative z-10">
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center gap-3">
