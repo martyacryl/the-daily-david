@@ -338,8 +338,8 @@ export const DashboardNew: React.FC = () => {
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-purple-50 flex items-center justify-center">
         <div className="text-center">
           <Mountain className="w-16 h-16 text-slate-500 mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-gray-800 mb-2">Welcome to Daily David</h1>
-          <p className="text-gray-600 mb-6">Please log in to access your dashboard</p>
+          <h1 className="text-2xl font-bold text-gray-800 dark:text-white mb-2">Welcome to Daily David</h1>
+          <p className="text-gray-600 dark:text-gray-300 mb-6">Please log in to access your dashboard</p>
           <Link to="/login">
             <Button className="bg-slate-600 hover:bg-slate-700">
               Login
@@ -358,7 +358,7 @@ export const DashboardNew: React.FC = () => {
           variant="outline"
           size="sm"
           onClick={() => setIsSettingsOpen(true)}
-          className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm bg-white dark:bg-gray-800 shadow-md border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300"
+          className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm bg-white dark:bg-gray-800 shadow-md border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 dark:text-gray-300"
         >
           <Settings className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
           <span className="hidden sm:inline">Settings</span>
@@ -373,10 +373,10 @@ export const DashboardNew: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             className="text-center mb-8"
           >
-            <h1 className="text-3xl sm:text-4xl font-bold text-gray-800 dark:text-white mb-2">
+            <h1 className="text-3xl sm:text-4xl font-bold text-gray-800 dark:text-white dark:text-white dark:text-gray-800 dark:text-white mb-2">
               {getGreeting()}, {user?.name || 'David'}!
             </h1>
-            <p className="text-gray-600 dark:text-gray-300 text-base sm:text-lg">{scripture}</p>
+            <p className="text-gray-600 dark:text-gray-300 dark:text-gray-300 text-base sm:text-lg">{scripture}</p>
           </motion.div>
 
         {/* Family Creed Display - Moved to top */}
@@ -395,12 +395,12 @@ export const DashboardNew: React.FC = () => {
           transition={{ delay: 0.3 }}
           className="mb-6"
         >
-          <Card className="p-4 sm:p-6 bg-white shadow-sm border border-slate-200">
+          <Card className="p-4 sm:p-6 bg-white dark:bg-gray-800 shadow-sm border border-slate-200">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
-              <h3 className="text-lg sm:text-xl font-semibold text-gray-900 flex items-center gap-2">
-                <Calendar className="w-5 h-5 text-slate-600" />
+              <h3 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                <Calendar className="w-5 h-5 text-slate-600 dark:text-slate-300" />
                 Today's Overview
-                <span className="text-sm font-normal text-gray-600">
+                <span className="text-sm font-normal text-gray-600 dark:text-gray-300">
                   {new Date().toLocaleDateString('en-US', { 
                     weekday: 'long', 
                     month: 'short', 
@@ -419,7 +419,7 @@ export const DashboardNew: React.FC = () => {
                   variant="outline"
                   size="sm"
                   onClick={() => window.location.href = '/weekly'}
-                  className="text-slate-600 border-slate-200 hover:bg-slate-50"
+                  className="text-slate-600 dark:text-slate-300 border-slate-200 hover:bg-slate-50"
                 >
                   <Edit3 className="w-4 h-4 mr-1" />
                   Edit Day
@@ -430,8 +430,8 @@ export const DashboardNew: React.FC = () => {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
               {/* Today's Schedule */}
               <div className="space-y-3">
-                <h4 className="font-medium text-gray-900 flex items-center gap-2">
-                  <Clock className="w-4 h-4 text-slate-600" />
+                <h4 className="font-medium text-gray-900 dark:text-white flex items-center gap-2">
+                  <Clock className="w-4 h-4 text-slate-600 dark:text-slate-300" />
                   Today's Schedule
                 </h4>
                 <div className="space-y-2">
@@ -456,11 +456,11 @@ export const DashboardNew: React.FC = () => {
                           <div key={`calendar-${index}`} className="flex gap-2 sm:gap-3 items-start">
                             <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-green-500 rounded-full mt-2 sm:mt-3 flex-shrink-0"></div>
                             <div className="flex-1">
-                              <div className="text-sm sm:text-base text-gray-800 font-medium">
+                              <div className="text-sm sm:text-base text-gray-800 dark:text-white font-medium">
                                 {calendarService.formatEventForDisplay(event)}
                               </div>
                               {event.location && (
-                                <div className="text-xs text-gray-500 mt-1">
+                                <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                                   📍 {event.location}
                                 </div>
                               )}
@@ -473,7 +473,7 @@ export const DashboardNew: React.FC = () => {
                           <div key={`schedule-${index}`} className="flex gap-2 sm:gap-3 items-start">
                             <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-blue-500 rounded-full mt-2 sm:mt-3 flex-shrink-0"></div>
                             <div className="flex-1">
-                              <div className="text-sm sm:text-base text-gray-800 font-medium">
+                              <div className="text-sm sm:text-base text-gray-800 dark:text-white font-medium">
                                 {item}
                               </div>
                             </div>
@@ -481,7 +481,7 @@ export const DashboardNew: React.FC = () => {
                         ))}
                         
                         {todayCalendarEvents.length === 0 && filteredSchedule.length === 0 && (
-                          <p className="text-sm text-gray-500 italic p-3">No schedule items for today</p>
+                          <p className="text-sm text-gray-500 dark:text-gray-400 italic p-3">No schedule items for today</p>
                         )}
                       </div>
                     )
@@ -491,8 +491,8 @@ export const DashboardNew: React.FC = () => {
 
               {/* Today's Tasks */}
               <div className="space-y-3">
-                <h4 className="font-medium text-gray-900 flex items-center gap-2">
-                  <CheckSquare className="w-4 h-4 text-slate-600" />
+                <h4 className="font-medium text-gray-900 dark:text-white flex items-center gap-2">
+                  <CheckSquare className="w-4 h-4 text-slate-600 dark:text-slate-300" />
                   Today's Tasks
                 </h4>
                 <div className="space-y-2">
@@ -529,7 +529,7 @@ export const DashboardNew: React.FC = () => {
                               ? 'bg-slate-600 border-slate-600' 
                               : 'border-slate-300'
                           }`}>
-                            {task.completed && <Check className="w-3 h-3 text-white" />}
+                            {task.completed && <Check className="w-3 h-3 text-white dark:text-gray-800 dark:text-white" />}
                           </div>
                           <div className="flex-1 min-w-0">
                             <span className={`text-sm sm:text-base font-medium ${
@@ -538,7 +538,7 @@ export const DashboardNew: React.FC = () => {
                               {task.text}
                             </span>
                             {task.assignedTo !== 'both' && (
-                              <span className="ml-2 text-xs text-gray-500">
+                              <span className="ml-2 text-xs text-gray-500 dark:text-gray-400">
                                 ({task.assignedTo === 'spouse1' ? (settings.spouse1?.name || 'Loading...') : (settings.spouse2?.name || 'Loading...')})
                               </span>
                             )}
@@ -549,7 +549,7 @@ export const DashboardNew: React.FC = () => {
                         </div>
                       ))
                     ) : (
-                      <p className="text-sm text-gray-500 italic p-3">No tasks for today</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400 italic p-3">No tasks for today</p>
                     )
                   })()}
                 </div>
@@ -563,7 +563,7 @@ export const DashboardNew: React.FC = () => {
                   variant="outline"
                   size="sm"
                   onClick={() => window.location.href = '/weekly?section=schedule'}
-                  className="text-slate-600 border-slate-200 hover:bg-slate-50 text-xs sm:text-sm"
+                  className="text-slate-600 dark:text-slate-300 border-slate-200 hover:bg-slate-50 text-xs sm:text-sm"
                 >
                   <Calendar className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
                   View Full Schedule
@@ -572,7 +572,7 @@ export const DashboardNew: React.FC = () => {
                   variant="outline"
                   size="sm"
                   onClick={() => window.location.href = '/weekly?section=todos'}
-                  className="text-slate-600 border-slate-200 hover:bg-slate-50 text-xs sm:text-sm"
+                  className="text-slate-600 dark:text-slate-300 border-slate-200 hover:bg-slate-50 text-xs sm:text-sm"
                 >
                   <CheckSquare className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
                   Manage Tasks
@@ -581,7 +581,7 @@ export const DashboardNew: React.FC = () => {
                   variant="outline"
                   size="sm"
                   onClick={() => window.location.href = '/weekly?section=goals'}
-                  className="text-slate-600 border-slate-200 hover:bg-slate-50 text-xs sm:text-sm"
+                  className="text-slate-600 dark:text-slate-300 border-slate-200 hover:bg-slate-50 text-xs sm:text-sm"
                 >
                   <Target className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
                   Review Goals
@@ -600,43 +600,43 @@ export const DashboardNew: React.FC = () => {
         >
           <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 sm:gap-3">
             <Link to="/weekly">
-              <Card className="p-2 sm:p-4 text-center bg-white shadow-sm hover:shadow-md transition-shadow cursor-pointer">
+              <Card className="p-2 sm:p-4 text-center bg-white dark:bg-gray-800 shadow-sm hover:shadow-md transition-shadow cursor-pointer">
                 <div className="w-8 h-8 sm:w-10 sm:h-10 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                  <Target className="w-4 h-4 sm:w-5 sm:h-5 text-slate-600" />
+                  <Target className="w-4 h-4 sm:w-5 sm:h-5 text-slate-600 dark:text-slate-300" />
                 </div>
-                <h3 className="font-semibold text-gray-800 text-xs sm:text-sm">Add Goal</h3>
+                <h3 className="font-semibold text-gray-800 dark:text-white text-xs sm:text-sm">Add Goal</h3>
               </Card>
             </Link>
             <Link to="/weekly?section=schedule">
-              <Card className="p-2 sm:p-4 text-center bg-white shadow-sm hover:shadow-md transition-shadow cursor-pointer">
+              <Card className="p-2 sm:p-4 text-center bg-white dark:bg-gray-800 shadow-sm hover:shadow-md transition-shadow cursor-pointer">
                 <div className="w-8 h-8 sm:w-10 sm:h-10 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                  <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-slate-600" />
+                  <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-slate-600 dark:text-slate-300" />
                 </div>
-                <h3 className="font-semibold text-gray-800 text-xs sm:text-sm">Start Meeting</h3>
+                <h3 className="font-semibold text-gray-800 dark:text-white text-xs sm:text-sm">Start Meeting</h3>
               </Card>
             </Link>
             <Link to="/review">
-              <Card className="p-2 sm:p-4 text-center bg-white shadow-sm hover:shadow-md transition-shadow cursor-pointer">
+              <Card className="p-2 sm:p-4 text-center bg-white dark:bg-gray-800 shadow-sm hover:shadow-md transition-shadow cursor-pointer">
                 <div className="w-8 h-8 sm:w-10 sm:h-10 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                  <Eye className="w-4 h-4 sm:w-5 sm:h-5 text-slate-600" />
+                  <Eye className="w-4 h-4 sm:w-5 sm:h-5 text-slate-600 dark:text-slate-300" />
                 </div>
-                <h3 className="font-semibold text-gray-800 text-xs sm:text-sm">Review Last Week</h3>
+                <h3 className="font-semibold text-gray-800 dark:text-white text-xs sm:text-sm">Review Last Week</h3>
               </Card>
             </Link>
             <Link to="/analytics">
-              <Card className="p-2 sm:p-4 text-center bg-white shadow-sm hover:shadow-md transition-shadow cursor-pointer">
+              <Card className="p-2 sm:p-4 text-center bg-white dark:bg-gray-800 shadow-sm hover:shadow-md transition-shadow cursor-pointer">
                 <div className="w-8 h-8 sm:w-10 sm:h-10 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                  <BarChart3 className="w-4 h-4 sm:w-5 sm:h-5 text-slate-600" />
+                  <BarChart3 className="w-4 h-4 sm:w-5 sm:h-5 text-slate-600 dark:text-slate-300" />
                 </div>
-                <h3 className="font-semibold text-gray-800 text-xs sm:text-sm">Full Analytics</h3>
+                <h3 className="font-semibold text-gray-800 dark:text-white text-xs sm:text-sm">Full Analytics</h3>
               </Card>
             </Link>
             <Link to="/weekly?section=encouragement">
-              <Card className="p-2 sm:p-4 text-center bg-white shadow-sm hover:shadow-md transition-shadow cursor-pointer">
+              <Card className="p-2 sm:p-4 text-center bg-white dark:bg-gray-800 shadow-sm hover:shadow-md transition-shadow cursor-pointer">
                 <div className="w-6 h-6 sm:w-8 sm:h-8 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-1 sm:mb-2">
-                  <Heart className="w-3 h-3 sm:w-4 sm:h-4 text-slate-600" />
+                  <Heart className="w-3 h-3 sm:w-4 sm:h-4 text-slate-600 dark:text-slate-300" />
                 </div>
-                <h3 className="font-semibold text-gray-800 text-xs sm:text-sm">Add Note</h3>
+                <h3 className="font-semibold text-gray-800 dark:text-white text-xs sm:text-sm">Add Note</h3>
               </Card>
             </Link>
           </div>
@@ -673,11 +673,11 @@ export const DashboardNew: React.FC = () => {
               transition={{ delay: 0.2 }}
               className="mb-6"
             >
-              <Card className="p-3 sm:p-6 bg-white shadow-sm border border-slate-200">
+              <Card className="p-3 sm:p-6 bg-white dark:bg-gray-800 shadow-sm border border-slate-200">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-2">
-                    <h3 className="text-lg sm:text-xl font-semibold text-gray-900 flex items-center gap-2">
-                      <Heart className="w-4 h-4 sm:w-5 sm:h-5 text-slate-600" />
+                    <h3 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                      <Heart className="w-4 h-4 sm:w-5 sm:h-5 text-slate-600 dark:text-slate-300" />
                       Encouragement Notes
                     </h3>
                     {unreadCount > 0 && (
@@ -698,13 +698,13 @@ export const DashboardNew: React.FC = () => {
                           }))
                           updateEncouragementNotes(updatedNotes)
                         }}
-                        className="text-slate-600 border-slate-200 hover:bg-slate-50 p-2"
+                        className="text-slate-600 dark:text-slate-300 border-slate-200 hover:bg-slate-50 p-2"
                         title="Mark all as read"
                       >
                         <CheckCircle className="w-4 h-4" />
                       </Button>
                     )}
-                    <Link to="/weekly?section=encouragement" className="text-slate-600 text-sm font-medium">
+                    <Link to="/weekly?section=encouragement" className="text-slate-600 dark:text-slate-300 text-sm font-medium">
                       View All →
                     </Link>
                   </div>
@@ -713,11 +713,11 @@ export const DashboardNew: React.FC = () => {
                   {sortedNotes.slice(0, 3).map((note) => {
                   const getTypeInfo = (type: EncouragementNote['type']) => {
                     const typeMap = {
-                      encouragement: { label: 'Encouragement', color: 'text-slate-600' },
-                      bible: { label: 'Bible Verse', color: 'text-slate-600' },
-                      reminder: { label: 'Reminder', color: 'text-slate-600' },
-                      love: { label: 'Love Note', color: 'text-slate-600' },
-                      general: { label: 'General', color: 'text-slate-600' }
+                      encouragement: { label: 'Encouragement', color: 'text-slate-600 dark:text-slate-300' },
+                      bible: { label: 'Bible Verse', color: 'text-slate-600 dark:text-slate-300' },
+                      reminder: { label: 'Reminder', color: 'text-slate-600 dark:text-slate-300' },
+                      love: { label: 'Love Note', color: 'text-slate-600 dark:text-slate-300' },
+                      general: { label: 'General', color: 'text-slate-600 dark:text-slate-300' }
                     }
                     return typeMap[type] || typeMap.general
                   }
@@ -748,7 +748,7 @@ export const DashboardNew: React.FC = () => {
                           <span className={`text-xs sm:text-sm font-medium ${typeInfo.color}`}>
                             {typeInfo.label}
                           </span>
-                          <span className="text-xs text-gray-500">
+                          <span className="text-xs text-gray-500 dark:text-gray-400">
                             {formatDate(note.createdAt)}
                           </span>
                           {!note.isRead ? (
@@ -756,7 +756,7 @@ export const DashboardNew: React.FC = () => {
                               New
                             </span>
                           ) : (
-                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600 dark:text-gray-300">
                               <CheckCircle className="w-3 h-3 mr-1" />
                               Read
                             </span>
@@ -764,7 +764,7 @@ export const DashboardNew: React.FC = () => {
                         </div>
                       </div>
                       <div className={`text-sm sm:text-base leading-relaxed whitespace-pre-wrap ${
-                        note.isRead ? 'text-gray-600' : 'text-gray-800'
+                        note.isRead ? 'text-gray-600 dark:text-gray-300' : 'text-gray-800 dark:text-white'
                       }`}>
                         {note.text}
                       </div>
@@ -781,7 +781,7 @@ export const DashboardNew: React.FC = () => {
                               )
                               updateEncouragementNotes(updatedNotes)
                             }}
-                            className="text-slate-600 border-slate-200 hover:bg-slate-50 p-2"
+                            className="text-slate-600 dark:text-slate-300 border-slate-200 hover:bg-slate-50 p-2"
                             title="Mark as read"
                           >
                             <CheckCircle className="w-4 h-4" />
@@ -792,7 +792,7 @@ export const DashboardNew: React.FC = () => {
                   )
                 })}
                 {totalCount > 3 && (
-                  <p className="text-sm text-gray-600 text-center">
+                  <p className="text-sm text-gray-600 dark:text-gray-300 text-center">
                     +{totalCount - 3} more notes
                   </p>
                 )}
@@ -809,9 +809,9 @@ export const DashboardNew: React.FC = () => {
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.2 }}
           >
-            <Card className="p-3 sm:p-6 bg-white shadow-sm">
-              <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                <Zap className="w-4 h-4 sm:w-5 sm:h-5 text-slate-600" />
+            <Card className="p-3 sm:p-6 bg-white dark:bg-gray-800 shadow-sm">
+              <h3 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                <Zap className="w-4 h-4 sm:w-5 sm:h-5 text-slate-600 dark:text-slate-300" />
                 Priority Actions
               </h3>
               <div className="space-y-3">
@@ -822,12 +822,12 @@ export const DashboardNew: React.FC = () => {
                       todo.priority === 'medium' ? 'bg-slate-500' : 'bg-slate-400'
                     }`}></div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-gray-800 font-medium">{todo.text}</p>
-                      <div className="flex items-center gap-2 mt-1 text-xs sm:text-sm text-gray-600 flex-wrap">
+                      <p className="text-gray-800 dark:text-white font-medium">{todo.text}</p>
+                      <div className="flex items-center gap-2 mt-1 text-xs sm:text-sm text-gray-600 dark:text-gray-300 flex-wrap">
                         {todo.priority && (
                           <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                             todo.priority === 'high' ? 'bg-slate-200 text-slate-700' :
-                            todo.priority === 'medium' ? 'bg-slate-100 text-slate-600' :
+                            todo.priority === 'medium' ? 'bg-slate-100 text-slate-600 dark:text-slate-300' :
                             'bg-slate-50 text-slate-500'
                           }`}>
                             {todo.priority}
@@ -841,24 +841,24 @@ export const DashboardNew: React.FC = () => {
                         )}
                         {todo.dueDate && (
                           <span className={`flex items-center gap-1 ${
-                            new Date(todo.dueDate) < new Date() ? 'text-slate-600' : 'text-gray-600'
+                            new Date(todo.dueDate) < new Date() ? 'text-slate-600 dark:text-slate-300' : 'text-gray-600 dark:text-gray-300'
                           }`}>
                             <Calendar className="w-3 h-3" />
                             {new Date(todo.dueDate).toLocaleDateString()}
                           </span>
                         )}
                         {todo.category && (
-                          <span className="text-gray-500">• {todo.category}</span>
+                          <span className="text-gray-500 dark:text-gray-400">• {todo.category}</span>
                         )}
                       </div>
                     </div>
                   </div>
                 ))}
                 {insights.urgentTodos.length === 0 && (
-                  <p className="text-gray-500 text-sm">No urgent todos</p>
+                  <p className="text-gray-500 dark:text-gray-400 text-sm">No urgent todos</p>
                 )}
               </div>
-              <Link to="/weekly?section=todos" className="text-slate-600 text-sm font-medium mt-4 block">
+              <Link to="/weekly?section=todos" className="text-slate-600 dark:text-slate-300 text-sm font-medium mt-4 block">
                 View All Todos →
               </Link>
             </Card>
@@ -869,23 +869,23 @@ export const DashboardNew: React.FC = () => {
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.3 }}
           >
-            <Card className="p-3 sm:p-6 bg-white shadow-sm">
-              <h3 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                <Clock className="w-5 h-5 text-slate-600" />
+            <Card className="p-3 sm:p-6 bg-white dark:bg-gray-800 shadow-sm">
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                <Clock className="w-5 h-5 text-slate-600 dark:text-slate-300" />
                 Overdue Items
               </h3>
               <div className="space-y-2">
                 {insights.overdueGoals.map((goal, index) => (
                   <div key={index} className="flex items-center gap-2">
                     <div className="w-2 h-2 bg-slate-500 rounded-full"></div>
-                    <span className="text-gray-700">{goal.text}</span>
+                    <span className="text-gray-700 dark:text-gray-300">{goal.text}</span>
                   </div>
                 ))}
                 {insights.overdueGoals.length === 0 && (
-                  <p className="text-gray-500 text-sm">No overdue goals</p>
+                  <p className="text-gray-500 dark:text-gray-400 text-sm">No overdue goals</p>
                 )}
               </div>
-              <Link to="/weekly?section=goals" className="text-slate-600 text-sm font-medium mt-4 block">
+              <Link to="/weekly?section=goals" className="text-slate-600 dark:text-slate-300 text-sm font-medium mt-4 block">
                 View All Goals →
               </Link>
             </Card>
@@ -900,31 +900,31 @@ export const DashboardNew: React.FC = () => {
             transition={{ delay: 0.3 }}
             className="mb-8"
           >
-            <Card className="p-6 bg-gradient-to-r from-amber-50 to-orange-50 border-amber-200">
-              <h3 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
+            <Card className="p-6 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 border-amber-200 dark:border-amber-700">
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
                 <AlertTriangle className="w-5 h-5 text-amber-600" />
                 Quick Reminders
               </h3>
               <div className="space-y-3">
                 {insights.overdueTasks.length > 0 && (
                   <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg border border-slate-200">
-                    <AlertTriangle className="w-5 h-5 text-slate-600 flex-shrink-0" />
+                    <AlertTriangle className="w-5 h-5 text-slate-600 dark:text-slate-300 flex-shrink-0" />
                     <div>
                       <p className="font-medium text-slate-800">
                         {insights.overdueTasks.length} task{insights.overdueTasks.length > 1 ? 's' : ''} overdue
                       </p>
-                      <p className="text-sm text-slate-600">Check your task list to catch up</p>
+                      <p className="text-sm text-slate-600 dark:text-slate-300">Check your task list to catch up</p>
                     </div>
                   </div>
                 )}
                 {insights.highPriorityTasks.length > 0 && (
                   <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg border border-slate-200">
-                    <Zap className="w-5 h-5 text-slate-600 flex-shrink-0" />
+                    <Zap className="w-5 h-5 text-slate-600 dark:text-slate-300 flex-shrink-0" />
                     <div>
                       <p className="font-medium text-slate-800">
                         {insights.highPriorityTasks.length} high priority task{insights.highPriorityTasks.length > 1 ? 's' : ''} need attention
                       </p>
-                      <p className="text-sm text-slate-600">Focus on these first today</p>
+                      <p className="text-sm text-slate-600 dark:text-slate-300">Focus on these first today</p>
                     </div>
                   </div>
                 )}
@@ -941,13 +941,13 @@ export const DashboardNew: React.FC = () => {
             transition={{ delay: 0.4 }}
             className="mb-8"
           >
-            <Card className="p-6 bg-white shadow-sm border border-slate-200">
+            <Card className="p-6 bg-white dark:bg-gray-800 shadow-sm border border-slate-200">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
-                  <ShoppingCart className="w-5 h-5 text-slate-600" />
+                <h3 className="text-xl font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                  <ShoppingCart className="w-5 h-5 text-slate-600 dark:text-slate-300" />
                   Grocery & Errands
                 </h3>
-                <Link to="/weekly?section=grocery" className="text-slate-600 text-sm font-medium">
+                <Link to="/weekly?section=grocery" className="text-slate-600 dark:text-slate-300 text-sm font-medium">
                   View All →
                 </Link>
               </div>
@@ -955,9 +955,9 @@ export const DashboardNew: React.FC = () => {
                 {weekData.grocery.filter(store => store.items && store.items.some(item => item.text && item.text.trim() !== '')).slice(0, 3).map((storeList, storeIndex) => (
                   <div key={storeList.storeId} className="bg-white rounded-lg p-3">
                     <div className="flex items-center gap-2 mb-2">
-                      <Store className="w-4 h-4 text-slate-600" />
-                      <span className="font-medium text-gray-900">{storeList.storeName}</span>
-                      <span className="text-sm text-gray-500">({storeList.items?.filter(item => item.text && item.text.trim() !== '').length || 0} items)</span>
+                      <Store className="w-4 h-4 text-slate-600 dark:text-slate-300" />
+                      <span className="font-medium text-gray-900 dark:text-white">{storeList.storeName}</span>
+                      <span className="text-sm text-gray-500 dark:text-gray-400">({storeList.items?.filter(item => item.text && item.text.trim() !== '').length || 0} items)</span>
                     </div>
                     <div className="space-y-1">
                       {storeList.items?.filter(item => item.text && item.text.trim() !== '').slice(0, 2).map((item, itemIndex) => (
@@ -965,14 +965,14 @@ export const DashboardNew: React.FC = () => {
                           <div className={`w-2 h-2 rounded-full ${
                             item.completed ? 'bg-slate-500' : 'bg-gray-300'
                           }`}></div>
-                          <span className={`flex-1 ${item.completed ? 'line-through text-gray-500' : 'text-gray-800'}`}>
+                          <span className={`flex-1 ${item.completed ? 'line-through text-gray-500 dark:text-gray-400' : 'text-gray-800 dark:text-white'}`}>
                             {item.text}
                           </span>
                           {item.completed && <CheckCircle className="w-3 h-3 text-slate-500" />}
                         </div>
                       ))}
                       {(storeList.items?.length || 0) > 2 && (
-                        <p className="text-xs text-gray-500 ml-4">
+                        <p className="text-xs text-gray-500 dark:text-gray-400 ml-4">
                           +{(storeList.items?.length || 0) - 2} more items
                         </p>
                       )}
@@ -980,7 +980,7 @@ export const DashboardNew: React.FC = () => {
                   </div>
                 ))}
                 {weekData.grocery.filter(store => store.items && store.items.some(item => item.text && item.text.trim() !== '')).length > 3 && (
-                  <p className="text-sm text-gray-600 text-center">
+                  <p className="text-sm text-gray-600 dark:text-gray-300 text-center">
                     +{weekData.grocery.filter(store => store.items && store.items.some(item => item.text && item.text.trim() !== '')).length - 3} more stores
                   </p>
                 )}
@@ -996,23 +996,23 @@ export const DashboardNew: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
           >
-            <Card className="p-3 sm:p-6 bg-white shadow-sm">
-              <h3 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                <Heart className="w-5 h-5 text-slate-600" />
+            <Card className="p-3 sm:p-6 bg-white dark:bg-gray-800 shadow-sm">
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                <Heart className="w-5 h-5 text-slate-600 dark:text-slate-300" />
                 Prayer Requests
               </h3>
               <div className="space-y-2">
                 {insights.unansweredPrayers.filter(prayer => prayer.text && prayer.text.trim() !== '').map((prayer, index) => (
                   <div key={index} className="flex items-center gap-2">
                     <div className="w-2 h-2 bg-slate-500 rounded-full"></div>
-                    <span className="text-gray-700">{prayer.text}</span>
+                    <span className="text-gray-700 dark:text-gray-300">{prayer.text}</span>
                   </div>
                 ))}
                 {insights.unansweredPrayers.filter(prayer => prayer.text && prayer.text.trim() !== '').length === 0 && (
-                  <p className="text-gray-500 text-sm">No unanswered prayers</p>
+                  <p className="text-gray-500 dark:text-gray-400 text-sm">No unanswered prayers</p>
                 )}
               </div>
-              <Link to="/weekly?section=prayers" className="text-slate-600 text-sm font-medium mt-4 block">
+              <Link to="/weekly?section=prayers" className="text-slate-600 dark:text-slate-300 text-sm font-medium mt-4 block">
                 View All Prayers →
               </Link>
             </Card>
@@ -1023,20 +1023,20 @@ export const DashboardNew: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 }}
           >
-            <Card className="p-3 sm:p-6 bg-white shadow-sm">
-              <h3 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                <AlertTriangle className="w-5 h-5 text-slate-600" />
+            <Card className="p-3 sm:p-6 bg-white dark:bg-gray-800 shadow-sm">
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                <AlertTriangle className="w-5 h-5 text-slate-600 dark:text-slate-300" />
                 Needs Attention
               </h3>
               <div className="space-y-2">
                 {insights.unconfessedItems.filter(item => item.text && item.text.trim() !== '').map((item, index) => (
                   <div key={index} className="flex items-center gap-2">
                     <div className="w-2 h-2 bg-slate-500 rounded-full"></div>
-                    <span className="text-gray-700">{item.text}</span>
+                    <span className="text-gray-700 dark:text-gray-300">{item.text}</span>
                   </div>
                 ))}
                 {insights.unconfessedItems.filter(item => item.text && item.text.trim() !== '').length === 0 && (
-                  <p className="text-gray-500 text-sm">All items addressed</p>
+                  <p className="text-gray-500 dark:text-gray-400 text-sm">All items addressed</p>
                 )}
               </div>
               <Link to="/weekly?section=unconfessed" className="text-yellow-600 text-sm font-medium mt-4 block">
@@ -1053,9 +1053,9 @@ export const DashboardNew: React.FC = () => {
           transition={{ delay: 0.6 }}
           className="mb-8"
         >
-          <Card className="p-6 bg-white shadow-sm">
-            <h3 className="text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
-              <Target className="w-5 h-5 text-slate-600" />
+          <Card className="p-6 bg-white dark:bg-gray-800 shadow-sm">
+            <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
+              <Target className="w-5 h-5 text-slate-600 dark:text-slate-300" />
               Goal Progress by Timeframe
             </h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6">
@@ -1069,8 +1069,8 @@ export const DashboardNew: React.FC = () => {
                 return (
                   <div key={timeframe} className="text-center">
                     <div className="flex items-center justify-center gap-2 mb-2">
-                      <IconComponent className="w-5 h-5 text-slate-600" />
-                      <span className="font-medium text-gray-800">{label}</span>
+                      <IconComponent className="w-5 h-5 text-slate-600 dark:text-slate-300" />
+                      <span className="font-medium text-gray-800 dark:text-white">{label}</span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-3 mb-2">
                       <div 
@@ -1078,7 +1078,7 @@ export const DashboardNew: React.FC = () => {
                         style={{ width: `${progress.percentage}%` }}
                       ></div>
                     </div>
-                    <p className="text-sm text-gray-600">
+                    <p className="text-sm text-gray-600 dark:text-gray-300">
                       {progress.percentage}% ({progress.completed}/{progress.total})
                     </p>
                   </div>
@@ -1095,13 +1095,13 @@ export const DashboardNew: React.FC = () => {
           transition={{ delay: 0.7 }}
           className="mb-8"
         >
-            <Card className="p-3 sm:p-6 bg-white shadow-sm">
+            <Card className="p-3 sm:p-6 bg-white dark:bg-gray-800 shadow-sm">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg sm:text-xl font-semibold text-gray-900 flex items-center gap-2">
-                  <Target className="w-4 h-4 sm:w-5 sm:h-5 text-slate-600" />
+                <h3 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                  <Target className="w-4 h-4 sm:w-5 sm:h-5 text-slate-600 dark:text-slate-300" />
                   Your Goals
                 </h3>
-                <Link to="/weekly?section=goals" className="text-slate-600 text-sm font-medium">
+                <Link to="/weekly?section=goals" className="text-slate-600 dark:text-slate-300 text-sm font-medium">
                   Manage Goals →
                 </Link>
               </div>
@@ -1111,8 +1111,8 @@ export const DashboardNew: React.FC = () => {
                     <div className="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
                       <Target className="w-8 h-8 text-slate-400" />
                     </div>
-                    <p className="text-slate-600 mb-4 font-medium">No goals set yet</p>
-                    <Link to="/weekly?section=goals" className="inline-flex items-center gap-2 text-slate-600 hover:text-slate-700 font-medium transition-colors">
+                    <p className="text-slate-600 dark:text-slate-300 mb-4 font-medium">No goals set yet</p>
+                    <Link to="/weekly?section=goals" className="inline-flex items-center gap-2 text-slate-600 dark:text-slate-300 hover:text-slate-700 font-medium transition-colors">
                       <Plus className="w-4 h-4" />
                       Add your first goal
                     </Link>
@@ -1140,7 +1140,7 @@ export const DashboardNew: React.FC = () => {
                       <div key={timeframe} className="space-y-3">
                         <div className="flex items-center gap-3">
                           <div className="w-1 h-6 bg-gradient-to-b from-slate-300 to-slate-400 rounded-full"></div>
-                          <h4 className="text-sm font-semibold text-slate-600 uppercase tracking-wide">
+                          <h4 className="text-sm font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wide">
                             {timeframeLabels[timeframe as keyof typeof timeframeLabels]}
                           </h4>
                         </div>
@@ -1157,7 +1157,7 @@ export const DashboardNew: React.FC = () => {
                                     <button className="mt-1 flex-shrink-0 group-hover:scale-105 transition-transform duration-200">
                                       {goal.completed ? (
                                         <div className="w-5 h-5 bg-slate-600 rounded-full flex items-center justify-center">
-                                          <CheckCircle className="w-3 h-3 text-white" />
+                                          <CheckCircle className="w-3 h-3 text-white dark:text-gray-800 dark:text-white" />
                                         </div>
                                       ) : (
                                         <div className="w-5 h-5 border-2 border-slate-300 rounded-full group-hover:border-slate-500 transition-colors"></div>
@@ -1171,11 +1171,11 @@ export const DashboardNew: React.FC = () => {
                                         {goal.text}
                                       </h4>
                                       {goal.description && (
-                                        <p className="text-sm text-slate-600 mt-1 leading-relaxed">{goal.description}</p>
+                                        <p className="text-sm text-slate-600 dark:text-slate-300 mt-1 leading-relaxed">{goal.description}</p>
                                       )}
                                       
                                       <div className="flex items-center gap-2 mt-3">
-                                        <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-600">
+                                        <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-600 dark:text-slate-300">
                                           {goal.timeframe === '1year' ? '1 Year' : 
                                            goal.timeframe === '5year' ? '5 Year' : 
                                            goal.timeframe === '10year' ? '10 Year' : 
@@ -1183,7 +1183,7 @@ export const DashboardNew: React.FC = () => {
                                         </span>
                                         <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${
                                           goal.priority === 'high' ? 'bg-slate-200 text-slate-700' :
-                                          goal.priority === 'medium' ? 'bg-slate-100 text-slate-600' : 'bg-slate-50 text-slate-500'
+                                          goal.priority === 'medium' ? 'bg-slate-100 text-slate-600 dark:text-slate-300' : 'bg-slate-50 text-slate-500'
                                         }`}>
                                           {goal.priority}
                                         </span>
@@ -1218,14 +1218,14 @@ export const DashboardNew: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.7 }}
           >
-            <Card className="p-3 sm:p-6 bg-white shadow-sm">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                <Award className="w-5 h-5 text-slate-600" />
+            <Card className="p-3 sm:p-6 bg-white dark:bg-gray-800 shadow-sm">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                <Award className="w-5 h-5 text-slate-600 dark:text-slate-300" />
                 Consistency Score
               </h3>
               <div className="text-center">
-                <div className="text-3xl font-bold text-slate-600 mb-2">{insights.consistencyScore}%</div>
-                <p className="text-sm text-gray-600">Meeting regularity</p>
+                <div className="text-3xl font-bold text-slate-600 dark:text-slate-300 mb-2">{insights.consistencyScore}%</div>
+                <p className="text-sm text-gray-600 dark:text-gray-300">Meeting regularity</p>
               </div>
             </Card>
           </motion.div>
@@ -1235,14 +1235,14 @@ export const DashboardNew: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.8 }}
           >
-            <Card className="p-3 sm:p-6 bg-white shadow-sm">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                <Flame className="w-5 h-5 text-slate-600" />
+            <Card className="p-3 sm:p-6 bg-white dark:bg-gray-800 shadow-sm">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                <Flame className="w-5 h-5 text-slate-600 dark:text-slate-300" />
                 Meeting Streak
               </h3>
               <div className="text-center">
-                <div className="text-3xl font-bold text-slate-600 mb-2">{insights.meetingStreak}</div>
-                <p className="text-sm text-gray-600">weeks strong!</p>
+                <div className="text-3xl font-bold text-slate-600 dark:text-slate-300 mb-2">{insights.meetingStreak}</div>
+                <p className="text-sm text-gray-600 dark:text-gray-300">weeks strong!</p>
               </div>
             </Card>
           </motion.div>
@@ -1252,17 +1252,17 @@ export const DashboardNew: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.9 }}
           >
-            <Card className="p-3 sm:p-6 bg-white shadow-sm">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                <TrendingUp className="w-5 h-5 text-slate-600" />
+            <Card className="p-3 sm:p-6 bg-white dark:bg-gray-800 shadow-sm">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                <TrendingUp className="w-5 h-5 text-slate-600 dark:text-slate-300" />
                 Growth Areas
               </h3>
               <div className="space-y-1">
                 {insights.growthAreas.map((area, index) => (
-                  <div key={index} className="text-sm text-gray-700">• {area}</div>
+                  <div key={index} className="text-sm text-gray-700 dark:text-gray-300">• {area}</div>
                 ))}
                 {insights.growthAreas.length === 0 && (
-                  <p className="text-sm text-gray-500">All areas balanced</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">All areas balanced</p>
                 )}
               </div>
             </Card>

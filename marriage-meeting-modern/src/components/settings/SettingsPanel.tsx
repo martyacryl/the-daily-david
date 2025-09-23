@@ -150,18 +150,18 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
           initial={{ scale: 0.95, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.95, opacity: 0 }}
-          className="bg-white rounded-lg shadow-xl w-full max-w-4xl h-[98vh] sm:h-[90vh] flex flex-col mx-1 sm:mx-4"
+          className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-4xl h-[98vh] sm:h-[90vh] flex flex-col mx-1 sm:mx-4"
         >
           {/* Header - Sticky on mobile */}
-          <div className="flex items-center justify-between p-3 sm:p-4 lg:p-6 border-b border-gray-200 bg-white sticky top-0 z-10">
+          <div className="flex items-center justify-between p-3 sm:p-4 lg:p-6 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 sticky top-0 z-10">
             <div className="flex items-center gap-2 sm:gap-3">
               <Settings className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" />
-              <h2 className="text-lg sm:text-xl font-semibold text-gray-900">Settings</h2>
+              <h2 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">Settings</h2>
             </div>
             <Button
               onClick={onClose}
               variant="ghost"
-              className="text-gray-400 hover:text-gray-600 p-2 sm:p-2 bg-gray-100 hover:bg-gray-200 rounded-full"
+              className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 p-2 sm:p-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-full"
             >
               <X className="w-5 h-5 sm:w-6 sm:h-6" />
             </Button>
@@ -171,7 +171,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
           <div className="flex-1 overflow-hidden">
             <div className="h-full flex flex-col sm:flex-row">
               {/* Sidebar - Mobile: Horizontal scroll, Desktop: Vertical */}
-              <div className="w-full sm:w-64 bg-gray-50 border-b sm:border-b-0 sm:border-r border-gray-200 p-2 sm:p-4">
+              <div className="w-full sm:w-64 bg-gray-50 dark:bg-gray-700 border-b sm:border-b-0 sm:border-r border-gray-200 dark:border-gray-600 p-2 sm:p-4">
                 <nav className="flex sm:flex-col space-x-1 sm:space-x-0 sm:space-y-2 overflow-x-auto sm:overflow-x-visible">
                   {tabs.map((tab) => {
                     const Icon = tab.icon
@@ -181,8 +181,8 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
                         onClick={() => setActiveTab(tab.id)}
                         className={`flex-shrink-0 flex items-center gap-2 sm:gap-3 px-3 sm:px-3 py-3 sm:py-2 text-sm sm:text-sm font-medium rounded-lg transition-colors whitespace-nowrap min-w-[80px] sm:min-w-0 ${
                           activeTab === tab.id
-                            ? 'bg-blue-100 text-blue-700'
-                            : 'text-gray-700 hover:bg-gray-100'
+                            ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300'
+                            : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600'
                         }`}
                       >
                         <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -199,10 +199,10 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
                 {activeTab === 'spouses' && (
                   <div className="space-y-4 sm:space-y-6">
                     <div>
-                      <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">Spouse Information</h3>
+                      <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-3 sm:mb-4">Spouse Information</h3>
                       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
                         <Card className="p-3 sm:p-4">
-                          <h4 className="text-sm sm:text-md font-semibold text-gray-900 mb-3 sm:mb-4">Spouse 1</h4>
+                          <h4 className="text-sm sm:text-md font-semibold text-gray-900 dark:text-white mb-3 sm:mb-4">Spouse 1</h4>
                           <div className="space-y-3 sm:space-y-4">
                             <Input
                               label="Name"
@@ -220,7 +220,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
                           </div>
                         </Card>
                         <Card className="p-3 sm:p-4">
-                          <h4 className="text-sm sm:text-md font-semibold text-gray-900 mb-3 sm:mb-4">Spouse 2</h4>
+                          <h4 className="text-sm sm:text-md font-semibold text-gray-900 dark:text-white mb-3 sm:mb-4">Spouse 2</h4>
                           <div className="space-y-3 sm:space-y-4">
                             <Input
                               label="Name"
@@ -246,7 +246,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
                 {activeTab === 'location' && (
                   <div className="space-y-6">
                     <div>
-                      <h3 className="text-lg font-semibold text-gray-900 mb-4">Location Settings</h3>
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Location Settings</h3>
                       <Card className="p-4">
                         <div className="space-y-4">
                           <Input
@@ -277,7 +277,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
                 {activeTab === 'grocery' && (
                   <div className="space-y-6">
                     <div>
-                      <h3 className="text-lg font-semibold text-gray-900 mb-4">Grocery Stores</h3>
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Grocery Stores</h3>
                       <Card className="p-4">
                         <div className="space-y-4">
                           <div className="flex gap-2">
@@ -313,13 +313,13 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
                           
                           <div className="space-y-2">
                             {settings.groceryStores.map((store, index) => (
-                              <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                              <div key={index} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-600 rounded-lg">
                                 <div className="flex items-center gap-3">
                                   {store.isDefault && <Star className="w-4 h-4 text-yellow-500" />}
                                   <div>
-                                    <div className="font-medium text-gray-900">{store.name}</div>
+                                    <div className="font-medium text-gray-900 dark:text-white">{store.name}</div>
                                     {store.address && (
-                                      <div className="text-sm text-gray-500">{store.address}</div>
+                                      <div className="text-sm text-gray-500 dark:text-gray-400">{store.address}</div>
                                     )}
                                   </div>
                                 </div>
@@ -355,12 +355,12 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
                 {activeTab === 'calendar' && (
                   <div className="space-y-6">
                     <div>
-                      <h3 className="text-lg font-semibold text-gray-900 mb-4">Calendar Integration</h3>
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Calendar Integration</h3>
                       
                       <Card className="p-6 text-center">
                         <Calendar className="w-16 h-16 text-blue-600 mx-auto mb-4" />
-                        <h4 className="text-xl font-semibold text-gray-900 mb-2">Connect Your Calendars</h4>
-                        <p className="text-gray-600 mb-6">
+                        <h4 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">Connect Your Calendars</h4>
+                        <p className="text-gray-600 dark:text-gray-300 mb-6">
                           Sync your Apple Calendar and Google Calendar events into your weekly planner
                         </p>
                         <Button
@@ -379,7 +379,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
                 {activeTab === 'family-creed' && (
                   <div className="space-y-6">
                     <div>
-                      <h3 className="text-lg font-semibold text-gray-900 mb-4">Family Creed</h3>
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Family Creed</h3>
                       <Card className="p-4">
                         <Textarea
                           label="Your Family Creed"
@@ -428,20 +428,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
                               >
                                 Dark
                               </button>
-                              <button
-                                onClick={() => setTheme('auto')}
-                                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                                  theme === 'auto'
-                                    ? 'bg-blue-500 text-white'
-                                    : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
-                                }`}
-                              >
-                                Auto
-                              </button>
                             </div>
-                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-                              Auto follows your system preference
-                            </p>
                           </div>
                         </div>
                       </Card>
