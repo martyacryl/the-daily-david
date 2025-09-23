@@ -433,23 +433,6 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
                         </div>
                       </Card>
 
-                      <Card className="p-4">
-                        <div className="space-y-4">
-                          <Input
-                            label="App Name"
-                            value={settings.general?.appName || ''}
-                            onChange={(e) => updateGeneralSettings({ appName: e.target.value })}
-                            placeholder="Enter app name"
-                          />
-                          <Textarea
-                            label="Welcome Message"
-                            value={settings.general?.welcomeMessage || ''}
-                            onChange={(e) => updateGeneralSettings({ welcomeMessage: e.target.value })}
-                            placeholder="Enter welcome message"
-                            rows={3}
-                          />
-                        </div>
-                      </Card>
                     </div>
                   </div>
                 )}
