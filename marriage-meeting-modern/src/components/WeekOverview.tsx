@@ -259,7 +259,7 @@ export const WeekOverview: React.FC<WeekOverviewProps> = ({
                 <motion.div
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/90 rounded-lg border-2 border-blue-200 dark:border-blue-700"
+                  className="mt-4 p-4 bg-blue-50 dark:bg-gray-800 rounded-lg border-2 border-blue-200 dark:border-gray-600"
                 >
                   <div className="flex items-center justify-between mb-3">
                     <h4 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
