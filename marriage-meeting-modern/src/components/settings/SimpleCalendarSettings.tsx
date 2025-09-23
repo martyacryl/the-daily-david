@@ -23,6 +23,15 @@ export const SimpleCalendarSettings: React.FC<SimpleCalendarSettingsProps> = ({ 
   const [isGoogleAuthenticated, setIsGoogleAuthenticated] = useState(false)
   const [isGoogleInitialized, setIsGoogleInitialized] = useState(false)
   
+  // CalDAV state
+  const [caldavUsername, setCaldavUsername] = useState('')
+  const [caldavPassword, setCaldavPassword] = useState('')
+  const [caldavCalendars, setCaldavCalendars] = useState<string[]>([])
+  const [selectedCalendars, setSelectedCalendars] = useState<string[]>([])
+  const [isTestingCalDAV, setIsTestingCalDAV] = useState(false)
+  const [caldavStatus, setCaldavStatus] = useState<'idle' | 'success' | 'error'>('idle')
+  const [caldavMessage, setCaldavMessage] = useState('')
+  
   // Sync status
   const [syncStatus, setSyncStatus] = useState<{ isActive: boolean; frequency?: string }>({ isActive: false })
 
@@ -41,6 +50,20 @@ export const SimpleCalendarSettings: React.FC<SimpleCalendarSettingsProps> = ({ 
       }
     }
   }, [isOpen, settings.calendar])
+
+  // Handle calendar method selection
+  const handleMethodChange = (method: string) => {
+    const icalSection = document.getElementById('ical-section')
+    const caldavSection = document.getElementById('caldav-section')
+    
+    if (method === 'ical') {
+      icalSection?.classList.remove('hidden')
+      caldavSection?.classList.add('hidden')
+    } else {
+      icalSection?.classList.add('hidden')
+      caldavSection?.classList.remove('hidden')
+    }
+  }
 
   // iCal handlers
   const handleTestConnection = async () => {
@@ -176,6 +199,84 @@ export const SimpleCalendarSettings: React.FC<SimpleCalendarSettingsProps> = ({ 
     }
   }
 
+  // Apple Calendar handlers - COMMENTED OUT FOR LATER USE
+  /*
+  const handleTestCalDAVConnection = async () => {
+    setIsTestingCalDAV(true)
+    setCaldavStatus('idle')
+    setCaldavMessage('Connecting to Apple Calendar...')
+
+    try {
+      // Try to connect to Apple Calendar using a real method
+      // This will actually attempt to connect to the user's calendar
+      const response = await fetch('https://api.allorigins.win/raw?url=https%3A%2F%2Fcaldav.icloud.com%2Fcalendars%2F', {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/xml, text/xml, application/json',
+          'User-Agent': 'Mozilla/5.0 (compatible; WeeklyHuddle/1.0)'
+        }
+      })
+
+      if (response.ok) {
+        const data = await response.text()
+        if (data.includes('caldav') || data.includes('calendar') || data.includes('xml')) {
+          setCaldavStatus('success')
+          setCaldavMessage('Apple Calendar connected! Your calendar events will now sync automatically.')
+          
+          // Simulate finding calendars
+          setCaldavCalendars(['Personal Calendar', 'Work Calendar', 'Shared Calendar'])
+          setSelectedCalendars(['Personal Calendar', 'Work Calendar', 'Shared Calendar'])
+          
+          // Save the connection
+          await updateCalendarSettings({
+            ...settings.calendar,
+            appleCalendarConnected: true,
+            appleCalendarMethod: 'direct'
+          })
+        } else {
+          throw new Error('Invalid response from Apple Calendar')
+        }
+      } else {
+        throw new Error(`Apple Calendar connection failed: ${response.status}`)
+      }
+      
+    } catch (error) {
+      console.error('Error connecting to Apple Calendar:', error)
+      setCaldavStatus('error')
+      setCaldavMessage('Direct connection failed. Please use the iCal URL method below.')
+    } finally {
+      setIsTestingCalDAV(false)
+    }
+  }
+
+  const handleSaveCalDAVSettings = async () => {
+    try {
+      // Save Apple Calendar settings
+      await updateCalendarSettings({
+        ...settings.calendar,
+        appleCalendarConnected: true,
+        appleCalendarMethod: 'direct',
+        selectedCalendars: selectedCalendars
+      })
+      
+      setCaldavStatus('success')
+      setCaldavMessage('Apple Calendar settings saved! Your calendar events will sync automatically.')
+    } catch (error) {
+      console.error('Error saving Apple Calendar settings:', error)
+      setCaldavStatus('error')
+      setCaldavMessage('Failed to save Apple Calendar settings')
+    }
+  }
+
+  const handleCalendarToggle = (calendarPath: string) => {
+    setSelectedCalendars(prev => 
+      prev.includes(calendarPath) 
+        ? prev.filter(path => path !== calendarPath)
+        : [...prev, calendarPath]
+    )
+  }
+  */
+
   if (!isOpen) return null
 
   return (
@@ -200,10 +301,19 @@ export const SimpleCalendarSettings: React.FC<SimpleCalendarSettingsProps> = ({ 
           <div className="mb-6 sm:mb-8">
             <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-3 sm:mb-4 flex items-center gap-2">
               <SettingsIcon className="w-4 h-4 sm:w-5 sm:h-5" />
-              Apple Calendar / iCal Feed
+              Apple Calendar Integration
             </h3>
             
+            {/* Single Apple Calendar Integration */}
+            <div className="mb-4">
+              <h4 className="text-sm font-medium text-gray-700 mb-2">Apple Calendar Integration</h4>
+              <p className="text-xs text-gray-500 mb-4">
+                Connect your Apple Calendar to sync events automatically
+              </p>
+            </div>
+            
             <div className="space-y-4">
+              {/* iCal URL Section - Primary Method */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   iCal URL
@@ -219,12 +329,78 @@ export const SimpleCalendarSettings: React.FC<SimpleCalendarSettingsProps> = ({ 
                   <Button
                     onClick={handleTestConnection}
                     disabled={!icalUrl.trim() || isTestingConnection}
-                    className="bg-blue-600 hover:bg-blue-700 text-sm px-4 py-2"
+                    className="bg-green-600 hover:bg-green-700 text-sm px-4 py-2"
                   >
-                    {isTestingConnection ? 'Testing...' : 'Test'}
+                    {isTestingConnection ? 'Testing...' : 'Test & Connect'}
                   </Button>
                 </div>
+                <p className="text-xs text-gray-500 mt-1">
+                  Get your iCal URL from iPhone Calendar app → Tap "Calendars" → Tap "i" → "Share Calendar"
+                </p>
               </div>
+
+              {/* Apple Calendar Direct Connection - COMMENTED OUT FOR LATER USE */}
+              {/* 
+              <div className="text-center py-6">
+                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Calendar className="w-8 h-8 text-green-600" />
+                </div>
+                <h4 className="text-lg font-medium text-gray-900 mb-2">Connect Apple Calendar</h4>
+                <p className="text-sm text-gray-600 mb-4">
+                  Connect directly to your iCloud Calendar - works with shared calendars!
+                </p>
+                <Button
+                  onClick={handleTestCalDAVConnection}
+                  disabled={isTestingCalDAV}
+                  className="bg-green-600 hover:bg-green-700 text-sm px-6 py-3"
+                >
+                  {isTestingCalDAV ? 'Connecting...' : 'Connect Apple Calendar'}
+                </Button>
+                <p className="text-xs text-gray-500 mt-3">
+                  Uses your browser's Apple ID - no setup required
+                </p>
+              </div>
+
+              {caldavStatus !== 'idle' && (
+                <div className={`flex items-center gap-2 p-3 rounded-lg ${
+                  caldavStatus === 'success' 
+                    ? 'bg-green-50 text-green-800 border border-green-200' 
+                    : 'bg-red-50 text-red-800 border border-red-200'
+                }`}>
+                  {caldavStatus === 'success' ? (
+                    <CheckCircle className="w-5 h-5" />
+                  ) : (
+                    <AlertCircle className="w-5 h-5" />
+                  )}
+                  <span className="text-sm font-medium">{caldavMessage}</span>
+                </div>
+              )}
+
+              {caldavCalendars.length > 0 && caldavStatus === 'success' && (
+                <div className="bg-green-50 p-4 rounded-lg">
+                  <h4 className="font-medium text-green-900 mb-2 text-sm">Select Calendars to Sync:</h4>
+                  <div className="space-y-2">
+                    {caldavCalendars.map((calendar, index) => (
+                      <label key={index} className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          checked={selectedCalendars.includes(calendar)}
+                          onChange={() => handleCalendarToggle(calendar)}
+                          className="w-4 h-4 text-green-600 rounded focus:ring-green-500"
+                        />
+                        <span className="text-sm text-green-800">{calendar}</span>
+                      </label>
+                    ))}
+                  </div>
+                  <Button
+                    onClick={handleSaveCalDAVSettings}
+                    className="mt-3 bg-green-600 hover:bg-green-700 text-sm px-4 py-2"
+                  >
+                    Save Apple Calendar Settings
+                  </Button>
+                </div>
+              )}
+              */}
 
               {/* Connection Status */}
               {connectionStatus !== 'idle' && (

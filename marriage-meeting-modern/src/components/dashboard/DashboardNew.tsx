@@ -38,13 +38,14 @@ import { useAuthStore } from '../../stores/authStore'
 import { useMarriageStore } from '../../stores/marriageStore'
 import { useGoalsStore } from '../../stores/goalsStore'
 import { useSettingsStore } from '../../stores/settingsStore'
+import { calendarService } from '../../lib/calendarService'
 import { MarriageMeetingWeek, GoalItem, ListItem, EncouragementNote } from '../../types/marriageTypes'
 import { EncouragementSection } from '../EncouragementSection'
 import { WeekOverview } from '../WeekOverview'
 
 export const DashboardNew: React.FC = () => {
   const { user, isAuthenticated } = useAuthStore()
-  const { currentWeek, weekData, loadWeekData, saveWeekData, updateEncouragementNotes, loadAllWeeks, calculateMeetingStreak, calculateConsistencyScore } = useMarriageStore()
+  const { currentWeek, weekData, loadWeekData, saveWeekData, updateEncouragementNotes, loadAllWeeks, calculateMeetingStreak, calculateConsistencyScore, lastCalendarUpdate, updateCalendarEvents } = useMarriageStore()
   const { goals, loadGoals, getCurrentMonthGoals, getCurrentYearGoals, getLongTermGoals } = useGoalsStore()
   const { settings, loadSettings } = useSettingsStore()
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
@@ -115,8 +116,14 @@ export const DashboardNew: React.FC = () => {
       const weekKey = DatabaseManager.formatWeekKey(today)
       console.log('Dashboard: Loading current week data on mount:', weekKey)
       loadWeekData(weekKey)
+      
+      // Force calendar sync if settings are available
+      if (settings.calendar?.icalUrl) {
+        console.log('Dashboard: Triggering calendar sync on mount')
+        // This will be handled by the DailyFocusedMeeting component
+      }
     }
-  }, [isAuthenticated, loadSettings, loadGoals, loadWeekData])
+  }, [isAuthenticated, loadSettings, loadGoals, loadWeekData, settings.calendar?.icalUrl])
 
   useEffect(() => {
     if (weekData) {
@@ -133,6 +140,64 @@ export const DashboardNew: React.FC = () => {
       calculateInsights().catch(console.error)
     }
   }, [goals])
+
+  // Force re-render when calendar events are updated
+  useEffect(() => {
+    if (lastCalendarUpdate) {
+      console.log('Dashboard: Calendar events updated, forcing re-render at:', lastCalendarUpdate)
+      console.log('Dashboard: Current weekData.calendarEvents:', weekData?.calendarEvents?.length || 0)
+      // Force a state update to trigger re-render
+      setInsights(prev => ({ ...prev }))
+    }
+  }, [lastCalendarUpdate, weekData?.calendarEvents])
+
+  // Force calendar sync on Dashboard mount - always sync to get latest events
+  useEffect(() => {
+    if (isAuthenticated && settings.calendar?.icalUrl && weekData) {
+      console.log('Dashboard: Triggering calendar sync on mount...')
+      
+      // Trigger calendar sync directly from Dashboard
+      const syncCalendar = async () => {
+        try {
+          const today = new Date()
+          const weekKey = DatabaseManager.formatWeekKey(today)
+          const [year, month, day] = weekKey.split('-').map(Number)
+          const weekStart = new Date(year, month - 1, day)
+          
+          console.log('Dashboard: Starting calendar sync for week:', weekKey)
+          
+          // Stop any existing sync and clear cache
+          calendarService.stopAutoSync(settings.calendar.icalUrl)
+          calendarService.clearCacheForWeek(settings.calendar.icalUrl, weekStart)
+          
+          // Fetch events for this week
+          const events = await calendarService.getICalEvents(settings.calendar.icalUrl, weekStart)
+          console.log('Dashboard: Fetched calendar events:', events.length)
+          
+          // Update the store with the events
+          updateCalendarEvents(events)
+          
+        } catch (error) {
+          console.error('Dashboard: Calendar sync failed:', error)
+        }
+      }
+      
+      syncCalendar()
+    }
+  }, [isAuthenticated, settings.calendar?.icalUrl, weekData, updateCalendarEvents])
+
+  // Calculate today's calendar events reactively using the same logic as weekly schedule
+  const todayCalendarEvents = React.useMemo(() => {
+    if (!weekData?.calendarEvents) return []
+    
+    const today = new Date()
+    const events = calendarService.getEventsForDay(weekData.calendarEvents, today)
+    
+    console.log('Dashboard: Today calendar events calculated:', events.length, 'events')
+    console.log('Dashboard: Last calendar update:', lastCalendarUpdate)
+    
+    return events
+  }, [weekData?.calendarEvents, lastCalendarUpdate])
 
   const calculateInsights = async () => {
     if (!weekData && goals.length === 0) return
@@ -286,32 +351,33 @@ export const DashboardNew: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-purple-50 pt-24 sm:pt-16">
-      <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-8 max-w-7xl">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-8"
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-purple-50">
+      {/* Fixed Settings Button - Always visible */}
+      <div className="fixed top-20 right-4 z-40 sm:top-24">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setIsSettingsOpen(true)}
+          className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm bg-white shadow-md border-gray-300"
         >
-          {/* Settings Button - Mobile First */}
-          <div className="flex justify-end mb-4">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setIsSettingsOpen(true)}
-              className="flex items-center gap-2"
-            >
-              <Settings className="w-4 h-4" />
-              <span className="hidden sm:inline">Settings</span>
-            </Button>
-          </div>
-          
-          <h1 className="text-3xl sm:text-4xl font-bold text-gray-800 mb-2">
-            {getGreeting()}, {user?.name || 'David'}!
-          </h1>
-          <p className="text-gray-600 text-base sm:text-lg">{scripture}</p>
-        </motion.div>
+          <Settings className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+          <span className="hidden sm:inline">Settings</span>
+        </Button>
+      </div>
+      
+      <div className="pt-24 sm:pt-16">
+        <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-8 max-w-7xl">
+          {/* Header */}
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-center mb-8"
+          >
+            <h1 className="text-3xl sm:text-4xl font-bold text-gray-800 mb-2">
+              {getGreeting()}, {user?.name || 'David'}!
+            </h1>
+            <p className="text-gray-600 text-base sm:text-lg">{scripture}</p>
+          </motion.div>
 
         {/* Family Creed Display - Moved to top */}
         <FamilyCreedDisplay className="mb-8" />
@@ -380,15 +446,44 @@ export const DashboardNew: React.FC = () => {
                     console.log('Dashboard Debug - Schedule data:', weekData.schedule)
                     console.log('Dashboard Debug - Today schedule:', todaySchedule)
                     console.log('Dashboard Debug - Filtered schedule:', filteredSchedule)
+                    console.log('Dashboard Debug - Calendar events:', todayCalendarEvents.length)
                     
-                    return filteredSchedule.length > 0 ? (
-                      filteredSchedule.map((item, index) => (
-                        <div key={index} className="p-3 sm:p-4 bg-slate-100 rounded-xl border-l-4 border-slate-400">
-                          <span className="text-sm sm:text-base text-slate-800 font-medium">{item}</span>
-                        </div>
-                      ))
-                    ) : (
-                      <p className="text-sm text-gray-500 italic p-3">No schedule items for today</p>
+                    // Display schedule items and calendar events like the weekly schedule
+                    return (
+                      <div className="space-y-2">
+                        {/* Calendar Events - same style as weekly schedule */}
+                        {todayCalendarEvents.map((event, index) => (
+                          <div key={`calendar-${index}`} className="flex gap-2 sm:gap-3 items-start">
+                            <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-green-500 rounded-full mt-2 sm:mt-3 flex-shrink-0"></div>
+                            <div className="flex-1">
+                              <div className="text-sm sm:text-base text-gray-800 font-medium">
+                                {calendarService.formatEventForDisplay(event)}
+                              </div>
+                              {event.location && (
+                                <div className="text-xs text-gray-500 mt-1">
+                                  📍 {event.location}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                        
+                        {/* Custom Schedule Items - same style as weekly schedule */}
+                        {filteredSchedule.map((item, index) => (
+                          <div key={`schedule-${index}`} className="flex gap-2 sm:gap-3 items-start">
+                            <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-blue-500 rounded-full mt-2 sm:mt-3 flex-shrink-0"></div>
+                            <div className="flex-1">
+                              <div className="text-sm sm:text-base text-gray-800 font-medium">
+                                {item}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                        
+                        {todayCalendarEvents.length === 0 && filteredSchedule.length === 0 && (
+                          <p className="text-sm text-gray-500 italic p-3">No schedule items for today</p>
+                        )}
+                      </div>
                     )
                   })()}
                 </div>
@@ -1172,6 +1267,7 @@ export const DashboardNew: React.FC = () => {
               </div>
             </Card>
           </motion.div>
+        </div>
         </div>
       </div>
 

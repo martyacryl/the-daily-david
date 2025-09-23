@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
+import { calendarService } from '../../lib/calendarService'
 import { 
   Calendar, 
   Target, 
@@ -616,58 +617,49 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                   <div className="space-y-3">
                     {(() => {
                       const today = new Date()
-                      const todayDateString = today.toISOString().split('T')[0]
                       const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
                       const todayName = dayNames[today.getDay()]
                       const todaySchedule = weekData?.schedule?.[todayName] || []
                       const filteredSchedule = todaySchedule.filter((item: any) => item && item.trim() !== '')
                       
-                      // Get calendar events for today
-                      const todayCalendarEvents = (weekData?.calendarEvents || []).filter((event: any) => {
-                        const eventStartDate = event.start.toISOString().split('T')[0]
-                        const eventEndDate = event.end.toISOString().split('T')[0]
-                        return eventStartDate === todayDateString || eventEndDate === todayDateString
-                      })
+                      // Get calendar events for today using the same logic as weekly schedule
+                      const todayCalendarEvents = calendarService.getEventsForDay(weekData?.calendarEvents || [], today)
                       
-                      // Combine schedule items and calendar events
-                      const allItems = [
-                        ...filteredSchedule.map((item: any, index: number) => ({
-                          type: 'schedule',
-                          content: item,
-                          key: `schedule-${index}`,
-                          icon: Clock,
-                          bgColor: 'bg-slate-50',
-                          iconColor: 'text-slate-600'
-                        })),
-                        ...todayCalendarEvents.map((event: any, index: number) => ({
-                          type: 'calendar',
-                          content: event.title,
-                          key: `calendar-${index}`,
-                          icon: Calendar,
-                          bgColor: 'bg-blue-50',
-                          iconColor: 'text-blue-600',
-                          time: event.start.toLocaleTimeString('en-US', { 
-                            hour: 'numeric', 
-                            minute: '2-digit',
-                            hour12: true 
-                          })
-                        }))
-                      ]
-                      
-                      return allItems.length > 0 ? (
-                        allItems.map((item: any) => (
-                          <div key={item.key} className={`flex items-center gap-3 p-3 rounded-lg border-l-4 ${item.type === 'calendar' ? 'bg-blue-50 border-blue-400' : 'bg-slate-50 border-slate-400'}`}>
-                            <item.icon className={`w-4 h-4 ${item.iconColor}`} />
-                            <div className="flex-1">
-                              <span className="text-gray-700">{item.content}</span>
-                              {item.time && (
-                                <span className="text-sm text-gray-500 ml-2">({item.time})</span>
-                              )}
+                      return (
+                        <div className="space-y-2">
+                          {/* Calendar Events - same style as weekly schedule */}
+                          {todayCalendarEvents.map((event, index) => (
+                            <div key={`calendar-${index}`} className="flex gap-2 sm:gap-3 items-start">
+                              <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-green-500 rounded-full mt-2 sm:mt-3 flex-shrink-0"></div>
+                              <div className="flex-1">
+                                <div className="text-sm sm:text-base text-gray-800 font-medium">
+                                  {calendarService.formatEventForDisplay(event)}
+                                </div>
+                                {event.location && (
+                                  <div className="text-xs text-gray-500 mt-1">
+                                    📍 {event.location}
+                                  </div>
+                                )}
+                              </div>
                             </div>
-                          </div>
-                        ))
-                      ) : (
-                        <p className="text-gray-500 italic text-center py-4">No schedule items or events for today</p>
+                          ))}
+                          
+                          {/* Custom Schedule Items - same style as weekly schedule */}
+                          {filteredSchedule.map((item, index) => (
+                            <div key={`schedule-${index}`} className="flex gap-2 sm:gap-3 items-start">
+                              <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-blue-500 rounded-full mt-2 sm:mt-3 flex-shrink-0"></div>
+                              <div className="flex-1">
+                                <div className="text-sm sm:text-base text-gray-800 font-medium">
+                                  {item}
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                          
+                          {todayCalendarEvents.length === 0 && filteredSchedule.length === 0 && (
+                            <p className="text-gray-500 italic text-center py-4">No schedule items or events for today</p>
+                          )}
+                        </div>
                       )
                     })()}
                   </div>
@@ -1093,14 +1085,44 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                   const todaySchedule = weekData.schedule?.[todayName as keyof typeof weekData.schedule] || []
                   const filteredSchedule = todaySchedule.filter(item => item && item.trim() !== '' && item !== '')
                   
-                  return filteredSchedule.length > 0 ? (
-                    filteredSchedule.map((item, index) => (
-                      <div key={index} className="p-3 sm:p-4 bg-slate-100 rounded-xl border-l-4 border-slate-400">
-                        <span className="text-sm sm:text-base text-slate-800 font-medium">{item}</span>
-                      </div>
-                    ))
-                  ) : (
-                    <p className="text-sm text-gray-500 italic p-3">No schedule items for today</p>
+                  // Get calendar events for today using the same logic as weekly schedule
+                  const todayCalendarEvents = calendarService.getEventsForDay(weekData?.calendarEvents || [], currentDate)
+                  
+                  return (
+                    <div className="space-y-2">
+                      {/* Calendar Events - same style as weekly schedule */}
+                      {todayCalendarEvents.map((event, index) => (
+                        <div key={`calendar-${index}`} className="flex gap-2 sm:gap-3 items-start">
+                          <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-green-500 rounded-full mt-2 sm:mt-3 flex-shrink-0"></div>
+                          <div className="flex-1">
+                            <div className="text-sm sm:text-base text-gray-800 font-medium">
+                              {calendarService.formatEventForDisplay(event)}
+                            </div>
+                            {event.location && (
+                              <div className="text-xs text-gray-500 mt-1">
+                                📍 {event.location}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                      
+                      {/* Custom Schedule Items - same style as weekly schedule */}
+                      {filteredSchedule.map((item, index) => (
+                        <div key={`schedule-${index}`} className="flex gap-2 sm:gap-3 items-start">
+                          <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-blue-500 rounded-full mt-2 sm:mt-3 flex-shrink-0"></div>
+                          <div className="flex-1">
+                            <div className="text-sm sm:text-base text-gray-800 font-medium">
+                              {item}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                      
+                      {todayCalendarEvents.length === 0 && filteredSchedule.length === 0 && (
+                        <p className="text-sm text-gray-500 italic p-3">No schedule items for today</p>
+                      )}
+                    </div>
                   )
                 })()}
               </div>
@@ -1198,58 +1220,49 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
           <div className="space-y-3">
             {(() => {
               const today = new Date()
-              const todayDateString = today.toISOString().split('T')[0]
               const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
               const todayName = dayNames[today.getDay()]
               const todaySchedule = weekData?.schedule?.[todayName] || []
               const filteredSchedule = todaySchedule.filter((item: any) => item && item.trim() !== '')
               
-              // Get calendar events for today
-              const todayCalendarEvents = (weekData?.calendarEvents || []).filter((event: any) => {
-                const eventStartDate = event.start.toISOString().split('T')[0]
-                const eventEndDate = event.end.toISOString().split('T')[0]
-                return eventStartDate === todayDateString || eventEndDate === todayDateString
-              })
+              // Get calendar events for today using the same logic as weekly schedule
+              const todayCalendarEvents = calendarService.getEventsForDay(weekData?.calendarEvents || [], today)
               
-              // Combine schedule items and calendar events
-              const allItems = [
-                ...filteredSchedule.map((item: any, index: number) => ({
-                  type: 'schedule',
-                  content: item,
-                  key: `schedule-${index}`,
-                  icon: Clock,
-                  bgColor: 'bg-slate-50',
-                  iconColor: 'text-slate-600'
-                })),
-                ...todayCalendarEvents.map((event: any, index: number) => ({
-                  type: 'calendar',
-                  content: event.title,
-                  key: `calendar-${index}`,
-                  icon: Calendar,
-                  bgColor: 'bg-blue-50',
-                  iconColor: 'text-blue-600',
-                  time: event.start.toLocaleTimeString('en-US', { 
-                    hour: 'numeric', 
-                    minute: '2-digit',
-                    hour12: true 
-                  })
-                }))
-              ]
-              
-              return allItems.length > 0 ? (
-                allItems.map((item: any) => (
-                  <div key={item.key} className={`flex items-center gap-3 p-3 rounded-lg border-l-4 ${item.type === 'calendar' ? 'bg-blue-50 border-blue-400' : 'bg-slate-50 border-slate-400'}`}>
-                    <item.icon className={`w-4 h-4 ${item.iconColor}`} />
-                    <div className="flex-1">
-                      <span className="text-gray-700">{item.content}</span>
-                      {item.time && (
-                        <span className="text-sm text-gray-500 ml-2">({item.time})</span>
-                      )}
+              return (
+                <div className="space-y-2">
+                  {/* Calendar Events - same style as weekly schedule */}
+                  {todayCalendarEvents.map((event, index) => (
+                    <div key={`calendar-${index}`} className="flex gap-2 sm:gap-3 items-start">
+                      <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-green-500 rounded-full mt-2 sm:mt-3 flex-shrink-0"></div>
+                      <div className="flex-1">
+                        <div className="text-sm sm:text-base text-gray-800 font-medium">
+                          {calendarService.formatEventForDisplay(event)}
+                        </div>
+                        {event.location && (
+                          <div className="text-xs text-gray-500 mt-1">
+                            📍 {event.location}
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                ))
-              ) : (
-                <p className="text-gray-500 italic text-center py-4">No schedule items or events for today</p>
+                  ))}
+                  
+                  {/* Custom Schedule Items - same style as weekly schedule */}
+                  {filteredSchedule.map((item, index) => (
+                    <div key={`schedule-${index}`} className="flex gap-2 sm:gap-3 items-start">
+                      <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-blue-500 rounded-full mt-2 sm:mt-3 flex-shrink-0"></div>
+                      <div className="flex-1">
+                        <div className="text-sm sm:text-base text-gray-800 font-medium">
+                          {item}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                  
+                  {todayCalendarEvents.length === 0 && filteredSchedule.length === 0 && (
+                    <p className="text-gray-500 italic text-center py-4">No schedule items or events for today</p>
+                  )}
+                </div>
               )
             })()}
           </div>

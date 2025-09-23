@@ -67,8 +67,13 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
   
   // Get calendar events from the store instead of local state
   const calendarEvents = weekData.calendarEvents || []
-  console.log('📅 WeeklyMeetingContent: calendarEvents from weekData:', calendarEvents)
+  console.log('📅 WeeklyMeetingContent: calendarEvents from weekData:', calendarEvents.length, 'events')
   console.log('📅 WeeklyMeetingContent: weekData keys:', Object.keys(weekData))
+  console.log('📅 WeeklyMeetingContent: calendar events details:', calendarEvents.map(e => ({
+    title: e.title,
+    start: e.start.toISOString(),
+    end: e.end.toISOString()
+  })))
 
   // Load settings first, then set up calendar sync
   React.useEffect(() => {
@@ -82,15 +87,19 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
 
   // Set up automatic calendar sync when component mounts or settings change
   React.useEffect(() => {
+    // Only start calendar sync if we have settings loaded
+    if (!settings.calendar?.icalUrl) {
+      console.log('📅 Calendar sync skipped - missing iCal URL')
+      return
+    }
+
     const mondayKey = DatabaseManager.formatWeekKey(currentDate)
     const [year, month, day] = mondayKey.split('-').map(Number)
     const weekStart = new Date(year, month - 1, day)
     
     // Stop any existing sync and clear cache for this week
-    if (settings.calendar?.icalUrl) {
-      calendarService.stopAutoSync(settings.calendar.icalUrl)
-      calendarService.clearCacheForWeek(settings.calendar.icalUrl, weekStart)
-    }
+    calendarService.stopAutoSync(settings.calendar.icalUrl)
+    calendarService.clearCacheForWeek(settings.calendar.icalUrl, weekStart)
     
     // Start auto-sync if calendar events are enabled
     console.log('📅 Calendar sync check:', {
@@ -100,65 +109,58 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
       hasCalendar: !!settings.calendar
     })
     
-    // Force sync to start if we have an iCal URL, regardless of other settings
-    if (settings.calendar?.icalUrl) {
-      console.log('📅 Starting automatic calendar sync...')
+    console.log('📅 Starting automatic calendar sync...')
+    
+    const handleEventsUpdate = async (events: CalendarEvent[]) => {
+      console.log('📅 Calendar events updated:', events.length)
       
-      const handleEventsUpdate = async (events: CalendarEvent[]) => {
-        console.log('📅 Calendar events updated:', events.length)
-        
-        // Get all 7 dates for the current week
-        const weekDates: string[] = []
-        for (let i = 0; i < 7; i++) {
-          const date = new Date(weekStart.getTime() + i * 24 * 60 * 60 * 1000)
-          weekDates.push(date.toISOString().split('T')[0])
-        }
-        
-        console.log('📅 Current week dates:', weekDates)
-        
-        // Filter events to only include those that occur on any day of the current week
-        const currentWeekEvents = events.filter(event => {
-          const eventStartDate = event.start.toISOString().split('T')[0]
-          const eventEndDate = event.end.toISOString().split('T')[0]
-          
-          // Check if event starts or ends on any day of the current week
-          const eventOnWeekDay = weekDates.some(weekDate => 
-            eventStartDate === weekDate || eventEndDate === weekDate
-          )
-          
-          console.log('📅 Event date check:', {
-            title: event.title,
-            eventStartDate,
-            eventEndDate,
-            weekDates,
-            eventOnWeekDay
-          })
-          
-          return eventOnWeekDay
-        })
-        
-        console.log('📅 Filtered events for current week:', currentWeekEvents.length, 'out of', events.length)
-        
-        // Update the store with filtered calendar events
-        updateCalendarEvents(currentWeekEvents)
-        
-        // DO NOT auto-save - let user manually save when ready
-        // This prevents copying data between weeks
+      // Get all 7 dates for the current week
+      const weekDates: string[] = []
+      for (let i = 0; i < 7; i++) {
+        const date = new Date(weekStart.getTime() + i * 24 * 60 * 60 * 1000)
+        weekDates.push(date.toISOString().split('T')[0])
       }
       
-      // Start auto-sync
-      calendarService.startAutoSync(
-        settings.calendar.icalUrl,
-        settings.calendar.googleCalendarEnabled || false,
-        settings.calendar.syncFrequency || 'realtime',
-        weekStart,
-        handleEventsUpdate
-      )
-    } else {
-      console.log('📅 No iCal URL found - clearing events')
-      // Clear events if no iCal URL
-      updateCalendarEvents([])
+      console.log('📅 Current week dates:', weekDates)
+      
+      // Filter events to only include those that occur on any day of the current week
+      const currentWeekEvents = events.filter(event => {
+        const eventStartDate = event.start.toISOString().split('T')[0]
+        const eventEndDate = event.end.toISOString().split('T')[0]
+        
+        // Check if event starts or ends on any day of the current week
+        const eventOnWeekDay = weekDates.some(weekDate => 
+          eventStartDate === weekDate || eventEndDate === weekDate
+        )
+        
+        console.log('📅 Event date check:', {
+          title: event.title,
+          eventStartDate,
+          eventEndDate,
+          weekDates,
+          eventOnWeekDay
+        })
+        
+        return eventOnWeekDay
+      })
+      
+      console.log('📅 Filtered events for current week:', currentWeekEvents.length, 'out of', events.length)
+      
+      // Update the store with filtered calendar events
+      updateCalendarEvents(currentWeekEvents)
+      
+      // DO NOT auto-save - let user manually save when ready
+      // This prevents copying data between weeks
     }
+    
+    // Start auto-sync
+    calendarService.startAutoSync(
+      settings.calendar.icalUrl,
+      settings.calendar.googleCalendarEnabled || false,
+      settings.calendar.syncFrequency || 'realtime',
+      weekStart,
+      handleEventsUpdate
+    )
     
     // Cleanup on unmount or when settings change
     return () => {
@@ -166,7 +168,7 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
         calendarService.stopAutoSync(settings.calendar.icalUrl)
       }
     }
-  }, [settings.calendar?.icalUrl, settings.calendar?.googleCalendarEnabled, settings.calendar?.showCalendarEvents, settings.calendar?.syncFrequency, currentDate, loadSettings])
+  }, [settings.calendar?.icalUrl, settings.calendar?.googleCalendarEnabled, settings.calendar?.showCalendarEvents, settings.calendar?.syncFrequency, currentDate, updateCalendarEvents])
 
   // Calculate actual dates for each day of the current week
   const getWeekDates = () => {
@@ -248,6 +250,8 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
                 {(() => {
                   const dayEvents = calendarService.getEventsForDay(calendarEvents, getDayDate(day))
                   console.log(`📅 ${day} events:`, dayEvents)
+                  console.log(`📅 ${day} total calendar events:`, calendarEvents.length)
+                  console.log(`📅 ${day} day date:`, getDayDate(day).toISOString().split('T')[0])
                   return dayEvents.map((event, index) => (
                     <div key={`calendar-${index}`} className="flex gap-2 sm:gap-3 items-start">
                       <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-green-500 rounded-full mt-2 sm:mt-3 flex-shrink-0"></div>

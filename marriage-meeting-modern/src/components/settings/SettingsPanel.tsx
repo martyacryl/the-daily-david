@@ -125,7 +125,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
           initial={{ scale: 0.95, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.95, opacity: 0 }}
-          className="bg-white rounded-lg shadow-xl w-full max-w-4xl h-[95vh] sm:h-[90vh] flex items-center justify-center"
+          className="bg-white rounded-lg shadow-xl w-full max-w-4xl h-[98vh] sm:h-[90vh] flex items-center justify-center mx-1 sm:mx-4"
         >
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
@@ -142,49 +142,49 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-2 sm:p-4"
+        className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-1 sm:p-4"
       >
         <motion.div
           initial={{ scale: 0.95, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.95, opacity: 0 }}
-          className="bg-white rounded-lg shadow-xl w-full max-w-4xl h-[95vh] sm:h-[90vh] flex flex-col"
+          className="bg-white rounded-lg shadow-xl w-full max-w-4xl h-[98vh] sm:h-[90vh] flex flex-col mx-1 sm:mx-4"
         >
-          {/* Header */}
-          <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200">
-            <div className="flex items-center gap-3">
-              <Settings className="w-6 h-6 text-blue-600" />
-              <h2 className="text-xl font-semibold text-gray-900">Settings</h2>
+          {/* Header - Sticky on mobile */}
+          <div className="flex items-center justify-between p-3 sm:p-4 lg:p-6 border-b border-gray-200 bg-white sticky top-0 z-10">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <Settings className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" />
+              <h2 className="text-lg sm:text-xl font-semibold text-gray-900">Settings</h2>
             </div>
             <Button
               onClick={onClose}
               variant="ghost"
-              className="text-gray-400 hover:text-gray-600"
+              className="text-gray-400 hover:text-gray-600 p-2 sm:p-2 bg-gray-100 hover:bg-gray-200 rounded-full"
             >
-              <X className="w-6 h-6" />
+              <X className="w-5 h-5 sm:w-6 sm:h-6" />
             </Button>
           </div>
 
           {/* Content */}
           <div className="flex-1 overflow-hidden">
-            <div className="h-full flex">
-              {/* Sidebar */}
-              <div className="w-64 bg-gray-50 border-r border-gray-200 p-4">
-                <nav className="space-y-2">
+            <div className="h-full flex flex-col sm:flex-row">
+              {/* Sidebar - Mobile: Horizontal scroll, Desktop: Vertical */}
+              <div className="w-full sm:w-64 bg-gray-50 border-b sm:border-b-0 sm:border-r border-gray-200 p-2 sm:p-4">
+                <nav className="flex sm:flex-col space-x-1 sm:space-x-0 sm:space-y-2 overflow-x-auto sm:overflow-x-visible">
                   {tabs.map((tab) => {
                     const Icon = tab.icon
                     return (
                       <button
                         key={tab.id}
                         onClick={() => setActiveTab(tab.id)}
-                        className={`w-full flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+                        className={`flex-shrink-0 flex items-center gap-2 sm:gap-3 px-3 sm:px-3 py-3 sm:py-2 text-sm sm:text-sm font-medium rounded-lg transition-colors whitespace-nowrap min-w-[80px] sm:min-w-0 ${
                           activeTab === tab.id
                             ? 'bg-blue-100 text-blue-700'
                             : 'text-gray-700 hover:bg-gray-100'
                         }`}
                       >
-                        <Icon className="w-5 h-5" />
-                        {tab.label}
+                        <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
+                        <span className="text-xs sm:text-sm">{tab.label}</span>
                       </button>
                     )
                   })}
@@ -192,16 +192,16 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
               </div>
 
               {/* Main Content */}
-              <div className="flex-1 overflow-y-auto p-4 sm:p-6">
+              <div className="flex-1 overflow-y-auto p-3 sm:p-4 lg:p-6">
                 {/* Spouses Tab */}
                 {activeTab === 'spouses' && (
-                  <div className="space-y-6">
+                  <div className="space-y-4 sm:space-y-6">
                     <div>
-                      <h3 className="text-lg font-semibold text-gray-900 mb-4">Spouse Information</h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <Card className="p-4">
-                          <h4 className="text-md font-semibold text-gray-900 mb-4">Spouse 1</h4>
-                          <div className="space-y-4">
+                      <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">Spouse Information</h3>
+                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+                        <Card className="p-3 sm:p-4">
+                          <h4 className="text-sm sm:text-md font-semibold text-gray-900 mb-3 sm:mb-4">Spouse 1</h4>
+                          <div className="space-y-3 sm:space-y-4">
                             <Input
                               label="Name"
                               value={settings.spouse1?.name || ''}
@@ -217,9 +217,9 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
                             />
                           </div>
                         </Card>
-                        <Card className="p-4">
-                          <h4 className="text-md font-semibold text-gray-900 mb-4">Spouse 2</h4>
-                          <div className="space-y-4">
+                        <Card className="p-3 sm:p-4">
+                          <h4 className="text-sm sm:text-md font-semibold text-gray-900 mb-3 sm:mb-4">Spouse 2</h4>
+                          <div className="space-y-3 sm:space-y-4">
                             <Input
                               label="Name"
                               value={settings.spouse2?.name || ''}

@@ -6,7 +6,14 @@ export interface CalendarEvent {
   allDay: boolean
   description?: string
   location?: string
-  source: 'ical' | 'google'
+  source: 'ical' | 'google' | 'caldav'
+}
+
+export interface CalDAVConfig {
+  username: string
+  password: string
+  server: string
+  calendarPath?: string
 }
 
 // Type declaration for timer
@@ -53,9 +60,11 @@ export class CalendarService {
       
       // Try multiple CORS proxies as fallbacks
       const corsProxies = [
-        `https://corsproxy.io/?${encodeURIComponent(fetchUrl)}`,
         `https://api.allorigins.win/raw?url=${encodeURIComponent(fetchUrl)}`,
-        `https://cors-anywhere.herokuapp.com/${fetchUrl}`
+        `https://corsproxy.io/?${encodeURIComponent(fetchUrl)}`,
+        `https://cors-anywhere.herokuapp.com/${fetchUrl}`,
+        `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(fetchUrl)}`,
+        `https://thingproxy.freeboard.io/fetch/${fetchUrl}`
       ]
       
       let response: Response | null = null
@@ -69,7 +78,8 @@ export class CalendarService {
           response = await fetch(proxyUrl, {
             method: 'GET',
             headers: {
-              'Accept': 'text/calendar, application/calendar+json, */*'
+              'Accept': 'text/calendar, application/calendar+json, */*',
+              'User-Agent': 'Mozilla/5.0 (compatible; WeeklyHuddle/1.0)'
             }
           })
 
@@ -77,11 +87,27 @@ export class CalendarService {
           console.log(`📅 CORS proxy ${i + 1} response headers:`, Object.fromEntries(response.headers.entries()))
 
           if (response.ok) {
-            console.log(`✅ CORS proxy ${i + 1} succeeded`)
-            break
+            const responseText = await response.text()
+            console.log(`📅 CORS proxy ${i + 1} response length:`, responseText.length)
+            
+            // Check if we got actual calendar data, not an error page
+            if (responseText.includes('BEGIN:VCALENDAR') || responseText.includes('VEVENT')) {
+              console.log(`✅ CORS proxy ${i + 1} succeeded with valid calendar data`)
+              // Recreate response with the text content
+              response = new Response(responseText, {
+                status: response.status,
+                statusText: response.statusText,
+                headers: response.headers
+              })
+              break
+            } else {
+              console.warn(`⚠️ CORS proxy ${i + 1} returned non-calendar data:`, responseText.substring(0, 200))
+              lastError = new Error(`CORS proxy ${i + 1} returned non-calendar data`)
+              response = null
+            }
           } else {
             const errorText = await response.text()
-            console.warn(`⚠️ CORS proxy ${i + 1} failed:`, response.status, errorText)
+            console.warn(`⚠️ CORS proxy ${i + 1} failed:`, response.status, errorText.substring(0, 200))
             lastError = new Error(`CORS proxy ${i + 1} failed: ${response.status} ${response.statusText}`)
             response = null
           }
@@ -93,13 +119,43 @@ export class CalendarService {
       }
       
       if (!response) {
-        throw lastError || new Error('All CORS proxies failed')
+        // Try direct access as last resort
+        console.log('📅 All CORS proxies failed, trying direct access...')
+        try {
+          response = await fetch(fetchUrl, {
+            method: 'GET',
+            headers: {
+              'Accept': 'text/calendar, application/calendar+json, */*',
+              'User-Agent': 'Mozilla/5.0 (compatible; WeeklyHuddle/1.0)'
+            },
+            mode: 'cors'
+          })
+          
+          if (response.ok) {
+            const responseText = await response.text()
+            if (responseText.includes('BEGIN:VCALENDAR') || responseText.includes('VEVENT')) {
+              console.log('✅ Direct access succeeded')
+              response = new Response(responseText, {
+                status: response.status,
+                statusText: response.statusText,
+                headers: response.headers
+              })
+            } else {
+              throw new Error('Direct access returned non-calendar data')
+            }
+          } else {
+            throw new Error(`Direct access failed: ${response.status}`)
+          }
+        } catch (directError) {
+          console.warn('⚠️ Direct access also failed:', directError)
+          throw lastError || new Error('All CORS proxies and direct access failed')
+        }
       }
 
       const icalData = await response.text()
       
                 // DEBUG: Log the raw iCal data
-                console.log('📅 RAW iCal data:', icalData)
+                console.log('📅 RAW iCal data (first 1000 chars):', icalData.substring(0, 1000))
                 console.log('📅 iCal data length:', icalData.length)
                 
                 // Find all DTSTART lines in the raw data
@@ -110,10 +166,6 @@ export class CalendarService {
                 const dtendLines = icalData.split('\n').filter(line => line.includes('DTEND'))
                 console.log('📅 All DTEND lines in raw data:', dtendLines)
                 
-                // Find Test event 3 specifically
-                const testEvent3Lines = icalData.split('\n').filter(line => line.includes('Test event 3'))
-                console.log('📅 Test event 3 lines:', testEvent3Lines)
-                
                 // Find all SUMMARY lines to see all event titles
                 const summaryLines = icalData.split('\n').filter(line => line.includes('SUMMARY:'))
                 console.log('📅 All SUMMARY lines in raw data:', summaryLines)
@@ -121,6 +173,17 @@ export class CalendarService {
                 // Count total VEVENT blocks
                 const veventBlocks = icalData.split('BEGIN:VEVENT')
                 console.log('📅 Total VEVENT blocks found:', veventBlocks.length - 1) // -1 because first split creates empty string
+                
+                // Show the week range we're looking for
+                const weekStartDate = new Date(weekStart)
+                const weekEnd = new Date(weekStart)
+                weekEnd.setDate(weekEnd.getDate() + 6)
+                console.log('📅 Looking for events in week range:', {
+                  weekStart: weekStartDate.toISOString().split('T')[0],
+                  weekEnd: weekEnd.toISOString().split('T')[0],
+                  weekStartLocal: weekStartDate.toLocaleDateString(),
+                  weekEndLocal: weekEnd.toLocaleDateString()
+                })
       
       const events = this.parseICalData(icalData, weekStart)
       
@@ -169,7 +232,13 @@ export class CalendarService {
         if (event) {
           // Add all events - let the component filter by specific dates
           events.push(event)
-          console.log('📅 parseICalData: Added event to results:', event.title)
+          console.log('📅 parseICalData: Added event to results:', {
+            title: event.title,
+            start: event.start.toISOString(),
+            end: event.end.toISOString(),
+            startDate: event.start.toISOString().split('T')[0],
+            endDate: event.end.toISOString().split('T')[0]
+          })
         } else {
           console.log('📅 parseICalData: Failed to parse event block')
         }
@@ -232,8 +301,8 @@ export class CalendarService {
         } catch (error) {
           const errorMessage = error instanceof Error ? error.message : String(error)
           console.warn('⚠️ Skipping invalid DTSTART line (likely timezone definition):', trimmedLine, errorMessage)
-          // Set a fallback date to prevent undefined errors
-          event.start = new Date()
+          // Don't set a fallback date - this will cause the event to be skipped entirely
+          return null
         }
       } else if (trimmedLine.startsWith('DTEND')) {
         console.log('📅 RAW DTEND line:', trimmedLine)
@@ -253,8 +322,8 @@ export class CalendarService {
         } catch (error) {
           const errorMessage = error instanceof Error ? error.message : String(error)
           console.warn('⚠️ Skipping invalid DTEND line (likely timezone definition):', trimmedLine, errorMessage)
-          // Set a fallback date to prevent undefined errors
-          event.end = new Date()
+          // Don't set a fallback date - this will cause the event to be skipped entirely
+          return null
         }
       } else if (trimmedLine.startsWith('DESCRIPTION:')) {
         event.description = trimmedLine.substring(12).replace(/\\,/g, ',').replace(/\\;/g, ';')
@@ -377,6 +446,195 @@ export class CalendarService {
 
 
   /**
+   * Get CalDAV events from Apple iCloud
+   */
+  async getCalDAVEvents(config: CalDAVConfig, weekStart: Date): Promise<CalendarEvent[]> {
+    const cacheKey = `caldav_${config.username}_${weekStart.toISOString().split('T')[0]}`
+    
+    // Check cache first
+    if (this.isCacheValid(cacheKey)) {
+      return this.cache.get(cacheKey) || []
+    }
+
+    try {
+      console.log('📅 Fetching CalDAV events from:', config.server)
+      
+      // Get calendar list first
+      const calendars = await this.getCalDAVCalendars(config)
+      console.log('📅 Available calendars:', calendars)
+      
+      const allEvents: CalendarEvent[] = []
+      
+      // Fetch events from each calendar
+      for (const calendar of calendars) {
+        const events = await this.fetchCalDAVEvents(config, calendar, weekStart)
+        allEvents.push(...events)
+      }
+      
+      // Cache the results
+      this.cache.set(cacheKey, allEvents)
+      this.cacheExpiry.set(cacheKey, Date.now() + (60 * 60 * 1000)) // 1 hour cache
+      
+      console.log(`📅 Found ${allEvents.length} CalDAV events for the week`)
+      return allEvents
+      
+    } catch (error) {
+      console.error('❌ Error fetching CalDAV events:', error)
+      return []
+    }
+  }
+
+  /**
+   * Get list of available CalDAV calendars
+   */
+  private async getCalDAVCalendars(config: CalDAVConfig): Promise<string[]> {
+    try {
+      const serverUrl = config.server || 'https://caldav.icloud.com'
+      const calendarPath = config.calendarPath || '/calendars/'
+      
+      const response = await fetch(`${serverUrl}${calendarPath}`, {
+        method: 'PROPFIND',
+        headers: {
+          'Authorization': `Basic ${btoa(`${config.username}:${config.password}`)}`,
+          'Content-Type': 'application/xml',
+          'Depth': '1'
+        },
+        body: `<?xml version="1.0" encoding="utf-8"?>
+          <D:propfind xmlns:D="DAV:">
+            <D:prop>
+              <D:displayname/>
+              <D:resourcetype/>
+            </D:prop>
+          </D:propfind>`
+      })
+
+      if (!response.ok) {
+        throw new Error(`CalDAV request failed: ${response.status} ${response.statusText}`)
+      }
+
+      const xmlText = await response.text()
+      console.log('📅 CalDAV calendars response:', xmlText)
+      
+      // Parse XML to extract calendar paths
+      const parser = new DOMParser()
+      const xmlDoc = parser.parseFromString(xmlText, 'text/xml')
+      const responses = xmlDoc.getElementsByTagName('D:response')
+      
+      const calendars: string[] = []
+      for (let i = 0; i < responses.length; i++) {
+        const response = responses[i]
+        const href = response.getElementsByTagName('D:href')[0]?.textContent
+        const resourceType = response.getElementsByTagName('D:resourcetype')[0]
+        const isCollection = resourceType?.getElementsByTagName('D:collection').length > 0
+        
+        if (href && isCollection && href !== calendarPath) {
+          calendars.push(href)
+        }
+      }
+      
+      console.log('📅 Parsed calendars:', calendars)
+      return calendars
+      
+    } catch (error) {
+      console.error('❌ Error getting CalDAV calendars:', error)
+      return []
+    }
+  }
+
+  /**
+   * Fetch events from a specific CalDAV calendar
+   */
+  private async fetchCalDAVEvents(config: CalDAVConfig, calendarPath: string, weekStart: Date): Promise<CalendarEvent[]> {
+    try {
+      const serverUrl = config.server || 'https://caldav.icloud.com'
+      const weekEnd = new Date(weekStart)
+      weekEnd.setDate(weekEnd.getDate() + 6)
+      weekEnd.setHours(23, 59, 59, 999)
+      
+      const response = await fetch(`${serverUrl}${calendarPath}`, {
+        method: 'REPORT',
+        headers: {
+          'Authorization': `Basic ${btoa(`${config.username}:${config.password}`)}`,
+          'Content-Type': 'application/xml',
+          'Depth': '1'
+        },
+        body: `<?xml version="1.0" encoding="utf-8"?>
+          <C:calendar-query xmlns:D="DAV:" xmlns:C="urn:ietf:params:xml:ns:caldav">
+            <D:prop>
+              <D:getetag/>
+              <C:calendar-data/>
+            </D:prop>
+            <C:filter>
+              <C:comp-filter name="VCALENDAR">
+                <C:comp-filter name="VEVENT">
+                  <C:time-range start="${weekStart.toISOString()}" end="${weekEnd.toISOString()}"/>
+                </C:comp-filter>
+              </C:comp-filter>
+            </C:filter>
+          </C:calendar-query>`
+      })
+
+      if (!response.ok) {
+        throw new Error(`CalDAV events request failed: ${response.status} ${response.statusText}`)
+      }
+
+      const xmlText = await response.text()
+      console.log('📅 CalDAV events response:', xmlText)
+      
+      // Parse XML to extract calendar data
+      const parser = new DOMParser()
+      const xmlDoc = parser.parseFromString(xmlText, 'text/xml')
+      const calendarDataElements = xmlDoc.getElementsByTagName('C:calendar-data')
+      
+      const events: CalendarEvent[] = []
+      for (let i = 0; i < calendarDataElements.length; i++) {
+        const calendarData = calendarDataElements[i].textContent
+        if (calendarData) {
+          const parsedEvents = this.parseICalData(calendarData, weekStart)
+          events.push(...parsedEvents.map(event => ({ ...event, source: 'caldav' as const })))
+        }
+      }
+      
+      console.log(`📅 Parsed ${events.length} events from calendar ${calendarPath}`)
+      return events
+      
+    } catch (error) {
+      console.error('❌ Error fetching CalDAV events from calendar:', error)
+      return []
+    }
+  }
+
+  /**
+   * Test CalDAV connection
+   */
+  async testCalDAVConnection(config: CalDAVConfig): Promise<{ success: boolean; message: string; calendars?: string[] }> {
+    try {
+      console.log('📅 Testing CalDAV connection...')
+      
+      const calendars = await this.getCalDAVCalendars(config)
+      
+      if (calendars.length > 0) {
+        return {
+          success: true,
+          message: `Connected successfully! Found ${calendars.length} calendar(s).`,
+          calendars
+        }
+      } else {
+        return {
+          success: false,
+          message: 'Connected but no calendars found. Check your Apple ID permissions.'
+        }
+      }
+    } catch (error) {
+      console.error('❌ CalDAV connection test failed:', error)
+      return {
+        success: false,
+        message: `Connection failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+      }
+    }
+  }
+
+  /**
    * Check if cache is still valid
    */
   private isCacheValid(cacheKey: string): boolean {
@@ -404,11 +662,13 @@ export class CalendarService {
    * Get events for a specific day
    */
   getEventsForDay(events: CalendarEvent[], date: Date): CalendarEvent[] {
-    // Get the target date in YYYY-MM-DD format for comparison
-    const targetDateStr = date.toISOString().split('T')[0]
+    // Get the target date in YYYY-MM-DD format using user's current timezone
+    const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone
+    const targetDateStr = date.toLocaleDateString('en-CA', { timeZone }) // YYYY-MM-DD format
 
     console.log('📅 getEventsForDay called with:', {
       date: targetDateStr,
+      timeZone: timeZone,
       eventsCount: events.length
     })
     
@@ -416,8 +676,8 @@ export class CalendarService {
       title: e.title,
       start: e.start ? e.start.toISOString() : 'undefined',
       end: e.end ? e.end.toISOString() : 'undefined',
-      startDate: e.start ? e.start.toISOString().split('T')[0] : 'undefined',
-      endDate: e.end ? e.end.toISOString().split('T')[0] : 'undefined'
+      startDateLocal: e.start ? e.start.toLocaleDateString('en-CA', { timeZone }) : 'undefined',
+      endDateLocal: e.end ? e.end.toLocaleDateString('en-CA', { timeZone }) : 'undefined'
     })))
 
     const filteredEvents = events.filter(event => {
@@ -446,15 +706,16 @@ export class CalendarService {
         return false
       }
       
-      // Get the start date in YYYY-MM-DD format
-      const eventStartDateStr = event.start.toISOString().split('T')[0]
+      // Get the start date in YYYY-MM-DD format using user's current timezone
+      const eventStartDateStr = event.start.toLocaleDateString('en-CA', { timeZone })
       
-      // Show event only on the day it starts
+      // Show event only on the day it starts (in user's timezone)
       const isOnStartDay = eventStartDateStr === targetDateStr
       
       console.log('📅 Event filter check for', event.title, ':', {
         eventStartDate: eventStartDateStr,
         targetDate: targetDateStr,
+        timeZone: timeZone,
         isOnStartDay
       })
       

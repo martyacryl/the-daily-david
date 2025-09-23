@@ -14,6 +14,7 @@ interface MarriageState {
   isLoading: boolean
   error: string | null
   lastSaved: Date | null
+  lastCalendarUpdate: number | null
 
   // Actions
   setCurrentDate: (date: Date) => void
@@ -72,6 +73,7 @@ export const useMarriageStore = create<MarriageState>((set, get) => ({
   isLoading: false,
   error: null,
   lastSaved: null,
+  lastCalendarUpdate: null,
 
   // Actions
   setCurrentDate: (date: Date) => {
@@ -112,6 +114,7 @@ export const useMarriageStore = create<MarriageState>((set, get) => ({
 
   loadWeekData: async (weekKey: string) => {
     console.log('🔍 Store: loadWeekData called with weekKey:', weekKey)
+    console.log('🔍 Store: Current calendar events before loadWeekData:', get().weekData.calendarEvents?.length || 0)
     set({ isLoading: true, error: null })
     
     try {
@@ -206,6 +209,13 @@ export const useMarriageStore = create<MarriageState>((set, get) => ({
                 return true
               })
         
+        // Use database calendar events if they exist, otherwise preserve existing ones
+        const currentState = get()
+        const existingCalendarEvents = currentState.weekData.calendarEvents || []
+        const finalCalendarEvents = calendarEvents.length > 0 ? calendarEvents : existingCalendarEvents
+        
+        console.log('Store: Calendar events priority - database:', calendarEvents.length, 'existing:', existingCalendarEvents.length, 'final:', finalCalendarEvents.length)
+        
         const weekDataToSet = {
           schedule: normalizedSchedule,
           todos: migratedTodos,
@@ -214,8 +224,10 @@ export const useMarriageStore = create<MarriageState>((set, get) => ({
           unconfessedSin: week.unconfessedSin,
           weeklyWinddown: week.weeklyWinddown,
           encouragementNotes: week.encouragementNotes || [],
-          calendarEvents: calendarEvents
+          calendarEvents: finalCalendarEvents
         }
+        
+        console.log('Store: Setting weekData with calendarEvents:', calendarEvents.length, 'events')
         
         console.log('🔍 Store: Complete weekData being set for week', weekKey, ':', weekDataToSet)
         console.log('🔍 Store: Final prayers data being set:', weekDataToSet.prayers)
@@ -226,6 +238,8 @@ export const useMarriageStore = create<MarriageState>((set, get) => ({
           currentWeek: week,
           weekData: weekDataToSet
         })
+        
+        console.log('🔍 Store: loadWeekData completed - final calendar events:', get().weekData.calendarEvents?.length || 0)
       } else {
         console.log('🔍 Store: No existing data, using empty week data')
         set({ 
@@ -443,11 +457,26 @@ export const useMarriageStore = create<MarriageState>((set, get) => ({
   },
 
   updateCalendarEvents: (calendarEvents: CalendarEvent[]) => {
+    console.log('Store: updateCalendarEvents called with', calendarEvents.length, 'events')
+    console.log('Store: Calendar events details:', calendarEvents.map(e => ({
+      title: e.title,
+      start: e.start.toISOString(),
+      end: e.end.toISOString()
+    })))
+    console.log('Store: Current calendar events before update:', get().weekData.calendarEvents?.length || 0)
+    
     set((state) => ({
       weekData: {
         ...state.weekData,
         calendarEvents
       }
+    }))
+    
+    console.log('Store: Calendar events after update:', get().weekData.calendarEvents?.length || 0)
+    
+    // Force a re-render by updating a timestamp
+    set((state) => ({
+      lastCalendarUpdate: Date.now()
     }))
   },
 

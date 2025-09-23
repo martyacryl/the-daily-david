@@ -125,11 +125,11 @@ export const FamilyVisionBoard: React.FC<FamilyVisionBoardProps> = ({ className 
   return (
     <div className={`space-y-4 lg:space-y-6 ${className}`}>
       {/* Mission Statement */}
-      <Card className="p-4 lg:p-6">
+      <Card className="p-4 lg:p-6 bg-gradient-to-br from-slate-50/30 to-purple-50/20 border-slate-200/30">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
           <div className="flex items-center gap-2">
-            <Home className="w-4 h-4 lg:w-5 lg:h-5 text-purple-600" />
-            <h2 className="text-lg lg:text-xl font-bold text-gray-900">Family Mission Statement</h2>
+            <Home className="w-4 h-4 lg:w-5 lg:h-5 text-slate-600" />
+            <h2 className="text-base lg:text-lg font-medium text-slate-800">Family Mission Statement</h2>
           </div>
           <Button
             variant="outline"
@@ -176,11 +176,11 @@ export const FamilyVisionBoard: React.FC<FamilyVisionBoardProps> = ({ className 
       </Card>
 
       {/* Core Values */}
-      <Card className="p-4 lg:p-6">
+      <Card className="p-4 lg:p-6 bg-gradient-to-br from-slate-50/30 to-purple-50/20 border-slate-200/30">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
           <div className="flex items-center gap-2">
-            <Star className="w-4 h-4 lg:w-5 lg:h-5 text-purple-600" />
-            <h2 className="text-lg lg:text-xl font-bold text-gray-900">Core Values</h2>
+            <Star className="w-4 h-4 lg:w-5 lg:h-5 text-slate-600" />
+            <h2 className="text-base lg:text-lg font-medium text-slate-800">Core Values</h2>
           </div>
           <Button
             variant="outline"
@@ -226,7 +226,7 @@ export const FamilyVisionBoard: React.FC<FamilyVisionBoardProps> = ({ className 
               key={index}
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="flex items-center gap-2 bg-purple-100 text-purple-800 px-3 py-2 rounded-full text-sm font-medium"
+              className="flex items-center gap-2 bg-slate-100 text-slate-700 px-3 py-2 rounded-full text-sm"
             >
               <span>{value}</span>
               <button
@@ -241,11 +241,11 @@ export const FamilyVisionBoard: React.FC<FamilyVisionBoardProps> = ({ className 
       </Card>
 
       {/* Vision Goals */}
-      <Card className="p-4 lg:p-6">
+      <Card className="p-4 lg:p-6 bg-gradient-to-br from-slate-50/30 to-purple-50/20 border-slate-200/30">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
           <div className="flex items-center gap-2">
             <Target className="w-4 h-4 lg:w-5 lg:h-5 text-slate-600" />
-            <h2 className="text-lg lg:text-xl font-bold text-gray-900">Vision Goals</h2>
+            <h2 className="text-base lg:text-lg font-medium text-slate-800">Vision Goals</h2>
           </div>
           <Button
             variant="outline"
