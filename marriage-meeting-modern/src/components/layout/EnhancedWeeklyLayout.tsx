@@ -317,7 +317,7 @@ export const EnhancedWeeklyLayout: React.FC<EnhancedWeeklyLayoutProps> = ({
   }
 
   return (
-    <div className={`min-h-screen bg-gradient-to-br from-slate-50 to-purple-50 ${className}`}>
+    <div className={`min-h-screen bg-gradient-to-br from-slate-50 to-purple-50 dark:from-gray-900 dark:to-gray-800 ${className}`}>
       {/* Header */}
       <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-4">
         <div className="flex items-center justify-between">

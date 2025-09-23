@@ -117,18 +117,18 @@ export const WeekOverview: React.FC<WeekOverviewProps> = ({
               className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4"
             >
               <div className="w-full max-w-6xl max-h-[90vh] sm:max-h-[85vh] flex flex-col">
-              <Card className="p-4 sm:p-6 bg-white shadow-xl border border-slate-200 flex-1 overflow-y-auto">
+              <Card className="p-4 sm:p-6 bg-white dark:bg-gray-800 shadow-xl border border-slate-200 dark:border-slate-700 flex-1 overflow-y-auto">
                 {/* Header */}
                 <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-lg sm:text-xl font-semibold text-gray-900 flex items-center gap-2">
-                    <Calendar className="w-5 h-5 text-slate-600" />
+                  <h3 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+                    <Calendar className="w-5 h-5 text-slate-600 dark:text-slate-400" />
                     Week Overview - {getWeekRange()}
                   </h3>
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => setIsExpanded(false)}
-                    className="text-gray-400 hover:text-gray-600 p-1"
+                    className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 p-1"
                   >
                     <X className="w-5 h-5" />
                   </Button>
@@ -155,12 +155,12 @@ export const WeekOverview: React.FC<WeekOverviewProps> = ({
                           select-none touch-manipulation
                           active:scale-95 active:shadow-lg
                           ${expandedDay === dayKey 
-                            ? 'border-blue-400 bg-blue-50 dark:bg-blue-900/60 shadow-lg' 
+                            ? 'border-blue-400 bg-blue-50 dark:bg-blue-900/20 shadow-lg' 
                             : isToday 
-                              ? 'border-slate-400 bg-slate-50 dark:bg-slate-800 shadow-md' 
+                              ? 'border-slate-400 bg-slate-50 dark:bg-slate-700 shadow-md' 
                               : hasItems 
-                                ? 'border-slate-200 dark:border-slate-600 hover:border-slate-300 dark:hover:border-slate-500 hover:shadow-sm active:bg-slate-50 dark:active:bg-slate-800' 
-                                : 'border-gray-100 dark:border-gray-700 hover:border-gray-200 dark:hover:border-gray-600 active:bg-gray-50 dark:active:bg-gray-800'
+                                ? 'border-slate-200 dark:border-slate-600 hover:border-slate-300 dark:hover:border-slate-500 hover:shadow-sm active:bg-slate-50 dark:active:bg-slate-700' 
+                                : 'border-gray-100 dark:border-gray-700 hover:border-gray-200 dark:hover:border-gray-600 active:bg-gray-50 dark:active:bg-gray-700'
                           }
                         `}
                         onClick={() => {
