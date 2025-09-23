@@ -216,18 +216,18 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
             <Calendar className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-blue-600" />
           </div>
           <div>
-            <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">Weekly Schedule</h2>
-            <p className="text-sm sm:text-base text-gray-600">Plan your week together</p>
+            <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 dark:text-white">Weekly Schedule</h2>
+            <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300">Plan your week together</p>
           </div>
         </div>
 
         <div className="space-y-3 sm:space-y-4 lg:space-y-6">
           {days.map((day) => (
-            <div key={day} className="bg-gray-50 rounded-lg sm:rounded-xl p-3 sm:p-4 lg:p-6">
+            <div key={day} className="bg-gray-50 dark:bg-gray-700 rounded-lg sm:rounded-xl p-3 sm:p-4 lg:p-6">
               <div className="flex items-center justify-between mb-2 sm:mb-3 lg:mb-4">
                 <div className="flex items-center gap-2">
-                  <h3 className="text-base sm:text-lg font-semibold text-gray-800">{day}</h3>
-                  <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded-full">
+                  <h3 className="text-base sm:text-lg font-semibold text-gray-800 dark:text-white">{day}</h3>
+                  <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 text-xs font-medium rounded-full">
                     {weekDates[day]}
                   </span>
                 </div>
@@ -256,11 +256,11 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
                     <div key={`calendar-${index}`} className="flex gap-2 sm:gap-3 items-start">
                       <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-green-500 rounded-full mt-2 sm:mt-3 flex-shrink-0"></div>
                       <div className="flex-1">
-                        <div className="text-sm sm:text-base text-gray-800 font-medium">
+                        <div className="text-sm sm:text-base text-gray-800 dark:text-white font-medium">
                           {calendarService.formatEventForDisplay(event)}
                         </div>
                         {event.location && (
-                          <div className="text-xs text-gray-500 mt-1">
+                          <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                             📍 {event.location}
                           </div>
                         )}
@@ -282,7 +282,7 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
                         onSave()
                       }}
                       placeholder={`What's planned for ${day}?`}
-                      className="flex-1 p-2 sm:p-3 lg:p-4 border border-gray-200 rounded-lg text-gray-800 resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-sm sm:text-base"
+                      className="flex-1 p-2 sm:p-3 lg:p-4 border border-gray-200 dark:border-gray-600 rounded-lg text-gray-800 dark:text-white resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 text-sm sm:text-base"
                       rows={2}
                     />
                     <Button
@@ -301,7 +301,7 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
                 ))}
                 
                 {(!weekData.schedule[day] || weekData.schedule[day].length === 0) && (
-                  <div className="text-center py-4 sm:py-6 lg:py-8 text-gray-500">
+                  <div className="text-center py-4 sm:py-6 lg:py-8 text-gray-500 dark:text-gray-400">
                     <Calendar className="w-6 h-6 sm:w-8 sm:h-8 mx-auto mb-2 text-gray-400" />
                     <p className="text-sm sm:text-base">No activities planned for {day}</p>
                     <p className="text-xs sm:text-sm">Click "Add" to get started</p>
@@ -334,10 +334,10 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
               {React.createElement(icon, { className: `w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-${color}-600` })}
             </div>
             <div>
-              <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">{title}</h2>
-              <p className="text-sm sm:text-base text-gray-600">{items.length} items</p>
+              <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 dark:text-white">{title}</h2>
+              <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300">{items.length} items</p>
               {isAccountability && (
-                <p className="text-xs sm:text-sm text-gray-500 mt-1">
+                <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">
                   Areas for growth, confession, or accountability
                 </p>
               )}
@@ -358,7 +358,7 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
 
         <div className="space-y-2 sm:space-y-3 lg:space-y-4">
           {items.map((item) => (
-            <div key={item.id} className="flex items-center gap-2 sm:gap-3 lg:gap-4 p-2 sm:p-3 lg:p-4 bg-white border border-gray-200 rounded-lg hover:shadow-sm transition-shadow">
+            <div key={item.id} className="flex items-center gap-2 sm:gap-3 lg:gap-4 p-2 sm:p-3 lg:p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg hover:shadow-sm transition-shadow">
               <button
                 onClick={() => {
                   onToggleListItem(type, item.id)
@@ -382,7 +382,7 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
                   if (needsAutoSave && onSave) onSave()
                 }}
                 className={`flex-1 bg-transparent border-none outline-none text-sm sm:text-base lg:text-lg ${
-                  item.completed ? 'line-through text-gray-500' : 'text-gray-800'
+                  item.completed ? 'line-through text-gray-500 dark:text-gray-400' : 'text-gray-800 dark:text-white'
                 }`}
                 placeholder={isAccountability ? 'Add an area for growth or accountability...' : `Add a ${title.slice(0, -1).toLowerCase()}...`}
               />
@@ -402,7 +402,7 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
           ))}
           
           {items.length === 0 && (
-            <div className="text-center py-6 sm:py-8 lg:py-12 text-gray-500">
+            <div className="text-center py-6 sm:py-8 lg:py-12 text-gray-500 dark:text-gray-400">
               {React.createElement(icon, { className: "w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 mx-auto mb-3 sm:mb-4 text-gray-400" })}
               <p className="text-base sm:text-lg">No {title.toLowerCase()} yet</p>
               <p className="text-xs sm:text-sm">
@@ -436,8 +436,8 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
             <Target className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-green-600" />
           </div>
           <div>
-            <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">Goals</h2>
-            <p className="text-sm sm:text-base text-gray-600">Set and track your goals by timeframe</p>
+            <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 dark:text-white">Goals</h2>
+            <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300">Set and track your goals by timeframe</p>
           </div>
         </div>
         <GoalsSection />
@@ -482,8 +482,8 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
             <Heart className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-pink-600" />
           </div>
           <div>
-            <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">Encouragement</h2>
-            <p className="text-sm sm:text-base text-gray-600">Leave notes of encouragement, Bible verses, and reminders for your spouse</p>
+            <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 dark:text-white">Encouragement</h2>
+            <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300">Leave notes of encouragement, Bible verses, and reminders for your spouse</p>
           </div>
         </div>
         <EncouragementSection 

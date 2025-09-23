@@ -43,24 +43,24 @@ export const PlanningPage: React.FC = () => {
     <div className="space-y-8">
       {/* Header */}
       <div className="text-center mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Planning Integration Guide</h1>
-        <p className="text-lg text-gray-600">
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Planning Integration Guide</h1>
+        <p className="text-lg text-gray-600 dark:text-gray-300">
           How to use your annual and quarterly planning in weekly meetings
         </p>
       </div>
 
       {/* Planning Hierarchy */}
       <Card className="p-8 bg-gradient-to-r from-slate-50 to-purple-50">
-        <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">Planning Hierarchy</h2>
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 text-center">Planning Hierarchy</h2>
         <div className="space-y-6">
           {/* Annual Level */}
-          <div className="flex items-center gap-4 p-4 bg-white rounded-lg shadow-sm">
+          <div className="flex items-center gap-4 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm">
             <div className="w-12 h-12 bg-gradient-to-r from-slate-600 to-purple-600 rounded-full flex items-center justify-center">
               <Compass className="w-6 h-6 text-white" />
             </div>
             <div className="flex-1">
-              <h3 className="text-lg font-semibold text-gray-900">Annual Planning</h3>
-              <p className="text-gray-600">Vision, themes, and major goals for the year</p>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Annual Planning</h3>
+              <p className="text-gray-600 dark:text-gray-300">Vision, themes, and major goals for the year</p>
             </div>
             <div className="text-sm text-gray-500">
               <div>• Family vision statement</div>
@@ -75,13 +75,13 @@ export const PlanningPage: React.FC = () => {
           </div>
 
           {/* Quarterly Level */}
-          <div className="flex items-center gap-4 p-4 bg-white rounded-lg shadow-sm">
+          <div className="flex items-center gap-4 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm">
             <div className="w-12 h-12 bg-gradient-to-r from-slate-500 to-purple-500 rounded-full flex items-center justify-center">
               <Calendar className="w-6 h-6 text-white" />
             </div>
             <div className="flex-1">
-              <h3 className="text-lg font-semibold text-gray-900">Quarterly Planning</h3>
-              <p className="text-gray-600">Specific goals and themes for each quarter</p>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Quarterly Planning</h3>
+              <p className="text-gray-600 dark:text-gray-300">Specific goals and themes for each quarter</p>
             </div>
             <div className="text-sm text-gray-500">
               <div>• Quarterly theme</div>
@@ -96,13 +96,13 @@ export const PlanningPage: React.FC = () => {
           </div>
 
           {/* Monthly Level */}
-          <div className="flex items-center gap-4 p-4 bg-white rounded-lg shadow-sm">
+          <div className="flex items-center gap-4 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm">
             <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-slate-600 rounded-full flex items-center justify-center">
               <Target className="w-6 h-6 text-white" />
             </div>
             <div className="flex-1">
-              <h3 className="text-lg font-semibold text-gray-900">Monthly Planning</h3>
-              <p className="text-gray-600">Focus areas and actions for the month</p>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Monthly Planning</h3>
+              <p className="text-gray-600 dark:text-gray-300">Focus areas and actions for the month</p>
             </div>
             <div className="text-sm text-gray-500">
               <div>• Monthly focus areas</div>
@@ -117,13 +117,13 @@ export const PlanningPage: React.FC = () => {
           </div>
 
           {/* Weekly Level */}
-          <div className="flex items-center gap-4 p-4 bg-white rounded-lg shadow-sm">
+          <div className="flex items-center gap-4 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm">
             <div className="w-12 h-12 bg-gradient-to-r from-slate-700 to-purple-700 rounded-full flex items-center justify-center">
               <Users className="w-6 h-6 text-white" />
             </div>
             <div className="flex-1">
-              <h3 className="text-lg font-semibold text-gray-900">Weekly Meetings</h3>
-              <p className="text-gray-600">Daily actions and progress tracking</p>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Weekly Meetings</h3>
+              <p className="text-gray-600 dark:text-gray-300">Daily actions and progress tracking</p>
             </div>
             <div className="text-sm text-gray-500">
               <div>• Weekly action items</div>
@@ -138,7 +138,7 @@ export const PlanningPage: React.FC = () => {
       {/* Weekly Meeting Structure */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <Card className="p-6">
-          <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+          <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
             <BookOpen className="w-5 h-5 text-purple-600" />
             Weekly Meeting Agenda
           </h3>
@@ -148,8 +148,8 @@ export const PlanningPage: React.FC = () => {
                 <span className="text-xs font-bold text-purple-600">1</span>
               </div>
               <div>
-                <h4 className="font-semibold text-gray-900">Vision Check (5 min)</h4>
-                <p className="text-sm text-gray-600">Review annual vision and quarterly theme</p>
+                <h4 className="font-semibold text-gray-900 dark:text-white">Vision Check (5 min)</h4>
+                <p className="text-sm text-gray-600 dark:text-gray-300">Review annual vision and quarterly theme</p>
               </div>
             </div>
             
@@ -158,8 +158,8 @@ export const PlanningPage: React.FC = () => {
                 <span className="text-xs font-bold text-purple-600">2</span>
               </div>
               <div>
-                <h4 className="font-semibold text-gray-900">Goal Progress (10 min)</h4>
-                <p className="text-sm text-gray-600">Check progress on quarterly goals and celebrate wins</p>
+                <h4 className="font-semibold text-gray-900 dark:text-white">Goal Progress (10 min)</h4>
+                <p className="text-sm text-gray-600 dark:text-gray-300">Check progress on quarterly goals and celebrate wins</p>
               </div>
             </div>
             
@@ -168,8 +168,8 @@ export const PlanningPage: React.FC = () => {
                 <span className="text-xs font-bold text-purple-600">3</span>
               </div>
               <div>
-                <h4 className="font-semibold text-gray-900">Weekly Actions (15 min)</h4>
-                <p className="text-sm text-gray-600">Set specific actions for the week toward your goals</p>
+                <h4 className="font-semibold text-gray-900 dark:text-white">Weekly Actions (15 min)</h4>
+                <p className="text-sm text-gray-600 dark:text-gray-300">Set specific actions for the week toward your goals</p>
               </div>
             </div>
             
@@ -178,15 +178,15 @@ export const PlanningPage: React.FC = () => {
                 <span className="text-xs font-bold text-purple-600">4</span>
               </div>
               <div>
-                <h4 className="font-semibold text-gray-900">Regular Meeting (20 min)</h4>
-                <p className="text-sm text-gray-600">Continue with your normal weekly meeting agenda</p>
+                <h4 className="font-semibold text-gray-900 dark:text-white">Regular Meeting (20 min)</h4>
+                <p className="text-sm text-gray-600 dark:text-gray-300">Continue with your normal weekly meeting agenda</p>
               </div>
             </div>
           </div>
         </Card>
 
         <Card className="p-6">
-          <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+          <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
             <TrendingUp className="w-5 h-5 text-slate-600" />
             Monthly Review Process
           </h3>
@@ -196,8 +196,8 @@ export const PlanningPage: React.FC = () => {
                 <span className="text-xs font-bold text-slate-600">1</span>
               </div>
               <div>
-                <h4 className="font-semibold text-gray-900">Progress Assessment</h4>
-                <p className="text-sm text-gray-600">Review what was accomplished and what wasn't</p>
+                <h4 className="font-semibold text-gray-900 dark:text-white">Progress Assessment</h4>
+                <p className="text-sm text-gray-600 dark:text-gray-300">Review what was accomplished and what wasn't</p>
               </div>
             </div>
             
@@ -206,8 +206,8 @@ export const PlanningPage: React.FC = () => {
                 <span className="text-xs font-bold text-slate-600">2</span>
               </div>
               <div>
-                <h4 className="font-semibold text-gray-900">Goal Adjustment</h4>
-                <p className="text-sm text-gray-600">Modify goals if needed based on progress</p>
+                <h4 className="font-semibold text-gray-900 dark:text-white">Goal Adjustment</h4>
+                <p className="text-sm text-gray-600 dark:text-gray-300">Modify goals if needed based on progress</p>
               </div>
             </div>
             
@@ -216,8 +216,8 @@ export const PlanningPage: React.FC = () => {
                 <span className="text-xs font-bold text-slate-600">3</span>
               </div>
               <div>
-                <h4 className="font-semibold text-gray-900">Next Month Planning</h4>
-                <p className="text-sm text-gray-600">Set focus areas and priorities for next month</p>
+                <h4 className="font-semibold text-gray-900 dark:text-white">Next Month Planning</h4>
+                <p className="text-sm text-gray-600 dark:text-gray-300">Set focus areas and priorities for next month</p>
               </div>
             </div>
             
@@ -226,8 +226,8 @@ export const PlanningPage: React.FC = () => {
                 <span className="text-xs font-bold text-slate-600">4</span>
               </div>
               <div>
-                <h4 className="font-semibold text-gray-900">Celebration</h4>
-                <p className="text-sm text-gray-600">Acknowledge wins and progress made</p>
+                <h4 className="font-semibold text-gray-900 dark:text-white">Celebration</h4>
+                <p className="text-sm text-gray-600 dark:text-gray-300">Acknowledge wins and progress made</p>
               </div>
             </div>
           </div>
@@ -236,14 +236,14 @@ export const PlanningPage: React.FC = () => {
 
       {/* Quarterly Review Process */}
       <Card className="p-6 bg-gradient-to-r from-purple-50 to-pink-50">
-        <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+        <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
           <Calendar className="w-5 h-5 text-purple-600" />
           Quarterly Review Process
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div>
             <h4 className="font-semibold text-gray-800 mb-2">Week 1: Assessment</h4>
-            <ul className="space-y-1 text-sm text-gray-600">
+            <ul className="space-y-1 text-sm text-gray-600 dark:text-gray-300">
               <li>• Review quarterly goals</li>
               <li>• Assess progress made</li>
               <li>• Identify challenges</li>
@@ -252,7 +252,7 @@ export const PlanningPage: React.FC = () => {
           </div>
           <div>
             <h4 className="font-semibold text-gray-800 mb-2">Week 2: Planning</h4>
-            <ul className="space-y-1 text-sm text-gray-600">
+            <ul className="space-y-1 text-sm text-gray-600 dark:text-gray-300">
               <li>• Set next quarter's goals</li>
               <li>• Choose quarterly theme</li>
               <li>• Plan monthly milestones</li>
@@ -261,7 +261,7 @@ export const PlanningPage: React.FC = () => {
           </div>
           <div>
             <h4 className="font-semibold text-gray-800 mb-2">Week 3: Integration</h4>
-            <ul className="space-y-1 text-sm text-gray-600">
+            <ul className="space-y-1 text-sm text-gray-600 dark:text-gray-300">
               <li>• Update weekly meeting agenda</li>
               <li>• Set up tracking systems</li>
               <li>• Communicate new focus</li>
@@ -273,14 +273,14 @@ export const PlanningPage: React.FC = () => {
 
       {/* Tips for Success */}
       <Card className="p-6">
-        <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+        <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
           <Heart className="w-5 h-5 text-purple-600" />
           Tips for Success
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <h4 className="font-semibold text-gray-800 mb-3">Keep It Simple</h4>
-            <ul className="space-y-2 text-sm text-gray-600">
+            <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-300">
               <li className="flex items-start gap-2">
                 <span className="text-slate-500 mt-1">✓</span>
                 Start with 2-3 annual goals maximum
@@ -297,7 +297,7 @@ export const PlanningPage: React.FC = () => {
           </div>
           <div>
             <h4 className="font-semibold text-gray-800 mb-3">Stay Flexible</h4>
-            <ul className="space-y-2 text-sm text-gray-600">
+            <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-300">
               <li className="flex items-start gap-2">
                 <span className="text-purple-500 mt-1">✓</span>
                 Adjust goals as life changes
@@ -318,7 +318,7 @@ export const PlanningPage: React.FC = () => {
   )
 
   return (
-    <div className="min-h-screen bg-slate-100 pt-20 sm:pt-24">
+    <div className="min-h-screen bg-slate-100 dark:bg-gray-900 pt-20 sm:pt-24">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <motion.div
@@ -326,8 +326,8 @@ export const PlanningPage: React.FC = () => {
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-8"
         >
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">Strategic Planning</h1>
-          <p className="text-lg text-gray-600 mb-6">
+          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">Strategic Planning</h1>
+          <p className="text-lg text-gray-600 dark:text-gray-300 mb-6">
             Plan your year, break it into quarters, and execute through weekly meetings
           </p>
         </motion.div>
@@ -339,7 +339,7 @@ export const PlanningPage: React.FC = () => {
           transition={{ delay: 0.1 }}
           className="mb-8"
         >
-          <Card className="p-2 bg-white shadow-sm">
+          <Card className="p-2 bg-white dark:bg-gray-800 shadow-sm">
             <div className="flex flex-col sm:flex-row gap-2">
               {tabs.map((tab) => {
                 const Icon = tab.icon
