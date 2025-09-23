@@ -47,7 +47,7 @@ const categoryColors = {
 }
 
 const priorityColors = {
-  high: 'bg-slate-100 text-slate-800 border-slate-300',
+  high: 'bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-200 border-slate-300 dark:border-slate-600',
   medium: 'bg-purple-100 text-purple-800 border-purple-300',
   low: 'bg-slate-50 text-slate-600 border-slate-200'
 }
@@ -253,16 +253,16 @@ export const QuarterlyPlanning: React.FC = () => {
       {/* Stats Overview */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <Card className="p-4 text-center">
-          <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-3">
-            <Target className="w-6 h-6 text-slate-600" />
+          <div className="w-12 h-12 bg-slate-100 dark:bg-slate-700 rounded-full flex items-center justify-center mx-auto mb-3">
+            <Target className="w-6 h-6 text-slate-600 dark:text-slate-300" />
           </div>
           <h3 className="text-2xl font-bold text-gray-900 dark:text-white">{stats.totalGoals}</h3>
           <p className="text-sm text-gray-600 dark:text-gray-300">Total Goals</p>
         </Card>
         
         <Card className="p-4 text-center">
-          <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-3">
-            <CheckCircle className="w-6 h-6 text-slate-600" />
+          <div className="w-12 h-12 bg-slate-100 dark:bg-slate-700 rounded-full flex items-center justify-center mx-auto mb-3">
+            <CheckCircle className="w-6 h-6 text-slate-600 dark:text-slate-300" />
           </div>
           <h3 className="text-2xl font-bold text-gray-900 dark:text-white">{stats.completedGoals}</h3>
           <p className="text-sm text-gray-600 dark:text-gray-300">Completed</p>

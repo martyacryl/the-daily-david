@@ -58,7 +58,7 @@ const categoryColors = {
 }
 
 const priorityColors = {
-  critical: 'bg-slate-100 text-slate-800 border-slate-300',
+  critical: 'bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-200 border-slate-300 dark:border-slate-600',
   high: 'bg-purple-100 text-purple-800 border-purple-300',
   medium: 'bg-slate-200 text-slate-700 border-slate-400',
   low: 'bg-slate-50 text-slate-600 border-slate-200'

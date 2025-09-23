@@ -108,7 +108,7 @@ export const Header: React.FC<HeaderProps> = () => {
                   onClick={() => handleNavigation(item.path)}
                   className={`flex flex-col items-center gap-1 px-3 py-2 rounded-lg text-xs font-medium transition-colors ${
                     isActive(item.path)
-                      ? 'bg-slate-100 text-slate-700'
+                      ? 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200'
                       : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
                   }`}
                 >

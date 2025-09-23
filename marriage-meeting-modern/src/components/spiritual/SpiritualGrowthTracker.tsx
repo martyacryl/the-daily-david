@@ -618,7 +618,7 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
   // Utility functions for modern gray-to-purple theme
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case 'urgent': return 'text-slate-800 bg-slate-100 border-slate-300'
+      case 'urgent': return 'text-slate-800 dark:text-slate-200 bg-slate-100 dark:bg-slate-700 border-slate-300 dark:border-slate-600'
       case 'high': return 'text-slate-700 bg-slate-50 border-slate-200'
       case 'medium': return 'text-slate-600 bg-slate-50 border-slate-200'
       case 'low': return 'text-slate-500 bg-slate-50 border-slate-200'
