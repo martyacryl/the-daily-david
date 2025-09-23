@@ -48,8 +48,8 @@ const categoryColors = {
 
 const priorityColors = {
   high: 'bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-200 border-slate-300 dark:border-slate-600',
-  medium: 'bg-purple-100 text-purple-800 border-purple-300',
-  low: 'bg-slate-50 text-slate-600 border-slate-200'
+  medium: 'bg-purple-100 dark:bg-purple-900/20 text-purple-800 dark:text-purple-200 border-purple-300 dark:border-purple-600',
+  low: 'bg-slate-50 dark:bg-slate-700 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-600'
 }
 
 export const QuarterlyPlanning: React.FC = () => {
@@ -228,7 +228,7 @@ export const QuarterlyPlanning: React.FC = () => {
         
         {/* Current Quarter Theme */}
         {themes.length > 0 && (
-          <Card className={`p-6 bg-gradient-to-br from-slate-100 to-purple-100 border-slate-300 mb-6 relative overflow-hidden`}>
+          <Card className={`p-6 bg-gradient-to-br from-slate-100 to-purple-100 dark:from-slate-700 dark:to-purple-800 border-slate-300 dark:border-slate-600 mb-6 relative overflow-hidden`}>
           {/* Background Pattern - Mountain Outlines */}
           <div className="absolute inset-0 opacity-5">
             <svg className="absolute top-0 right-0 w-32 h-32 -translate-y-16 translate-x-16" viewBox="0 0 100 100" fill="none">
@@ -269,16 +269,16 @@ export const QuarterlyPlanning: React.FC = () => {
         </Card>
         
         <Card className="p-4 text-center">
-          <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3">
-            <TrendingUp className="w-6 h-6 text-purple-600" />
+          <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/20 rounded-full flex items-center justify-center mx-auto mb-3">
+            <TrendingUp className="w-6 h-6 text-purple-600 dark:text-purple-400" />
           </div>
           <h3 className="text-2xl font-bold text-gray-900 dark:text-white">{stats.inProgressGoals}</h3>
           <p className="text-sm text-gray-600 dark:text-gray-300">In Progress</p>
         </Card>
         
         <Card className="p-4 text-center">
-          <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3">
-            <Calendar className="w-6 h-6 text-purple-600" />
+          <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/20 rounded-full flex items-center justify-center mx-auto mb-3">
+            <Calendar className="w-6 h-6 text-purple-600 dark:text-purple-400" />
           </div>
           <h3 className="text-2xl font-bold text-gray-900 dark:text-white">{stats.avgProgress}%</h3>
           <p className="text-sm text-gray-600 dark:text-gray-300">Avg Progress</p>
@@ -456,7 +456,7 @@ export const QuarterlyPlanning: React.FC = () => {
       </div>
 
       {/* Weekly Meeting Integration */}
-      <Card className="p-6 bg-gradient-to-r from-slate-50 to-slate-100">
+      <Card className="p-6 bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-700 dark:to-slate-800">
         <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">Weekly Meeting Integration</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>

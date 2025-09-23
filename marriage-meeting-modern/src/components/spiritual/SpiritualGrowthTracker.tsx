@@ -619,24 +619,24 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
   const getPriorityColor = (priority: string) => {
     switch (priority) {
       case 'urgent': return 'text-slate-800 dark:text-slate-200 bg-slate-100 dark:bg-slate-700 border-slate-300 dark:border-slate-600'
-      case 'high': return 'text-slate-700 bg-slate-50 border-slate-200'
-      case 'medium': return 'text-slate-600 bg-slate-50 border-slate-200'
-      case 'low': return 'text-slate-500 bg-slate-50 border-slate-200'
-      default: return 'text-slate-600 bg-slate-50 border-slate-200'
+      case 'high': return 'text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-700 border-slate-200 dark:border-slate-600'
+      case 'medium': return 'text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-700 border-slate-200 dark:border-slate-600'
+      case 'low': return 'text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-700 border-slate-200 dark:border-slate-600'
+      default: return 'text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-700 border-slate-200 dark:border-slate-600'
     }
   }
 
   const getCategoryColor = (category: string) => {
     // All categories use the same elegant slate/purple theme
-    return 'text-slate-600 bg-slate-50 border-slate-200'
+    return 'text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-700 border-slate-200 dark:border-slate-600'
   }
 
   const getGradientClass = (type: 'header' | 'card' | 'accent') => {
     switch (type) {
-      case 'header': return 'bg-gradient-to-br from-slate-50 via-purple-50 to-violet-50'
-      case 'card': return 'bg-gradient-to-br from-white to-slate-50'
+      case 'header': return 'bg-gradient-to-br from-slate-50 via-purple-50 to-violet-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-700'
+      case 'card': return 'bg-gradient-to-br from-white to-slate-50 dark:from-gray-800 dark:to-gray-700'
       case 'accent': return 'bg-gradient-to-r from-purple-500 to-violet-600'
-      default: return 'bg-gradient-to-br from-slate-50 to-gray-100'
+      default: return 'bg-gradient-to-br from-slate-50 to-gray-100 dark:from-gray-800 dark:to-gray-700'
     }
   }
 

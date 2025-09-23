@@ -72,9 +72,9 @@ const categoryColors = {
 
 const priorityColors = {
   critical: 'bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-200 border-slate-300 dark:border-slate-600',
-  high: 'bg-purple-100 text-purple-800 border-purple-300',
-  medium: 'bg-slate-200 text-slate-700 border-slate-400',
-  low: 'bg-slate-50 text-slate-600 border-slate-200'
+  high: 'bg-purple-100 dark:bg-purple-900/20 text-purple-800 dark:text-purple-200 border-purple-300 dark:border-purple-600',
+  medium: 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 border-slate-400 dark:border-slate-600',
+  low: 'bg-slate-50 dark:bg-slate-700 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-600'
 }
 
 export const AnnualPlanning: React.FC = () => {
@@ -271,7 +271,7 @@ export const AnnualPlanning: React.FC = () => {
       </div>
 
       {/* Vision Statement */}
-      <Card className="p-6 bg-gradient-to-br from-slate-100 to-purple-100 border-slate-300 relative overflow-hidden">
+      <Card className="p-6 bg-gradient-to-br from-slate-100 to-purple-100 dark:from-slate-700 dark:to-purple-800 border-slate-300 dark:border-slate-600 relative overflow-hidden">
         <div className="relative z-10">
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center gap-3">
@@ -375,7 +375,7 @@ export const AnnualPlanning: React.FC = () => {
 
       {/* Annual Theme */}
       {themes.length > 0 && (
-        <Card className={`p-6 bg-gradient-to-br from-slate-50/60 to-purple-50/40 border-slate-200/60`}>
+        <Card className={`p-6 bg-gradient-to-br from-slate-50/60 to-purple-50/40 dark:from-slate-700/60 dark:to-purple-800/40 border-slate-200/60 dark:border-slate-600/60`}>
           <h2 className="text-2xl font-bold mb-2 text-slate-800 dark:text-slate-200">{themes[0].theme}</h2>
           <p className="text-lg mb-3 text-slate-700 dark:text-slate-300">{themes[0].focus}</p>
           {themes[0].verse && (
@@ -412,24 +412,24 @@ export const AnnualPlanning: React.FC = () => {
         </Card>
         
         <Card className="p-4 text-center">
-          <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3">
-            <TrendingUp className="w-6 h-6 text-purple-600" />
+          <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/20 rounded-full flex items-center justify-center mx-auto mb-3">
+            <TrendingUp className="w-6 h-6 text-purple-600 dark:text-purple-400" />
           </div>
           <h3 className="text-2xl font-bold text-gray-900 dark:text-white">{stats.inProgressGoals}</h3>
           <p className="text-sm text-gray-600 dark:text-gray-300">In Progress</p>
         </Card>
         
         <Card className="p-4 text-center">
-          <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3">
-            <Calendar className="w-6 h-6 text-purple-600" />
+          <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/20 rounded-full flex items-center justify-center mx-auto mb-3">
+            <Calendar className="w-6 h-6 text-purple-600 dark:text-purple-400" />
           </div>
           <h3 className="text-2xl font-bold text-gray-900 dark:text-white">{stats.avgProgress}%</h3>
           <p className="text-sm text-gray-600 dark:text-gray-300">Avg Progress</p>
         </Card>
         
         <Card className="p-4 text-center">
-          <div className="w-12 h-12 bg-slate-200 rounded-full flex items-center justify-center mx-auto mb-3">
-            <Award className="w-6 h-6 text-slate-700" />
+          <div className="w-12 h-12 bg-slate-200 dark:bg-slate-700 rounded-full flex items-center justify-center mx-auto mb-3">
+            <Award className="w-6 h-6 text-slate-700 dark:text-slate-300" />
           </div>
           <h3 className="text-2xl font-bold text-gray-900 dark:text-white">{stats.criticalGoals}</h3>
           <p className="text-sm text-gray-600 dark:text-gray-300">Critical</p>
@@ -631,7 +631,7 @@ export const AnnualPlanning: React.FC = () => {
       </div>
 
       {/* Integration Guide */}
-      <Card className="p-6 bg-gradient-to-r from-slate-50 to-slate-100">
+      <Card className="p-6 bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-700 dark:to-slate-800">
         <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">How This Guides Your Planning</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div>
