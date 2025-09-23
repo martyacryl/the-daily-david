@@ -228,7 +228,7 @@ export const QuarterlyPlanning: React.FC = () => {
         
         {/* Current Quarter Theme */}
         {themes.length > 0 && (
-          <Card className={`p-6 bg-gradient-to-r from-slate-600 to-purple-600 text-white mb-6 relative overflow-hidden`}>
+          <Card className={`p-6 bg-gradient-to-br from-slate-50/20 to-purple-50/10 border-slate-200/20 mb-6 relative overflow-hidden`}>
           {/* Background Pattern - Mountain Outlines */}
           <div className="absolute inset-0 opacity-5">
             <svg className="absolute top-0 right-0 w-32 h-32 -translate-y-16 translate-x-16" viewBox="0 0 100 100" fill="none">

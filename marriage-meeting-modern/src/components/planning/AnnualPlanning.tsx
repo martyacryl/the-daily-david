@@ -375,18 +375,18 @@ export const AnnualPlanning: React.FC = () => {
 
       {/* Annual Theme */}
       {themes.length > 0 && (
-        <Card className={`p-6 bg-gradient-to-r from-slate-600 to-purple-600 text-white`}>
-          <h2 className="text-2xl font-bold mb-2">{themes[0].theme}</h2>
-          <p className="text-lg mb-3">{themes[0].focus}</p>
+        <Card className={`p-6 bg-gradient-to-br from-slate-50/20 to-purple-50/10 border-slate-200/20`}>
+          <h2 className="text-2xl font-bold mb-2 text-slate-800">{themes[0].theme}</h2>
+          <p className="text-lg mb-3 text-slate-700">{themes[0].focus}</p>
           {themes[0].verse && (
-            <p className="text-sm italic opacity-90 mb-4">"{themes[0].verse}"</p>
+            <p className="text-sm italic text-slate-600 mb-4">"{themes[0].verse}"</p>
           )}
           
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {Object.entries(themes[0].quarterlyThemes).map(([quarter, theme]) => (
               <div key={quarter} className="text-center">
-                <h4 className="font-semibold text-sm opacity-90">{quarter}</h4>
-                <p className="text-sm">{theme}</p>
+                <h4 className="font-semibold text-sm text-slate-700">{quarter}</h4>
+                <p className="text-sm text-slate-600">{theme}</p>
               </div>
             ))}
           </div>

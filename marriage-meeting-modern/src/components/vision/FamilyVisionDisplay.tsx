@@ -170,7 +170,7 @@ export const FamilyVisionDisplay: React.FC = () => {
         animate={{ opacity: 1, y: 0 }}
         className="relative"
       >
-        <Card className={`p-6 bg-gradient-to-br from-slate-50/30 to-purple-50/20 border-slate-200/30 overflow-hidden`}>
+        <Card className={`p-6 bg-gradient-to-br from-slate-100 to-purple-100 border-slate-300 overflow-hidden`}>
           <div className="flex items-start justify-between mb-4">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center">
@@ -238,7 +238,7 @@ export const FamilyVisionDisplay: React.FC = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
         >
-          <Card className={`p-6 bg-gradient-to-r from-slate-600 to-purple-600 text-white relative overflow-hidden`}>
+          <Card className={`p-6 bg-gradient-to-br from-slate-50/20 to-purple-50/10 border-slate-200/20 relative overflow-hidden`}>
           {/* Background Pattern - Mountain Outlines */}
           <div className="absolute inset-0 opacity-5">
             <svg className="absolute top-0 right-0 w-32 h-32 -translate-y-16 translate-x-16" viewBox="0 0 100 100" fill="none">
@@ -256,33 +256,33 @@ export const FamilyVisionDisplay: React.FC = () => {
                   <Calendar className="w-5 h-5" />
                 </div>
                 <div>
-                  <h2 className="text-2xl font-bold">{quarterlyTheme.quarter} {quarterlyTheme.year}</h2>
-                  <p className="text-sm opacity-90">Current Quarter Focus</p>
+                  <h2 className="text-2xl font-bold text-slate-800">{quarterlyTheme.quarter} {quarterlyTheme.year}</h2>
+                  <p className="text-sm text-slate-600">Current Quarter Focus</p>
                 </div>
               </div>
               <div className="text-right">
-                <div className="text-2xl font-bold">{quarterlyTheme.progress}%</div>
-                <div className="text-sm opacity-90">Complete</div>
+                <div className="text-2xl font-bold text-slate-800">{quarterlyTheme.progress}%</div>
+                <div className="text-sm text-slate-600">Complete</div>
               </div>
             </div>
             
-            <h3 className="text-xl font-semibold mb-2">{quarterlyTheme.theme}</h3>
-            <p className="text-lg mb-4 opacity-90">{quarterlyTheme.focus}</p>
+            <h3 className="text-xl font-semibold mb-2 text-slate-800">{quarterlyTheme.theme}</h3>
+            <p className="text-lg mb-4 text-slate-700">{quarterlyTheme.focus}</p>
             
             {quarterlyTheme.scripture && (
-              <blockquote className="text-sm italic mb-4 p-3 bg-white bg-opacity-10 rounded-lg">
+              <blockquote className="text-sm italic mb-4 p-3 bg-slate-100/50 rounded-lg text-slate-700">
                 "{quarterlyTheme.scripture}"
               </blockquote>
             )}
             
             <div className="mb-4">
-              <div className="flex justify-between text-sm mb-1">
+              <div className="flex justify-between text-sm mb-1 text-slate-700">
                 <span>Quarterly Progress</span>
                 <span>{quarterlyTheme.progress}%</span>
               </div>
-              <div className="w-full bg-white bg-opacity-20 rounded-full h-2">
+              <div className="w-full bg-slate-200 rounded-full h-2">
                 <div 
-                  className="bg-white h-2 rounded-full transition-all duration-300"
+                  className="bg-slate-600 h-2 rounded-full transition-all duration-300"
                   style={{ width: `${quarterlyTheme.progress}%` }}
                 ></div>
               </div>
