@@ -83,9 +83,9 @@ export const ReadingPlanProgress: React.FC<ReadingPlanProgressProps> = ({
       } else if (isCurrent) {
         dayClass += "bg-slate-500 border-slate-500 text-white"
       } else if (isPast) {
-        dayClass += "bg-slate-300 border-slate-300 text-slate-600"
+        dayClass += "bg-slate-300 dark:bg-gray-600 border-slate-300 dark:border-gray-600 text-slate-600 dark:text-gray-300"
       } else {
-        dayClass += "bg-slate-700 border-slate-600 text-slate-400"
+        dayClass += "bg-slate-700 dark:bg-gray-800 border-slate-600 dark:border-gray-700 text-slate-400 dark:text-gray-500"
       }
 
       days.push(
@@ -103,18 +103,18 @@ export const ReadingPlanProgress: React.FC<ReadingPlanProgressProps> = ({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
-      className="bg-gradient-to-br from-slate-50 via-purple-50 to-violet-50 border border-slate-200 rounded-lg p-4 mb-4"
+      className="bg-gradient-to-br from-slate-50 via-purple-50 to-violet-50 dark:from-gray-800 dark:via-gray-700 dark:to-gray-800 border border-slate-200 dark:border-gray-600 rounded-lg p-4 mb-4"
       style={{position: 'relative', zIndex: 1, pointerEvents: 'auto'}}
     >
       {/* Header */}
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center space-x-3 min-w-0 flex-1">
-          <div className="p-2 bg-gradient-to-br from-slate-100 to-slate-200 rounded-lg border border-slate-300">
-            <BookOpen className="w-5 h-5 text-slate-600 flex-shrink-0" />
+          <div className="p-2 bg-gradient-to-br from-slate-100 to-slate-200 dark:from-gray-600 dark:to-gray-700 rounded-lg border border-slate-300 dark:border-gray-500">
+            <BookOpen className="w-5 h-5 text-slate-600 dark:text-gray-300 flex-shrink-0" />
           </div>
           <div className="min-w-0 flex-1">
-            <h3 className="text-lg font-semibold text-slate-800 truncate">{readingPlan.planName}</h3>
-            <p className="text-sm text-slate-600">
+            <h3 className="text-lg font-semibold text-slate-800 dark:text-gray-200 truncate">{readingPlan.planName}</h3>
+            <p className="text-sm text-slate-600 dark:text-gray-400">
               Started {new Date(readingPlan.startDate).toLocaleDateString()}
             </p>
           </div>
@@ -125,7 +125,7 @@ export const ReadingPlanProgress: React.FC<ReadingPlanProgressProps> = ({
             size="sm"
             variant="ghost"
             onClick={() => setIsExpanded(!isExpanded)}
-            className="text-slate-600 hover:text-slate-800 p-2"
+            className="text-slate-600 dark:text-gray-400 hover:text-slate-800 dark:hover:text-gray-200 p-2"
           >
             {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
           </Button>
@@ -133,7 +133,7 @@ export const ReadingPlanProgress: React.FC<ReadingPlanProgressProps> = ({
             size="sm"
             variant="ghost"
             onClick={onClosePlan}
-            className="text-slate-600 hover:text-slate-800 p-2"
+            className="text-slate-600 dark:text-gray-400 hover:text-slate-800 dark:hover:text-gray-200 p-2"
           >
             <X className="w-4 h-4" />
           </Button>
@@ -142,11 +142,11 @@ export const ReadingPlanProgress: React.FC<ReadingPlanProgressProps> = ({
 
       {/* Progress Bar */}
       <div className="mb-4">
-        <div className="flex justify-between text-sm text-slate-600 mb-2">
+        <div className="flex justify-between text-sm text-slate-600 dark:text-gray-400 mb-2">
           <span>Progress</span>
           <span>{Math.round(progressPercentage)}%</span>
         </div>
-        <div className="w-full bg-slate-200 rounded-full h-2">
+        <div className="w-full bg-slate-200 dark:bg-gray-600 rounded-full h-2">
           <div 
             className="bg-gradient-to-r from-slate-500 to-slate-600 h-2 rounded-full transition-all duration-300"
             style={{ width: `${progressPercentage}%` }}
@@ -157,16 +157,16 @@ export const ReadingPlanProgress: React.FC<ReadingPlanProgressProps> = ({
       {/* Stats */}
       <div className="grid grid-cols-3 gap-4 mb-4">
         <div className="text-center">
-          <div className="text-2xl font-bold text-green-600">{readingPlan.completedDays.length}</div>
-          <div className="text-xs text-slate-600">Completed</div>
+          <div className="text-2xl font-bold text-green-600 dark:text-green-400">{readingPlan.completedDays.length}</div>
+          <div className="text-xs text-slate-600 dark:text-gray-400">Completed</div>
         </div>
         <div className="text-center">
-          <div className="text-2xl font-bold text-slate-600">{daysRemaining}</div>
-          <div className="text-xs text-slate-600">Remaining</div>
+          <div className="text-2xl font-bold text-slate-600 dark:text-gray-300">{daysRemaining}</div>
+          <div className="text-xs text-slate-600 dark:text-gray-400">Remaining</div>
         </div>
         <div className="text-center">
-          <div className="text-2xl font-bold text-slate-800">{readingPlan.totalDays}</div>
-          <div className="text-xs text-slate-600">Total</div>
+          <div className="text-2xl font-bold text-slate-800 dark:text-gray-200">{readingPlan.totalDays}</div>
+          <div className="text-xs text-slate-600 dark:text-gray-400">Total</div>
         </div>
       </div>
 
@@ -214,7 +214,7 @@ export const ReadingPlanProgress: React.FC<ReadingPlanProgressProps> = ({
             size="sm"
             onClick={() => onRestartPlan()}
             variant="outline"
-            className="flex-1 sm:flex-none text-slate-600 hover:bg-slate-100 border-slate-300"
+            className="flex-1 sm:flex-none text-slate-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-gray-700 border-slate-300 dark:border-gray-600"
             style={{position: 'relative', zIndex: 10000, pointerEvents: 'auto'}}
           >
             <RotateCcw className="w-4 h-4 mr-1" />
@@ -224,7 +224,7 @@ export const ReadingPlanProgress: React.FC<ReadingPlanProgressProps> = ({
             size="sm"
             onClick={() => onStartNewPlan()}
             variant="outline"
-            className="flex-1 sm:flex-none text-slate-600 hover:bg-slate-100 border-slate-300"
+            className="flex-1 sm:flex-none text-slate-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-gray-700 border-slate-300 dark:border-gray-600"
             style={{position: 'relative', zIndex: 10000, pointerEvents: 'auto'}}
           >
             <Plus className="w-4 h-4 mr-1" />
@@ -242,8 +242,8 @@ export const ReadingPlanProgress: React.FC<ReadingPlanProgressProps> = ({
             exit={{ height: 0, opacity: 0 }}
             className="overflow-hidden"
           >
-            <div className="border-t border-slate-200 pt-4">
-              <h4 className="text-sm font-medium text-slate-700 mb-3">Daily Progress</h4>
+            <div className="border-t border-slate-200 dark:border-gray-600 pt-4">
+              <h4 className="text-sm font-medium text-slate-700 dark:text-gray-300 mb-3">Daily Progress</h4>
               <div className="grid grid-cols-8 sm:grid-cols-10 gap-1 sm:gap-2 overflow-x-auto">
                 {renderDayGrid()}
               </div>
