@@ -271,23 +271,12 @@ export const AnnualPlanning: React.FC = () => {
       </div>
 
       {/* Vision Statement */}
-      <Card className="p-8 bg-gradient-to-r from-slate-700 to-purple-700 text-white relative overflow-hidden">
-        {/* Background Pattern - Mountain Outlines */}
-        <div className="absolute inset-0 opacity-5">
-          <svg className="absolute top-0 right-0 w-48 h-48 -translate-y-24 translate-x-24" viewBox="0 0 100 100" fill="none">
-            <path d="M10 80 L25 60 L40 70 L55 45 L70 55 L85 35 L90 80 Z" stroke="currentColor" strokeWidth="0.5" fill="none"/>
-            <path d="M5 85 L20 65 L35 75 L50 50 L65 60 L80 40 L85 85 Z" stroke="currentColor" strokeWidth="0.3" fill="none"/>
-          </svg>
-          <svg className="absolute bottom-0 left-0 w-32 h-32 translate-y-16 -translate-x-16" viewBox="0 0 100 100" fill="none">
-            <path d="M15 70 L30 50 L45 60 L60 35 L75 45 L85 70 Z" stroke="currentColor" strokeWidth="0.4" fill="none"/>
-          </svg>
-        </div>
-        
+      <Card className="p-6 bg-gradient-to-br from-slate-50 to-slate-100 border-slate-200 relative overflow-hidden">
         <div className="relative z-10">
-        <div className="flex items-start justify-between mb-6">
+        <div className="flex items-start justify-between mb-4">
           <div className="flex items-center gap-3">
-            <Compass className="w-8 h-8" />
-            <h2 className="text-2xl font-bold">Our Family Vision</h2>
+            <Compass className="w-6 h-6 text-slate-600" />
+            <h2 className="text-xl font-medium text-slate-800">Our Family Vision</h2>
           </div>
           <Button 
             variant="outline" 
@@ -301,25 +290,25 @@ export const AnnualPlanning: React.FC = () => {
         
         {vision ? (
           <div>
-            <h3 className="text-xl font-semibold mb-3">{vision.title}</h3>
-            <p className="text-lg mb-6 leading-relaxed">{vision.statement}</p>
+            <h3 className="text-lg font-medium mb-3 text-slate-800">{vision.title}</h3>
+            <p className="text-base mb-6 leading-relaxed text-slate-600">{vision.statement}</p>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <h4 className="font-semibold mb-2">Our Values</h4>
+                <h4 className="font-medium mb-2 text-slate-700">Our Values</h4>
                 <div className="flex flex-wrap gap-2">
                   {vision.values.map((value, index) => (
-                    <span key={index} className="px-3 py-1 bg-white bg-opacity-20 rounded-full text-sm">
+                    <span key={index} className="px-3 py-1 bg-slate-100 rounded-full text-sm text-slate-600">
                       {value}
                     </span>
                   ))}
                 </div>
               </div>
               <div>
-                <h4 className="font-semibold mb-2">Our Priorities</h4>
+                <h4 className="font-medium mb-2 text-slate-700">Our Priorities</h4>
                 <div className="flex flex-wrap gap-2">
                   {vision.priorities.map((priority, index) => (
-                    <span key={index} className="px-3 py-1 bg-white bg-opacity-20 rounded-full text-sm">
+                    <span key={index} className="px-3 py-1 bg-slate-100 rounded-full text-sm text-slate-600">
                       {priority}
                     </span>
                   ))}

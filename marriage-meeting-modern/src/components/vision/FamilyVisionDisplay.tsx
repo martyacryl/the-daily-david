@@ -170,30 +170,17 @@ export const FamilyVisionDisplay: React.FC = () => {
         animate={{ opacity: 1, y: 0 }}
         className="relative"
       >
-        <Card className={`p-8 bg-gradient-to-r from-slate-700 to-purple-700 text-white overflow-hidden`}>
-          {/* Background Pattern - Mountain Outlines */}
-          <div className="absolute inset-0 opacity-5">
-            <svg className="absolute top-0 right-0 w-64 h-64 -translate-y-32 translate-x-32" viewBox="0 0 100 100" fill="none">
-              <path d="M10 80 L25 60 L40 70 L55 45 L70 55 L85 35 L90 80 Z" stroke="currentColor" strokeWidth="0.5" fill="none"/>
-              <path d="M5 85 L20 65 L35 75 L50 50 L65 60 L80 40 L85 85 Z" stroke="currentColor" strokeWidth="0.3" fill="none"/>
-            </svg>
-            <svg className="absolute bottom-0 left-0 w-48 h-48 translate-y-24 -translate-x-24" viewBox="0 0 100 100" fill="none">
-              <path d="M15 70 L30 50 L45 60 L60 35 L75 45 L85 70 Z" stroke="currentColor" strokeWidth="0.4" fill="none"/>
-              <path d="M10 75 L25 55 L40 65 L55 40 L70 50 L80 75 Z" stroke="currentColor" strokeWidth="0.2" fill="none"/>
-            </svg>
-          </div>
-          
-          <div className="relative z-10">
-            <div className="flex items-start justify-between mb-6">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
-                  <Compass className="w-6 h-6" />
-                </div>
-                <div>
-                  <h1 className="text-3xl font-bold">{vision?.title || 'Our Family Vision'}</h1>
-                  <p className="text-slate-200">Last updated: {vision?.lastUpdated || 'Recently'}</p>
-                </div>
+        <Card className={`p-6 bg-gradient-to-br from-slate-50 to-slate-100 border-slate-200 overflow-hidden`}>
+          <div className="flex items-start justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center">
+                <Compass className="w-5 h-5 text-slate-600" />
               </div>
+              <div>
+                <h1 className="text-xl font-medium text-slate-800">{vision?.title || 'Our Family Vision'}</h1>
+                <p className="text-slate-500 text-sm">Last updated: {vision?.lastUpdated || 'Recently'}</p>
+              </div>
+            </div>
               <Button 
                 variant="outline" 
                 onClick={() => setIsEditing(true)}
@@ -210,33 +197,33 @@ export const FamilyVisionDisplay: React.FC = () => {
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div>
-                <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                  <Heart className="w-5 h-5" />
+                <h3 className="text-base font-medium mb-3 flex items-center gap-2 text-slate-700">
+                  <Heart className="w-4 h-4" />
                   Our Values
                 </h3>
                 <div className="flex flex-wrap gap-2">
                   {vision?.values.map((value, index) => (
-                    <span key={index} className="px-4 py-2 bg-white bg-opacity-20 rounded-full text-sm font-medium">
+                    <span key={index} className="px-3 py-1 bg-slate-100 rounded-full text-sm text-slate-600">
                       {value}
                     </span>
                   )) || (
-                    <span className="text-slate-200">Values will be displayed here</span>
+                    <span className="text-slate-500">Values will be displayed here</span>
                   )}
                 </div>
               </div>
               
               <div>
-                <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                  <Target className="w-5 h-5" />
+                <h3 className="text-base font-medium mb-3 flex items-center gap-2 text-slate-700">
+                  <Target className="w-4 h-4" />
                   Our Priorities
                 </h3>
                 <div className="flex flex-wrap gap-2">
                   {vision?.priorities.map((priority, index) => (
-                    <span key={index} className="px-4 py-2 bg-white bg-opacity-20 rounded-full text-sm font-medium">
+                    <span key={index} className="px-3 py-1 bg-slate-100 rounded-full text-sm text-slate-600">
                       {priority}
                     </span>
                   )) || (
-                    <span className="text-slate-200">Priorities will be displayed here</span>
+                    <span className="text-slate-500">Priorities will be displayed here</span>
                   )}
                 </div>
               </div>
