@@ -62,7 +62,7 @@ export class CalendarService {
       // Try backend proxy first, then CORS proxies as fallbacks
       const apiUrl = (window as any).location?.origin?.includes('localhost') 
         ? 'http://localhost:3001' 
-        : 'https://marriage-meeting-tool.vercel.app'
+        : 'https://marriage-meeting-modern-7xfzkmnc5-martyacryls-projects.vercel.app'
       const backendProxy = `${apiUrl}/api/calendar-proxy?url=${encodeURIComponent(fetchUrl)}`
       const corsProxies = [
         backendProxy,
