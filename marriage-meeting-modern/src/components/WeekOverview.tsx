@@ -155,12 +155,12 @@ export const WeekOverview: React.FC<WeekOverviewProps> = ({
                           select-none touch-manipulation
                           active:scale-95 active:shadow-lg
                           ${expandedDay === dayKey 
-                            ? 'border-blue-400 bg-blue-50 dark:bg-blue-900/20 shadow-lg' 
+                            ? 'border-blue-400 bg-blue-50 dark:bg-blue-900/60 shadow-lg' 
                             : isToday 
-                              ? 'border-slate-400 bg-slate-50 dark:bg-slate-700 shadow-md' 
+                              ? 'border-slate-400 bg-slate-50 dark:bg-slate-800 shadow-md' 
                               : hasItems 
-                                ? 'border-slate-200 dark:border-slate-600 hover:border-slate-300 dark:hover:border-slate-500 hover:shadow-sm active:bg-slate-50 dark:active:bg-slate-700' 
-                                : 'border-gray-100 dark:border-gray-700 hover:border-gray-200 dark:hover:border-gray-600 active:bg-gray-50 dark:active:bg-gray-700'
+                                ? 'border-slate-200 dark:border-slate-600 hover:border-slate-300 dark:hover:border-slate-500 hover:shadow-sm active:bg-slate-50 dark:active:bg-slate-800' 
+                                : 'border-gray-100 dark:border-gray-700 hover:border-gray-200 dark:hover:border-gray-600 active:bg-gray-50 dark:active:bg-gray-800'
                           }
                         `}
                         onClick={() => {
