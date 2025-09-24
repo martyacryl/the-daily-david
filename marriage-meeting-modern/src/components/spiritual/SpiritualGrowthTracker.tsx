@@ -182,16 +182,28 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
       
       if (response.ok) {
         const plans = await response.json()
+        console.log('📖 Raw reading plans from API:', plans)
         // Transform API response to match component interface
-        const transformedPlans = plans.map((plan: any) => ({
-          planId: plan.plan_id,
-          planName: plan.plan_name,
-          currentDay: plan.current_day,
-          totalDays: plan.total_days,
-          startDate: plan.start_date,
-          completedDays: plan.completed_days || [],
-          bibleId: plan.bible_id
-        }))
+        const transformedPlans = plans.map((plan: any) => {
+          console.log('📖 Transforming plan:', {
+            plan_id: plan.plan_id,
+            plan_name: plan.plan_name,
+            current_day: plan.current_day,
+            total_days: plan.total_days,
+            completed_days: plan.completed_days,
+            completed_days_type: typeof plan.completed_days
+          })
+          return {
+            planId: plan.plan_id,
+            planName: plan.plan_name,
+            currentDay: plan.current_day,
+            totalDays: plan.total_days,
+            startDate: plan.start_date,
+            completedDays: plan.completed_days || [],
+            bibleId: plan.bible_id
+          }
+        })
+        console.log('📖 Transformed reading plans:', transformedPlans)
         setReadingPlans(transformedPlans || [])
       } else {
         handleAuthError(response)

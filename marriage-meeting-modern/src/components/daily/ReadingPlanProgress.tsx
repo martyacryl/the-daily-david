@@ -50,6 +50,13 @@ export const ReadingPlanProgress: React.FC<ReadingPlanProgressProps> = ({
   
   // Debug logging
   console.log(`📖 ReadingPlanProgress for ${readingPlan.planName}: isExpanded = ${isExpanded}`)
+  console.log(`📖 ReadingPlan data:`, {
+    planName: readingPlan.planName,
+    currentDay: readingPlan.currentDay,
+    totalDays: readingPlan.totalDays,
+    completedDays: readingPlan.completedDays,
+    completedDaysLength: readingPlan.completedDays?.length || 0
+  })
   
   // Force collapsed state on mount and whenever component re-mounts
   useEffect(() => {
