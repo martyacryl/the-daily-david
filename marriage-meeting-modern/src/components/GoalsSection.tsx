@@ -107,21 +107,21 @@ export const GoalsSection: React.FC = () => {
 
   const getTimeframeColor = (timeframe: GoalItem['timeframe']) => {
     const colorMap = {
-      monthly: 'bg-blue-100 text-blue-700 border-blue-200',
-      '1year': 'bg-green-100 text-green-700 border-green-200',
-      '5year': 'bg-orange-100 text-orange-700 border-orange-200',
-      '10year': 'bg-purple-100 text-purple-700 border-purple-200'
+      monthly: 'bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-700',
+      '1year': 'bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-300 border-green-200 dark:border-green-700',
+      '5year': 'bg-orange-100 dark:bg-orange-900/20 text-orange-700 dark:text-orange-300 border-orange-200 dark:border-orange-700',
+      '10year': 'bg-purple-100 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-700'
     }
-    return colorMap[timeframe] || 'bg-gray-100 text-gray-700 border-gray-200'
+    return colorMap[timeframe] || 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-600'
   }
 
   const getPriorityColor = (priority: GoalItem['priority']) => {
     const colorMap = {
-      low: 'text-gray-500',
-      medium: 'text-yellow-600',
-      high: 'text-red-600'
+      low: 'text-gray-500 dark:text-gray-400',
+      medium: 'text-yellow-600 dark:text-yellow-400',
+      high: 'text-red-600 dark:text-red-400'
     }
-    return colorMap[priority] || 'text-gray-500'
+    return colorMap[priority] || 'text-gray-500 dark:text-gray-400'
   }
 
   const timeframes: { key: GoalItem['timeframe'], label: string }[] = [
@@ -136,11 +136,11 @@ export const GoalsSection: React.FC = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-            <Target className="w-6 h-6 text-slate-600" />
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+            <Target className="w-6 h-6 text-slate-600 dark:text-slate-300" />
             Goals & Vision
           </h2>
-          <p className="text-gray-600 mt-1">
+          <p className="text-gray-600 dark:text-gray-300 mt-1">
             Set and track your goals across different timeframes
           </p>
         </div>
@@ -160,11 +160,11 @@ export const GoalsSection: React.FC = () => {
           animate={{ opacity: 1, height: 'auto' }}
           exit={{ opacity: 0, height: 0 }}
         >
-          <Card className="p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Add New Goal</h3>
+          <Card className="p-6 bg-white dark:bg-gray-800">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Add New Goal</h3>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Goal Text *
                 </label>
                 <Input
@@ -176,13 +176,13 @@ export const GoalsSection: React.FC = () => {
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Timeframe *
                   </label>
                   <select
                     value={newGoal.timeframe}
                     onChange={(e) => setNewGoal({ ...newGoal, timeframe: e.target.value as GoalItem['timeframe'] })}
-                    className="w-full px-4 py-3 bg-gray-50 border-0 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all duration-200 text-gray-900"
+                    className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border-0 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white dark:focus:bg-gray-600 transition-all duration-200 text-gray-900 dark:text-white"
                   >
                     {timeframes.map(timeframe => (
                       <option key={timeframe.key} value={timeframe.key}>
@@ -193,13 +193,13 @@ export const GoalsSection: React.FC = () => {
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Priority
                   </label>
                   <select
                     value={newGoal.priority}
                     onChange={(e) => setNewGoal({ ...newGoal, priority: e.target.value as GoalItem['priority'] })}
-                    className="w-full px-4 py-3 bg-gray-50 border-0 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all duration-200 text-gray-900"
+                    className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border-0 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white dark:focus:bg-gray-600 transition-all duration-200 text-gray-900 dark:text-white"
                   >
                     <option value="low">Low</option>
                     <option value="medium">Medium</option>
@@ -209,7 +209,7 @@ export const GoalsSection: React.FC = () => {
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Description (Optional)
                 </label>
                 <Textarea
@@ -252,14 +252,14 @@ export const GoalsSection: React.FC = () => {
           <div key={key}>
             <div className="flex items-center gap-2 mb-4">
               {getTimeframeIcon(key)}
-              <h3 className="text-lg font-semibold text-gray-900">{label} Goals</h3>
-              <span className="text-sm text-gray-500">({timeframeGoals.length})</span>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{label} Goals</h3>
+              <span className="text-sm text-gray-500 dark:text-gray-400">({timeframeGoals.length})</span>
             </div>
             
             {timeframeGoals.length === 0 ? (
-              <Card className="p-6 text-center">
-                <Target className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                <p className="text-gray-500">No {label.toLowerCase()} goals yet</p>
+              <Card className="p-6 text-center bg-white dark:bg-gray-800">
+                <Target className="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
+                <p className="text-gray-500 dark:text-gray-400">No {label.toLowerCase()} goals yet</p>
                 <Button 
                   variant="outline" 
                   onClick={() => {
@@ -281,7 +281,7 @@ export const GoalsSection: React.FC = () => {
                     exit={{ opacity: 0, y: -20 }}
                   >
                     <Card className={`p-4 transition-all duration-200 ${
-                      goal.completed ? 'bg-green-50 border-green-200' : 'bg-white border-gray-200'
+                      goal.completed ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-700' : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-600'
                     }`}>
                       <div className="flex items-start gap-3">
                         <button
@@ -298,8 +298,8 @@ export const GoalsSection: React.FC = () => {
                         <div className="flex-1 min-w-0">
                           <div className="flex items-start justify-between mb-2">
                             <div className="flex-1 min-w-0">
-                              <h4 className={`font-medium text-gray-900 ${
-                                goal.completed ? 'line-through text-gray-500' : ''
+                              <h4 className={`font-medium text-gray-900 dark:text-white ${
+                                goal.completed ? 'line-through text-gray-500 dark:text-gray-400' : ''
                               }`}>
                                 {editingGoal === goal.id ? (
                                   <Input
@@ -321,7 +321,7 @@ export const GoalsSection: React.FC = () => {
                               </h4>
                               
                               {goal.description && (
-                                <p className="text-sm text-gray-600 mt-1">{goal.description}</p>
+                                <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">{goal.description}</p>
                               )}
                               
                               <div className="flex items-center gap-2 mt-2">
