@@ -1737,4 +1737,117 @@ app.delete('/api/quarterly-goals/:id', authenticateToken, async (req, res) => {
   }
 })
 
+// ===== GOOGLE CALENDAR OAUTH ROUTES =====
+
+// Google Calendar OAuth callback
+app.get('/auth/google/callback', async (req, res) => {
+  try {
+    const { code, error } = req.query
+
+    if (error) {
+      console.error('❌ Google OAuth error:', error)
+      return res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:3000'}?google_auth=error&error=${encodeURIComponent(error)}`)
+    }
+
+    if (!code) {
+      console.error('❌ No authorization code received')
+      return res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:3000'}?google_auth=error&error=no_code`)
+    }
+
+    // Exchange code for tokens
+    const { google } = require('googleapis')
+    
+    const oauth2Client = new google.auth.OAuth2(
+      process.env.GOOGLE_CLIENT_ID,
+      process.env.GOOGLE_CLIENT_SECRET,
+      process.env.GOOGLE_REDIRECT_URI || `${req.protocol}://${req.get('host')}/auth/google/callback`
+    )
+
+    const { tokens } = await oauth2Client.getToken(code)
+    
+    console.log('✅ Google Calendar OAuth successful for user')
+    
+    // Redirect back to frontend with success
+    const redirectUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}?google_auth=success&tokens=${encodeURIComponent(JSON.stringify(tokens))}`
+    res.redirect(redirectUrl)
+
+  } catch (error) {
+    console.error('❌ Google Calendar OAuth callback error:', error)
+    const redirectUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}?google_auth=error&error=${encodeURIComponent(error.message)}`
+    res.redirect(redirectUrl)
+  }
+})
+
+// Get Google Calendar events (requires authentication)
+app.get('/api/google-calendar/events', authenticateToken, async (req, res) => {
+  try {
+    const { calendarId = 'primary', maxResults = 100 } = req.query
+    
+    // Get user's Google Calendar tokens from database or session
+    // For now, we'll expect tokens to be passed in the request
+    const { accessToken } = req.body
+    
+    if (!accessToken) {
+      return res.status(400).json({ error: 'Google Calendar access token required' })
+    }
+
+    const { google } = require('googleapis')
+    
+    const oauth2Client = new google.auth.OAuth2(
+      process.env.GOOGLE_CLIENT_ID,
+      process.env.GOOGLE_CLIENT_SECRET,
+      process.env.GOOGLE_REDIRECT_URI
+    )
+
+    oauth2Client.setCredentials({ access_token: accessToken })
+    
+    const calendar = google.calendar({ version: 'v3', auth: oauth2Client })
+    
+    const response = await calendar.events.list({
+      calendarId,
+      timeMin: new Date().toISOString(),
+      maxResults: parseInt(maxResults),
+      singleEvents: true,
+      orderBy: 'startTime',
+    })
+
+    res.json(response.data.items || [])
+
+  } catch (error) {
+    console.error('❌ Error fetching Google Calendar events:', error)
+    res.status(500).json({ error: 'Failed to fetch Google Calendar events' })
+  }
+})
+
+// Get user's Google Calendar list
+app.get('/api/google-calendar/list', authenticateToken, async (req, res) => {
+  try {
+    const { accessToken } = req.body
+    
+    if (!accessToken) {
+      return res.status(400).json({ error: 'Google Calendar access token required' })
+    }
+
+    const { google } = require('googleapis')
+    
+    const oauth2Client = new google.auth.OAuth2(
+      process.env.GOOGLE_CLIENT_ID,
+      process.env.GOOGLE_CLIENT_SECRET,
+      process.env.GOOGLE_REDIRECT_URI
+    )
+
+    oauth2Client.setCredentials({ access_token: accessToken })
+    
+    const calendar = google.calendar({ version: 'v3', auth: oauth2Client })
+    
+    const response = await calendar.calendarList.list()
+    
+    res.json(response.data.items || [])
+
+  } catch (error) {
+    console.error('❌ Error fetching Google Calendar list:', error)
+    res.status(500).json({ error: 'Failed to fetch Google Calendar list' })
+  }
+})
+
 module.exports = app
