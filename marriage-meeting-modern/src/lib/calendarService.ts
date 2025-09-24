@@ -59,81 +59,40 @@ export class CalendarService {
       const fetchUrl = icalUrl.replace(/^webcal:\/\//, 'https://')
       console.log('📅 Converted URL for fetch:', fetchUrl)
       
-      // Try backend proxy first, then CORS proxies as fallbacks
+      // Use only the working backend proxy - no fallbacks
       const apiUrl = (window as any).location?.origin?.includes('localhost') 
         ? 'http://localhost:3001' 
         : 'https://theweeklyhuddle.vercel.app'
       const backendProxy = `${apiUrl}/api/calendar-proxy?url=${encodeURIComponent(fetchUrl)}`
-      const corsProxies = [
-        backendProxy,
-        `https://api.allorigins.win/raw?url=${encodeURIComponent(fetchUrl)}`,
-        `https://corsproxy.io/?${encodeURIComponent(fetchUrl)}`,
-        `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(fetchUrl)}`,
-        `https://thingproxy.freeboard.io/fetch/${fetchUrl}`,
-        `https://cors-anywhere.herokuapp.com/${fetchUrl}`,
-        `https://proxy.cors.sh/${fetchUrl}`,
-        `https://cors.bridged.cc/${fetchUrl}`
-      ]
       
-      let response: Response | null = null
-      let lastError: Error | null = null
-      let success = false
+      console.log('📅 Using backend proxy:', backendProxy)
       
-      for (let i = 0; i < corsProxies.length && !success; i++) {
-        const proxyUrl = corsProxies[i]
-        console.log(`📅 Trying CORS proxy ${i + 1}/${corsProxies.length}:`, proxyUrl)
-        
-        try {
-          response = await fetch(proxyUrl, {
-            method: 'GET',
-            headers: {
-              'Accept': 'text/calendar, application/calendar+json, */*',
-              'User-Agent': 'Mozilla/5.0 (compatible; WeeklyHuddle/1.0)'
-            }
-          })
-
-          console.log(`📅 CORS proxy ${i + 1} response status:`, response.status)
-          console.log(`📅 CORS proxy ${i + 1} response headers:`, Object.fromEntries(response.headers.entries()))
-
-          if (response.ok) {
-            const responseText = await response.text()
-            console.log(`📅 CORS proxy ${i + 1} response length:`, responseText.length)
-            
-            // Check if we got actual calendar data, not an error page
-            if (responseText.includes('BEGIN:VCALENDAR') || responseText.includes('VEVENT')) {
-              console.log(`✅ CORS proxy ${i + 1} succeeded with valid calendar data`)
-              // Recreate response with the text content
-              response = new Response(responseText, {
-                status: response.status,
-                statusText: response.statusText,
-                headers: response.headers
-              })
-              success = true
-              break
-            } else {
-              console.warn(`⚠️ CORS proxy ${i + 1} returned non-calendar data:`, responseText.substring(0, 200))
-              lastError = new Error(`CORS proxy ${i + 1} returned non-calendar data`)
-              response = null
-            }
-          } else {
-            const errorText = await response.text()
-            console.warn(`⚠️ CORS proxy ${i + 1} failed:`, response.status, errorText.substring(0, 200))
-            lastError = new Error(`CORS proxy ${i + 1} failed: ${response.status} ${response.statusText}`)
-            response = null
-          }
-        } catch (error) {
-          console.warn(`⚠️ CORS proxy ${i + 1} error:`, error)
-          lastError = error as Error
-          response = null
+      const response = await fetch(backendProxy, {
+        method: 'GET',
+        headers: {
+          'Accept': 'text/calendar, application/calendar+json, */*',
+          'User-Agent': 'Mozilla/5.0 (compatible; WeeklyHuddle/1.0)'
         }
-      }
-      
-      if (!success || !response) {
-        console.error('❌ All CORS proxies failed')
-        throw lastError || new Error('All CORS proxies failed')
+      })
+
+      console.log('📅 Backend proxy response status:', response.status)
+
+      if (!response.ok) {
+        const errorText = await response.text()
+        console.error('❌ Backend proxy failed:', response.status, errorText.substring(0, 200))
+        throw new Error(`Backend proxy failed: ${response.status} ${response.statusText}`)
       }
 
       const icalData = await response.text()
+      console.log('📅 Backend proxy response length:', icalData.length)
+      
+      // Check if we got actual calendar data
+      if (!icalData.includes('BEGIN:VCALENDAR') && !icalData.includes('VEVENT')) {
+        console.warn('⚠️ Backend proxy returned non-calendar data:', icalData.substring(0, 200))
+        throw new Error('Backend proxy returned non-calendar data')
+      }
+      
+      console.log('✅ Backend proxy succeeded with valid calendar data')
       
                 // DEBUG: Log the raw iCal data
                 console.log('📅 RAW iCal data (first 1000 chars):', icalData.substring(0, 1000))
