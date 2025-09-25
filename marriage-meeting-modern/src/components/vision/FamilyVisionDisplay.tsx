@@ -115,6 +115,9 @@ export const FamilyVisionDisplay: React.FC = () => {
 
   const loadFamilyVision = () => {
     // Mock data - in real app, load from API
+    const now = new Date()
+    const currentDate = now.toISOString().split('T')[0] // Format as YYYY-MM-DD
+    
     const mockVision: FamilyVision = {
       id: '1',
       title: 'Our Family Vision 2025',
@@ -122,11 +125,10 @@ export const FamilyVisionDisplay: React.FC = () => {
       values: ['Faith', 'Love', 'Integrity', 'Service', 'Growth', 'Unity'],
       priorities: ['Marriage', 'Children', 'Spiritual Growth', 'Community', 'Health', 'Ministry'],
       year: 2025,
-      lastUpdated: '2025-01-15'
+      lastUpdated: currentDate
     }
 
     // Get current quarter dynamically
-    const now = new Date()
     const currentQuarter = Math.ceil((now.getMonth() + 1) / 3)
     const currentYear = now.getFullYear()
     
