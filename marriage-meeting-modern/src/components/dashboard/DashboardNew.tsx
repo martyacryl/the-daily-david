@@ -359,7 +359,7 @@ export const DashboardNew: React.FC = () => {
   return (
     <div className={`min-h-screen bg-gradient-to-br from-slate-50 to-${getColor('bg')} dark:from-gray-900 dark:to-gray-800`}>
       
-      <div className="pt-16 sm:pt-20">
+      <div className="pt-14 sm:pt-20">
         <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-8 max-w-7xl">
           {/* Header */}
           <motion.div
