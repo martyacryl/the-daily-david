@@ -38,6 +38,7 @@ import { useAuthStore } from '../../stores/authStore'
 import { useMarriageStore } from '../../stores/marriageStore'
 import { useGoalsStore } from '../../stores/goalsStore'
 import { useSettingsStore } from '../../stores/settingsStore'
+import { useAccentColor } from '../../hooks/useAccentColor'
 import { calendarService, CalendarEvent } from '../../lib/calendarService'
 import { MarriageMeetingWeek, GoalItem, ListItem, EncouragementNote } from '../../types/marriageTypes'
 import { EncouragementSection } from '../EncouragementSection'
@@ -48,6 +49,7 @@ export const DashboardNew: React.FC = () => {
   const { currentWeek, weekData, loadWeekData, saveWeekData, updateEncouragementNotes, loadAllWeeks, calculateMeetingStreak, calculateConsistencyScore, lastCalendarUpdate, updateCalendarEvents } = useMarriageStore()
   const { goals, loadGoals, getCurrentMonthGoals, getCurrentYearGoals, getLongTermGoals } = useGoalsStore()
   const { settings, loadSettings } = useSettingsStore()
+  const { getClasses } = useAccentColor()
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
 
   // Scroll to top when dashboard loads for better UX
@@ -358,7 +360,7 @@ export const DashboardNew: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-purple-50 dark:from-gray-900 dark:to-gray-800">
+    <div className={`min-h-screen bg-gradient-to-br from-slate-50 to-${getClasses('bg')} dark:from-gray-900 dark:to-gray-800`}>
       {/* Fixed Settings Button - Always visible */}
       <div className="fixed top-20 right-4 z-40 sm:top-20">
         <Button
@@ -478,7 +480,7 @@ export const DashboardNew: React.FC = () => {
                         {/* Custom Schedule Items - same style as weekly schedule */}
                         {filteredSchedule.map((item, index) => (
                           <div key={`schedule-${index}`} className="flex gap-2 sm:gap-3 items-start">
-                            <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-blue-500 rounded-full mt-2 sm:mt-3 flex-shrink-0"></div>
+                            <div className={`w-1.5 h-1.5 sm:w-2 sm:h-2 ${getClasses('primaryBg')} rounded-full mt-2 sm:mt-3 flex-shrink-0`}></div>
                             <div className="flex-1">
                               <div className="text-sm sm:text-base text-gray-800 dark:text-white font-medium">
                                 {item}

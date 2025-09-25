@@ -30,6 +30,7 @@ import { useAuthStore } from '../../stores/authStore'
 import { useTheme } from '../../hooks/useTheme'
 import { useAccentColor, useAppStore } from '../../stores/appStore'
 import { getAccentColorOptions } from '../../lib/accentColors'
+import { useAccentColor as useAccentColorHook } from '../../hooks/useAccentColor'
 
 interface SettingsPanelProps {
   isOpen: boolean
@@ -41,6 +42,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
   const { theme, setTheme } = useTheme()
   const accentColor = useAccentColor()
   const { setAccentColor } = useAppStore()
+  const { getClasses } = useAccentColorHook()
   const {
     settings,
     updateSpouse1,
@@ -416,7 +418,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
                                 onClick={() => setTheme('light')}
                                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                                   theme === 'light'
-                                    ? 'bg-blue-500 text-white'
+                                    ? `${getClasses('primaryBg')} text-white`
                                     : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                                 }`}
                               >
@@ -426,7 +428,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
                                 onClick={() => setTheme('dark')}
                                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                                   theme === 'dark'
-                                    ? 'bg-blue-500 text-white'
+                                    ? `${getClasses('primaryBg')} text-white`
                                     : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                                 }`}
                               >
