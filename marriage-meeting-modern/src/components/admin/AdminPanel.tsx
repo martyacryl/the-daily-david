@@ -390,13 +390,13 @@ export function AdminPanel({ dbManager }: AdminPanelProps) {
             <h2 className="text-xl font-bold text-gray-800 dark:text-white mb-4">System Information</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
               <div>
-                <span className="font-medium text-gray-700 dark:text-gray-300">Version:</span> Weekly Huddle v2.1
+                <span className="font-medium text-gray-700 dark:text-gray-300">Version:</span> <span className="text-gray-900 dark:text-white">Weekly Huddle v2.1</span>
               </div>
               <div>
-                <span className="font-medium text-gray-700 dark:text-gray-300">Database:</span> Neon PostgreSQL
+                <span className="font-medium text-gray-700 dark:text-gray-300">Database:</span> <span className="text-gray-900 dark:text-white">Neon PostgreSQL</span>
               </div>
               <div>
-                <span className="font-medium text-gray-700 dark:text-gray-300">Total Users:</span> {users.length}
+                <span className="font-medium text-gray-700 dark:text-gray-300">Total Users:</span> <span className="text-gray-900 dark:text-white">{users.length}</span>
               </div>
             </div>
           </Card>
