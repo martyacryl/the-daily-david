@@ -362,19 +362,19 @@ export const DashboardNew: React.FC = () => {
   return (
     <div className={`min-h-screen bg-gradient-to-br from-slate-50 to-${getClasses('bg')} dark:from-gray-900 dark:to-gray-800`}>
       {/* Fixed Settings Button - Always visible */}
-      <div className="fixed top-16 right-2 sm:top-20 sm:right-4 z-40">
+      <div className="fixed top-16 right-2 sm:top-20 sm:right-4 z-50">
         <Button
           variant="outline"
           size="sm"
           onClick={() => setIsSettingsOpen(true)}
-          className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm bg-white dark:bg-gray-800 shadow-md border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 dark:text-gray-300"
+          className="flex items-center gap-1 sm:gap-2 px-3 py-2 text-sm bg-white dark:bg-gray-800 shadow-lg border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
         >
-          <Settings className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+          <Settings className="w-4 h-4 sm:w-4 sm:h-4" />
           <span className="hidden sm:inline">Settings</span>
         </Button>
       </div>
       
-      <div className="pt-16 sm:pt-20">
+      <div className="pt-20 sm:pt-24">
         <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-8 max-w-7xl">
           {/* Header */}
           <motion.div
@@ -480,7 +480,7 @@ export const DashboardNew: React.FC = () => {
                         {/* Custom Schedule Items - same style as weekly schedule */}
                         {filteredSchedule.map((item, index) => (
                           <div key={`schedule-${index}`} className="flex gap-2 sm:gap-3 items-start">
-                            <div className={`w-1.5 h-1.5 sm:w-2 sm:h-2 ${getClasses('primaryBg')} rounded-full mt-2 sm:mt-3 flex-shrink-0`}></div>
+                            <div className={`w-1.5 h-1.5 sm:w-2 sm:h-2 bg-${getClasses('primary')} rounded-full mt-2 sm:mt-3 flex-shrink-0`}></div>
                             <div className="flex-1">
                               <div className="text-sm sm:text-base text-gray-800 dark:text-white font-medium">
                                 {item}
