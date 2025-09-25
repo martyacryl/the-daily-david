@@ -761,8 +761,34 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
             {/* Right Column - Vision & Spiritual Content */}
             <div className="w-full lg:w-80 bg-gradient-to-br from-slate-50 to-gray-100 dark:from-gray-800 dark:to-gray-700 border-l border-gray-200 dark:border-gray-600 p-4 lg:p-6 overflow-y-auto">
               <div className="space-y-6">
-                {/* Family Vision */}
-                <FamilyVisionDisplay />
+                {/* Family Vision Quick View */}
+                <Card className="p-4 bg-gradient-to-br from-blue-50 to-indigo-50">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Home className="w-5 h-5 text-blue-600" />
+                    <h3 className="font-semibold text-gray-900 dark:text-white">Family Vision</h3>
+                  </div>
+                  <p className="text-sm text-gray-700 dark:text-gray-300 mb-3 italic">
+                    "Building a Christ-centered family that loves God, serves others, and grows together in faith, love, and purpose."
+                  </p>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-600 dark:text-gray-300">1-Year Goals:</span>
+                      <span className="font-medium text-blue-600">3 active</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-600 dark:text-gray-300">Values lived:</span>
+                      <span className="font-medium text-green-600">Faith, Love, Service</span>
+                    </div>
+                  </div>
+                  <Button
+                    variant="default"
+                    size="sm"
+                    onClick={() => setShowVisionModal(true)}
+                    className={`w-full mt-3 bg-${getColor('primary')} hover:bg-${getColor('primary')} dark:bg-${getColor('primary')} dark:hover:bg-${getColor('primary')}`}
+                  >
+                    View Full Vision
+                  </Button>
+                </Card>
 
                 {/* Spiritual Growth */}
                 <Card className="p-3 lg:p-4 bg-white dark:bg-gray-800/70 backdrop-blur-sm border border-gray-200 dark:border-gray-700">
