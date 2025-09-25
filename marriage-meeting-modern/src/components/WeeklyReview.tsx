@@ -264,7 +264,7 @@ export const WeeklyReview: React.FC<WeeklyReviewProps> = ({ onBack, onNavigateTo
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-slate-100 pt-14 sm:pt-20 flex items-center justify-center">
+      <div className="min-h-screen bg-slate-100 pt-28 sm:pt-20 flex items-center justify-center">
         <div className="text-center">
           <RefreshCw className="w-8 h-8 animate-spin text-slate-600 mx-auto mb-4" />
           <p className="text-gray-600">Generating your weekly review...</p>
@@ -275,7 +275,7 @@ export const WeeklyReview: React.FC<WeeklyReviewProps> = ({ onBack, onNavigateTo
 
   if (!insights) {
     return (
-      <div className="min-h-screen bg-slate-100 pt-14 sm:pt-20 flex items-center justify-center">
+      <div className="min-h-screen bg-slate-100 pt-28 sm:pt-20 flex items-center justify-center">
         <div className="text-center">
           <Calendar className="w-16 h-16 text-gray-400 mx-auto mb-4" />
           <h2 className="text-2xl font-bold text-gray-900 mb-2">No Data Yet</h2>
@@ -290,7 +290,7 @@ export const WeeklyReview: React.FC<WeeklyReviewProps> = ({ onBack, onNavigateTo
   }
 
   return (
-    <div className="min-h-screen bg-slate-100 pt-14 sm:pt-20">
+    <div className="min-h-screen bg-slate-100 pt-28 sm:pt-20">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="flex items-center gap-4 mb-8">

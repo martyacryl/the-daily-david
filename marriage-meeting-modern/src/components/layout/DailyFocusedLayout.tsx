@@ -338,7 +338,7 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
     if (activeSection === 'vision') {
       console.log('🎯 Rendering three-column layout for vision section')
       return (
-        <div className="h-full flex flex-col pt-14 sm:pt-20">
+        <div className="h-full flex flex-col pt-28 sm:pt-20">
           {/* Top Section - Weekly Meeting Buttons */}
           <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-3 lg:p-4 sticky top-14 sm:top-16 z-10">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">

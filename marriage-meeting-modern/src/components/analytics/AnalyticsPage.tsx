@@ -27,7 +27,7 @@ export const AnalyticsPage: React.FC = () => {
   ]
 
   return (
-    <div className="min-h-screen bg-slate-100 dark:bg-gray-900 pt-14 sm:pt-20">
+    <div className="min-h-screen bg-slate-100 dark:bg-gray-900 pt-28 sm:pt-20">
       <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
         {/* Header */}
         <motion.div
