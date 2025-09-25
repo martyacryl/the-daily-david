@@ -96,7 +96,7 @@ export const TasksSection: React.FC<TasksSectionProps> = ({ tasks, onUpdate }) =
   const getAssignmentColor = (assignedTo: string) => {
     switch (assignedTo) {
       case 'both': return `text-${getColor('primary')} dark:text-${getColor('primary')} bg-${getColor('secondary')} dark:bg-${getColor('secondary')}`
-      case 'spouse1': return 'text-purple-600 dark:text-purple-400 bg-purple-100 dark:bg-purple-900/20'
+      case 'spouse1': return `text-${getColor('primary')} dark:text-${getColor('primary')} bg-${getColor('secondary')} dark:bg-${getColor('secondary')}`
       case 'spouse2': return 'text-green-600 dark:text-green-400 bg-green-100 dark:bg-green-900/20'
       default: return `text-${getColor('primary')} dark:text-${getColor('primary')} bg-${getColor('secondary')} dark:bg-${getColor('secondary')}`
     }

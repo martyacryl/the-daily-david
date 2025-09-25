@@ -20,6 +20,7 @@ import {
 import { Card } from '../ui/Card'
 import { Button } from '../ui/Button'
 import { dbManager } from '../../lib/database'
+import { useAccentColor } from '../../hooks/useAccentColor'
 
 interface GuidedMeetingFlowProps {
   onComplete?: () => void
@@ -121,6 +122,7 @@ export const GuidedMeetingFlow: React.FC<GuidedMeetingFlowProps> = ({
   onSkip,
   className = ''
 }) => {
+  const { getColor } = useAccentColor()
   const [currentStep, setCurrentStep] = useState(0)
   const [completedSteps, setCompletedSteps] = useState<Set<string>>(new Set())
   const [isSaving, setIsSaving] = useState(false)
@@ -249,7 +251,7 @@ export const GuidedMeetingFlow: React.FC<GuidedMeetingFlowProps> = ({
         </div>
 
         {/* Progress Bar */}
-        <div className="w-full bg-gray-200 rounded-full h-3 mb-4">
+        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3 mb-4">
           <motion.div 
             className="bg-gradient-to-r from-blue-500 to-purple-500 h-3 rounded-full"
             initial={{ width: 0 }}
@@ -268,7 +270,7 @@ export const GuidedMeetingFlow: React.FC<GuidedMeetingFlowProps> = ({
                   ? 'bg-green-500'
                   : index === currentStep
                   ? 'bg-blue-500'
-                  : 'bg-gray-300'
+                  : 'bg-gray-300 dark:bg-gray-600'
               }`}
             />
           ))}
@@ -281,13 +283,13 @@ export const GuidedMeetingFlow: React.FC<GuidedMeetingFlowProps> = ({
           <div className="flex items-center gap-4">
             <div className={`p-3 rounded-lg ${
               completedSteps.has(currentStepData.id)
-                ? 'bg-green-100'
-                : 'bg-blue-100'
+                ? 'bg-green-100 dark:bg-green-900/20'
+                : 'bg-blue-100 dark:bg-blue-900/20'
             }`}>
               <currentStepData.icon className={`w-6 h-6 ${
                 completedSteps.has(currentStepData.id)
-                  ? 'text-green-600'
-                  : 'text-blue-600'
+                  ? 'text-green-600 dark:text-green-400'
+                  : 'text-blue-600 dark:text-blue-400'
               }`} />
             </div>
             <div>
@@ -301,7 +303,7 @@ export const GuidedMeetingFlow: React.FC<GuidedMeetingFlowProps> = ({
           </div>
           
           {completedSteps.has(currentStepData.id) && (
-            <div className="flex items-center gap-2 text-green-600">
+            <div className="flex items-center gap-2 text-green-600 dark:text-green-400">
               <CheckCircle className="w-5 h-5" />
               <span className="text-sm font-medium">Completed</span>
             </div>

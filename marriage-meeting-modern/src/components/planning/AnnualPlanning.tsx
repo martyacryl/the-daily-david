@@ -4,6 +4,7 @@ import { Calendar, Target, CheckCircle, TrendingUp, Users, Heart, Home, DollarSi
 import { Card } from '../ui/Card'
 import { Button } from '../ui/Button'
 import { Input } from '../ui/Input'
+import { useAccentColor } from '../../hooks/useAccentColor'
 
 interface AnnualGoal {
   id: string
@@ -59,25 +60,44 @@ const categoryIcons = {
   career: Mountain
 }
 
-const categoryColors = {
-  marriage: 'from-slate-600 to-slate-700',
-  family: 'from-slate-500 to-slate-600',
-  spiritual: 'from-purple-600 to-purple-700',
-  financial: 'from-slate-700 to-slate-800',
-  personal: 'from-purple-500 to-purple-600',
-  health: 'from-slate-600 to-purple-600',
-  ministry: 'from-purple-700 to-purple-800',
-  career: 'from-slate-500 to-purple-500'
-}
-
-const priorityColors = {
-  critical: 'bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-200 border-slate-300 dark:border-slate-600',
-  high: 'bg-purple-100 dark:bg-purple-900/20 text-purple-800 dark:text-purple-200 border-purple-300 dark:border-purple-600',
-  medium: 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 border-slate-400 dark:border-slate-600',
-  low: 'bg-slate-50 dark:bg-slate-700 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-600'
-}
-
 export const AnnualPlanning: React.FC = () => {
+  const { getColor, accentColor } = useAccentColor()
+  
+  // Get the correct gradient classes based on accent color
+  const getGradientClasses = () => {
+    switch (accentColor) {
+      case 'green':
+        return 'to-green-100 dark:to-green-800'
+      case 'blue':
+        return 'to-blue-100 dark:to-blue-800'
+      case 'slate':
+        return 'to-slate-100 dark:to-slate-800'
+      case 'red':
+        return 'to-red-100 dark:to-red-800'
+      case 'orange':
+        return 'to-orange-100 dark:to-orange-800'
+      default: // purple
+        return 'to-purple-100 dark:to-purple-800'
+    }
+  }
+  
+  const getCategoryColors = () => ({
+    marriage: 'from-slate-600 to-slate-700',
+    family: 'from-slate-500 to-slate-600',
+    spiritual: `from-${getColor('primary')} to-${getColor('primary')}`,
+    financial: 'from-slate-700 to-slate-800',
+    personal: `from-${getColor('primary')} to-${getColor('primary')}`,
+    health: `from-slate-600 to-${getColor('primary')}`,
+    ministry: `from-${getColor('primary')} to-${getColor('primary')}`,
+    career: `from-slate-500 to-${getColor('primary')}`
+  })
+
+  const getPriorityColors = () => ({
+    critical: 'bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-200 border-slate-300 dark:border-slate-600',
+    high: `bg-${getColor('secondary')} text-${getColor('text')} border-${getColor('border')}`,
+    medium: 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 border-slate-400 dark:border-slate-600',
+    low: 'bg-slate-50 dark:bg-slate-700 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-600'
+  })
   const [goals, setGoals] = useState<AnnualGoal[]>([])
   const [themes, setThemes] = useState<AnnualTheme[]>([])
   const [vision, setVision] = useState<VisionStatement | null>(null)
@@ -271,7 +291,7 @@ export const AnnualPlanning: React.FC = () => {
       </div>
 
       {/* Vision Statement */}
-      <Card className="p-6 bg-gradient-to-br from-slate-100 to-purple-100 dark:from-slate-700 dark:to-purple-800 border-slate-300 dark:border-slate-600 relative overflow-hidden">
+      <Card className={`p-6 bg-gradient-to-br from-slate-100 ${getGradientClasses()} border-slate-300 dark:border-slate-600 relative overflow-hidden`}>
         <div className="relative z-10">
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center gap-3">
@@ -375,7 +395,7 @@ export const AnnualPlanning: React.FC = () => {
 
       {/* Annual Theme */}
       {themes.length > 0 && (
-        <Card className={`p-6 bg-gradient-to-br from-slate-50/60 to-purple-50/40 dark:from-slate-700/60 dark:to-purple-800/40 border-slate-200/60 dark:border-slate-600/60`}>
+        <Card className={`p-6 bg-gradient-to-br from-slate-50/60 ${getGradientClasses().replace('to-', 'to-').replace('100', '50/40').replace('800', '800/40')} dark:from-slate-700/60 border-slate-200/60 dark:border-slate-600/60`}>
           <h2 className="text-2xl font-bold mb-2 text-slate-800 dark:text-slate-200">{themes[0].theme}</h2>
           <p className="text-lg mb-3 text-slate-700 dark:text-slate-300">{themes[0].focus}</p>
           {themes[0].verse && (
@@ -412,16 +432,16 @@ export const AnnualPlanning: React.FC = () => {
         </Card>
         
         <Card className="p-4 text-center">
-          <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/20 rounded-full flex items-center justify-center mx-auto mb-3">
-            <TrendingUp className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+          <div className={`w-12 h-12 ${getGradientClasses().replace('to-', 'bg-').replace('100', '100')} dark:${getGradientClasses().replace('to-', 'bg-').replace('100', '900/20')} rounded-full flex items-center justify-center mx-auto mb-3`}>
+            <TrendingUp className={`w-6 h-6 text-${getColor('primary')} dark:text-${getColor('primary')}`} />
           </div>
           <h3 className="text-2xl font-bold text-gray-900 dark:text-white">{stats.inProgressGoals}</h3>
           <p className="text-sm text-gray-600 dark:text-gray-300">In Progress</p>
         </Card>
         
         <Card className="p-4 text-center">
-          <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/20 rounded-full flex items-center justify-center mx-auto mb-3">
-            <Calendar className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+          <div className={`w-12 h-12 ${getGradientClasses().replace('to-', 'bg-').replace('100', '100')} dark:${getGradientClasses().replace('to-', 'bg-').replace('100', '900/20')} rounded-full flex items-center justify-center mx-auto mb-3`}>
+            <Calendar className={`w-6 h-6 text-${getColor('primary')} dark:text-${getColor('primary')}`} />
           </div>
           <h3 className="text-2xl font-bold text-gray-900 dark:text-white">{stats.avgProgress}%</h3>
           <p className="text-sm text-gray-600 dark:text-gray-300">Avg Progress</p>
@@ -532,8 +552,8 @@ export const AnnualPlanning: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {goals.map((goal) => {
             const Icon = categoryIcons[goal.category]
-            const colorClass = categoryColors[goal.category]
-            const priorityClass = priorityColors[goal.priority]
+            const colorClass = getCategoryColors()[goal.category]
+            const priorityClass = getPriorityColors()[goal.priority]
             
             return (
               <motion.div
@@ -576,9 +596,9 @@ export const AnnualPlanning: React.FC = () => {
                   )}
                   
                   {goal.impact && (
-                    <div className="mb-4 p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
-                      <h4 className="text-sm font-medium text-purple-800 dark:text-purple-200 mb-1">Impact</h4>
-                      <p className="text-xs text-purple-700 dark:text-purple-300">{goal.impact}</p>
+                    <div className={`mb-4 p-3 ${getGradientClasses().replace('to-', 'bg-').replace('100', '50')} dark:${getGradientClasses().replace('to-', 'bg-').replace('100', '900/20')} rounded-lg`}>
+                      <h4 className={`text-sm font-medium text-${getColor('text')} dark:text-${getColor('text')} mb-1`}>Impact</h4>
+                      <p className="text-xs text-${getColor('primary')} dark:text-${getColor('primary')}">{goal.impact}</p>
                     </div>
                   )}
                   
@@ -616,7 +636,7 @@ export const AnnualPlanning: React.FC = () => {
                       <span>Target: {goal.targetDate}</span>
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                         goal.status === 'completed' ? 'bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-200' :
-                        goal.status === 'in-progress' ? 'bg-purple-100 dark:bg-purple-900/20 text-purple-800 dark:text-purple-200' :
+                        goal.status === 'in-progress' ? `${getGradientClasses().replace('to-', 'bg-').replace('100', '100')} dark:${getGradientClasses().replace('to-', 'bg-').replace('100', '900/20')} text-${getColor('text')} dark:text-${getColor('text')}` :
                         'bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-200'
                       }`}>
                         {goal.status.replace('-', ' ')}
@@ -638,15 +658,15 @@ export const AnnualPlanning: React.FC = () => {
             <h3 className="font-semibold text-gray-800 dark:text-gray-200 mb-2">Annual → Quarterly</h3>
             <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-300">
               <li className="flex items-start gap-2">
-                <ArrowRight className="w-4 h-4 text-purple-500 mt-0.5 flex-shrink-0" />
+                <ArrowRight className={`w-4 h-4 text-${getColor('primary')} mt-0.5 flex-shrink-0`} />
                 Break annual goals into quarterly milestones
               </li>
               <li className="flex items-start gap-2">
-                <ArrowRight className="w-4 h-4 text-purple-500 mt-0.5 flex-shrink-0" />
+                <ArrowRight className={`w-4 h-4 text-${getColor('primary')} mt-0.5 flex-shrink-0`} />
                 Set quarterly themes that support annual vision
               </li>
               <li className="flex items-start gap-2">
-                <ArrowRight className="w-4 h-4 text-purple-500 mt-0.5 flex-shrink-0" />
+                <ArrowRight className={`w-4 h-4 text-${getColor('primary')} mt-0.5 flex-shrink-0`} />
                 Review and adjust quarterly goals monthly
               </li>
             </ul>
@@ -672,15 +692,15 @@ export const AnnualPlanning: React.FC = () => {
             <h3 className="font-semibold text-gray-800 dark:text-gray-200 mb-2">Monthly → Weekly</h3>
             <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-300">
               <li className="flex items-start gap-2">
-                <ArrowRight className="w-4 h-4 text-purple-500 mt-0.5 flex-shrink-0" />
+                <ArrowRight className={`w-4 h-4 text-${getColor('primary')} mt-0.5 flex-shrink-0`} />
                 Set weekly actions toward monthly goals
               </li>
               <li className="flex items-start gap-2">
-                <ArrowRight className="w-4 h-4 text-purple-500 mt-0.5 flex-shrink-0" />
+                <ArrowRight className={`w-4 h-4 text-${getColor('primary')} mt-0.5 flex-shrink-0`} />
                 Review quarterly theme in weekly meetings
               </li>
               <li className="flex items-start gap-2">
-                <ArrowRight className="w-4 h-4 text-purple-500 mt-0.5 flex-shrink-0" />
+                <ArrowRight className={`w-4 h-4 text-${getColor('primary')} mt-0.5 flex-shrink-0`} />
                 Adjust plans based on progress
               </li>
             </ul>

@@ -1,10 +1,11 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { motion } from 'framer-motion'
-import { Mountain, Home, BarChart3, Calendar, LogOut, User, Settings, Sun, Target } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { Mountain, Home, BarChart3, Calendar, LogOut, User, Settings, Sun, Target, X } from 'lucide-react'
 import { useAuthStore } from '../../stores/authStore'
 import { Button } from '../ui/Button'
 import { useAccentColor } from '../../hooks/useAccentColor'
+import { SettingsPanel } from '../settings/SettingsPanel'
 
 interface HeaderProps {
 }
@@ -14,6 +15,7 @@ export const Header: React.FC<HeaderProps> = () => {
   const location = useLocation()
   const navigate = useNavigate()
   const { getColor } = useAccentColor()
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false)
 
   const handleNavigation = (path: string) => {
     // If clicking vision button, always go to vision section and clear localStorage
@@ -54,7 +56,7 @@ export const Header: React.FC<HeaderProps> = () => {
         <div className="flex items-center justify-between h-14 sm:h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2">
-            <div className={`w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-slate-400 to-${getColor('primary')} dark:from-slate-600 dark:to-${getColor('primary')} rounded-full flex items-center justify-center`}>
+            <div className={`w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-slate-400 to-${getColor('primary')} dark:from-slate-600 dark:to-${getColor('primaryDark')} rounded-full flex items-center justify-center`}>
               <Mountain className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
             </div>
             <span className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">Weekly Huddle</span>
@@ -90,6 +92,15 @@ export const Header: React.FC<HeaderProps> = () => {
             <Button
               variant="outline"
               size="sm"
+              onClick={() => setIsSettingsOpen(true)}
+              className="flex items-center gap-2"
+            >
+              <Settings className="w-4 h-4" />
+              <span className="hidden sm:inline">Settings</span>
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
               onClick={logout}
               className="flex items-center gap-2"
             >
@@ -122,6 +133,12 @@ export const Header: React.FC<HeaderProps> = () => {
           </nav>
         </div>
       </div>
+
+      {/* Settings Panel */}
+      <SettingsPanel 
+        isOpen={isSettingsOpen} 
+        onClose={() => setIsSettingsOpen(false)} 
+      />
     </header>
   )
 }

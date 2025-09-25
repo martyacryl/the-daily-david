@@ -6,11 +6,31 @@ import { Button } from '../ui/Button'
 import { QuarterlyPlanning } from './QuarterlyPlanning'
 import { AnnualPlanning } from './AnnualPlanning'
 import { FamilyVisionDisplay } from '../vision/FamilyVisionDisplay'
+import { useAccentColor } from '../../hooks/useAccentColor'
 
 type PlanningTab = 'vision' | 'annual' | 'quarterly' | 'integration'
 
 export const PlanningPage: React.FC = () => {
+  const { getColor, accentColor } = useAccentColor()
   const [activeTab, setActiveTab] = useState<PlanningTab>('vision')
+
+  // Get the correct gradient classes based on accent color
+  const getGradientClasses = () => {
+    switch (accentColor) {
+      case 'green':
+        return 'to-green-100 dark:to-green-800'
+      case 'blue':
+        return 'to-blue-100 dark:to-blue-800'
+      case 'slate':
+        return 'to-slate-100 dark:to-slate-800'
+      case 'red':
+        return 'to-red-100 dark:to-red-800'
+      case 'orange':
+        return 'to-orange-100 dark:to-orange-800'
+      default: // purple
+        return 'to-purple-100 dark:to-purple-800'
+    }
+  }
 
   const tabs = [
     {
@@ -50,12 +70,12 @@ export const PlanningPage: React.FC = () => {
       </div>
 
       {/* Planning Hierarchy */}
-      <Card className="p-8 bg-gradient-to-r from-slate-50 to-purple-50 dark:from-slate-700 dark:to-purple-800">
+      <Card className={`p-8 bg-gradient-to-r from-slate-50 ${getGradientClasses().replace('to-', 'to-').replace('100', '50')} dark:from-slate-700 dark:${getGradientClasses().replace('to-', 'to-').replace('100', '800')}`}>
         <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 text-center">Planning Hierarchy</h2>
         <div className="space-y-6">
           {/* Annual Level */}
           <div className="flex items-center gap-4 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm">
-            <div className="w-12 h-12 bg-gradient-to-r from-slate-600 to-purple-600 rounded-full flex items-center justify-center">
+            <div className={`w-12 h-12 bg-gradient-to-r from-slate-600 to-${getColor('primary')} rounded-full flex items-center justify-center`}>
               <Compass className="w-6 h-6 text-white" />
             </div>
             <div className="flex-1">
@@ -76,7 +96,7 @@ export const PlanningPage: React.FC = () => {
 
           {/* Quarterly Level */}
           <div className="flex items-center gap-4 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm">
-            <div className="w-12 h-12 bg-gradient-to-r from-slate-500 to-purple-500 rounded-full flex items-center justify-center">
+            <div className={`w-12 h-12 bg-gradient-to-r from-slate-500 to-${getColor('primary')} rounded-full flex items-center justify-center`}>
               <Calendar className="w-6 h-6 text-white" />
             </div>
             <div className="flex-1">
@@ -97,7 +117,7 @@ export const PlanningPage: React.FC = () => {
 
           {/* Monthly Level */}
           <div className="flex items-center gap-4 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm">
-            <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-slate-600 rounded-full flex items-center justify-center">
+            <div className={`w-12 h-12 bg-gradient-to-r from-${getColor('primary')} to-slate-600 rounded-full flex items-center justify-center`}>
               <Target className="w-6 h-6 text-white" />
             </div>
             <div className="flex-1">
@@ -118,7 +138,7 @@ export const PlanningPage: React.FC = () => {
 
           {/* Weekly Level */}
           <div className="flex items-center gap-4 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm">
-            <div className="w-12 h-12 bg-gradient-to-r from-slate-700 to-purple-700 rounded-full flex items-center justify-center">
+            <div className={`w-12 h-12 bg-gradient-to-r from-slate-700 to-${getColor('primary')} rounded-full flex items-center justify-center`}>
               <Users className="w-6 h-6 text-white" />
             </div>
             <div className="flex-1">
@@ -139,13 +159,13 @@ export const PlanningPage: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <Card className="p-6">
           <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-            <BookOpen className="w-5 h-5 text-purple-600" />
+            <BookOpen className={`w-5 h-5 text-${getColor('primary')}`} />
             Weekly Meeting Agenda
           </h3>
           <div className="space-y-4">
             <div className="flex items-start gap-3">
-              <div className="w-6 h-6 bg-purple-100 dark:bg-purple-900 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                <span className="text-xs font-bold text-purple-600">1</span>
+              <div className={`w-6 h-6 ${getGradientClasses().replace('to-', 'bg-').replace('100', '100')} dark:${getGradientClasses().replace('to-', 'bg-').replace('100', '900')} rounded-full flex items-center justify-center flex-shrink-0 mt-0.5`}>
+                <span className={`text-xs font-bold text-${getColor('primary')}`}>1</span>
               </div>
               <div>
                 <h4 className="font-semibold text-gray-900 dark:text-white">Vision Check (5 min)</h4>
@@ -154,8 +174,8 @@ export const PlanningPage: React.FC = () => {
             </div>
             
             <div className="flex items-start gap-3">
-              <div className="w-6 h-6 bg-purple-100 dark:bg-purple-900 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                <span className="text-xs font-bold text-purple-600">2</span>
+              <div className={`w-6 h-6 ${getGradientClasses().replace('to-', 'bg-').replace('100', '100')} dark:${getGradientClasses().replace('to-', 'bg-').replace('100', '900')} rounded-full flex items-center justify-center flex-shrink-0 mt-0.5`}>
+                <span className="text-xs font-bold text-${getColor('primary')}">2</span>
               </div>
               <div>
                 <h4 className="font-semibold text-gray-900 dark:text-white">Goal Progress (10 min)</h4>
@@ -164,8 +184,8 @@ export const PlanningPage: React.FC = () => {
             </div>
             
             <div className="flex items-start gap-3">
-              <div className="w-6 h-6 bg-purple-100 dark:bg-purple-900 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                <span className="text-xs font-bold text-purple-600">3</span>
+              <div className={`w-6 h-6 ${getGradientClasses().replace('to-', 'bg-').replace('100', '100')} dark:${getGradientClasses().replace('to-', 'bg-').replace('100', '900')} rounded-full flex items-center justify-center flex-shrink-0 mt-0.5`}>
+                <span className="text-xs font-bold text-${getColor('primary')}">3</span>
               </div>
               <div>
                 <h4 className="font-semibold text-gray-900 dark:text-white">Weekly Actions (15 min)</h4>
@@ -174,8 +194,8 @@ export const PlanningPage: React.FC = () => {
             </div>
             
             <div className="flex items-start gap-3">
-              <div className="w-6 h-6 bg-purple-100 dark:bg-purple-900 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                <span className="text-xs font-bold text-purple-600">4</span>
+              <div className={`w-6 h-6 ${getGradientClasses().replace('to-', 'bg-').replace('100', '100')} dark:${getGradientClasses().replace('to-', 'bg-').replace('100', '900')} rounded-full flex items-center justify-center flex-shrink-0 mt-0.5`}>
+                <span className="text-xs font-bold text-${getColor('primary')}">4</span>
               </div>
               <div>
                 <h4 className="font-semibold text-gray-900 dark:text-white">Regular Meeting (20 min)</h4>
@@ -235,9 +255,9 @@ export const PlanningPage: React.FC = () => {
       </div>
 
       {/* Quarterly Review Process */}
-      <Card className="p-6 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20">
+      <Card className={`p-6 bg-gradient-to-r ${getGradientClasses().replace('to-', 'from-').replace('100', '50')} to-pink-50 dark:${getGradientClasses().replace('to-', 'from-').replace('100', '900/20')} dark:to-pink-900/20`}>
         <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-          <Calendar className="w-5 h-5 text-purple-600" />
+          <Calendar className="w-5 h-5 text-${getColor('primary')}" />
           Quarterly Review Process
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -274,7 +294,7 @@ export const PlanningPage: React.FC = () => {
       {/* Tips for Success */}
       <Card className="p-6">
         <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-          <Heart className="w-5 h-5 text-purple-600" />
+          <Heart className="w-5 h-5 text-${getColor('primary')}" />
           Tips for Success
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -299,15 +319,15 @@ export const PlanningPage: React.FC = () => {
             <h4 className="font-semibold text-gray-800 dark:text-gray-200 mb-3">Stay Flexible</h4>
             <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-300">
               <li className="flex items-start gap-2">
-                <span className="text-purple-500 dark:text-purple-400 mt-1">✓</span>
+                <span className={`text-${getColor('primary')} dark:text-${getColor('primary')} mt-1`}>✓</span>
                 Adjust goals as life changes
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-purple-500 dark:text-purple-400 mt-1">✓</span>
+                <span className={`text-${getColor('primary')} dark:text-${getColor('primary')} mt-1`}>✓</span>
                 Don't be afraid to pause or modify
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-purple-500 dark:text-purple-400 mt-1">✓</span>
+                <span className={`text-${getColor('primary')} dark:text-${getColor('primary')} mt-1`}>✓</span>
                 Focus on progress, not perfection
               </li>
             </ul>
@@ -318,7 +338,7 @@ export const PlanningPage: React.FC = () => {
   )
 
   return (
-    <div className="min-h-screen bg-slate-100 dark:bg-gray-900 pt-20 sm:pt-24">
+    <div className={`min-h-screen bg-gradient-to-br from-slate-50 to-${getColor('bg')} dark:from-gray-900 dark:to-gray-800 pt-20 sm:pt-24`}>
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <motion.div

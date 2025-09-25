@@ -112,7 +112,7 @@ export const GoalsSection: React.FC = () => {
       monthly: `bg-${getColor('secondary')} dark:bg-${getColor('secondary')} text-${getColor('text')} dark:text-${getColor('text')} border-${getColor('border')} dark:border-${getColor('border')}`,
       '1year': 'bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-300 border-green-200 dark:border-green-700',
       '5year': 'bg-orange-100 dark:bg-orange-900/20 text-orange-700 dark:text-orange-300 border-orange-200 dark:border-orange-700',
-      '10year': 'bg-purple-100 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-700'
+      '10year': `bg-${getColor('secondary')} dark:bg-${getColor('secondary')} text-${getColor('text')} dark:text-${getColor('text')} border-${getColor('border')} dark:border-${getColor('border')}`
     }
     return colorMap[timeframe] || 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-600'
   }

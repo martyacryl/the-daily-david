@@ -1,8 +1,9 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Shield, Quote } from 'lucide-react'
 import { Card } from './ui/Card'
 import { useSettingsStore } from '../stores/settingsStore'
+import { useAccentColor } from '../hooks/useAccentColor'
 
 interface FamilyCreedDisplayProps {
   className?: string
@@ -11,9 +12,28 @@ interface FamilyCreedDisplayProps {
 export const FamilyCreedDisplay: React.FC<FamilyCreedDisplayProps> = ({ className = '' }) => {
   const { settings } = useSettingsStore()
   const { familyCreed } = settings
+  const { accentColor } = useAccentColor()
 
   if (!familyCreed || familyCreed.trim() === '') {
     return null
+  }
+
+  // Get the correct gradient classes based on accent color
+  const getGradientClasses = () => {
+    switch (accentColor) {
+      case 'green':
+        return 'bg-gradient-to-br from-green-50 to-green-200 dark:from-green-900/30 dark:to-green-800/50'
+      case 'blue':
+        return 'bg-gradient-to-br from-blue-50 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/50'
+      case 'slate':
+        return 'bg-gradient-to-br from-slate-50 to-slate-200 dark:from-slate-800/30 dark:to-slate-700/50'
+      case 'red':
+        return 'bg-gradient-to-br from-red-50 to-red-200 dark:from-red-900/30 dark:to-red-800/50'
+      case 'orange':
+        return 'bg-gradient-to-br from-orange-50 to-orange-200 dark:from-orange-900/30 dark:to-orange-800/50'
+      default: // purple
+        return 'bg-gradient-to-br from-purple-50 to-purple-200 dark:from-purple-900/30 dark:to-purple-800/50'
+    }
   }
 
   return (
@@ -22,7 +42,7 @@ export const FamilyCreedDisplay: React.FC<FamilyCreedDisplayProps> = ({ classNam
       animate={{ opacity: 1, y: 0 }}
       className={className}
     >
-      <div className="p-4 bg-gradient-to-br from-slate-200 to-purple-200 dark:from-slate-700 dark:to-purple-800 border-2 border-slate-400 dark:border-slate-500 rounded-xl backdrop-blur-sm shadow-sm dark:shadow-gray-900/20">
+      <div className={`p-4 ${getGradientClasses()} border-2 border-slate-400 dark:border-slate-500 rounded-xl backdrop-blur-sm shadow-sm dark:shadow-gray-900/20`}>
         <div className="flex items-start gap-3">
           <div className="flex-shrink-0">
             <div className="w-8 h-8 bg-slate-100/50 dark:bg-slate-600/50 rounded-full flex items-center justify-center">

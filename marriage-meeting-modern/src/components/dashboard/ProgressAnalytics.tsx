@@ -5,6 +5,7 @@ import { Card } from '../ui/Card'
 import { Button } from '../ui/Button'
 import { useAuthStore } from '../../stores/authStore'
 import { useMarriageStore } from '../../stores/marriageStore'
+import { useAccentColor } from '../../hooks/useAccentColor'
 
 interface AnalyticsData {
   totalWeeks: number
@@ -20,6 +21,7 @@ interface AnalyticsData {
 export const ProgressAnalytics: React.FC = () => {
   const { user } = useAuthStore()
   const { weekData, loadAllWeeks, calculateMeetingStreak, calculateConsistencyScore } = useMarriageStore()
+  const { getColor } = useAccentColor()
   const [analyticsData, setAnalyticsData] = useState<AnalyticsData>({
     totalWeeks: 0,
     completionRate: 0,

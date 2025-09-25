@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { calendarService } from '../../lib/calendarService'
+import { useAccentColor } from '../../hooks/useAccentColor'
 import { 
   Calendar, 
   Target, 
@@ -44,6 +45,7 @@ import { GuidedMeetingFlow } from '../meeting/GuidedMeetingFlow'
 import { EnhancedWeeklyReview } from '../review/EnhancedWeeklyReview'
 import { WeekOverview } from '../WeekOverview'
 import { FamilyCreedDisplay } from '../FamilyCreedDisplay'
+import { FamilyVisionDisplay } from '../vision/FamilyVisionDisplay'
 import { WeatherSection } from '../WeatherSection'
 
 interface DailyFocusedLayoutProps {
@@ -186,6 +188,7 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
   className = '',
   initialSection = 'vision'
 }) => {
+  const { getColor } = useAccentColor()
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
   const [activeSection, setActiveSection] = useState(initialSection)
@@ -317,9 +320,9 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
     if (activeSection === 'vision') {
       console.log('🎯 Rendering three-column layout for vision section')
       return (
-        <div className="h-full flex flex-col">
+        <div className="h-full flex flex-col pt-20 sm:pt-24">
           {/* Top Section - Weekly Meeting Buttons */}
-          <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-3 lg:p-4 lg:sticky lg:top-0 z-10">
+          <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-3 lg:p-4 sticky top-14 sm:top-16 z-10">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
                 <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 dark:text-white">Foundation & Daily Focus</h1>
@@ -507,7 +510,7 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                           }}
                           className={`w-full flex items-center gap-2 sm:gap-3 p-2 sm:p-3 rounded-lg text-left transition-all duration-200 ${
                             isActive
-                              ? 'bg-slate-50 border-2 border-purple-200 text-purple-700'
+                              ? `bg-slate-50 border-2 border-${getColor('border')} text-${getColor('text')}`
                               : 'hover:bg-gray-50 text-gray-700 dark:text-gray-300'
                           }`}
                           whileHover={{ scale: 1.02 }}
@@ -517,7 +520,7 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                             isActive ? 'bg-slate-100 dark:bg-slate-700' : 'bg-gray-100 dark:bg-gray-700'
                           }`}>
                             <IconComponent className={`w-3 h-3 sm:w-4 sm:h-4 ${
-                              isActive ? 'text-purple-600 dark:text-purple-400' : 'text-gray-500 dark:text-gray-400'
+                              isActive ? `text-${getColor('primary')} dark:text-${getColor('primary')}` : 'text-gray-500 dark:text-gray-400'
                             }`} />
                           </div>
                           <div className="flex-1 min-w-0">
@@ -741,44 +744,19 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
             <div className="w-full lg:w-80 bg-gradient-to-br from-slate-50 to-gray-100 dark:from-gray-800 dark:to-gray-700 border-l border-gray-200 dark:border-gray-600 p-4 lg:p-6 overflow-y-auto">
               <div className="space-y-6">
                 {/* Family Vision */}
-                <Card className="p-3 lg:p-4 bg-white dark:bg-gray-800/70 backdrop-blur-sm border border-gray-200 dark:border-gray-700">
-                  <div className="flex items-center gap-2 mb-3">
-                    <Home className="w-4 h-4 lg:w-5 lg:h-5 text-blue-600 dark:text-blue-400" />
-                    <h3 className="text-sm lg:text-base font-semibold text-gray-900 dark:text-white">Family Vision</h3>
-                  </div>
-                  
-                  <div className="space-y-3">
-                    <div className="text-sm text-gray-600 dark:text-gray-300">
-                      <p className="font-medium mb-2">Mission Statement:</p>
-                      <p className="italic">"Building a Christ-centered family that loves God, serves others, and grows together in faith, love, and purpose."</p>
-                    </div>
-                    
-                    <div className="flex items-center justify-between">
-                      <span className="text-gray-600 dark:text-gray-300">Core values:</span>
-                      <span className="font-medium text-blue-600 dark:text-blue-400">Faith, Love, Service</span>
-                    </div>
-                  </div>
-                  
-                  <Button
-                    size="sm"
-                    onClick={() => setShowVisionModal(true)}
-                    className="w-full mt-3 bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
-                  >
-                    View Full Vision
-                  </Button>
-                </Card>
+                <FamilyVisionDisplay />
 
                 {/* Spiritual Growth */}
                 <Card className="p-3 lg:p-4 bg-white dark:bg-gray-800/70 backdrop-blur-sm border border-gray-200 dark:border-gray-700">
                   <div className="flex items-center gap-2 mb-3">
-                    <BookOpen className="w-4 h-4 lg:w-5 lg:h-5 text-purple-600 dark:text-purple-400" />
+                    <BookOpen className={`w-4 h-4 lg:w-5 lg:h-5 text-${getColor('primary')} dark:text-${getColor('primary')}`} />
                     <h3 className="text-sm lg:text-base font-semibold text-gray-900 dark:text-white">Spiritual Growth</h3>
                   </div>
                   
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
                       <span className="text-gray-600 dark:text-gray-300">Prayer requests:</span>
-                      <span className="font-medium text-purple-600 dark:text-purple-400">3 active</span>
+                      <span className={`font-medium text-${getColor('primary')} dark:text-${getColor('primary')}`}>3 active</span>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-gray-600 dark:text-gray-300">Bible reading:</span>
@@ -799,7 +777,7 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                       newSearchParams.set('section', 'spiritual')
                       navigate(`?${newSearchParams.toString()}`, { replace: true })
                     }}
-                    className="w-full mt-3 bg-purple-600 hover:bg-purple-700 dark:bg-purple-500 dark:hover:bg-purple-600"
+                    className={`w-full mt-3 bg-${getColor('primary')} hover:bg-${getColor('primary')} dark:bg-${getColor('primary')} dark:hover:bg-${getColor('primary')}`}
                   >
                     View Spiritual Growth
                   </Button>
@@ -824,7 +802,7 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                       // Navigate to prayer tab in spiritual section
                       navigate('/daily?section=spiritual&tab=prayer')
                     }}
-                    className="w-full mt-3 text-purple-600 dark:text-purple-400 border-purple-200 dark:border-purple-600 hover:bg-purple-50 dark:hover:bg-purple-900/20"
+                    className={`w-full mt-3 text-${getColor('primary')} dark:text-${getColor('primary')} border-${getColor('border')} dark:border-${getColor('border')} hover:bg-${getColor('secondary')} dark:hover:bg-${getColor('secondary')}`}
                   >
                     Add Prayer Request
                   </Button>
@@ -842,7 +820,7 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                       // Navigate to prayer tab in spiritual section
                       navigate('/daily?section=spiritual&tab=prayer')
                     }}
-                      className="w-full text-purple-600 border-purple-200 hover:bg-purple-50"
+                      className={`w-full text-${getColor('primary')} border-${getColor('border')} hover:bg-${getColor('secondary')}`}
                     >
                       Add Prayer Request
                     </Button>
@@ -1171,7 +1149,7 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
         </Card>
 
         {/* Weather Section */}
-        <Card className="p-6 bg-gradient-to-r from-slate-50 to-purple-50 border-2 border-slate-200">
+        <Card className={`p-6 bg-gradient-to-r from-slate-50 ${getGradientClasses().replace('bg-gradient-to-br from-', 'to-').replace('50', '50')} border-2 border-slate-200`}>
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Today's Weather</h2>
             <div className="flex items-center gap-2">
@@ -1421,10 +1399,10 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
   }
 
   return (
-    <div className={`min-h-screen bg-gradient-to-br from-slate-50 to-purple-50 dark:from-gray-900 dark:to-gray-800 ${className}`}>
+    <div className={`min-h-screen bg-gradient-to-br from-slate-50 ${getGradientClasses().replace('bg-gradient-to-br from-', 'to-').replace('50', '50')} dark:from-gray-900 dark:to-gray-800 ${className}`}>
       <div className="flex h-screen">
         {/* Main Content Area */}
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="flex-1 overflow-y-auto">
           <AnimatePresence mode="wait">
             <motion.div
               key={activeSection}
@@ -1443,15 +1421,15 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
           <div className="w-80 bg-white dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700 p-4 overflow-y-auto">
             <div className="space-y-6">
               {/* Quick Spiritual Check-in */}
-              <Card className="p-4 bg-gradient-to-br from-purple-50 to-blue-50">
+              <Card className={`p-4 bg-gradient-to-br ${getGradientClasses().replace('bg-gradient-to-br from-', 'from-').replace('50', '50')} to-blue-50`}>
                 <div className="flex items-center gap-2 mb-3">
-                  <BookOpen className="w-5 h-5 text-purple-600" />
+                  <BookOpen className={`w-5 h-5 text-${getColor('primary')}`} />
                   <h3 className="font-semibold text-gray-900 dark:text-white">Quick Spiritual Check-in</h3>
                 </div>
                 <div className="space-y-2 text-sm">
                   <div className="flex items-center justify-between">
                     <span className="text-gray-600 dark:text-gray-300">Prayer streak:</span>
-                    <span className="font-medium text-purple-600">12 days</span>
+                    <span className={`font-medium text-${getColor('primary')}`}>12 days</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-gray-600 dark:text-gray-300">Bible reading:</span>
@@ -1472,7 +1450,7 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                     newSearchParams.set('section', 'spiritual')
                     navigate(`?${newSearchParams.toString()}`, { replace: true })
                   }}
-                  className="w-full mt-3 bg-slate-600 hover:bg-slate-700"
+                  className={`w-full mt-3 bg-${getColor('primary')} hover:bg-${getColor('primary')} dark:bg-${getColor('primary')} dark:hover:bg-${getColor('primary')}`}
                 >
                   View Spiritual Growth
                 </Button>
@@ -1501,7 +1479,7 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                   variant="default"
                   size="sm"
                   onClick={() => setShowVisionModal(true)}
-                  className="w-full mt-3 bg-slate-600 hover:bg-slate-700"
+                  className={`w-full mt-3 bg-${getColor('primary')} hover:bg-${getColor('primary')} dark:bg-${getColor('primary')} dark:hover:bg-${getColor('primary')}`}
                 >
                   View Full Vision
                 </Button>
@@ -1546,7 +1524,7 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                   variant="default"
                   size="sm"
                   onClick={() => setActiveSection('review')}
-                  className="w-full mt-3 bg-slate-600 hover:bg-slate-700"
+                  className={`w-full mt-3 bg-${getColor('primary')} hover:bg-${getColor('primary')} dark:bg-${getColor('primary')} dark:hover:bg-${getColor('primary')}`}
                 >
                   View Full Review
                 </Button>

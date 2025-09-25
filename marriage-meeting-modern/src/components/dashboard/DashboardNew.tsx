@@ -20,7 +20,6 @@ import {
   Award,
   BookOpen,
   ShoppingCart,
-  Settings,
   Shield,
   ArrowRight,
   CheckSquare,
@@ -33,7 +32,6 @@ import { Card } from '../ui/Card'
 import { Button } from '../ui/Button'
 import { WeatherSection } from '../WeatherSection'
 import { FamilyCreedDisplay } from '../FamilyCreedDisplay'
-import { SettingsPanel } from '../settings/SettingsPanel'
 import { useAuthStore } from '../../stores/authStore'
 import { useMarriageStore } from '../../stores/marriageStore'
 import { useGoalsStore } from '../../stores/goalsStore'
@@ -50,7 +48,6 @@ export const DashboardNew: React.FC = () => {
   const { goals, loadGoals, getCurrentMonthGoals, getCurrentYearGoals, getLongTermGoals } = useGoalsStore()
   const { settings, loadSettings } = useSettingsStore()
   const { getColor } = useAccentColor()
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false)
 
   // Scroll to top when dashboard loads for better UX
   useEffect(() => {
@@ -361,18 +358,6 @@ export const DashboardNew: React.FC = () => {
 
   return (
     <div className={`min-h-screen bg-gradient-to-br from-slate-50 to-${getColor('bg')} dark:from-gray-900 dark:to-gray-800`}>
-      {/* Fixed Settings Button - Always visible */}
-      <div className="fixed top-16 right-2 sm:top-20 sm:right-4 z-50">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => setIsSettingsOpen(true)}
-          className="flex items-center gap-1 sm:gap-2 px-3 py-2 text-sm bg-white dark:bg-gray-800 shadow-lg border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
-        >
-          <Settings className="w-4 h-4 sm:w-4 sm:h-4" />
-          <span className="hidden sm:inline">Settings</span>
-        </Button>
-      </div>
       
       <div className="pt-20 sm:pt-24">
         <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-8 max-w-7xl">
@@ -1280,11 +1265,6 @@ export const DashboardNew: React.FC = () => {
         </div>
       </div>
 
-      {/* Settings Panel */}
-      <SettingsPanel 
-        isOpen={isSettingsOpen} 
-        onClose={() => setIsSettingsOpen(false)} 
-      />
     </div>
   )
 }

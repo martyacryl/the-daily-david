@@ -4,6 +4,7 @@ import { Compass, Calendar, Target, Heart, Users, BookOpen, Star, Edit3, CheckCi
 import { Card } from '../ui/Card'
 import { Button } from '../ui/Button'
 import { FamilyCreedDisplay } from '../FamilyCreedDisplay'
+import { useAccentColor } from '../../hooks/useAccentColor'
 
 interface FamilyVision {
   id: string
@@ -47,25 +48,26 @@ const categoryIcons = {
   career: Target
 }
 
-const categoryColors = {
+const getCategoryColors = (getColor: any) => ({
   marriage: 'from-slate-600 to-slate-700',
   family: 'from-slate-500 to-slate-600',
-  spiritual: 'from-purple-600 to-purple-700',
+  spiritual: `from-${getColor('primary')} to-${getColor('primary')}`,
   financial: 'from-slate-700 to-slate-800',
-  personal: 'from-purple-500 to-purple-600',
-  health: 'from-slate-600 to-purple-600',
-  ministry: 'from-purple-700 to-purple-800',
-  career: 'from-slate-500 to-purple-500'
-}
+  personal: `from-${getColor('primary')} to-${getColor('primary')}`,
+  health: `from-slate-600 to-${getColor('primary')}`,
+  ministry: `from-${getColor('primary')} to-${getColor('primary')}`,
+  career: `from-slate-500 to-${getColor('primary')}`
+})
 
-const priorityColors = {
+const getPriorityColors = (getColor: any) => ({
   critical: 'bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-200 border-slate-300 dark:border-slate-600',
-  high: 'bg-purple-100 dark:bg-purple-900/20 text-purple-800 dark:text-purple-200 border-purple-300 dark:border-purple-600',
+  high: `bg-${getColor('secondary')} text-${getColor('text')} border-${getColor('border')}`,
   medium: 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 border-slate-400 dark:border-slate-600',
   low: 'bg-slate-50 dark:bg-slate-700 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-600'
-}
+})
 
 export const FamilyVisionDisplay: React.FC = () => {
+  const { accentColor, getColor } = useAccentColor()
   const [vision, setVision] = useState<FamilyVision | null>(null)
   const [quarterlyTheme, setQuarterlyTheme] = useState<QuarterlyTheme | null>(null)
   const [annualGoals, setAnnualGoals] = useState<AnnualGoal[]>([])
@@ -74,6 +76,42 @@ export const FamilyVisionDisplay: React.FC = () => {
   useEffect(() => {
     loadFamilyVision()
   }, [])
+
+  // Get the correct gradient classes based on accent color
+  const getGradientClasses = () => {
+    switch (accentColor) {
+      case 'green':
+        return 'bg-gradient-to-br from-green-50 to-green-200 dark:from-green-900/30 dark:to-green-800/50'
+      case 'blue':
+        return 'bg-gradient-to-br from-blue-50 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/50'
+      case 'slate':
+        return 'bg-gradient-to-br from-slate-50 to-slate-200 dark:from-slate-800/30 dark:to-slate-700/50'
+      case 'red':
+        return 'bg-gradient-to-br from-red-50 to-red-200 dark:from-red-900/30 dark:to-red-800/50'
+      case 'orange':
+        return 'bg-gradient-to-br from-orange-50 to-orange-200 dark:from-orange-900/30 dark:to-orange-800/50'
+      default: // purple
+        return 'bg-gradient-to-br from-purple-50 to-purple-200 dark:from-purple-900/30 dark:to-purple-800/50'
+    }
+  }
+
+  // Get quarterly theme gradient classes
+  const getQuarterlyThemeGradient = () => {
+    switch (accentColor) {
+      case 'green':
+        return 'bg-gradient-to-br from-slate-50/60 to-green-50/40 dark:from-slate-800/60 dark:to-green-900/40'
+      case 'blue':
+        return 'bg-gradient-to-br from-slate-50/60 to-blue-50/40 dark:from-slate-800/60 dark:to-blue-900/40'
+      case 'slate':
+        return 'bg-gradient-to-br from-slate-50/60 to-slate-50/40 dark:from-slate-800/60 dark:to-slate-900/40'
+      case 'red':
+        return 'bg-gradient-to-br from-slate-50/60 to-red-50/40 dark:from-slate-800/60 dark:to-red-900/40'
+      case 'orange':
+        return 'bg-gradient-to-br from-slate-50/60 to-orange-50/40 dark:from-slate-800/60 dark:to-orange-900/40'
+      default: // purple
+        return 'bg-gradient-to-br from-slate-50/60 to-purple-50/40 dark:from-slate-800/60 dark:to-purple-900/40'
+    }
+  }
 
   const loadFamilyVision = () => {
     // Mock data - in real app, load from API
@@ -171,7 +209,7 @@ export const FamilyVisionDisplay: React.FC = () => {
         animate={{ opacity: 1, y: 0 }}
         className="relative"
       >
-        <div className={`p-6 bg-gradient-to-br from-slate-100 to-purple-100 dark:from-slate-700 dark:to-purple-800 border border-slate-300 dark:border-slate-600 rounded-xl overflow-hidden shadow-sm dark:shadow-gray-900/20`}>
+               <div className={`p-6 ${getGradientClasses()} border border-slate-300 dark:border-slate-600 rounded-xl overflow-hidden shadow-sm dark:shadow-gray-900/20`}>
           <div className="flex items-start justify-between mb-4">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-slate-100 dark:bg-slate-600 rounded-full flex items-center justify-center">
@@ -192,7 +230,7 @@ export const FamilyVisionDisplay: React.FC = () => {
             </Button>
           </div>
             
-            <p className="text-xl leading-relaxed mb-8 max-w-4xl">
+            <p className="text-xl leading-relaxed mb-8 max-w-4xl text-slate-800 dark:text-slate-200">
               {vision?.statement || 'Our family vision statement will appear here...'}
             </p>
             
@@ -239,7 +277,7 @@ export const FamilyVisionDisplay: React.FC = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
         >
-          <Card className={`p-6 bg-gradient-to-br from-slate-50/60 to-purple-50/40 dark:from-slate-800/60 dark:to-purple-900/40 border-slate-200/60 dark:border-slate-700/60 relative overflow-hidden`}>
+          <Card className={`p-6 ${getQuarterlyThemeGradient()} border-slate-200/60 dark:border-slate-700/60 relative overflow-hidden`}>
           {/* Background Pattern - Mountain Outlines */}
           <div className="absolute inset-0 opacity-5">
             <svg className="absolute top-0 right-0 w-32 h-32 -translate-y-16 translate-x-16" viewBox="0 0 100 100" fill="none">
@@ -314,11 +352,11 @@ export const FamilyVisionDisplay: React.FC = () => {
         <Card className="p-6 bg-white dark:bg-gray-800">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-              <Target className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+              <Target className={`w-6 h-6 text-${getColor('primary')} dark:text-${getColor('primary')}`} />
               Annual Goals Progress
             </h2>
             <div className="text-right">
-              <div className="text-3xl font-bold text-purple-600 dark:text-purple-400">{overallProgress}%</div>
+              <div className={`text-3xl font-bold text-${getColor('primary')} dark:text-${getColor('primary')}`}>{overallProgress}%</div>
               <div className="text-sm text-gray-600 dark:text-gray-300">Overall Progress</div>
             </div>
           </div>
@@ -329,9 +367,9 @@ export const FamilyVisionDisplay: React.FC = () => {
               <div className="text-2xl font-bold text-slate-600 dark:text-slate-300">{completedGoals}</div>
               <div className="text-sm text-slate-700 dark:text-slate-300">Completed</div>
             </div>
-            <div className="text-center p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
-              <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">{inProgressGoals}</div>
-              <div className="text-sm text-purple-700 dark:text-purple-300">In Progress</div>
+            <div className={`text-center p-4 bg-${getColor('secondary')} dark:bg-${getColor('secondary')} rounded-lg`}>
+              <div className={`text-2xl font-bold text-${getColor('primary')} dark:text-${getColor('primary')}`}>{inProgressGoals}</div>
+              <div className={`text-sm text-${getColor('text')} dark:text-${getColor('text')}`}>In Progress</div>
             </div>
             <div className="text-center p-4 bg-slate-100 dark:bg-slate-700 rounded-lg">
               <div className="text-2xl font-bold text-slate-600 dark:text-slate-300">{annualGoals.length - completedGoals - inProgressGoals}</div>
@@ -343,8 +381,8 @@ export const FamilyVisionDisplay: React.FC = () => {
           <div className="space-y-4">
             {annualGoals.map((goal) => {
               const Icon = categoryIcons[goal.category]
-              const colorClass = categoryColors[goal.category]
-              const priorityClass = priorityColors[goal.priority]
+              const colorClass = getCategoryColors(getColor)[goal.category]
+              const priorityClass = getPriorityColors(getColor)[goal.priority]
               
               return (
                 <div key={goal.id} className="flex items-center gap-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
@@ -375,7 +413,7 @@ export const FamilyVisionDisplay: React.FC = () => {
                   <div className="text-right">
                     <span className={`px-2 py-1 text-xs font-medium rounded-full ${
                       goal.status === 'completed' ? 'bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-200' :
-                      goal.status === 'in-progress' ? 'bg-purple-100 dark:bg-purple-900/20 text-purple-800 dark:text-purple-200' :
+                      goal.status === 'in-progress' ? `bg-${getColor('secondary')} dark:bg-${getColor('secondary')} text-${getColor('text')} dark:text-${getColor('text')}` :
                       'bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-200'
                     }`}>
                       {goal.status.replace('-', ' ')}
@@ -394,9 +432,9 @@ export const FamilyVisionDisplay: React.FC = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
       >
-        <Card className="p-6 bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-700 dark:to-slate-800 border-l-4 border-purple-500 dark:border-purple-400">
+        <Card className={`p-6 bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-700 dark:to-slate-800 border-l-4 border-${getColor('primary')} dark:border-${getColor('primary')}`}>
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
-            <ArrowRight className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+            <ArrowRight className={`w-5 h-5 text-${getColor('primary')} dark:text-${getColor('primary')}`} />
             This Week's Focus
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

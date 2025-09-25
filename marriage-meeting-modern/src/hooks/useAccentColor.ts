@@ -9,7 +9,7 @@ export const useAccentColor = () => {
   }
   
   // Simple color getter for basic usage (no dark mode)
-  const getColor = (variant: 'primary' | 'secondary' | 'text' | 'border' | 'bg' = 'primary') => {
+  const getColor = (variant: 'primary' | 'primaryDark' | 'secondary' | 'text' | 'border' | 'bg' | 'bgDark' = 'primary') => {
     // Ensure accentColor is a valid key
     const validAccentColor = accentColor && ACCENT_COLORS[accentColor as AccentColorKey] ? accentColor : 'purple'
     const color = ACCENT_COLORS[validAccentColor as AccentColorKey]

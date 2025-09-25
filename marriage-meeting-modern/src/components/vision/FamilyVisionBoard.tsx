@@ -15,12 +15,32 @@ import { Button } from '../ui/Button'
 import { Input } from '../ui/Input'
 import { Textarea } from '../ui/Textarea'
 import { useVisionStore } from '../../stores/visionStore'
+import { useAccentColor } from '../../hooks/useAccentColor'
 
 interface FamilyVisionBoardProps {
   className?: string
 }
 
 export const FamilyVisionBoard: React.FC<FamilyVisionBoardProps> = ({ className = '' }) => {
+  const { getColor, accentColor } = useAccentColor()
+  
+  // Get the correct gradient classes based on accent color
+  const getGradientClasses = () => {
+    switch (accentColor) {
+      case 'green':
+        return 'bg-gradient-to-br from-green-50 to-green-200 dark:from-green-900/30 dark:to-green-800/50'
+      case 'blue':
+        return 'bg-gradient-to-br from-blue-50 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/50'
+      case 'slate':
+        return 'bg-gradient-to-br from-slate-50 to-slate-200 dark:from-slate-800/30 dark:to-slate-700/50'
+      case 'red':
+        return 'bg-gradient-to-br from-red-50 to-red-200 dark:from-red-900/30 dark:to-red-800/50'
+      case 'orange':
+        return 'bg-gradient-to-br from-orange-50 to-orange-200 dark:from-orange-900/30 dark:to-orange-800/50'
+      default: // purple
+        return 'bg-gradient-to-br from-purple-50 to-purple-200 dark:from-purple-900/30 dark:to-purple-800/50'
+    }
+  }
   const {
     familyVision,
     visionGoals,
@@ -94,7 +114,7 @@ export const FamilyVisionBoard: React.FC<FamilyVisionBoardProps> = ({ className 
   const getTimeframeColor = (timeframe: string) => {
     switch (timeframe) {
       case '1year': return 'text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-700'
-      case '5year': return 'text-purple-600 dark:text-purple-400 bg-purple-100 dark:bg-purple-900/20'
+      case '5year': return `text-${getColor('primary')} dark:text-${getColor('primary')} bg-${getColor('secondary')} dark:bg-${getColor('secondary')}`
       case '10year': return 'text-slate-700 dark:text-slate-300 bg-slate-200 dark:bg-slate-600'
       default: return 'text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-700'
     }
@@ -125,7 +145,7 @@ export const FamilyVisionBoard: React.FC<FamilyVisionBoardProps> = ({ className 
   return (
     <div className={`space-y-4 lg:space-y-6 ${className}`}>
       {/* Mission Statement */}
-      <Card className="p-4 lg:p-6 bg-gradient-to-br from-slate-50/30 to-purple-50/20 dark:from-slate-700/30 dark:to-purple-800/20 border-slate-200/30 dark:border-slate-600/30">
+      <Card className={`p-4 lg:p-6 bg-gradient-to-br from-slate-50/30 to-${getColor('bg')}/20 dark:from-slate-700/30 dark:to-${getColor('bgDark')} border-slate-200/30 dark:border-slate-600/30`}>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
           <div className="flex items-center gap-2">
             <Home className="w-4 h-4 lg:w-5 lg:h-5 text-slate-600 dark:text-slate-300" />
@@ -176,7 +196,7 @@ export const FamilyVisionBoard: React.FC<FamilyVisionBoardProps> = ({ className 
       </Card>
 
       {/* Core Values */}
-      <Card className="p-4 lg:p-6 bg-gradient-to-br from-slate-50/30 to-purple-50/20 dark:from-slate-700/30 dark:to-purple-800/20 border-slate-200/30 dark:border-slate-600/30">
+      <Card className={`p-4 lg:p-6 bg-gradient-to-br from-slate-50/30 to-${getColor('bg')}/20 dark:from-slate-700/30 dark:to-${getColor('bgDark')} border-slate-200/30 dark:border-slate-600/30`}>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
           <div className="flex items-center gap-2">
             <Star className="w-4 h-4 lg:w-5 lg:h-5 text-slate-600 dark:text-slate-300" />
@@ -231,7 +251,7 @@ export const FamilyVisionBoard: React.FC<FamilyVisionBoardProps> = ({ className 
               <span>{value}</span>
               <button
                 onClick={() => handleRemoveValue(index)}
-                className="text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300"
+                className={`text-${getColor('primary')} dark:text-${getColor('primary')} hover:text-${getColor('text')} dark:hover:text-${getColor('text')}`}
               >
                 <X className="w-3 h-3" />
               </button>
@@ -241,7 +261,7 @@ export const FamilyVisionBoard: React.FC<FamilyVisionBoardProps> = ({ className 
       </Card>
 
       {/* Vision Goals */}
-      <Card className="p-4 lg:p-6 bg-gradient-to-br from-slate-50/30 to-purple-50/20 dark:from-slate-700/30 dark:to-purple-800/20 border-slate-200/30 dark:border-slate-600/30">
+      <Card className={`p-4 lg:p-6 bg-gradient-to-br from-slate-50/30 to-${getColor('bg')}/20 dark:from-slate-700/30 dark:to-${getColor('bgDark')} border-slate-200/30 dark:border-slate-600/30`}>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
           <div className="flex items-center gap-2">
             <Target className="w-4 h-4 lg:w-5 lg:h-5 text-slate-600 dark:text-slate-300" />

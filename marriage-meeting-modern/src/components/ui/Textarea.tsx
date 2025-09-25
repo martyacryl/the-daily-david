@@ -1,4 +1,5 @@
 import React from 'react'
+import { useAccentColor } from '../../hooks/useAccentColor'
 
 interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
   label?: string
@@ -11,6 +12,8 @@ export const Textarea: React.FC<TextareaProps> = ({
   className = '', 
   ...props 
 }) => {
+  const { getColor } = useAccentColor()
+  
   return (
     <div className="space-y-2">
       {label && (
