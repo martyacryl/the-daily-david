@@ -762,9 +762,9 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
             <div className="w-full lg:w-80 bg-gradient-to-br from-slate-50 to-gray-100 dark:from-gray-800 dark:to-gray-700 border-l border-gray-200 dark:border-gray-600 p-4 lg:p-6 overflow-y-auto">
               <div className="space-y-6">
                 {/* Family Vision Quick View */}
-                <Card className="p-4 bg-gradient-to-br from-blue-50 to-indigo-50">
+                <Card className="p-4 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-700">
                   <div className="flex items-center gap-2 mb-3">
-                    <Home className="w-5 h-5 text-blue-600" />
+                    <Home className="w-5 h-5 text-slate-600 dark:text-slate-300" />
                     <h3 className="font-semibold text-gray-900 dark:text-white">Family Vision</h3>
                   </div>
                   <p className="text-sm text-gray-700 dark:text-gray-300 mb-3 italic">
@@ -773,18 +773,18 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                   <div className="space-y-2 text-sm">
                     <div className="flex items-center justify-between">
                       <span className="text-gray-600 dark:text-gray-300">1-Year Goals:</span>
-                      <span className="font-medium text-blue-600">3 active</span>
+                      <span className="font-medium text-slate-600 dark:text-slate-300">3 active</span>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-gray-600 dark:text-gray-300">Values lived:</span>
-                      <span className="font-medium text-green-600">Faith, Love, Service</span>
+                      <span className="font-medium text-slate-600 dark:text-slate-300">Faith, Love, Service</span>
                     </div>
                   </div>
                   <Button
                     variant="default"
                     size="sm"
                     onClick={() => setShowVisionModal(true)}
-                    className={`w-full mt-3 bg-${getColor('primary')} hover:bg-${getColor('primary')} dark:bg-${getColor('primary')} dark:hover:bg-${getColor('primary')}`}
+                    className="w-full mt-3 bg-slate-600 hover:bg-slate-700 dark:bg-slate-500 dark:hover:bg-slate-400 text-white"
                   >
                     View Full Vision
                   </Button>
