@@ -1443,7 +1443,7 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
   }
 
   return (
-    <div className={`min-h-screen bg-gradient-to-br from-slate-50 ${getGradientClasses().replace('bg-gradient-to-br from-', 'to-').replace('50', '50')} dark:from-gray-900 dark:to-gray-800 ${className}`}>
+    <div className={`min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-gray-900 dark:to-gray-800 ${className}`}>
       <div className="flex h-screen">
         {/* Main Content Area */}
         <div className="flex-1 overflow-y-auto">
