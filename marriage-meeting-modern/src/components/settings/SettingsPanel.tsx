@@ -158,8 +158,8 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
           exit={{ scale: 0.95, opacity: 0 }}
           className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-4xl h-[98vh] sm:h-[90vh] flex flex-col mx-1 sm:mx-4"
         >
-          {/* Header - Sticky on mobile */}
-          <div className="flex items-center justify-between p-3 sm:p-4 lg:p-6 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 sticky top-0 z-10">
+          {/* Header */}
+          <div className="flex items-center justify-between p-3 sm:p-4 lg:p-6 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 flex-shrink-0">
             <div className="flex items-center gap-2 sm:gap-3">
               <Settings className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" />
               <h2 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">Settings</h2>
