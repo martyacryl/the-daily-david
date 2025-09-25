@@ -114,11 +114,12 @@ export class CalendarService {
                 const veventBlocks = icalData.split('BEGIN:VEVENT')
                 console.log('📅 Total VEVENT blocks found:', veventBlocks.length - 1) // -1 because first split creates empty string
                 
-                // Show the week range we're looking for
+                // Show the extended range we're looking for
                 const weekStartDate = new Date(weekStart)
                 const weekEnd = new Date(weekStart)
-                weekEnd.setDate(weekEnd.getDate() + 6)
-                console.log('📅 Looking for events in week range:', {
+                weekEnd.setDate(weekEnd.getDate() + 13) // 2 weeks to be safe
+                weekEnd.setHours(23, 59, 59, 999)
+                console.log('📅 Looking for events in extended range:', {
                   weekStart: weekStartDate.toISOString().split('T')[0],
                   weekEnd: weekEnd.toISOString().split('T')[0],
                   weekStartLocal: weekStartDate.toLocaleDateString(),
@@ -147,12 +148,13 @@ export class CalendarService {
   private parseICalData(icalData: string, weekStart: Date): CalendarEvent[] {
     const events: CalendarEvent[] = []
     
-    // Use the exact week start date - don't extend to previous weekend
+    // Extend the range to fetch more events (like Google Calendar does)
     const weekStartDate = new Date(weekStart)
     const weekEnd = new Date(weekStart)
-    weekEnd.setDate(weekEnd.getDate() + 6) // Week ends on Sunday (6 days after Monday)
+    weekEnd.setDate(weekEnd.getDate() + 13) // 2 weeks to be safe, like Google Calendar
+    weekEnd.setHours(23, 59, 59, 999)
 
-    console.log('📅 parseICalData: Week range:', {
+    console.log('📅 parseICalData: Extended range:', {
       weekStart: weekStartDate.toISOString().split('T')[0],
       weekEnd: weekEnd.toISOString().split('T')[0]
     })
@@ -488,7 +490,7 @@ export class CalendarService {
     try {
       const serverUrl = config.server || 'https://caldav.icloud.com'
       const weekEnd = new Date(weekStart)
-      weekEnd.setDate(weekEnd.getDate() + 6)
+      weekEnd.setDate(weekEnd.getDate() + 13) // 2 weeks to be safe, like Google Calendar
       weekEnd.setHours(23, 59, 59, 999)
       
       const response = await fetch(`${serverUrl}${calendarPath}`, {
