@@ -440,26 +440,26 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
                               Accent Color
                             </label>
-                            <div className="grid grid-cols-4 gap-3">
+                            <div className="grid grid-cols-3 gap-2 sm:gap-3">
                               {getAccentColorOptions().map((color) => (
                                 <button
                                   key={color.key}
                                   onClick={() => setAccentColor(color.key)}
-                                  className={`relative p-3 rounded-lg border-2 transition-all hover:scale-105 ${
+                                  className={`relative p-2 sm:p-3 rounded-lg border-2 transition-all hover:scale-105 ${
                                     accentColor === color.key
                                       ? 'border-gray-900 dark:border-white ring-2 ring-gray-400 dark:ring-gray-500'
                                       : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'
                                   }`}
                                   title={color.name}
                                 >
-                                  <div className={`w-full h-8 rounded bg-${color.primary} mb-2`}></div>
-                                  <div className={`w-full h-4 rounded bg-${color.secondary}`}></div>
-                                  <span className="text-xs font-medium text-gray-700 dark:text-gray-300 mt-1 block">
+                                  <div className={`w-full h-6 sm:h-8 rounded bg-${color.primary} mb-1 sm:mb-2`}></div>
+                                  <div className={`w-full h-3 sm:h-4 rounded bg-${color.secondary}`}></div>
+                                  <span className="text-xs font-medium text-gray-700 dark:text-gray-300 mt-1 block text-center">
                                     {color.name}
                                   </span>
                                   {accentColor === color.key && (
-                                    <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
-                                      <CheckCircle className="w-3 h-3 text-white" />
+                                    <div className="absolute -top-1 -right-1 w-3 h-3 sm:w-4 sm:h-4 bg-green-500 rounded-full flex items-center justify-center">
+                                      <CheckCircle className="w-2 h-2 sm:w-3 sm:h-3 text-white" />
                                     </div>
                                   )}
                                 </button>

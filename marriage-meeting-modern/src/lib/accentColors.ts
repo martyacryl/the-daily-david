@@ -78,32 +78,6 @@ export const ACCENT_COLORS = {
     bg: 'orange-50',
     bgDark: 'orange-900/10'
   },
-  indigo: {
-    name: 'Indigo',
-    primary: 'indigo-600',
-    primaryDark: 'indigo-500',
-    secondary: 'indigo-100',
-    secondaryDark: 'indigo-900/20',
-    text: 'indigo-700',
-    textDark: 'indigo-300',
-    border: 'indigo-200',
-    borderDark: 'indigo-700',
-    bg: 'indigo-50',
-    bgDark: 'indigo-900/10'
-  },
-  emerald: {
-    name: 'Emerald',
-    primary: 'emerald-600',
-    primaryDark: 'emerald-500',
-    secondary: 'emerald-100',
-    secondaryDark: 'emerald-900/20',
-    text: 'emerald-700',
-    textDark: 'emerald-300',
-    border: 'emerald-200',
-    borderDark: 'emerald-700',
-    bg: 'emerald-50',
-    bgDark: 'emerald-900/10'
-  }
 } as const
 
 export type AccentColorKey = keyof typeof ACCENT_COLORS
