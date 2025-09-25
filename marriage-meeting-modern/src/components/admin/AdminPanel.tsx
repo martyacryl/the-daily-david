@@ -195,7 +195,7 @@ export function AdminPanel({ dbManager }: AdminPanelProps) {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-100 to-green-50 dark:from-gray-900 dark:to-gray-800">
-      <div className="container mx-auto px-4 py-8 max-w-6xl">
+      <div className="container mx-auto px-4 pt-20 pb-8 max-w-6xl">
         
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
@@ -230,7 +230,7 @@ export function AdminPanel({ dbManager }: AdminPanelProps) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
           >
-            <Card variant="elevated" className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-600">
+            <Card variant="elevated">
               <h2 className="text-xl font-bold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
                 <UserPlus className="w-5 h-5 text-green-600 dark:text-green-400" />
                 Add New User
@@ -309,7 +309,7 @@ export function AdminPanel({ dbManager }: AdminPanelProps) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
           >
-            <Card variant="elevated" className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-600">
+            <Card variant="elevated">
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-xl font-bold text-gray-800 dark:text-white flex items-center gap-2">
                   <Users className="w-5 h-5 text-green-600 dark:text-green-400" />
@@ -386,7 +386,7 @@ export function AdminPanel({ dbManager }: AdminPanelProps) {
           transition={{ delay: 0.3 }}
           className="mt-8"
         >
-          <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-600">
+          <Card>
             <h2 className="text-xl font-bold text-gray-800 dark:text-white mb-4">System Information</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
               <div>
