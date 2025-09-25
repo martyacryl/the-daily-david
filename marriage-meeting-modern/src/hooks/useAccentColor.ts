@@ -1,0 +1,20 @@
+import { useAccentColor as useAccentColorStore } from '../stores/appStore'
+import { getAccentClassesWithDark, ACCENT_COLORS, type AccentColorKey } from '../lib/accentColors'
+
+export const useAccentColor = () => {
+  const accentColor = useAccentColorStore()
+  
+  const getClasses = (variant: 'primary' | 'secondary' | 'text' | 'border' | 'bg' = 'primary') => {
+    return getAccentClassesWithDark(accentColor, variant)
+  }
+  
+  const getColorInfo = () => {
+    return ACCENT_COLORS[accentColor as AccentColorKey] || ACCENT_COLORS.purple
+  }
+  
+  return {
+    accentColor,
+    getClasses,
+    getColorInfo
+  }
+}

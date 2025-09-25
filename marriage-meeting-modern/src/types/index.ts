@@ -142,6 +142,7 @@ export interface User {
     currentDate: Date
     currentView: 'landing' | 'daily'
     theme: 'light' | 'dark'
+    accentColor: string
     isLoading: boolean
   }
   

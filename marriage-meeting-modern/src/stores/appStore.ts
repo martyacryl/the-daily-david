@@ -6,6 +6,7 @@ interface AppStore extends AppState {
   setCurrentDate: (date: Date) => void
   setCurrentView: (view: ViewType) => void
   setTheme: (theme: 'light' | 'dark') => void
+  setAccentColor: (color: string) => void
   setLoading: (loading: boolean) => void
   
   // Complex state operations
@@ -55,6 +56,7 @@ export const useAppStore = create<AppStore>((set, get) => ({
   currentDate: new Date(),
   currentView: 'landing', // Default to landing page
   theme: 'light',
+  accentColor: 'purple', // Default accent color
   isLoading: false,
 
   // Basic setters
@@ -73,6 +75,13 @@ export const useAppStore = create<AppStore>((set, get) => ({
     // Persist theme preference
     localStorage.setItem('dailyDavid_theme', theme)
     console.log('🎨 [AppStore] Theme changed to:', theme)
+  },
+
+  setAccentColor: (color) => {
+    set({ accentColor: color })
+    // Persist accent color preference
+    localStorage.setItem('dailyDavid_accentColor', color)
+    console.log('🎨 [AppStore] Accent color changed to:', color)
   },
 
   setLoading: (loading) => {
@@ -124,6 +133,7 @@ export const useAppStore = create<AppStore>((set, get) => ({
 export const useCurrentDate = () => useAppStore(state => state.currentDate)
 export const useCurrentView = () => useAppStore(state => state.currentView)
 export const useTheme = () => useAppStore(state => state.theme)
+export const useAccentColor = () => useAppStore(state => state.accentColor)
 export const useAppLoading = () => useAppStore(state => state.isLoading)
 
 // Helper for current date as formatted string
@@ -139,6 +149,12 @@ export const initializeAppStore = () => {
     const savedTheme = localStorage.getItem('dailyDavid_theme')
     if (savedTheme === 'dark' || savedTheme === 'light') {
       useAppStore.getState().setTheme(savedTheme)
+    }
+    
+    // Load accent color preference
+    const savedAccentColor = localStorage.getItem('dailyDavid_accentColor')
+    if (savedAccentColor) {
+      useAppStore.getState().setAccentColor(savedAccentColor)
     }
     
     // Load view preference
