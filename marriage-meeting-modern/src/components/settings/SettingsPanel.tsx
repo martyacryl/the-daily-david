@@ -150,28 +150,28 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-2 sm:p-4"
+        className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-end sm:items-center justify-center p-1 sm:p-4"
         onClick={onClose}
       >
         <motion.div
           initial={{ scale: 0.95, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.95, opacity: 0 }}
-          className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-4xl h-[95vh] sm:h-[90vh] flex flex-col mx-2 sm:mx-4"
+          className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-4xl h-[85vh] sm:h-[90vh] flex flex-col mx-1 sm:mx-4"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
-          <div className="flex items-center justify-between p-3 sm:p-4 lg:p-6 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 flex-shrink-0">
-            <div className="flex items-center gap-2 sm:gap-3">
-              <Settings className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" />
-              <h2 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">Settings</h2>
+          <div className="flex items-center justify-between p-2 sm:p-4 lg:p-6 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 flex-shrink-0">
+            <div className="flex items-center gap-1 sm:gap-3">
+              <Settings className="w-4 h-4 sm:w-6 sm:h-6 text-blue-600" />
+              <h2 className="text-base sm:text-xl font-semibold text-gray-900 dark:text-white">Settings</h2>
             </div>
             <Button
               onClick={onClose}
               variant="ghost"
-              className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 p-3 sm:p-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-full min-w-[44px] min-h-[44px] sm:min-w-0 sm:min-h-0"
+              className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 p-2 sm:p-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-full min-w-[36px] min-h-[36px] sm:min-w-0 sm:min-h-0"
             >
-              <X className="w-6 h-6 sm:w-6 sm:h-6" />
+              <X className="w-5 h-5 sm:w-6 sm:h-6" />
             </Button>
           </div>
 
