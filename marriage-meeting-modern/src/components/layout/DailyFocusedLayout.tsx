@@ -1465,7 +1465,7 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
           <div className="w-80 bg-white dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700 p-4 overflow-y-auto">
             <div className="space-y-6">
               {/* Quick Spiritual Check-in */}
-              <Card className={`p-4 bg-gradient-to-br ${getGradientClasses().replace('bg-gradient-to-br from-', 'from-').replace('50', '50')} to-blue-50`}>
+              <Card className="p-4 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-700">
                 <div className="flex items-center gap-2 mb-3">
                   <BookOpen className={`w-5 h-5 text-${getColor('primary')}`} />
                   <h3 className="font-semibold text-gray-900 dark:text-white">Quick Spiritual Check-in</h3>
@@ -1501,9 +1501,9 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
               </Card>
 
               {/* Family Vision Quick View */}
-              <Card className="p-4 bg-gradient-to-br from-blue-50 to-indigo-50">
+              <Card className="p-4 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-700">
                 <div className="flex items-center gap-2 mb-3">
-                  <Home className="w-5 h-5 text-blue-600" />
+                  <Home className="w-5 h-5 text-slate-600 dark:text-slate-300" />
                   <h3 className="font-semibold text-gray-900 dark:text-white">Family Vision</h3>
                 </div>
                 <p className="text-sm text-gray-700 dark:text-gray-300 mb-3 italic">
