@@ -360,7 +360,7 @@ export const DashboardNew: React.FC = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-purple-50 dark:from-gray-900 dark:to-gray-800">
       {/* Fixed Settings Button - Always visible */}
-      <div className="fixed top-28 right-4 z-40 sm:top-24">
+      <div className="fixed top-20 right-4 z-40 sm:top-20">
         <Button
           variant="outline"
           size="sm"
@@ -372,7 +372,7 @@ export const DashboardNew: React.FC = () => {
         </Button>
       </div>
       
-      <div className="pt-32 sm:pt-20">
+      <div className="pt-24 sm:pt-20">
         <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-8 max-w-7xl">
           {/* Header */}
           <motion.div
