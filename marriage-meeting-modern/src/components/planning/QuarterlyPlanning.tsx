@@ -132,11 +132,16 @@ export const QuarterlyPlanning: React.FC = () => {
       }
     ]
 
+    // Get current quarter dynamically
+    const now = new Date()
+    const currentQuarter = Math.ceil((now.getMonth() + 1) / 3)
+    const currentYear = now.getFullYear()
+    
     const mockThemes: QuarterlyTheme[] = [
       {
         id: '1',
-        quarter: 'Q1',
-        year: 2025,
+        quarter: `Q${currentQuarter}`,
+        year: currentYear,
         theme: 'Foundation Building',
         focus: 'Establishing strong habits and routines',
         scripture: 'Therefore everyone who hears these words of mine and puts them into practice is like a wise man who built his house on the rock. - Matthew 7:24',
