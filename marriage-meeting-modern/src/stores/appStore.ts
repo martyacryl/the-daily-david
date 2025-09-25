@@ -56,7 +56,7 @@ export const useAppStore = create<AppStore>((set, get) => ({
   currentDate: new Date(),
   currentView: 'landing', // Default to landing page
   theme: 'light',
-  accentColor: 'purple', // Default accent color
+  accentColor: 'slate', // Default accent color
   isLoading: false,
 
   // Basic setters

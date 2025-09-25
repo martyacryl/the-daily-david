@@ -5,6 +5,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'r
 import { useAuthStore } from './stores/authStore'
 import { useMarriageStore } from './stores/marriageStore'
 import { useTheme } from './hooks/useTheme'
+import { initializeAppStore } from './stores/appStore'
 import { MarriageMeetingTool } from './components/MarriageMeetingTool'
 import { DailyFocusedMeeting } from './components/DailyFocusedMeeting'
 import { LoginForm } from './components/LoginForm'
@@ -40,6 +41,11 @@ function App() {
   
   // Initialize theme system
   useTheme()
+  
+  // Initialize app store (theme, accent color, view preferences)
+  useEffect(() => {
+    initializeAppStore()
+  }, [])
   
   // Initialize database manager
   const dbManager = new DatabaseManager()
