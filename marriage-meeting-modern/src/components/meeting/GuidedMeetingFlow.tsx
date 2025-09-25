@@ -210,22 +210,22 @@ export const GuidedMeetingFlow: React.FC<GuidedMeetingFlowProps> = ({
   return (
     <div className={`space-y-6 ${className}`}>
       {/* Meeting Progress Header */}
-      <Card className="p-6 bg-gradient-to-r from-blue-50 to-purple-50">
+      <Card className="p-6 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h2 className="text-xl font-bold text-gray-900">Guided Meeting Flow</h2>
-            <p className="text-sm text-gray-600">
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white">Guided Meeting Flow</h2>
+            <p className="text-sm text-gray-600 dark:text-gray-300">
               Step {currentStep + 1} of {meetingSteps.length} • {completedSteps.size} steps completed
             </p>
             {meetingStats && (
               <div className="flex items-center gap-4 mt-2 text-sm">
-                <span className="text-green-600 font-medium">
+                <span className="text-green-600 dark:text-green-400 font-medium">
                   Current Streak: {meetingStats.current_streak} weeks
                 </span>
-                <span className="text-blue-600 font-medium">
+                <span className="text-blue-600 dark:text-blue-400 font-medium">
                   Total Meetings: {meetingStats.total_meetings}
                 </span>
-                <span className="text-purple-600 font-medium">
+                <span className="text-purple-600 dark:text-purple-400 font-medium">
                   Avg Completion: {meetingStats.avg_completion}%
                 </span>
               </div>
@@ -233,7 +233,7 @@ export const GuidedMeetingFlow: React.FC<GuidedMeetingFlowProps> = ({
           </div>
           <div className="flex items-center gap-2">
             {isSaving && (
-              <div className="flex items-center gap-2 text-blue-600">
+              <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400">
                 <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
                 <span className="text-sm">Saving...</span>
               </div>
@@ -242,7 +242,7 @@ export const GuidedMeetingFlow: React.FC<GuidedMeetingFlowProps> = ({
               variant="outline"
               size="sm"
               onClick={handleReset}
-              className="text-gray-600 border-gray-200 hover:bg-gray-50"
+              className="text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"
             >
               <RotateCcw className="w-4 h-4 mr-1" />
               Reset
@@ -293,10 +293,10 @@ export const GuidedMeetingFlow: React.FC<GuidedMeetingFlowProps> = ({
               }`} />
             </div>
             <div>
-              <h3 className="text-lg font-bold text-gray-900">
+              <h3 className="text-lg font-bold text-gray-900 dark:text-white">
                 {currentStepData.title}
               </h3>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-gray-600 dark:text-gray-300">
                 {currentStepData.description}
               </p>
             </div>
@@ -317,7 +317,7 @@ export const GuidedMeetingFlow: React.FC<GuidedMeetingFlowProps> = ({
               <Button
                 variant="outline"
                 onClick={handlePreviousStep}
-                className="text-gray-600 border-gray-200 hover:bg-gray-50"
+                className="text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"
               >
                 <ArrowLeft className="w-4 h-4 mr-1" />
                 Previous
@@ -332,7 +332,7 @@ export const GuidedMeetingFlow: React.FC<GuidedMeetingFlowProps> = ({
                   <Button
                     variant="outline"
                     onClick={handleSkipStep}
-                    className="text-gray-600 border-gray-200 hover:bg-gray-50"
+                    className="text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"
                   >
                     Skip
                   </Button>
@@ -363,7 +363,7 @@ export const GuidedMeetingFlow: React.FC<GuidedMeetingFlowProps> = ({
 
       {/* Steps List */}
       <Card className="p-6">
-        <h3 className="text-lg font-bold text-gray-900 mb-4">Meeting Steps</h3>
+        <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Meeting Steps</h3>
         <div className="space-y-3">
           {meetingSteps.map((step, index) => (
             <motion.div
@@ -384,7 +384,7 @@ export const GuidedMeetingFlow: React.FC<GuidedMeetingFlowProps> = ({
                   ? 'bg-green-500 text-white'
                   : index === currentStep
                   ? 'bg-blue-500 text-white'
-                  : 'bg-gray-300 text-gray-600'
+                  : 'bg-gray-300 dark:bg-gray-600 text-gray-600 dark:text-gray-300'
               }`}>
                 {completedSteps.has(step.id) ? (
                   <CheckCircle className="w-4 h-4" />
@@ -395,15 +395,15 @@ export const GuidedMeetingFlow: React.FC<GuidedMeetingFlowProps> = ({
               
               <div className="flex-1">
                 <div className="flex items-center gap-2">
-                  <step.icon className="w-4 h-4 text-gray-600" />
-                  <h4 className="font-medium text-gray-900">{step.title}</h4>
+                  <step.icon className="w-4 h-4 text-gray-600 dark:text-gray-300" />
+                  <h4 className="font-medium text-gray-900 dark:text-white">{step.title}</h4>
                   {step.optional && (
-                    <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
+                    <span className="text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">
                       Optional
                     </span>
                   )}
                 </div>
-                <p className="text-sm text-gray-600">{step.description}</p>
+                <p className="text-sm text-gray-600 dark:text-gray-300">{step.description}</p>
               </div>
             </motion.div>
           ))}
