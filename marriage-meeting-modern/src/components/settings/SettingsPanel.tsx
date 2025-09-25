@@ -444,28 +444,46 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
                               Accent Color
                             </label>
-                            <div className="grid grid-cols-3 gap-2 sm:gap-3">
+                            <div className="grid grid-cols-3 gap-3 sm:gap-4">
                               {getAccentColorOptions().map((color) => (
                                 <button
                                   key={color.key}
                                   onClick={() => setAccentColor(color.key)}
-                                  className={`relative p-2 sm:p-3 rounded-lg border-2 transition-all hover:scale-105 ${
+                                  className={`group relative overflow-hidden rounded-xl border-2 transition-all duration-300 hover:scale-105 hover:shadow-lg ${
                                     accentColor === color.key
-                                      ? 'border-gray-900 dark:border-white ring-2 ring-gray-400 dark:ring-gray-500'
-                                      : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'
+                                      ? 'border-gray-900 dark:border-white ring-2 ring-gray-400 dark:ring-gray-500 shadow-lg'
+                                      : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500 hover:shadow-md'
                                   }`}
                                   title={color.name}
                                 >
-                                  <div className={`w-full h-6 sm:h-8 rounded bg-${color.primary} mb-1 sm:mb-2`}></div>
-                                  <div className={`w-full h-3 sm:h-4 rounded bg-${color.secondary}`}></div>
-                                  <span className="text-xs font-medium text-gray-700 dark:text-gray-300 mt-1 block text-center">
-                                    {color.name}
-                                  </span>
-                                  {accentColor === color.key && (
-                                    <div className="absolute -top-1 -right-1 w-3 h-3 sm:w-4 sm:h-4 bg-green-500 rounded-full flex items-center justify-center">
-                                      <CheckCircle className="w-2 h-2 sm:w-3 sm:h-3 text-white" />
+                                  {/* Gradient Background */}
+                                  <div className={`absolute inset-0 bg-gradient-to-br from-${color.primary} to-${color.secondary} opacity-90 group-hover:opacity-100 transition-opacity duration-300`}></div>
+                                  
+                                  {/* Overlay Pattern */}
+                                  <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-transparent"></div>
+                                  
+                                  {/* Content */}
+                                  <div className="relative p-4 sm:p-5">
+                                    {/* Color Swatch */}
+                                    <div className="flex items-center justify-center mb-3">
+                                      <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-${color.primary} to-${color.secondary} shadow-lg ring-2 ring-white/20`}></div>
                                     </div>
-                                  )}
+                                    
+                                    {/* Color Name */}
+                                    <span className="text-xs sm:text-sm font-semibold text-white drop-shadow-sm text-center block">
+                                      {color.name}
+                                    </span>
+                                    
+                                    {/* Selection Indicator */}
+                                    {accentColor === color.key && (
+                                      <div className="absolute top-2 right-2 w-5 h-5 sm:w-6 sm:h-6 bg-white rounded-full flex items-center justify-center shadow-lg">
+                                        <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 text-gray-900" />
+                                      </div>
+                                    )}
+                                    
+                                    {/* Hover Effect */}
+                                    <div className="absolute inset-0 bg-white/0 group-hover:bg-white/10 transition-colors duration-300 rounded-xl"></div>
+                                  </div>
                                 </button>
                               ))}
                             </div>
