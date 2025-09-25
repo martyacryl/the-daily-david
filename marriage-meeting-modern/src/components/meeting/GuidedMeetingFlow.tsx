@@ -239,7 +239,7 @@ export const GuidedMeetingFlow: React.FC<GuidedMeetingFlowProps> = ({
           <div className="flex items-center gap-2">
             {isSaving && (
               <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400">
-                <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                <div className="w-4 h-4 border-2 border-blue-600 dark:border-blue-400 border-t-transparent rounded-full animate-spin"></div>
                 <span className="text-sm">Saving...</span>
               </div>
             )}
@@ -368,7 +368,7 @@ export const GuidedMeetingFlow: React.FC<GuidedMeetingFlowProps> = ({
                 <Button
                   onClick={handleCompleteStep}
                   disabled={isSaving}
-                  className="bg-green-600 hover:bg-green-700 disabled:opacity-50"
+                  className="bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 disabled:opacity-50"
                 >
                   <CheckCircle className="w-4 h-4 mr-1" />
                   {isSaving ? 'Saving...' : 'Complete Step'}
@@ -379,7 +379,7 @@ export const GuidedMeetingFlow: React.FC<GuidedMeetingFlowProps> = ({
             {currentStep < meetingSteps.length - 1 && completedSteps.has(currentStepData.id) && (
               <Button
                 onClick={() => setCurrentStep(prev => prev + 1)}
-                className="bg-blue-600 hover:bg-blue-700"
+                className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
               >
                 Next Step
                 <ArrowRight className="w-4 h-4 ml-1" />
@@ -401,10 +401,10 @@ export const GuidedMeetingFlow: React.FC<GuidedMeetingFlowProps> = ({
               transition={{ delay: index * 0.1 }}
               className={`flex items-center gap-4 p-3 rounded-lg border-2 transition-all duration-200 ${
                 completedSteps.has(step.id)
-                  ? 'bg-green-50 border-green-200'
+                  ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-700'
                   : index === currentStep
-                  ? 'bg-blue-50 border-blue-200'
-                  : 'bg-gray-50 border-gray-200'
+                  ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-700'
+                  : 'bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600'
               }`}
             >
               <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
