@@ -195,7 +195,7 @@ export function AdminPanel({ dbManager }: AdminPanelProps) {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-100 to-green-50 dark:from-gray-900 dark:to-gray-800">
-      <div className="container mx-auto px-4 pt-20 pb-8 max-w-6xl">
+      <div className="container mx-auto px-4 pt-16 pb-8 max-w-6xl">
         
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
