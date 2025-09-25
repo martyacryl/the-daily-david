@@ -19,6 +19,8 @@ import {
 } from 'lucide-react'
 import { Card } from '../ui/Card'
 import { Button } from '../ui/Button'
+import { Input } from '../ui/Input'
+import { Textarea } from '../ui/Textarea'
 import { dbManager } from '../../lib/database'
 import { useAccentColor } from '../../hooks/useAccentColor'
 
@@ -127,6 +129,7 @@ export const GuidedMeetingFlow: React.FC<GuidedMeetingFlowProps> = ({
   const [completedSteps, setCompletedSteps] = useState<Set<string>>(new Set())
   const [isSaving, setIsSaving] = useState(false)
   const [meetingStats, setMeetingStats] = useState<any>(null)
+  const [stepData, setStepData] = useState<Record<string, string>>({})
 
   const currentStepData = meetingSteps[currentStep]
 
@@ -173,7 +176,8 @@ export const GuidedMeetingFlow: React.FC<GuidedMeetingFlowProps> = ({
         steps_completed: stepsArray,
         total_steps: meetingSteps.length,
         completion_percentage: Math.round(completionPercentage),
-        notes: `Completed ${stepsArray.length} of ${meetingSteps.length} steps`
+        notes: `Completed ${stepsArray.length} of ${meetingSteps.length} steps`,
+        step_data: stepData
       })
 
       // Reload stats after saving
@@ -203,6 +207,7 @@ export const GuidedMeetingFlow: React.FC<GuidedMeetingFlowProps> = ({
   const handleReset = () => {
     setCurrentStep(0)
     setCompletedSteps(new Set())
+    setStepData({})
   }
 
   const progressPercentage = (completedSteps.size / meetingSteps.length) * 100
@@ -309,6 +314,29 @@ export const GuidedMeetingFlow: React.FC<GuidedMeetingFlowProps> = ({
             </div>
           )}
         </div>
+
+        {/* Step Input */}
+        {!completedSteps.has(currentStepData.id) && (
+          <div className="mb-6">
+            <Textarea
+              value={stepData[currentStepData.id] || ''}
+              onChange={(e) => setStepData(prev => ({ ...prev, [currentStepData.id]: e.target.value }))}
+              placeholder={`Share your thoughts on ${currentStepData.title.toLowerCase()}...`}
+              rows={4}
+              className="w-full"
+            />
+          </div>
+        )}
+
+        {/* Completed Step Data Display */}
+        {completedSteps.has(currentStepData.id) && stepData[currentStepData.id] && (
+          <div className="mb-6 p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-700">
+            <h4 className="text-sm font-medium text-green-800 dark:text-green-200 mb-2">Your Response:</h4>
+            <p className="text-sm text-green-700 dark:text-green-300 whitespace-pre-wrap">
+              {stepData[currentStepData.id]}
+            </p>
+          </div>
+        )}
 
         {/* Step Actions */}
         <div className="flex items-center justify-between">
