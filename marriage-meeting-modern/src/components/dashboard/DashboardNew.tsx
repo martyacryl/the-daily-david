@@ -536,11 +536,11 @@ export const DashboardNew: React.FC = () => {
                               ? 'bg-slate-600 border-slate-600' 
                               : 'border-slate-300'
                           }`}>
-                            {task.completed && <Check className="w-3 h-3 text-white dark:text-gray-800 dark:text-white" />}
+                            {task.completed && <Check className="w-3 h-3 text-white" />}
                           </div>
                           <div className="flex-1 min-w-0">
                             <span className={`text-sm sm:text-base font-medium ${
-                              task.completed ? 'line-through text-slate-500' : 'text-slate-800'
+                              task.completed ? 'line-through text-slate-500 dark:text-slate-400' : 'text-slate-800 dark:text-white'
                             }`}>
                               {task.text}
                             </span>
