@@ -8,6 +8,12 @@ export const useAccentColor = () => {
     return getAccentClassesWithDark(accentColor, variant)
   }
   
+  // Simple color getter for basic usage (no dark mode)
+  const getColor = (variant: 'primary' | 'secondary' | 'text' | 'border' | 'bg' = 'primary') => {
+    const color = ACCENT_COLORS[accentColor as AccentColorKey] || ACCENT_COLORS.purple
+    return color[variant]
+  }
+  
   const getColorInfo = () => {
     return ACCENT_COLORS[accentColor as AccentColorKey] || ACCENT_COLORS.purple
   }
@@ -15,6 +21,7 @@ export const useAccentColor = () => {
   return {
     accentColor,
     getClasses,
+    getColor,
     getColorInfo
   }
 }

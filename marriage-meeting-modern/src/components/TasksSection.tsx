@@ -21,6 +21,7 @@ import { Card } from './ui/Card'
 import { Button } from './ui/Button'
 import { TaskItem } from '../types/marriageTypes'
 import { useSettingsStore } from '../stores/settingsStore'
+import { useAccentColor } from '../hooks/useAccentColor'
 
 interface TasksSectionProps {
   tasks: TaskItem[]
@@ -29,6 +30,7 @@ interface TasksSectionProps {
 
 export const TasksSection: React.FC<TasksSectionProps> = ({ tasks, onUpdate }) => {
   const { settings, loadSettings } = useSettingsStore()
+  const { getColor } = useAccentColor()
   
   // Load settings when component mounts
   useEffect(() => {
@@ -93,10 +95,10 @@ export const TasksSection: React.FC<TasksSectionProps> = ({ tasks, onUpdate }) =
 
   const getAssignmentColor = (assignedTo: string) => {
     switch (assignedTo) {
-      case 'both': return 'text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-900/20'
+      case 'both': return `text-${getColor('primary')} dark:text-${getColor('primary')} bg-${getColor('secondary')} dark:bg-${getColor('secondary')}`
       case 'spouse1': return 'text-purple-600 dark:text-purple-400 bg-purple-100 dark:bg-purple-900/20'
       case 'spouse2': return 'text-green-600 dark:text-green-400 bg-green-100 dark:bg-green-900/20'
-      default: return 'text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-900/20'
+      default: return `text-${getColor('primary')} dark:text-${getColor('primary')} bg-${getColor('secondary')} dark:bg-${getColor('secondary')}`
     }
   }
 
@@ -532,7 +534,7 @@ export const TasksSection: React.FC<TasksSectionProps> = ({ tasks, onUpdate }) =
                       onClick={() => startEditTask(task)}
                       variant="outline"
                       size="sm"
-                      className="text-blue-600 hover:bg-blue-50 border-blue-200"
+                      className={`text-${getColor('primary')} hover:bg-${getColor('secondary')} border-${getColor('border')}`}
                     >
                       <Edit3 className="w-4 h-4" />
                     </Button>

@@ -10,7 +10,7 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
 
 export const Input = React.forwardRef<HTMLInputElement, InputProps>(
   ({ className, label, error, useAccentColor = false, ...props }, ref) => {
-    const { getClasses } = useAccentColor()
+    const { getColor } = useAccentColor()
     // Debug logging for mobile
     console.log('Input component rendering:', { label, value: props.value, placeholder: props.placeholder })
     
@@ -25,7 +25,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
           ref={ref}
           className={cn(
             'w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border-0 rounded-xl focus:outline-none focus:ring-2 focus:bg-white dark:focus:bg-gray-600 transition-all duration-200 placeholder:text-gray-400 dark:placeholder:text-gray-500 text-gray-900 dark:text-white',
-            useAccentColor ? `focus:ring-${getClasses('ring')}` : 'focus:ring-blue-500',
+            useAccentColor ? `focus:ring-${getColor('primary')}` : 'focus:ring-blue-500',
             error && 'bg-red-50 dark:bg-red-900/20 focus:ring-red-500 focus:bg-red-50 dark:focus:bg-red-900/20',
             className
           )}

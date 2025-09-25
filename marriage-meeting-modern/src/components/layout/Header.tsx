@@ -13,7 +13,7 @@ export const Header: React.FC<HeaderProps> = () => {
   const { user, logout } = useAuthStore()
   const location = useLocation()
   const navigate = useNavigate()
-  const { getClasses } = useAccentColor()
+  const { getColor } = useAccentColor()
 
   const handleNavigation = (path: string) => {
     // If clicking vision button, always go to vision section and clear localStorage
@@ -54,7 +54,7 @@ export const Header: React.FC<HeaderProps> = () => {
         <div className="flex items-center justify-between h-14 sm:h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2">
-            <div className={`w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-slate-400 to-${getClasses('primary')} dark:from-slate-600 dark:to-${getClasses('primaryDark')} rounded-full flex items-center justify-center`}>
+            <div className={`w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-slate-400 to-${getColor('primary')} dark:from-slate-600 dark:to-${getColor('primary')} rounded-full flex items-center justify-center`}>
               <Mountain className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
             </div>
             <span className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">Weekly Huddle</span>

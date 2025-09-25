@@ -49,7 +49,7 @@ export const DashboardNew: React.FC = () => {
   const { currentWeek, weekData, loadWeekData, saveWeekData, updateEncouragementNotes, loadAllWeeks, calculateMeetingStreak, calculateConsistencyScore, lastCalendarUpdate, updateCalendarEvents } = useMarriageStore()
   const { goals, loadGoals, getCurrentMonthGoals, getCurrentYearGoals, getLongTermGoals } = useGoalsStore()
   const { settings, loadSettings } = useSettingsStore()
-  const { getClasses } = useAccentColor()
+  const { getColor } = useAccentColor()
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
 
   // Scroll to top when dashboard loads for better UX
@@ -360,7 +360,7 @@ export const DashboardNew: React.FC = () => {
   }
 
   return (
-    <div className={`min-h-screen bg-gradient-to-br from-slate-50 to-${getClasses('bg')} dark:from-gray-900 dark:to-gray-800`}>
+    <div className={`min-h-screen bg-gradient-to-br from-slate-50 to-${getColor('bg')} dark:from-gray-900 dark:to-gray-800`}>
       {/* Fixed Settings Button - Always visible */}
       <div className="fixed top-16 right-2 sm:top-20 sm:right-4 z-50">
         <Button
@@ -480,7 +480,7 @@ export const DashboardNew: React.FC = () => {
                         {/* Custom Schedule Items - same style as weekly schedule */}
                         {filteredSchedule.map((item, index) => (
                           <div key={`schedule-${index}`} className="flex gap-2 sm:gap-3 items-start">
-                            <div className={`w-1.5 h-1.5 sm:w-2 sm:h-2 bg-${getClasses('primary')} rounded-full mt-2 sm:mt-3 flex-shrink-0`}></div>
+                            <div className={`w-1.5 h-1.5 sm:w-2 sm:h-2 bg-${getColor('primary')} rounded-full mt-2 sm:mt-3 flex-shrink-0`}></div>
                             <div className="flex-1">
                               <div className="text-sm sm:text-base text-gray-800 dark:text-white font-medium">
                                 {item}

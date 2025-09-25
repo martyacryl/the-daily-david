@@ -18,7 +18,7 @@ export const WeekOverview: React.FC<WeekOverviewProps> = ({
   currentDate, 
   className = '' 
 }) => {
-  const { getClasses } = useAccentColor()
+  const { getColor } = useAccentColor()
   const [isExpanded, setIsExpanded] = useState(false)
   const [expandedDay, setExpandedDay] = useState<string | null>(null)
 
@@ -157,7 +157,7 @@ export const WeekOverview: React.FC<WeekOverviewProps> = ({
                           select-none touch-manipulation
                           active:scale-95 active:shadow-lg
                           ${expandedDay === dayKey 
-                            ? `${getClasses('border')} ${getClasses('bg')} shadow-lg` 
+                            ? `border-${getColor('border')} bg-${getColor('bg')} shadow-lg` 
                             : isToday 
                               ? 'border-slate-400 bg-slate-50 dark:bg-slate-700 shadow-md' 
                               : hasItems 
@@ -261,7 +261,7 @@ export const WeekOverview: React.FC<WeekOverviewProps> = ({
                 <motion.div
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className={`mt-4 p-4 ${getClasses('bg')} dark:bg-gray-800 rounded-lg border-2 ${getClasses('border')} dark:border-gray-600`}
+                  className={`mt-4 p-4 bg-${getColor('bg')} dark:bg-gray-800 rounded-lg border-2 border-${getColor('border')} dark:border-gray-600`}
                 >
                   <div className="flex items-center justify-between mb-3">
                     <h4 className="text-lg font-semibold text-gray-900 dark:text-gray-100">

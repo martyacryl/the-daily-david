@@ -18,6 +18,7 @@ import { Input } from './ui/Input'
 import { Textarea } from './ui/Textarea'
 import { useGoalsStore } from '../stores/goalsStore'
 import { GoalItem } from '../types/marriageTypes'
+import { useAccentColor } from '../hooks/useAccentColor'
 
 export const GoalsSection: React.FC = () => {
   const { 
@@ -29,6 +30,7 @@ export const GoalsSection: React.FC = () => {
     toggleGoal,
     getGoalsByTimeframe 
   } = useGoalsStore()
+  const { getColor } = useAccentColor()
   
   const [newGoal, setNewGoal] = useState({
     text: '',
@@ -107,7 +109,7 @@ export const GoalsSection: React.FC = () => {
 
   const getTimeframeColor = (timeframe: GoalItem['timeframe']) => {
     const colorMap = {
-      monthly: 'bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-700',
+      monthly: `bg-${getColor('secondary')} dark:bg-${getColor('secondary')} text-${getColor('text')} dark:text-${getColor('text')} border-${getColor('border')} dark:border-${getColor('border')}`,
       '1year': 'bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-300 border-green-200 dark:border-green-700',
       '5year': 'bg-orange-100 dark:bg-orange-900/20 text-orange-700 dark:text-orange-300 border-orange-200 dark:border-orange-700',
       '10year': 'bg-purple-100 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-700'
@@ -182,7 +184,7 @@ export const GoalsSection: React.FC = () => {
                   <select
                     value={newGoal.timeframe}
                     onChange={(e) => setNewGoal({ ...newGoal, timeframe: e.target.value as GoalItem['timeframe'] })}
-                    className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border-0 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white dark:focus:bg-gray-600 transition-all duration-200 text-gray-900 dark:text-white"
+                    className={`w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border-0 rounded-xl focus:outline-none focus:ring-2 focus:ring-${getColor('primary')} focus:bg-white dark:focus:bg-gray-600 transition-all duration-200 text-gray-900 dark:text-white`}
                   >
                     {timeframes.map(timeframe => (
                       <option key={timeframe.key} value={timeframe.key}>
@@ -199,7 +201,7 @@ export const GoalsSection: React.FC = () => {
                   <select
                     value={newGoal.priority}
                     onChange={(e) => setNewGoal({ ...newGoal, priority: e.target.value as GoalItem['priority'] })}
-                    className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border-0 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white dark:focus:bg-gray-600 transition-all duration-200 text-gray-900 dark:text-white"
+                    className={`w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border-0 rounded-xl focus:outline-none focus:ring-2 focus:ring-${getColor('primary')} focus:bg-white dark:focus:bg-gray-600 transition-all duration-200 text-gray-900 dark:text-white`}
                   >
                     <option value="low">Low</option>
                     <option value="medium">Medium</option>
@@ -312,7 +314,7 @@ export const GoalsSection: React.FC = () => {
                                   />
                                 ) : (
                                   <span 
-                                    className="cursor-pointer hover:text-blue-600"
+                                    className={`cursor-pointer hover:text-${getColor('primary')}`}
                                     onClick={() => setEditingGoal(goal.id)}
                                   >
                                     {goal.text}
@@ -338,7 +340,7 @@ export const GoalsSection: React.FC = () => {
                             <div className="flex items-center gap-1 ml-2">
                               <button
                                 onClick={() => setEditingGoal(goal.id)}
-                                className="p-1 text-gray-400 hover:text-blue-600 transition-colors"
+                                className={`p-1 text-gray-400 hover:text-${getColor('primary')} transition-colors`}
                               >
                                 <Edit3 className="w-4 h-4" />
                               </button>
