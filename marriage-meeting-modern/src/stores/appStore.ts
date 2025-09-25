@@ -145,22 +145,29 @@ export const useCurrentDateKey = () => {
 // Initialize app store from localStorage
 export const initializeAppStore = () => {
   try {
+    const state = useAppStore.getState()
+    
     // Load theme preference
     const savedTheme = localStorage.getItem('dailyDavid_theme')
     if (savedTheme === 'dark' || savedTheme === 'light') {
-      useAppStore.getState().setTheme(savedTheme)
+      state.setTheme(savedTheme)
+      console.log('🎨 [AppStore] Loaded theme from localStorage:', savedTheme)
     }
     
     // Load accent color preference
     const savedAccentColor = localStorage.getItem('dailyDavid_accentColor')
     if (savedAccentColor) {
-      useAppStore.getState().setAccentColor(savedAccentColor)
+      state.setAccentColor(savedAccentColor)
+      console.log('🎨 [AppStore] Loaded accent color from localStorage:', savedAccentColor)
+    } else {
+      console.log('🎨 [AppStore] No saved accent color found, using default: slate')
     }
     
     // Load view preference
     const savedView = localStorage.getItem('dailyDavid_currentView')
     if (savedView === 'landing' || savedView === 'daily') {
-      useAppStore.getState().setCurrentView(savedView)
+      state.setCurrentView(savedView)
+      console.log('🎯 [AppStore] Loaded view from localStorage:', savedView)
     }
     
     console.log('✅ [AppStore] Initialized from localStorage')

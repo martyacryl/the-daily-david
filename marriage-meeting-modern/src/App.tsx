@@ -36,16 +36,17 @@ const WeeklyReviewWithNavigation = () => {
 }
 
 function App() {
+  // Initialize app store FIRST (theme, accent color, view preferences)
+  useEffect(() => {
+    console.log('🚀 [App] Initializing app store...')
+    initializeAppStore()
+  }, [])
+  
   const { isAuthenticated, isLoading, initialize } = useAuthStore()
   const { initializeStore } = useMarriageStore()
   
   // Initialize theme system
   useTheme()
-  
-  // Initialize app store (theme, accent color, view preferences)
-  useEffect(() => {
-    initializeAppStore()
-  }, [])
   
   // Initialize database manager
   const dbManager = new DatabaseManager()
