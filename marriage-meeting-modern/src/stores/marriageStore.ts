@@ -382,11 +382,22 @@ export const useMarriageStore = create<MarriageState>((set, get) => ({
         newSchedule[day].splice(index, 1)
       }
       
+      const newWeekData = {
+        ...state.weekData,
+        schedule: newSchedule
+      }
+      
+      // Auto-save when schedule line is removed
+      const weekKey = DatabaseManager.formatWeekKey(state.currentDate)
+      console.log('Store: Auto-saving after removing schedule line for:', day, 'index:', index, 'weekKey:', weekKey)
+      
+      // Trigger save asynchronously to avoid blocking the UI
+      setTimeout(() => {
+        get().saveWeekData(weekKey, newWeekData)
+      }, 100)
+      
       return {
-        weekData: {
-          ...state.weekData,
-          schedule: newSchedule
-        }
+        weekData: newWeekData
       }
     })
   },

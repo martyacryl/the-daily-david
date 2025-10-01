@@ -259,14 +259,23 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
                   {weekData.schedule[day] && weekData.schedule[day].length > 0 && (
                     <div className="space-y-1">
                       {weekData.schedule[day].map((item, index) => (
-                        <div key={index} className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg p-2 text-xs sm:text-sm">
+                        <div key={index} className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg p-2 text-xs sm:text-sm flex items-center gap-2">
                           <input
                             type="text"
                             value={item}
                             onChange={(e) => onUpdateSchedule(day, index, e.target.value)}
-                            className="w-full bg-transparent border-none outline-none text-gray-800 dark:text-white"
+                            className="flex-1 bg-transparent border-none outline-none text-gray-800 dark:text-white"
                             placeholder={`Add activity for ${day}...`}
                           />
+                          <button
+                            onClick={() => onRemoveScheduleLine(day, index)}
+                            className="text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 p-1 rounded transition-colors"
+                            title="Delete this item"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                          </button>
                         </div>
                       ))}
                     </div>
