@@ -122,7 +122,7 @@ export const DashboardNew: React.FC = () => {
         // This will be handled by the DailyFocusedMeeting component
       }
     }
-  }, [isAuthenticated, loadSettings, loadGoals, loadWeekData, settings.calendar?.icalUrl])
+  }, [isAuthenticated]) // Remove function dependencies to prevent infinite loop
 
   useEffect(() => {
     if (weekData) {

@@ -987,6 +987,12 @@ export class CalendarService {
     weekStart: Date,
     onEventsUpdate: (events: CalendarEvent[]) => void
   ): Promise<void> {
+    // Validate weekStart is a proper Date object
+    if (!(weekStart instanceof Date) || isNaN(weekStart.getTime())) {
+      console.error('❌ Invalid weekStart parameter:', weekStart)
+      throw new Error('Invalid weekStart parameter - must be a valid Date object')
+    }
+    
     const syncKey = `${icalUrl}_${googleCalendarEnabled}_${weekStart.toISOString().split('T')[0]}`
     
     // Prevent duplicate syncs
@@ -1046,6 +1052,12 @@ export class CalendarService {
     onEventsUpdate: (events: CalendarEvent[]) => void
   ): Promise<void> {
     console.log('📅 Force sync requested - clearing all cache and fetching fresh data')
+    
+    // Validate weekStart is a proper Date object
+    if (!(weekStart instanceof Date) || isNaN(weekStart.getTime())) {
+      console.error('❌ Invalid weekStart parameter in forceSync:', weekStart)
+      throw new Error('Invalid weekStart parameter - must be a valid Date object')
+    }
     
     // Clear ALL cache entries for this URL
     for (const key of this.cache.keys()) {

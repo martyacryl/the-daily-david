@@ -183,7 +183,7 @@ export const WeeklyMeetingSidebarLayout: React.FC = () => {
         console.log('🔍 Weekly Planner: Week data loaded successfully')
       })
     }
-  }, [currentDate, isAuthenticated, loadWeekData])
+  }, [currentDate, isAuthenticated]) // Remove loadWeekData dependency to prevent infinite loop
 
   // USER INTENT: Manual save function (no auto-save)
   const handleSaveWeek = async () => {
