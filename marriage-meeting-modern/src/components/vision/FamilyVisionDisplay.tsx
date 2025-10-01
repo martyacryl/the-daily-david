@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { Compass, Calendar, Target, Heart, Users, BookOpen, Star, Edit3, CheckCircle, ArrowRight, TrendingUp } from 'lucide-react'
+import { Compass, Calendar, Target, Heart, Users, BookOpen, Star, CheckCircle, ArrowRight, TrendingUp } from 'lucide-react'
 import { Card } from '../ui/Card'
 import { Button } from '../ui/Button'
 import { FamilyCreedDisplay } from '../FamilyCreedDisplay'
@@ -71,7 +71,6 @@ export const FamilyVisionDisplay: React.FC = () => {
   const [vision, setVision] = useState<FamilyVision | null>(null)
   const [quarterlyTheme, setQuarterlyTheme] = useState<QuarterlyTheme | null>(null)
   const [annualGoals, setAnnualGoals] = useState<AnnualGoal[]>([])
-  const [isEditing, setIsEditing] = useState(false)
 
   useEffect(() => {
     loadFamilyVision()
@@ -227,14 +226,6 @@ export const FamilyVisionDisplay: React.FC = () => {
                 <p className="text-slate-500 dark:text-slate-400 text-sm">Last updated: {vision?.lastUpdated || 'Recently'}</p>
               </div>
             </div>
-            <Button 
-              variant="outline" 
-              onClick={() => setIsEditing(true)}
-              className="text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-slate-800 dark:hover:text-slate-200"
-            >
-              <Edit3 className="w-4 h-4 mr-2" />
-              Edit Vision
-            </Button>
           </div>
             
             <p className="text-xl leading-relaxed mb-8 max-w-4xl text-slate-800 dark:text-slate-200">

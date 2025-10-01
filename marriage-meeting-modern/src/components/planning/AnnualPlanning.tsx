@@ -5,6 +5,7 @@ import { Card } from '../ui/Card'
 import { Button } from '../ui/Button'
 import { Input } from '../ui/Input'
 import { useAccentColor } from '../../hooks/useAccentColor'
+import { useVisionStore } from '../../stores/visionStore'
 
 interface AnnualGoal {
   id: string
@@ -63,6 +64,14 @@ const categoryIcons = {
 export const AnnualPlanning: React.FC = () => {
   const { getColor, accentColor } = useAccentColor()
   
+  // Use vision store for family vision data
+  const { 
+    familyVision, 
+    loadFamilyVision, 
+    updateFamilyVision, 
+    isFamilyVisionLoading 
+  } = useVisionStore()
+  
   // Get the correct gradient classes based on accent color
   const getGradientClasses = () => {
     switch (accentColor) {
@@ -100,7 +109,6 @@ export const AnnualPlanning: React.FC = () => {
   })
   const [goals, setGoals] = useState<AnnualGoal[]>([])
   const [themes, setThemes] = useState<AnnualTheme[]>([])
-  const [vision, setVision] = useState<VisionStatement | null>(null)
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear())
   const [isAddingGoal, setIsAddingGoal] = useState(false)
   const [isAddingTheme, setIsAddingTheme] = useState(false)
@@ -123,9 +131,22 @@ export const AnnualPlanning: React.FC = () => {
     priorities: []
   })
 
+  // Initialize form with existing vision data when editing
+  useEffect(() => {
+    if (isEditingVision && familyVision) {
+      setNewVision({
+        title: familyVision.title || '',
+        statement: familyVision.mission_statement || '',
+        values: familyVision.core_values || [],
+        priorities: familyVision.priorities || []
+      })
+    }
+  }, [isEditingVision, familyVision])
+
   useEffect(() => {
     loadAnnualData()
-  }, [])
+    loadFamilyVision() // Load family vision from store
+  }, [loadFamilyVision])
 
   const loadAnnualData = () => {
     // Mock data - in real app, load from API
@@ -197,7 +218,7 @@ export const AnnualPlanning: React.FC = () => {
 
     setGoals(mockGoals)
     setThemes(mockThemes)
-    setVision(mockVision)
+    // Vision is now handled by the vision store
   }
 
   const handleAddGoal = () => {
@@ -252,20 +273,23 @@ export const AnnualPlanning: React.FC = () => {
     setIsAddingTheme(false)
   }
 
-  const handleUpdateVision = () => {
+  const handleUpdateVision = async () => {
     if (!newVision.title || !newVision.statement) return
 
-    const visionStatement: VisionStatement = {
-      id: Date.now().toString(),
-      title: newVision.title,
-      statement: newVision.statement,
-      values: newVision.values || [],
-      priorities: newVision.priorities || []
-    }
+    try {
+      const visionData = {
+        title: newVision.title,
+        mission_statement: newVision.statement,
+        core_values: newVision.values || [],
+        priorities: newVision.priorities || []
+      }
 
-    setVision(visionStatement)
-    setNewVision({ values: [], priorities: [] })
-    setIsEditingVision(false)
+      await updateFamilyVision(visionData)
+      setNewVision({ values: [], priorities: [] })
+      setIsEditingVision(false)
+    } catch (error) {
+      console.error('Error updating family vision:', error)
+    }
   }
 
   const getAnnualStats = () => {
@@ -291,16 +315,19 @@ export const AnnualPlanning: React.FC = () => {
       </div>
 
       {/* Vision Statement */}
-      <Card className={`p-6 bg-gradient-to-br from-slate-100 ${getGradientClasses()} border-slate-300 dark:border-slate-600 relative overflow-hidden`}>
+      <Card className={`p-6 bg-gradient-to-br from-slate-50/60 ${getGradientClasses().replace('to-', 'to-').replace('100', '50/40').replace('800', '800/40')} dark:from-slate-700/60 border-slate-200/60 dark:border-slate-600/60 relative overflow-hidden`}>
         <div className="relative z-10">
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center gap-3">
             <Compass className="w-6 h-6 text-slate-600" />
-            <h2 className="text-xl font-medium text-slate-800 dark:text-slate-200">Our Family Vision</h2>
+            <h2 className="text-xl font-medium text-slate-800 dark:text-slate-200">Our Family Vision {isEditingVision ? '(EDITING)' : ''}</h2>
           </div>
           <Button 
             variant="outline" 
-            onClick={() => setIsEditingVision(true)}
+            onClick={() => {
+              console.log('Edit Vision button clicked, setting isEditingVision to true')
+              setIsEditingVision(true)
+            }}
             className="text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-slate-800 dark:hover:text-slate-200"
           >
             <Edit3 className="w-4 h-4 mr-2" />
@@ -308,30 +335,41 @@ export const AnnualPlanning: React.FC = () => {
           </Button>
         </div>
         
-        {vision ? (
+        {isFamilyVisionLoading ? (
+          <div className="text-center py-8">
+            <div className="w-8 h-8 border-4 border-slate-200 dark:border-slate-700 border-t-slate-600 dark:border-t-slate-300 rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-gray-500 dark:text-gray-400">Loading family vision...</p>
+          </div>
+        ) : familyVision ? (
           <div>
-            <h3 className="text-lg font-medium mb-3 text-slate-800 dark:text-slate-200">{vision.title}</h3>
-            <p className="text-base mb-6 leading-relaxed text-slate-600 dark:text-slate-300">{vision.statement}</p>
+            <h3 className="text-lg font-medium mb-3 text-slate-800 dark:text-slate-200">{familyVision.title || 'Our Family Vision'}</h3>
+            <p className="text-base mb-6 leading-relaxed text-slate-600 dark:text-slate-300">{familyVision.mission_statement || 'No mission statement yet'}</p>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <h4 className="font-medium mb-2 text-slate-700 dark:text-slate-300">Our Values</h4>
                 <div className="flex flex-wrap gap-2">
-                  {vision.values.map((value, index) => (
+                  {(familyVision.core_values || []).map((value, index) => (
                     <span key={index} className="px-3 py-1 bg-slate-100 dark:bg-slate-700 rounded-full text-sm text-slate-600 dark:text-slate-300">
                       {value}
                     </span>
                   ))}
+                  {(!familyVision.core_values || familyVision.core_values.length === 0) && (
+                    <span className="text-sm text-slate-500 dark:text-slate-400 italic">No core values defined yet</span>
+                  )}
                 </div>
               </div>
               <div>
                 <h4 className="font-medium mb-2 text-slate-700 dark:text-slate-300">Our Priorities</h4>
                 <div className="flex flex-wrap gap-2">
-                  {vision.priorities.map((priority, index) => (
+                  {(familyVision.priorities || []).map((priority, index) => (
                     <span key={index} className="px-3 py-1 bg-slate-100 dark:bg-slate-700 rounded-full text-sm text-slate-600 dark:text-slate-300">
                       {priority}
                     </span>
                   ))}
+                  {(!familyVision.priorities || familyVision.priorities.length === 0) && (
+                    <span className="text-sm text-slate-500 dark:text-slate-400 italic">No priorities defined yet</span>
+                  )}
                 </div>
               </div>
             </div>

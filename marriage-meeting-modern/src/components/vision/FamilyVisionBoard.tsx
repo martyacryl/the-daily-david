@@ -4,8 +4,6 @@ import {
   Home, 
   Target, 
   Plus, 
-  Edit3, 
-  Save, 
   X,
   CheckCircle,
   Star
@@ -13,7 +11,6 @@ import {
 import { Card } from '../ui/Card'
 import { Button } from '../ui/Button'
 import { Input } from '../ui/Input'
-import { Textarea } from '../ui/Textarea'
 import { useVisionStore } from '../../stores/visionStore'
 import { useAccentColor } from '../../hooks/useAccentColor'
 
@@ -53,33 +50,16 @@ export const FamilyVisionBoard: React.FC<FamilyVisionBoardProps> = ({ className 
     toggleVisionGoal
   } = useVisionStore()
 
-  const [isEditingMission, setIsEditingMission] = useState(false)
   const [isAddingGoal, setIsAddingGoal] = useState(false)
   const [isAddingValue, setIsAddingValue] = useState(false)
   const [newGoal, setNewGoal] = useState({ text: '', timeframe: '1year' as const, category: 'family' })
   const [newValue, setNewValue] = useState('')
-  const [editingMission, setEditingMission] = useState('')
 
   useEffect(() => {
     loadFamilyVision()
     loadVisionGoals()
   }, [loadFamilyVision, loadVisionGoals])
 
-  useEffect(() => {
-    if (familyVision) {
-      setEditingMission(familyVision.mission_statement)
-    }
-  }, [familyVision])
-
-  const handleSaveMission = async () => {
-    if (familyVision) {
-      await updateFamilyVision({
-        ...familyVision,
-        mission_statement: editingMission
-      })
-      setIsEditingMission(false)
-    }
-  }
 
   const handleAddGoal = async () => {
     if (newGoal.text.trim()) {
@@ -146,53 +126,14 @@ export const FamilyVisionBoard: React.FC<FamilyVisionBoardProps> = ({ className 
     <div className={`space-y-4 lg:space-y-6 ${className}`}>
       {/* Mission Statement */}
       <Card className={`p-4 lg:p-6 bg-gradient-to-br from-slate-50/30 to-${getColor('bg')}/20 dark:from-slate-700/30 dark:to-${getColor('bgDark')} border-slate-200/30 dark:border-slate-600/30`}>
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
-          <div className="flex items-center gap-2">
-            <Home className="w-4 h-4 lg:w-5 lg:h-5 text-slate-600 dark:text-slate-300" />
-            <h2 className="text-base lg:text-lg font-medium text-slate-800 dark:text-slate-200">Family Mission Statement</h2>
-          </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setIsEditingMission(!isEditingMission)}
-            className="text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700"
-          >
-            <Edit3 className="w-4 h-4 mr-1" />
-            {isEditingMission ? 'Cancel' : 'Edit'}
-          </Button>
+        <div className="flex items-center gap-2 mb-4">
+          <Home className="w-4 h-4 lg:w-5 lg:h-5 text-slate-600 dark:text-slate-300" />
+          <h2 className="text-base lg:text-lg font-medium text-slate-800 dark:text-slate-200">Family Mission Statement</h2>
         </div>
 
-        {isEditingMission ? (
-          <div className="space-y-4">
-            <Textarea
-              value={editingMission}
-              onChange={(e) => setEditingMission(e.target.value)}
-              placeholder="Enter your family mission statement..."
-              className="min-h-[100px]"
-            />
-            <div className="flex items-center gap-2">
-              <Button
-                onClick={handleSaveMission}
-                variant="default"
-                className="bg-slate-600 hover:bg-slate-700"
-              >
-                <Save className="w-4 h-4 mr-1" />
-                Save Mission
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => setIsEditingMission(false)}
-                className="text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700"
-              >
-                Cancel
-              </Button>
-            </div>
-          </div>
-        ) : (
-          <p className="text-gray-700 dark:text-gray-300 italic leading-relaxed">
-            {familyVision.mission_statement}
-          </p>
-        )}
+        <p className="text-gray-700 dark:text-gray-300 italic leading-relaxed">
+          {familyVision?.mission_statement || 'No mission statement set yet. Go to Annual Planning to create your family vision.'}
+        </p>
       </Card>
 
       {/* Core Values */}
