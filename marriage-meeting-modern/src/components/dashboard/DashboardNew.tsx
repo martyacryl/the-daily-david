@@ -45,7 +45,7 @@ import { WeekOverview } from '../WeekOverview'
 export const DashboardNew: React.FC = () => {
   const { user, isAuthenticated } = useAuthStore()
   const { currentWeek, weekData, loadWeekData, saveWeekData, updateEncouragementNotes, loadAllWeeks, calculateMeetingStreak, calculateConsistencyScore, lastCalendarUpdate, updateCalendarEvents } = useMarriageStore()
-  const { goals, loadGoals, getCurrentMonthGoals, getCurrentYearGoals, getLongTermGoals } = useGoalsStore()
+  const { goals, loadGoals, getCurrentMonthGoals, getOverdueMonthlyGoals, getCurrentYearGoals, getLongTermGoals } = useGoalsStore()
   const { settings, loadSettings } = useSettingsStore()
   const { getColor } = useAccentColor()
 
@@ -248,21 +248,8 @@ export const DashboardNew: React.FC = () => {
     const overdueTasks = incompleteTodos.filter(todo => todo.dueDate && new Date(todo.dueDate) < now)
     const highPriorityTasks = incompleteTodos.filter(todo => todo.priority === 'high')
 
-    // Calculate overdue goals (incomplete goals past their timeframe)
-    const overdueGoals = (weekData.goals || []).filter(goal => {
-      if (goal.completed) return false
-      
-      const goalDate = new Date(goal.id) // Using ID as creation date for now
-      const daysSinceCreation = Math.floor((now.getTime() - goalDate.getTime()) / (1000 * 60 * 60 * 24))
-      
-      switch (goal.timeframe) {
-        case 'monthly': return daysSinceCreation > 30
-        case '1year': return daysSinceCreation > 365
-        case '5year': return daysSinceCreation > 1825
-        case '10year': return daysSinceCreation > 3650
-        default: return false
-      }
-    }).slice(0, 3)
+    // Calculate overdue goals using the new filtering functions
+    const overdueGoals = getOverdueMonthlyGoals().slice(0, 3)
 
     // Calculate unanswered prayers (incomplete prayers with text)
     const unansweredPrayers = (weekData.prayers || []).filter(prayer => !prayer.completed && prayer.text && prayer.text.trim() !== '').slice(0, 3)
@@ -270,7 +257,7 @@ export const DashboardNew: React.FC = () => {
     // Calculate unconfessed items (incomplete items with text)
     const unconfessedItems = (weekData.unconfessedSin || []).filter(item => !item.completed && item.text && item.text.trim() !== '').slice(0, 3)
 
-    // Calculate goal progress by timeframe using goals store
+    // Calculate goal progress by timeframe using the new filtering functions
     const goalProgress = {
       monthly: { completed: 0, total: 0, percentage: 0 },
       '1year': { completed: 0, total: 0, percentage: 0 },
@@ -278,9 +265,15 @@ export const DashboardNew: React.FC = () => {
       '10year': { completed: 0, total: 0, percentage: 0 }
     }
 
-    // Use goals from store instead of weekly data
-    goals.forEach(goal => {
-      const timeframe = goal.timeframe || 'monthly'
+    // Use current month goals for monthly progress (more accurate)
+    const currentMonthGoals = getCurrentMonthGoals()
+    goalProgress.monthly.total = currentMonthGoals.length
+    goalProgress.monthly.completed = currentMonthGoals.filter(goal => goal.completed).length
+
+    // Use other timeframes from store (will be updated when we add filtering for them)
+    const otherGoals = goals.filter(goal => goal.timeframe !== 'monthly')
+    otherGoals.forEach(goal => {
+      const timeframe = goal.timeframe || '1year'
       goalProgress[timeframe].total++
       if (goal.completed) {
         goalProgress[timeframe].completed++
@@ -1113,23 +1106,135 @@ export const DashboardNew: React.FC = () => {
                     </Link>
                   </div>
                 ) : (
-                  ['monthly', '1year', '5year', '10year'].map((timeframe) => {
-                    const timeframeGoals = goals.filter(goal => goal.timeframe === timeframe).slice(0, 2)
-                    if (timeframeGoals.length === 0) return null
+                  <>
+                    {/* Current Month Goals */}
+                    {getCurrentMonthGoals().length > 0 && (
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-3">
+                          <div className="w-1 h-6 bg-gradient-to-b from-green-300 to-green-400 dark:from-green-500 dark:to-green-600 rounded-full"></div>
+                          <h4 className="text-sm font-semibold text-green-600 dark:text-green-300 uppercase tracking-wide">
+                            This Month
+                          </h4>
+                        </div>
+                        <div className="space-y-2">
+                          {getCurrentMonthGoals().slice(0, 2).map((goal) => (
+                            <div key={goal.id} className={`group relative overflow-hidden rounded-xl border transition-all duration-200 hover:shadow-sm ${
+                              goal.completed 
+                                ? 'bg-gradient-to-r from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 border-green-200 dark:border-green-700' 
+                                : 'bg-white dark:bg-gray-800 border-green-200 dark:border-green-700 hover:border-green-300 dark:hover:border-green-600'
+                            }`}>
+                              <div className="p-4">
+                                <div className="flex items-start gap-3">
+                                  <button className="mt-1 flex-shrink-0 group-hover:scale-105 transition-transform duration-200">
+                                    {goal.completed ? (
+                                      <div className="w-5 h-5 bg-green-600 dark:bg-green-500 rounded-full flex items-center justify-center">
+                                        <CheckCircle className="w-3 h-3 text-white" />
+                                      </div>
+                                    ) : (
+                                      <div className="w-5 h-5 border-2 border-green-300 dark:border-green-600 rounded-full group-hover:border-green-500 dark:group-hover:border-green-400 transition-colors"></div>
+                                    )}
+                                  </button>
+                                  
+                                  <div className="flex-1 min-w-0">
+                                    <h4 className={`font-semibold text-slate-900 dark:text-slate-200 leading-tight ${
+                                      goal.completed ? 'line-through text-slate-500 dark:text-slate-400' : ''
+                                    }`}>
+                                      {goal.text}
+                                    </h4>
+                                    {goal.description && (
+                                      <p className="text-sm text-slate-600 dark:text-slate-300 mt-1 leading-relaxed">{goal.description}</p>
+                                    )}
+                                    
+                                    <div className="flex items-center gap-2 mt-3">
+                                      <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300">
+                                        Monthly
+                                      </span>
+                                      <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${
+                                        goal.priority === 'high' ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300' :
+                                        goal.priority === 'medium' ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300' : 'bg-slate-100 dark:bg-slate-600 text-slate-600 dark:text-slate-300'
+                                      }`}>
+                                        {goal.priority}
+                                      </span>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Overdue Goals */}
+                    {getOverdueMonthlyGoals().length > 0 && (
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-3">
+                          <div className="w-1 h-6 bg-gradient-to-b from-red-300 to-red-400 dark:from-red-500 dark:to-red-600 rounded-full"></div>
+                          <h4 className="text-sm font-semibold text-red-600 dark:text-red-300 uppercase tracking-wide">
+                            Overdue
+                          </h4>
+                        </div>
+                        <div className="space-y-2">
+                          {getOverdueMonthlyGoals().slice(0, 2).map((goal) => (
+                            <div key={goal.id} className="group relative overflow-hidden rounded-xl border transition-all duration-200 hover:shadow-sm bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-700 hover:border-red-300 dark:hover:border-red-600">
+                              <div className="p-4">
+                                <div className="flex items-start gap-3">
+                                  <button className="mt-1 flex-shrink-0 group-hover:scale-105 transition-transform duration-200">
+                                    {goal.completed ? (
+                                      <div className="w-5 h-5 bg-green-600 dark:bg-green-500 rounded-full flex items-center justify-center">
+                                        <CheckCircle className="w-3 h-3 text-white" />
+                                      </div>
+                                    ) : (
+                                      <div className="w-5 h-5 border-2 border-red-300 dark:border-red-600 rounded-full group-hover:border-red-500 dark:group-hover:border-red-400 transition-colors"></div>
+                                    )}
+                                  </button>
+                                  
+                                  <div className="flex-1 min-w-0">
+                                    <h4 className={`font-semibold text-red-800 dark:text-red-200 leading-tight ${
+                                      goal.completed ? 'line-through text-red-500 dark:text-red-400' : ''
+                                    }`}>
+                                      {goal.text}
+                                    </h4>
+                                    {goal.description && (
+                                      <p className="text-sm text-red-600 dark:text-red-300 mt-1 leading-relaxed">{goal.description}</p>
+                                    )}
+                                    
+                                    <div className="flex items-center gap-2 mt-3">
+                                      <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300">
+                                        Overdue
+                                      </span>
+                                      <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${
+                                        goal.priority === 'high' ? 'bg-red-200 dark:bg-red-800 text-red-800 dark:text-red-200' :
+                                        goal.priority === 'medium' ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300' : 'bg-slate-100 dark:bg-slate-600 text-slate-600 dark:text-slate-300'
+                                      }`}>
+                                        {goal.priority}
+                                      </span>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Other Timeframes */}
+                    {['1year', '5year', '10year'].map((timeframe) => {
+                      const timeframeGoals = goals.filter(goal => goal.timeframe === timeframe).slice(0, 2)
+                      if (timeframeGoals.length === 0) return null
+                      
+                      const timeframeLabels = {
+                        '1year': '1 Year',
+                        '5year': '5 Year', 
+                        '10year': '10 Year'
+                      }
                     
-                    const timeframeLabels = {
-                      monthly: 'Monthly',
-                      '1year': '1 Year',
-                      '5year': '5 Year', 
-                      '10year': '10 Year'
-                    }
-                    
-                    const timeframeColors = {
-                      monthly: 'from-slate-50 to-slate-100 dark:from-slate-700 dark:to-slate-800 border-slate-200 dark:border-slate-600',
-                      '1year': 'from-slate-50 to-slate-100 dark:from-slate-700 dark:to-slate-800 border-slate-200 dark:border-slate-600',
-                      '5year': 'from-slate-50 to-slate-100 dark:from-slate-700 dark:to-slate-800 border-slate-200 dark:border-slate-600',
-                      '10year': 'from-slate-50 to-slate-100 dark:from-slate-700 dark:to-slate-800 border-slate-200 dark:border-slate-600'
-                    }
+                      const timeframeColors = {
+                        '1year': 'from-slate-50 to-slate-100 dark:from-slate-700 dark:to-slate-800 border-slate-200 dark:border-slate-600',
+                        '5year': 'from-slate-50 to-slate-100 dark:from-slate-700 dark:to-slate-800 border-slate-200 dark:border-slate-600',
+                        '10year': 'from-slate-50 to-slate-100 dark:from-slate-700 dark:to-slate-800 border-slate-200 dark:border-slate-600'
+                      }
                     
                     return (
                       <div key={timeframe} className="space-y-3">
@@ -1192,7 +1297,8 @@ export const DashboardNew: React.FC = () => {
                         </div>
                       </div>
                     )
-                  })
+                  })}
+                  </>
                 )}
                 {goals.length > 8 && (
                   <div className="text-center pt-4">
