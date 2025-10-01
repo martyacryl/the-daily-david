@@ -106,14 +106,20 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
     const handleEventsUpdate = async (events: CalendarEvent[]) => {
       console.log('📅 Calendar events updated:', events.length)
       
-      // Get all 7 dates for the current week
+      // ALPHA STAGE: Only show events for the current week to reduce complexity and network usage
+      const today = new Date()
+      const currentWeekStart = DatabaseManager.formatWeekKey(today)
+      const [year, month, day] = currentWeekStart.split('-').map(Number)
+      const currentWeekMonday = new Date(year, month - 1, day)
+      
+      // Get all 7 dates for the current week only
       const weekDates: string[] = []
       for (let i = 0; i < 7; i++) {
-        const date = new Date(weekStart.getTime() + i * 24 * 60 * 60 * 1000)
+        const date = new Date(currentWeekMonday.getTime() + i * 24 * 60 * 60 * 1000)
         weekDates.push(date.toISOString().split('T')[0])
       }
       
-      // Filter events to only include those that occur on any day of the current week
+      // Filter events to only include those that occur on any day of the CURRENT week
       const currentWeekEvents = events.filter(event => {
         const eventStartDate = event.start.toISOString().split('T')[0]
         const eventEndDate = event.end.toISOString().split('T')[0]
@@ -124,7 +130,8 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
         )
       })
       
-      console.log('📅 Filtered events for current week:', currentWeekEvents.length, 'out of', events.length)
+      console.log('📅 ALPHA: Showing events only for current week:', currentWeekEvents.length, 'out of', events.length)
+      console.log('📅 Current week dates:', weekDates)
       
       // Update the store with filtered calendar events
       updateCalendarEvents(currentWeekEvents)

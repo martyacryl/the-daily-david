@@ -43,12 +43,24 @@ export class CalendarService {
 
   /**
    * Parse iCal URL and extract events for a specific week
+   * ALPHA STAGE: Only fetch events for the current week to reduce network usage
    */
   async getICalEvents(icalUrl: string, weekStart: Date): Promise<CalendarEvent[]> {
-    const cacheKey = `ical_${icalUrl}_${weekStart.toISOString().split('T')[0]}`
+    // ALPHA STAGE: Always use current week to reduce complexity and network usage
+    const today = new Date()
+    const currentWeekStart = new Date(today)
+    const day = currentWeekStart.getDay()
+    const daysToSubtract = day === 0 ? 6 : day - 1
+    currentWeekStart.setDate(currentWeekStart.getDate() - daysToSubtract)
+    currentWeekStart.setHours(0, 0, 0, 0)
+    
+    const cacheKey = `ical_${icalUrl}_${currentWeekStart.toISOString().split('T')[0]}`
+    
+    console.log('📅 ALPHA: Using current week for calendar fetch:', currentWeekStart.toISOString().split('T')[0])
     
     // Check cache first
     if (this.isCacheValid(cacheKey)) {
+      console.log('📅 ALPHA: Using cached events for current week')
       return this.cache.get(cacheKey) || []
     }
 
@@ -134,13 +146,13 @@ export class CalendarService {
                   weekEndLocal: weekEnd.toLocaleDateString()
                 })
       
-      const events = this.parseICalData(icalData, weekStart)
+      const events = this.parseICalData(icalData, currentWeekStart)
       
       // Cache the results
       this.cache.set(cacheKey, events)
       this.cacheExpiry.set(cacheKey, Date.now() + (60 * 60 * 1000)) // 1 hour cache
       
-      console.log(`📅 Found ${events.length} calendar events for the week`)
+      console.log(`📅 ALPHA: Found ${events.length} calendar events for current week only`)
       console.log('📅 Event details:', events)
       return events
       
