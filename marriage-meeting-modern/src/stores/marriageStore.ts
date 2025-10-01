@@ -320,11 +320,27 @@ export const useMarriageStore = create<MarriageState>((set, get) => ({
       const newSchedule = { ...state.weekData.schedule }
       newSchedule[day][index] = value
       
+      const newWeekData = {
+        ...state.weekData,
+        schedule: newSchedule
+      }
+      
+      // Auto-save when schedule is updated (with debouncing)
+      const weekKey = DatabaseManager.formatWeekKey(state.currentDate)
+      console.log('Store: Auto-saving after updating schedule for:', day, 'index:', index, 'value:', value)
+      
+      // Clear any existing timeout to debounce saves
+      if ((window as any).scheduleSaveTimeout) {
+        clearTimeout((window as any).scheduleSaveTimeout)
+      }
+      
+      // Trigger save with debouncing (500ms delay)
+      (window as any).scheduleSaveTimeout = setTimeout(() => {
+        get().saveWeekData(weekKey, newWeekData)
+      }, 500)
+      
       return {
-        weekData: {
-          ...state.weekData,
-          schedule: newSchedule
-        }
+        weekData: newWeekData
       }
     })
   },
@@ -338,11 +354,22 @@ export const useMarriageStore = create<MarriageState>((set, get) => ({
       }
       newSchedule[day].push('')
       
+      const newWeekData = {
+        ...state.weekData,
+        schedule: newSchedule
+      }
+      
+      // Auto-save when schedule line is added
+      const weekKey = DatabaseManager.formatWeekKey(state.currentDate)
+      console.log('Store: Auto-saving after adding schedule line for:', day, 'weekKey:', weekKey)
+      
+      // Trigger save asynchronously to avoid blocking the UI
+      setTimeout(() => {
+        get().saveWeekData(weekKey, newWeekData)
+      }, 100)
+      
       return {
-        weekData: {
-          ...state.weekData,
-          schedule: newSchedule
-        }
+        weekData: newWeekData
       }
     })
   },
