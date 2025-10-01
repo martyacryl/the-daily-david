@@ -25,6 +25,7 @@ import {
 } from 'lucide-react'
 import { Card } from '../ui/Card'
 import { Button } from '../ui/Button'
+import { useAccentColor } from '../../hooks/useAccentColor'
 
 interface EnhancedWeeklyReviewProps {
   onBack: () => void
@@ -78,6 +79,7 @@ export const EnhancedWeeklyReview: React.FC<EnhancedWeeklyReviewProps> = ({
   weekData,
   className = ''
 }) => {
+  const { getColor } = useAccentColor()
   const [insights, setInsights] = useState<ReviewInsights | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [activeMetric, setActiveMetric] = useState<string | null>(null)
@@ -176,28 +178,28 @@ export const EnhancedWeeklyReview: React.FC<EnhancedWeeklyReviewProps> = ({
       onClick={onClick}
       className={`p-4 rounded-lg border-2 cursor-pointer transition-all duration-200 ${
         activeMetric === title.toLowerCase().replace(/\s+/g, '-')
-          ? `border-${color}-400 bg-${color}-50`
-          : `border-${color}-200 bg-white hover:bg-${color}-50`
+          ? `border-${color}-400 bg-${color}-50 dark:bg-${color}-900/20 dark:border-${color}-500`
+          : `border-${color}-200 bg-white dark:bg-gray-800 hover:bg-${color}-50 dark:hover:bg-${color}-900/20`
       }`}
     >
       <div className="flex items-center justify-between mb-2">
-        <div className={`p-2 rounded-lg bg-${color}-100`}>
+        <div className={`p-2 rounded-lg bg-${color}-100 dark:bg-${color}-900/30`}>
           {icon}
         </div>
         <div className={`w-2 h-2 rounded-full bg-${color}-500`}></div>
       </div>
-      <div className="text-2xl font-bold text-gray-900 mb-1">{value}</div>
-      <div className="text-sm font-medium text-gray-700 mb-1">{title}</div>
-      <div className="text-xs text-gray-500">{subtitle}</div>
+      <div className="text-2xl font-bold text-gray-900 dark:text-white mb-1">{value}</div>
+      <div className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{title}</div>
+      <div className="text-xs text-gray-500 dark:text-gray-400">{subtitle}</div>
     </motion.div>
   )
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-slate-100 pt-32 sm:pt-20 flex items-center justify-center">
+      <div className={`min-h-screen bg-gradient-to-br from-slate-50 to-${getColor('bg')} dark:from-gray-900 dark:to-gray-800 pt-32 sm:pt-20 flex items-center justify-center`}>
         <div className="text-center">
-          <RefreshCw className="w-8 h-8 animate-spin text-slate-600 mx-auto mb-4" />
-          <p className="text-gray-600">Generating your enhanced weekly review...</p>
+          <RefreshCw className="w-8 h-8 animate-spin text-slate-600 dark:text-slate-400 mx-auto mb-4" />
+          <p className="text-gray-600 dark:text-gray-300">Generating your enhanced weekly review...</p>
         </div>
       </div>
     )
@@ -205,11 +207,11 @@ export const EnhancedWeeklyReview: React.FC<EnhancedWeeklyReviewProps> = ({
 
   if (!insights) {
     return (
-      <div className="min-h-screen bg-slate-100 pt-32 sm:pt-20 flex items-center justify-center">
+      <div className={`min-h-screen bg-gradient-to-br from-slate-50 to-${getColor('bg')} dark:from-gray-900 dark:to-gray-800 pt-32 sm:pt-20 flex items-center justify-center`}>
         <div className="text-center">
-          <Calendar className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">No Data Yet</h2>
-          <p className="text-gray-600 mb-6">Start using your weekly meetings to see your enhanced review!</p>
+          <Calendar className="w-16 h-16 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">No Data Yet</h2>
+          <p className="text-gray-600 dark:text-gray-300 mb-6">Start using your weekly meetings to see your enhanced review!</p>
           <Button onClick={onBack} variant="outline">
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Dashboard
@@ -220,7 +222,7 @@ export const EnhancedWeeklyReview: React.FC<EnhancedWeeklyReviewProps> = ({
   }
 
   return (
-    <div className={`min-h-screen bg-slate-100 pt-32 sm:pt-20 ${className}`}>
+    <div className={`min-h-screen bg-gradient-to-br from-slate-50 to-${getColor('bg')} dark:from-gray-900 dark:to-gray-800 pt-32 sm:pt-20 ${className}`}>
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="flex items-center gap-4 mb-8">
@@ -229,8 +231,8 @@ export const EnhancedWeeklyReview: React.FC<EnhancedWeeklyReviewProps> = ({
             Back
           </Button>
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Enhanced Weekly Review</h1>
-            <p className="text-gray-600">Comprehensive insights into your family's growth and progress</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Enhanced Weekly Review</h1>
+            <p className="text-gray-600 dark:text-gray-300">Comprehensive insights into your family's growth and progress</p>
           </div>
         </div>
 
@@ -240,14 +242,14 @@ export const EnhancedWeeklyReview: React.FC<EnhancedWeeklyReviewProps> = ({
           animate={{ opacity: 1, y: 0 }}
           className="mb-8"
         >
-          <Card className="p-8 bg-white shadow-sm">
+          <Card className="p-8 bg-white dark:bg-gray-800 shadow-sm">
             <div className="flex items-center gap-3 mb-4">
-              <div className="p-3 bg-white rounded-lg shadow-sm">
-                <Star className="w-6 h-6 text-slate-600" />
+              <div className="p-3 bg-slate-100 dark:bg-gray-700 rounded-lg shadow-sm">
+                <Star className="w-6 h-6 text-slate-600 dark:text-slate-300" />
               </div>
-              <h2 className="text-2xl font-bold text-gray-900">Week Summary</h2>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Week Summary</h2>
             </div>
-            <p className="text-lg text-gray-700 leading-relaxed">{insights.weekSummary}</p>
+            <p className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed">{insights.weekSummary}</p>
           </Card>
         </motion.div>
 
@@ -258,9 +260,9 @@ export const EnhancedWeeklyReview: React.FC<EnhancedWeeklyReviewProps> = ({
           transition={{ delay: 0.1 }}
           className="mb-8"
         >
-          <Card className="p-6 bg-white shadow-sm">
+          <Card className="p-6 bg-white dark:bg-gray-800 shadow-sm">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-xl font-bold text-gray-900">Key Metrics Dashboard</h3>
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white">Key Metrics Dashboard</h3>
               <div className="flex gap-2">
                 {getSectionButton('foundation', 'View Vision', <Home className="w-4 h-4" />)}
                 {getSectionButton('planning', 'View Planning', <Calendar className="w-4 h-4" />)}
@@ -316,13 +318,13 @@ export const EnhancedWeeklyReview: React.FC<EnhancedWeeklyReviewProps> = ({
             transition={{ delay: 0.2 }}
             className="flex flex-col"
           >
-            <Card className="p-4 sm:p-6 flex-1 bg-white shadow-sm">
+            <Card className="p-4 sm:p-6 flex-1 bg-white dark:bg-gray-800 shadow-sm">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 mb-4">
                 <div className="flex items-center gap-2 sm:gap-3">
-                  <div className="p-2 bg-slate-100 rounded-lg flex-shrink-0">
-                    <Award className="w-4 h-4 sm:w-5 sm:h-5 text-slate-600" />
+                  <div className="p-2 bg-slate-100 dark:bg-gray-700 rounded-lg flex-shrink-0">
+                    <Award className="w-4 h-4 sm:w-5 sm:h-5 text-slate-600 dark:text-slate-300" />
                   </div>
-                  <h3 className="text-lg sm:text-xl font-bold text-gray-900">Accomplishments</h3>
+                  <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">Accomplishments</h3>
                 </div>
                 {insights.accomplishments.length > 0 && (
                   <div className="flex flex-wrap gap-2">
@@ -335,13 +337,13 @@ export const EnhancedWeeklyReview: React.FC<EnhancedWeeklyReviewProps> = ({
               <div className="space-y-2 sm:space-y-3">
                 {insights.accomplishments.map((accomplishment, index) => (
                   <div key={index} className="flex items-start gap-2 sm:gap-3">
-                    <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-slate-500 flex-shrink-0 mt-0.5" />
-                    <span className="text-sm sm:text-base text-gray-700 leading-relaxed">{accomplishment}</span>
+                    <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-slate-500 dark:text-slate-400 flex-shrink-0 mt-0.5" />
+                    <span className="text-sm sm:text-base text-gray-700 dark:text-gray-300 leading-relaxed">{accomplishment}</span>
                   </div>
                 ))}
                 {insights.accomplishments.length === 0 && (
                   <div className="text-center py-6 sm:py-8">
-                    <p className="text-sm sm:text-base text-gray-500 italic mb-4">No specific accomplishments recorded this week</p>
+                    <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 italic mb-4">No specific accomplishments recorded this week</p>
                     <div className="flex flex-wrap gap-2 justify-center">
                       {getSectionButton('planning', 'Add Tasks', <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4" />)}
                       {getSectionButton('foundation', 'Set Goals', <Target className="w-3 h-3 sm:w-4 sm:h-4" />)}
@@ -359,13 +361,13 @@ export const EnhancedWeeklyReview: React.FC<EnhancedWeeklyReviewProps> = ({
             transition={{ delay: 0.3 }}
             className="flex flex-col"
           >
-            <Card className="p-4 sm:p-6 flex-1 bg-white shadow-sm">
+            <Card className="p-4 sm:p-6 flex-1 bg-white dark:bg-gray-800 shadow-sm">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 mb-4">
                 <div className="flex items-center gap-2 sm:gap-3">
-                  <div className="p-2 bg-slate-100 rounded-lg flex-shrink-0">
-                    <Lightbulb className="w-4 h-4 sm:w-5 sm:h-5 text-slate-600" />
+                  <div className="p-2 bg-slate-100 dark:bg-gray-700 rounded-lg flex-shrink-0">
+                    <Lightbulb className="w-4 h-4 sm:w-5 sm:h-5 text-slate-600 dark:text-slate-300" />
                   </div>
-                  <h3 className="text-lg sm:text-xl font-bold text-gray-900">Growth Opportunities</h3>
+                  <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">Growth Opportunities</h3>
                 </div>
                 {insights.growthAreas.length > 0 && (
                   <div className="flex flex-wrap gap-2">
@@ -378,13 +380,13 @@ export const EnhancedWeeklyReview: React.FC<EnhancedWeeklyReviewProps> = ({
               <div className="space-y-2 sm:space-y-3">
                 {insights.growthAreas.map((area, index) => (
                   <div key={index} className="flex items-start gap-2 sm:gap-3">
-                    <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-slate-500 flex-shrink-0 mt-0.5" />
-                    <span className="text-sm sm:text-base text-gray-700 leading-relaxed">{area}</span>
+                    <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-slate-500 dark:text-slate-400 flex-shrink-0 mt-0.5" />
+                    <span className="text-sm sm:text-base text-gray-700 dark:text-gray-300 leading-relaxed">{area}</span>
                   </div>
                 ))}
                 {insights.growthAreas.length === 0 && (
                   <div className="text-center py-6 sm:py-8">
-                    <p className="text-sm sm:text-base text-gray-500 italic mb-4">You're doing great! Keep up the excellent work</p>
+                    <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 italic mb-4">You're doing great! Keep up the excellent work</p>
                     <div className="flex flex-wrap gap-2 justify-center">
                       {getSectionButton('planning', 'View Tasks', <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4" />)}
                       {getSectionButton('foundation', 'Set Goals', <Target className="w-3 h-3 sm:w-4 sm:h-4" />)}
@@ -403,13 +405,13 @@ export const EnhancedWeeklyReview: React.FC<EnhancedWeeklyReviewProps> = ({
           transition={{ delay: 0.4 }}
           className="mb-8"
         >
-          <Card className="p-6 bg-white shadow-sm">
+          <Card className="p-6 bg-white dark:bg-gray-800 shadow-sm">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-slate-100 rounded-lg">
-                  <BookOpen className="w-5 h-5 text-purple-600" />
+                <div className="p-2 bg-slate-100 dark:bg-gray-700 rounded-lg">
+                  <BookOpen className="w-5 h-5 text-purple-600 dark:text-purple-400" />
                 </div>
-                <h3 className="text-xl font-bold text-gray-900">Spiritual Growth</h3>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white">Spiritual Growth</h3>
               </div>
               <div className="flex gap-2">
                 {getSectionButton('connection', 'View Spiritual', <BookOpen className="w-4 h-4" />)}
@@ -418,47 +420,47 @@ export const EnhancedWeeklyReview: React.FC<EnhancedWeeklyReviewProps> = ({
             
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
               <div className="text-center">
-                <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <Heart className="w-8 h-8 text-purple-600" />
+                <div className="w-16 h-16 bg-slate-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <Heart className="w-8 h-8 text-purple-600 dark:text-purple-400" />
                 </div>
-                <h4 className="font-semibold text-gray-900 mb-1">Prayers Shared</h4>
-                <p className="text-2xl font-bold text-purple-600 mb-1">
+                <h4 className="font-semibold text-gray-900 dark:text-white mb-1">Prayers Shared</h4>
+                <p className="text-2xl font-bold text-purple-600 dark:text-purple-400 mb-1">
                   {insights.spiritualGrowth.prayersShared}
                 </p>
-                <p className="text-sm text-gray-600">This week</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">This week</p>
               </div>
               
               <div className="text-center">
-                <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <BookOpen className="w-8 h-8 text-blue-600" />
+                <div className="w-16 h-16 bg-slate-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <BookOpen className="w-8 h-8 text-blue-600 dark:text-blue-400" />
                 </div>
-                <h4 className="font-semibold text-gray-900 mb-1">Bible Reading</h4>
-                <p className="text-2xl font-bold text-blue-600 mb-1">
+                <h4 className="font-semibold text-gray-900 dark:text-white mb-1">Bible Reading</h4>
+                <p className="text-2xl font-bold text-blue-600 dark:text-blue-400 mb-1">
                   {insights.spiritualGrowth.bibleReadingDays}
                 </p>
-                <p className="text-sm text-gray-600">Days this week</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Days this week</p>
               </div>
               
               <div className="text-center">
-                <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <Flame className="w-8 h-8 text-green-600" />
+                <div className="w-16 h-16 bg-slate-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <Flame className="w-8 h-8 text-green-600 dark:text-green-400" />
                 </div>
-                <h4 className="font-semibold text-gray-900 mb-1">Devotional Streak</h4>
-                <p className="text-2xl font-bold text-green-600 mb-1">
+                <h4 className="font-semibold text-gray-900 dark:text-white mb-1">Devotional Streak</h4>
+                <p className="text-2xl font-bold text-green-600 dark:text-green-400 mb-1">
                   {insights.spiritualGrowth.devotionalStreak}
                 </p>
-                <p className="text-sm text-gray-600">Days in a row</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Days in a row</p>
               </div>
               
               <div className="text-center">
-                <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <Target className="w-8 h-8 text-orange-600" />
+                <div className="w-16 h-16 bg-slate-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <Target className="w-8 h-8 text-orange-600 dark:text-orange-400" />
                 </div>
-                <h4 className="font-semibold text-gray-900 mb-1">Spiritual Goals</h4>
-                <p className="text-2xl font-bold text-orange-600 mb-1">
+                <h4 className="font-semibold text-gray-900 dark:text-white mb-1">Spiritual Goals</h4>
+                <p className="text-2xl font-bold text-orange-600 dark:text-orange-400 mb-1">
                   {insights.spiritualGrowth.spiritualGoalsMet}
                 </p>
-                <p className="text-sm text-gray-600">Goals met this week</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Goals met this week</p>
               </div>
             </div>
           </Card>
@@ -471,13 +473,13 @@ export const EnhancedWeeklyReview: React.FC<EnhancedWeeklyReviewProps> = ({
           transition={{ delay: 0.5 }}
           className="mb-8"
         >
-          <Card className="p-6 bg-white shadow-sm">
+          <Card className="p-6 bg-white dark:bg-gray-800 shadow-sm">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-slate-100 rounded-lg">
-                  <Users className="w-5 h-5 text-pink-600" />
+                <div className="p-2 bg-slate-100 dark:bg-gray-700 rounded-lg">
+                  <Users className="w-5 h-5 text-pink-600 dark:text-pink-400" />
                 </div>
-                <h3 className="text-xl font-bold text-gray-900">Family Connection</h3>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white">Family Connection</h3>
               </div>
               <div className="flex gap-2">
                 {getSectionButton('connection', 'View Family', <Users className="w-4 h-4" />)}
@@ -486,47 +488,47 @@ export const EnhancedWeeklyReview: React.FC<EnhancedWeeklyReviewProps> = ({
             
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
               <div className="text-center">
-                <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <Heart className="w-8 h-8 text-pink-600" />
+                <div className="w-16 h-16 bg-slate-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <Heart className="w-8 h-8 text-pink-600 dark:text-pink-400" />
                 </div>
-                <h4 className="font-semibold text-gray-900 mb-1">Date Nights</h4>
-                <p className="text-2xl font-bold text-pink-600 mb-1">
+                <h4 className="font-semibold text-gray-900 dark:text-white mb-1">Date Nights</h4>
+                <p className="text-2xl font-bold text-pink-600 dark:text-pink-400 mb-1">
                   {insights.familyConnection.dateNights}
                 </p>
-                <p className="text-sm text-gray-600">This week</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">This week</p>
               </div>
               
               <div className="text-center">
-                <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <Users className="w-8 h-8 text-blue-600" />
+                <div className="w-16 h-16 bg-slate-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <Users className="w-8 h-8 text-blue-600 dark:text-blue-400" />
                 </div>
-                <h4 className="font-semibold text-gray-900 mb-1">Family Activities</h4>
-                <p className="text-2xl font-bold text-blue-600 mb-1">
+                <h4 className="font-semibold text-gray-900 dark:text-white mb-1">Family Activities</h4>
+                <p className="text-2xl font-bold text-blue-600 dark:text-blue-400 mb-1">
                   {insights.familyConnection.familyActivities}
                 </p>
-                <p className="text-sm text-gray-600">This week</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">This week</p>
               </div>
               
               <div className="text-center">
-                <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <Clock className="w-8 h-8 text-green-600" />
+                <div className="w-16 h-16 bg-slate-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <Clock className="w-8 h-8 text-green-600 dark:text-green-400" />
                 </div>
-                <h4 className="font-semibold text-gray-900 mb-1">Quality Time</h4>
-                <p className="text-2xl font-bold text-green-600 mb-1">
+                <h4 className="font-semibold text-gray-900 dark:text-white mb-1">Quality Time</h4>
+                <p className="text-2xl font-bold text-green-600 dark:text-green-400 mb-1">
                   {insights.familyConnection.qualityTimeHours}h
                 </p>
-                <p className="text-sm text-gray-600">This week</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">This week</p>
               </div>
               
               <div className="text-center">
-                <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <MessageCircle className="w-8 h-8 text-yellow-600" />
+                <div className="w-16 h-16 bg-slate-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <MessageCircle className="w-8 h-8 text-yellow-600 dark:text-yellow-400" />
                 </div>
-                <h4 className="font-semibold text-gray-900 mb-1">Appreciation Notes</h4>
-                <p className="text-2xl font-bold text-yellow-600 mb-1">
+                <h4 className="font-semibold text-gray-900 dark:text-white mb-1">Appreciation Notes</h4>
+                <p className="text-2xl font-bold text-yellow-600 dark:text-yellow-400 mb-1">
                   {insights.familyConnection.appreciationNotes}
                 </p>
-                <p className="text-sm text-gray-600">This week</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">This week</p>
               </div>
             </div>
           </Card>
@@ -539,13 +541,13 @@ export const EnhancedWeeklyReview: React.FC<EnhancedWeeklyReviewProps> = ({
           transition={{ delay: 0.6 }}
           className="mb-8"
         >
-          <Card className="p-6 bg-gradient-to-r from-indigo-50 to-purple-50 border-2 border-indigo-200">
+          <Card className="p-6 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 border-2 border-indigo-200 dark:border-indigo-700">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-slate-100 rounded-lg">
-                  <Home className="w-5 h-5 text-indigo-600" />
+                <div className="p-2 bg-slate-100 dark:bg-gray-700 rounded-lg">
+                  <Home className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
                 </div>
-                <h3 className="text-xl font-bold text-gray-900">Vision Alignment</h3>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white">Vision Alignment</h3>
               </div>
               <div className="flex gap-2">
                 {getSectionButton('foundation', 'View Vision', <Home className="w-4 h-4" />)}
@@ -555,40 +557,40 @@ export const EnhancedWeeklyReview: React.FC<EnhancedWeeklyReviewProps> = ({
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="text-center">
                 <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-3 ${
-                  insights.visionAlignment.missionCheck ? 'bg-slate-100' : 'bg-slate-100'
+                  insights.visionAlignment.missionCheck ? 'bg-slate-100 dark:bg-gray-700' : 'bg-slate-100 dark:bg-gray-700'
                 }`}>
                   <CheckCircle className={`w-8 h-8 ${
-                    insights.visionAlignment.missionCheck ? 'text-green-600' : 'text-red-600'
+                    insights.visionAlignment.missionCheck ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
                   }`} />
                 </div>
-                <h4 className="font-semibold text-gray-900 mb-1">Mission Check</h4>
+                <h4 className="font-semibold text-gray-900 dark:text-white mb-1">Mission Check</h4>
                 <p className={`text-sm font-medium ${
-                  insights.visionAlignment.missionCheck ? 'text-green-600' : 'text-red-600'
+                  insights.visionAlignment.missionCheck ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
                 }`}>
                   {insights.visionAlignment.missionCheck ? 'Aligned' : 'Needs Attention'}
                 </p>
               </div>
               
               <div className="text-center">
-                <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <Star className="w-8 h-8 text-blue-600" />
+                <div className="w-16 h-16 bg-slate-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <Star className="w-8 h-8 text-blue-600 dark:text-blue-400" />
                 </div>
-                <h4 className="font-semibold text-gray-900 mb-1">Values Lived</h4>
-                <p className="text-2xl font-bold text-blue-600 mb-1">
+                <h4 className="font-semibold text-gray-900 dark:text-white mb-1">Values Lived</h4>
+                <p className="text-2xl font-bold text-blue-600 dark:text-blue-400 mb-1">
                   {insights.visionAlignment.valuesLived.length}
                 </p>
-                <p className="text-sm text-gray-600">This week</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">This week</p>
               </div>
               
               <div className="text-center">
-                <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <TrendingUp className="w-8 h-8 text-purple-600" />
+                <div className="w-16 h-16 bg-slate-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <TrendingUp className="w-8 h-8 text-purple-600 dark:text-purple-400" />
                 </div>
-                <h4 className="font-semibold text-gray-900 mb-1">Long-term Progress</h4>
-                <p className="text-2xl font-bold text-purple-600 mb-1">
+                <h4 className="font-semibold text-gray-900 dark:text-white mb-1">Long-term Progress</h4>
+                <p className="text-2xl font-bold text-purple-600 dark:text-purple-400 mb-1">
                   {insights.visionAlignment.longTermProgress}%
                 </p>
-                <p className="text-sm text-gray-600">Overall progress</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Overall progress</p>
               </div>
             </div>
           </Card>
@@ -602,14 +604,14 @@ export const EnhancedWeeklyReview: React.FC<EnhancedWeeklyReviewProps> = ({
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.7 }}
           >
-            <Card className="p-6 bg-gradient-to-br from-pink-50 to-purple-50">
+            <Card className="p-6 bg-gradient-to-br from-pink-50 to-purple-50 dark:from-pink-900/20 dark:to-purple-900/20">
               <div className="flex items-center gap-3 mb-4">
-                <div className="p-2 bg-slate-100 rounded-lg">
-                  <Heart className="w-5 h-5 text-pink-600" />
+                <div className="p-2 bg-slate-100 dark:bg-gray-700 rounded-lg">
+                  <Heart className="w-5 h-5 text-pink-600 dark:text-pink-400" />
                 </div>
-                <h3 className="text-xl font-bold text-gray-900">Encouragement</h3>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white">Encouragement</h3>
               </div>
-              <p className="text-lg text-gray-700 leading-relaxed">{insights.encouragement}</p>
+              <p className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed">{insights.encouragement}</p>
             </Card>
           </motion.div>
 
@@ -619,18 +621,18 @@ export const EnhancedWeeklyReview: React.FC<EnhancedWeeklyReviewProps> = ({
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.8 }}
           >
-            <Card className="p-6 bg-white shadow-sm">
+            <Card className="p-6 bg-white dark:bg-gray-800 shadow-sm">
               <div className="flex items-center gap-3 mb-4">
-                <div className="p-2 bg-slate-100 rounded-lg">
-                  <Clock className="w-5 h-5 text-blue-600" />
+                <div className="p-2 bg-slate-100 dark:bg-gray-700 rounded-lg">
+                  <Clock className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                 </div>
-                <h3 className="text-xl font-bold text-gray-900">Next Week Focus</h3>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white">Next Week Focus</h3>
               </div>
               <div className="space-y-2">
                 {insights.nextWeekFocus.map((focus, index) => (
                   <div key={index} className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-slate-500 rounded-full"></div>
-                    <span className="text-gray-700">{focus}</span>
+                    <div className="w-2 h-2 bg-slate-500 dark:bg-slate-400 rounded-full"></div>
+                    <span className="text-gray-700 dark:text-gray-300">{focus}</span>
                   </div>
                 ))}
               </div>
