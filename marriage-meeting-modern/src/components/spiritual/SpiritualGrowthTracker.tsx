@@ -22,6 +22,7 @@ import { Input } from '../ui/Input'
 import { Textarea } from '../ui/Textarea'
 import { useVisionStore } from '../../stores/visionStore'
 import { useAuthStore } from '../../stores/authStore'
+import { useAccentColor } from '../../hooks/useAccentColor'
 import { ReadingPlanProgress, ReadingPlan } from '../daily/ReadingPlanProgress'
 import { bibleService, DevotionDay } from '../../lib/bibleService'
 
@@ -76,6 +77,7 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
     updateSpiritualGrowth
   } = useVisionStore()
   const { logout } = useAuthStore()
+  const { getColor } = useAccentColor()
 
   const [searchParams, setSearchParams] = useSearchParams()
   const navigate = useNavigate()
@@ -645,9 +647,9 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
 
   const getGradientClass = (type: 'header' | 'card' | 'accent') => {
     switch (type) {
-      case 'header': return 'bg-gradient-to-br from-slate-50 via-purple-50 to-violet-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-700'
+      case 'header': return `bg-gradient-to-br from-slate-50 via-${getColor('bg')}/20 to-${getColor('bg')}/40 dark:from-gray-900 dark:via-${getColor('bgDark')}/20 dark:to-${getColor('bgDark')}/40`
       case 'card': return 'bg-gradient-to-br from-white to-slate-50 dark:from-gray-800 dark:to-gray-700'
-      case 'accent': return 'bg-gradient-to-r from-purple-500 to-violet-600'
+      case 'accent': return `bg-gradient-to-r from-${getColor('primary')} to-${getColor('primaryDark')}`
       default: return 'bg-gradient-to-br from-slate-50 to-gray-100 dark:from-gray-800 dark:to-gray-700'
     }
   }
@@ -657,7 +659,7 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
       <Card className={`p-6 ${className}`}>
         <div className="flex items-center justify-center py-8">
           <div className="text-center">
-            <div className="w-8 h-8 border-4 border-purple-200 dark:border-purple-700 border-t-purple-600 dark:border-t-purple-400 rounded-full animate-spin mx-auto mb-4"></div>
+            <div className={`w-8 h-8 border-4 border-${getColor('primary')}/20 dark:border-${getColor('primaryDark')}/30 border-t-${getColor('primary')} dark:border-t-${getColor('primaryDark')} rounded-full animate-spin mx-auto mb-4`}></div>
             <p className="text-gray-500 dark:text-gray-400">Loading spiritual growth data...</p>
           </div>
         </div>
@@ -666,9 +668,9 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
   }
 
   return (
-    <div className={`space-y-4 sm:space-y-6 ${className}`}>
+    <div className={`space-y-4 sm:space-y-6 pt-16 sm:pt-20 ${className}`}>
       {/* Modern Header */}
-      <Card className={`p-4 sm:p-6 ${getGradientClass('header')} dark:from-slate-700 dark:to-purple-800 border-0 shadow-lg`}>
+      <Card className={`p-4 sm:p-6 ${getGradientClass('header')} border-0 shadow-lg`}>
           <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-6 gap-4">
             <div className="flex flex-col sm:flex-row sm:items-center gap-4">
               {onBackToVision && (
@@ -725,7 +727,7 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
               onClick={() => handleTabChange(id as any)}
               className={`flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 rounded-lg font-medium transition-all duration-200 text-xs sm:text-sm ${
                 activeTab === id
-                  ? 'bg-gradient-to-r from-purple-500 to-violet-600 text-white shadow-lg'
+                  ? `${getGradientClass('accent')} text-white shadow-lg`
                   : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-slate-800 dark:hover:text-slate-200'
               }`}
             >
@@ -1087,7 +1089,7 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
                   </div>
                 ))}
                 
-                <div className="p-4 bg-gradient-to-br from-purple-50 to-violet-50 dark:from-purple-900/20 dark:to-violet-900/20 rounded-xl border border-purple-200 dark:border-purple-700">
+                <div className={`p-4 bg-gradient-to-br from-${getColor('bg')}/10 to-${getColor('bg')}/20 dark:from-${getColor('bgDark')}/10 dark:to-${getColor('bgDark')}/20 rounded-xl border border-${getColor('primary')}/20 dark:border-${getColor('primaryDark')}/30`}>
                   <h4 className="font-semibold text-slate-800 dark:text-slate-200 mb-2">Reflection</h4>
                   <p className="text-slate-700 dark:text-slate-300 leading-relaxed">{currentDevotion?.content || ''}</p>
                 </div>
