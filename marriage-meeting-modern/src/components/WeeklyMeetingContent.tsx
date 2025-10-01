@@ -85,7 +85,7 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
     loadSettingsAndSync()
   }, []) // Remove loadSettings dependency to prevent infinite loop
 
-  // Calendar sync effect - only run when settings are loaded and calendar is enabled
+  // Calendar sync effect - only run when settings change, not on every date change
   React.useEffect(() => {
     // Only start calendar sync if we have settings loaded and calendar is enabled
     if (!settings.calendar?.icalUrl || !settings.calendar?.showCalendarEvents) {
@@ -130,11 +130,11 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
       updateCalendarEvents(currentWeekEvents)
     }
     
-    // Start auto-sync with a reasonable frequency
+    // Start auto-sync with a reasonable frequency - ONLY ONCE PER SESSION
     calendarService.startAutoSync(
       settings.calendar.icalUrl,
       settings.calendar.googleCalendarEnabled || false,
-      'hourly', // Use hourly instead of realtime to reduce load
+      'daily', // Use daily instead of hourly to reduce load significantly
       weekStart,
       handleEventsUpdate
     )
@@ -145,7 +145,7 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
         calendarService.stopAutoSync(settings.calendar.icalUrl)
       }
     }
-  }, [settings.calendar?.icalUrl, settings.calendar?.showCalendarEvents, currentDate, updateCalendarEvents])
+  }, [settings.calendar?.icalUrl, settings.calendar?.showCalendarEvents]) // Removed currentDate dependency to prevent restarting sync on every week change
 
   // Calculate actual dates for each day of the current week
   const getWeekDates = () => {

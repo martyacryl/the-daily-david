@@ -346,6 +346,13 @@ export const useSettingsStore = create<SettingsStore>()(
 
     // New method to load settings from database
     loadSettings: async () => {
+      // Check if settings are already loaded to prevent duplicate calls
+      const currentSettings = get().settings
+      if (currentSettings && currentSettings.spouse1.name !== '') {
+        console.log('🔄 Settings already loaded, skipping duplicate load')
+        return currentSettings
+      }
+      
       console.log('🔄 Loading settings from database...')
       try {
         const settings = await fetchSettings()
