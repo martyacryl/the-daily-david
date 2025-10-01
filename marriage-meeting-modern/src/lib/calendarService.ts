@@ -67,20 +67,28 @@ export class CalendarService {
       
       console.log('📅 Using backend proxy:', backendProxy)
       
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 10000) // 10 second timeout
+      
       const response = await fetch(backendProxy, {
         method: 'GET',
         headers: {
           'Accept': 'text/calendar, application/calendar+json, */*',
           'User-Agent': 'Mozilla/5.0 (compatible; WeeklyHuddle/1.0)'
-        }
+        },
+        signal: controller.signal
       })
+      
+      clearTimeout(timeoutId)
 
       console.log('📅 Backend proxy response status:', response.status)
 
       if (!response.ok) {
         const errorText = await response.text()
         console.error('❌ Backend proxy failed:', response.status, errorText.substring(0, 200))
-        throw new Error(`Backend proxy failed: ${response.status} ${response.statusText}`)
+        // Don't throw error, just return empty array to prevent hanging
+        console.log('📅 Calendar sync failed, returning empty events array')
+        return []
       }
 
       const icalData = await response.text()
