@@ -51,6 +51,8 @@ export interface GoalItem {
   timeframe: 'monthly' | '1year' | '5year' | '10year'
   description?: string
   priority?: 'low' | 'medium' | 'high'
+  created_at?: string
+  updated_at?: string
 }
 
 // Encouragement Note Structure

@@ -28,7 +28,9 @@ export const GoalsSection: React.FC = () => {
     updateGoal, 
     deleteGoal, 
     toggleGoal,
-    getGoalsByTimeframe 
+    getGoalsByTimeframe,
+    getCurrentMonthGoals,
+    getOverdueMonthlyGoals
   } = useGoalsStore()
   const { getColor } = useAccentColor()
   
@@ -246,8 +248,213 @@ export const GoalsSection: React.FC = () => {
         </motion.div>
       )}
 
-      {/* Goals by Timeframe */}
-      {timeframes.map(({ key, label }) => {
+      {/* Monthly Goals - Current Month */}
+      <div>
+        <div className="flex items-center gap-2 mb-4">
+          {getTimeframeIcon('monthly')}
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">This Month's Goals</h3>
+          <span className="text-sm text-gray-500 dark:text-gray-400">({getCurrentMonthGoals().length})</span>
+        </div>
+        
+        {getCurrentMonthGoals().length === 0 ? (
+          <Card className="p-6 text-center bg-white dark:bg-gray-800">
+            <Target className="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
+            <p className="text-gray-500 dark:text-gray-400">No goals for this month yet</p>
+            <Button 
+              variant="outline" 
+              onClick={() => {
+                setIsAdding(true)
+                setNewGoal({ ...newGoal, timeframe: 'monthly' })
+              }}
+              className="mt-3"
+            >
+              Add Monthly Goal
+            </Button>
+          </Card>
+        ) : (
+          <div className="space-y-3">
+            {getCurrentMonthGoals().map((goal) => (
+              <motion.div
+                key={goal.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+              >
+                <Card className={`p-4 transition-all duration-200 ${
+                  goal.completed ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-700' : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-600'
+                }`}>
+                  <div className="flex items-start gap-3">
+                    <button
+                      onClick={() => handleToggleGoal(goal.id)}
+                      className="mt-1 flex-shrink-0"
+                    >
+                      {goal.completed ? (
+                        <CheckCircle className="w-5 h-5 text-green-600" />
+                      ) : (
+                        <div className="w-5 h-5 border-2 border-gray-300 rounded-full hover:border-green-500 transition-colors"></div>
+                      )}
+                    </button>
+                    
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between mb-2">
+                        <div className="flex-1 min-w-0">
+                          <h4 className={`font-medium text-gray-900 dark:text-white ${
+                            goal.completed ? 'line-through text-gray-500 dark:text-gray-400' : ''
+                          }`}>
+                            {editingGoal === goal.id ? (
+                              <Input
+                                value={goal.text}
+                                onChange={(e) => handleUpdateGoal(goal.id, { text: e.target.value })}
+                                onBlur={() => setEditingGoal(null)}
+                                onKeyPress={(e) => e.key === 'Enter' && setEditingGoal(null)}
+                                className="text-sm"
+                                autoFocus
+                              />
+                            ) : (
+                              <span 
+                                className={`cursor-pointer hover:text-${getColor('primary')}`}
+                                onClick={() => setEditingGoal(goal.id)}
+                              >
+                                {goal.text}
+                              </span>
+                            )}
+                          </h4>
+                          
+                          {goal.description && (
+                            <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">{goal.description}</p>
+                          )}
+                          
+                          <div className="flex items-center gap-2 mt-2">
+                            <span className={`px-2 py-1 text-xs font-medium rounded-full border ${getTimeframeColor(goal.timeframe)}`}>
+                              Monthly
+                            </span>
+                            <Star className={`w-3 h-3 ${getPriorityColor(goal.priority)}`} />
+                            <span className={`text-xs ${getPriorityColor(goal.priority)}`}>
+                              {goal.priority}
+                            </span>
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => setEditingGoal(goal.id)}
+                            className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                          >
+                            <Edit3 className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteGoal(goal.id)}
+                            className="text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Overdue Monthly Goals */}
+      {getOverdueMonthlyGoals().length > 0 && (
+        <div>
+          <div className="flex items-center gap-2 mb-4">
+            <Clock className="w-5 h-5 text-red-500" />
+            <h3 className="text-lg font-semibold text-red-600 dark:text-red-400">Overdue Goals</h3>
+            <span className="text-sm text-red-500 dark:text-red-400">({getOverdueMonthlyGoals().length})</span>
+          </div>
+          
+          <div className="space-y-3">
+            {getOverdueMonthlyGoals().map((goal) => (
+              <motion.div
+                key={goal.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+              >
+                <Card className="p-4 bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-700">
+                  <div className="flex items-start gap-3">
+                    <button
+                      onClick={() => handleToggleGoal(goal.id)}
+                      className="mt-1 flex-shrink-0"
+                    >
+                      {goal.completed ? (
+                        <CheckCircle className="w-5 h-5 text-green-600" />
+                      ) : (
+                        <div className="w-5 h-5 border-2 border-red-300 rounded-full hover:border-green-500 transition-colors"></div>
+                      )}
+                    </button>
+                    
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between mb-2">
+                        <div className="flex-1 min-w-0">
+                          <h4 className={`font-medium text-red-800 dark:text-red-200 ${
+                            goal.completed ? 'line-through text-red-500 dark:text-red-400' : ''
+                          }`}>
+                            {editingGoal === goal.id ? (
+                              <Input
+                                value={goal.text}
+                                onChange={(e) => handleUpdateGoal(goal.id, { text: e.target.value })}
+                                onBlur={() => setEditingGoal(null)}
+                                onKeyPress={(e) => e.key === 'Enter' && setEditingGoal(null)}
+                                className="text-sm"
+                                autoFocus
+                              />
+                            ) : (
+                              <span 
+                                className={`cursor-pointer hover:text-${getColor('primary')}`}
+                                onClick={() => setEditingGoal(goal.id)}
+                              >
+                                {goal.text}
+                              </span>
+                            )}
+                          </h4>
+                          
+                          {goal.description && (
+                            <p className="text-sm text-red-600 dark:text-red-300 mt-1">{goal.description}</p>
+                          )}
+                          
+                          <div className="flex items-center gap-2 mt-2">
+                            <span className="px-2 py-1 text-xs font-medium rounded-full border bg-red-100 dark:bg-red-800 text-red-700 dark:text-red-300 border-red-200 dark:border-red-600">
+                              Overdue
+                            </span>
+                            <Star className={`w-3 h-3 ${getPriorityColor(goal.priority)}`} />
+                            <span className={`text-xs ${getPriorityColor(goal.priority)}`}>
+                              {goal.priority}
+                            </span>
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => setEditingGoal(goal.id)}
+                            className="text-red-400 hover:text-red-600 dark:hover:text-red-300 transition-colors"
+                          >
+                            <Edit3 className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteGoal(goal.id)}
+                            className="text-red-400 hover:text-red-600 dark:hover:text-red-400 transition-colors"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Other Timeframes */}
+      {timeframes.filter(tf => tf.key !== 'monthly').map(({ key, label }) => {
         const timeframeGoals = getGoalsByTimeframe(key)
         
         return (

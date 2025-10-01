@@ -18,6 +18,7 @@ interface GoalsState {
   // Filtered getters
   getGoalsByTimeframe: (timeframe: GoalItem['timeframe']) => GoalItem[]
   getCurrentMonthGoals: () => GoalItem[]
+  getOverdueMonthlyGoals: () => GoalItem[]
   getCurrentYearGoals: () => GoalItem[]
   getLongTermGoals: () => GoalItem[]
 }
@@ -114,9 +115,33 @@ export const useGoalsStore = create<GoalsState>((set, get) => ({
     
     return get().goals.filter(goal => {
       if (goal.timeframe !== 'monthly') return false
-      // For monthly goals, show current month's goals
-      // This could be enhanced with month-specific logic
-      return true
+      if (!goal.created_at) return true // If no created_at, show it (backward compatibility)
+      
+      const goalDate = new Date(goal.created_at)
+      const goalMonth = goalDate.getMonth()
+      const goalYear = goalDate.getFullYear()
+      
+      // Show goals created in the current month
+      return goalMonth === currentMonth && goalYear === currentYear
+    })
+  },
+
+  getOverdueMonthlyGoals: () => {
+    const now = new Date()
+    const currentMonth = now.getMonth()
+    const currentYear = now.getFullYear()
+    
+    return get().goals.filter(goal => {
+      if (goal.timeframe !== 'monthly') return false
+      if (goal.completed) return false // Don't show completed goals as overdue
+      if (!goal.created_at) return false // Skip goals without created_at
+      
+      const goalDate = new Date(goal.created_at)
+      const goalMonth = goalDate.getMonth()
+      const goalYear = goalDate.getFullYear()
+      
+      // Show goals from previous months that are not completed
+      return (goalYear < currentYear) || (goalYear === currentYear && goalMonth < currentMonth)
     })
   },
 
