@@ -242,6 +242,25 @@ Let's say you want to add a new goal:
 
 ---
 
+## 🔗 **Detailed Beginner Guides**
+
+For a deeper understanding of each area, check out these detailed beginner guides:
+
+### **📚 Individual Area Guides:**
+- **[BEGINNER_COMPONENT_REFERENCE.md](./BEGINNER_COMPONENT_REFERENCE.md)** - Detailed guide to all the app's building blocks
+- **[BEGINNER_STYLING_GUIDE.md](./BEGINNER_STYLING_GUIDE.md)** - Complete guide to how the app looks and feels
+- **[BEGINNER_DEPLOYMENT_GUIDE.md](./BEGINNER_DEPLOYMENT_GUIDE.md)** - How the app gets online and stays running
+- **[BEGINNER_FEATURES_OVERVIEW.md](./BEGINNER_FEATURES_OVERVIEW.md)** - Everything the app can do for you
+- **[BEGINNER_ARCHITECTURE.md](./BEGINNER_ARCHITECTURE.md)** - How all the parts work together (like a house blueprint)
+
+### **🔗 Technical Documentation:**
+- **STYLING_GUIDE** - How to make components look good
+- **FEATURES_OVERVIEW** - What the app can do overall
+- **COMPONENT_REFERENCE** - Technical details of all components
+- **VERCEL_DEPLOYMENT** - Technical deployment instructions
+
+---
+
 ## 🎉 **You're Ready!**
 
 Now you have a basic understanding of how the Marriage Meeting Tool works and how all the documentation fits together. Remember:
