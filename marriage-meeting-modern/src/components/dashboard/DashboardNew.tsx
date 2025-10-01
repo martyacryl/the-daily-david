@@ -169,14 +169,15 @@ export const DashboardNew: React.FC = () => {
         }
       }
       
-      // Start auto-sync like weekly planner does
-      calendarService.startAutoSync(
-        settings.calendar.icalUrl,
-        settings.calendar.googleCalendarEnabled || false,
-        settings.calendar.syncFrequency || 'realtime',
-        weekStart,
-        handleEventsUpdate
-      )
+      // DISABLED: Calendar sync is causing UI blocking issues
+      console.log('📅 Calendar sync DISABLED in Dashboard - preventing UI blocking')
+      // calendarService.startAutoSync(
+      //   settings.calendar.icalUrl,
+      //   settings.calendar.googleCalendarEnabled || false,
+      //   settings.calendar.syncFrequency || 'realtime',
+      //   weekStart,
+      //   handleEventsUpdate
+      // )
       
       // Cleanup on unmount or when settings change
       return () => {

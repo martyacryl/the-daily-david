@@ -85,8 +85,13 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
     loadSettingsAndSync()
   }, [loadSettings])
 
-  // Set up automatic calendar sync when component mounts or settings change
+  // DISABLED: Calendar sync is causing UI blocking issues
+  // TODO: Re-implement calendar sync with better error handling
   React.useEffect(() => {
+    console.log('📅 Calendar sync DISABLED - preventing UI blocking')
+    return
+    // DISABLED: Original calendar sync code below
+    /*
     // Only start calendar sync if we have settings loaded
     if (!settings.calendar?.icalUrl) {
       console.log('📅 Calendar sync skipped - missing iCal URL')
@@ -173,7 +178,8 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
         )
       }
     }
-  }, [settings.calendar?.icalUrl, settings.calendar?.googleCalendarEnabled, settings.calendar?.showCalendarEvents, settings.calendar?.syncFrequency, currentDate, updateCalendarEvents])
+  }, [])
+  */
 
   // Calculate actual dates for each day of the current week
   const getWeekDates = () => {
