@@ -59,10 +59,10 @@
 | Component | Purpose | Key Features |
 |-----------|---------|--------------|
 | `MarriageMeetingTool.tsx` | **MAIN MEETING TOOL** | Complete weekly meeting interface |
-| `WeeklyMeetingContent.tsx` | Meeting content sections | Schedule, tasks, prayers, grocery, encouragement |
+| `WeeklyMeetingContent.tsx` | Meeting content sections | Schedule, tasks, prayers, grocery, encouragement, calendar integration, auto-save |
 | `WeeklyMeetingSidebar.tsx` | Meeting navigation | Section navigation, progress tracking |
 | `WeeklyMeetingSidebarLayout.tsx` | **MAIN LAYOUT** | Sidebar + content layout, data management |
-| `WeeklyReview.tsx` | Week review | Progress summary, navigation buttons |
+| `WeeklyReview.tsx` | Week review | Progress summary, navigation buttons, **dark mode support** |
 | `WeekOverview.tsx` | **NEW: Week Overview** | Collapsible 7-day grid, clickable days, responsive |
 
 ### **Meeting Sections** (`src/components/`)
@@ -78,9 +78,34 @@
 | Component | Purpose | Key Features |
 |-----------|---------|--------------|
 | `settings/SettingsPanel.tsx` | User settings | Spouse info, location, grocery stores, family creed |
+| `settings/SimpleCalendarSettings.tsx` | **NEW: Calendar Settings** | iCal URL configuration, Google Calendar integration, test connection |
 | `FamilyCreedDisplay.tsx` | Creed display | Family creed with shield icon, settings integration |
 | `admin/AdminPanel.tsx` | User management | Create/delete users, admin functions |
 | `admin/ProtectedAdminRoute.tsx` | Route protection | Admin-only access, redirect logic |
+
+### **Vision & Planning** (`src/components/`)
+| Component | Purpose | Key Features |
+|-----------|---------|--------------|
+| `planning/AnnualPlanning.tsx` | **NEW: Annual Planning** | Family vision editing, annual goals, themes, **dark mode support** |
+| `planning/PlanningPage.tsx` | **NEW: Planning Page** | Strategic planning interface with vision, goals, spiritual growth |
+| `vision/FamilyVisionBoard.tsx` | **NEW: Family Vision Display** | Read-only family vision display, core values, priorities |
+| `vision/FamilyVisionDisplay.tsx` | **NEW: Vision Display Component** | Reusable vision display with theming |
+
+### **Spiritual Growth** (`src/components/spiritual/`)
+| Component | Purpose | Key Features |
+|-----------|---------|--------------|
+| `SpiritualGrowthTracker.tsx` | **NEW: Spiritual Growth** | Prayer requests, devotionals, spiritual goals, Bible reading plans, **dark mode support** |
+
+### **Review & Analytics** (`src/components/review/`)
+| Component | Purpose | Key Features |
+|-----------|---------|--------------|
+| `EnhancedWeeklyReview.tsx` | **NEW: Enhanced Review** | Comprehensive weekly insights, metrics dashboard, **dark mode support** |
+
+### **Layout Components** (`src/components/layout/`)
+| Component | Purpose | Key Features |
+|-----------|---------|--------------|
+| `DailyFocusedLayout.tsx` | **NEW: Daily Layout** | Daily-focused interface with sidebar navigation, spiritual growth integration |
+| `EnhancedWeeklyLayout.tsx` | **NEW: Enhanced Layout** | Advanced weekly meeting layout with tabs and sections |
 
 ### **Demo & Testing** (`src/components/demo/`)
 | Component | Purpose | Key Features |
@@ -95,11 +120,12 @@
 | Store | Purpose | Key Methods |
 |-------|---------|-------------|
 | `authStore.ts` | Authentication | `login()`, `logout()`, `checkAuth()`, `isAuthenticated` |
-| `marriageStore.ts` | **MAIN STORE** | `loadWeekData()`, `saveWeekData()`, `updateTasks()`, `updateSchedule()` |
-| `goalsStore.ts` | Goals management | `loadGoals()`, `addGoal()`, `updateGoal()`, `deleteGoal()` |
-| `settingsStore.ts` | User settings | `loadSettings()`, `updateSpouse1()`, `updateSpouse2()`, `updateLocation()` |
+| `marriageStore.ts` | **MAIN STORE** | `loadWeekData()`, `saveWeekData()`, `updateTasks()`, `updateSchedule()`, `addScheduleLine()`, `removeScheduleLine()` |
+| `goalsStore.ts` | Goals management | `loadGoals()`, `addGoal()`, `updateGoal()`, `deleteGoal()`, `getCurrentMonthGoals()`, `getOverdueMonthlyGoals()` |
+| `settingsStore.ts` | User settings | `loadSettings()`, `updateSpouse1()`, `updateSpouse2()`, `updateLocation()`, `updateCalendarSettings()` |
+| `visionStore.ts` | **NEW: Vision Management** | `loadFamilyVision()`, `updateFamilyVision()`, `loadSpiritualGrowth()`, `updateSpiritualGrowth()` |
 | `dailyStore.ts` | Daily entries | `loadEntries()`, `saveEntry()`, `loadEntryByDate()` |
-| `appStore.ts` | App state | `setCurrentDate()`, `setLoading()` |
+| `appStore.ts` | App state | `setCurrentDate()`, `setLoading()`, `setTheme()`, `setAccentColor()` |
 
 ---
 
@@ -109,6 +135,8 @@
 | Hook | Purpose | Returns |
 |------|---------|---------|
 | `useDayData.ts` | Daily entry management | `dayData`, `updateScripture()`, `updateGoals()`, etc. |
+| `useAccentColor.ts` | **NEW: Theme Management** | `getColor()`, `accentColor`, `setAccentColor()` |
+| `useTheme.ts` | **NEW: Theme System** | `theme`, `setTheme()`, `toggleTheme()` |
 
 ---
 
@@ -117,8 +145,10 @@
 ### **Services** (`src/lib/`)
 | Service | Purpose | Key Methods |
 |---------|---------|-------------|
-| `database.ts` | API communication | `saveDailyEntry()`, `authenticateUser()`, `createUser()` |
+| `database.ts` | API communication | `saveDailyEntry()`, `authenticateUser()`, `createUser()`, `getFamilyVision()`, `updateFamilyVision()` |
 | `bibleService.ts` | Bible API integration | `getVerse()`, `getReadingPlans()`, `getTodaysDevotion()` |
+| `calendarService.ts` | **NEW: Calendar Integration** | `getICalEvents()`, `parseICalData()`, `startAutoSync()`, `forceSync()` |
+| `accentColors.ts` | **NEW: Theme Colors** | Color palette definitions, theme utilities |
 | `utils.ts` | Utility functions | Date formatting, data validation |
 | `constants.ts` | App constants | API endpoints, default values |
 
@@ -236,6 +266,49 @@ interface ReadingPlan { id, name, description, duration, titles, themes, verses 
 // Day names
 type DayName = 'Monday' | 'Tuesday' | 'Wednesday' | 'Thursday' | 'Friday' | 'Saturday' | 'Sunday'
 ```
+
+---
+
+## 🆕 **RECENT UPDATES & NEW FEATURES**
+
+### **🌙 Dark Mode Support**
+- **Complete dark mode implementation** across all components
+- **Dynamic theming** with `useAccentColor` hook
+- **Consistent color schemes** for light and dark themes
+- **Updated components**: `WeeklyReview`, `EnhancedWeeklyReview`, `SpiritualGrowthTracker`, `AnnualPlanning`
+
+### **📅 Calendar Integration**
+- **iCal URL support** for external calendar integration
+- **Google Calendar integration** (planned)
+- **Auto-sync functionality** with configurable intervals
+- **Calendar events display** in weekly schedule
+- **Backend proxy** for CORS-free calendar fetching
+
+### **👨‍👩‍👧‍👦 Family Vision System**
+- **Family vision editing** in Annual Planning page
+- **Read-only vision display** in Family Vision page
+- **Core values and priorities** management
+- **Vision goals** tracking and management
+- **Spiritual growth** integration
+
+### **📊 Enhanced Analytics**
+- **Monthly goals filtering** with overdue detection
+- **Current month vs overdue** goals display
+- **Enhanced weekly review** with comprehensive insights
+- **Progress metrics** dashboard
+- **Vision alignment** tracking
+
+### **🔧 Auto-Save System**
+- **Debounced auto-save** for schedule items (500ms delay)
+- **Immediate auto-save** for add/remove operations (100ms delay)
+- **Optimistic UI updates** with error handling
+- **Network transfer optimization** for alpha stage
+
+### **🎨 Theme System**
+- **Accent color customization** from settings
+- **Dynamic color theming** throughout the app
+- **Consistent styling** across all components
+- **Theme persistence** in user settings
 
 ---
 

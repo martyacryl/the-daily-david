@@ -2,7 +2,13 @@
 
 A comprehensive web application for couples to plan their weekly activities, manage shared goals, and strengthen their relationship through intentional planning and communication.
 
-## ✨ Features
+## 🌟 **Live Application**
+- **URL**: https://theweeklyhuddle.vercel.app
+- **Status**: ✅ **ACTIVE & DEPLOYED**
+- **Framework**: React + TypeScript + Vite
+- **Database**: Neon PostgreSQL
+
+## ✨ **Core Features**
 
 ### 🔐 Authentication & User Management
 - **Secure Sign-In**: Email/password authentication via Neon PostgreSQL
@@ -14,15 +20,42 @@ A comprehensive web application for couples to plan their weekly activities, man
 - **7-Day Schedule**: Plan activities for each day of the week
 - **Dynamic Lists**: Add/remove schedule items as needed
 - **Week Navigation**: Navigate between different weeks
-- **Auto-Save**: Real-time saving with debounced updates
+- **Auto-Save**: Real-time saving with debounced updates (500ms delay)
+- **Calendar Integration**: Import external calendar events via iCal URLs
 
 ### 📋 Multiple List Types
-- **To-Do List**: Tasks and action items
+- **To-Do List**: Tasks and action items with priorities
 - **Prayer List**: Spiritual requests and prayers
-- **Goals**: Dreams and aspirations
-- **Grocery List**: Shopping and supplies
+- **Goals**: Multi-timeframe goals (monthly, 1-year, 5-year, 10-year)
+- **Grocery List**: Store-based shopping organization
 - **Unconfessed Sin**: Accountability and grace
-- **Weekly Winddown**: Relaxation activities together
+- **Encouragement Notes**: Love notes and reminders
+
+### 🌙 **Advanced Features**
+
+#### **Dark Mode System**
+- **Complete Dark Mode**: All components support light/dark themes
+- **Dynamic Theming**: User-customizable accent colors
+- **Theme Persistence**: Settings saved across sessions
+- **Consistent Styling**: Unified design language
+
+#### **Family Vision System**
+- **Vision Editing**: Create and edit family vision statements
+- **Core Values**: Define and track family values
+- **Priorities**: Set and manage family priorities
+- **Vision Goals**: Long-term vision-based goals
+
+#### **Spiritual Growth Tracking**
+- **Prayer Requests**: Track and manage prayer needs
+- **Bible Reading Plans**: Multiple devotional tracks
+- **Spiritual Goals**: Faith-based goal setting
+- **Reflection Notes**: Personal spiritual journaling
+
+#### **Enhanced Analytics**
+- **Weekly Review**: Comprehensive week analysis
+- **Progress Metrics**: Visual progress tracking
+- **Monthly Goals Filtering**: Current month vs overdue goals
+- **Consistency Scoring**: Meeting engagement metrics
 
 ### 💾 Data Persistence
 - **Neon PostgreSQL**: Cloud database with user isolation
@@ -31,10 +64,43 @@ A comprehensive web application for couples to plan their weekly activities, man
 - **Row Level Security**: Database-level user isolation
 
 ### 🎨 Modern UI/UX
-- **Responsive Design**: Works on desktop, tablet, and mobile
-- **Beautiful Gradients**: Modern color schemes and visual appeal
+- **Responsive Design**: Mobile-first approach for all screen sizes
+- **Beautiful Gradients**: Modern color schemes with dynamic theming
 - **Interactive Elements**: Hover effects and smooth transitions
-- **Accessibility**: Clear visual hierarchy and intuitive navigation
+- **Accessibility**: Screen reader and keyboard support
+- **Touch-Friendly**: Optimized for mobile interactions
+
+## 🆕 **Recent Updates (January 2025)**
+
+### **🌙 Dark Mode Implementation**
+- Complete dark mode support across all components
+- Dynamic theming with user-customizable accent colors
+- Consistent color schemes for light and dark themes
+- Updated components: WeeklyReview, EnhancedWeeklyReview, SpiritualGrowthTracker, AnnualPlanning
+
+### **📅 Calendar Integration**
+- iCal URL support for external calendar integration
+- Auto-sync functionality with configurable intervals
+- Calendar events display in weekly schedule
+- Backend proxy for CORS-free calendar fetching
+
+### **👨‍👩‍👧‍👦 Family Vision System**
+- Family vision editing in Annual Planning page
+- Read-only vision display in Family Vision page
+- Core values and priorities management
+- Vision goals tracking and management
+
+### **📊 Enhanced Analytics**
+- Monthly goals filtering with overdue detection
+- Current month vs overdue goals display
+- Enhanced weekly review with comprehensive insights
+- Progress metrics dashboard
+
+### **🔧 Auto-Save System**
+- Debounced auto-save for schedule items (500ms delay)
+- Immediate auto-save for add/remove operations (100ms delay)
+- Optimistic UI updates with error handling
+- Network transfer optimization for alpha stage
 
 ## 🚀 Quick Start
 
