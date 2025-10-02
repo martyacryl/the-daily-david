@@ -208,7 +208,7 @@ class BibleService {
         id: 'strength-isaiah',
         name: 'Strength in Isaiah',
         description: 'Isaiah\'s messages of strength and hope for men',
-        duration: 66,
+        duration: 29,
         titles: [
           'Wings Like Eagles', 'The Lord is My Strength', 'Fear Not', 'God\'s Power', 'Everlasting Strength',
           'Holy One of Israel', 'Prince of Peace', 'Wonderful Counselor', 'Mighty God', 'Everlasting Father',
@@ -239,9 +239,7 @@ class BibleService {
 
   // Get today's devotion from a custom reading plan
   async getTodaysDevotion(planId: string, bibleId?: string, day?: number): Promise<DevotionDay | null> {
-    // Use the provided day or a time-based counter that increments each time to simulate different days
     const now = new Date();
-    const timeBasedIndex = day !== undefined ? (day - 1) : Math.floor(now.getTime() / (1000 * 60 * 60 * 24));
     
     // Get the full reading plans to access all verses
     const allPlans = await this.getReadingPlans();
@@ -249,8 +247,13 @@ class BibleService {
     
     if (!plan || !plan.verses || !plan.titles || !plan.themes) return null;
 
-    const dayIndex = timeBasedIndex % plan.verses.length;
-    const verseId = plan.verses[dayIndex];
+    // Use the provided day (currentDay from reading plan progress) or default to 1
+    // day is 1-based, so we need to convert to 0-based index
+    const dayIndex = day !== undefined ? (day - 1) : 0;
+    
+    // Ensure we don't go beyond the available verses
+    const safeDayIndex = Math.min(dayIndex, plan.verses.length - 1);
+    const verseId = plan.verses[safeDayIndex];
     
     // Use the selected Bible version or default to ESV
     const selectedBibleId = bibleId || this.defaultBibleId;
@@ -260,8 +263,8 @@ class BibleService {
     return {
       date: now.toISOString().split('T')[0],
       verses: [verse],
-      title: plan.titles[dayIndex],
-      content: plan.themes[dayIndex]
+      title: plan.titles[safeDayIndex],
+      content: plan.themes[safeDayIndex]
     };
   }
 
