@@ -171,6 +171,14 @@ export const useDailyStore = create<DailyStore>((set, get) => ({
           // Extract data from data_content field (JSONB)
           const dataContent = entry.data_content || {}
           
+          // Debug: Log if this entry has data_content
+          if (entry.data_content) {
+            console.log('🔍 Store: Entry has data_content:', entry.id, dataContent)
+            console.log('🔍 Store: SOAP data in data_content:', dataContent.soap)
+            console.log('🔍 Store: Thoughts in data_content.soap:', dataContent.soap?.thoughts)
+          }
+          
+          
           return {
             id: entry.id?.toString() || Date.now().toString(),
             userId: entry.user_id,
@@ -187,7 +195,8 @@ export const useDailyStore = create<DailyStore>((set, get) => ({
               scripture: dataContent.soap?.scripture || entry.scripture || '',
               observation: dataContent.soap?.observation || entry.observation || '',
               application: dataContent.soap?.application || entry.application || '',
-              prayer: dataContent.soap?.prayer || entry.prayer || ''
+              prayer: dataContent.soap?.prayer || entry.prayer || '',
+              thoughts: dataContent.soap?.thoughts || entry.thoughts || ''
             },
             goals: parsedGoals,
             dailyIntention: dataContent.dailyIntention || entry.dailyIntention || '',
@@ -367,7 +376,8 @@ export const useDailyStore = create<DailyStore>((set, get) => ({
             scripture: dataContent.soap?.scripture || result.scripture || '',
             observation: dataContent.soap?.observation || result.observation || '',
             application: dataContent.soap?.application || result.application || '',
-            prayer: dataContent.soap?.prayer || result.prayer || ''
+            prayer: dataContent.soap?.prayer || result.prayer || '',
+            thoughts: dataContent.soap?.thoughts || result.thoughts || ''
           },
           goals: parsedGoals,
           dailyIntention: dataContent.dailyIntention || result.dailyIntention || '',

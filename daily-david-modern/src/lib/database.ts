@@ -105,7 +105,8 @@ class DatabaseManager {
         scripture: entry.scripture || '',
         observation: entry.observation || '',
         application: entry.application || '',
-        prayer: entry.prayer || ''
+        prayer: entry.prayer || '',
+        thoughts: entry.thoughts || ''
       }
       
       const requestBody = {
@@ -122,6 +123,7 @@ class DatabaseManager {
       }
       
       console.log('API: Request body for save:', requestBody)
+      console.log('API: SOAP data in request body:', JSON.stringify(requestBody.soap, null, 2))
       console.log('API: CheckIn data being saved:', {
         checkIn: entry.checkIn,
         checkInType: typeof entry.checkIn,
@@ -235,7 +237,7 @@ class DatabaseManager {
             observation: entry.observation || '',
             application: entry.application || '',
             prayer: entry.prayer || '',
-            thoughts: ''
+            thoughts: dataContent.soap?.thoughts || ''
           },
           goals: entry.goals ? JSON.parse(entry.goals) : {
             daily: [],
@@ -263,6 +265,7 @@ class DatabaseManager {
   async saveDayData(userId: string | number, date: string, data: any): Promise<boolean> {
     try {
       console.log('API: Saving day data for date:', date, 'data:', data, 'user:', userId)
+      console.log('API: SOAP data being saved:', JSON.stringify(data.soap, null, 2))
       
       const userIdNum = typeof userId === 'string' ? parseInt(userId) : userId
       
@@ -271,40 +274,66 @@ class DatabaseManager {
       
       if (existingEntry) {
         // Update existing entry by saving with merged data
-        await this.saveDailyEntry({
+        const entryData = {
           user_id: userIdNum,
+          userId: userIdNum.toString(),
+          user_id: userIdNum.toString(),
           date,
+          dateKey: date,
+          date_key: date,
           scripture: data.soap?.scripture || existingEntry.scripture || '',
           observation: data.soap?.observation || existingEntry.observation || '',
           application: data.soap?.application || existingEntry.application || '',
           prayer: data.soap?.prayer || existingEntry.prayer || '',
-          gratitude: Array.isArray(data.gratitude) ? data.gratitude.join(', ') : (data.gratitude || existingEntry.gratitude || ''),
-          goals: data.goals ? JSON.stringify(data.goals) : (existingEntry.goals || ''),
+          gratitude: Array.isArray(data.gratitude) ? data.gratitude : (data.gratitude || []),
+          goals: data.goals || { daily: [], weekly: [], monthly: [] },
           checkIn: data.checkIn || existingEntry.checkIn || { emotions: [], feeling: '' },
           dailyIntention: data.dailyIntention || existingEntry.dailyIntention || '',
           growthQuestion: data.growthQuestion || existingEntry.growthQuestion || '',
           leadershipRating: data.leadershipRating || existingEntry.leadershipRating || { wisdom: 0, courage: 0, patience: 0, integrity: 0 },
           deletedGoalIds: data.deletedGoalIds || existingEntry.deletedGoalIds || [],
-          readingPlan: data.readingPlan || existingEntry.readingPlan || undefined
-        })
+          readingPlan: data.readingPlan || existingEntry.readingPlan || undefined,
+          soap: data.soap || {
+            scripture: existingEntry.scripture || '',
+            observation: existingEntry.observation || '',
+            application: existingEntry.application || '',
+            prayer: existingEntry.prayer || '',
+            thoughts: existingEntry.data_content?.soap?.thoughts || ''
+          }
+        }
+        console.log('API: Entry data being saved (update):', JSON.stringify(entryData, null, 2))
+        await this.saveDailyEntry(entryData)
       } else {
         // Create new entry
-        await this.saveDailyEntry({
+        const entryData = {
           user_id: userIdNum,
+          userId: userIdNum.toString(),
+          user_id: userIdNum.toString(),
           date,
+          dateKey: date,
+          date_key: date,
           scripture: data.soap?.scripture || '',
           observation: data.soap?.observation || '',
           application: data.soap?.application || '',
           prayer: data.soap?.prayer || '',
-          gratitude: Array.isArray(data.gratitude) ? data.gratitude.join(', ') : (data.gratitude || ''),
-          goals: data.goals ? JSON.stringify(data.goals) : '',
+          gratitude: Array.isArray(data.gratitude) ? data.gratitude : [],
+          goals: data.goals || { daily: [], weekly: [], monthly: [] },
           checkIn: data.checkIn || { emotions: [], feeling: '' },
           dailyIntention: data.dailyIntention || '',
           growthQuestion: data.growthQuestion || '',
           leadershipRating: data.leadershipRating || { wisdom: 0, courage: 0, patience: 0, integrity: 0 },
           deletedGoalIds: data.deletedGoalIds || [],
-          readingPlan: data.readingPlan || undefined
-        })
+          readingPlan: data.readingPlan || undefined,
+          soap: data.soap || {
+            scripture: '',
+            observation: '',
+            application: '',
+            prayer: '',
+            thoughts: ''
+          }
+        }
+        console.log('API: Entry data being saved (create):', JSON.stringify(entryData, null, 2))
+        await this.saveDailyEntry(entryData)
       }
       return true
     } catch (error) {
@@ -329,6 +358,8 @@ class DatabaseManager {
       }
       const data = await response.json()
       console.log('API: All entries result:', data.entries)
+      console.log('API: First entry data_content:', data.entries[0]?.data_content)
+      console.log('API: First entry soap in data_content:', data.entries[0]?.data_content?.soap)
       
       // Transform the API response to match our interface
       return data.entries.map((entry: any) => {
