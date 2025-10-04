@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { BookOpen, BarChart3, Settings, LogOut, Mountain, TrendingUp, Menu, X } from 'lucide-react'
+import { BookOpen, BarChart3, Settings, LogOut, Mountain, TrendingUp, Menu, X, BookMarked } from 'lucide-react'
 import { useAuthStore } from '../../stores/authStore'
 import { Button } from '../ui/Button'
 
@@ -13,6 +13,7 @@ export const Header: React.FC = () => {
   const allNavItems = [
     { path: '/', label: 'Dashboard', icon: BarChart3 },
     { path: '/daily', label: 'Daily Entry', icon: BookOpen },
+    { path: '/review', label: 'SOAP Review', icon: BookMarked },
     { path: '/analytics', label: 'Analytics', icon: TrendingUp },
     { path: '/admin', label: 'Admin', icon: Settings, adminOnly: true }
   ]
