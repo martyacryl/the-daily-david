@@ -221,10 +221,25 @@ export const SOAPReview: React.FC = () => {
     // Only update if there's actually a change
     if (localSOAP.thoughts !== (entry.additionalNotes || '')) {
       try {
-        // Use the store's updateEntry method to update the existing entry
-        await useDailyStore.getState().updateEntry(editingEntry, {
-          soap: localSOAP
-        })
+        const currentEntry = entries.find(e => e.id === editingEntry)
+        if (!currentEntry) return
+
+        // Create a complete entry data object for saving
+        const entryData = {
+          date: currentEntry.date,
+          goals: currentEntry.goals,
+          gratitude: currentEntry.gratitude,
+          soap: localSOAP, // This includes the updated thoughts
+          dailyIntention: currentEntry.dailyIntention,
+          leadershipRating: currentEntry.leadershipRating,
+          checkIn: currentEntry.checkIn,
+          readingPlan: currentEntry.readingPlan,
+          deletedGoalIds: currentEntry.deletedGoalIds || [],
+          completed: currentEntry.completed
+        }
+
+        // Use the store's createEntry method which will handle the save/update logic
+        await useDailyStore.getState().createEntry(entryData)
         
       } catch (error) {
         console.error('Save error:', error)
