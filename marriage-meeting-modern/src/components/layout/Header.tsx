@@ -65,72 +65,56 @@ export const Header: React.FC<HeaderProps> = () => {
             </span>
           </Link>
 
-          {/* Desktop Navigation */}
-          <nav className="hidden lg:flex items-center gap-1 flex-1 justify-center max-w-4xl">
+          {/* Navigation - Single responsive line */}
+          <nav className="hidden md:flex items-center gap-1 flex-1 justify-center">
             {navItems.map((item) => {
               const Icon = item.icon
               return (
                 <button
                   key={item.path}
                   onClick={() => handleNavigation(item.path)}
-                  className={`flex items-center gap-2 px-3 xl:px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${
+                  className={`flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${
                     isActive(item.path)
                       ? 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200'
                       : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700'
                   }`}
                 >
                   <Icon className="w-4 h-4 flex-shrink-0" />
-                  <span className="hidden xl:inline">{item.label}</span>
-                  <span className="xl:hidden">{item.shortLabel}</span>
-                </button>
-              )
-            })}
-          </nav>
-
-          {/* Tablet Navigation */}
-          <nav className="hidden md:flex lg:hidden items-center gap-1 flex-1 justify-center max-w-2xl">
-            {navItems.map((item) => {
-              const Icon = item.icon
-              return (
-                <button
-                  key={item.path}
-                  onClick={() => handleNavigation(item.path)}
-                  className={`flex items-center gap-1 px-2 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${
-                    isActive(item.path)
-                      ? 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200'
-                      : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700'
-                  }`}
-                >
-                  <Icon className="w-4 h-4 flex-shrink-0" />
-                  <span>{item.shortLabel}</span>
+                  <span className="hidden lg:inline">{item.label}</span>
+                  <span className="lg:hidden hidden sm:inline">{item.shortLabel}</span>
                 </button>
               )
             })}
           </nav>
 
           {/* User Menu */}
-          <div className="flex items-center gap-1 sm:gap-2 md:gap-3 flex-shrink-0">
-            <div className="hidden md:flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
+          <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
+            {/* User name - only show on large screens */}
+            <div className="hidden xl:flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
               <User className="w-4 h-4" />
-              <span className="hidden lg:inline">{user?.name || 'Couple'}</span>
+              <span>{user?.name || 'Couple'}</span>
             </div>
+            
+            {/* Settings button */}
             <Button
               variant="outline"
               size="sm"
               onClick={() => setIsSettingsOpen(true)}
-              className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3"
+              className="flex items-center gap-1 px-2 sm:px-3"
             >
               <Settings className="w-4 h-4" />
-              <span className="hidden sm:inline">Settings</span>
+              <span className="hidden lg:inline">Settings</span>
             </Button>
+            
+            {/* Logout button */}
             <Button
               variant="outline"
               size="sm"
               onClick={logout}
-              className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3"
+              className="flex items-center gap-1 px-2 sm:px-3"
             >
               <LogOut className="w-4 h-4" />
-              <span className="hidden sm:inline">Sign Out</span>
+              <span className="hidden lg:inline">Sign Out</span>
             </Button>
           </div>
         </div>
