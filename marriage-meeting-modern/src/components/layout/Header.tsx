@@ -55,66 +55,63 @@ export const Header: React.FC<HeaderProps> = () => {
       <div className="container mx-auto px-2 sm:px-4">
         <div className="flex items-center justify-between h-14 sm:h-16">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
-            <div className={`w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 bg-gradient-to-br from-slate-400 to-${getColor('primary')} dark:from-slate-600 dark:to-${getColor('primaryDark')} rounded-full flex items-center justify-center`}>
-              <Mountain className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-white" />
+          <Link to="/" className="flex items-center gap-1 flex-shrink-0">
+            <div className={`w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-br from-slate-400 to-${getColor('primary')} dark:from-slate-600 dark:to-${getColor('primaryDark')} rounded-full flex items-center justify-center`}>
+              <Mountain className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
             </div>
-            <span className="text-base sm:text-lg md:text-xl font-bold text-gray-900 dark:text-white whitespace-nowrap">
-              <span className="hidden xs:inline">Weekly Huddle</span>
-              <span className="xs:hidden">WH</span>
+            <span className="text-sm sm:text-base font-bold text-gray-900 dark:text-white whitespace-nowrap">
+              <span className="hidden lg:inline">Weekly Huddle</span>
+              <span className="lg:hidden">WH</span>
             </span>
           </Link>
 
-          {/* Navigation - Single responsive line */}
-          <nav className="hidden md:flex items-center gap-1 flex-1 justify-center">
+          {/* Navigation - Only show on extra large screens */}
+          <nav className="hidden 2xl:flex items-center gap-1 flex-1 justify-center">
             {navItems.map((item) => {
               const Icon = item.icon
               return (
                 <button
                   key={item.path}
                   onClick={() => handleNavigation(item.path)}
-                  className={`flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${
+                  className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${
                     isActive(item.path)
                       ? 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200'
                       : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700'
                   }`}
                 >
                   <Icon className="w-4 h-4 flex-shrink-0" />
-                  <span className="hidden lg:inline">{item.label}</span>
-                  <span className="lg:hidden hidden sm:inline">{item.shortLabel}</span>
+                  <span>{item.label}</span>
                 </button>
               )
             })}
           </nav>
 
-          {/* User Menu */}
-          <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
-            {/* User name - only show on large screens */}
-            <div className="hidden xl:flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
+          {/* User Menu - Icons only to prevent overflow */}
+          <div className="flex items-center gap-1 flex-shrink-0">
+            {/* User name - only show on very large screens */}
+            <div className="hidden 2xl:flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
               <User className="w-4 h-4" />
               <span>{user?.name || 'Couple'}</span>
             </div>
             
-            {/* Settings button */}
+            {/* Settings button - icon only */}
             <Button
               variant="outline"
               size="sm"
               onClick={() => setIsSettingsOpen(true)}
-              className="flex items-center gap-1 px-2 sm:px-3"
+              className="flex items-center gap-1 px-2"
             >
               <Settings className="w-4 h-4" />
-              <span className="hidden lg:inline">Settings</span>
             </Button>
             
-            {/* Logout button */}
+            {/* Logout button - icon only */}
             <Button
               variant="outline"
               size="sm"
               onClick={logout}
-              className="flex items-center gap-1 px-2 sm:px-3"
+              className="flex items-center gap-1 px-2"
             >
               <LogOut className="w-4 h-4" />
-              <span className="hidden lg:inline">Sign Out</span>
             </Button>
           </div>
         </div>
