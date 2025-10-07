@@ -651,66 +651,157 @@ export function ProgressAnalytics() {
         </motion.div>
       </div>
 
-      {/* Goal Completion Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.5 }}
-        >
-          <Card className="p-6">
-            <h3 className="text-xl font-semibold text-white mb-6 flex items-center gap-2">
-              <Target className="w-4 h-4 text-slate-400" />
-              Goal Completion Rates
-            </h3>
-            <div className="space-y-4">
-              {Object.entries(data.goalCompletion).map(([type, goalData]) => (
-                <div key={type} className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="font-medium text-slate-200 capitalize">{type} Goals</span>
-                    <span className="text-slate-300">{goalData.completed}/{goalData.total}</span>
-                  </div>
-                  <div className="w-full bg-slate-600 rounded-full h-3">
-                    <div
-                      className="bg-gradient-to-r from-green-500 to-green-600 h-3 rounded-full transition-all duration-500"
-                      style={{ width: `${goalData.percentage}%` }}
-                    ></div>
-                  </div>
-                  <div className="text-right text-sm text-slate-400">{goalData.percentage}%</div>
+      {/* Goal Analytics */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.5 }}
+      >
+        <Card className="p-6">
+          <h3 className="text-xl font-semibold text-white mb-6 flex items-center gap-2">
+            <Target className="w-5 h-5 text-slate-400" />
+            Goal Analytics
+          </h3>
+          
+          <div className="space-y-6">
+            {/* Goal Completion Overview */}
+            <div className="grid grid-cols-3 gap-4">
+              <div className="text-center p-4 bg-slate-800/50 rounded-lg">
+                <div className="text-2xl font-bold text-green-400">
+                  {data.goalCompletion.daily.percentage}%
                 </div>
-              ))}
+                <div className="text-xs text-slate-300">Daily Goals</div>
+                <div className="text-xs text-slate-400 mt-1">
+                  {data.goalCompletion.daily.completed}/{data.goalCompletion.daily.total} completed
+                </div>
+              </div>
+              <div className="text-center p-4 bg-slate-800/50 rounded-lg">
+                <div className="text-2xl font-bold text-blue-400">
+                  {data.goalCompletion.weekly.percentage}%
+                </div>
+                <div className="text-xs text-slate-300">Weekly Goals</div>
+                <div className="text-xs text-slate-400 mt-1">
+                  {data.goalCompletion.weekly.completed}/{data.goalCompletion.weekly.total} completed
+                </div>
+              </div>
+              <div className="text-center p-4 bg-slate-800/50 rounded-lg">
+                <div className="text-2xl font-bold text-purple-400">
+                  {data.goalCompletion.monthly.percentage}%
+                </div>
+                <div className="text-xs text-slate-300">Monthly Goals</div>
+                <div className="text-xs text-slate-400 mt-1">
+                  {data.goalCompletion.monthly.completed}/{data.goalCompletion.monthly.total} completed
+                </div>
+              </div>
             </div>
-          </Card>
-        </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.6 }}
-        >
-          <Card className="p-6">
-            <h3 className="text-xl font-semibold text-white mb-6 flex items-center gap-2">
-              <BarChart3 className="w-4 h-4 text-slate-400" />
-              Category Breakdown
-            </h3>
-            <div className="space-y-4">
-              {data.categoryBreakdown.map((category) => (
-                <div key={category.category} className="flex items-center space-x-3">
-                  <div className={`w-4 h-4 rounded-full ${category.color}`}></div>
-                  <span className="flex-1 text-sm text-slate-200">{category.category}</span>
-                  <span className="text-sm font-medium text-white">{category.count}</span>
-                  <div className="w-20 bg-slate-600 rounded-full h-2">
-                    <div
-                      className={`${category.color} h-2 rounded-full transition-all duration-500`}
-                      style={{ width: `${(category.count / Math.max(...data.categoryBreakdown.map(c => c.count))) * 100}%` }}
-                    ></div>
+            {/* Goal Completion Progress Bars */}
+            <div>
+              <h4 className="text-sm font-medium text-slate-300 mb-3">Goal Completion Progress</h4>
+              <div className="space-y-3">
+                {Object.entries(data.goalCompletion).map(([type, goalData]) => (
+                  <div key={type} className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span className="font-medium text-slate-200 capitalize">{type} Goals</span>
+                      <span className="text-slate-300">{goalData.completed}/{goalData.total}</span>
+                    </div>
+                    <div className="w-full bg-slate-600 rounded-full h-3">
+                      <div
+                        className="bg-gradient-to-r from-green-500 to-green-600 h-3 rounded-full transition-all duration-500"
+                        style={{ width: `${goalData.percentage}%` }}
+                      ></div>
+                    </div>
+                    <div className="text-right text-sm text-slate-400">{goalData.percentage}%</div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </Card>
-        </motion.div>
-      </div>
+
+            {/* Category and Type Breakdown */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Category Breakdown */}
+              <div>
+                <h4 className="text-sm font-medium text-slate-300 mb-3">By Category</h4>
+                <div className="space-y-2">
+                  {data.categoryBreakdown.map((category) => (
+                    <div key={category.category} className="flex items-center space-x-3">
+                      <div className={`w-3 h-3 rounded-full ${category.color}`}></div>
+                      <span className="flex-1 text-sm text-slate-200">{category.category}</span>
+                      <span className="text-sm font-medium text-white">{category.count}</span>
+                      <div className="w-16 bg-slate-600 rounded-full h-2">
+                        <div
+                          className={`${category.color} h-2 rounded-full transition-all duration-500`}
+                          style={{ 
+                            width: `${data.categoryBreakdown.length > 0 
+                              ? (category.count / Math.max(...data.categoryBreakdown.map(c => c.count))) * 100 
+                              : 0}%` 
+                          }}
+                        ></div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Goal Type Breakdown */}
+              <div>
+                <h4 className="text-sm font-medium text-slate-300 mb-3">By Goal Type</h4>
+                <div className="space-y-2">
+                  {Object.entries(data.goalCompletion).map(([type, goalData]) => {
+                    const typeColors = {
+                      'daily': 'bg-green-500',
+                      'weekly': 'bg-blue-500',
+                      'monthly': 'bg-purple-500'
+                    }
+                    return (
+                      <div key={type} className="flex items-center space-x-3">
+                        <div className={`w-3 h-3 rounded-full ${typeColors[type as keyof typeof typeColors]}`}></div>
+                        <span className="flex-1 text-sm text-slate-200 capitalize">{type} Goals</span>
+                        <span className="text-sm font-medium text-white">{goalData.total}</span>
+                        <div className="w-16 bg-slate-600 rounded-full h-2">
+                          <div
+                            className={`${typeColors[type as keyof typeof typeColors]} h-2 rounded-full transition-all duration-500`}
+                            style={{ 
+                              width: `${Math.max(...Object.values(data.goalCompletion).map(g => g.total)) > 0 
+                                ? (goalData.total / Math.max(...Object.values(data.goalCompletion).map(g => g.total))) * 100 
+                                : 0}%` 
+                            }}
+                          ></div>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            </div>
+
+            {/* Goal Insights */}
+            <div className="p-4 bg-slate-800/30 rounded-lg border border-slate-700">
+              <h4 className="text-sm font-medium text-slate-200 mb-2 flex items-center gap-2">
+                <Lightbulb className="w-4 h-4 text-slate-400" />
+                Goal Insights
+              </h4>
+              <div className="text-xs text-slate-300 space-y-1">
+                {data.goalCompletion.daily.percentage < 50 && (
+                  <div>• Focus on smaller, daily goals to build momentum</div>
+                )}
+                {data.goalCompletion.weekly.percentage > 70 && (
+                  <div>• Great weekly progress! Consider adding monthly challenges</div>
+                )}
+                {data.goalCompletion.monthly.percentage < 30 && (
+                  <div>• Break down monthly goals into weekly milestones</div>
+                )}
+                {data.goalCompletion.daily.percentage > 80 && (
+                  <div>• Excellent daily consistency! Keep up the great work</div>
+                )}
+                {data.categoryBreakdown.length > 0 && (
+                  <div>• Most goals are in {data.categoryBreakdown[0].category.toLowerCase()} - diversify your focus areas</div>
+                )}
+              </div>
+            </div>
+          </div>
+        </Card>
+      </motion.div>
 
 
       {/* Spiritual Growth Command Center */}
