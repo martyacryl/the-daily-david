@@ -5,6 +5,7 @@ import { Header } from './components/layout/Header'
 import { Dashboard } from './components/dashboard/Dashboard'
 import { DailyEntry } from './components/daily/DailyEntry'
 import { SOAPReview } from './components/review/SOAPReview'
+import { PrayerRequestsList } from './components/prayer/PrayerRequestsList'
 import { ProtectedAdminRoute } from './components/admin/ProtectedAdminRoute'
 import { ProgressAnalytics } from './components/dashboard/ProgressAnalytics'
 import { LoginForm } from './components/auth/LoginForm'
@@ -50,6 +51,7 @@ function App() {
             <Route path="/" element={<Dashboard />} />
             <Route path="/daily" element={<DailyEntry />} />
             <Route path="/review" element={<SOAPReview />} />
+            <Route path="/prayer" element={<PrayerRequestsList />} />
             <Route path="/admin" element={<ProtectedAdminRoute dbManager={dbManager} />} />
             <Route path="/analytics" element={<ProgressAnalytics />} />
             <Route path="/login" element={<LoginForm />} />
