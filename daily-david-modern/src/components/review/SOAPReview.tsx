@@ -149,6 +149,16 @@ export const SOAPReview: React.FC = () => {
     setLocalThoughts(value)
   }
 
+  // Handle blur - auto-save when user clicks out
+  const handleThoughtsBlur = async () => {
+    // Small delay to prevent blur from firing when clicking save button
+    setTimeout(async () => {
+      if (editingEntry && localThoughts !== (soapEntries.find(e => e.id === editingEntry)?.additionalNotes || '')) {
+        await handleSave()
+      }
+    }, 100)
+  }
+
   // Handle save - following runbook pattern exactly
   const handleSave = async () => {
     if (!editingEntry || isSaving) return
@@ -459,6 +469,7 @@ export const SOAPReview: React.FC = () => {
                       <Textarea
                         value={localThoughts}
                         onChange={(e) => handleThoughtsChange(e.target.value)}
+                        onBlur={handleThoughtsBlur}
                         placeholder="Add additional insights, reflections, or notes about this SOAP study..."
                         className="w-full px-4 py-3 border-2 border-slate-600/50 rounded-lg bg-slate-700/60 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-slate-500 transition-colors duration-200 resize-none"
                         rows={4}
@@ -467,7 +478,10 @@ export const SOAPReview: React.FC = () => {
                       />
                       <div className="flex gap-2">
                         <Button
-                          onClick={handleSave}
+                          onClick={(e) => {
+                            e.preventDefault()
+                            handleSave()
+                          }}
                           disabled={isSaving}
                           className="flex items-center gap-2"
                         >
