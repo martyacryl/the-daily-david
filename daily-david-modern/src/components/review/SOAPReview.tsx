@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import { motion } from 'framer-motion'
 import { useAuthStore } from '../../stores/authStore'
 import { useDailyStore } from '../../stores/dailyStore'
@@ -27,7 +27,7 @@ interface SOAPReviewStats {
 }
 
 export const SOAPReview: React.FC = () => {
-  const { entries, loadEntries, isLoading } = useDailyStore()
+  const { entries, loadEntries, isLoading, createEntry } = useDailyStore()
   const { isAuthenticated, user } = useAuthStore()
   
   // Filter and search state
@@ -36,11 +36,10 @@ export const SOAPReview: React.FC = () => {
   const [filterBy, setFilterBy] = useState<'all' | 'recent' | 'thisMonth' | 'thisYear'>('all')
   const [sortBy, setSortBy] = useState<'date' | 'book' | 'theme'>('date')
   
-  // Editing state - using the same pattern as DailyEntry
+  // Editing state - following the runbook pattern
   const [editingEntry, setEditingEntry] = useState<string | null>(null)
   const [localThoughts, setLocalThoughts] = useState('')
-  const [localSOAP, setLocalSOAP] = useState<SOAPData | null>(null)
-  
+  const [isSaving, setIsSaving] = useState(false)
 
   // Load entries on component mount
   useEffect(() => {
@@ -49,8 +48,7 @@ export const SOAPReview: React.FC = () => {
     }
   }, [isAuthenticated, loadEntries])
 
-
-  // Filter and process SOAP entries - same pattern as daily entry
+  // Filter and process SOAP entries - following the runbook pattern
   const soapEntries = useMemo(() => {
     const filtered = entries.filter(entry => {
       const hasSOAP = entry.soap && entry.soap.scripture && entry.soap.scripture.trim()
@@ -200,66 +198,71 @@ export const SOAPReview: React.FC = () => {
     return Array.from(books).sort()
   }, [soapEntries])
 
-
-
-  // Handle input change - EXACTLY like SOAPSection
+  // Handle input change - following the runbook pattern
   const handleThoughtsChange = (value: string) => {
     setLocalThoughts(value)
-    if (localSOAP) {
-      const newSOAP = { ...localSOAP, thoughts: value }
-      setLocalSOAP(newSOAP)
-    }
   }
 
-  // Handle input blur - Use store update method
+  // Handle input blur - following the runbook pattern with proper error handling
   const handleThoughtsBlur = async () => {
-    if (!localSOAP || !editingEntry) return
+    if (!editingEntry || isSaving) return
 
     const entry = soapEntries.find(e => e.id === editingEntry)
     if (!entry) return
 
     // Only update if there's actually a change
-    if (localSOAP.thoughts !== (entry.additionalNotes || '')) {
+    if (localThoughts !== (entry.additionalNotes || '')) {
+      setIsSaving(true)
       try {
-        const currentEntry = entries.find(e => e.id === editingEntry)
-        if (!currentEntry) return
-
-        // Create a complete entry data object for saving
-        const entryData = {
-          date: currentEntry.date,
-          goals: currentEntry.goals,
-          gratitude: currentEntry.gratitude,
-          soap: localSOAP, // This includes the updated thoughts
-          dailyIntention: currentEntry.dailyIntention,
-          leadershipRating: currentEntry.leadershipRating,
-          checkIn: currentEntry.checkIn,
-          readingPlan: currentEntry.readingPlan,
-          deletedGoalIds: currentEntry.deletedGoalIds || [],
-          completed: currentEntry.completed
+        // Create updated SOAP data with the new thoughts
+        const updatedSOAP: SOAPData = {
+          ...entry.soapData,
+          thoughts: localThoughts
         }
 
-        // Use the store's createEntry method which will handle the save/update logic
-        await useDailyStore.getState().createEntry(entryData)
+        // Create a complete entry data object for saving - following the runbook pattern
+        const entryData = {
+          date: entry.date,
+          goals: entry.goals,
+          gratitude: entry.gratitude,
+          soap: updatedSOAP, // This includes the updated thoughts
+          dailyIntention: entry.dailyIntention,
+          leadershipRating: entry.leadershipRating,
+          checkIn: entry.checkIn,
+          readingPlan: entry.readingPlan,
+          deletedGoalIds: entry.deletedGoalIds || [],
+          completed: entry.completed
+        }
+
+        console.log('SOAP Review: Saving entry with updated thoughts:', {
+          entryId: editingEntry,
+          originalThoughts: entry.additionalNotes,
+          newThoughts: localThoughts,
+          entryData
+        })
+
+        // Use the store's createEntry method which handles save/update logic
+        await createEntry(entryData)
+        
+        console.log('SOAP Review: Successfully saved thoughts')
         
       } catch (error) {
-        console.error('Save error:', error)
+        console.error('SOAP Review: Save error:', error)
+        // You could add a toast notification here for user feedback
+      } finally {
+        setIsSaving(false)
       }
     }
 
     // Clear editing state
     setEditingEntry(null)
     setLocalThoughts('')
-    setLocalSOAP(null)
   }
 
-  // Start editing - EXACTLY like DailyEntry
+  // Start editing - following the runbook pattern
   const startEditing = (entry: any) => {
     setEditingEntry(entry.id)
     setLocalThoughts(entry.additionalNotes || '')
-    setLocalSOAP({
-      ...entry.soapData,
-      thoughts: entry.additionalNotes || ''
-    })
   }
 
   // Clear all filters
@@ -499,6 +502,7 @@ ${entry.additionalNotes ? `**Additional Notes:** ${entry.additionalNotes}` : ''}
                   <button
                     onClick={() => startEditing(entry)}
                     className="text-slate-400 hover:text-amber-400 transition-colors"
+                    disabled={isSaving}
                   >
                     <Edit3 className="w-5 h-5" />
                   </button>
@@ -546,11 +550,14 @@ ${entry.additionalNotes ? `**Additional Notes:** ${entry.additionalNotes}` : ''}
                   </div>
                 </div>
 
-                {/* Additional Notes Section - exactly like DailyEntry pattern */}
+                {/* Additional Notes Section - following the runbook pattern */}
                 <div className="mt-6 border-t border-slate-700 pt-6">
                   <h4 className="font-bold text-lg mb-4 text-white flex items-center gap-2">
                     <Edit3 className="w-5 h-5 text-amber-400" />
                     Additional Notes
+                    {isSaving && editingEntry === entry.id && (
+                      <span className="text-xs text-green-400 ml-2">Saving...</span>
+                    )}
                   </h4>
                   
                   {editingEntry === entry.id ? (
@@ -564,6 +571,7 @@ ${entry.additionalNotes ? `**Additional Notes:** ${entry.additionalNotes}` : ''}
                         className="w-full px-4 py-3 border-2 border-slate-600/50 rounded-lg bg-slate-700/60 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-slate-500 transition-colors duration-200 resize-none"
                         rows={4}
                         autoFocus
+                        disabled={isSaving}
                       />
                     </div>
                   ) : (
