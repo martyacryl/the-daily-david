@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { calendarService } from '../../lib/calendarService'
+import { useAccentColor } from '../../hooks/useAccentColor'
 import { 
   Calendar, 
   Target, 
@@ -25,6 +26,7 @@ import {
   Eye,
   ChevronDown,
   ChevronUp,
+  ArrowLeft,
   Sun,
   Cloud,
   CloudRain,
@@ -43,6 +45,7 @@ import { GuidedMeetingFlow } from '../meeting/GuidedMeetingFlow'
 import { EnhancedWeeklyReview } from '../review/EnhancedWeeklyReview'
 import { WeekOverview } from '../WeekOverview'
 import { FamilyCreedDisplay } from '../FamilyCreedDisplay'
+import { FamilyVisionDisplay } from '../vision/FamilyVisionDisplay'
 import { WeatherSection } from '../WeatherSection'
 
 interface DailyFocusedLayoutProps {
@@ -185,8 +188,27 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
   className = '',
   initialSection = 'vision'
 }) => {
+  const { getColor, accentColor } = useAccentColor()
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
+
+  // Get the correct gradient classes based on accent color
+  const getGradientClasses = () => {
+    switch (accentColor) {
+      case 'green':
+        return 'bg-gradient-to-br from-green-50 to-green-200 dark:from-green-900/30 dark:to-green-800/50'
+      case 'blue':
+        return 'bg-gradient-to-br from-blue-50 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/50'
+      case 'slate':
+        return 'bg-gradient-to-br from-slate-50 to-slate-200 dark:from-slate-800/30 dark:to-slate-700/50'
+      case 'red':
+        return 'bg-gradient-to-br from-red-50 to-red-200 dark:from-red-900/30 dark:to-red-800/50'
+      case 'orange':
+        return 'bg-gradient-to-br from-orange-50 to-orange-200 dark:from-orange-900/30 dark:to-orange-800/50'
+      default: // purple
+        return 'bg-gradient-to-br from-purple-50 to-purple-200 dark:from-purple-900/30 dark:to-purple-800/50'
+    }
+  }
   const [activeSection, setActiveSection] = useState(initialSection)
   const [showGuidedFlow, setShowGuidedFlow] = useState(false)
   const [showVisionModal, setShowVisionModal] = useState(false)
@@ -308,7 +330,7 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
     
     // Handle special sections (spiritual, review) - these show their respective content
     if (['spiritual', 'review'].includes(activeSection)) {
-      console.log('🎯 Rendering sidebar content for special section:', activeSection)
+      console.log('🎯 Rendering full content for special section:', activeSection)
       return renderSidebarContent()
     }
 
@@ -316,13 +338,13 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
     if (activeSection === 'vision') {
       console.log('🎯 Rendering three-column layout for vision section')
       return (
-        <div className="h-full flex flex-col">
+        <div className="h-full flex flex-col pt-32 sm:pt-20">
           {/* Top Section - Weekly Meeting Buttons */}
-          <div className="bg-white border-b border-gray-200 p-3 lg:p-4 lg:sticky lg:top-0 z-10">
+          <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-3 lg:p-4 sticky top-14 sm:top-16 z-10">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
-                <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">Foundation & Daily Focus</h1>
-                <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-600">
+                <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 dark:text-white">Foundation & Daily Focus</h1>
+                <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-600 dark:text-gray-300">
                   <Calendar className="w-3 h-3 sm:w-4 sm:h-4" />
                   <span className="hidden sm:inline">{currentDate.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
                   <span className="sm:hidden">{currentDate.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}</span>
@@ -360,18 +382,18 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
           </div>
 
           {/* Family Creed Section */}
-          <div className="bg-slate-50 border-b border-gray-200 p-3 lg:p-4">
+          <div className="bg-slate-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-3 lg:p-4">
             <FamilyCreedDisplay />
           </div>
 
           {/* Three Column Layout */}
           <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
             {/* Left Column - Navigation Sidebar */}
-            <div className="w-full lg:w-80 bg-white border-r border-gray-200 flex flex-col">
+            <div className="w-full lg:w-80 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col">
               {/* Sidebar Header */}
-              <div className="p-3 lg:p-4 border-b border-gray-200">
-                <h2 className="text-base lg:text-lg font-semibold text-gray-900 mb-1">Meeting Sections</h2>
-                <p className="text-xs lg:text-sm text-gray-600">Navigate between sections</p>
+              <div className="p-3 lg:p-4 border-b border-gray-200 dark:border-gray-700">
+                <h2 className="text-base lg:text-lg font-semibold text-gray-900 dark:text-white mb-1">Meeting Sections</h2>
+                <p className="text-xs lg:text-sm text-gray-600 dark:text-gray-300">Navigate between sections</p>
               </div>
 
               {/* Sidebar Navigation */}
@@ -398,17 +420,17 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                           }}
                           className={`w-full flex items-center gap-2 sm:gap-3 p-2 sm:p-3 rounded-lg text-left transition-all duration-200 ${
                             isActive
-                              ? 'bg-slate-50 border-2 border-blue-200 text-blue-700'
-                              : 'hover:bg-gray-50 text-gray-700'
+                              ? 'bg-slate-50 dark:bg-slate-700 border-2 border-blue-200 dark:border-blue-600 text-blue-700 dark:text-blue-300'
+                              : 'hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300'
                           }`}
                           whileHover={{ scale: 1.02 }}
                           whileTap={{ scale: 0.98 }}
                         >
                           <div className={`p-1.5 sm:p-2 rounded-lg ${
-                            isActive ? 'bg-slate-100' : 'bg-gray-100'
+                            isActive ? 'bg-slate-100 dark:bg-slate-700' : 'bg-gray-100 dark:bg-gray-700'
                           }`}>
                             <IconComponent className={`w-3 h-3 sm:w-4 sm:h-4 ${
-                              isActive ? 'text-blue-600' : 'text-gray-500'
+                              isActive ? 'text-blue-600 dark:text-blue-400' : 'text-gray-500 dark:text-gray-400'
                             }`} />
                           </div>
                           <div className="flex-1 min-w-0">
@@ -445,17 +467,17 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                           }}
                           className={`w-full flex items-center gap-2 sm:gap-3 p-2 sm:p-3 rounded-lg text-left transition-all duration-200 ${
                             isActive
-                              ? 'bg-slate-50 border-2 border-slate-200 text-slate-700'
-                              : 'hover:bg-gray-50 text-gray-700'
+                              ? 'bg-slate-50 dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-300'
+                              : 'hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300'
                           }`}
                           whileHover={{ scale: 1.02 }}
                           whileTap={{ scale: 0.98 }}
                         >
                           <div className={`p-1.5 sm:p-2 rounded-lg ${
-                            isActive ? 'bg-slate-100' : 'bg-gray-100'
+                            isActive ? 'bg-slate-100 dark:bg-slate-700' : 'bg-gray-100 dark:bg-gray-700'
                           }`}>
                             <IconComponent className={`w-3 h-3 sm:w-4 sm:h-4 ${
-                              isActive ? 'text-slate-600' : 'text-gray-500'
+                              isActive ? 'text-slate-600 dark:text-slate-400' : 'text-gray-500 dark:text-gray-400'
                             }`} />
                           </div>
                           <div className="flex-1 min-w-0">
@@ -470,8 +492,8 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                           {count > 0 && (
                             <span className={`px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full text-xs font-medium flex-shrink-0 ${
                               isActive
-                                ? 'bg-slate-200 text-slate-800'
-                                : 'bg-gray-200 text-gray-600'
+                                ? 'bg-slate-200 dark:bg-slate-600 text-slate-800 dark:text-slate-200'
+                                : 'bg-gray-200 dark:bg-gray-600 text-gray-600 dark:text-gray-200'
                             }`}>
                               {count}
                             </span>
@@ -506,17 +528,17 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                           }}
                           className={`w-full flex items-center gap-2 sm:gap-3 p-2 sm:p-3 rounded-lg text-left transition-all duration-200 ${
                             isActive
-                              ? 'bg-slate-50 border-2 border-purple-200 text-purple-700'
-                              : 'hover:bg-gray-50 text-gray-700'
+                              ? `bg-slate-50 border-2 border-${getColor('border')} text-${getColor('text')}`
+                              : 'hover:bg-gray-50 text-gray-700 dark:text-gray-300'
                           }`}
                           whileHover={{ scale: 1.02 }}
                           whileTap={{ scale: 0.98 }}
                         >
                           <div className={`p-1.5 sm:p-2 rounded-lg ${
-                            isActive ? 'bg-slate-100' : 'bg-gray-100'
+                            isActive ? 'bg-slate-100 dark:bg-slate-700' : 'bg-gray-100 dark:bg-gray-700'
                           }`}>
                             <IconComponent className={`w-3 h-3 sm:w-4 sm:h-4 ${
-                              isActive ? 'text-purple-600' : 'text-gray-500'
+                              isActive ? `text-${getColor('primary')} dark:text-${getColor('primary')}` : 'text-gray-500 dark:text-gray-400'
                             }`} />
                           </div>
                           <div className="flex-1 min-w-0">
@@ -530,8 +552,8 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                           {count > 0 && (
                             <span className={`px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full text-xs font-medium flex-shrink-0 ${
                               isActive
-                                ? 'bg-slate-200 text-slate-800'
-                                : 'bg-gray-200 text-gray-600'
+                                ? 'bg-slate-200 dark:bg-slate-600 text-slate-800 dark:text-slate-200'
+                                : 'bg-gray-200 dark:bg-gray-600 text-gray-600 dark:text-gray-200'
                             }`}>
                               {count}
                             </span>
@@ -566,16 +588,16 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                           className={`w-full flex items-center gap-2 sm:gap-3 p-2 sm:p-3 rounded-lg text-left transition-all duration-200 ${
                             isActive
                               ? 'bg-slate-50 border-2 border-green-200 text-green-700'
-                              : 'hover:bg-gray-50 text-gray-700'
+                              : 'hover:bg-gray-50 text-gray-700 dark:text-gray-300'
                           }`}
                           whileHover={{ scale: 1.02 }}
                           whileTap={{ scale: 0.98 }}
                         >
                           <div className={`p-1.5 sm:p-2 rounded-lg ${
-                            isActive ? 'bg-slate-100' : 'bg-gray-100'
+                            isActive ? 'bg-slate-100 dark:bg-slate-700' : 'bg-gray-100 dark:bg-gray-700'
                           }`}>
                             <IconComponent className={`w-3 h-3 sm:w-4 sm:h-4 ${
-                              isActive ? 'text-green-600' : 'text-gray-500'
+                              isActive ? 'text-green-600 dark:text-green-400' : 'text-gray-500 dark:text-gray-400'
                             }`} />
                           </div>
                           <div className="flex-1 min-w-0">
@@ -602,7 +624,7 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                 {/* Today's Schedule */}
                 <Card className="p-4 lg:p-6">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
-                    <h2 className="text-lg lg:text-xl font-bold text-gray-900">Today's Schedule</h2>
+                    <h2 className="text-lg lg:text-xl font-bold text-gray-900 dark:text-white">Today's Schedule</h2>
                     <Button
                       variant="outline"
                       size="sm"
@@ -632,11 +654,11 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                             <div key={`calendar-${index}`} className="flex gap-2 sm:gap-3 items-start">
                               <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-green-500 rounded-full mt-2 sm:mt-3 flex-shrink-0"></div>
                               <div className="flex-1">
-                                <div className="text-sm sm:text-base text-gray-800 font-medium">
+                                <div className="text-sm sm:text-base text-gray-800 dark:text-gray-200 font-medium">
                                   {calendarService.formatEventForDisplay(event)}
                                 </div>
                                 {event.location && (
-                                  <div className="text-xs text-gray-500 mt-1">
+                                  <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                                     📍 {event.location}
                                   </div>
                                 )}
@@ -649,7 +671,7 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                             <div key={`schedule-${index}`} className="flex gap-2 sm:gap-3 items-start">
                               <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-blue-500 rounded-full mt-2 sm:mt-3 flex-shrink-0"></div>
                               <div className="flex-1">
-                                <div className="text-sm sm:text-base text-gray-800 font-medium">
+                                <div className="text-sm sm:text-base text-gray-800 dark:text-gray-200 font-medium">
                                   {item}
                                 </div>
                               </div>
@@ -657,7 +679,7 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                           ))}
                           
                           {todayCalendarEvents.length === 0 && filteredSchedule.length === 0 && (
-                            <p className="text-gray-500 italic text-center py-4">No schedule items or events for today</p>
+                            <p className="text-gray-500 dark:text-gray-400 italic text-center py-4">No schedule items or events for today</p>
                           )}
                         </div>
                       )
@@ -668,7 +690,7 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                 {/* Today's Tasks */}
                 <Card className="p-4 lg:p-6">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
-                    <h2 className="text-lg lg:text-xl font-bold text-gray-900">Today's Tasks</h2>
+                    <h2 className="text-lg lg:text-xl font-bold text-gray-900 dark:text-white">Today's Tasks</h2>
                     <Button
                       variant="outline"
                       size="sm"
@@ -716,7 +738,7 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                 {/* Week Overview with Popup */}
                 <Card className="p-4 lg:p-6">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
-                    <h2 className="text-lg lg:text-xl font-bold text-gray-900">Week Overview</h2>
+                    <h2 className="text-lg lg:text-xl font-bold text-gray-900 dark:text-white">Week Overview</h2>
                     <Button
                       variant="outline"
                       size="sm"
@@ -737,55 +759,56 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
             </div>
 
             {/* Right Column - Vision & Spiritual Content */}
-            <div className="w-full lg:w-80 bg-gradient-to-br from-purple-50 to-indigo-50 border-l border-gray-200 p-4 lg:p-6 overflow-y-auto">
+            <div className="w-full lg:w-80 bg-gradient-to-br from-slate-50 to-gray-100 dark:from-gray-800 dark:to-gray-700 border-l border-gray-200 dark:border-gray-600 p-4 lg:p-6 overflow-y-auto">
               <div className="space-y-6">
-                {/* Family Vision */}
-                <Card className="p-3 lg:p-4 bg-white/70 backdrop-blur-sm">
+                {/* Family Vision Quick View */}
+                <Card className="p-4 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-700">
                   <div className="flex items-center gap-2 mb-3">
-                    <Home className="w-4 h-4 lg:w-5 lg:h-5 text-blue-600" />
-                    <h3 className="text-sm lg:text-base font-semibold text-gray-900">Family Vision</h3>
+                    <Home className="w-5 h-5 text-slate-600 dark:text-slate-300" />
+                    <h3 className="font-semibold text-gray-900 dark:text-white">Family Vision</h3>
                   </div>
-                  
-                  <div className="space-y-3">
-                    <div className="text-sm text-gray-600">
-                      <p className="font-medium mb-2">Mission Statement:</p>
-                      <p className="italic">"Building a Christ-centered family that loves God, serves others, and grows together in faith, love, and purpose."</p>
-                    </div>
-                    
+                  <p className="text-sm text-gray-700 dark:text-gray-300 mb-3 italic">
+                    "Building a Christ-centered family that loves God, serves others, and grows together in faith, love, and purpose."
+                  </p>
+                  <div className="space-y-2 text-sm">
                     <div className="flex items-center justify-between">
-                      <span className="text-gray-600">Core values:</span>
-                      <span className="font-medium text-blue-600">Faith, Love, Service</span>
+                      <span className="text-gray-600 dark:text-gray-300">1-Year Goals:</span>
+                      <span className="font-medium text-slate-600 dark:text-slate-300">3 active</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-600 dark:text-gray-300">Values lived:</span>
+                      <span className="font-medium text-slate-600 dark:text-slate-300">Faith, Love, Service</span>
                     </div>
                   </div>
-                  
                   <Button
+                    variant="default"
                     size="sm"
                     onClick={() => setShowVisionModal(true)}
-                    className="w-full mt-3 bg-blue-600 hover:bg-blue-700"
+                    className="w-full mt-3 bg-slate-600 hover:bg-slate-700 dark:bg-slate-500 dark:hover:bg-slate-400 text-white"
                   >
                     View Full Vision
                   </Button>
                 </Card>
 
                 {/* Spiritual Growth */}
-                <Card className="p-3 lg:p-4 bg-white/70 backdrop-blur-sm">
+                <Card className="p-3 lg:p-4 bg-white dark:bg-gray-800/70 backdrop-blur-sm border border-gray-200 dark:border-gray-700">
                   <div className="flex items-center gap-2 mb-3">
-                    <BookOpen className="w-4 h-4 lg:w-5 lg:h-5 text-purple-600" />
-                    <h3 className="text-sm lg:text-base font-semibold text-gray-900">Spiritual Growth</h3>
+                    <BookOpen className={`w-4 h-4 lg:w-5 lg:h-5 text-${getColor('primary')} dark:text-${getColor('primary')}`} />
+                    <h3 className="text-sm lg:text-base font-semibold text-gray-900 dark:text-white">Spiritual Growth</h3>
                   </div>
                   
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
-                      <span className="text-gray-600">Prayer requests:</span>
-                      <span className="font-medium text-purple-600">3 active</span>
+                      <span className="text-gray-600 dark:text-gray-300">Prayer requests:</span>
+                      <span className={`font-medium text-${getColor('primary')} dark:text-${getColor('primary')}`}>3 active</span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-gray-600">Bible reading:</span>
-                      <span className="font-medium text-green-600">Day 15</span>
+                      <span className="text-gray-600 dark:text-gray-300">Bible reading:</span>
+                      <span className="font-medium text-green-600 dark:text-green-400">Day 15</span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-gray-600">Devotional streak:</span>
-                      <span className="font-medium text-blue-600">12 days</span>
+                      <span className="text-gray-600 dark:text-gray-300">Devotional streak:</span>
+                      <span className="font-medium text-blue-600 dark:text-blue-400">12 days</span>
                     </div>
                   </div>
                   
@@ -798,42 +821,50 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                       newSearchParams.set('section', 'spiritual')
                       navigate(`?${newSearchParams.toString()}`, { replace: true })
                     }}
-                    className="w-full mt-3 bg-purple-600 hover:bg-purple-700"
+                    className={`w-full mt-3 bg-${getColor('primary')} hover:bg-${getColor('primary')} dark:bg-${getColor('primary')} dark:hover:bg-${getColor('primary')}`}
                   >
                     View Spiritual Growth
                   </Button>
                 </Card>
 
                 {/* Today's Prayers */}
-                <Card className="p-3 lg:p-4 bg-white/70 backdrop-blur-sm">
-                  <h3 className="text-sm lg:text-base font-semibold text-gray-900 mb-3">Today's Prayers</h3>
+                <Card className="p-3 lg:p-4 bg-white dark:bg-gray-800/70 backdrop-blur-sm border border-gray-200 dark:border-gray-700">
+                  <h3 className="text-sm lg:text-base font-semibold text-gray-900 dark:text-white mb-3">Today's Prayers</h3>
                   <div className="space-y-2">
                     {dailyPrayers.slice(0, 3).map((prayer, index) => (
-                      <div key={index} className="flex items-center gap-2 p-2 bg-white/50 rounded-lg">
-                        <Heart className="w-4 h-4 text-pink-500" />
-                        <span className="text-sm text-gray-700">{prayer.text}</span>
+                      <div key={index} className="flex items-center gap-2 p-2 bg-white dark:bg-gray-800/50 rounded-lg border border-gray-100 dark:border-gray-600">
+                        <Heart className="w-4 h-4 text-pink-500 dark:text-pink-400" />
+                        <span className="text-sm text-gray-700 dark:text-gray-300">{prayer.text}</span>
                       </div>
                     ))}
                   </div>
                   <Button
                     size="sm"
                     variant="outline"
-                    onClick={() => setActiveSection('prayers')}
-                    className="w-full mt-3 text-purple-600 border-purple-200 hover:bg-purple-50"
+                    onClick={() => {
+                      setActiveSection('spiritual')
+                      // Navigate to prayer tab in spiritual section
+                      navigate('/daily?section=spiritual&tab=prayer')
+                    }}
+                    className={`w-full mt-3 text-${getColor('primary')} dark:text-${getColor('primary')} border-${getColor('border')} dark:border-${getColor('border')} hover:bg-${getColor('secondary')} dark:hover:bg-${getColor('secondary')}`}
                   >
                     Add Prayer Request
                   </Button>
                 </Card>
 
                 {/* Quick Actions */}
-                <Card className="p-3 lg:p-4 bg-white/70 backdrop-blur-sm">
-                  <h3 className="text-sm lg:text-base font-semibold text-gray-900 mb-3">Quick Actions</h3>
+                <Card className="p-3 lg:p-4 bg-white dark:bg-gray-800/70 backdrop-blur-sm border border-gray-200 dark:border-gray-700">
+                  <h3 className="text-sm lg:text-base font-semibold text-gray-900 dark:text-white mb-3">Quick Actions</h3>
                   <div className="space-y-2">
                     <Button
                       size="sm"
                       variant="outline"
-                      onClick={() => setActiveSection('prayers')}
-                      className="w-full text-purple-600 border-purple-200 hover:bg-purple-50"
+                      onClick={() => {
+                      setActiveSection('spiritual')
+                      // Navigate to prayer tab in spiritual section
+                      navigate('/daily?section=spiritual&tab=prayer')
+                    }}
+                      className={`w-full text-${getColor('primary')} border-${getColor('border')} hover:bg-${getColor('secondary')}`}
                     >
                       Add Prayer Request
                     </Button>
@@ -874,7 +905,7 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
         return (
           <div className="h-full flex flex-col">
             {/* Mobile Header */}
-            <div className="bg-white border-b border-gray-200 p-4 flex items-center justify-between">
+            <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-4 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <Button
                   variant="outline"
@@ -889,7 +920,7 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                 >
                   ← Back
                 </Button>
-                <h1 className="text-lg font-bold text-gray-900">Edit Schedule</h1>
+                <h1 className="text-lg font-bold text-gray-900 dark:text-white">Edit Schedule</h1>
               </div>
               <Button
                 onClick={onSave}
@@ -1039,12 +1070,12 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
     return (
       <div className="space-y-6">
         {/* Today's Overview - Like Dashboard */}
-        <Card className="p-4 sm:p-6 bg-white shadow-sm border border-slate-200">
+        <Card className="p-4 sm:p-6 bg-white dark:bg-gray-800 shadow-sm border border-slate-200">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
-            <h3 className="text-lg sm:text-xl font-semibold text-gray-900 flex items-center gap-2">
+            <h3 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white flex items-center gap-2">
               <Calendar className="w-5 h-5 text-slate-600" />
               Today's Overview
-              <span className="text-sm font-normal text-gray-600">
+              <span className="text-sm font-normal text-gray-600 dark:text-gray-300">
                 {currentDate.toLocaleDateString('en-US', { 
                   weekday: 'long', 
                   month: 'short', 
@@ -1074,7 +1105,7 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
             {/* Today's Schedule */}
             <div className="space-y-3">
-              <h4 className="font-medium text-gray-900 flex items-center gap-2">
+              <h4 className="font-medium text-gray-900 dark:text-white flex items-center gap-2">
                 <Clock className="w-4 h-4 text-slate-600" />
                 Today's Schedule
               </h4>
@@ -1095,11 +1126,11 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                         <div key={`calendar-${index}`} className="flex gap-2 sm:gap-3 items-start">
                           <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-green-500 rounded-full mt-2 sm:mt-3 flex-shrink-0"></div>
                           <div className="flex-1">
-                            <div className="text-sm sm:text-base text-gray-800 font-medium">
+                            <div className="text-sm sm:text-base text-gray-800 dark:text-gray-200 font-medium">
                               {calendarService.formatEventForDisplay(event)}
                             </div>
                             {event.location && (
-                              <div className="text-xs text-gray-500 mt-1">
+                              <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                                 📍 {event.location}
                               </div>
                             )}
@@ -1112,7 +1143,7 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                         <div key={`schedule-${index}`} className="flex gap-2 sm:gap-3 items-start">
                           <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-blue-500 rounded-full mt-2 sm:mt-3 flex-shrink-0"></div>
                           <div className="flex-1">
-                            <div className="text-sm sm:text-base text-gray-800 font-medium">
+                            <div className="text-sm sm:text-base text-gray-800 dark:text-gray-200 font-medium">
                               {item}
                             </div>
                           </div>
@@ -1120,7 +1151,7 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                       ))}
                       
                       {todayCalendarEvents.length === 0 && filteredSchedule.length === 0 && (
-                        <p className="text-sm text-gray-500 italic p-3">No schedule items for today</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400 italic p-3">No schedule items for today</p>
                       )}
                     </div>
                   )
@@ -1130,7 +1161,7 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
 
             {/* Today's Tasks */}
             <div className="space-y-3">
-              <h4 className="font-medium text-gray-900 flex items-center gap-2">
+              <h4 className="font-medium text-gray-900 dark:text-white flex items-center gap-2">
                 <CheckSquare className="w-4 h-4 text-slate-600" />
                 Today's Tasks
               </h4>
@@ -1146,7 +1177,7 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                           {task.text}
                         </span>
                         <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                          task.completed ? 'bg-green-100 text-green-800' : 'bg-slate-100 text-slate-800'
+                          task.completed ? 'bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-200' : 'bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-200'
                         }`}>
                           {task.completed ? 'Done' : 'Pending'}
                         </span>
@@ -1162,35 +1193,35 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
         </Card>
 
         {/* Weather Section */}
-        <Card className="p-6 bg-gradient-to-r from-slate-50 to-purple-50 border-2 border-slate-200">
+        <Card className={`p-6 bg-gradient-to-r from-slate-50 ${getGradientClasses().replace('bg-gradient-to-br from-', 'to-').replace('50', '50')} border-2 border-slate-200`}>
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-bold text-gray-900">Today's Weather</h2>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Today's Weather</h2>
             <div className="flex items-center gap-2">
               {getWeatherIcon(weather.icon)}
-              <span className="text-3xl font-bold text-gray-900">{weather.temperature}°F</span>
+              <span className="text-3xl font-bold text-gray-900 dark:text-white">{weather.temperature}°F</span>
             </div>
           </div>
           
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="text-center">
-              <div className="text-sm text-gray-600 mb-1">Condition</div>
-              <div className="font-semibold text-gray-900">{weather.condition}</div>
+              <div className="text-sm text-gray-600 dark:text-gray-300 mb-1">Condition</div>
+              <div className="font-semibold text-gray-900 dark:text-white">{weather.condition}</div>
             </div>
             <div className="text-center">
-              <div className="text-sm text-gray-600 mb-1">Feels Like</div>
-              <div className="font-semibold text-gray-900">{weather.feelsLike}°F</div>
+              <div className="text-sm text-gray-600 dark:text-gray-300 mb-1">Feels Like</div>
+              <div className="font-semibold text-gray-900 dark:text-white">{weather.feelsLike}°F</div>
             </div>
             <div className="text-center">
-              <div className="text-sm text-gray-600 mb-1">Wind</div>
-              <div className="font-semibold text-gray-900">{weather.windSpeed} mph</div>
+              <div className="text-sm text-gray-600 dark:text-gray-300 mb-1">Wind</div>
+              <div className="font-semibold text-gray-900 dark:text-white">{weather.windSpeed} mph</div>
             </div>
             <div className="text-center">
-              <div className="text-sm text-gray-600 mb-1">Humidity</div>
-              <div className="font-semibold text-gray-900">{weather.humidity}%</div>
+              <div className="text-sm text-gray-600 dark:text-gray-300 mb-1">Humidity</div>
+              <div className="font-semibold text-gray-900 dark:text-white">{weather.humidity}%</div>
             </div>
           </div>
           
-          <div className="flex items-center justify-between mt-4 text-sm text-gray-600">
+          <div className="flex items-center justify-between mt-4 text-sm text-gray-600 dark:text-gray-300">
             <div className="flex items-center gap-1">
               <Sunrise className="w-4 h-4" />
               <span>Sunrise: {weather.sunrise}</span>
@@ -1205,7 +1236,7 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
         {/* Today's Schedule */}
         <Card className="p-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-bold text-gray-900">Today's Schedule</h2>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white">Today's Schedule</h2>
             <Button
               variant="outline"
               size="sm"
@@ -1235,11 +1266,11 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                     <div key={`calendar-${index}`} className="flex gap-2 sm:gap-3 items-start">
                       <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-green-500 rounded-full mt-2 sm:mt-3 flex-shrink-0"></div>
                       <div className="flex-1">
-                        <div className="text-sm sm:text-base text-gray-800 font-medium">
+                        <div className="text-sm sm:text-base text-gray-800 dark:text-gray-200 font-medium">
                           {calendarService.formatEventForDisplay(event)}
                         </div>
                         {event.location && (
-                          <div className="text-xs text-gray-500 mt-1">
+                          <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                             📍 {event.location}
                           </div>
                         )}
@@ -1252,7 +1283,7 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                     <div key={`schedule-${index}`} className="flex gap-2 sm:gap-3 items-start">
                       <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-blue-500 rounded-full mt-2 sm:mt-3 flex-shrink-0"></div>
                       <div className="flex-1">
-                        <div className="text-sm sm:text-base text-gray-800 font-medium">
+                        <div className="text-sm sm:text-base text-gray-800 dark:text-gray-200 font-medium">
                           {item}
                         </div>
                       </div>
@@ -1260,7 +1291,7 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                   ))}
                   
                   {todayCalendarEvents.length === 0 && filteredSchedule.length === 0 && (
-                    <p className="text-gray-500 italic text-center py-4">No schedule items or events for today</p>
+                    <p className="text-gray-500 dark:text-gray-400 italic text-center py-4">No schedule items or events for today</p>
                   )}
                 </div>
               )
@@ -1271,7 +1302,7 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
         {/* Today's Tasks */}
         <Card className="p-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-bold text-gray-900">Today's Tasks</h2>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white">Today's Tasks</h2>
             <Button
               variant="outline"
               size="sm"
@@ -1319,7 +1350,7 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
         {/* Today's Prayers */}
         <Card className="p-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-bold text-gray-900">Today's Prayers</h2>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white">Today's Prayers</h2>
             <Button
               variant="outline"
               size="sm"
@@ -1341,7 +1372,7 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                     <Heart className="w-4 h-4 text-slate-600" />
                     <span className="flex-1 text-gray-800">{prayer.text}</span>
                     <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      prayer.priority === 'high' ? 'bg-slate-100 text-slate-800' : 'bg-slate-100 text-slate-800'
+                      prayer.priority === 'high' ? 'bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-200' : 'bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-200'
                     }`}>
                       {prayer.priority}
                     </span>
@@ -1357,7 +1388,7 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
         {/* Week Overview with Click-to-Expand Functionality */}
         <Card className="p-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-bold text-gray-900">Week Overview</h2>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white">Week Overview</h2>
             <WeekOverview 
               weekData={weekData} 
               currentDate={currentDate}
@@ -1368,7 +1399,7 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
         {/* Weekly Goals */}
         <Card className="p-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-bold text-gray-900">Weekly Goals</h2>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white">Weekly Goals</h2>
             <Button
               variant="outline"
               size="sm"
@@ -1388,8 +1419,8 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                 weeklyGoals.map((goal: any) => (
                   <div key={goal.id} className="p-4 bg-slate-50 rounded-lg">
                     <div className="flex items-center justify-between mb-2">
-                      <span className="font-medium text-gray-900">{goal.text}</span>
-                      <span className="text-sm text-gray-600">
+                      <span className="font-medium text-gray-900 dark:text-white">{goal.text}</span>
+                      <span className="text-sm text-gray-600 dark:text-gray-300">
                         {goal.completed ? 'Completed' : 'In Progress'}
                       </span>
                     </div>
@@ -1412,63 +1443,10 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
   }
 
   return (
-    <div className={`min-h-screen bg-gradient-to-br from-slate-50 to-purple-50 ${className}`}>
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200 px-4 py-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => navigate('/daily')}
-              className="flex items-center gap-2 text-slate-600 hover:text-slate-800 transition-colors"
-            >
-              <Home className="w-6 h-6" />
-              <span className="text-sm font-medium">Vision</span>
-            </button>
-            <div className="h-6 w-px bg-gray-300"></div>
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">Daily Focused Meeting</h1>
-              <p className="text-sm text-gray-600">
-                {currentDate.toLocaleDateString('en-US', { 
-                  weekday: 'long', 
-                  year: 'numeric', 
-                  month: 'long', 
-                  day: 'numeric' 
-                })}
-              </p>
-            </div>
-          </div>
-          
-          <div className="flex items-center gap-3">
-            <Button
-              onClick={handleStartGuidedMeeting}
-              variant="outline"
-              className="text-slate-600 border-slate-200 hover:bg-slate-50"
-            >
-              <Play className="w-4 h-4 mr-2" />
-              Guided Meeting
-            </Button>
-            
-            {isSaving && (
-              <div className="flex items-center gap-2 text-blue-600">
-                <Clock className="w-4 h-4 animate-spin" />
-                <span className="text-sm">Saving...</span>
-              </div>
-            )}
-            
-            <Button
-              variant="default"
-              onClick={onSave}
-              className="bg-slate-600 hover:bg-slate-700"
-            >
-              Save Changes
-            </Button>
-          </div>
-        </div>
-      </div>
-
-      <div className="flex h-[calc(100vh-80px)]">
+    <div className={`min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-gray-900 dark:to-gray-800 ${className}`}>
+      <div className="flex h-screen">
         {/* Main Content Area */}
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="flex-1 overflow-y-auto">
           <AnimatePresence mode="wait">
             <motion.div
               key={activeSection}
@@ -1484,25 +1462,25 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
 
         {/* Right Panel - Quick Insights */}
         {!['vision', 'spiritual', 'review', 'schedule'].includes(activeSection) && (
-          <div className="w-80 bg-white border-l border-gray-200 p-4 overflow-y-auto">
+          <div className="w-80 bg-white dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700 p-4 overflow-y-auto">
             <div className="space-y-6">
               {/* Quick Spiritual Check-in */}
-              <Card className="p-4 bg-gradient-to-br from-purple-50 to-blue-50">
+              <Card className="p-4 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-700">
                 <div className="flex items-center gap-2 mb-3">
-                  <BookOpen className="w-5 h-5 text-purple-600" />
-                  <h3 className="font-semibold text-gray-900">Quick Spiritual Check-in</h3>
+                  <BookOpen className={`w-5 h-5 text-${getColor('primary')}`} />
+                  <h3 className="font-semibold text-gray-900 dark:text-white">Quick Spiritual Check-in</h3>
                 </div>
                 <div className="space-y-2 text-sm">
                   <div className="flex items-center justify-between">
-                    <span className="text-gray-600">Prayer streak:</span>
-                    <span className="font-medium text-purple-600">12 days</span>
+                    <span className="text-gray-600 dark:text-gray-300">Prayer streak:</span>
+                    <span className={`font-medium text-${getColor('primary')}`}>12 days</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-gray-600">Bible reading:</span>
+                    <span className="text-gray-600 dark:text-gray-300">Bible reading:</span>
                     <span className="font-medium text-blue-600">6/7 days</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-gray-600">Active prayers:</span>
+                    <span className="text-gray-600 dark:text-gray-300">Active prayers:</span>
                     <span className="font-medium text-green-600">3 requests</span>
                   </div>
                 </div>
@@ -1516,28 +1494,28 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                     newSearchParams.set('section', 'spiritual')
                     navigate(`?${newSearchParams.toString()}`, { replace: true })
                   }}
-                  className="w-full mt-3 bg-slate-600 hover:bg-slate-700"
+                  className={`w-full mt-3 bg-${getColor('primary')} hover:bg-${getColor('primary')} dark:bg-${getColor('primary')} dark:hover:bg-${getColor('primary')}`}
                 >
                   View Spiritual Growth
                 </Button>
               </Card>
 
               {/* Family Vision Quick View */}
-              <Card className="p-4 bg-gradient-to-br from-blue-50 to-indigo-50">
+              <Card className="p-4 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-700">
                 <div className="flex items-center gap-2 mb-3">
-                  <Home className="w-5 h-5 text-blue-600" />
-                  <h3 className="font-semibold text-gray-900">Family Vision</h3>
+                  <Home className="w-5 h-5 text-slate-600 dark:text-slate-300" />
+                  <h3 className="font-semibold text-gray-900 dark:text-white">Family Vision</h3>
                 </div>
-                <p className="text-sm text-gray-700 mb-3 italic">
+                <p className="text-sm text-gray-700 dark:text-gray-300 mb-3 italic">
                   "Building a Christ-centered family that loves God, serves others, and grows together in faith, love, and purpose."
                 </p>
                 <div className="space-y-2 text-sm">
                   <div className="flex items-center justify-between">
-                    <span className="text-gray-600">1-Year Goals:</span>
+                    <span className="text-gray-600 dark:text-gray-300">1-Year Goals:</span>
                     <span className="font-medium text-blue-600">3 active</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-gray-600">Values lived:</span>
+                    <span className="text-gray-600 dark:text-gray-300">Values lived:</span>
                     <span className="font-medium text-green-600">Faith, Love, Service</span>
                   </div>
                 </div>
@@ -1545,7 +1523,7 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                   variant="default"
                   size="sm"
                   onClick={() => setShowVisionModal(true)}
-                  className="w-full mt-3 bg-slate-600 hover:bg-slate-700"
+                  className={`w-full mt-3 bg-${getColor('primary')} hover:bg-${getColor('primary')} dark:bg-${getColor('primary')} dark:hover:bg-${getColor('primary')}`}
                 >
                   View Full Vision
                 </Button>
@@ -1555,12 +1533,12 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
               <Card className="p-4">
                 <div className="flex items-center gap-2 mb-3">
                   <TrendingUp className="w-5 h-5 text-green-600" />
-                  <h3 className="font-semibold text-gray-900">Week Progress</h3>
+                  <h3 className="font-semibold text-gray-900 dark:text-white">Week Progress</h3>
                 </div>
                 <div className="space-y-3">
                   <div>
                     <div className="flex items-center justify-between text-sm mb-1">
-                      <span className="text-gray-600">Tasks completed</span>
+                      <span className="text-gray-600 dark:text-gray-300">Tasks completed</span>
                       <span className="font-medium">5/7</span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-2">
@@ -1569,7 +1547,7 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                   </div>
                   <div>
                     <div className="flex items-center justify-between text-sm mb-1">
-                      <span className="text-gray-600">Goals progress</span>
+                      <span className="text-gray-600 dark:text-gray-300">Goals progress</span>
                       <span className="font-medium">3/8</span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-2">
@@ -1578,7 +1556,7 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                   </div>
                   <div>
                     <div className="flex items-center justify-between text-sm mb-1">
-                      <span className="text-gray-600">Meeting consistency</span>
+                      <span className="text-gray-600 dark:text-gray-300">Meeting consistency</span>
                       <span className="font-medium">85%</span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-2">
@@ -1590,7 +1568,7 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
                   variant="default"
                   size="sm"
                   onClick={() => setActiveSection('review')}
-                  className="w-full mt-3 bg-slate-600 hover:bg-slate-700"
+                  className={`w-full mt-3 bg-${getColor('primary')} hover:bg-${getColor('primary')} dark:bg-${getColor('primary')} dark:hover:bg-${getColor('primary')}`}
                 >
                   View Full Review
                 </Button>
@@ -1598,12 +1576,16 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
 
               {/* Quick Actions */}
               <Card className="p-4">
-                <h3 className="font-semibold text-gray-900 mb-3">Quick Actions</h3>
+                <h3 className="font-semibold text-gray-900 dark:text-white mb-3">Quick Actions</h3>
                 <div className="space-y-2">
                   <Button
                     size="sm"
                     variant="outline"
-                    onClick={() => setActiveSection('prayers')}
+                    onClick={() => {
+                      setActiveSection('spiritual')
+                      // Navigate to prayer tab in spiritual section
+                      navigate('/daily?section=spiritual&tab=prayer')
+                    }}
                     className="w-full justify-start text-pink-600 border-pink-200 hover:bg-slate-50"
                   >
                     <Heart className="w-4 h-4 mr-2" />
@@ -1648,7 +1630,7 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}
-              className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto"
+              className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto"
               onClick={(e) => e.stopPropagation()}
             >
               <GuidedMeetingFlow
@@ -1674,16 +1656,16 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}
-              className="bg-white rounded-lg shadow-xl max-w-6xl w-full max-h-[90vh] overflow-y-auto mx-2 sm:mx-4"
+              className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-6xl w-full max-h-[90vh] overflow-y-auto mx-2 sm:mx-4"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="p-4 lg:p-6">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 lg:mb-6 gap-2">
-                  <h2 className="text-xl lg:text-2xl font-bold text-gray-900">Family Vision Board</h2>
+                  <h2 className="text-xl lg:text-2xl font-bold text-gray-900 dark:text-white">Family Vision Board</h2>
                   <Button
                     variant="outline"
                     onClick={() => setShowVisionModal(false)}
-                    className="text-gray-600 border-gray-200 hover:bg-gray-50"
+                    className="text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:bg-gray-50"
                   >
                     <X className="w-4 h-4 mr-1" />
                     Close

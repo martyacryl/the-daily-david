@@ -46,7 +46,7 @@ export interface AppSettings {
   timezone: string
   currency: string
   dateFormat: 'MM/DD/YYYY' | 'DD/MM/YYYY' | 'YYYY-MM-DD'
-  theme: 'light' | 'dark' | 'auto'
+  theme: 'light' | 'dark'
   calendar: CalendarSettings
 }
 
@@ -346,6 +346,13 @@ export const useSettingsStore = create<SettingsStore>()(
 
     // New method to load settings from database
     loadSettings: async () => {
+      // Check if settings are already loaded to prevent duplicate calls
+      const currentSettings = get().settings
+      if (currentSettings && currentSettings.spouse1.name !== '') {
+        console.log('🔄 Settings already loaded, skipping duplicate load')
+        return currentSettings
+      }
+      
       console.log('🔄 Loading settings from database...')
       try {
         const settings = await fetchSettings()

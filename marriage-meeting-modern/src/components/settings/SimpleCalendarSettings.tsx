@@ -90,6 +90,7 @@ export const SimpleCalendarSettings: React.FC<SimpleCalendarSettingsProps> = ({ 
       await calendarService.forceSync(
         icalUrl,
         false, // Don't test Google Calendar in this test
+        'hourly', // syncFrequency parameter
         monday,
         (events) => {
           console.log('Test sync completed with events:', events.length)

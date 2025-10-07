@@ -6,6 +6,7 @@ interface AppStore extends AppState {
   setCurrentDate: (date: Date) => void
   setCurrentView: (view: ViewType) => void
   setTheme: (theme: 'light' | 'dark') => void
+  setAccentColor: (color: string) => void
   setLoading: (loading: boolean) => void
   
   // Complex state operations
@@ -55,6 +56,7 @@ export const useAppStore = create<AppStore>((set, get) => ({
   currentDate: new Date(),
   currentView: 'landing', // Default to landing page
   theme: 'light',
+  accentColor: 'slate', // Default accent color
   isLoading: false,
 
   // Basic setters
@@ -73,6 +75,13 @@ export const useAppStore = create<AppStore>((set, get) => ({
     // Persist theme preference
     localStorage.setItem('dailyDavid_theme', theme)
     console.log('🎨 [AppStore] Theme changed to:', theme)
+  },
+
+  setAccentColor: (color) => {
+    set({ accentColor: color })
+    // Persist accent color preference
+    localStorage.setItem('dailyDavid_accentColor', color)
+    console.log('🎨 [AppStore] Accent color changed to:', color)
   },
 
   setLoading: (loading) => {
@@ -124,6 +133,7 @@ export const useAppStore = create<AppStore>((set, get) => ({
 export const useCurrentDate = () => useAppStore(state => state.currentDate)
 export const useCurrentView = () => useAppStore(state => state.currentView)
 export const useTheme = () => useAppStore(state => state.theme)
+export const useAccentColor = () => useAppStore(state => state.accentColor)
 export const useAppLoading = () => useAppStore(state => state.isLoading)
 
 // Helper for current date as formatted string
@@ -135,16 +145,29 @@ export const useCurrentDateKey = () => {
 // Initialize app store from localStorage
 export const initializeAppStore = () => {
   try {
+    const state = useAppStore.getState()
+    
     // Load theme preference
     const savedTheme = localStorage.getItem('dailyDavid_theme')
     if (savedTheme === 'dark' || savedTheme === 'light') {
-      useAppStore.getState().setTheme(savedTheme)
+      state.setTheme(savedTheme)
+      console.log('🎨 [AppStore] Loaded theme from localStorage:', savedTheme)
+    }
+    
+    // Load accent color preference
+    const savedAccentColor = localStorage.getItem('dailyDavid_accentColor')
+    if (savedAccentColor) {
+      state.setAccentColor(savedAccentColor)
+      console.log('🎨 [AppStore] Loaded accent color from localStorage:', savedAccentColor)
+    } else {
+      console.log('🎨 [AppStore] No saved accent color found, using default: slate')
     }
     
     // Load view preference
     const savedView = localStorage.getItem('dailyDavid_currentView')
     if (savedView === 'landing' || savedView === 'daily') {
-      useAppStore.getState().setCurrentView(savedView)
+      state.setCurrentView(savedView)
+      console.log('🎯 [AppStore] Loaded view from localStorage:', savedView)
     }
     
     console.log('✅ [AppStore] Initialized from localStorage')

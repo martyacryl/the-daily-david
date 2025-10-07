@@ -1,6 +1,6 @@
 // Marriage Meeting Tool - Login Form Component
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Mountain, Lock, Mail } from 'lucide-react'
 import { useAuthStore } from '../stores/authStore'
@@ -12,6 +12,38 @@ export const LoginForm: React.FC = () => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const { login, isLoading, error } = useAuthStore()
+  
+  // Check for system dark mode preference since user isn't authenticated yet
+  const [isDarkMode, setIsDarkMode] = useState(false)
+  
+  useEffect(() => {
+    // Check system preference
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
+    setIsDarkMode(mediaQuery.matches)
+    
+    // Listen for changes
+    const handleChange = (e: MediaQueryListEvent) => setIsDarkMode(e.matches)
+    mediaQuery.addEventListener('change', handleChange)
+    
+    // Also check localStorage for saved theme preference
+    const savedTheme = localStorage.getItem('dailyDavid_theme')
+    if (savedTheme === 'dark') {
+      setIsDarkMode(true)
+    } else if (savedTheme === 'light') {
+      setIsDarkMode(false)
+    }
+    
+    return () => mediaQuery.removeEventListener('change', handleChange)
+  }, [])
+  
+  // Apply dark mode class to document root
+  useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark')
+    } else {
+      document.documentElement.classList.remove('dark')
+    }
+  }, [isDarkMode])
   
   const [scripture] = useState(() => {
     const scriptures = [
@@ -30,7 +62,7 @@ export const LoginForm: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-purple-50">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 dark:from-gray-900 dark:to-gray-800">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -39,22 +71,22 @@ export const LoginForm: React.FC = () => {
       >
         <Card className="p-8">
           <div className="text-center mb-8">
-            <div className="w-16 h-16 bg-gradient-to-br from-slate-400 to-purple-400 rounded-full flex items-center justify-center mx-auto mb-4">
+            <div className="w-16 h-16 bg-gradient-to-br from-slate-400 to-slate-500 dark:from-slate-600 dark:to-slate-700 rounded-full flex items-center justify-center mx-auto mb-4">
               <Mountain className="w-8 h-8 text-white" />
             </div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Weekly Huddle</h1>
-            <p className="text-gray-600">
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Weekly Huddle</h1>
+            <p className="text-gray-600 dark:text-gray-300">
               {scripture}
             </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Email Address
               </label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-gray-500" />
                 <Input
                   id="email"
                   type="email"
@@ -68,11 +100,11 @@ export const LoginForm: React.FC = () => {
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Password
               </label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-gray-500" />
                 <Input
                   id="password"
                   type="password"
@@ -86,8 +118,8 @@ export const LoginForm: React.FC = () => {
             </div>
 
             {error && (
-              <div className="p-3 bg-red-50 border border-red-200 rounded-md">
-                <p className="text-red-800 text-sm">{error}</p>
+              <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md">
+                <p className="text-red-800 dark:text-red-200 text-sm">{error}</p>
               </div>
             )}
 
@@ -101,7 +133,7 @@ export const LoginForm: React.FC = () => {
           </form>
 
           <div className="mt-6 text-center">
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-gray-600 dark:text-gray-400">
               Need an account? Contact your administrator.
             </p>
           </div>

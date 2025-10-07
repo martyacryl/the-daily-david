@@ -21,6 +21,7 @@ import { Card } from './ui/Card'
 import { Button } from './ui/Button'
 import { TaskItem } from '../types/marriageTypes'
 import { useSettingsStore } from '../stores/settingsStore'
+import { useAccentColor } from '../hooks/useAccentColor'
 
 interface TasksSectionProps {
   tasks: TaskItem[]
@@ -29,6 +30,7 @@ interface TasksSectionProps {
 
 export const TasksSection: React.FC<TasksSectionProps> = ({ tasks, onUpdate }) => {
   const { settings, loadSettings } = useSettingsStore()
+  const { getColor } = useAccentColor()
   
   // Load settings when component mounts
   useEffect(() => {
@@ -57,19 +59,19 @@ export const TasksSection: React.FC<TasksSectionProps> = ({ tasks, onUpdate }) =
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case 'high': return 'text-red-600 bg-red-100'
-      case 'medium': return 'text-yellow-600 bg-yellow-100'
-      case 'low': return 'text-green-600 bg-green-100'
-      default: return 'text-gray-600 bg-gray-100'
+      case 'high': return 'text-red-600 dark:text-red-400 bg-red-100 dark:bg-red-900/20'
+      case 'medium': return 'text-yellow-600 dark:text-yellow-400 bg-yellow-100 dark:bg-yellow-900/20'
+      case 'low': return 'text-green-600 dark:text-green-400 bg-green-100 dark:bg-green-900/20'
+      default: return 'text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-700'
     }
   }
 
   const getPriorityIcon = (priority: string) => {
     switch (priority) {
-      case 'high': return <AlertCircle className="w-4 h-4 text-red-500" />
-      case 'medium': return <Clock className="w-4 h-4 text-yellow-500" />
-      case 'low': return <CheckCircle className="w-4 h-4 text-green-500" />
-      default: return <CheckCircle className="w-4 h-4 text-gray-400" />
+      case 'high': return <AlertCircle className="w-4 h-4 text-red-500 dark:text-red-400" />
+      case 'medium': return <Clock className="w-4 h-4 text-yellow-500 dark:text-yellow-400" />
+      case 'low': return <CheckCircle className="w-4 h-4 text-green-500 dark:text-green-400" />
+      default: return <CheckCircle className="w-4 h-4 text-gray-400 dark:text-gray-500" />
     }
   }
 
@@ -93,10 +95,10 @@ export const TasksSection: React.FC<TasksSectionProps> = ({ tasks, onUpdate }) =
 
   const getAssignmentColor = (assignedTo: string) => {
     switch (assignedTo) {
-      case 'both': return 'text-blue-600 bg-blue-100'
-      case 'spouse1': return 'text-purple-600 bg-purple-100'
-      case 'spouse2': return 'text-green-600 bg-green-100'
-      default: return 'text-blue-600 bg-blue-100'
+      case 'both': return `text-${getColor('primary')} dark:text-${getColor('primary')} bg-${getColor('secondary')} dark:bg-${getColor('secondary')}`
+      case 'spouse1': return `text-${getColor('primary')} dark:text-${getColor('primary')} bg-${getColor('secondary')} dark:bg-${getColor('secondary')}`
+      case 'spouse2': return 'text-green-600 dark:text-green-400 bg-green-100 dark:bg-green-900/20'
+      default: return `text-${getColor('primary')} dark:text-${getColor('primary')} bg-${getColor('secondary')} dark:bg-${getColor('secondary')}`
     }
   }
 
@@ -230,20 +232,20 @@ export const TasksSection: React.FC<TasksSectionProps> = ({ tasks, onUpdate }) =
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.3 }}
     >
-      <Card className="p-8">
+      <Card className="p-8 bg-white dark:bg-gray-800">
         <div className="flex items-center gap-3 mb-6">
-          <div className="p-3 bg-orange-100 rounded-lg">
-            <CheckSquare className="w-6 h-6 text-orange-600" />
+          <div className="p-3 bg-orange-100 dark:bg-orange-900/20 rounded-lg">
+            <CheckSquare className="w-6 h-6 text-orange-600 dark:text-orange-400" />
           </div>
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">Tasks</h2>
-            <p className="text-gray-600">Plan and track your tasks with timelines</p>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Tasks</h2>
+            <p className="text-gray-600 dark:text-gray-300">Plan and track your tasks with timelines</p>
           </div>
         </div>
 
         {/* Add New Task Form */}
-        <div className="bg-gray-50 rounded-lg p-6 mb-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Add New Task</h3>
+        <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-6 mb-6 border border-gray-200 dark:border-gray-600">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Add New Task</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="md:col-span-2">
               <input
@@ -251,16 +253,16 @@ export const TasksSection: React.FC<TasksSectionProps> = ({ tasks, onUpdate }) =
                 value={newTask.text}
                 onChange={(e) => setNewTask({ ...newTask, text: e.target.value })}
                 placeholder="What needs to be done?"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
               />
             </div>
             
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Priority</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Priority</label>
               <select
                 value={newTask.priority}
                 onChange={(e) => setNewTask({ ...newTask, priority: e.target.value as 'low' | 'medium' | 'high' })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
               >
                 <option value="low">Low Priority</option>
                 <option value="medium">Medium Priority</option>
@@ -269,11 +271,11 @@ export const TasksSection: React.FC<TasksSectionProps> = ({ tasks, onUpdate }) =
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Assigned To</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Assigned To</label>
               <select
                 value={newTask.assignedTo}
                 onChange={(e) => setNewTask({ ...newTask, assignedTo: e.target.value as 'both' | 'spouse1' | 'spouse2' })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
               >
                 <option value="both">Both Spouses</option>
                 <option value="spouse1">{settings.spouse1?.name || 'Loading...'}</option>
@@ -282,17 +284,17 @@ export const TasksSection: React.FC<TasksSectionProps> = ({ tasks, onUpdate }) =
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Due Date</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Due Date</label>
               <input
                 type="date"
                 value={newTask.dueDate}
                 onChange={(e) => setNewTask({ ...newTask, dueDate: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Duration (minutes)</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Duration (minutes)</label>
               <input
                 type="text"
                 value={durationInput}
@@ -304,30 +306,30 @@ export const TasksSection: React.FC<TasksSectionProps> = ({ tasks, onUpdate }) =
                   }
                 }}
                 placeholder="Enter duration in minutes"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Category</label>
               <input
                 type="text"
                 value={newTask.category}
                 onChange={(e) => setNewTask({ ...newTask, category: e.target.value })}
                 placeholder="e.g., Work, Home, Health"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
               />
             </div>
           </div>
           
           <div className="mt-4">
-            <label className="block text-sm font-medium text-gray-700 mb-1">Notes</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Notes</label>
             <textarea
               value={newTask.notes}
               onChange={(e) => setNewTask({ ...newTask, notes: e.target.value })}
               placeholder="Additional details..."
               rows={2}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
             />
           </div>
 
@@ -347,9 +349,9 @@ export const TasksSection: React.FC<TasksSectionProps> = ({ tasks, onUpdate }) =
               key={task.id}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className={`p-4 bg-white border rounded-lg hover:shadow-sm transition-all ${
-                task.completed ? 'border-green-200 bg-green-50' : 'border-gray-200'
-              } ${isOverdue(task.dueDate || '') && !task.completed ? 'border-red-200 bg-red-50' : ''}`}
+              className={`p-4 bg-white dark:bg-gray-800 border rounded-lg hover:shadow-sm transition-all ${
+                task.completed ? 'border-green-200 dark:border-green-700 bg-green-50 dark:bg-green-900/20' : 'border-gray-200 dark:border-gray-600'
+              } ${isOverdue(task.dueDate || '') && !task.completed ? 'border-red-200 dark:border-red-700 bg-red-50 dark:bg-red-900/20' : ''}`}
             >
               {editingTask === task.id.toString() ? (
                 // Edit Mode
@@ -478,7 +480,7 @@ export const TasksSection: React.FC<TasksSectionProps> = ({ tasks, onUpdate }) =
                         value={task.text}
                         onChange={(e) => updateTask(task.id, { text: e.target.value })}
                         className={`flex-1 bg-transparent border-none outline-none text-lg ${
-                          task.completed ? 'line-through text-gray-500' : 'text-gray-800'
+                          task.completed ? 'line-through text-gray-500 dark:text-gray-400' : 'text-gray-800 dark:text-white'
                         }`}
                       />
                       <div className="flex items-center gap-2">
@@ -491,10 +493,10 @@ export const TasksSection: React.FC<TasksSectionProps> = ({ tasks, onUpdate }) =
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-4 text-sm text-gray-600">
+                    <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-300">
                       {task.dueDate && (
                         <div className={`flex items-center gap-1 ${
-                          isOverdue(task.dueDate) && !task.completed ? 'text-red-600' : ''
+                          isOverdue(task.dueDate) && !task.completed ? 'text-red-600 dark:text-red-400' : ''
                         }`}>
                           <Calendar className="w-4 h-4" />
                           {new Date(task.dueDate).toLocaleDateString()}
@@ -520,7 +522,7 @@ export const TasksSection: React.FC<TasksSectionProps> = ({ tasks, onUpdate }) =
                     </div>
 
                     {task.notes && (
-                      <div className="mt-2 text-sm text-gray-600 flex items-start gap-1">
+                      <div className="mt-2 text-sm text-gray-600 dark:text-gray-300 flex items-start gap-1">
                         <FileText className="w-4 h-4 mt-0.5 flex-shrink-0" />
                         <span>{task.notes}</span>
                       </div>
@@ -532,7 +534,7 @@ export const TasksSection: React.FC<TasksSectionProps> = ({ tasks, onUpdate }) =
                       onClick={() => startEditTask(task)}
                       variant="outline"
                       size="sm"
-                      className="text-blue-600 hover:bg-blue-50 border-blue-200"
+                      className={`text-${getColor('primary')} hover:bg-${getColor('secondary')} border-${getColor('border')}`}
                     >
                       <Edit3 className="w-4 h-4" />
                     </Button>
@@ -551,8 +553,8 @@ export const TasksSection: React.FC<TasksSectionProps> = ({ tasks, onUpdate }) =
           ))}
           
           {tasks.length === 0 && (
-            <div className="text-center py-12 text-gray-500">
-              <CheckSquare className="w-12 h-12 mx-auto mb-4 text-gray-400" />
+            <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+              <CheckSquare className="w-12 h-12 mx-auto mb-4 text-gray-400 dark:text-gray-500" />
               <p className="text-lg">No tasks yet</p>
               <p className="text-sm">Add your first task above to get started</p>
             </div>

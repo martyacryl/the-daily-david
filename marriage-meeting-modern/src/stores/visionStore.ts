@@ -21,8 +21,10 @@ export interface VisionGoal {
 export interface FamilyVision {
   id?: number
   user_id?: string
+  title?: string
   mission_statement: string
   core_values: string[]
+  priorities?: string[]
   created_at?: string
   updated_at?: string
 }

@@ -3,6 +3,7 @@ import { motion } from 'framer-motion'
 import { Calendar, Target, CheckCircle, TrendingUp, Users, Heart, Home, DollarSign, BookOpen, Zap, ArrowRight, Plus, Edit3, Trash2 } from 'lucide-react'
 import { Card } from '../ui/Card'
 import { Button } from '../ui/Button'
+import { useAccentColor } from '../../hooks/useAccentColor'
 import { Input } from '../ui/Input'
 
 interface QuarterlyGoal {
@@ -37,22 +38,41 @@ const categoryIcons = {
   health: TrendingUp
 }
 
-const categoryColors = {
-  marriage: 'from-slate-600 to-slate-700',
-  family: 'from-slate-500 to-slate-600',
-  spiritual: 'from-purple-600 to-purple-700',
-  financial: 'from-slate-700 to-slate-800',
-  personal: 'from-purple-500 to-purple-600',
-  health: 'from-slate-600 to-purple-600'
-}
-
-const priorityColors = {
-  high: 'bg-slate-100 text-slate-800 border-slate-300',
-  medium: 'bg-purple-100 text-purple-800 border-purple-300',
-  low: 'bg-slate-50 text-slate-600 border-slate-200'
-}
-
 export const QuarterlyPlanning: React.FC = () => {
+  const { getColor, accentColor } = useAccentColor()
+  
+  // Get the correct gradient classes based on accent color
+  const getGradientClasses = () => {
+    switch (accentColor) {
+      case 'green':
+        return 'to-green-100 dark:to-green-800'
+      case 'blue':
+        return 'to-blue-100 dark:to-blue-800'
+      case 'slate':
+        return 'to-slate-100 dark:to-slate-800'
+      case 'red':
+        return 'to-red-100 dark:to-red-800'
+      case 'orange':
+        return 'to-orange-100 dark:to-orange-800'
+      default: // purple
+        return 'to-purple-100 dark:to-purple-800'
+    }
+  }
+  
+  const getCategoryColors = () => ({
+    marriage: 'from-slate-600 to-slate-700',
+    family: 'from-slate-500 to-slate-600',
+    spiritual: `from-${getColor('primary')} to-${getColor('primary')}`,
+    financial: 'from-slate-700 to-slate-800',
+    personal: `from-${getColor('primary')} to-${getColor('primary')}`,
+    health: `from-slate-600 to-${getColor('primary')}`
+  })
+
+  const getPriorityColors = () => ({
+    high: 'bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-200 border-slate-300 dark:border-slate-600',
+    medium: `bg-${getColor('secondary')} text-${getColor('text')} border-${getColor('border')}`,
+    low: 'bg-slate-50 dark:bg-slate-700 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-600'
+  })
   const [goals, setGoals] = useState<QuarterlyGoal[]>([])
   const [themes, setThemes] = useState<QuarterlyTheme[]>([])
   const [currentQuarter, setCurrentQuarter] = useState('')
@@ -112,11 +132,16 @@ export const QuarterlyPlanning: React.FC = () => {
       }
     ]
 
+    // Get current quarter dynamically
+    const now = new Date()
+    const currentQuarter = Math.ceil((now.getMonth() + 1) / 3)
+    const currentYear = now.getFullYear()
+    
     const mockThemes: QuarterlyTheme[] = [
       {
         id: '1',
-        quarter: 'Q1',
-        year: 2025,
+        quarter: `Q${currentQuarter}`,
+        year: currentYear,
         theme: 'Foundation Building',
         focus: 'Establishing strong habits and routines',
         scripture: 'Therefore everyone who hears these words of mine and puts them into practice is like a wise man who built his house on the rock. - Matthew 7:24',
@@ -221,14 +246,14 @@ export const QuarterlyPlanning: React.FC = () => {
     <div className="space-y-6">
       {/* Header */}
       <div className="text-center mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Quarterly Planning</h1>
-        <p className="text-lg text-gray-600 mb-6">
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Quarterly Planning</h1>
+        <p className="text-lg text-gray-600 dark:text-gray-300 mb-6">
           Set 3-month goals and themes to guide your weekly meetings
         </p>
         
         {/* Current Quarter Theme */}
         {themes.length > 0 && (
-          <Card className={`p-6 bg-gradient-to-br from-slate-100 to-purple-100 border-slate-300 mb-6 relative overflow-hidden`}>
+          <Card className={`p-6 bg-gradient-to-br from-slate-100 ${getGradientClasses()} dark:from-slate-700 border-slate-300 dark:border-slate-600 mb-6 relative overflow-hidden`}>
           {/* Background Pattern - Mountain Outlines */}
           <div className="absolute inset-0 opacity-5">
             <svg className="absolute top-0 right-0 w-32 h-32 -translate-y-16 translate-x-16" viewBox="0 0 100 100" fill="none">
@@ -240,10 +265,10 @@ export const QuarterlyPlanning: React.FC = () => {
           </div>
           
           <div className="relative z-10">
-            <h2 className="text-2xl font-bold mb-2 text-slate-800">{themes[0].theme}</h2>
-            <p className="text-lg mb-3 text-slate-700">{themes[0].focus}</p>
+            <h2 className="text-2xl font-bold mb-2 text-slate-800 dark:text-slate-200">{themes[0].theme}</h2>
+            <p className="text-lg mb-3 text-slate-700 dark:text-slate-300">{themes[0].focus}</p>
             {themes[0].scripture && (
-              <p className="text-sm italic text-slate-600">"{themes[0].scripture}"</p>
+              <p className="text-sm italic text-slate-600 dark:text-slate-400">"{themes[0].scripture}"</p>
             )}
           </div>
           </Card>
@@ -253,42 +278,42 @@ export const QuarterlyPlanning: React.FC = () => {
       {/* Stats Overview */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <Card className="p-4 text-center">
-          <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-3">
-            <Target className="w-6 h-6 text-slate-600" />
+          <div className="w-12 h-12 bg-slate-100 dark:bg-slate-700 rounded-full flex items-center justify-center mx-auto mb-3">
+            <Target className="w-6 h-6 text-slate-600 dark:text-slate-300" />
           </div>
-          <h3 className="text-2xl font-bold text-gray-900">{stats.totalGoals}</h3>
-          <p className="text-sm text-gray-600">Total Goals</p>
+          <h3 className="text-2xl font-bold text-gray-900 dark:text-white">{stats.totalGoals}</h3>
+          <p className="text-sm text-gray-600 dark:text-gray-300">Total Goals</p>
         </Card>
         
         <Card className="p-4 text-center">
-          <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-3">
-            <CheckCircle className="w-6 h-6 text-slate-600" />
+          <div className="w-12 h-12 bg-slate-100 dark:bg-slate-700 rounded-full flex items-center justify-center mx-auto mb-3">
+            <CheckCircle className="w-6 h-6 text-slate-600 dark:text-slate-300" />
           </div>
-          <h3 className="text-2xl font-bold text-gray-900">{stats.completedGoals}</h3>
-          <p className="text-sm text-gray-600">Completed</p>
+          <h3 className="text-2xl font-bold text-gray-900 dark:text-white">{stats.completedGoals}</h3>
+          <p className="text-sm text-gray-600 dark:text-gray-300">Completed</p>
         </Card>
         
         <Card className="p-4 text-center">
-          <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3">
-            <TrendingUp className="w-6 h-6 text-purple-600" />
+          <div className={`w-12 h-12 bg-${getColor('secondary')} rounded-full flex items-center justify-center mx-auto mb-3`}>
+            <TrendingUp className={`w-6 h-6 text-${getColor('primary')}`} />
           </div>
-          <h3 className="text-2xl font-bold text-gray-900">{stats.inProgressGoals}</h3>
-          <p className="text-sm text-gray-600">In Progress</p>
+          <h3 className="text-2xl font-bold text-gray-900 dark:text-white">{stats.inProgressGoals}</h3>
+          <p className="text-sm text-gray-600 dark:text-gray-300">In Progress</p>
         </Card>
         
         <Card className="p-4 text-center">
-          <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3">
-            <Calendar className="w-6 h-6 text-purple-600" />
+          <div className={`w-12 h-12 bg-${getColor('secondary')} rounded-full flex items-center justify-center mx-auto mb-3`}>
+            <Calendar className={`w-6 h-6 text-${getColor('primary')}`} />
           </div>
-          <h3 className="text-2xl font-bold text-gray-900">{stats.avgProgress}%</h3>
-          <p className="text-sm text-gray-600">Avg Progress</p>
+          <h3 className="text-2xl font-bold text-gray-900 dark:text-white">{stats.avgProgress}%</h3>
+          <p className="text-sm text-gray-600 dark:text-gray-300">Avg Progress</p>
         </Card>
       </div>
 
       {/* Goals Section */}
       <div className="space-y-6">
         <div className="flex justify-between items-center">
-          <h2 className="text-2xl font-bold text-gray-900">Quarterly Goals</h2>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Quarterly Goals</h2>
           <Button onClick={() => setIsAddingGoal(true)} className="flex items-center gap-2">
             <Plus className="w-4 h-4" />
             Add Goal
@@ -298,7 +323,7 @@ export const QuarterlyPlanning: React.FC = () => {
         {/* Add Goal Form */}
         {isAddingGoal && (
           <Card className="p-6">
-            <h3 className="text-lg font-semibold mb-4">Add New Quarterly Goal</h3>
+            <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Add New Quarterly Goal</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Input
                 label="Goal Title"
@@ -307,11 +332,11 @@ export const QuarterlyPlanning: React.FC = () => {
                 placeholder="e.g., Weekly Date Nights"
               />
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Category</label>
                 <select
                   value={newGoal.category || 'marriage'}
                   onChange={(e) => setNewGoal({ ...newGoal, category: e.target.value as any })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                 >
                   <option value="marriage">Marriage</option>
                   <option value="family">Family</option>
@@ -322,12 +347,12 @@ export const QuarterlyPlanning: React.FC = () => {
                 </select>
               </div>
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Description</label>
                 <textarea
                   value={newGoal.description || ''}
                   onChange={(e) => setNewGoal({ ...newGoal, description: e.target.value })}
                   placeholder="Describe your goal in detail..."
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 h-20"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 h-20 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                 />
               </div>
               <Input
@@ -337,11 +362,11 @@ export const QuarterlyPlanning: React.FC = () => {
                 onChange={(e) => setNewGoal({ ...newGoal, targetDate: e.target.value })}
               />
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Priority</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Priority</label>
                 <select
                   value={newGoal.priority || 'medium'}
                   onChange={(e) => setNewGoal({ ...newGoal, priority: e.target.value as any })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                 >
                   <option value="high">High</option>
                   <option value="medium">Medium</option>
@@ -360,8 +385,8 @@ export const QuarterlyPlanning: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {goals.map((goal) => {
             const Icon = categoryIcons[goal.category]
-            const colorClass = categoryColors[goal.category]
-            const priorityClass = priorityColors[goal.priority]
+            const colorClass = getCategoryColors()[goal.category]
+            const priorityClass = getPriorityColors()[goal.priority]
             
             return (
               <motion.div
@@ -377,7 +402,7 @@ export const QuarterlyPlanning: React.FC = () => {
                         <Icon className="w-5 h-5 text-white" />
                       </div>
                       <div>
-                        <h3 className="font-semibold text-gray-900">{goal.title}</h3>
+                        <h3 className="font-semibold text-gray-900 dark:text-white">{goal.title}</h3>
                         <span className={`inline-block px-2 py-1 text-xs font-medium rounded-full border ${priorityClass}`}>
                           {goal.priority} priority
                         </span>
@@ -393,15 +418,15 @@ export const QuarterlyPlanning: React.FC = () => {
                     </div>
                   </div>
                   
-                  <p className="text-gray-600 text-sm mb-4">{goal.description}</p>
+                  <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">{goal.description}</p>
                   
                   {/* Progress Bar */}
                   <div className="mb-4">
-                    <div className="flex justify-between text-sm text-gray-600 mb-1">
+                    <div className="flex justify-between text-sm text-gray-600 dark:text-gray-300 mb-1">
                       <span>Progress</span>
                       <span>{goal.progress}%</span>
                     </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div className="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-2">
                       <div 
                         className={`bg-gradient-to-r ${colorClass} h-2 rounded-full transition-all duration-300`}
                         style={{ width: `${goal.progress}%` }}
@@ -412,7 +437,7 @@ export const QuarterlyPlanning: React.FC = () => {
                   {/* Milestones */}
                   {goal.milestones.length > 0 && (
                     <div className="space-y-2">
-                      <h4 className="text-sm font-medium text-gray-700">Milestones</h4>
+                      <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">Milestones</h4>
                       {goal.milestones.map((milestone, index) => {
                         const isCompleted = goal.completedMilestones.includes(milestone)
                         return (
@@ -422,12 +447,12 @@ export const QuarterlyPlanning: React.FC = () => {
                               className={`w-4 h-4 rounded border-2 flex items-center justify-center ${
                                 isCompleted 
                                   ? 'bg-slate-500 border-slate-500 text-white' 
-                                  : 'border-gray-300 hover:border-slate-500'
+                                  : 'border-gray-300 dark:border-gray-600 hover:border-slate-500 dark:hover:border-slate-400'
                               }`}
                             >
                               {isCompleted && <CheckCircle className="w-3 h-3" />}
                             </button>
-                            <span className={`text-sm ${isCompleted ? 'line-through text-gray-500' : 'text-gray-700'}`}>
+                            <span className={`text-sm ${isCompleted ? 'line-through text-gray-500 dark:text-gray-400' : 'text-gray-700 dark:text-gray-300'}`}>
                               {milestone}
                             </span>
                           </div>
@@ -436,13 +461,13 @@ export const QuarterlyPlanning: React.FC = () => {
                     </div>
                   )}
                   
-                  <div className="mt-4 pt-4 border-t border-gray-100">
-                    <div className="flex justify-between items-center text-xs text-gray-500">
+                  <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
+                    <div className="flex justify-between items-center text-xs text-gray-500 dark:text-gray-400">
                       <span>Target: {goal.targetDate}</span>
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        goal.status === 'completed' ? 'bg-slate-100 text-slate-800' :
-                        goal.status === 'in-progress' ? 'bg-purple-100 text-purple-800' :
-                        'bg-slate-100 text-slate-800'
+                        goal.status === 'completed' ? 'bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-200' :
+                        goal.status === 'in-progress' ? `${getGradientClasses().replace('to-', 'bg-').replace('100', '100')} dark:${getGradientClasses().replace('to-', 'bg-').replace('100', '900/20')} text-${getColor('text')} dark:text-${getColor('text')}` :
+                        'bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-200'
                       }`}>
                         {goal.status.replace('-', ' ')}
                       </span>
@@ -456,33 +481,33 @@ export const QuarterlyPlanning: React.FC = () => {
       </div>
 
       {/* Weekly Meeting Integration */}
-      <Card className="p-6 bg-gradient-to-r from-slate-50 to-slate-100">
-        <h2 className="text-xl font-bold text-gray-900 mb-4">Weekly Meeting Integration</h2>
+      <Card className="p-6 bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-700 dark:to-slate-800">
+        <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">Weekly Meeting Integration</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <h3 className="font-semibold text-gray-800 mb-2">How to Use in Weekly Meetings:</h3>
-            <ul className="space-y-2 text-sm text-gray-600">
+            <h3 className="font-semibold text-gray-800 dark:text-gray-200 mb-2">How to Use in Weekly Meetings:</h3>
+            <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-300">
               <li className="flex items-start gap-2">
-                <ArrowRight className="w-4 h-4 text-purple-500 mt-0.5 flex-shrink-0" />
+                <ArrowRight className={`w-4 h-4 text-${getColor('primary')} mt-0.5 flex-shrink-0`} />
                 Review quarterly theme and focus
               </li>
               <li className="flex items-start gap-2">
-                <ArrowRight className="w-4 h-4 text-purple-500 mt-0.5 flex-shrink-0" />
+                <ArrowRight className={`w-4 h-4 text-${getColor('primary')} mt-0.5 flex-shrink-0`} />
                 Check progress on quarterly goals
               </li>
               <li className="flex items-start gap-2">
-                <ArrowRight className="w-4 h-4 text-purple-500 mt-0.5 flex-shrink-0" />
+                <ArrowRight className={`w-4 h-4 text-${getColor('primary')} mt-0.5 flex-shrink-0`} />
                 Set weekly actions toward goals
               </li>
               <li className="flex items-start gap-2">
-                <ArrowRight className="w-4 h-4 text-purple-500 mt-0.5 flex-shrink-0" />
+                <ArrowRight className={`w-4 h-4 text-${getColor('primary')} mt-0.5 flex-shrink-0`} />
                 Celebrate milestone completions
               </li>
             </ul>
           </div>
           <div>
-            <h3 className="font-semibold text-gray-800 mb-2">Monthly Reviews:</h3>
-            <ul className="space-y-2 text-sm text-gray-600">
+            <h3 className="font-semibold text-gray-800 dark:text-gray-200 mb-2">Monthly Reviews:</h3>
+            <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-300">
               <li className="flex items-start gap-2">
                 <ArrowRight className="w-4 h-4 text-slate-500 mt-0.5 flex-shrink-0" />
                 Assess goal progress and adjust

@@ -38,12 +38,12 @@ const WeekNavigation: React.FC<WeekNavigationProps> = ({
   }
 
   return (
-    <div className="bg-white border-b border-gray-200 px-2 sm:px-8 py-2 sm:py-4">
+    <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-2 sm:px-8 py-2 sm:py-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-1 sm:gap-4">
           <div className="flex items-center gap-2">
             <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-slate-600" />
-            <span className="text-xs sm:text-lg font-semibold text-gray-900">
+            <span className="text-xs sm:text-lg font-semibold text-gray-900 dark:text-white">
               Week of {formatWeekRange(currentDate)}
             </span>
           </div>
@@ -183,7 +183,7 @@ export const WeeklyMeetingSidebarLayout: React.FC = () => {
         console.log('🔍 Weekly Planner: Week data loaded successfully')
       })
     }
-  }, [currentDate, isAuthenticated, loadWeekData])
+  }, [currentDate, isAuthenticated]) // Remove loadWeekData dependency to prevent infinite loop
 
   // USER INTENT: Manual save function (no auto-save)
   const handleSaveWeek = async () => {
@@ -279,14 +279,14 @@ export const WeeklyMeetingSidebarLayout: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-purple-50">
+      <div className="h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-purple-50 dark:from-gray-900 dark:to-gray-800">
         <LoadingSpinner />
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-purple-50 flex flex-col pt-24 sm:pt-16">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-purple-50 dark:from-gray-900 dark:to-gray-800 flex flex-col pt-32 sm:pt-20">
             {/* Header with Week Navigation */}
             <div className="px-2 sm:px-8">
               <WeekNavigation
@@ -323,8 +323,8 @@ export const WeeklyMeetingSidebarLayout: React.FC = () => {
       <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
         {/* Mobile Menu Button */}
         {isMobile && (
-          <div className="lg:hidden bg-white border-b border-gray-200 p-4 flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-gray-900 capitalize">{activeSection} Planning</h2>
+          <div className="lg:hidden bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-4 flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white capitalize">{activeSection} Planning</h2>
             <Button
               variant="outline"
               size="sm"

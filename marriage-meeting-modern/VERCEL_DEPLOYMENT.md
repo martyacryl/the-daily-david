@@ -2,6 +2,12 @@
 
 ## 🚀 **Complete Vercel Setup Instructions**
 
+### **Current Deployment Status**
+- **Live URL**: https://theweeklyhuddle.vercel.app
+- **Status**: ✅ **ACTIVE & DEPLOYED**
+- **Last Updated**: January 2025
+- **Features**: Complete dark mode support, calendar integration, family vision system
+
 ### **Step 1: Create Vercel Project**
 
 1. **Go to Vercel Dashboard**
@@ -11,13 +17,13 @@
 2. **Import Project**
    - Click "New Project"
    - Select "Import Git Repository"
-   - Choose your `marriage-meeting-tool` repository
+   - Choose your `weekly-huddle` repository
    - Click "Import"
 
 ### **Step 2: Configure Project Settings**
 
 **Project Configuration:**
-- **Project Name**: `marriage-meeting-tool` (or your preferred name)
+- **Project Name**: `theweeklyhuddle` (current live app)
 - **Framework Preset**: `Vite`
 - **Root Directory**: `marriage-meeting-modern`
 - **Build Command**: `npm run build`
@@ -33,7 +39,7 @@ Add these environment variables in Vercel Dashboard:
 NEON_CONNECTION_STRING=postgresql://neondb_owner:npg_JVaULlB0w8mo@ep-soft-rice-adn6s9vn-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
 
 # Frontend Environment Variables
-VITE_API_URL=https://your-app-name.vercel.app
+VITE_API_URL=https://theweeklyhuddle.vercel.app
 VITE_NEON_CONNECTION_STRING=postgresql://neondb_owner:npg_JVaULlB0w8mo@ep-soft-rice-adn6s9vn-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
 VITE_TABLE_NAME=marriage_meetings_dev
 VITE_DEBUG_LOGGING=false
@@ -44,9 +50,18 @@ NODE_ENV=production
 ```
 
 **Important Notes:**
-- Replace `your-app-name` with your actual Vercel app name
+- App is currently deployed at `https://theweeklyhuddle.vercel.app`
 - JWT secret is already generated and included above (128 characters, cryptographically secure)
 - Set `VITE_DEBUG_LOGGING=false` for production
+
+### **Current Features Deployed**
+- ✅ **Complete Dark Mode Support** - All components support light/dark themes
+- ✅ **Calendar Integration** - iCal URL support with auto-sync
+- ✅ **Family Vision System** - Vision editing and display
+- ✅ **Enhanced Analytics** - Monthly goals filtering and overdue detection
+- ✅ **Auto-Save System** - Debounced saving for all form inputs
+- ✅ **Spiritual Growth Tracking** - Prayer requests, devotionals, Bible reading
+- ✅ **Responsive Design** - Mobile-first approach with touch-friendly interfaces
 
 ### **Step 4: Database Setup**
 

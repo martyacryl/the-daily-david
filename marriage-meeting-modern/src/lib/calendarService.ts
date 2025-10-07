@@ -31,7 +31,8 @@ export class CalendarService {
   private cache: Map<string, CalendarEvent[]> = new Map()
   private cacheExpiry: Map<string, number> = new Map()
   private syncIntervals: Map<string, Timer> = new Map()
-  private syncCallbacks: Set<(events: CalendarEvent[]) => void> = new Set()
+  private syncCallbacks: Map<string, Set<(events: CalendarEvent[]) => void>> = new Map()
+  private activeSyncs: Set<string> = new Set() // Track active syncs to prevent duplicates
 
   static getInstance(): CalendarService {
     if (!CalendarService.instance) {
@@ -42,12 +43,24 @@ export class CalendarService {
 
   /**
    * Parse iCal URL and extract events for a specific week
+   * ALPHA STAGE: Only fetch events for the current week to reduce network usage
    */
   async getICalEvents(icalUrl: string, weekStart: Date): Promise<CalendarEvent[]> {
-    const cacheKey = `ical_${icalUrl}_${weekStart.toISOString().split('T')[0]}`
+    // ALPHA STAGE: Always use current week to reduce complexity and network usage
+    const today = new Date()
+    const currentWeekStart = new Date(today)
+    const day = currentWeekStart.getDay()
+    const daysToSubtract = day === 0 ? 6 : day - 1
+    currentWeekStart.setDate(currentWeekStart.getDate() - daysToSubtract)
+    currentWeekStart.setHours(0, 0, 0, 0)
+    
+    const cacheKey = `ical_${icalUrl}_${currentWeekStart.toISOString().split('T')[0]}`
+    
+    console.log('📅 ALPHA: Using current week for calendar fetch:', currentWeekStart.toISOString().split('T')[0])
     
     // Check cache first
     if (this.isCacheValid(cacheKey)) {
+      console.log('📅 ALPHA: Using cached events for current week')
       return this.cache.get(cacheKey) || []
     }
 
@@ -58,101 +71,48 @@ export class CalendarService {
       const fetchUrl = icalUrl.replace(/^webcal:\/\//, 'https://')
       console.log('📅 Converted URL for fetch:', fetchUrl)
       
-      // Try multiple CORS proxies as fallbacks
-      const corsProxies = [
-        `https://api.allorigins.win/raw?url=${encodeURIComponent(fetchUrl)}`,
-        `https://corsproxy.io/?${encodeURIComponent(fetchUrl)}`,
-        `https://cors-anywhere.herokuapp.com/${fetchUrl}`,
-        `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(fetchUrl)}`,
-        `https://thingproxy.freeboard.io/fetch/${fetchUrl}`
-      ]
+      // Use only the working backend proxy - no fallbacks
+      const apiUrl = (window as any).location?.origin?.includes('localhost') 
+        ? 'http://localhost:3001' 
+        : 'https://theweeklyhuddle.vercel.app'
+      const backendProxy = `${apiUrl}/api/calendar-proxy?url=${encodeURIComponent(fetchUrl)}`
       
-      let response: Response | null = null
-      let lastError: Error | null = null
+      console.log('📅 Using backend proxy:', backendProxy)
       
-      for (let i = 0; i < corsProxies.length; i++) {
-        const proxyUrl = corsProxies[i]
-        console.log(`📅 Trying CORS proxy ${i + 1}/${corsProxies.length}:`, proxyUrl)
-        
-        try {
-          response = await fetch(proxyUrl, {
-            method: 'GET',
-            headers: {
-              'Accept': 'text/calendar, application/calendar+json, */*',
-              'User-Agent': 'Mozilla/5.0 (compatible; WeeklyHuddle/1.0)'
-            }
-          })
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 10000) // 10 second timeout
+      
+      const response = await fetch(backendProxy, {
+        method: 'GET',
+        headers: {
+          'Accept': 'text/calendar, application/calendar+json, */*',
+          'User-Agent': 'Mozilla/5.0 (compatible; WeeklyHuddle/1.0)'
+        },
+        signal: controller.signal
+      })
+      
+      clearTimeout(timeoutId)
 
-          console.log(`📅 CORS proxy ${i + 1} response status:`, response.status)
-          console.log(`📅 CORS proxy ${i + 1} response headers:`, Object.fromEntries(response.headers.entries()))
+      console.log('📅 Backend proxy response status:', response.status)
 
-          if (response.ok) {
-            const responseText = await response.text()
-            console.log(`📅 CORS proxy ${i + 1} response length:`, responseText.length)
-            
-            // Check if we got actual calendar data, not an error page
-            if (responseText.includes('BEGIN:VCALENDAR') || responseText.includes('VEVENT')) {
-              console.log(`✅ CORS proxy ${i + 1} succeeded with valid calendar data`)
-              // Recreate response with the text content
-              response = new Response(responseText, {
-                status: response.status,
-                statusText: response.statusText,
-                headers: response.headers
-              })
-              break
-            } else {
-              console.warn(`⚠️ CORS proxy ${i + 1} returned non-calendar data:`, responseText.substring(0, 200))
-              lastError = new Error(`CORS proxy ${i + 1} returned non-calendar data`)
-              response = null
-            }
-          } else {
-            const errorText = await response.text()
-            console.warn(`⚠️ CORS proxy ${i + 1} failed:`, response.status, errorText.substring(0, 200))
-            lastError = new Error(`CORS proxy ${i + 1} failed: ${response.status} ${response.statusText}`)
-            response = null
-          }
-        } catch (error) {
-          console.warn(`⚠️ CORS proxy ${i + 1} error:`, error)
-          lastError = error as Error
-          response = null
-        }
-      }
-      
-      if (!response) {
-        // Try direct access as last resort
-        console.log('📅 All CORS proxies failed, trying direct access...')
-        try {
-          response = await fetch(fetchUrl, {
-            method: 'GET',
-            headers: {
-              'Accept': 'text/calendar, application/calendar+json, */*',
-              'User-Agent': 'Mozilla/5.0 (compatible; WeeklyHuddle/1.0)'
-            },
-            mode: 'cors'
-          })
-          
-          if (response.ok) {
-            const responseText = await response.text()
-            if (responseText.includes('BEGIN:VCALENDAR') || responseText.includes('VEVENT')) {
-              console.log('✅ Direct access succeeded')
-              response = new Response(responseText, {
-                status: response.status,
-                statusText: response.statusText,
-                headers: response.headers
-              })
-            } else {
-              throw new Error('Direct access returned non-calendar data')
-            }
-          } else {
-            throw new Error(`Direct access failed: ${response.status}`)
-          }
-        } catch (directError) {
-          console.warn('⚠️ Direct access also failed:', directError)
-          throw lastError || new Error('All CORS proxies and direct access failed')
-        }
+      if (!response.ok) {
+        const errorText = await response.text()
+        console.error('❌ Backend proxy failed:', response.status, errorText.substring(0, 200))
+        // Don't throw error, just return empty array to prevent hanging
+        console.log('📅 Calendar sync failed, returning empty events array')
+        return []
       }
 
       const icalData = await response.text()
+      console.log('📅 Backend proxy response length:', icalData.length)
+      
+      // Check if we got actual calendar data
+      if (!icalData.includes('BEGIN:VCALENDAR') && !icalData.includes('VEVENT')) {
+        console.warn('⚠️ Backend proxy returned non-calendar data:', icalData.substring(0, 200))
+        throw new Error('Backend proxy returned non-calendar data')
+      }
+      
+      console.log('✅ Backend proxy succeeded with valid calendar data')
       
                 // DEBUG: Log the raw iCal data
                 console.log('📅 RAW iCal data (first 1000 chars):', icalData.substring(0, 1000))
@@ -174,24 +134,25 @@ export class CalendarService {
                 const veventBlocks = icalData.split('BEGIN:VEVENT')
                 console.log('📅 Total VEVENT blocks found:', veventBlocks.length - 1) // -1 because first split creates empty string
                 
-                // Show the week range we're looking for
+                // Show the extended range we're looking for
                 const weekStartDate = new Date(weekStart)
                 const weekEnd = new Date(weekStart)
-                weekEnd.setDate(weekEnd.getDate() + 6)
-                console.log('📅 Looking for events in week range:', {
+                weekEnd.setDate(weekEnd.getDate() + 13) // 2 weeks to be safe
+                weekEnd.setHours(23, 59, 59, 999)
+                console.log('📅 Looking for events in extended range:', {
                   weekStart: weekStartDate.toISOString().split('T')[0],
                   weekEnd: weekEnd.toISOString().split('T')[0],
                   weekStartLocal: weekStartDate.toLocaleDateString(),
                   weekEndLocal: weekEnd.toLocaleDateString()
                 })
       
-      const events = this.parseICalData(icalData, weekStart)
+      const events = this.parseICalData(icalData, currentWeekStart)
       
       // Cache the results
       this.cache.set(cacheKey, events)
       this.cacheExpiry.set(cacheKey, Date.now() + (60 * 60 * 1000)) // 1 hour cache
       
-      console.log(`📅 Found ${events.length} calendar events for the week`)
+      console.log(`📅 ALPHA: Found ${events.length} calendar events for current week only`)
       console.log('📅 Event details:', events)
       return events
       
@@ -207,12 +168,13 @@ export class CalendarService {
   private parseICalData(icalData: string, weekStart: Date): CalendarEvent[] {
     const events: CalendarEvent[] = []
     
-    // Use the exact week start date - don't extend to previous weekend
+    // Extend the range to fetch more events (like Google Calendar does)
     const weekStartDate = new Date(weekStart)
     const weekEnd = new Date(weekStart)
-    weekEnd.setDate(weekEnd.getDate() + 6) // Week ends on Sunday (6 days after Monday)
+    weekEnd.setDate(weekEnd.getDate() + 13) // 2 weeks to be safe, like Google Calendar
+    weekEnd.setHours(23, 59, 59, 999)
 
-    console.log('📅 parseICalData: Week range:', {
+    console.log('📅 parseICalData: Extended range:', {
       weekStart: weekStartDate.toISOString().split('T')[0],
       weekEnd: weekEnd.toISOString().split('T')[0]
     })
@@ -548,7 +510,7 @@ export class CalendarService {
     try {
       const serverUrl = config.server || 'https://caldav.icloud.com'
       const weekEnd = new Date(weekStart)
-      weekEnd.setDate(weekEnd.getDate() + 6)
+      weekEnd.setDate(weekEnd.getDate() + 13) // 2 weeks to be safe, like Google Calendar
       weekEnd.setHours(23, 59, 59, 999)
       
       const response = await fetch(`${serverUrl}${calendarPath}`, {
@@ -898,16 +860,20 @@ export class CalendarService {
     weekStart: Date,
     onEventsUpdate: (events: CalendarEvent[]) => void
   ): void {
-    // Clear any existing sync for this configuration
-    this.stopAutoSync(icalUrl)
+    const syncKey = `${icalUrl}_${googleCalendarEnabled}_${syncFrequency}`
     
-    // Add callback
-    this.syncCallbacks.add(onEventsUpdate)
+    // Get or create callback set for this sync configuration
+    if (!this.syncCallbacks.has(syncKey)) {
+      this.syncCallbacks.set(syncKey, new Set())
+    }
+    
+    // Add callback to the set
+    this.syncCallbacks.get(syncKey)!.add(onEventsUpdate)
     
     // Calculate sync interval in milliseconds
     const getSyncInterval = () => {
       switch (syncFrequency) {
-        case 'realtime': return 5 * 60 * 1000 // 5 minutes
+        case 'realtime': return 4 * 60 * 60 * 1000 // 4 hours (much less frequent)
         case 'hourly': return 60 * 60 * 1000 // 1 hour
         case 'daily': return 24 * 60 * 60 * 1000 // 24 hours
         default: return 60 * 60 * 1000 // Default to hourly
@@ -915,27 +881,94 @@ export class CalendarService {
     }
     
     const syncInterval = getSyncInterval()
-    const syncKey = `${icalUrl}_${googleCalendarEnabled}_${syncFrequency}`
     
     console.log(`📅 Starting auto-sync for ${syncFrequency} (every ${syncInterval / 1000 / 60} minutes)`)
     console.log('📅 Sync URL:', icalUrl)
     console.log('📅 Google Calendar enabled:', googleCalendarEnabled)
     
-    // Initial sync
-    console.log('📅 Performing initial sync...')
-    this.performSync(icalUrl, googleCalendarEnabled, weekStart, onEventsUpdate)
-    
-    // Set up recurring sync
-    const interval = setInterval(() => {
-      console.log('📅 Auto-sync triggered for', syncFrequency, 'sync')
-      this.performSync(icalUrl, googleCalendarEnabled, weekStart, onEventsUpdate)
-    }, syncInterval)
-    
-    this.syncIntervals.set(syncKey, interval)
+    // Only create a new interval if one doesn't already exist for this configuration
+    if (!this.syncIntervals.has(syncKey)) {
+      console.log('📅 Creating new sync interval for:', syncKey)
+      
+      // Initial sync
+      console.log('📅 Performing initial sync...')
+      this.performSync(icalUrl, googleCalendarEnabled, syncFrequency, weekStart, onEventsUpdate)
+      
+      // Set up recurring sync - but only if we don't already have events
+      const interval = setInterval(() => {
+        console.log('📅 Auto-sync triggered for', syncFrequency, 'sync')
+        // Check if we already have events in cache before attempting sync
+        const cacheKey = `ical_${icalUrl}_${weekStart.toISOString().split('T')[0]}`
+        const cachedEvents = this.cache.get(cacheKey)
+        
+        if (cachedEvents && cachedEvents.length > 0) {
+          console.log('📅 Skipping auto-sync - already have events cached')
+          return
+        }
+        
+        this.performSync(icalUrl, googleCalendarEnabled, syncFrequency, weekStart, onEventsUpdate)
+      }, syncInterval)
+      
+      this.syncIntervals.set(syncKey, interval)
+    } else {
+      console.log('📅 Sync interval already exists for:', syncKey)
+      // Still perform initial sync for new callback
+      console.log('📅 Performing initial sync for new callback...')
+      this.performSync(icalUrl, googleCalendarEnabled, syncFrequency, weekStart, onEventsUpdate)
+    }
   }
   
   /**
-   * Stop automatic calendar sync
+   * Stop automatic calendar sync for a specific configuration
+   */
+  stopAutoSyncForConfig(
+    icalUrl: string, 
+    googleCalendarEnabled: boolean, 
+    syncFrequency: 'realtime' | 'hourly' | 'daily'
+  ): void {
+    const syncKey = `${icalUrl}_${googleCalendarEnabled}_${syncFrequency}`
+    
+    // Clear interval for this specific configuration
+    const interval = this.syncIntervals.get(syncKey)
+    if (interval) {
+      clearInterval(interval)
+      this.syncIntervals.delete(syncKey)
+      console.log('📅 Auto-sync stopped for config:', syncKey)
+    }
+  }
+
+  /**
+   * Remove a specific callback from auto-sync
+   */
+  removeCallback(
+    icalUrl: string, 
+    googleCalendarEnabled: boolean, 
+    syncFrequency: 'realtime' | 'hourly' | 'daily',
+    callback: (events: CalendarEvent[]) => void
+  ): void {
+    try {
+      const syncKey = `${icalUrl}_${googleCalendarEnabled}_${syncFrequency}`
+      const callbacks = this.syncCallbacks.get(syncKey)
+      if (callbacks) {
+        callbacks.delete(callback)
+        // If no more callbacks, stop the interval
+        if (callbacks.size === 0) {
+          const interval = this.syncIntervals.get(syncKey)
+          if (interval) {
+            clearInterval(interval)
+            this.syncIntervals.delete(syncKey)
+          }
+          this.syncCallbacks.delete(syncKey)
+          console.log('📅 Auto-sync stopped - no more callbacks for:', syncKey)
+        }
+      }
+    } catch (error) {
+      console.error('📅 Error removing callback:', error)
+    }
+  }
+
+  /**
+   * Stop automatic calendar sync for all configurations with this URL
    */
   stopAutoSync(icalUrl: string): void {
     // Clear all intervals for this URL
@@ -946,10 +979,14 @@ export class CalendarService {
       }
     }
     
-    // Remove callbacks
-    this.syncCallbacks.clear()
+    // Remove callbacks for this URL
+    for (const [key] of this.syncCallbacks.entries()) {
+      if (key.startsWith(icalUrl)) {
+        this.syncCallbacks.delete(key)
+      }
+    }
     
-    console.log('📅 Auto-sync stopped')
+    console.log('📅 Auto-sync stopped for URL:', icalUrl)
   }
   
   /**
@@ -958,9 +995,26 @@ export class CalendarService {
   private async performSync(
     icalUrl: string,
     googleCalendarEnabled: boolean,
+    syncFrequency: 'realtime' | 'hourly' | 'daily',
     weekStart: Date,
     onEventsUpdate: (events: CalendarEvent[]) => void
   ): Promise<void> {
+    // Validate weekStart is a proper Date object
+    if (!(weekStart instanceof Date) || isNaN(weekStart.getTime())) {
+      console.error('❌ Invalid weekStart parameter:', weekStart)
+      throw new Error('Invalid weekStart parameter - must be a valid Date object')
+    }
+    
+    const syncKey = `${icalUrl}_${googleCalendarEnabled}_${weekStart.toISOString().split('T')[0]}`
+    
+    // Prevent duplicate syncs
+    if (this.activeSyncs.has(syncKey)) {
+      console.log('📅 Sync already in progress, skipping...')
+      return
+    }
+    
+    this.activeSyncs.add(syncKey)
+    
     try {
       console.log('📅 Performing calendar sync...')
       
@@ -978,13 +1032,24 @@ export class CalendarService {
         allEvents.push(...googleEvents)
       }
       
-      // Notify all callbacks
-      this.syncCallbacks.forEach(callback => callback(allEvents))
-      onEventsUpdate(allEvents)
-      
-      console.log(`📅 Sync completed: ${allEvents.length} events found`)
+      // Only notify callbacks if we have events to prevent overwriting existing data
+      if (allEvents.length > 0) {
+        // Notify callbacks for this specific sync configuration
+        const configSyncKey = `${icalUrl}_${googleCalendarEnabled}_${syncFrequency}`
+        const callbacks = this.syncCallbacks.get(configSyncKey)
+        if (callbacks) {
+          callbacks.forEach(callback => callback(allEvents))
+        }
+        onEventsUpdate(allEvents)
+        console.log(`📅 Sync completed: ${allEvents.length} events found`)
+      } else {
+        console.log('📅 Sync completed: No events found, keeping existing events')
+      }
     } catch (error) {
       console.error('❌ Error during calendar sync:', error)
+    } finally {
+      // Remove from active syncs
+      this.activeSyncs.delete(syncKey)
     }
   }
   
@@ -994,10 +1059,17 @@ export class CalendarService {
   async forceSync(
     icalUrl: string,
     googleCalendarEnabled: boolean,
+    syncFrequency: 'realtime' | 'hourly' | 'daily',
     weekStart: Date,
     onEventsUpdate: (events: CalendarEvent[]) => void
   ): Promise<void> {
     console.log('📅 Force sync requested - clearing all cache and fetching fresh data')
+    
+    // Validate weekStart is a proper Date object
+    if (!(weekStart instanceof Date) || isNaN(weekStart.getTime())) {
+      console.error('❌ Invalid weekStart parameter in forceSync:', weekStart)
+      throw new Error('Invalid weekStart parameter - must be a valid Date object')
+    }
     
     // Clear ALL cache entries for this URL
     for (const key of this.cache.keys()) {
@@ -1008,7 +1080,7 @@ export class CalendarService {
     }
     
     // Perform sync
-    await this.performSync(icalUrl, googleCalendarEnabled, weekStart, onEventsUpdate)
+    await this.performSync(icalUrl, googleCalendarEnabled, syncFrequency, weekStart, onEventsUpdate)
   }
 
   /**

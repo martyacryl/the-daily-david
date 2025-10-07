@@ -159,25 +159,25 @@ export const GroceryErrandsSection: React.FC<GroceryErrandsSectionProps> = ({ it
     >
       <Card className="p-6">
         <div className="flex items-center gap-3 mb-6">
-          <div className="p-3 bg-green-100 rounded-lg">
-            <ShoppingCart className="w-6 h-6 text-green-600" />
+          <div className="p-3 bg-green-100 dark:bg-green-900/20 rounded-lg">
+            <ShoppingCart className="w-6 h-6 text-green-600 dark:text-green-400" />
           </div>
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">Grocery & Errands</h2>
-            <p className="text-gray-600">Organize your shopping by store</p>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Grocery & Errands</h2>
+            <p className="text-gray-600 dark:text-gray-300">Organize your shopping by store</p>
           </div>
         </div>
 
         {/* Success Message */}
         {showSuccessMessage && (
-          <div className="mb-4 p-3 bg-green-100 border border-green-300 rounded-lg text-green-800 text-sm">
+          <div className="mb-4 p-3 bg-green-100 dark:bg-green-900/20 border border-green-300 dark:border-green-600 rounded-lg text-green-800 dark:text-green-200 text-sm">
             ✅ Store added successfully! You can now create a list for it.
           </div>
         )}
 
         {/* Add New Store List */}
         <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-700 mb-2">Create a new store list</label>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Create a new store list</label>
           <div className="flex gap-2">
             <select
               key={settings.groceryStores.length}
@@ -224,7 +224,7 @@ export const GroceryErrandsSection: React.FC<GroceryErrandsSectionProps> = ({ it
                 value={customStore}
                 onChange={(e) => setCustomStore(e.target.value)}
                 placeholder="Enter store name"
-                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                 autoFocus
               />
               <Button
@@ -269,14 +269,14 @@ export const GroceryErrandsSection: React.FC<GroceryErrandsSectionProps> = ({ it
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
                   <Store className="w-5 h-5 text-green-600" />
-                  <h3 className="text-lg font-semibold text-gray-900">{storeList.storeName}</h3>
-                  <span className="text-sm text-gray-500">({storeList.items?.length || 0} items)</span>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{storeList.storeName}</h3>
+                  <span className="text-sm text-gray-500 dark:text-gray-400">({storeList.items?.length || 0} items)</span>
                 </div>
                 <Button
                   onClick={() => removeStoreList(storeList.storeId)}
                   variant="outline"
                   size="sm"
-                  className="text-red-600 hover:bg-red-50 border-red-200"
+                  className="text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 border-red-200 dark:border-red-700"
                 >
                   <X className="w-4 h-4" />
                 </Button>
@@ -285,13 +285,13 @@ export const GroceryErrandsSection: React.FC<GroceryErrandsSectionProps> = ({ it
               {/* Items in this store */}
               <div className="space-y-2 mb-4">
                 {(storeList.items || []).map((item) => (
-                  <div key={item.id} className="flex items-center gap-3 p-2 bg-gray-50 rounded-lg">
+                  <div key={item.id} className="flex items-center gap-3 p-2 bg-gray-50 dark:bg-gray-700 rounded-lg">
                     <button
                       onClick={() => toggleItemInStore(storeList.storeId, item.id)}
                       className={`w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
                         item.completed
                           ? 'bg-green-500 border-green-500 text-white'
-                          : 'border-gray-300 hover:border-gray-400'
+                          : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500'
                       }`}
                     >
                       {item.completed && <CheckCircle className="w-3 h-3" />}
@@ -301,14 +301,14 @@ export const GroceryErrandsSection: React.FC<GroceryErrandsSectionProps> = ({ it
                       value={item.text}
                       onChange={(e) => updateItemInStore(storeList.storeId, item.id, e.target.value)}
                       className={`flex-1 bg-transparent border-none outline-none text-sm ${
-                        item.completed ? 'line-through text-gray-500' : 'text-gray-800'
+                        item.completed ? 'line-through text-gray-500 dark:text-gray-400' : 'text-gray-800 dark:text-white'
                       }`}
                     />
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={() => removeItemFromStore(storeList.storeId, item.id)}
-                      className="text-red-600 hover:bg-red-50 border-red-200 p-1 h-6 w-6"
+                      className="text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 border-red-200 dark:border-red-700 p-1 h-6 w-6"
                     >
                       <Trash2 className="w-3 h-3" />
                     </Button>
@@ -323,7 +323,7 @@ export const GroceryErrandsSection: React.FC<GroceryErrandsSectionProps> = ({ it
                   value={newItemTexts[storeList.storeId] || ''}
                   onChange={(e) => setNewItemTexts(prev => ({ ...prev, [storeList.storeId]: e.target.value }))}
                   placeholder={`Add item to ${storeList.storeName}...`}
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
+                  className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm"
                   onKeyPress={(e) => e.key === 'Enter' && addItemToStore(storeList.storeId)}
                 />
                 <Button
@@ -341,8 +341,8 @@ export const GroceryErrandsSection: React.FC<GroceryErrandsSectionProps> = ({ it
         </div>
 
         {items.length === 0 && (
-          <div className="text-center py-12 text-gray-500">
-            <ShoppingCart className="w-12 h-12 mx-auto mb-4 text-gray-400" />
+          <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+            <ShoppingCart className="w-12 h-12 mx-auto mb-4 text-gray-400 dark:text-gray-500" />
             <p className="text-lg">No store lists yet</p>
             <p className="text-sm">Create a list for a store above to get started</p>
           </div>

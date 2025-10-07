@@ -93,11 +93,11 @@ export const WeeklyMeetingSidebar: React.FC<WeeklyMeetingSidebarProps> = ({
   ]
 
   return (
-    <div className="w-full lg:w-64 bg-white border-r border-gray-200 h-full flex flex-col">
+    <div className="w-full lg:w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 h-full flex flex-col">
       {/* Sidebar Header */}
-      <div className="p-3 sm:p-6 border-b border-gray-200">
-        <h2 className="text-sm sm:text-lg font-semibold text-gray-900">Meeting Sections</h2>
-        <p className="text-xs sm:text-sm text-gray-500 mt-1">Navigate between sections</p>
+      <div className="p-3 sm:p-6 border-b border-gray-200 dark:border-gray-700">
+        <h2 className="text-sm sm:text-lg font-semibold text-gray-900 dark:text-white">Meeting Sections</h2>
+        <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">Navigate between sections</p>
       </div>
 
       {/* Sidebar Navigation */}
@@ -112,8 +112,8 @@ export const WeeklyMeetingSidebar: React.FC<WeeklyMeetingSidebarProps> = ({
               onClick={() => onSectionChange(item.id)}
               className={`w-full flex items-center justify-between p-2 sm:p-3 rounded-lg text-left transition-all duration-200 ${
                 isActive
-                  ? 'bg-slate-50 border border-slate-200 text-slate-700'
-                  : 'hover:bg-gray-50 text-gray-700'
+                  ? 'bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-200'
+                  : 'hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300'
               }`}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
@@ -121,13 +121,13 @@ export const WeeklyMeetingSidebar: React.FC<WeeklyMeetingSidebarProps> = ({
               <div className="flex items-center gap-2 sm:gap-3">
                 <div className={`p-2 rounded-lg ${
                   isActive 
-                    ? 'bg-slate-100' 
-                    : 'bg-gray-100'
+                    ? 'bg-slate-100 dark:bg-slate-600' 
+                    : 'bg-gray-100 dark:bg-gray-600'
                 }`}>
                   <IconComponent className={`w-3 h-3 sm:w-4 sm:h-4 ${
                     isActive 
-                      ? 'text-slate-600' 
-                      : 'text-gray-500'
+                      ? 'text-slate-600 dark:text-slate-300' 
+                      : 'text-gray-500 dark:text-gray-400'
                   }`} />
                 </div>
                 <span className="font-medium text-xs sm:text-sm">{item.label}</span>
@@ -137,8 +137,8 @@ export const WeeklyMeetingSidebar: React.FC<WeeklyMeetingSidebarProps> = ({
                 {item.count !== undefined && item.count > 0 && (
                   <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                     isActive
-                      ? 'bg-slate-200 text-slate-800'
-                      : 'bg-gray-200 text-gray-600'
+                      ? 'bg-slate-200 dark:bg-slate-600 text-slate-800 dark:text-slate-200'
+                      : 'bg-gray-200 dark:bg-gray-600 text-gray-600 dark:text-gray-300'
                   }`}>
                     {item.count}
                   </span>

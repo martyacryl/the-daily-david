@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { Compass, Calendar, Target, Heart, Users, BookOpen, Star, Edit3, CheckCircle, ArrowRight, TrendingUp } from 'lucide-react'
+import { Compass, Calendar, Target, Heart, Users, BookOpen, Star, CheckCircle, ArrowRight, TrendingUp } from 'lucide-react'
 import { Card } from '../ui/Card'
 import { Button } from '../ui/Button'
+import { FamilyCreedDisplay } from '../FamilyCreedDisplay'
+import { useAccentColor } from '../../hooks/useAccentColor'
 
 interface FamilyVision {
   id: string
@@ -46,36 +48,75 @@ const categoryIcons = {
   career: Target
 }
 
-const categoryColors = {
+const getCategoryColors = (getColor: any) => ({
   marriage: 'from-slate-600 to-slate-700',
   family: 'from-slate-500 to-slate-600',
-  spiritual: 'from-purple-600 to-purple-700',
+  spiritual: `from-${getColor('primary')} to-${getColor('primary')}`,
   financial: 'from-slate-700 to-slate-800',
-  personal: 'from-purple-500 to-purple-600',
-  health: 'from-slate-600 to-purple-600',
-  ministry: 'from-purple-700 to-purple-800',
-  career: 'from-slate-500 to-purple-500'
-}
+  personal: `from-${getColor('primary')} to-${getColor('primary')}`,
+  health: `from-slate-600 to-${getColor('primary')}`,
+  ministry: `from-${getColor('primary')} to-${getColor('primary')}`,
+  career: `from-slate-500 to-${getColor('primary')}`
+})
 
-const priorityColors = {
-  critical: 'bg-slate-100 text-slate-800 border-slate-300',
-  high: 'bg-purple-100 text-purple-800 border-purple-300',
-  medium: 'bg-slate-200 text-slate-700 border-slate-400',
-  low: 'bg-slate-50 text-slate-600 border-slate-200'
-}
+const getPriorityColors = (getColor: any) => ({
+  critical: 'bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-200 border-slate-300 dark:border-slate-600',
+  high: `bg-${getColor('secondary')} text-${getColor('text')} border-${getColor('border')}`,
+  medium: 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 border-slate-400 dark:border-slate-600',
+  low: 'bg-slate-50 dark:bg-slate-700 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-600'
+})
 
 export const FamilyVisionDisplay: React.FC = () => {
+  const { accentColor, getColor } = useAccentColor()
   const [vision, setVision] = useState<FamilyVision | null>(null)
   const [quarterlyTheme, setQuarterlyTheme] = useState<QuarterlyTheme | null>(null)
   const [annualGoals, setAnnualGoals] = useState<AnnualGoal[]>([])
-  const [isEditing, setIsEditing] = useState(false)
 
   useEffect(() => {
     loadFamilyVision()
   }, [])
 
+  // Get the correct gradient classes based on accent color
+  const getGradientClasses = () => {
+    switch (accentColor) {
+      case 'green':
+        return 'bg-gradient-to-br from-green-50 to-green-200 dark:from-green-900/30 dark:to-green-800/50'
+      case 'blue':
+        return 'bg-gradient-to-br from-blue-50 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/50'
+      case 'slate':
+        return 'bg-gradient-to-br from-slate-50 to-slate-200 dark:from-slate-800/30 dark:to-slate-700/50'
+      case 'red':
+        return 'bg-gradient-to-br from-red-50 to-red-200 dark:from-red-900/30 dark:to-red-800/50'
+      case 'orange':
+        return 'bg-gradient-to-br from-orange-50 to-orange-200 dark:from-orange-900/30 dark:to-orange-800/50'
+      default: // purple
+        return 'bg-gradient-to-br from-purple-50 to-purple-200 dark:from-purple-900/30 dark:to-purple-800/50'
+    }
+  }
+
+  // Get quarterly theme gradient classes
+  const getQuarterlyThemeGradient = () => {
+    switch (accentColor) {
+      case 'green':
+        return 'bg-gradient-to-br from-slate-50/60 to-green-50/40 dark:from-slate-800/60 dark:to-green-900/40'
+      case 'blue':
+        return 'bg-gradient-to-br from-slate-50/60 to-blue-50/40 dark:from-slate-800/60 dark:to-blue-900/40'
+      case 'slate':
+        return 'bg-gradient-to-br from-slate-50/60 to-slate-50/40 dark:from-slate-800/60 dark:to-slate-900/40'
+      case 'red':
+        return 'bg-gradient-to-br from-slate-50/60 to-red-50/40 dark:from-slate-800/60 dark:to-red-900/40'
+      case 'orange':
+        return 'bg-gradient-to-br from-slate-50/60 to-orange-50/40 dark:from-slate-800/60 dark:to-orange-900/40'
+      default: // purple
+        return 'bg-gradient-to-br from-slate-50/60 to-purple-50/40 dark:from-slate-800/60 dark:to-purple-900/40'
+    }
+  }
+
   const loadFamilyVision = () => {
     // Mock data - in real app, load from API
+    const now = new Date()
+    const currentDate = now.toISOString().split('T')[0] // Format as YYYY-MM-DD
+    
     const mockVision: FamilyVision = {
       id: '1',
       title: 'Our Family Vision 2025',
@@ -83,13 +124,17 @@ export const FamilyVisionDisplay: React.FC = () => {
       values: ['Faith', 'Love', 'Integrity', 'Service', 'Growth', 'Unity'],
       priorities: ['Marriage', 'Children', 'Spiritual Growth', 'Community', 'Health', 'Ministry'],
       year: 2025,
-      lastUpdated: '2025-01-15'
+      lastUpdated: currentDate
     }
 
+    // Get current quarter dynamically
+    const currentQuarter = Math.ceil((now.getMonth() + 1) / 3)
+    const currentYear = now.getFullYear()
+    
     const mockQuarterlyTheme: QuarterlyTheme = {
       id: '1',
-      quarter: 'Q1',
-      year: 2025,
+      quarter: `Q${currentQuarter}`,
+      year: currentYear,
       theme: 'Foundation Building',
       focus: 'Establishing strong habits and routines that will carry us through the year',
       scripture: 'Therefore everyone who hears these words of mine and puts them into practice is like a wise man who built his house on the rock. - Matthew 7:24',
@@ -170,65 +215,57 @@ export const FamilyVisionDisplay: React.FC = () => {
         animate={{ opacity: 1, y: 0 }}
         className="relative"
       >
-        <Card className={`p-6 bg-gradient-to-br from-slate-100 to-purple-100 border-slate-300 overflow-hidden`}>
+               <div className={`p-6 ${getGradientClasses()} border border-slate-300 dark:border-slate-600 rounded-xl overflow-hidden shadow-sm dark:shadow-gray-900/20`}>
           <div className="flex items-start justify-between mb-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center">
-                <Compass className="w-5 h-5 text-slate-600" />
+              <div className="w-10 h-10 bg-slate-100 dark:bg-slate-600 rounded-full flex items-center justify-center">
+                <Compass className="w-5 h-5 text-slate-600 dark:text-slate-300" />
               </div>
               <div>
-                <h1 className="text-xl font-medium text-slate-800">{vision?.title || 'Our Family Vision'}</h1>
-                <p className="text-slate-500 text-sm">Last updated: {vision?.lastUpdated || 'Recently'}</p>
+                <h1 className="text-xl font-medium text-slate-800 dark:text-slate-200">{vision?.title || 'Our Family Vision'}</h1>
+                <p className="text-slate-500 dark:text-slate-400 text-sm">Last updated: {vision?.lastUpdated || 'Recently'}</p>
               </div>
             </div>
-            <Button 
-              variant="outline" 
-              onClick={() => setIsEditing(true)}
-              className="text-slate-700 border-slate-300 hover:bg-slate-50 hover:text-slate-800"
-            >
-              <Edit3 className="w-4 h-4 mr-2" />
-              Edit Vision
-            </Button>
           </div>
             
-            <p className="text-xl leading-relaxed mb-8 max-w-4xl">
+            <p className="text-xl leading-relaxed mb-8 max-w-4xl text-slate-800 dark:text-slate-200">
               {vision?.statement || 'Our family vision statement will appear here...'}
             </p>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div>
-                <h3 className="text-base font-medium mb-3 flex items-center gap-2 text-slate-700">
+                <h3 className="text-base font-medium mb-3 flex items-center gap-2 text-slate-700 dark:text-slate-300">
                   <Heart className="w-4 h-4" />
                   Our Values
                 </h3>
                 <div className="flex flex-wrap gap-2">
                   {vision?.values.map((value, index) => (
-                    <span key={index} className="px-3 py-1 bg-slate-100 rounded-full text-sm text-slate-600">
+                    <span key={index} className="px-3 py-1 bg-slate-100 dark:bg-slate-700 rounded-full text-sm text-slate-600 dark:text-slate-300">
                       {value}
                     </span>
                   )) || (
-                    <span className="text-slate-500">Values will be displayed here</span>
+                    <span className="text-slate-500 dark:text-slate-400">Values will be displayed here</span>
                   )}
                 </div>
               </div>
               
               <div>
-                <h3 className="text-base font-medium mb-3 flex items-center gap-2 text-slate-700">
+                <h3 className="text-base font-medium mb-3 flex items-center gap-2 text-slate-700 dark:text-slate-300">
                   <Target className="w-4 h-4" />
                   Our Priorities
                 </h3>
                 <div className="flex flex-wrap gap-2">
                   {vision?.priorities.map((priority, index) => (
-                    <span key={index} className="px-3 py-1 bg-slate-100 rounded-full text-sm text-slate-600">
+                    <span key={index} className="px-3 py-1 bg-slate-100 dark:bg-slate-700 rounded-full text-sm text-slate-600 dark:text-slate-300">
                       {priority}
                     </span>
                   )) || (
-                    <span className="text-slate-500">Priorities will be displayed here</span>
+                    <span className="text-slate-500 dark:text-slate-400">Priorities will be displayed here</span>
                   )}
                 </div>
               </div>
             </div>
-        </Card>
+        </div>
       </motion.div>
 
       {/* Current Quarter Focus */}
@@ -238,7 +275,7 @@ export const FamilyVisionDisplay: React.FC = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
         >
-          <Card className={`p-6 bg-gradient-to-br from-slate-50/60 to-purple-50/40 border-slate-200/60 relative overflow-hidden`}>
+          <Card className={`p-6 ${getQuarterlyThemeGradient()} border-slate-200/60 dark:border-slate-700/60 relative overflow-hidden`}>
           {/* Background Pattern - Mountain Outlines */}
           <div className="absolute inset-0 opacity-5">
             <svg className="absolute top-0 right-0 w-32 h-32 -translate-y-16 translate-x-16" viewBox="0 0 100 100" fill="none">
@@ -252,48 +289,48 @@ export const FamilyVisionDisplay: React.FC = () => {
           <div className="relative z-10">
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
-                  <Calendar className="w-5 h-5" />
+                <div className="w-10 h-10 bg-white dark:bg-gray-600 bg-opacity-20 rounded-full flex items-center justify-center">
+                  <Calendar className="w-5 h-5 text-slate-700 dark:text-slate-300" />
                 </div>
                 <div>
-                  <h2 className="text-2xl font-bold text-slate-800">{quarterlyTheme.quarter} {quarterlyTheme.year}</h2>
-                  <p className="text-sm text-slate-600">Current Quarter Focus</p>
+                  <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-200">{quarterlyTheme.quarter} {quarterlyTheme.year}</h2>
+                  <p className="text-sm text-slate-600 dark:text-slate-400">Current Quarter Focus</p>
                 </div>
               </div>
               <div className="text-right">
-                <div className="text-2xl font-bold text-slate-800">{quarterlyTheme.progress}%</div>
-                <div className="text-sm text-slate-600">Complete</div>
+                <div className="text-2xl font-bold text-slate-800 dark:text-slate-200">{quarterlyTheme.progress}%</div>
+                <div className="text-sm text-slate-600 dark:text-slate-400">Complete</div>
               </div>
             </div>
             
-            <h3 className="text-xl font-semibold mb-2 text-slate-800">{quarterlyTheme.theme}</h3>
-            <p className="text-lg mb-4 text-slate-700">{quarterlyTheme.focus}</p>
+            <h3 className="text-xl font-semibold mb-2 text-slate-800 dark:text-slate-200">{quarterlyTheme.theme}</h3>
+            <p className="text-lg mb-4 text-slate-700 dark:text-slate-300">{quarterlyTheme.focus}</p>
             
             {quarterlyTheme.scripture && (
-              <blockquote className="text-sm italic mb-4 p-3 bg-slate-100/50 rounded-lg text-slate-700">
+              <blockquote className="text-sm italic mb-4 p-3 bg-slate-100/50 dark:bg-slate-700/50 rounded-lg text-slate-700 dark:text-slate-300">
                 "{quarterlyTheme.scripture}"
               </blockquote>
             )}
             
             <div className="mb-4">
-              <div className="flex justify-between text-sm mb-1 text-slate-700">
+              <div className="flex justify-between text-sm mb-1 text-slate-700 dark:text-slate-300">
                 <span>Quarterly Progress</span>
                 <span>{quarterlyTheme.progress}%</span>
               </div>
-              <div className="w-full bg-slate-200 rounded-full h-2">
+              <div className="w-full bg-slate-200 dark:bg-slate-600 rounded-full h-2">
                 <div 
-                  className="bg-slate-600 h-2 rounded-full transition-all duration-300"
+                  className="bg-slate-600 dark:bg-slate-400 h-2 rounded-full transition-all duration-300"
                   style={{ width: `${quarterlyTheme.progress}%` }}
                 ></div>
               </div>
             </div>
             
             <div>
-              <h4 className="font-semibold mb-2">Quarterly Goals</h4>
+              <h4 className="font-semibold mb-2 text-slate-800 dark:text-slate-200">Quarterly Goals</h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                 {quarterlyTheme.goals.map((goal, index) => (
-                  <div key={index} className="flex items-center gap-2 text-sm">
-                    <CheckCircle className="w-4 h-4 opacity-60" />
+                  <div key={index} className="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
+                    <CheckCircle className="w-4 h-4 opacity-60 text-slate-600 dark:text-slate-400" />
                     <span>{goal}</span>
                   </div>
                 ))}
@@ -310,31 +347,31 @@ export const FamilyVisionDisplay: React.FC = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
       >
-        <Card className="p-6">
+        <Card className="p-6 bg-white dark:bg-gray-800">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-              <Target className="w-6 h-6 text-purple-600" />
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+              <Target className={`w-6 h-6 text-${getColor('primary')} dark:text-${getColor('primary')}`} />
               Annual Goals Progress
             </h2>
             <div className="text-right">
-              <div className="text-3xl font-bold text-purple-600">{overallProgress}%</div>
-              <div className="text-sm text-gray-600">Overall Progress</div>
+              <div className={`text-3xl font-bold text-${getColor('primary')} dark:text-${getColor('primary')}`}>{overallProgress}%</div>
+              <div className="text-sm text-gray-600 dark:text-gray-300">Overall Progress</div>
             </div>
           </div>
           
           {/* Progress Overview */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-            <div className="text-center p-4 bg-slate-50 rounded-lg">
-              <div className="text-2xl font-bold text-slate-600">{completedGoals}</div>
-              <div className="text-sm text-slate-700">Completed</div>
+            <div className="text-center p-4 bg-slate-50 dark:bg-slate-700 rounded-lg">
+              <div className="text-2xl font-bold text-slate-600 dark:text-slate-300">{completedGoals}</div>
+              <div className="text-sm text-slate-700 dark:text-slate-300">Completed</div>
             </div>
-            <div className="text-center p-4 bg-purple-50 rounded-lg">
-              <div className="text-2xl font-bold text-purple-600">{inProgressGoals}</div>
-              <div className="text-sm text-purple-700">In Progress</div>
+            <div className={`text-center p-4 bg-${getColor('secondary')} dark:bg-${getColor('secondary')} rounded-lg`}>
+              <div className={`text-2xl font-bold text-${getColor('primary')} dark:text-${getColor('primary')}`}>{inProgressGoals}</div>
+              <div className={`text-sm text-${getColor('text')} dark:text-${getColor('text')}`}>In Progress</div>
             </div>
-            <div className="text-center p-4 bg-slate-100 rounded-lg">
-              <div className="text-2xl font-bold text-slate-600">{annualGoals.length - completedGoals - inProgressGoals}</div>
-              <div className="text-sm text-slate-700">Not Started</div>
+            <div className="text-center p-4 bg-slate-100 dark:bg-slate-700 rounded-lg">
+              <div className="text-2xl font-bold text-slate-600 dark:text-slate-300">{annualGoals.length - completedGoals - inProgressGoals}</div>
+              <div className="text-sm text-slate-700 dark:text-slate-300">Not Started</div>
             </div>
           </div>
           
@@ -342,40 +379,40 @@ export const FamilyVisionDisplay: React.FC = () => {
           <div className="space-y-4">
             {annualGoals.map((goal) => {
               const Icon = categoryIcons[goal.category]
-              const colorClass = categoryColors[goal.category]
-              const priorityClass = priorityColors[goal.priority]
+              const colorClass = getCategoryColors(getColor)[goal.category]
+              const priorityClass = getPriorityColors(getColor)[goal.priority]
               
               return (
-                <div key={goal.id} className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
+                <div key={goal.id} className="flex items-center gap-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
                   <div className={`w-10 h-10 bg-gradient-to-r ${colorClass} rounded-lg flex items-center justify-center`}>
                     <Icon className="w-5 h-5 text-white" />
                   </div>
                   
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
-                      <h3 className="font-semibold text-gray-900">{goal.title}</h3>
+                      <h3 className="font-semibold text-gray-900 dark:text-white">{goal.title}</h3>
                       <span className={`px-2 py-1 text-xs font-medium rounded-full border ${priorityClass}`}>
                         {goal.priority}
                       </span>
                     </div>
                     <div className="flex items-center gap-4">
                       <div className="flex-1">
-                        <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div className="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-2">
                           <div 
                             className={`bg-gradient-to-r ${colorClass} h-2 rounded-full transition-all duration-300`}
                             style={{ width: `${goal.progress}%` }}
                           ></div>
                         </div>
                       </div>
-                      <span className="text-sm font-medium text-gray-600">{goal.progress}%</span>
+                      <span className="text-sm font-medium text-gray-600 dark:text-gray-300">{goal.progress}%</span>
                     </div>
                   </div>
                   
                   <div className="text-right">
                     <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                      goal.status === 'completed' ? 'bg-slate-100 text-slate-800' :
-                      goal.status === 'in-progress' ? 'bg-purple-100 text-purple-800' :
-                      'bg-slate-100 text-slate-800'
+                      goal.status === 'completed' ? 'bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-200' :
+                      goal.status === 'in-progress' ? `bg-${getColor('secondary')} dark:bg-${getColor('secondary')} text-${getColor('text')} dark:text-${getColor('text')}` :
+                      'bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-200'
                     }`}>
                       {goal.status.replace('-', ' ')}
                     </span>
@@ -393,21 +430,21 @@ export const FamilyVisionDisplay: React.FC = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
       >
-        <Card className="p-6 bg-gradient-to-r from-slate-50 to-slate-100 border-l-4 border-purple-500">
-          <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
-            <ArrowRight className="w-5 h-5 text-purple-600" />
+        <Card className={`p-6 bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-700 dark:to-slate-800 border-l-4 border-${getColor('primary')} dark:border-${getColor('primary')}`}>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
+            <ArrowRight className={`w-5 h-5 text-${getColor('primary')} dark:text-${getColor('primary')}`} />
             This Week's Focus
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <h4 className="font-medium text-gray-800 mb-2">From Your Vision:</h4>
-              <p className="text-sm text-gray-600">
+              <h4 className="font-medium text-gray-800 dark:text-gray-200 mb-2">From Your Vision:</h4>
+              <p className="text-sm text-gray-600 dark:text-gray-300">
                 {quarterlyTheme?.focus || 'Focus on your quarterly theme and work toward your annual goals.'}
               </p>
             </div>
             <div>
-              <h4 className="font-medium text-gray-800 mb-2">Action Items:</h4>
-              <ul className="text-sm text-gray-600 space-y-1">
+              <h4 className="font-medium text-gray-800 dark:text-gray-200 mb-2">Action Items:</h4>
+              <ul className="text-sm text-gray-600 dark:text-gray-300 space-y-1">
                 <li>• Review quarterly goals in weekly meeting</li>
                 <li>• Set 2-3 specific actions for the week</li>
                 <li>• Check progress on annual goals</li>
@@ -417,6 +454,9 @@ export const FamilyVisionDisplay: React.FC = () => {
           </div>
         </Card>
       </motion.div>
+
+      {/* Family Creed Section */}
+      <FamilyCreedDisplay className="mt-6" />
     </div>
   )
 }
