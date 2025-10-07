@@ -120,8 +120,10 @@ export const SOAPReview: React.FC = () => {
       const data = await response.json()
       console.log('SOAP Review: Auto-save successful:', data)
       
-      // Don't reload entries immediately to prevent page refresh
-      // The data will be refreshed when the component re-renders
+      // Reload entries after a small delay to ensure data is updated
+      setTimeout(async () => {
+        await loadEntries()
+      }, 100)
       
     } catch (error) {
       console.error('SOAP Review: Auto-save error:', error)
