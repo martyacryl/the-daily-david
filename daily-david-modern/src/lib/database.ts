@@ -1,7 +1,7 @@
 import { getAuthHeaders } from '../stores/authStore'
 
 // Database connection configuration - using API calls instead of direct connection
-const API_BASE_URL = ''
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3003'
 
 export interface DailyEntry {
   id?: number
@@ -277,7 +277,6 @@ class DatabaseManager {
         const entryData = {
           user_id: userIdNum,
           userId: userIdNum.toString(),
-          user_id: userIdNum.toString(),
           date,
           dateKey: date,
           date_key: date,
@@ -308,7 +307,6 @@ class DatabaseManager {
         const entryData = {
           user_id: userIdNum,
           userId: userIdNum.toString(),
-          user_id: userIdNum.toString(),
           date,
           dateKey: date,
           date_key: date,
@@ -361,6 +359,16 @@ class DatabaseManager {
       console.log('API: First entry data_content:', data.entries[0]?.data_content)
       console.log('API: First entry soap in data_content:', data.entries[0]?.data_content?.soap)
       
+      // Find entries with thoughts
+      const entriesWithThoughts = data.entries.filter((entry: any) => 
+        entry.data_content?.soap?.thoughts && entry.data_content.soap.thoughts.trim()
+      )
+      console.log('API: Entries with thoughts:', entriesWithThoughts.map((e: any) => ({
+        id: e.id,
+        date: e.date,
+        thoughts: e.data_content.soap.thoughts
+      })))
+      
       // Transform the API response to match our interface
       return data.entries.map((entry: any) => {
         if (entry.data_content) {
@@ -374,6 +382,7 @@ class DatabaseManager {
             observation: content.soap?.observation || '',
             application: content.soap?.application || '',
             prayer: content.soap?.prayer || '',
+            thoughts: content.soap?.thoughts || '',
             gratitude: content.gratitude || '',
             goals: content.goals || { daily: [], weekly: [], monthly: [] },
             checkIn: content.checkIn || { emotions: [], feeling: '' },

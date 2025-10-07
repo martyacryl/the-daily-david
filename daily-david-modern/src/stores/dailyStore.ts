@@ -173,9 +173,13 @@ export const useDailyStore = create<DailyStore>((set, get) => ({
           
           // Debug: Log if this entry has data_content
           if (entry.data_content) {
-            console.log('🔍 Store: Entry has data_content:', entry.id, dataContent)
+            console.log('🔍 Store: Entry has data_content:', entry.id, 'date:', entry.date, dataContent)
             console.log('🔍 Store: SOAP data in data_content:', dataContent.soap)
             console.log('🔍 Store: Thoughts in data_content.soap:', dataContent.soap?.thoughts)
+            console.log('🔍 Store: Full SOAP object keys:', dataContent.soap ? Object.keys(dataContent.soap) : 'no soap object')
+            if (dataContent.soap?.thoughts) {
+              console.log('🔍 Store: FOUND THOUGHTS!', entry.id, dataContent.soap.thoughts)
+            }
           }
           
           
@@ -196,7 +200,15 @@ export const useDailyStore = create<DailyStore>((set, get) => ({
               observation: dataContent.soap?.observation || entry.observation || '',
               application: dataContent.soap?.application || entry.application || '',
               prayer: dataContent.soap?.prayer || entry.prayer || '',
-              thoughts: dataContent.soap?.thoughts || entry.thoughts || ''
+              thoughts: (() => {
+                const thoughts = dataContent.soap?.thoughts || entry.thoughts || ''
+                console.log('🔍 Store: Processing thoughts for entry', entry.id, ':', {
+                  'dataContent.soap?.thoughts': dataContent.soap?.thoughts,
+                  'entry.thoughts': entry.thoughts,
+                  'final thoughts': thoughts
+                })
+                return thoughts
+              })()
             },
             goals: parsedGoals,
             dailyIntention: dataContent.dailyIntention || entry.dailyIntention || '',
