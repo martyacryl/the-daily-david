@@ -4,7 +4,7 @@ import { usePrayerStore } from '../../stores/prayerStore'
 import { PrayerRequest } from '../../types'
 import { 
   X, 
-  Heart, 
+  Sword, 
   User, 
   Calendar, 
   Tag, 
@@ -114,7 +114,7 @@ export const PrayerRequestDetail: React.FC<PrayerRequestDetailProps> = ({
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-slate-700">
           <div className="flex items-center gap-3">
-            <Heart className="w-6 h-6 text-pink-400" />
+            <Sword className="w-6 h-6 text-slate-400" />
             <h2 className="text-xl font-bold text-white">Prayer Request Details</h2>
           </div>
           <button

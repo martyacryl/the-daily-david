@@ -4,7 +4,7 @@ import { usePrayerStore } from '../../stores/prayerStore'
 import { useAuthStore } from '../../stores/authStore'
 import { PrayerRequest, PrayerCategoryType, PrayerStatusType, PrayerPriorityType } from '../../types'
 import { 
-  Heart, 
+  Sword, 
   Plus, 
   Search, 
   Filter, 
@@ -132,7 +132,7 @@ export const PrayerRequestsList: React.FC = () => {
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-white mb-4 flex items-center justify-center gap-3">
-            <Heart className="w-10 h-10 text-pink-400" />
+            <Sword className="w-10 h-10 text-slate-400" />
             Prayer Requests
           </h1>
           <p className="text-green-200 text-lg">
@@ -234,7 +234,7 @@ export const PrayerRequestsList: React.FC = () => {
         <div className="space-y-6">
           {filteredRequests.length === 0 ? (
             <div className="text-center py-12">
-              <Heart className="w-16 h-16 text-slate-600 mx-auto mb-4" />
+              <Sword className="w-16 h-16 text-slate-600 mx-auto mb-4" />
               <h3 className="text-xl font-semibold text-slate-400 mb-2">No prayer requests found</h3>
               <p className="text-slate-500">
                 {searchTerm || selectedCategory !== 'all' || selectedStatus !== 'all' || selectedPriority !== 'all'

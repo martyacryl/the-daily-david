@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { usePrayerStore } from '../../stores/prayerStore'
 import { PrayerRequest, PrayerRequestFormData } from '../../types'
-import { X, Heart, User, Tag, AlertCircle } from 'lucide-react'
+import { X, Sword, User, Tag, AlertCircle } from 'lucide-react'
 import { Button } from '../ui/Button'
 import { Input } from '../ui/Input'
 import { Textarea } from '../ui/Textarea'
@@ -95,7 +95,7 @@ export const PrayerRequestForm: React.FC<PrayerRequestFormProps> = ({
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-slate-700">
           <div className="flex items-center gap-3">
-            <Heart className="w-6 h-6 text-pink-400" />
+            <Sword className="w-6 h-6 text-slate-400" />
             <h2 className="text-xl font-bold text-white">
               {request ? 'Edit Prayer Request' : 'Add Prayer Request'}
             </h2>
