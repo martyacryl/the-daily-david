@@ -3,7 +3,7 @@ import { motion } from 'framer-motion'
 import { useAuthStore } from '../../stores/authStore'
 import { useDailyStore } from '../../stores/dailyStore'
 import { SOAPData, DailyEntry } from '../../types'
-import { BookOpen, Search, Filter, Download, X, ChevronDown, ChevronUp, Edit3, Save, X as CancelIcon } from 'lucide-react'
+import { BookOpen, Search, Download, X, Edit3, Save } from 'lucide-react'
 import { Button } from '../ui/Button'
 import { Textarea } from '../ui/Textarea'
 
@@ -17,26 +17,21 @@ const extractBook = (scripture: string): string => {
 interface SOAPReviewStats {
   totalSOAPs: number
   uniqueBooks: string[]
-  uniqueVerses: number
   totalWords: number
   averageWordsPerSOAP: number
   mostFrequentBooks: { book: string; count: number }[]
-  completionRate: number
-  recentActivity: { date: string; count: number }[]
-  mostStudiedVerses: { verse: string; count: number }[]
 }
 
 export const SOAPReview: React.FC = () => {
   const { entries, loadEntries, isLoading, createEntry } = useDailyStore()
-  const { isAuthenticated, user } = useAuthStore()
+  const { isAuthenticated } = useAuthStore()
   
   // Filter and search state
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedBook, setSelectedBook] = useState('all')
-  const [filterBy, setFilterBy] = useState<'all' | 'recent' | 'thisMonth' | 'thisYear'>('all')
   const [sortBy, setSortBy] = useState<'date' | 'book' | 'theme'>('date')
   
-  // Editing state - following the runbook pattern
+  // Editing state - following runbook pattern exactly
   const [editingEntry, setEditingEntry] = useState<string | null>(null)
   const [localThoughts, setLocalThoughts] = useState('')
   const [isSaving, setIsSaving] = useState(false)
@@ -48,7 +43,7 @@ export const SOAPReview: React.FC = () => {
     }
   }, [isAuthenticated, loadEntries])
 
-  // Filter and process SOAP entries - following the runbook pattern
+  // Filter and process SOAP entries - following runbook pattern
   const soapEntries = useMemo(() => {
     const filtered = entries.filter(entry => {
       const hasSOAP = entry.soap && entry.soap.scripture && entry.soap.scripture.trim()
@@ -98,45 +93,19 @@ export const SOAPReview: React.FC = () => {
       )
     }
 
-    // Date filter
-    const now = new Date()
-    switch (filterBy) {
-      case 'recent':
-        const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
-        filtered = filtered.filter(entry => new Date(entry.date) >= weekAgo)
-        break
-      case 'thisMonth':
-        const monthStart = new Date(now.getFullYear(), now.getMonth(), 1)
-        filtered = filtered.filter(entry => new Date(entry.date) >= monthStart)
-        break
-      case 'thisYear':
-        const yearStart = new Date(now.getFullYear(), 0, 1)
-        filtered = filtered.filter(entry => new Date(entry.date) >= yearStart)
-        break
-    }
-
     return filtered
-  }, [soapEntries, searchTerm, selectedBook, filterBy])
+  }, [soapEntries, searchTerm, selectedBook])
 
-  // Calculate statistics based on filtered entries
+  // Calculate statistics
   const stats = useMemo((): SOAPReviewStats => {
     const books = new Map<string, number>()
-    const verses = new Map<string, number>()
     let totalWords = 0
-    const recentActivityMap = new Map<string, number>()
-    const mostStudiedVersesMap = new Map<string, number>()
 
     filteredEntries.forEach(entry => {
       // Count books
       const book = extractBook(entry.soapData.scripture)
       if (book) {
         books.set(book, (books.get(book) || 0) + 1)
-      }
-
-      // Count verses
-      const verse = entry.soapData.scripture
-      if (verse) {
-        verses.set(verse, (verses.get(verse) || 0) + 1)
       }
 
       // Count words
@@ -148,15 +117,6 @@ export const SOAPReview: React.FC = () => {
         entry.additionalNotes || ''
       ].join(' ').split(/\s+/).filter(word => word.length > 0)
       totalWords += words.length
-
-      // Recent activity
-      const date = entry.date
-      recentActivityMap.set(date, (recentActivityMap.get(date) || 0) + 1)
-
-      // Most studied verses
-      if (entry.soapData.scripture) {
-        mostStudiedVersesMap.set(entry.soapData.scripture, (mostStudiedVersesMap.get(entry.soapData.scripture) || 0) + 1)
-      }
     })
 
     const uniqueBooks = Array.from(books.keys())
@@ -165,26 +125,12 @@ export const SOAPReview: React.FC = () => {
       .sort((a, b) => b.count - a.count)
       .slice(0, 5)
 
-    const mostStudiedVerses = Array.from(mostStudiedVersesMap.entries())
-      .map(([verse, count]) => ({ verse, count }))
-      .sort((a, b) => b.count - a.count)
-      .slice(0, 5)
-
-    const recentActivity = Array.from(recentActivityMap.entries())
-      .map(([date, count]) => ({ date, count }))
-      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-      .slice(0, 7)
-
     return {
       totalSOAPs: filteredEntries.length,
       uniqueBooks,
-      uniqueVerses: verses.size,
       totalWords,
       averageWordsPerSOAP: filteredEntries.length > 0 ? Math.round(totalWords / filteredEntries.length) : 0,
-      mostFrequentBooks,
-      completionRate: 100, // All entries with SOAP are considered completed
-      recentActivity,
-      mostStudiedVerses
+      mostFrequentBooks
     }
   }, [filteredEntries])
 
@@ -198,13 +144,13 @@ export const SOAPReview: React.FC = () => {
     return Array.from(books).sort()
   }, [soapEntries])
 
-  // Handle input change - following the runbook pattern
+  // Handle input change - following runbook pattern
   const handleThoughtsChange = (value: string) => {
     setLocalThoughts(value)
   }
 
-  // Handle input blur - following the runbook pattern with proper error handling
-  const handleThoughtsBlur = async () => {
+  // Handle save - following runbook pattern exactly
+  const handleSave = async () => {
     if (!editingEntry || isSaving) return
 
     const entry = soapEntries.find(e => e.id === editingEntry)
@@ -214,18 +160,24 @@ export const SOAPReview: React.FC = () => {
     if (localThoughts !== (entry.additionalNotes || '')) {
       setIsSaving(true)
       try {
+        console.log('SOAP Review: Starting save operation', {
+          entryId: editingEntry,
+          originalThoughts: entry.additionalNotes,
+          newThoughts: localThoughts
+        })
+
         // Create updated SOAP data with the new thoughts
         const updatedSOAP: SOAPData = {
           ...entry.soapData,
           thoughts: localThoughts
         }
 
-        // Create a complete entry data object for saving - following the runbook pattern
+        // Create complete entry data object - following runbook pattern
         const entryData = {
           date: entry.date,
           goals: entry.goals,
           gratitude: entry.gratitude,
-          soap: updatedSOAP, // This includes the updated thoughts
+          soap: updatedSOAP,
           dailyIntention: entry.dailyIntention,
           leadershipRating: entry.leadershipRating,
           checkIn: entry.checkIn,
@@ -234,46 +186,50 @@ export const SOAPReview: React.FC = () => {
           completed: entry.completed
         }
 
-        console.log('SOAP Review: Saving entry with updated thoughts:', {
-          entryId: editingEntry,
-          originalThoughts: entry.additionalNotes,
-          newThoughts: localThoughts,
-          entryData
-        })
+        console.log('SOAP Review: Calling createEntry with data:', entryData)
 
-        // Use the store's createEntry method which handles save/update logic
+        // Use the store's createEntry method
         await createEntry(entryData)
         
         console.log('SOAP Review: Successfully saved thoughts')
         
+        // Clear editing state
+        setEditingEntry(null)
+        setLocalThoughts('')
+        
       } catch (error) {
         console.error('SOAP Review: Save error:', error)
-        // You could add a toast notification here for user feedback
+        // Could add toast notification here
       } finally {
         setIsSaving(false)
       }
+    } else {
+      // No changes, just clear editing state
+      setEditingEntry(null)
+      setLocalThoughts('')
     }
-
-    // Clear editing state
-    setEditingEntry(null)
-    setLocalThoughts('')
   }
 
-  // Start editing - following the runbook pattern
+  // Start editing - following runbook pattern
   const startEditing = (entry: any) => {
     setEditingEntry(entry.id)
     setLocalThoughts(entry.additionalNotes || '')
+  }
+
+  // Cancel editing
+  const cancelEditing = () => {
+    setEditingEntry(null)
+    setLocalThoughts('')
   }
 
   // Clear all filters
   const clearAllFilters = () => {
     setSearchTerm('')
     setSelectedBook('all')
-    setFilterBy('all')
   }
 
   // Check if any filters are active
-  const hasActiveFilters = searchTerm || selectedBook !== 'all' || filterBy !== 'all'
+  const hasActiveFilters = searchTerm || selectedBook !== 'all'
 
   // Export functions
   const exportSOAPs = () => {
@@ -292,32 +248,6 @@ export const SOAPReview: React.FC = () => {
     const link = document.createElement('a')
     link.href = url
     link.download = `soap-review-${new Date().toISOString().split('T')[0]}.json`
-    link.click()
-    URL.revokeObjectURL(url)
-  }
-
-  const exportSOAPsAsMarkdown = () => {
-    const markdown = filteredEntries.map(entry => {
-      const date = new Date(entry.date).toLocaleDateString()
-      return `# ${entry.soapData.scripture} - ${date}
-
-**Observation:** ${entry.soapData.observation}
-
-**Application:** ${entry.soapData.application}
-
-**Prayer:** ${entry.soapData.prayer}
-
-${entry.additionalNotes ? `**Additional Notes:** ${entry.additionalNotes}` : ''}
-
----
-`
-    }).join('\n')
-    
-    const dataBlob = new Blob([markdown], { type: 'text/markdown' })
-    const url = URL.createObjectURL(dataBlob)
-    const link = document.createElement('a')
-    link.href = url
-    link.download = `soap-review-${new Date().toISOString().split('T')[0]}.md`
     link.click()
     URL.revokeObjectURL(url)
   }
@@ -346,9 +276,9 @@ ${entry.additionalNotes ? `**Additional Notes:** ${entry.additionalNotes}` : ''}
 
         {/* Filters and Search */}
         <div className="bg-slate-800/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-slate-700 mb-8">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Search */}
-            <div className="sm:col-span-2 lg:col-span-2">
+            <div className="sm:col-span-2">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4" />
                 <input
@@ -396,20 +326,6 @@ ${entry.additionalNotes ? `**Additional Notes:** ${entry.additionalNotes}` : ''}
               </select>
             </div>
 
-            {/* Date Filter */}
-            <div>
-              <select
-                value={filterBy}
-                onChange={(e) => setFilterBy(e.target.value as 'all' | 'recent' | 'thisMonth' | 'thisYear')}
-                className="w-full px-2 py-2 text-sm bg-slate-700/60 border border-slate-600/50 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-slate-500"
-              >
-                <option value="all">All Time</option>
-                <option value="recent">Recent (7 days)</option>
-                <option value="thisMonth">This Month</option>
-                <option value="thisYear">This Year</option>
-              </select>
-            </div>
-
             {/* Clear Filters */}
             {hasActiveFilters && (
               <div className="flex items-center">
@@ -447,8 +363,8 @@ ${entry.additionalNotes ? `**Additional Notes:** ${entry.additionalNotes}` : ''}
           </div>
         </div>
 
-        {/* Export Buttons */}
-        <div className="flex justify-center gap-4 mb-8">
+        {/* Export Button */}
+        <div className="flex justify-center mb-8">
           <Button
             onClick={exportSOAPs}
             variant="outline"
@@ -456,14 +372,6 @@ ${entry.additionalNotes ? `**Additional Notes:** ${entry.additionalNotes}` : ''}
           >
             <Download className="w-4 h-4" />
             Export JSON
-          </Button>
-          <Button
-            onClick={exportSOAPsAsMarkdown}
-            variant="outline"
-            className="flex items-center gap-2"
-          >
-            <Download className="w-4 h-4" />
-            Export Markdown
           </Button>
         </div>
 
@@ -499,58 +407,44 @@ ${entry.additionalNotes ? `**Additional Notes:** ${entry.additionalNotes}` : ''}
                       })}
                     </p>
                   </div>
-                  <button
-                    onClick={() => startEditing(entry)}
-                    className="text-slate-400 hover:text-amber-400 transition-colors"
-                    disabled={isSaving}
-                  >
-                    <Edit3 className="w-5 h-5" />
-                  </button>
+                  {editingEntry !== entry.id && (
+                    <button
+                      onClick={() => startEditing(entry)}
+                      className="text-slate-400 hover:text-amber-400 transition-colors"
+                      disabled={isSaving}
+                    >
+                      <Edit3 className="w-5 h-5" />
+                    </button>
+                  )}
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   {/* Scripture */}
                   <div className="border-l-4 border-l-green-500 bg-slate-700/50 rounded-r-lg p-4">
-                    <h4 className="font-bold text-lg mb-2 text-white flex items-center gap-2">
-                      <BookOpen className="w-5 h-5 text-slate-400" />
-                      Scripture
-                    </h4>
-                    <p className="text-green-200 text-sm mb-4">Today's Bible passage</p>
+                    <h4 className="font-bold text-lg mb-2 text-white">Scripture</h4>
                     <p className="text-white">{entry.soapData.scripture}</p>
                   </div>
 
                   {/* Observation */}
                   <div className="border-l-4 border-l-blue-500 bg-slate-700/50 rounded-r-lg p-4">
-                    <h4 className="font-bold text-lg mb-2 text-white flex items-center gap-2">
-                      <BookOpen className="w-5 h-5 text-slate-400" />
-                      Observation
-                    </h4>
-                    <p className="text-green-200 text-sm mb-4">What does the passage say?</p>
+                    <h4 className="font-bold text-lg mb-2 text-white">Observation</h4>
                     <p className="text-white">{entry.soapData.observation}</p>
                   </div>
 
                   {/* Application */}
                   <div className="border-l-4 border-l-purple-500 bg-slate-700/50 rounded-r-lg p-4">
-                    <h4 className="font-bold text-lg mb-2 text-white flex items-center gap-2">
-                      <BookOpen className="w-5 h-5 text-slate-400" />
-                      Application
-                    </h4>
-                    <p className="text-green-200 text-sm mb-4">How does this apply to your life?</p>
+                    <h4 className="font-bold text-lg mb-2 text-white">Application</h4>
                     <p className="text-white">{entry.soapData.application}</p>
                   </div>
 
                   {/* Prayer */}
                   <div className="border-l-4 border-l-orange-500 bg-slate-700/50 rounded-r-lg p-4">
-                    <h4 className="font-bold text-lg mb-2 text-white flex items-center gap-2">
-                      <BookOpen className="w-5 h-5 text-slate-400" />
-                      Prayer
-                    </h4>
-                    <p className="text-green-200 text-sm mb-4">Your response to God</p>
+                    <h4 className="font-bold text-lg mb-2 text-white">Prayer</h4>
                     <p className="text-white">{entry.soapData.prayer}</p>
                   </div>
                 </div>
 
-                {/* Additional Notes Section - following the runbook pattern */}
+                {/* Additional Notes Section - following runbook pattern exactly */}
                 <div className="mt-6 border-t border-slate-700 pt-6">
                   <h4 className="font-bold text-lg mb-4 text-white flex items-center gap-2">
                     <Edit3 className="w-5 h-5 text-amber-400" />
@@ -561,31 +455,44 @@ ${entry.additionalNotes ? `**Additional Notes:** ${entry.additionalNotes}` : ''}
                   </h4>
                   
                   {editingEntry === entry.id ? (
-                    <div>
-                      <p className="text-green-400 text-sm mb-2">Editing mode - click away to save</p>
+                    <div className="space-y-4">
                       <Textarea
                         value={localThoughts}
                         onChange={(e) => handleThoughtsChange(e.target.value)}
-                        onBlur={handleThoughtsBlur}
                         placeholder="Add additional insights, reflections, or notes about this SOAP study..."
                         className="w-full px-4 py-3 border-2 border-slate-600/50 rounded-lg bg-slate-700/60 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-slate-500 transition-colors duration-200 resize-none"
                         rows={4}
                         autoFocus
                         disabled={isSaving}
                       />
+                      <div className="flex gap-2">
+                        <Button
+                          onClick={handleSave}
+                          disabled={isSaving}
+                          className="flex items-center gap-2"
+                        >
+                          <Save className="w-4 h-4" />
+                          {isSaving ? 'Saving...' : 'Save'}
+                        </Button>
+                        <Button
+                          onClick={cancelEditing}
+                          variant="outline"
+                          disabled={isSaving}
+                        >
+                          Cancel
+                        </Button>
+                      </div>
                     </div>
                   ) : (
-                    <div className="relative">
-                      <div 
-                        className="min-h-[100px] px-4 py-3 border-2 border-slate-600/50 rounded-lg bg-slate-700/60 text-white cursor-pointer hover:border-slate-500 transition-colors"
-                        onClick={() => startEditing(entry)}
-                      >
-                        {entry.additionalNotes || (
-                          <span className="text-slate-400 italic">
-                            Click here to add additional notes...
-                          </span>
-                        )}
-                      </div>
+                    <div 
+                      className="min-h-[100px] px-4 py-3 border-2 border-slate-600/50 rounded-lg bg-slate-700/60 text-white cursor-pointer hover:border-slate-500 transition-colors"
+                      onClick={() => startEditing(entry)}
+                    >
+                      {entry.additionalNotes || (
+                        <span className="text-slate-400 italic">
+                          Click here to add additional notes...
+                        </span>
+                      )}
                     </div>
                   )}
                 </div>
