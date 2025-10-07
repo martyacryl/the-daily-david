@@ -6,6 +6,7 @@ import { SOAPData, DailyEntry } from '../../types'
 import { BookOpen, Search, Download, X, Edit3 } from 'lucide-react'
 import { Button } from '../ui/Button'
 import { Textarea } from '../ui/Textarea'
+import { API_BASE_URL } from '../../config/api'
 
 // Helper function to extract book name from scripture reference
 const extractBook = (scripture: string): string => {
@@ -104,7 +105,7 @@ export const SOAPReview: React.FC = () => {
     try {
       console.log('SOAP Review: Auto-saving to API:', entryData)
       
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3003'}/api/entries`, {
+      const response = await fetch(`${API_BASE_URL}/api/entries`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
