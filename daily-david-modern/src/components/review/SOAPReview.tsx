@@ -120,8 +120,8 @@ export const SOAPReview: React.FC = () => {
       const data = await response.json()
       console.log('SOAP Review: Auto-save successful:', data)
       
-      // Reload entries to get the latest data
-      await loadEntries()
+      // Don't reload entries immediately to prevent page refresh
+      // The data will be refreshed when the component re-renders
       
     } catch (error) {
       console.error('SOAP Review: Auto-save error:', error)
@@ -257,9 +257,7 @@ export const SOAPReview: React.FC = () => {
   // Handle blur - trigger auto-save following Daily Entry pattern exactly
   const handleThoughtsBlur = () => {
     // Trigger auto-save using the same pattern as Daily Entry
-    setTimeout(() => {
-      window.dispatchEvent(new CustomEvent('triggerSOAPSave'))
-    }, 100)
+    window.dispatchEvent(new CustomEvent('triggerSOAPSave'))
   }
 
   // Start editing
