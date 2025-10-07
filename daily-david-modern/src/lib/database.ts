@@ -503,6 +503,148 @@ class DatabaseManager {
       return false
     }
   }
+
+  // ============================================================================
+  // PRAYER REQUESTS METHODS
+  // ============================================================================
+
+  async getPrayerRequests(userId: string): Promise<any[]> {
+    try {
+      console.log('API: Getting prayer requests for user:', userId)
+      const response = await fetch(`${API_BASE_URL}/api/prayer-requests`, {
+        headers: getAuthHeaders()
+      })
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+      
+      const data = await response.json()
+      console.log('API: Prayer requests result:', data.requests)
+      
+      return data.requests || []
+    } catch (error) {
+      console.error('API: Error getting prayer requests:', error)
+      return []
+    }
+  }
+
+  async createPrayerRequest(userId: string, data: any): Promise<any> {
+    try {
+      console.log('API: Creating prayer request:', data)
+      
+      const response = await fetch(`${API_BASE_URL}/api/prayer-requests`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(data)
+      })
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+      
+      const result = await response.json()
+      console.log('API: Created prayer request:', result.request)
+      
+      return result.request
+    } catch (error) {
+      console.error('API: Error creating prayer request:', error)
+      throw error
+    }
+  }
+
+  async updatePrayerRequest(userId: string, id: string, updates: any): Promise<any> {
+    try {
+      console.log('API: Updating prayer request:', id, updates)
+      
+      const response = await fetch(`${API_BASE_URL}/api/prayer-requests/${id}`, {
+        method: 'PUT',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(updates)
+      })
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+      
+      const result = await response.json()
+      console.log('API: Updated prayer request:', result.request)
+      
+      return result.request
+    } catch (error) {
+      console.error('API: Error updating prayer request:', error)
+      throw error
+    }
+  }
+
+  async deletePrayerRequest(userId: string, id: string): Promise<boolean> {
+    try {
+      console.log('API: Deleting prayer request:', id)
+      
+      const response = await fetch(`${API_BASE_URL}/api/prayer-requests/${id}`, {
+        method: 'DELETE',
+        headers: getAuthHeaders()
+      })
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+      
+      const result = await response.json()
+      console.log('API: Deleted prayer request:', result.message)
+      
+      return result.success
+    } catch (error) {
+      console.error('API: Error deleting prayer request:', error)
+      return false
+    }
+  }
+
+  async addPraiseReport(userId: string, id: string, praiseReport: string): Promise<any> {
+    try {
+      console.log('API: Adding praise report to prayer request:', id)
+      
+      const response = await fetch(`${API_BASE_URL}/api/prayer-requests/${id}/praise-report`, {
+        method: 'PUT',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ praiseReport })
+      })
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+      
+      const result = await response.json()
+      console.log('API: Added praise report:', result.request)
+      
+      return result.request
+    } catch (error) {
+      console.error('API: Error adding praise report:', error)
+      throw error
+    }
+  }
+
+  async getPrayerRequestStats(userId: string): Promise<any> {
+    try {
+      console.log('API: Getting prayer request stats for user:', userId)
+      
+      const response = await fetch(`${API_BASE_URL}/api/prayer-requests/stats`, {
+        headers: getAuthHeaders()
+      })
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+      
+      const data = await response.json()
+      console.log('API: Prayer request stats:', data.stats)
+      
+      return data.stats
+    } catch (error) {
+      console.error('API: Error getting prayer request stats:', error)
+      return null
+    }
+  }
 }
 
 // Create singleton instance

@@ -239,7 +239,51 @@ export interface User {
     updated_at: string
   }
   
+  // Prayer Request Types
+  export interface PrayerRequest {
+    id: string
+    userId: string
+    title: string
+    description: string
+    personName?: string
+    category: 'health' | 'family' | 'work' | 'spiritual' | 'other'
+    status: 'active' | 'answered' | 'closed'
+    priority: 'low' | 'medium' | 'high' | 'urgent'
+    createdAt: Date
+    updatedAt: Date
+    answeredAt?: Date
+    praiseReport?: string
+  }
+  
+  export interface PrayerRequestFormData {
+    title: string
+    description: string
+    personName: string
+    category: string
+    priority: string
+  }
+  
+  export interface PrayerRequestStats {
+    total: number
+    active: number
+    answered: number
+    closed: number
+    byCategory: { [key: string]: number }
+    byPriority: { [key: string]: number }
+  }
+  
+  // Prayer Store State
+  export interface PrayerState {
+    requests: PrayerRequest[]
+    isLoading: boolean
+    error: string | null
+    stats: PrayerRequestStats | null
+  }
+  
   // Utility Types
   export type ViewType = 'landing' | 'daily'
   export type GoalType = 'daily' | 'weekly' | 'monthly'
   export type CategoryType = 'spiritual' | 'personal' | 'outreach' | 'health' | 'work'
+  export type PrayerCategoryType = 'health' | 'family' | 'work' | 'spiritual' | 'other'
+  export type PrayerStatusType = 'active' | 'answered' | 'closed'
+  export type PrayerPriorityType = 'low' | 'medium' | 'high' | 'urgent'

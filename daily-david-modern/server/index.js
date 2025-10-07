@@ -9,7 +9,10 @@ const app = express()
 const PORT = process.env.PORT || 3001
 
 // Middleware
-app.use(cors())
+app.use(cors({
+  origin: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:3002', 'http://localhost:3003', 'http://localhost:3004', 'http://localhost:3005', 'http://localhost:3006', 'http://localhost:3007', 'http://localhost:3008', 'http://localhost:3009', 'http://localhost:3010'],
+  credentials: true
+}))
 app.use(express.json())
 
 // Database connection
@@ -486,6 +489,359 @@ app.delete('/api/admin/users/:id', authenticateToken, async (req, res) => {
   } catch (error) {
     console.error('Delete user error:', error)
     res.status(500).json({ success: false, error: 'Failed to delete user' })
+  }
+})
+
+// ============================================================================
+// PRAYER REQUESTS ENDPOINTS
+// ============================================================================
+
+// Get all prayer requests for authenticated user
+app.get('/api/prayer-requests', authenticateToken, async (req, res) => {
+  const client = await pool.connect()
+  
+  try {
+    const userId = req.user.userId
+    
+    const result = await client.query(`
+      SELECT 
+        id,
+        user_id,
+        title,
+        description,
+        person_name,
+        category,
+        status,
+        priority,
+        created_at,
+        updated_at,
+        answered_at,
+        praise_report
+      FROM prayer_requests 
+      WHERE user_id = $1 
+      ORDER BY created_at DESC
+    `, [userId])
+    
+    const requests = result.rows.map(row => ({
+      id: row.id.toString(),
+      userId: row.user_id,
+      title: row.title,
+      description: row.description,
+      personName: row.person_name,
+      category: row.category,
+      status: row.status,
+      priority: row.priority,
+      createdAt: new Date(row.created_at),
+      updatedAt: new Date(row.updated_at),
+      answeredAt: row.answered_at ? new Date(row.answered_at) : null,
+      praiseReport: row.praise_report
+    }))
+    
+    res.json({ success: true, requests })
+  } catch (error) {
+    console.error('Get prayer requests error:', error)
+    res.status(500).json({ success: false, error: 'Failed to fetch prayer requests' })
+  } finally {
+    client.release()
+  }
+})
+
+// Create new prayer request
+app.post('/api/prayer-requests', authenticateToken, async (req, res) => {
+  const client = await pool.connect()
+  
+  try {
+    const userId = req.user.userId
+    const { title, description, personName, category, priority } = req.body
+    
+    // Validate required fields
+    if (!title || !description) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Title and description are required' 
+      })
+    }
+    
+    const result = await client.query(`
+      INSERT INTO prayer_requests (
+        user_id, title, description, person_name, category, priority
+      ) VALUES ($1, $2, $3, $4, $5, $6)
+      RETURNING *
+    `, [userId, title, description, personName || null, category || 'other', priority || 'medium'])
+    
+    const newRequest = {
+      id: result.rows[0].id.toString(),
+      userId: result.rows[0].user_id,
+      title: result.rows[0].title,
+      description: result.rows[0].description,
+      personName: result.rows[0].person_name,
+      category: result.rows[0].category,
+      status: result.rows[0].status,
+      priority: result.rows[0].priority,
+      createdAt: new Date(result.rows[0].created_at),
+      updatedAt: new Date(result.rows[0].updated_at),
+      answeredAt: result.rows[0].answered_at ? new Date(result.rows[0].answered_at) : null,
+      praiseReport: result.rows[0].praise_report
+    }
+    
+    res.status(201).json({ success: true, request: newRequest })
+  } catch (error) {
+    console.error('Create prayer request error:', error)
+    res.status(500).json({ success: false, error: 'Failed to create prayer request' })
+  } finally {
+    client.release()
+  }
+})
+
+// Update prayer request
+app.put('/api/prayer-requests/:id', authenticateToken, async (req, res) => {
+  const client = await pool.connect()
+  
+  try {
+    const userId = req.user.userId
+    const requestId = req.params.id
+    const { title, description, personName, category, priority, status } = req.body
+    
+    // Verify ownership
+    const ownershipCheck = await client.query(
+      'SELECT user_id FROM prayer_requests WHERE id = $1',
+      [requestId]
+    )
+    
+    if (ownershipCheck.rows.length === 0) {
+      return res.status(404).json({ success: false, error: 'Prayer request not found' })
+    }
+    
+    if (ownershipCheck.rows[0].user_id !== userId) {
+      return res.status(403).json({ success: false, error: 'Access denied' })
+    }
+    
+    // Build update query dynamically
+    const updates = []
+    const values = []
+    let paramCount = 1
+    
+    if (title !== undefined) {
+      updates.push(`title = $${paramCount++}`)
+      values.push(title)
+    }
+    if (description !== undefined) {
+      updates.push(`description = $${paramCount++}`)
+      values.push(description)
+    }
+    if (personName !== undefined) {
+      updates.push(`person_name = $${paramCount++}`)
+      values.push(personName)
+    }
+    if (category !== undefined) {
+      updates.push(`category = $${paramCount++}`)
+      values.push(category)
+    }
+    if (priority !== undefined) {
+      updates.push(`priority = $${paramCount++}`)
+      values.push(priority)
+    }
+    if (status !== undefined) {
+      updates.push(`status = $${paramCount++}`)
+      values.push(status)
+      
+      // If marking as answered, set answered_at timestamp
+      if (status === 'answered') {
+        updates.push(`answered_at = NOW()`)
+      } else if (status === 'active') {
+        updates.push(`answered_at = NULL`)
+      }
+    }
+    
+    if (updates.length === 0) {
+      return res.status(400).json({ success: false, error: 'No updates provided' })
+    }
+    
+    values.push(requestId)
+    
+    const result = await client.query(`
+      UPDATE prayer_requests 
+      SET ${updates.join(', ')}
+      WHERE id = $${paramCount}
+      RETURNING *
+    `, values)
+    
+    const updatedRequest = {
+      id: result.rows[0].id.toString(),
+      userId: result.rows[0].user_id,
+      title: result.rows[0].title,
+      description: result.rows[0].description,
+      personName: result.rows[0].person_name,
+      category: result.rows[0].category,
+      status: result.rows[0].status,
+      priority: result.rows[0].priority,
+      createdAt: new Date(result.rows[0].created_at),
+      updatedAt: new Date(result.rows[0].updated_at),
+      answeredAt: result.rows[0].answered_at ? new Date(result.rows[0].answered_at) : null,
+      praiseReport: result.rows[0].praise_report
+    }
+    
+    res.json({ success: true, request: updatedRequest })
+  } catch (error) {
+    console.error('Update prayer request error:', error)
+    res.status(500).json({ success: false, error: 'Failed to update prayer request' })
+  } finally {
+    client.release()
+  }
+})
+
+// Add praise report to prayer request
+app.put('/api/prayer-requests/:id/praise-report', authenticateToken, async (req, res) => {
+  const client = await pool.connect()
+  
+  try {
+    const userId = req.user.userId
+    const requestId = req.params.id
+    const { praiseReport } = req.body
+    
+    // Verify ownership
+    const ownershipCheck = await client.query(
+      'SELECT user_id FROM prayer_requests WHERE id = $1',
+      [requestId]
+    )
+    
+    if (ownershipCheck.rows.length === 0) {
+      return res.status(404).json({ success: false, error: 'Prayer request not found' })
+    }
+    
+    if (ownershipCheck.rows[0].user_id !== userId) {
+      return res.status(403).json({ success: false, error: 'Access denied' })
+    }
+    
+    const result = await client.query(`
+      UPDATE prayer_requests 
+      SET praise_report = $1, status = 'answered', answered_at = NOW()
+      WHERE id = $2
+      RETURNING *
+    `, [praiseReport, requestId])
+    
+    const updatedRequest = {
+      id: result.rows[0].id.toString(),
+      userId: result.rows[0].user_id,
+      title: result.rows[0].title,
+      description: result.rows[0].description,
+      personName: result.rows[0].person_name,
+      category: result.rows[0].category,
+      status: result.rows[0].status,
+      priority: result.rows[0].priority,
+      createdAt: new Date(result.rows[0].created_at),
+      updatedAt: new Date(result.rows[0].updated_at),
+      answeredAt: result.rows[0].answered_at ? new Date(result.rows[0].answered_at) : null,
+      praiseReport: result.rows[0].praise_report
+    }
+    
+    res.json({ success: true, request: updatedRequest })
+  } catch (error) {
+    console.error('Add praise report error:', error)
+    res.status(500).json({ success: false, error: 'Failed to add praise report' })
+  } finally {
+    client.release()
+  }
+})
+
+// Delete prayer request
+app.delete('/api/prayer-requests/:id', authenticateToken, async (req, res) => {
+  const client = await pool.connect()
+  
+  try {
+    const userId = req.user.userId
+    const requestId = req.params.id
+    
+    // Verify ownership
+    const ownershipCheck = await client.query(
+      'SELECT user_id FROM prayer_requests WHERE id = $1',
+      [requestId]
+    )
+    
+    if (ownershipCheck.rows.length === 0) {
+      return res.status(404).json({ success: false, error: 'Prayer request not found' })
+    }
+    
+    if (ownershipCheck.rows[0].user_id !== userId) {
+      return res.status(403).json({ success: false, error: 'Access denied' })
+    }
+    
+    await client.query('DELETE FROM prayer_requests WHERE id = $1', [requestId])
+    
+    res.json({ success: true, message: 'Prayer request deleted successfully' })
+  } catch (error) {
+    console.error('Delete prayer request error:', error)
+    res.status(500).json({ success: false, error: 'Failed to delete prayer request' })
+  } finally {
+    client.release()
+  }
+})
+
+// Get prayer request statistics
+app.get('/api/prayer-requests/stats', authenticateToken, async (req, res) => {
+  const client = await pool.connect()
+  
+  try {
+    const userId = req.user.userId
+    
+    // Get basic counts
+    const totalResult = await client.query(
+      'SELECT COUNT(*) as count FROM prayer_requests WHERE user_id = $1',
+      [userId]
+    )
+    
+    const statusResult = await client.query(`
+      SELECT status, COUNT(*) as count 
+      FROM prayer_requests 
+      WHERE user_id = $1 
+      GROUP BY status
+    `, [userId])
+    
+    const categoryResult = await client.query(`
+      SELECT category, COUNT(*) as count 
+      FROM prayer_requests 
+      WHERE user_id = $1 
+      GROUP BY category
+    `, [userId])
+    
+    const priorityResult = await client.query(`
+      SELECT priority, COUNT(*) as count 
+      FROM prayer_requests 
+      WHERE user_id = $1 
+      GROUP BY priority
+    `, [userId])
+    
+    // Build stats object
+    const stats = {
+      total: parseInt(totalResult.rows[0].count),
+      active: 0,
+      answered: 0,
+      closed: 0,
+      byCategory: {},
+      byPriority: {}
+    }
+    
+    // Process status counts
+    statusResult.rows.forEach(row => {
+      stats[row.status] = parseInt(row.count)
+    })
+    
+    // Process category counts
+    categoryResult.rows.forEach(row => {
+      stats.byCategory[row.category] = parseInt(row.count)
+    })
+    
+    // Process priority counts
+    priorityResult.rows.forEach(row => {
+      stats.byPriority[row.priority] = parseInt(row.count)
+    })
+    
+    res.json({ success: true, stats })
+  } catch (error) {
+    console.error('Get prayer stats error:', error)
+    res.status(500).json({ success: false, error: 'Failed to fetch prayer statistics' })
+  } finally {
+    client.release()
   }
 })
 
