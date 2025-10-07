@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useMemo } from 'react'
+import React, { useState, useEffect, useMemo, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { useAuthStore } from '../../stores/authStore'
 import { useDailyStore } from '../../stores/dailyStore'
 import { SOAPData, DailyEntry } from '../../types'
-import { BookOpen, Search, Download, X, Edit3, Save } from 'lucide-react'
+import { BookOpen, Search, Download, X, Edit3 } from 'lucide-react'
 import { Button } from '../ui/Button'
 import { Textarea } from '../ui/Textarea'
 
@@ -22,18 +22,34 @@ interface SOAPReviewStats {
   mostFrequentBooks: { book: string; count: number }[]
 }
 
+// Helper function to format dates (copied from DailyEntry)
+const formatDate = (date: Date) => {
+  return date.toLocaleDateString('en-US', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  })
+}
+
+// Helper function to parse date string in local timezone (copied from DailyEntry)
+const parseDateString = (dateString: string): Date => {
+  const [year, month, day] = dateString.split('-').map(Number)
+  return new Date(year, month - 1, day)
+}
+
 export const SOAPReview: React.FC = () => {
-  const { entries, loadEntries, isLoading, createEntry } = useDailyStore()
-  const { isAuthenticated } = useAuthStore()
+  const { entries, loadEntries, isLoading } = useDailyStore()
+  const { isAuthenticated, user, token } = useAuthStore()
   
   // Filter and search state
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedBook, setSelectedBook] = useState('all')
   const [sortBy, setSortBy] = useState<'date' | 'book' | 'theme'>('date')
   
-  // Editing state - following runbook pattern exactly
-  const [editingEntry, setEditingEntry] = useState<string | null>(null)
-  const [localThoughts, setLocalThoughts] = useState('')
+  // Simple editing state - following Daily Entry pattern exactly
+  const [editingEntryId, setEditingEntryId] = useState<string | null>(null)
+  const [editingThoughts, setEditingThoughts] = useState('')
   const [isSaving, setIsSaving] = useState(false)
 
   // Load entries on component mount
@@ -43,7 +59,7 @@ export const SOAPReview: React.FC = () => {
     }
   }, [isAuthenticated, loadEntries])
 
-  // Filter and process SOAP entries - following runbook pattern
+  // Filter and process SOAP entries
   const soapEntries = useMemo(() => {
     const filtered = entries.filter(entry => {
       const hasSOAP = entry.soap && entry.soap.scripture && entry.soap.scripture.trim()
@@ -51,11 +67,22 @@ export const SOAPReview: React.FC = () => {
     })
     
     return filtered
-      .map(entry => ({
-        ...entry,
-        soapData: entry.soap,
-        additionalNotes: entry.soap?.thoughts || ''
-      }))
+      .map(entry => {
+        console.log('SOAP Review: Processing entry:', {
+          id: entry.id,
+          date: entry.date,
+          dateKey: entry.dateKey,
+          date_key: entry.date_key,
+          soap: entry.soap,
+          thoughts: entry.soap?.thoughts,
+          additionalNotes: entry.soap?.thoughts || ''
+        })
+        return {
+          ...entry,
+          soapData: entry.soap,
+          additionalNotes: entry.soap?.thoughts || ''
+        }
+      })
       .sort((a, b) => {
         switch (sortBy) {
           case 'date':
@@ -69,6 +96,84 @@ export const SOAPReview: React.FC = () => {
         }
       })
   }, [entries, sortBy])
+
+  // Auto-save function - following Daily Entry pattern exactly
+  const autoSaveToAPI = async (entryData: any) => {
+    if (!user?.id || !token) return
+    
+    try {
+      console.log('SOAP Review: Auto-saving to API:', entryData)
+      
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3003'}/api/entries`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(entryData)
+      })
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+      
+      const data = await response.json()
+      console.log('SOAP Review: Auto-save successful:', data)
+      
+      // Reload entries to get the latest data
+      await loadEntries()
+      
+    } catch (error) {
+      console.error('SOAP Review: Auto-save error:', error)
+    }
+  }
+
+  // Handle auto-save - following Daily Entry pattern exactly
+  useEffect(() => {
+    const handleAutoSave = async () => {
+      if (editingEntryId && editingThoughts !== (soapEntries.find(e => e.id === editingEntryId)?.additionalNotes || '')) {
+        const entry = soapEntries.find(e => e.id === editingEntryId)
+        if (entry) {
+          setIsSaving(true)
+          try {
+            // Create updated SOAP data with the new thoughts
+            const updatedSOAP: SOAPData = {
+              ...entry.soapData,
+              thoughts: editingThoughts
+            }
+
+            // Create complete entry data object - following Daily Entry pattern exactly
+            const entryData = {
+              date: entry.date,
+              goals: entry.goals,
+              gratitude: entry.gratitude,
+              soap: updatedSOAP,
+              dailyIntention: entry.dailyIntention,
+              leadershipRating: entry.leadershipRating,
+              checkIn: entry.checkIn,
+              readingPlan: entry.readingPlan,
+              deletedGoalIds: entry.deletedGoalIds || [],
+              completed: entry.completed
+            }
+
+            await autoSaveToAPI(entryData)
+            
+            // Clear editing state
+            setEditingEntryId(null)
+            setEditingThoughts('')
+            
+          } catch (error) {
+            console.error('SOAP Review: Auto-save error:', error)
+          } finally {
+            setIsSaving(false)
+          }
+        }
+      }
+    }
+
+    window.addEventListener('triggerSOAPSave', handleAutoSave)
+    return () => window.removeEventListener('triggerSOAPSave', handleAutoSave)
+  }, [editingEntryId, editingThoughts, soapEntries, user, token, loadEntries])
 
   // Filter entries based on search and filters
   const filteredEntries = useMemo(() => {
@@ -144,92 +249,30 @@ export const SOAPReview: React.FC = () => {
     return Array.from(books).sort()
   }, [soapEntries])
 
-  // Handle input change - following runbook pattern
+  // Handle input change - following Daily Entry pattern exactly
   const handleThoughtsChange = (value: string) => {
-    setLocalThoughts(value)
+    setEditingThoughts(value)
   }
 
-  // Handle blur - auto-save when user clicks out
-  const handleThoughtsBlur = async () => {
-    // Small delay to prevent blur from firing when clicking save button
-    setTimeout(async () => {
-      if (editingEntry && localThoughts !== (soapEntries.find(e => e.id === editingEntry)?.additionalNotes || '')) {
-        await handleSave()
-      }
+  // Handle blur - trigger auto-save following Daily Entry pattern exactly
+  const handleThoughtsBlur = () => {
+    // Trigger auto-save using the same pattern as Daily Entry
+    setTimeout(() => {
+      window.dispatchEvent(new CustomEvent('triggerSOAPSave'))
     }, 100)
   }
 
-  // Handle save - following runbook pattern exactly
-  const handleSave = async () => {
-    if (!editingEntry || isSaving) return
-
-    const entry = soapEntries.find(e => e.id === editingEntry)
-    if (!entry) return
-
-    // Only update if there's actually a change
-    if (localThoughts !== (entry.additionalNotes || '')) {
-      setIsSaving(true)
-      try {
-        console.log('SOAP Review: Starting save operation', {
-          entryId: editingEntry,
-          originalThoughts: entry.additionalNotes,
-          newThoughts: localThoughts
-        })
-
-        // Create updated SOAP data with the new thoughts
-        const updatedSOAP: SOAPData = {
-          ...entry.soapData,
-          thoughts: localThoughts
-        }
-
-        // Create complete entry data object - following runbook pattern
-        const entryData = {
-          date: entry.date,
-          goals: entry.goals,
-          gratitude: entry.gratitude,
-          soap: updatedSOAP,
-          dailyIntention: entry.dailyIntention,
-          leadershipRating: entry.leadershipRating,
-          checkIn: entry.checkIn,
-          readingPlan: entry.readingPlan,
-          deletedGoalIds: entry.deletedGoalIds || [],
-          completed: entry.completed
-        }
-
-        console.log('SOAP Review: Calling createEntry with data:', entryData)
-
-        // Use the store's createEntry method
-        await createEntry(entryData)
-        
-        console.log('SOAP Review: Successfully saved thoughts')
-        
-        // Clear editing state
-        setEditingEntry(null)
-        setLocalThoughts('')
-        
-      } catch (error) {
-        console.error('SOAP Review: Save error:', error)
-        // Could add toast notification here
-      } finally {
-        setIsSaving(false)
-      }
-    } else {
-      // No changes, just clear editing state
-      setEditingEntry(null)
-      setLocalThoughts('')
-    }
-  }
-
-  // Start editing - following runbook pattern
+  // Start editing
   const startEditing = (entry: any) => {
-    setEditingEntry(entry.id)
-    setLocalThoughts(entry.additionalNotes || '')
-  }
-
-  // Cancel editing
-  const cancelEditing = () => {
-    setEditingEntry(null)
-    setLocalThoughts('')
+    console.log('SOAP Review: Starting to edit entry:', {
+      id: entry.id,
+      date: entry.date,
+      additionalNotes: entry.additionalNotes,
+      soap: entry.soap,
+      thoughts: entry.soap?.thoughts
+    })
+    setEditingEntryId(entry.id)
+    setEditingThoughts(entry.additionalNotes || '')
   }
 
   // Clear all filters
@@ -373,8 +416,8 @@ export const SOAPReview: React.FC = () => {
           </div>
         </div>
 
-        {/* Export Button */}
-        <div className="flex justify-center mb-8">
+        {/* Export and Refresh Buttons */}
+        <div className="flex justify-center gap-4 mb-8">
           <Button
             onClick={exportSOAPs}
             variant="outline"
@@ -382,6 +425,15 @@ export const SOAPReview: React.FC = () => {
           >
             <Download className="w-4 h-4" />
             Export JSON
+          </Button>
+          <Button
+            onClick={() => loadEntries()}
+            variant="outline"
+            className="flex items-center gap-2"
+            disabled={isLoading}
+          >
+            <Search className="w-4 h-4" />
+            {isLoading ? 'Loading...' : 'Refresh'}
           </Button>
         </div>
 
@@ -409,15 +461,10 @@ export const SOAPReview: React.FC = () => {
                       {entry.soapData.scripture}
                     </h3>
                     <p className="text-green-200 text-sm">
-                      {new Date(entry.date).toLocaleDateString('en-US', {
-                        weekday: 'long',
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric'
-                      })}
+                      {formatDate(parseDateString(entry.date))}
                     </p>
                   </div>
-                  {editingEntry !== entry.id && (
+                  {editingEntryId !== entry.id && (
                     <button
                       onClick={() => startEditing(entry)}
                       className="text-slate-400 hover:text-amber-400 transition-colors"
@@ -454,20 +501,21 @@ export const SOAPReview: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Additional Notes Section - following runbook pattern exactly */}
+                {/* Additional Notes Section - following Daily Entry pattern exactly */}
                 <div className="mt-6 border-t border-slate-700 pt-6">
                   <h4 className="font-bold text-lg mb-4 text-white flex items-center gap-2">
                     <Edit3 className="w-5 h-5 text-amber-400" />
                     Additional Notes
-                    {isSaving && editingEntry === entry.id && (
-                      <span className="text-xs text-green-400 ml-2">Saving...</span>
+                    {isSaving && editingEntryId === entry.id && (
+                      <span className="text-xs text-green-400 ml-2">Auto-saving...</span>
                     )}
                   </h4>
                   
-                  {editingEntry === entry.id ? (
-                    <div className="space-y-4">
+                  {editingEntryId === entry.id ? (
+                    <div>
+                      {console.log('SOAP Review: Rendering textarea for entry:', entry.id, 'with editingThoughts:', editingThoughts)}
                       <Textarea
-                        value={localThoughts}
+                        value={editingThoughts}
                         onChange={(e) => handleThoughtsChange(e.target.value)}
                         onBlur={handleThoughtsBlur}
                         placeholder="Add additional insights, reflections, or notes about this SOAP study..."
@@ -476,32 +524,13 @@ export const SOAPReview: React.FC = () => {
                         autoFocus
                         disabled={isSaving}
                       />
-                      <div className="flex gap-2">
-                        <Button
-                          onClick={(e) => {
-                            e.preventDefault()
-                            handleSave()
-                          }}
-                          disabled={isSaving}
-                          className="flex items-center gap-2"
-                        >
-                          <Save className="w-4 h-4" />
-                          {isSaving ? 'Saving...' : 'Save'}
-                        </Button>
-                        <Button
-                          onClick={cancelEditing}
-                          variant="outline"
-                          disabled={isSaving}
-                        >
-                          Cancel
-                        </Button>
-                      </div>
                     </div>
                   ) : (
                     <div 
                       className="min-h-[100px] px-4 py-3 border-2 border-slate-600/50 rounded-lg bg-slate-700/60 text-white cursor-pointer hover:border-slate-500 transition-colors"
                       onClick={() => startEditing(entry)}
                     >
+                      {console.log('SOAP Review: Displaying entry:', entry.id, 'additionalNotes:', entry.additionalNotes, 'soap.thoughts:', entry.soap?.thoughts)}
                       {entry.additionalNotes || (
                         <span className="text-slate-400 italic">
                           Click here to add additional notes...
