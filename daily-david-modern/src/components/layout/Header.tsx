@@ -33,19 +33,19 @@ export const Header: React.FC = () => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
     >
-      <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-16">
+      <div className="container mx-auto px-3 sm:px-4 lg:px-6">
+        <div className="flex items-center justify-between h-14 sm:h-16 lg:h-18">
           {/* Logo */}
-          <Link to="/" className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-amber-600 to-amber-700 rounded-lg flex items-center justify-center">
-              <Mountain className="w-5 h-5 text-white" />
+          <Link to="/" className="flex items-center space-x-1.5 sm:space-x-2 lg:space-x-3 min-w-0 flex-shrink-0">
+            <div className="w-7 h-7 sm:w-8 sm:h-8 lg:w-9 lg:h-9 bg-gradient-to-br from-amber-600 to-amber-700 rounded-lg flex items-center justify-center flex-shrink-0">
+              <Mountain className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-white" />
             </div>
-            <span className="text-xl font-bold text-white">Daily David</span>
+            <span className="text-lg sm:text-xl lg:text-2xl font-bold text-white truncate">Daily David</span>
           </Link>
 
           {/* Navigation */}
           {isAuthenticated && (
-            <nav className="hidden md:flex items-center space-x-1">
+            <nav className="hidden lg:flex items-center space-x-0.5 xl:space-x-1 2xl:space-x-2 flex-1 justify-center max-w-4xl mx-4">
               {navItems.map((item) => {
                 const Icon = item.icon
                 const isActive = location.pathname === item.path
@@ -54,14 +54,39 @@ export const Header: React.FC = () => {
                   <Link
                     key={item.path}
                     to={item.path}
-                    className={`flex items-center space-x-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    className={`flex items-center space-x-1.5 xl:space-x-2 px-2 xl:px-3 2xl:px-4 py-1.5 xl:py-2 rounded-lg text-xs xl:text-sm font-medium transition-colors whitespace-nowrap ${
                       isActive
                         ? 'bg-amber-600/20 text-amber-400'
                         : 'text-green-200 hover:text-white hover:bg-green-700/50'
                     }`}
                   >
-                    <Icon className="w-4 h-4" />
-                    <span>{item.label}</span>
+                    <Icon className="w-3.5 h-3.5 xl:w-4 xl:h-4 flex-shrink-0" />
+                    <span className="hidden xl:inline">{item.label}</span>
+                  </Link>
+                )
+              })}
+            </nav>
+          )}
+
+          {/* Tablet Navigation (shows icons only) */}
+          {isAuthenticated && (
+            <nav className="hidden md:flex lg:hidden items-center space-x-1 flex-1 justify-center max-w-md mx-4">
+              {navItems.map((item) => {
+                const Icon = item.icon
+                const isActive = location.pathname === item.path
+                
+                return (
+                  <Link
+                    key={item.path}
+                    to={item.path}
+                    className={`flex items-center justify-center w-10 h-10 rounded-lg text-sm font-medium transition-colors ${
+                      isActive
+                        ? 'bg-amber-600/20 text-amber-400'
+                        : 'text-green-200 hover:text-white hover:bg-green-700/50'
+                    }`}
+                    title={item.label}
+                  >
+                    <Icon className="w-5 h-5" />
                   </Link>
                 )
               })}
@@ -72,32 +97,32 @@ export const Header: React.FC = () => {
           {isAuthenticated && (
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="md:hidden p-2 text-green-200 hover:text-white hover:bg-green-700/50 rounded-lg transition-colors"
+              className="md:hidden p-2 text-green-200 hover:text-white hover:bg-green-700/50 rounded-lg transition-colors flex-shrink-0"
             >
-              {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              {isMobileMenuOpen ? <X className="w-5 h-5 sm:w-6 sm:h-6" /> : <Menu className="w-5 h-5 sm:w-6 sm:h-6" />}
             </button>
           )}
 
           {/* User Menu */}
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2 sm:space-x-3 lg:space-x-4 flex-shrink-0">
             {isAuthenticated ? (
               <>
-                <span className="text-sm text-green-200 hidden md:block">
+                <span className="text-xs sm:text-sm text-green-200 hidden lg:block truncate max-w-32">
                   Welcome, {user?.name}
                 </span>
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={handleLogout}
-                  className="flex items-center space-x-2"
+                  className="flex items-center space-x-1 sm:space-x-2 px-2 sm:px-3"
                 >
-                  <LogOut className="w-4 h-4" />
-                  <span className="hidden md:block">Logout</span>
+                  <LogOut className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                  <span className="hidden sm:block text-xs sm:text-sm">Logout</span>
                 </Button>
               </>
             ) : (
               <Link to="/login">
-                <Button variant="default" size="sm">
+                <Button variant="default" size="sm" className="px-3 sm:px-4 text-xs sm:text-sm">
                   Sign In
                 </Button>
               </Link>
@@ -114,8 +139,8 @@ export const Header: React.FC = () => {
           exit={{ opacity: 0, y: -10 }}
           className="md:hidden bg-slate-800/95 backdrop-blur-sm border-b border-slate-700 shadow-lg"
         >
-          <div className="container mx-auto px-4 py-4">
-            <nav className="flex flex-col space-y-2">
+          <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-4">
+            <nav className="flex flex-col space-y-1 sm:space-y-2">
               {navItems.map((item) => {
                 const Icon = item.icon
                 const isActive = location.pathname === item.path
@@ -125,14 +150,14 @@ export const Header: React.FC = () => {
                     key={item.path}
                     to={item.path}
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className={`flex items-center space-x-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
+                    className={`flex items-center space-x-3 sm:space-x-4 px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg text-sm sm:text-base font-medium transition-colors ${
                       isActive
                         ? 'bg-amber-600/20 text-amber-400'
                         : 'text-green-200 hover:text-white hover:bg-green-700/50'
                     }`}
                   >
-                    <Icon className="w-5 h-5" />
-                    <span>{item.label}</span>
+                    <Icon className="w-5 h-5 sm:w-6 sm:h-6 flex-shrink-0" />
+                    <span className="truncate">{item.label}</span>
                   </Link>
                 )
               })}
