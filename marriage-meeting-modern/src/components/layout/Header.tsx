@@ -65,53 +65,56 @@ export const Header: React.FC<HeaderProps> = () => {
             </span>
           </Link>
 
-          {/* Navigation - Only show on extra large screens */}
-          <nav className="hidden 2xl:flex items-center gap-1 flex-1 justify-center">
+          {/* Navigation - Always visible, responsive content */}
+          <nav className="hidden md:flex items-center gap-1 flex-1 justify-center min-w-0">
             {navItems.map((item) => {
               const Icon = item.icon
               return (
                 <button
                   key={item.path}
                   onClick={() => handleNavigation(item.path)}
-                  className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${
+                  className={`flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap flex-shrink-0 ${
                     isActive(item.path)
                       ? 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200'
                       : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700'
                   }`}
                 >
                   <Icon className="w-4 h-4 flex-shrink-0" />
-                  <span>{item.label}</span>
+                  <span className="hidden lg:inline">{item.label}</span>
+                  <span className="lg:hidden hidden sm:inline">{item.shortLabel}</span>
                 </button>
               )
             })}
           </nav>
 
-          {/* User Menu - Icons only to prevent overflow */}
-          <div className="flex items-center gap-1 flex-shrink-0">
-            {/* User name - only show on very large screens */}
-            <div className="hidden 2xl:flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
+          {/* User Menu - Responsive content */}
+          <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
+            {/* User name - show when there's space */}
+            <div className="hidden xl:flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
               <User className="w-4 h-4" />
               <span>{user?.name || 'Couple'}</span>
             </div>
             
-            {/* Settings button - icon only */}
+            {/* Settings button */}
             <Button
               variant="outline"
               size="sm"
               onClick={() => setIsSettingsOpen(true)}
-              className="flex items-center gap-1 px-2"
+              className="flex items-center gap-1 px-2 sm:px-3"
             >
               <Settings className="w-4 h-4" />
+              <span className="hidden lg:inline">Settings</span>
             </Button>
             
-            {/* Logout button - icon only */}
+            {/* Logout button */}
             <Button
               variant="outline"
               size="sm"
               onClick={logout}
-              className="flex items-center gap-1 px-2"
+              className="flex items-center gap-1 px-2 sm:px-3"
             >
               <LogOut className="w-4 h-4" />
+              <span className="hidden lg:inline">Sign Out</span>
             </Button>
           </div>
         </div>
