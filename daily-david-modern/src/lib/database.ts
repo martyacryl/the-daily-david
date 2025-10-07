@@ -1,7 +1,7 @@
 import { getAuthHeaders } from '../stores/authStore'
+import { API_BASE_URL } from '../config/api'
 
 // Database connection configuration - using API calls instead of direct connection
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3003'
 
 export interface DailyEntry {
   id?: number
