@@ -153,7 +153,7 @@ export const LandingPage: React.FC = () => {
               <Button
                 onClick={() => navigate('/login')}
                 variant="outline"
-                className="w-full sm:w-auto border-2 border-slate-400 text-slate-200 hover:bg-slate-400 hover:text-slate-900 px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold transition-all duration-300"
+                className="w-full sm:w-auto border-2 border-slate-500 bg-slate-800/50 text-slate-200 hover:bg-slate-700 hover:text-white hover:border-slate-400 px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold transition-all duration-300"
               >
                 Sign In
               </Button>
@@ -216,7 +216,7 @@ export const LandingPage: React.FC = () => {
             transition={{ duration: 0.8, delay: 0.6 }}
             className="text-center px-2"
           >
-            <Card className="p-6 sm:p-8 lg:p-12 bg-gradient-to-r from-blue-900/20 via-purple-900/10 to-slate-800/20 backdrop-blur-sm border-blue-500/30 shadow-xl shadow-blue-500/10">
+            <Card className="p-6 sm:p-8 lg:p-12 bg-gradient-to-br from-slate-800 to-slate-900 backdrop-blur-sm border-slate-600 shadow-xl shadow-blue-500/20">
               <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-4 sm:mb-6">
                 Ready to Plan Your Future Together?
               </h2>
@@ -233,7 +233,7 @@ export const LandingPage: React.FC = () => {
                 <Button
                   onClick={() => navigate('/login')}
                   variant="outline"
-                  className="w-full sm:w-auto border-2 border-slate-400 text-slate-200 hover:bg-slate-400 hover:text-slate-900 px-6 sm:px-10 py-3 sm:py-4 text-base sm:text-lg font-semibold transition-all duration-300"
+                  className="w-full sm:w-auto border-2 border-slate-500 bg-slate-800/50 text-slate-200 hover:bg-slate-700 hover:text-white hover:border-slate-400 px-6 sm:px-10 py-3 sm:py-4 text-base sm:text-lg font-semibold transition-all duration-300"
                 >
                   Continue Planning
                 </Button>
