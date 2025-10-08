@@ -5,8 +5,8 @@ import { Card } from '../ui/Card';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { LoadingSpinner } from '../ui/LoadingSpinner';
-import { MountainCrossIcon } from '../icons/MountainCrossIcon';
-import { Sword, Shield, BookOpen, Users, Target, Zap } from 'lucide-react';
+import { Mountain } from 'lucide-react';
+import { BookOpen, Users, Target, Zap, Heart, TrendingUp } from 'lucide-react';
 import { useAuthStore } from '../../stores/authStore';
 
 export const LandingPage: React.FC = () => {
@@ -47,42 +47,42 @@ export const LandingPage: React.FC = () => {
 
   const features = [
     {
-      icon: <BookOpen className="w-8 h-8 text-amber-400" />,
+      icon: <BookOpen className="w-8 h-8 text-green-400" />,
       title: "Daily Bible Reading",
-      description: "Structured reading plans with SOAP method for deep spiritual growth"
+      description: "Structured reading plans with SOAP method for deep spiritual growth and understanding"
     },
     {
-      icon: <Sword className="w-8 h-8 text-amber-400" />,
-      title: "Warrior Mindset",
-      description: "Daily inspiration and Bible verses to strengthen your faith and resolve"
+      icon: <Heart className="w-8 h-8 text-green-400" />,
+      title: "Spiritual Growth",
+      description: "Daily inspiration and Bible verses to strengthen your faith and character"
     },
     {
-      icon: <Shield className="w-8 h-8 text-amber-400" />,
-      title: "Prayer Requests",
-      description: "Share prayer requests and support your brothers in Christ"
+      icon: <Users className="w-8 h-8 text-green-400" />,
+      title: "Prayer Community",
+      description: "Share prayer requests and support your brothers in Christ with genuine care"
     },
     {
-      icon: <Target className="w-8 h-8 text-amber-400" />,
-      title: "Goal Tracking",
-      description: "Set and track spiritual goals with accountability and progress monitoring"
+      icon: <Target className="w-8 h-8 text-green-400" />,
+      title: "Purpose-Driven Goals",
+      description: "Set and track spiritual goals with accountability and meaningful progress"
     },
     {
-      icon: <Zap className="w-8 h-8 text-amber-400" />,
-      title: "SMS Notifications",
-      description: "Daily motivational messages and Bible verses delivered to your phone"
+      icon: <Zap className="w-8 h-8 text-green-400" />,
+      title: "Daily Encouragement",
+      description: "Inspirational messages and Bible verses delivered to your phone each morning"
     },
     {
-      icon: <Users className="w-8 h-8 text-amber-400" />,
-      title: "Community",
-      description: "Connect with other men of God on the same journey of spiritual growth"
+      icon: <TrendingUp className="w-8 h-8 text-green-400" />,
+      title: "Growth Community",
+      description: "Connect with other men committed to growing in faith and living with purpose"
     }
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-green-950 to-slate-900 relative overflow-hidden">
       {/* Background Elements */}
       <div className="absolute inset-0 opacity-20">
-        <div className="w-full h-full bg-gradient-to-br from-slate-800/20 to-slate-900/20"></div>
+        <div className="w-full h-full bg-gradient-to-br from-green-800/20 to-slate-900/20"></div>
       </div>
       
       {/* Hero Section */}
@@ -96,32 +96,34 @@ export const LandingPage: React.FC = () => {
             className="text-center mb-12 sm:mb-16"
           >
             <div className="flex justify-center mb-6">
-              <MountainCrossIcon className="w-16 h-16 sm:w-20 sm:h-20 text-amber-400" />
+              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-green-600 to-green-700 rounded-full flex items-center justify-center">
+                <Mountain className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
+              </div>
             </div>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6">
-              <span className="text-amber-400">Daily</span> David
+              <span className="text-green-400">Daily</span> David
             </h1>
             <p className="text-xl sm:text-2xl text-green-200 mb-4 max-w-3xl mx-auto">
-              Rise up, warrior! Join the fight to become the man God called you to be.
+              Step into your purpose. Grow as a man of God with daily discipline and community.
             </p>
             <p className="text-lg text-slate-300 max-w-2xl mx-auto mb-8">
-              Daily Bible reading, prayer, and spiritual growth designed for men who refuse to settle for mediocrity.
+              Daily Bible reading, prayer, and spiritual growth designed for men who want to live with integrity, purpose, and faith.
             </p>
             
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <Button
                 onClick={() => setShowSignup(true)}
-                className="bg-amber-600 hover:bg-amber-700 text-white px-8 py-4 text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
+                className="bg-green-600 hover:bg-green-700 text-white px-8 py-4 text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
               >
-                Join the Fight
+                Start Your Journey
               </Button>
               <Button
                 onClick={() => navigate('/login')}
                 variant="outline"
                 className="border-2 border-green-500 text-green-400 hover:bg-green-500 hover:text-white px-8 py-4 text-lg font-semibold transition-all duration-300"
               >
-                Continue Sharpening
+                Sign In
               </Button>
             </div>
           </motion.div>
@@ -158,26 +160,26 @@ export const LandingPage: React.FC = () => {
             transition={{ duration: 0.8, delay: 0.6 }}
             className="text-center"
           >
-            <Card className="p-8 sm:p-12 bg-gradient-to-r from-amber-600/20 to-green-600/20 backdrop-blur-sm border-amber-500/30">
+            <Card className="p-8 sm:p-12 bg-gradient-to-r from-green-600/20 to-green-800/20 backdrop-blur-sm border-green-500/30">
               <h2 className="text-3xl sm:text-4xl font-bold text-white mb-6">
-                Ready to Transform Your Life?
+                Ready to Live with Purpose?
               </h2>
               <p className="text-xl text-slate-200 mb-8 max-w-2xl mx-auto">
-                Stop making excuses. Start making progress. Join thousands of men who are choosing to stand firm in their faith and fight like the warriors they were created to be.
+                Step into your calling. Join men who are committed to growing in faith, character, and spiritual discipline as they pursue God's purpose for their lives.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button
                   onClick={() => setShowSignup(true)}
-                  className="bg-amber-600 hover:bg-amber-700 text-white px-10 py-4 text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
+                  className="bg-green-600 hover:bg-green-700 text-white px-10 py-4 text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
                 >
-                  Start Your Journey Today
+                  Begin Your Growth Journey
                 </Button>
                 <Button
                   onClick={() => navigate('/login')}
                   variant="outline"
                   className="border-2 border-white text-white hover:bg-white hover:text-slate-900 px-10 py-4 text-lg font-semibold transition-all duration-300"
                 >
-                  I'm Already Fighting
+                  Continue Growing
                 </Button>
               </div>
             </Card>
@@ -275,9 +277,9 @@ export const LandingPage: React.FC = () => {
                 <Button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full bg-amber-600 hover:bg-amber-700 text-white py-3 font-semibold"
+                  className="w-full bg-green-600 hover:bg-green-700 text-white py-3 font-semibold"
                 >
-                  {isLoading ? <LoadingSpinner size="sm" /> : 'Join the Fight'}
+                  {isLoading ? <LoadingSpinner size="sm" /> : 'Start Your Journey'}
                 </Button>
               </form>
 
@@ -289,7 +291,7 @@ export const LandingPage: React.FC = () => {
                       setShowSignup(false);
                       navigate('/login');
                     }}
-                    className="text-amber-400 hover:text-amber-300 font-medium"
+                    className="text-green-400 hover:text-green-300 font-medium"
                   >
                     Sign in
                   </button>
