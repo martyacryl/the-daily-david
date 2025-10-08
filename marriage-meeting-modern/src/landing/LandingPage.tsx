@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { Card } from './ui/Card';
-import { Button } from './ui/Button';
-import { Input } from './ui/Input';
-import { LoadingSpinner } from './ui/LoadingSpinner';
+import { Card } from '../components/ui/Card';
+import { Button } from '../components/ui/Button';
+import { Input } from '../components/ui/Input';
+import { LoadingSpinner } from '../components/ui/LoadingSpinner';
 import { Mountain, Heart, Calendar, Target, Users, BarChart3, CheckCircle, Sun, BookOpen, Zap } from 'lucide-react';
 import { useAuthStore } from '../stores/authStore';
 
