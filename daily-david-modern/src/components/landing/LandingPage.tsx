@@ -6,7 +6,7 @@ import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { LoadingSpinner } from '../ui/LoadingSpinner';
 import { Mountain } from 'lucide-react';
-import { BookOpen, Users, Target, Zap, Heart, TrendingUp, Sun, CheckCircle } from 'lucide-react';
+import { BookOpen, Users, Target, Zap, Heart, TrendingUp, Sun, CheckCircle, BarChart3 } from 'lucide-react';
 import { useAuthStore } from '../../stores/authStore';
 
 export const LandingPage: React.FC = () => {
@@ -47,9 +47,9 @@ export const LandingPage: React.FC = () => {
 
   const features = [
     {
-      icon: <BookOpen className="w-8 h-8 text-green-400" />,
-      title: "Bible Reading Plans",
-      description: "Godly men-focused reading plans designed to grow your knowledge, character, and faith through structured study"
+      icon: <CheckCircle className="w-8 h-8 text-green-400" />,
+      title: "Daily Intentions",
+      description: "Set purposeful daily actions aligned with your values and God's calling for intentional living and growth"
     },
     {
       icon: <Sun className="w-8 h-8 text-green-400" />,
@@ -57,24 +57,24 @@ export const LandingPage: React.FC = () => {
       description: "Cultivate a heart of thankfulness with guided gratitude exercises that transform your perspective and attitude"
     },
     {
-      icon: <CheckCircle className="w-8 h-8 text-green-400" />,
-      title: "Daily Intentions",
-      description: "Set purposeful daily actions aligned with your values and God's calling for intentional living"
-    },
-    {
-      icon: <Heart className="w-8 h-8 text-green-400" />,
-      title: "Spiritual Growth",
-      description: "Daily inspiration and Bible verses to strengthen your faith, character, and relationship with God"
+      icon: <BookOpen className="w-8 h-8 text-green-400" />,
+      title: "Bible Reading Plans",
+      description: "Godly men-focused reading plans with SOAP method to grow your knowledge, character, and faith through structured study"
     },
     {
       icon: <Users className="w-8 h-8 text-green-400" />,
-      title: "Prayer Community",
-      description: "Share prayer requests and support your brothers in Christ with genuine care and accountability"
+      title: "Prayer & Praise Tracking",
+      description: "Keep track of your prayer list and celebrate praise reports as you see God's faithfulness in your life and community"
     },
     {
       icon: <Zap className="w-8 h-8 text-green-400" />,
       title: "Daily Encouragement",
       description: "Inspirational messages and Bible verses delivered to your phone each morning to start your day with purpose"
+    },
+    {
+      icon: <BarChart3 className="w-8 h-8 text-green-400" />,
+      title: "Growth Analytics",
+      description: "Track your spiritual growth and progress over time with detailed analytics and insights into your journey"
     }
   ];
 
