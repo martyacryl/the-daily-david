@@ -11,7 +11,7 @@ export const Header: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   const allNavItems = [
-    { path: '/', label: 'Dashboard', icon: BarChart3 },
+    { path: '/dashboard', label: 'Dashboard', icon: BarChart3 },
     { path: '/daily', label: 'Daily Entry', icon: BookOpen },
     { path: '/review', label: 'SOAP Review', icon: BookMarked },
     { path: '/prayer', label: 'Prayer Requests', icon: Sword },
@@ -37,7 +37,7 @@ export const Header: React.FC = () => {
       <div className="container mx-auto px-2 sm:px-3 md:px-4 lg:px-6">
         <div className="flex items-center justify-between h-14 sm:h-16 lg:h-18">
           {/* Logo */}
-          <Link to="/" className="flex items-center space-x-1.5 sm:space-x-2 lg:space-x-3 min-w-0 flex-shrink-0">
+          <Link to={isAuthenticated ? "/dashboard" : "/"} className="flex items-center space-x-1.5 sm:space-x-2 lg:space-x-3 min-w-0 flex-shrink-0">
             <div className="w-7 h-7 sm:w-8 sm:h-8 lg:w-9 lg:h-9 bg-gradient-to-br from-amber-600 to-amber-700 rounded-lg flex items-center justify-center flex-shrink-0">
               <Mountain className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-white" />
             </div>

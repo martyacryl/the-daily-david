@@ -9,6 +9,7 @@ import { PrayerRequestsList } from './components/prayer/PrayerRequestsList'
 import { ProtectedAdminRoute } from './components/admin/ProtectedAdminRoute'
 import { ProgressAnalytics } from './components/dashboard/ProgressAnalytics'
 import { LoginForm } from './components/auth/LoginForm'
+import { ProtectedRoute } from './components/auth/ProtectedRoute'
 import { SettingsPage } from './components/settings/SettingsPage'
 import { LandingPage } from './components/landing/LandingPage'
 import { useAuthStore } from './stores/authStore'
@@ -48,7 +49,11 @@ function App() {
           <div className="absolute bottom-0 right-0 w-full h-56 bg-gradient-to-t from-green-700 to-transparent transform -translate-x-32"></div>
         </div>
         <Routes>
-          <Route path="/" element={<LandingPage />} />
+          <Route path="/" element={
+            <ProtectedRoute>
+              <LandingPage />
+            </ProtectedRoute>
+          } />
           <Route path="/login" element={<LoginForm />} />
           <Route path="/dashboard" element={
             <>
