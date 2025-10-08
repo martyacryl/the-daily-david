@@ -20,7 +20,7 @@ import {
   Eye
 } from 'lucide-react'
 import { Button } from '../ui/Button'
-import { PrayerRequestForm } from './PrayerRequestForm'
+// import { PrayerRequestForm } from './PrayerRequestForm' // Temporarily disabled
 import { PrayerRequestDetail } from './PrayerRequestDetail'
 
 export const PrayerRequestsList: React.FC = () => {
@@ -333,25 +333,22 @@ export const PrayerRequestsList: React.FC = () => {
 
         {/* Prayer Request Form Modal */}
         {showForm && (
-          <PrayerRequestForm
-            onClose={() => setShowForm(false)}
-            onSuccess={() => {
-              setShowForm(false)
-              loadRequests()
-            }}
-          />
+          <div className="p-6 text-center">
+            <p className="text-slate-300">Prayer request form temporarily disabled</p>
+            <Button onClick={() => setShowForm(false)} className="mt-4">
+              Close
+            </Button>
+          </div>
         )}
 
         {/* Edit Prayer Request Modal */}
         {editingRequest && (
-          <PrayerRequestForm
-            request={editingRequest}
-            onClose={() => setEditingRequest(null)}
-            onSuccess={() => {
-              setEditingRequest(null)
-              loadRequests()
-            }}
-          />
+          <div className="p-6 text-center">
+            <p className="text-slate-300">Prayer request editing temporarily disabled</p>
+            <Button onClick={() => setEditingRequest(null)} className="mt-4">
+              Close
+            </Button>
+          </div>
         )}
 
         {/* View Prayer Request Modal */}

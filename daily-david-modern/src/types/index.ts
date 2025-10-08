@@ -287,3 +287,31 @@ export interface User {
   export type PrayerCategoryType = 'health' | 'family' | 'work' | 'spiritual' | 'other'
   export type PrayerStatusType = 'active' | 'answered' | 'closed'
   export type PrayerPriorityType = 'low' | 'medium' | 'high' | 'urgent'
+  
+  // SMS Notification Types
+  export interface SMSSettings {
+    phoneNumber: string | null
+    smsNotificationsEnabled: boolean
+    notificationTime: string
+    timezone: string
+    notificationFrequency: string
+    lastNotificationSent: string | null
+  }
+  
+  export interface NotificationLog {
+    id: number
+    phoneNumber: string
+    messageContent: string
+    messageType: string
+    status: string
+    twilioSid: string | null
+    errorMessage: string | null
+    sentAt: Date
+  }
+  
+  export interface SMSResponse {
+    success: boolean
+    message?: string
+    error?: string
+    sid?: string
+  }

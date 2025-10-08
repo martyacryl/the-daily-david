@@ -3,6 +3,7 @@ const cors = require('cors')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const { Pool } = require('pg')
+const smsService = require('./smsService')
 require('dotenv').config()
 
 const app = express()
@@ -840,6 +841,314 @@ app.get('/api/prayer-requests/stats', authenticateToken, async (req, res) => {
   } catch (error) {
     console.error('Get prayer stats error:', error)
     res.status(500).json({ success: false, error: 'Failed to fetch prayer statistics' })
+  } finally {
+    client.release()
+  }
+})
+
+// ============================================================================
+// SMS NOTIFICATION ENDPOINTS
+// ============================================================================
+
+// Get user SMS settings
+app.get('/api/user/sms-settings', authenticateToken, async (req, res) => {
+  const client = await pool.connect()
+  
+  try {
+    const userId = req.user.userId
+    
+    const result = await client.query(`
+      SELECT 
+        phone_number,
+        sms_notifications_enabled,
+        notification_time,
+        timezone,
+        notification_frequency,
+        last_notification_sent
+      FROM user_settings 
+      WHERE user_id = $1
+    `, [userId])
+    
+    if (result.rows.length === 0) {
+      // Create default settings for user
+      await client.query(`
+        INSERT INTO user_settings (user_id) 
+        VALUES ($1)
+      `, [userId])
+      
+      res.json({ 
+        success: true, 
+        settings: {
+          phoneNumber: null,
+          smsNotificationsEnabled: false,
+          notificationTime: '07:00:00',
+          timezone: 'America/New_York',
+          notificationFrequency: 'daily',
+          lastNotificationSent: null
+        }
+      })
+    } else {
+      const settings = result.rows[0]
+      res.json({ 
+        success: true, 
+        settings: {
+          phoneNumber: settings.phone_number,
+          smsNotificationsEnabled: settings.sms_notifications_enabled,
+          notificationTime: settings.notification_time,
+          timezone: settings.timezone,
+          notificationFrequency: settings.notification_frequency,
+          lastNotificationSent: settings.last_notification_sent
+        }
+      })
+    }
+  } catch (error) {
+    console.error('Get SMS settings error:', error)
+    res.status(500).json({ success: false, error: 'Failed to fetch SMS settings' })
+  } finally {
+    client.release()
+  }
+})
+
+// Update user SMS settings
+app.put('/api/user/sms-settings', authenticateToken, async (req, res) => {
+  const client = await pool.connect()
+  
+  try {
+    const userId = req.user.userId
+    const { 
+      phoneNumber, 
+      smsNotificationsEnabled, 
+      notificationTime, 
+      timezone, 
+      notificationFrequency 
+    } = req.body
+    
+    // Validate phone number if provided
+    if (phoneNumber && !smsService.isValidPhoneNumber(phoneNumber)) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Invalid phone number format' 
+      })
+    }
+    
+    // Upsert user settings
+    const result = await client.query(`
+      INSERT INTO user_settings (
+        user_id, phone_number, sms_notifications_enabled, 
+        notification_time, timezone, notification_frequency
+      ) VALUES ($1, $2, $3, $4, $5, $6)
+      ON CONFLICT (user_id) 
+      DO UPDATE SET 
+        phone_number = EXCLUDED.phone_number,
+        sms_notifications_enabled = EXCLUDED.sms_notifications_enabled,
+        notification_time = EXCLUDED.notification_time,
+        timezone = EXCLUDED.timezone,
+        notification_frequency = EXCLUDED.notification_frequency,
+        updated_at = NOW()
+      RETURNING *
+    `, [userId, phoneNumber, smsNotificationsEnabled, notificationTime, timezone, notificationFrequency])
+    
+    const settings = result.rows[0]
+    
+    res.json({ 
+      success: true, 
+      settings: {
+        phoneNumber: settings.phone_number,
+        smsNotificationsEnabled: settings.sms_notifications_enabled,
+        notificationTime: settings.notification_time,
+        timezone: settings.timezone,
+        notificationFrequency: settings.notification_frequency,
+        lastNotificationSent: settings.last_notification_sent
+      }
+    })
+  } catch (error) {
+    console.error('Update SMS settings error:', error)
+    res.status(500).json({ success: false, error: 'Failed to update SMS settings' })
+  } finally {
+    client.release()
+  }
+})
+
+// Send test SMS
+app.post('/api/user/sms-test', authenticateToken, async (req, res) => {
+  const client = await pool.connect()
+  
+  try {
+    const userId = req.user.userId
+    const { phoneNumber } = req.body
+    
+    if (!phoneNumber) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Phone number is required' 
+      })
+    }
+    
+    if (!smsService.isValidPhoneNumber(phoneNumber)) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Invalid phone number format' 
+      })
+    }
+    
+    // Get user display name
+    const userResult = await client.query(
+      'SELECT display_name FROM users WHERE id = $1',
+      [userId]
+    )
+    
+    const userName = userResult.rows[0]?.display_name || 'David'
+    
+    // Send test message
+    const result = await smsService.sendTestMessage(phoneNumber)
+    
+    // Log the notification
+    await client.query(`
+      INSERT INTO notification_logs (
+        user_id, phone_number, message_content, message_type, status, twilio_sid
+      ) VALUES ($1, $2, $3, $4, $5, $6)
+    `, [
+      userId, 
+      phoneNumber, 
+      'Test message sent', 
+      'test', 
+      result.success ? 'sent' : 'failed',
+      result.sid || null
+    ])
+    
+    if (result.success) {
+      res.json({ 
+        success: true, 
+        message: 'Test message sent successfully',
+        sid: result.sid
+      })
+    } else {
+      res.status(500).json({ 
+        success: false, 
+        error: result.error || 'Failed to send test message' 
+      })
+    }
+  } catch (error) {
+    console.error('Send test SMS error:', error)
+    res.status(500).json({ success: false, error: 'Failed to send test message' })
+  } finally {
+    client.release()
+  }
+})
+
+// Send daily inspiration SMS (for testing)
+app.post('/api/user/sms-daily', authenticateToken, async (req, res) => {
+  const client = await pool.connect()
+  
+  try {
+    const userId = req.user.userId
+    const { phoneNumber } = req.body
+    
+    if (!phoneNumber) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Phone number is required' 
+      })
+    }
+    
+    if (!smsService.isValidPhoneNumber(phoneNumber)) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Invalid phone number format' 
+      })
+    }
+    
+    // Get user display name
+    const userResult = await client.query(
+      'SELECT display_name FROM users WHERE id = $1',
+      [userId]
+    )
+    
+    const userName = userResult.rows[0]?.display_name || 'David'
+    
+    // Send daily inspiration message
+    const result = await smsService.sendDailyInspiration(phoneNumber, userName)
+    
+    // Log the notification
+    await client.query(`
+      INSERT INTO notification_logs (
+        user_id, phone_number, message_content, message_type, status, twilio_sid
+      ) VALUES ($1, $2, $3, $4, $5, $6)
+    `, [
+      userId, 
+      phoneNumber, 
+      'Daily inspiration message sent', 
+      'daily_inspiration', 
+      result.success ? 'sent' : 'failed',
+      result.sid || null
+    ])
+    
+    if (result.success) {
+      // Update last notification sent time
+      await client.query(`
+        UPDATE user_settings 
+        SET last_notification_sent = NOW() 
+        WHERE user_id = $1
+      `, [userId])
+      
+      res.json({ 
+        success: true, 
+        message: 'Daily inspiration message sent successfully',
+        sid: result.sid
+      })
+    } else {
+      res.status(500).json({ 
+        success: false, 
+        error: result.error || 'Failed to send daily inspiration message' 
+      })
+    }
+  } catch (error) {
+    console.error('Send daily SMS error:', error)
+    res.status(500).json({ success: false, error: 'Failed to send daily inspiration message' })
+  } finally {
+    client.release()
+  }
+})
+
+// Get notification logs for user
+app.get('/api/user/notification-logs', authenticateToken, async (req, res) => {
+  const client = await pool.connect()
+  
+  try {
+    const userId = req.user.userId
+    const { limit = 10 } = req.query
+    
+    const result = await client.query(`
+      SELECT 
+        id,
+        phone_number,
+        message_content,
+        message_type,
+        status,
+        twilio_sid,
+        error_message,
+        sent_at
+      FROM notification_logs 
+      WHERE user_id = $1 
+      ORDER BY sent_at DESC 
+      LIMIT $2
+    `, [userId, limit])
+    
+    const logs = result.rows.map(row => ({
+      id: row.id,
+      phoneNumber: row.phone_number,
+      messageContent: row.message_content,
+      messageType: row.message_type,
+      status: row.status,
+      twilioSid: row.twilio_sid,
+      errorMessage: row.error_message,
+      sentAt: new Date(row.sent_at)
+    }))
+    
+    res.json({ success: true, logs })
+  } catch (error) {
+    console.error('Get notification logs error:', error)
+    res.status(500).json({ success: false, error: 'Failed to fetch notification logs' })
   } finally {
     client.release()
   }

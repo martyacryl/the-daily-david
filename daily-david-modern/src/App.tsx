@@ -9,6 +9,7 @@ import { PrayerRequestsList } from './components/prayer/PrayerRequestsList'
 import { ProtectedAdminRoute } from './components/admin/ProtectedAdminRoute'
 import { ProgressAnalytics } from './components/dashboard/ProgressAnalytics'
 import { LoginForm } from './components/auth/LoginForm'
+import { SettingsPage } from './components/settings/SettingsPage'
 import { useAuthStore } from './stores/authStore'
 import { dbManager } from './lib/database'
 import './App.css'
@@ -54,6 +55,7 @@ function App() {
             <Route path="/prayer" element={<PrayerRequestsList />} />
             <Route path="/admin" element={<ProtectedAdminRoute dbManager={dbManager} />} />
             <Route path="/analytics" element={<ProgressAnalytics />} />
+            <Route path="/settings" element={<SettingsPage />} />
             <Route path="/login" element={<LoginForm />} />
           </Routes>
         </main>
