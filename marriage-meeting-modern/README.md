@@ -39,6 +39,13 @@ A comprehensive web application for couples to plan their weekly activities, man
 - **Theme Persistence**: Settings saved across sessions
 - **Consistent Styling**: Unified design language
 
+#### **Accent Color Persistence System**
+- **Cross-Device Sync**: Accent colors sync across all user devices (laptop, phone, tablet)
+- **Database Storage**: Colors saved to user account in `user_settings` table
+- **Immediate Updates**: UI changes instantly when color is selected
+- **Fallback System**: Falls back to localStorage if database unavailable
+- **Migration Support**: Automatically adds accent color to existing users
+
 #### **Family Vision System**
 - **Vision Editing**: Create and edit family vision statements
 - **Core Values**: Define and track family values
@@ -175,6 +182,13 @@ npm run build
 3. **Data Loading** → Database query with user filtering
 4. **User Isolation** → RLS policies ensure data privacy
 
+### Accent Color System Architecture
+1. **Settings Panel** → User selects accent color
+2. **Dual Update** → Updates both `appStore` (immediate UI) and `settingsStore` (database)
+3. **Database Sync** → Color saved to `user_settings.settings_data.accentColor`
+4. **Cross-Device Load** → App initialization loads color from database first, localStorage fallback
+5. **Migration** → Existing users automatically get default 'slate' color added
+
 ## 📊 Database Schema
 
 ### Users Table
@@ -200,6 +214,36 @@ CREATE TABLE marriage_meetings (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   UNIQUE(user_id, week_key)
 );
+```
+
+### User Settings Table
+```sql
+CREATE TABLE user_settings (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+  settings_data JSONB NOT NULL,  -- Contains accentColor, theme, spouse info, etc.
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  UNIQUE(user_id)
+);
+```
+
+**Settings Data Structure:**
+```json
+{
+  "spouse1": { "name": "", "email": "", "phone": "" },
+  "spouse2": { "name": "", "email": "", "phone": "" },
+  "location": { "address": "", "city": "", "state": "", "zipCode": "", "country": "US" },
+  "groceryStores": [],
+  "familyCreed": "",
+  "defaultWeatherLocation": "",
+  "timezone": "America/New_York",
+  "currency": "USD",
+  "dateFormat": "MM/DD/YYYY",
+  "theme": "light",
+  "accentColor": "slate",
+  "calendar": { /* calendar settings */ }
+}
 ```
 
 ## 🛡️ Security Features
@@ -255,6 +299,8 @@ CREATE TABLE marriage_meetings (
 - **Data not saving**: Verify database connection and RLS policies
 - **Authentication errors**: Check email/password and user status
 - **Build errors**: Verify TypeScript types and imports
+- **Accent color not changing**: Check if both appStore and settingsStore are updating
+- **Colors not syncing across devices**: Verify user_settings table has accentColor field
 
 ### Debug Steps
 1. Check browser console for errors
