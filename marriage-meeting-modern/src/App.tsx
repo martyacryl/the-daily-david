@@ -9,6 +9,7 @@ import { initializeAppStore } from './stores/appStore'
 import { MarriageMeetingTool } from './components/MarriageMeetingTool'
 import { DailyFocusedMeeting } from './components/DailyFocusedMeeting'
 import { LoginForm } from './components/LoginForm'
+import { LandingPage } from './landing'
 import { Dashboard } from './components/dashboard/Dashboard'
 import { AnalyticsPage } from './components/analytics/AnalyticsPage'
 import { PlanningPage } from './components/planning/PlanningPage'
@@ -78,8 +79,9 @@ function App() {
     return (
       <Router>
         <Routes>
+          <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<LoginForm />} />
-          <Route path="*" element={<Navigate to="/login" replace />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Router>
     )

@@ -136,6 +136,68 @@ app.post('/api/auth/login', async (req, res) => {
   }
 })
 
+// Signup endpoint
+app.post('/api/auth/signup', async (req, res) => {
+  try {
+    const { name, email, password } = req.body
+
+    if (!name || !email || !password) {
+      return res.status(400).json({ error: 'Name, email, and password are required' })
+    }
+
+    if (password.length < 6) {
+      return res.status(400).json({ error: 'Password must be at least 6 characters' })
+    }
+
+    // Check if user already exists
+    const existingUser = await pool.query(
+      'SELECT * FROM users WHERE email = $1',
+      [email]
+    )
+
+    if (existingUser.rows.length > 0) {
+      return res.status(400).json({ error: 'User with this email already exists' })
+    }
+
+    // Hash password
+    const saltRounds = 10
+    const passwordHash = await bcrypt.hash(password, saltRounds)
+
+    // Create user
+    const result = await pool.query(
+      'INSERT INTO users (display_name, email, password_hash, is_admin) VALUES ($1, $2, $3, $4) RETURNING *',
+      [name, email, passwordHash, false]
+    )
+
+    const user = result.rows[0]
+
+    // Generate JWT token
+    const token = jwt.sign(
+      { 
+        id: user.id, 
+        email: user.email, 
+        is_admin: user.is_admin 
+      },
+      JWT_SECRET,
+      { expiresIn: '7d' }
+    )
+
+    res.status(201).json({
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.display_name,
+        is_admin: user.is_admin,
+        created_at: user.created_at
+      },
+      token
+    })
+  } catch (error) {
+    console.error('Signup error:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
 // Marriage Meeting Weeks Routes
 app.get('/api/marriage-weeks', authenticateToken, async (req, res) => {
   try {
