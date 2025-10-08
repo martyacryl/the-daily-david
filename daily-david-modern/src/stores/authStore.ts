@@ -84,7 +84,10 @@ export const useAuthStore = create<AuthStore>()(
 
           if (data.success && data.user && data.token) {
             set({
-              user: data.user,
+              user: {
+                ...data.user,
+                name: data.user.display_name || data.user.name
+              },
               token: data.token,
               isAuthenticated: true,
               isLoading: false,
@@ -131,7 +134,10 @@ export const useAuthStore = create<AuthStore>()(
 
           if (data.success && data.user && data.token) {
             set({
-              user: data.user,
+              user: {
+                ...data.user,
+                name: data.user.display_name || data.user.name
+              },
               token: data.token,
               isAuthenticated: true,
               isLoading: false,
@@ -211,7 +217,10 @@ export const useAuthStore = create<AuthStore>()(
             if (response.ok) {
               const data = await response.json()
               set({
-                user: data.user,
+                user: {
+                  ...data.user,
+                  name: data.user.display_name || data.user.name
+                },
                 isAuthenticated: true
               })
             } else {

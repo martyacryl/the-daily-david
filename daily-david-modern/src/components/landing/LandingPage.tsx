@@ -208,11 +208,11 @@ export const LandingPage: React.FC = () => {
               <form onSubmit={handleSignup} className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-green-200 mb-2">
-                    Display Name
+                    First Name
                   </label>
                   <Input
                     type="text"
-                    placeholder="Your name"
+                    placeholder="Your first name"
                     value={signupData.displayName}
                     onChange={(e) => setSignupData({ ...signupData, displayName: e.target.value })}
                     required
