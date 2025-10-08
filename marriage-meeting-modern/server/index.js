@@ -265,6 +265,7 @@ app.get('/api/settings', authenticateToken, async (req, res) => {
         currency: 'USD',
         dateFormat: 'MM/DD/YYYY',
         theme: 'light',
+        accentColor: 'slate',
         calendar: {
           icalUrl: '',
           googleCalendarEnabled: false,
@@ -282,6 +283,7 @@ app.get('/api/settings', authenticateToken, async (req, res) => {
     }
 
     let settings = result.rows[0].settings_data
+    let needsUpdate = false
     
     // Migrate existing users to include calendar settings
     if (!settings.calendar) {
@@ -297,8 +299,17 @@ app.get('/api/settings', authenticateToken, async (req, res) => {
         syncFrequency: 'daily',
         showCalendarEvents: true
       }
-      
-      // Update the database with migrated settings
+      needsUpdate = true
+    }
+    
+    // Migrate existing users to include accent color
+    if (!settings.accentColor) {
+      settings.accentColor = 'slate'
+      needsUpdate = true
+    }
+    
+    // Update the database with migrated settings if needed
+    if (needsUpdate) {
       await pool.query(
         'UPDATE user_settings SET settings_data = $1 WHERE user_id = $2',
         [settings, userId]

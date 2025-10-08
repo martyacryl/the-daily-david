@@ -6,7 +6,7 @@ interface AppStore extends AppState {
   setCurrentDate: (date: Date) => void
   setCurrentView: (view: ViewType) => void
   setTheme: (theme: 'light' | 'dark') => void
-  setAccentColor: (color: string) => void
+  setAccentColor: (color: string) => Promise<void>
   setLoading: (loading: boolean) => void
   
   // Complex state operations
@@ -77,11 +77,21 @@ export const useAppStore = create<AppStore>((set, get) => ({
     console.log('🎨 [AppStore] Theme changed to:', theme)
   },
 
-  setAccentColor: (color) => {
+  setAccentColor: async (color) => {
     set({ accentColor: color })
-    // Persist accent color preference
+    // Persist accent color preference to localStorage for immediate UI update
     localStorage.setItem('dailyDavid_accentColor', color)
     console.log('🎨 [AppStore] Accent color changed to:', color)
+    
+    // Also save to database via settings store
+    try {
+      const { useSettingsStore } = await import('./settingsStore')
+      const { updateGeneralSettings } = useSettingsStore.getState()
+      await updateGeneralSettings({ accentColor: color })
+      console.log('💾 [AppStore] Accent color saved to database:', color)
+    } catch (error) {
+      console.error('❌ [AppStore] Failed to save accent color to database:', error)
+    }
   },
 
   setLoading: (loading) => {
@@ -142,8 +152,8 @@ export const useCurrentDateKey = () => {
   return formatDateKey(currentDate)
 }
 
-// Initialize app store from localStorage
-export const initializeAppStore = () => {
+// Initialize app store from localStorage and database
+export const initializeAppStore = async () => {
   try {
     const state = useAppStore.getState()
     
@@ -154,13 +164,33 @@ export const initializeAppStore = () => {
       console.log('🎨 [AppStore] Loaded theme from localStorage:', savedTheme)
     }
     
-    // Load accent color preference
-    const savedAccentColor = localStorage.getItem('dailyDavid_accentColor')
-    if (savedAccentColor) {
-      state.setAccentColor(savedAccentColor)
-      console.log('🎨 [AppStore] Loaded accent color from localStorage:', savedAccentColor)
-    } else {
-      console.log('🎨 [AppStore] No saved accent color found, using default: slate')
+    // Load accent color preference from database first, then localStorage as fallback
+    try {
+      const { useSettingsStore } = await import('./settingsStore')
+      const { loadSettings } = useSettingsStore.getState()
+      const settings = await loadSettings()
+      
+      if (settings.accentColor) {
+        state.setAccentColor(settings.accentColor)
+        console.log('🎨 [AppStore] Loaded accent color from database:', settings.accentColor)
+      } else {
+        // Fallback to localStorage
+        const savedAccentColor = localStorage.getItem('dailyDavid_accentColor')
+        if (savedAccentColor) {
+          state.setAccentColor(savedAccentColor)
+          console.log('🎨 [AppStore] Loaded accent color from localStorage:', savedAccentColor)
+        } else {
+          console.log('🎨 [AppStore] No saved accent color found, using default: slate')
+        }
+      }
+    } catch (error) {
+      console.error('❌ [AppStore] Failed to load accent color from database, using localStorage:', error)
+      // Fallback to localStorage
+      const savedAccentColor = localStorage.getItem('dailyDavid_accentColor')
+      if (savedAccentColor) {
+        state.setAccentColor(savedAccentColor)
+        console.log('🎨 [AppStore] Loaded accent color from localStorage:', savedAccentColor)
+      }
     }
     
     // Load view preference
@@ -170,9 +200,9 @@ export const initializeAppStore = () => {
       console.log('🎯 [AppStore] Loaded view from localStorage:', savedView)
     }
     
-    console.log('✅ [AppStore] Initialized from localStorage')
+    console.log('✅ [AppStore] Initialized from localStorage and database')
   } catch (error) {
-    console.error('❌ [AppStore] Failed to initialize from localStorage:', error)
+    console.error('❌ [AppStore] Failed to initialize from localStorage and database:', error)
   }
 }
 

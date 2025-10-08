@@ -47,6 +47,7 @@ export interface AppSettings {
   currency: string
   dateFormat: 'MM/DD/YYYY' | 'DD/MM/YYYY' | 'YYYY-MM-DD'
   theme: 'light' | 'dark'
+  accentColor: string
   calendar: CalendarSettings
 }
 
@@ -59,7 +60,7 @@ interface SettingsStore {
   updateGroceryStore: (id: string, store: Partial<GroceryStore>) => Promise<void>
   removeGroceryStore: (id: string) => Promise<void>
   setDefaultGroceryStore: (id: string) => Promise<void>
-  updateGeneralSettings: (settings: Partial<Pick<AppSettings, 'familyCreed' | 'defaultWeatherLocation' | 'timezone' | 'currency' | 'dateFormat' | 'theme'>>) => Promise<void>
+  updateGeneralSettings: (settings: Partial<Pick<AppSettings, 'familyCreed' | 'defaultWeatherLocation' | 'timezone' | 'currency' | 'dateFormat' | 'theme' | 'accentColor'>>) => Promise<void>
   updateCalendarSettings: (calendar: Partial<CalendarSettings>) => Promise<void>
   resetSettings: () => Promise<void>
   loadSettings: () => Promise<AppSettings>
@@ -90,18 +91,19 @@ const defaultSettings: AppSettings = {
   currency: 'USD',
   dateFormat: 'MM/DD/YYYY',
   theme: 'light',
-    calendar: {
-      icalUrl: '',
-      googleCalendarEnabled: false,
-      googleCalendarConfig: {
-        clientId: '',
-        apiKey: '',
-        discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest'],
-        scope: 'https://www.googleapis.com/auth/calendar.readonly'
-      },
-      syncFrequency: 'realtime',
-      showCalendarEvents: true
-    }
+  accentColor: 'slate',
+  calendar: {
+    icalUrl: '',
+    googleCalendarEnabled: false,
+    googleCalendarConfig: {
+      clientId: '',
+      apiKey: '',
+      discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest'],
+      scope: 'https://www.googleapis.com/auth/calendar.readonly'
+    },
+    syncFrequency: 'realtime',
+    showCalendarEvents: true
+  }
 }
 
 // API functions

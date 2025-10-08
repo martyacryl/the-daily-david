@@ -39,7 +39,9 @@ function App() {
   // Initialize app store FIRST (theme, accent color, view preferences)
   useEffect(() => {
     console.log('🚀 [App] Initializing app store...')
-    initializeAppStore()
+    initializeAppStore().catch(error => {
+      console.error('❌ [App] Failed to initialize app store:', error)
+    })
   }, [])
   
   const { isAuthenticated, isLoading, initialize } = useAuthStore()

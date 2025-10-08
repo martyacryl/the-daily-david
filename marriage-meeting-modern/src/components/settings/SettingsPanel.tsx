@@ -5,19 +5,13 @@ import {
   User, 
   MapPin, 
   Store, 
-  Globe, 
-  Palette, 
-  Save,
   X,
   Plus,
   Trash2,
   Star,
   Shield,
   Calendar,
-  Link,
   CheckCircle,
-  AlertCircle,
-  Key,
   Settings as SettingsIcon
 } from 'lucide-react'
 import { SimpleCalendarSettings } from './SimpleCalendarSettings'
@@ -28,7 +22,6 @@ import { Textarea } from '../ui/Textarea'
 import { useSettingsStore } from '../../stores/settingsStore'
 import { useAuthStore } from '../../stores/authStore'
 import { useTheme } from '../../hooks/useTheme'
-import { useAccentColor as useAccentColorStore, useAppStore } from '../../stores/appStore'
 import { getAccentColorOptions } from '../../lib/accentColors'
 import { useAccentColor } from '../../hooks/useAccentColor'
 
@@ -40,8 +33,6 @@ interface SettingsPanelProps {
 export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose }) => {
   const { isAuthenticated } = useAuthStore()
   const { theme, setTheme } = useTheme()
-  const accentColor = useAccentColorStore()
-  const { setAccentColor } = useAppStore()
   const { getColor } = useAccentColor()
   const {
     settings,
@@ -52,15 +43,16 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
     removeGroceryStore,
     setDefaultGroceryStore,
     updateGeneralSettings,
-    updateCalendarSettings,
     loadSettings
   } = useSettingsStore()
+  
+  // Get accent color from settings
+  const accentColor = settings.accentColor || 'slate'
 
   const [activeTab, setActiveTab] = useState('spouses')
   const [newGroceryStore, setNewGroceryStore] = useState({ name: '', address: '' })
   const [showStoreSuccess, setShowStoreSuccess] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
-  const [isLoaded, setIsLoaded] = useState(false)
   
   // Calendar settings modal
   const [showCalendarSettings, setShowCalendarSettings] = useState(false)
@@ -74,7 +66,6 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
         try {
           const loadedSettings = await loadSettings()
           console.log('✅ Settings loaded in panel:', loadedSettings)
-          setIsLoaded(true)
         } catch (error) {
           console.error('❌ Failed to load settings in panel:', error)
         } finally {
@@ -85,12 +76,6 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
     }
   }, [isOpen, isAuthenticated, loadSettings])
 
-  // Reset loaded state when panel closes
-  React.useEffect(() => {
-    if (!isOpen) {
-      setIsLoaded(false)
-    }
-  }, [isOpen])
 
   const tabs = [
     { id: 'spouses', label: 'Spouses', icon: User },
@@ -334,7 +319,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
                                 <div className="flex gap-2">
                                   {!store.isDefault && (
                                     <Button
-                                      onClick={() => setDefaultGroceryStore(index)}
+                                      onClick={() => setDefaultGroceryStore(store.id)}
                                       variant="outline"
                                       size="sm"
                                     >
@@ -342,7 +327,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
                                     </Button>
                                   )}
                                   <Button
-                                    onClick={() => removeGroceryStore(index)}
+                                    onClick={() => removeGroceryStore(store.id)}
                                     variant="outline"
                                     size="sm"
                                     className="text-red-600 border-red-200 hover:bg-red-50"
@@ -448,7 +433,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
                               {getAccentColorOptions().map((color) => (
                                 <button
                                   key={color.key}
-                                  onClick={() => setAccentColor(color.key)}
+                                  onClick={() => updateGeneralSettings({ accentColor: color.key })}
                                   className={`group relative rounded-lg border-2 transition-all duration-200 hover:scale-105 ${
                                     accentColor === color.key
                                       ? 'border-gray-900 dark:border-white ring-1 ring-gray-400 dark:ring-gray-500'
