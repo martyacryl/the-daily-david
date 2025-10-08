@@ -68,34 +68,49 @@ export const LandingPage: React.FC = () => {
 
   const features = [
     {
-      icon: <Calendar className="w-8 h-8 text-slate-400" />,
+      icon: <Calendar className="w-8 h-8 text-white" />,
       title: "Weekly Planning",
       description: "Plan your week together with shared schedules, goals, and activities that strengthen your marriage"
     },
     {
-      icon: <Heart className="w-8 h-8 text-slate-400" />,
-      title: "Marriage Goals",
-      description: "Set and track shared goals for your relationship, from date nights to long-term dreams"
-    },
-    {
-      icon: <Users className="w-8 h-8 text-slate-400" />,
-      title: "Spouse Profiles",
-      description: "Keep track of each other's preferences, interests, and important information in one place"
-    },
-    {
-      icon: <Target className="w-8 h-8 text-slate-400" />,
+      icon: <Target className="w-8 h-8 text-white" />,
       title: "Strategic Planning",
-      description: "Plan your family's future together with vision statements, priorities, and long-term goals"
+      description: "Set annual and quarterly goals together with vision statements and family priorities"
     },
     {
-      icon: <BookOpen className="w-8 h-8 text-slate-400" />,
-      title: "Family Creed",
-      description: "Create and maintain your family's mission statement and core values together"
+      icon: <Heart className="w-8 h-8 text-white" />,
+      title: "Marriage Vision",
+      description: "Create and maintain your family's mission statement, core values, and long-term vision"
     },
     {
-      icon: <BarChart3 className="w-8 h-8 text-slate-400" />,
-      title: "Progress Tracking",
-      description: "See your growth as a couple with analytics and insights into your planning and goal achievement"
+      icon: <Sun className="w-8 h-8 text-white" />,
+      title: "Weekly Weather",
+      description: "Stay informed with weather updates for your planned activities and outdoor dates"
+    },
+    {
+      icon: <CheckCircle className="w-8 h-8 text-white" />,
+      title: "Task Lists",
+      description: "Manage shared to-do lists, grocery lists, and household responsibilities together"
+    },
+    {
+      icon: <Zap className="w-8 h-8 text-white" />,
+      title: "Encouragement",
+      description: "Share love notes, encouragement, and appreciation to strengthen your bond daily"
+    },
+    {
+      icon: <BookOpen className="w-8 h-8 text-white" />,
+      title: "Prayer Lists",
+      description: "Track prayer requests and praise reports as you grow in faith together"
+    },
+    {
+      icon: <Users className="w-8 h-8 text-white" />,
+      title: "Marriage Devotions",
+      description: "Weekly Bible studies and devotions designed specifically for couples to grow together"
+    },
+    {
+      icon: <BarChart3 className="w-8 h-8 text-white" />,
+      title: "Goal Tracking",
+      description: "Monitor your progress on shared goals with analytics and milestone celebrations"
     }
   ];
 
@@ -144,14 +159,14 @@ export const LandingPage: React.FC = () => {
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center px-4">
               <Button
                 onClick={() => setShowSignup(true)}
-                className="w-full sm:w-auto bg-slate-600 hover:bg-slate-700 text-white px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
+                className="w-full sm:w-auto bg-white text-slate-900 hover:bg-slate-100 px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
               >
                 Start Planning Together
               </Button>
               <Button
                 onClick={() => navigate('/login')}
                 variant="outline"
-                className="w-full sm:w-auto border-2 border-slate-500 text-slate-300 hover:bg-slate-500 hover:text-white px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold transition-all duration-300"
+                className="w-full sm:w-auto border-2 border-white text-white hover:bg-white hover:text-slate-900 px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold transition-all duration-300"
               >
                 Sign In
               </Button>
@@ -194,12 +209,14 @@ export const LandingPage: React.FC = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.1 * index }}
               >
-                <Card className="p-4 sm:p-6 lg:p-8 bg-slate-800/80 backdrop-blur-sm border-slate-700 hover:border-slate-500/50 transition-all duration-300 h-full">
-                  <div className="flex flex-col sm:flex-row items-center sm:items-start mb-3 sm:mb-4">
-                    <div className="mb-2 sm:mb-0 sm:mr-3">{feature.icon}</div>
-                    <h3 className="text-lg sm:text-xl font-semibold text-white text-center sm:text-left">{feature.title}</h3>
+                <Card className="p-4 sm:p-6 lg:p-8 bg-slate-800/90 backdrop-blur-sm border-slate-600 hover:border-white/30 hover:bg-slate-700/90 transition-all duration-300 h-full group">
+                  <div className="flex flex-col items-center text-center mb-4">
+                    <div className="mb-3 p-3 rounded-full bg-slate-700/50 group-hover:bg-slate-600/50 transition-colors duration-300">
+                      {feature.icon}
+                    </div>
+                    <h3 className="text-lg sm:text-xl font-semibold text-white mb-2">{feature.title}</h3>
                   </div>
-                  <p className="text-sm sm:text-base text-slate-300 leading-relaxed">{feature.description}</p>
+                  <p className="text-sm sm:text-base text-slate-200 leading-relaxed">{feature.description}</p>
                 </Card>
               </motion.div>
             ))}
@@ -222,7 +239,7 @@ export const LandingPage: React.FC = () => {
               <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
                 <Button
                   onClick={() => setShowSignup(true)}
-                  className="w-full sm:w-auto bg-slate-600 hover:bg-slate-700 text-white px-6 sm:px-10 py-3 sm:py-4 text-base sm:text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
+                  className="w-full sm:w-auto bg-white text-slate-900 hover:bg-slate-100 px-6 sm:px-10 py-3 sm:py-4 text-base sm:text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
                 >
                   Start Your Journey Together
                 </Button>
@@ -343,7 +360,7 @@ export const LandingPage: React.FC = () => {
                 <Button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full bg-slate-600 hover:bg-slate-700 text-white py-2.5 sm:py-3 text-sm sm:text-base font-semibold"
+                  className="w-full bg-white text-slate-900 hover:bg-slate-100 py-2.5 sm:py-3 text-sm sm:text-base font-semibold"
                 >
                   {isLoading ? <LoadingSpinner size="sm" /> : 'Start Planning Together'}
                 </Button>
@@ -357,7 +374,7 @@ export const LandingPage: React.FC = () => {
                       setShowSignup(false);
                       navigate('/login');
                     }}
-                    className="text-slate-300 hover:text-white font-medium"
+                    className="text-white hover:text-slate-200 font-medium underline"
                   >
                     Sign in
                   </button>
