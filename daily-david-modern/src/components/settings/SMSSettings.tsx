@@ -216,9 +216,9 @@ export const SMSSettings: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6">
-      <Card className="p-6 bg-slate-800/80 backdrop-blur-sm border-slate-700">
-        <h2 className="text-2xl font-bold text-white mb-6">📱 SMS Notifications</h2>
+    <div className="space-y-4 sm:space-y-6">
+      <Card className="p-4 sm:p-6 bg-slate-800/80 backdrop-blur-sm border-slate-700">
+        <h2 className="text-xl sm:text-2xl font-bold text-white mb-4 sm:mb-6">📱 SMS Notifications</h2>
         
         {testMessage && (
           <div className={`mb-4 p-3 rounded-md ${
@@ -268,51 +268,54 @@ export const SMSSettings: React.FC = () => {
             </label>
           </div>
 
-          {/* Notification Time */}
-          <div>
-            <label className="block text-sm font-medium text-green-200 mb-2">
-              Notification Time
-            </label>
-            <Input
-              type="time"
-              value={settings.notificationTime}
-              onChange={(e) => setSettings({
-                ...settings,
-                notificationTime: e.target.value
-              })}
-              className="w-full max-w-xs bg-slate-700 border-slate-600 text-white"
-            />
-            <p className="text-xs text-slate-400 mt-1">
-              Daily messages will be sent at this time (Eastern Time)
-            </p>
-          </div>
+          {/* Time and Timezone - Side by side on larger screens */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* Notification Time */}
+            <div>
+              <label className="block text-sm font-medium text-green-200 mb-2">
+                Notification Time
+              </label>
+              <Input
+                type="time"
+                value={settings.notificationTime}
+                onChange={(e) => setSettings({
+                  ...settings,
+                  notificationTime: e.target.value
+                })}
+                className="w-full bg-slate-700 border-slate-600 text-white"
+              />
+              <p className="text-xs text-slate-400 mt-1">
+                Daily messages will be sent at this time
+              </p>
+            </div>
 
-          {/* Timezone */}
-          <div>
-            <label className="block text-sm font-medium text-green-200 mb-2">
-              Timezone
-            </label>
-            <select
-              value={settings.timezone}
-              onChange={(e) => setSettings({
-                ...settings,
-                timezone: e.target.value
-              })}
-              className="w-full max-w-xs px-3 py-2 border border-slate-600 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-slate-700 text-white"
-            >
-              <option value="America/New_York">Eastern Time</option>
-              <option value="America/Chicago">Central Time</option>
-              <option value="America/Denver">Mountain Time</option>
-              <option value="America/Los_Angeles">Pacific Time</option>
-            </select>
+            {/* Timezone */}
+            <div>
+              <label className="block text-sm font-medium text-green-200 mb-2">
+                Timezone
+              </label>
+              <select
+                value={settings.timezone}
+                onChange={(e) => setSettings({
+                  ...settings,
+                  timezone: e.target.value
+                })}
+                className="w-full px-3 py-2 border border-slate-600 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-slate-700 text-white"
+              >
+                <option value="America/New_York">Eastern Time</option>
+                <option value="America/Chicago">Central Time</option>
+                <option value="America/Denver">Mountain Time</option>
+                <option value="America/Los_Angeles">Pacific Time</option>
+              </select>
+            </div>
           </div>
 
           {/* Save Button */}
-          <div className="flex space-x-3">
+          <div className="flex justify-center sm:justify-start">
             <Button
               onClick={saveSettings}
               disabled={isSaving}
-              className="bg-blue-600 hover:bg-blue-700 text-white"
+              className="bg-blue-600 hover:bg-blue-700 text-white w-full sm:w-auto"
             >
               {isSaving ? <LoadingSpinner size="sm" /> : 'Save Settings'}
             </Button>
@@ -321,19 +324,19 @@ export const SMSSettings: React.FC = () => {
       </Card>
 
       {/* Test Messages */}
-      <Card className="p-6 bg-slate-800/80 backdrop-blur-sm border-slate-700">
-        <h3 className="text-xl font-semibold text-white mb-4">🧪 Test Messages</h3>
+      <Card className="p-4 sm:p-6 bg-slate-800/80 backdrop-blur-sm border-slate-700">
+        <h3 className="text-lg sm:text-xl font-semibold text-white mb-4">🧪 Test Messages</h3>
         
         <div className="space-y-4">
           <p className="text-sm text-slate-300">
             Test your SMS notifications to make sure everything is working correctly.
           </p>
           
-          <div className="flex space-x-3">
+          <div className="flex flex-col sm:flex-row gap-3">
             <Button
               onClick={sendTestMessage}
               disabled={isTesting || !settings.phoneNumber}
-              className="bg-green-600 hover:bg-green-700 text-white"
+              className="bg-green-600 hover:bg-green-700 text-white w-full sm:w-auto"
             >
               {isTesting ? <LoadingSpinner size="sm" /> : 'Send Test Message'}
             </Button>
@@ -341,7 +344,7 @@ export const SMSSettings: React.FC = () => {
             <Button
               onClick={sendDailyMessage}
               disabled={isTesting || !settings.phoneNumber}
-              className="bg-purple-600 hover:bg-purple-700 text-white"
+              className="bg-purple-600 hover:bg-purple-700 text-white w-full sm:w-auto"
             >
               {isTesting ? <LoadingSpinner size="sm" /> : 'Send Daily Inspiration'}
             </Button>
@@ -350,12 +353,12 @@ export const SMSSettings: React.FC = () => {
       </Card>
 
       {/* Notification Logs */}
-      <Card className="p-6 bg-slate-800/80 backdrop-blur-sm border-slate-700">
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-xl font-semibold text-white">📋 Notification History</h3>
+      <Card className="p-4 sm:p-6 bg-slate-800/80 backdrop-blur-sm border-slate-700">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-4">
+          <h3 className="text-lg sm:text-xl font-semibold text-white">📋 Notification History</h3>
           <Button
             onClick={loadNotificationLogs}
-            className="bg-slate-600 hover:bg-slate-700 text-white"
+            className="bg-slate-600 hover:bg-slate-700 text-white w-full sm:w-auto"
           >
             {showLogs ? 'Refresh Logs' : 'View Logs'}
           </Button>
@@ -367,10 +370,10 @@ export const SMSSettings: React.FC = () => {
               <p className="text-slate-400 text-sm">No notification logs found.</p>
             ) : (
               logs.map((log) => (
-                <div key={log.id} className="border border-slate-600 rounded-lg p-4 bg-slate-700/50">
-                  <div className="flex justify-between items-start">
-                    <div className="flex-1">
-                      <div className="flex items-center space-x-2 mb-2">
+                <div key={log.id} className="border border-slate-600 rounded-lg p-3 sm:p-4 bg-slate-700/50">
+                  <div className="space-y-2">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                      <div className="flex flex-wrap items-center gap-2">
                         <span className={`px-2 py-1 text-xs rounded-full ${
                           log.status === 'sent' 
                             ? 'bg-green-900/50 text-green-300' 
@@ -382,18 +385,18 @@ export const SMSSettings: React.FC = () => {
                           {log.messageType}
                         </span>
                       </div>
-                      <p className="text-sm text-slate-300 mb-1">
-                        {formatPhoneNumber(log.phoneNumber)}
-                      </p>
                       <p className="text-xs text-slate-400">
                         {new Date(log.sentAt).toLocaleString()}
                       </p>
-                      {log.errorMessage && (
-                        <p className="text-xs text-red-400 mt-1">
-                          Error: {log.errorMessage}
-                        </p>
-                      )}
                     </div>
+                    <p className="text-sm text-slate-300">
+                      {formatPhoneNumber(log.phoneNumber)}
+                    </p>
+                    {log.errorMessage && (
+                      <p className="text-xs text-red-400">
+                        Error: {log.errorMessage}
+                      </p>
+                    )}
                   </div>
                 </div>
               ))
