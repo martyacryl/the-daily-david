@@ -6,7 +6,7 @@ import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { LoadingSpinner } from '../ui/LoadingSpinner';
 import { Mountain } from 'lucide-react';
-import { BookOpen, Users, Target, Zap, Heart, TrendingUp } from 'lucide-react';
+import { BookOpen, Users, Target, Zap, Heart, TrendingUp, Sun, CheckCircle } from 'lucide-react';
 import { useAuthStore } from '../../stores/authStore';
 
 export const LandingPage: React.FC = () => {
@@ -48,33 +48,33 @@ export const LandingPage: React.FC = () => {
   const features = [
     {
       icon: <BookOpen className="w-8 h-8 text-green-400" />,
-      title: "Daily Bible Reading",
-      description: "Structured reading plans with SOAP method for deep spiritual growth and understanding"
+      title: "Bible Reading Plans",
+      description: "Godly men-focused reading plans designed to grow your knowledge, character, and faith through structured study"
+    },
+    {
+      icon: <Sun className="w-8 h-8 text-green-400" />,
+      title: "Daily Gratitude Practice",
+      description: "Cultivate a heart of thankfulness with guided gratitude exercises that transform your perspective and attitude"
+    },
+    {
+      icon: <CheckCircle className="w-8 h-8 text-green-400" />,
+      title: "Daily Intentions",
+      description: "Set purposeful daily actions aligned with your values and God's calling for intentional living"
     },
     {
       icon: <Heart className="w-8 h-8 text-green-400" />,
       title: "Spiritual Growth",
-      description: "Daily inspiration and Bible verses to strengthen your faith and character"
+      description: "Daily inspiration and Bible verses to strengthen your faith, character, and relationship with God"
     },
     {
       icon: <Users className="w-8 h-8 text-green-400" />,
       title: "Prayer Community",
-      description: "Share prayer requests and support your brothers in Christ with genuine care"
-    },
-    {
-      icon: <Target className="w-8 h-8 text-green-400" />,
-      title: "Purpose-Driven Goals",
-      description: "Set and track spiritual goals with accountability and meaningful progress"
+      description: "Share prayer requests and support your brothers in Christ with genuine care and accountability"
     },
     {
       icon: <Zap className="w-8 h-8 text-green-400" />,
       title: "Daily Encouragement",
-      description: "Inspirational messages and Bible verses delivered to your phone each morning"
-    },
-    {
-      icon: <TrendingUp className="w-8 h-8 text-green-400" />,
-      title: "Growth Community",
-      description: "Connect with other men committed to growing in faith and living with purpose"
+      description: "Inspirational messages and Bible verses delivered to your phone each morning to start your day with purpose"
     }
   ];
 
