@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { Card } from '../ui/Card';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
@@ -10,6 +11,7 @@ import { useAuthStore } from '../../stores/authStore';
 
 export const LandingPage: React.FC = () => {
   const { signup, isLoading, error } = useAuthStore();
+  const navigate = useNavigate();
   const [showSignup, setShowSignup] = useState(false);
   const [signupData, setSignupData] = useState({
     displayName: '',
@@ -37,7 +39,7 @@ export const LandingPage: React.FC = () => {
 
     if (success) {
       // Redirect to dashboard
-      window.location.href = '/dashboard';
+      navigate('/dashboard');
     } else {
       setSignupMessage(error || 'Failed to create account');
     }
@@ -115,7 +117,7 @@ export const LandingPage: React.FC = () => {
                 Join the Fight
               </Button>
               <Button
-                onClick={() => window.location.href = '/login'}
+                onClick={() => navigate('/login')}
                 variant="outline"
                 className="border-2 border-green-500 text-green-400 hover:bg-green-500 hover:text-white px-8 py-4 text-lg font-semibold transition-all duration-300"
               >
@@ -171,7 +173,7 @@ export const LandingPage: React.FC = () => {
                   Start Your Journey Today
                 </Button>
                 <Button
-                  onClick={() => window.location.href = '/login'}
+                  onClick={() => navigate('/login')}
                   variant="outline"
                   className="border-2 border-white text-white hover:bg-white hover:text-slate-900 px-10 py-4 text-lg font-semibold transition-all duration-300"
                 >
@@ -285,7 +287,7 @@ export const LandingPage: React.FC = () => {
                   <button
                     onClick={() => {
                       setShowSignup(false);
-                      window.location.href = '/login';
+                      navigate('/login');
                     }}
                     className="text-amber-400 hover:text-amber-300 font-medium"
                   >

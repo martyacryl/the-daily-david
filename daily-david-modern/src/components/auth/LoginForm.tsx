@@ -29,7 +29,7 @@ export function LoginForm({ onSuccess, onError }: LoginFormProps) {
   // Redirect to dashboard if already authenticated
   useEffect(() => {
     if (isAuthenticated) {
-      navigate('/')
+      navigate('/dashboard')
     }
   }, [isAuthenticated, navigate])
 
@@ -67,7 +67,7 @@ export function LoginForm({ onSuccess, onError }: LoginFormProps) {
         console.log('✅ [LoginForm] Sign in successful')
         
         // Redirect to dashboard after successful login
-        navigate('/')
+        navigate('/dashboard')
         
         onSuccess?.()
       }
