@@ -1,7 +1,6 @@
 import React, { useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { motion, AnimatePresence } from 'framer-motion'
-import { Mountain, Home, BarChart3, Calendar, LogOut, User, Settings, Sun, Target, X } from 'lucide-react'
+import { Mountain, Home, BarChart3, Calendar, LogOut, User, Settings, Sun, Target } from 'lucide-react'
 import { useAuthStore } from '../../stores/authStore'
 import { Button } from '../ui/Button'
 import { useAccentColor } from '../../hooks/useAccentColor'
@@ -52,45 +51,51 @@ export const Header: React.FC<HeaderProps> = () => {
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
-      <div className="container mx-auto px-2 sm:px-4">
+      <div className="container mx-auto px-3 sm:px-4 lg:px-6">
         <div className="flex items-center justify-between h-14 sm:h-16">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-1 flex-shrink-0">
+          <Link to="/" className="flex items-center gap-2 flex-shrink-0 mr-2 sm:mr-4">
             <div className={`w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-br from-slate-400 to-${getColor('primary')} dark:from-slate-600 dark:to-${getColor('primaryDark')} rounded-full flex items-center justify-center`}>
               <Mountain className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
             </div>
             <span className="text-sm sm:text-base font-bold text-gray-900 dark:text-white whitespace-nowrap">
-              <span className="hidden lg:inline">Weekly Huddle</span>
+              <span className="hidden xl:inline">Weekly Huddle</span>
+              <span className="xl:hidden hidden lg:inline">WH</span>
               <span className="lg:hidden">WH</span>
             </span>
           </Link>
 
-          {/* Navigation - Always visible, responsive content */}
-          <nav className="hidden md:flex items-center gap-1 flex-1 justify-center min-w-0">
-            {navItems.map((item) => {
-              const Icon = item.icon
-              return (
-                <button
-                  key={item.path}
-                  onClick={() => handleNavigation(item.path)}
-                  className={`flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap flex-shrink-0 ${
-                    isActive(item.path)
-                      ? 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200'
-                      : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700'
-                  }`}
-                >
-                  <Icon className="w-4 h-4 flex-shrink-0" />
-                  <span className="hidden lg:inline">{item.label}</span>
-                  <span className="lg:hidden hidden sm:inline">{item.shortLabel}</span>
-                </button>
-              )
-            })}
+          {/* Navigation - Responsive with better spacing and overflow handling */}
+          <nav className="hidden md:flex items-center flex-1 justify-center min-w-0 max-w-2xl mx-2">
+            <div className="flex items-center gap-0.5 sm:gap-1 lg:gap-2 overflow-hidden">
+              {navItems.map((item) => {
+                const Icon = item.icon
+                return (
+                  <button
+                    key={item.path}
+                    onClick={() => handleNavigation(item.path)}
+                    className={`flex items-center gap-1 sm:gap-1.5 px-1.5 sm:px-2 lg:px-3 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap flex-shrink-0 ${
+                      isActive(item.path)
+                        ? 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200'
+                        : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700'
+                    }`}
+                    title={item.label}
+                  >
+                    <Icon className="w-4 h-4 flex-shrink-0" />
+                    {/* Show text based on screen size - more aggressive hiding for smaller screens */}
+                    <span className="hidden xl:inline">{item.label}</span>
+                    <span className="xl:hidden hidden lg:inline">{item.shortLabel}</span>
+                    <span className="lg:hidden hidden md:inline">{item.shortLabel}</span>
+                  </button>
+                )
+              })}
+            </div>
           </nav>
 
-          {/* User Menu - Responsive content */}
-          <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
+          {/* User Menu - More compact on smaller screens */}
+          <div className="flex items-center gap-0.5 sm:gap-1 lg:gap-2 flex-shrink-0">
             {/* User name - show when there's space */}
-            <div className="hidden xl:flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
+            <div className="hidden 2xl:flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
               <User className="w-4 h-4" />
               <span>{user?.name || 'Couple'}</span>
             </div>
@@ -100,10 +105,11 @@ export const Header: React.FC<HeaderProps> = () => {
               variant="outline"
               size="sm"
               onClick={() => setIsSettingsOpen(true)}
-              className="flex items-center gap-1 px-2 sm:px-3"
+              className="flex items-center gap-1 px-1.5 sm:px-2 lg:px-3"
+              title="Settings"
             >
               <Settings className="w-4 h-4" />
-              <span className="hidden lg:inline">Settings</span>
+              <span className="hidden xl:inline">Settings</span>
             </Button>
             
             {/* Logout button */}
@@ -111,31 +117,33 @@ export const Header: React.FC<HeaderProps> = () => {
               variant="outline"
               size="sm"
               onClick={logout}
-              className="flex items-center gap-1 px-2 sm:px-3"
+              className="flex items-center gap-1 px-1.5 sm:px-2 lg:px-3"
+              title="Sign Out"
             >
               <LogOut className="w-4 h-4" />
-              <span className="hidden lg:inline">Sign Out</span>
+              <span className="hidden xl:inline">Sign Out</span>
             </Button>
           </div>
         </div>
 
         {/* Mobile Navigation */}
         <div className="md:hidden border-t border-gray-200 dark:border-gray-700 py-1">
-          <nav className="flex items-center justify-around">
+          <nav className="flex items-center justify-around gap-1 px-1">
             {navItems.map((item) => {
               const Icon = item.icon
               return (
                 <button
                   key={item.path}
                   onClick={() => handleNavigation(item.path)}
-                  className={`flex flex-col items-center gap-1 px-2 sm:px-3 py-2 rounded-lg text-xs font-medium transition-colors min-w-0 flex-1 ${
+                  className={`flex flex-col items-center gap-0.5 px-1 py-2 rounded-lg text-xs font-medium transition-colors min-w-0 flex-1 ${
                     isActive(item.path)
                       ? 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200'
                       : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700'
                   }`}
+                  title={item.label}
                 >
-                  <Icon className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
-                  <span className="truncate text-center leading-tight">
+                  <Icon className="w-4 h-4 flex-shrink-0" />
+                  <span className="truncate text-center leading-tight text-[10px] sm:text-xs">
                     {item.shortLabel}
                   </span>
                 </button>
