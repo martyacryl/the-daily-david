@@ -456,6 +456,82 @@ app.post('/api/admin/users', authenticateToken, async (req, res) => {
   }
 })
 
+// Public signup endpoint (no authentication required)
+app.post('/api/auth/signup', async (req, res) => {
+  try {
+    const { email, password, displayName } = req.body
+
+    if (!email || !password || !displayName) {
+      return res.status(400).json({ success: false, error: 'Email, password, and display name are required' })
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ success: false, error: 'Please enter a valid email address' })
+    }
+
+    // Validate password strength
+    if (password.length < 6) {
+      return res.status(400).json({ success: false, error: 'Password must be at least 6 characters long' })
+    }
+
+    const client = await pool.connect()
+    
+    try {
+      // Check if user already exists
+      const existingUser = await client.query(
+        'SELECT id FROM users WHERE email = $1',
+        [email]
+      )
+
+      if (existingUser.rows.length > 0) {
+        return res.status(400).json({ success: false, error: 'An account with this email already exists' })
+      }
+
+      // Hash password
+      const hashedPassword = await bcrypt.hash(password, 10)
+
+      // Create user (non-admin by default)
+      const result = await client.query(
+        `INSERT INTO users (email, password_hash, display_name, is_admin) 
+         VALUES ($1, $2, $3, $4) 
+         RETURNING id, email, display_name, is_admin, created_at`,
+        [email, hashedPassword, displayName, false]
+      )
+
+      const newUser = result.rows[0]
+
+      // Generate JWT token for immediate login
+      const token = jwt.sign(
+        { 
+          userId: newUser.id, 
+          email: newUser.email, 
+          isAdmin: newUser.is_admin 
+        },
+        JWT_SECRET,
+        { expiresIn: '7d' }
+      )
+
+      res.json({ 
+        success: true, 
+        user: {
+          id: newUser.id,
+          email: newUser.email,
+          display_name: newUser.display_name,
+          is_admin: newUser.is_admin
+        },
+        token 
+      })
+    } finally {
+      client.release()
+    }
+  } catch (error) {
+    console.error('Signup error:', error)
+    res.status(500).json({ success: false, error: 'Failed to create account. Please try again.' })
+  }
+})
+
 // Delete user endpoint
 app.delete('/api/admin/users/:id', authenticateToken, async (req, res) => {
   try {

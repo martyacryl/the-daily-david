@@ -20,6 +20,7 @@ interface AuthState {
 
 interface AuthActions {
   login: (email: string, password: string) => Promise<boolean>
+  signup: (displayName: string, email: string, password: string) => Promise<boolean>
   logout: () => void
   clearError: () => void
   setLoading: (loading: boolean) => void
@@ -108,6 +109,53 @@ export const useAuthStore = create<AuthStore>()(
         } catch (error) {
           set({
             error: error instanceof Error ? error.message : 'Login failed',
+            isLoading: false
+          })
+          return false
+        }
+      },
+
+      signup: async (displayName: string, email: string, password: string) => {
+        try {
+          set({ isLoading: true, error: null })
+          
+          const response = await fetch(`${API_BASE_URL}/api/auth/signup`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ displayName, email, password }),
+          })
+
+          const data = await response.json()
+
+          if (data.success && data.user && data.token) {
+            set({
+              user: data.user,
+              token: data.token,
+              isAuthenticated: true,
+              isLoading: false,
+              error: null
+            })
+            
+            // Force a small delay to ensure auth state is set before components try to load data
+            setTimeout(() => {
+              console.log('🔐 Auth: Signup successful, triggering data refresh')
+              // Dispatch a custom event to notify components that signup is complete
+              window.dispatchEvent(new CustomEvent('auth-login-success'))
+            }, 100)
+            
+            return true
+          } else {
+            set({
+              error: data.error || 'Signup failed',
+              isLoading: false
+            })
+            return false
+          }
+        } catch (error) {
+          set({
+            error: error instanceof Error ? error.message : 'Signup failed',
             isLoading: false
           })
           return false

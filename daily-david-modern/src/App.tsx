@@ -10,6 +10,7 @@ import { ProtectedAdminRoute } from './components/admin/ProtectedAdminRoute'
 import { ProgressAnalytics } from './components/dashboard/ProgressAnalytics'
 import { LoginForm } from './components/auth/LoginForm'
 import { SettingsPage } from './components/settings/SettingsPage'
+import { LandingPage } from './components/landing/LandingPage'
 import { useAuthStore } from './stores/authStore'
 import { dbManager } from './lib/database'
 import './App.css'
@@ -46,19 +47,66 @@ function App() {
           <div className="absolute bottom-0 left-0 w-full h-48 bg-gradient-to-t from-green-600 to-transparent transform translate-x-32"></div>
           <div className="absolute bottom-0 right-0 w-full h-56 bg-gradient-to-t from-green-700 to-transparent transform -translate-x-32"></div>
         </div>
-        <Header />
-        <main className="container mx-auto px-4 py-8 pt-24 min-h-screen">
-          <Routes>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/daily" element={<DailyEntry />} />
-            <Route path="/review" element={<SOAPReview />} />
-            <Route path="/prayer" element={<PrayerRequestsList />} />
-            <Route path="/admin" element={<ProtectedAdminRoute dbManager={dbManager} />} />
-            <Route path="/analytics" element={<ProgressAnalytics />} />
-            <Route path="/settings" element={<SettingsPage />} />
-            <Route path="/login" element={<LoginForm />} />
-          </Routes>
-        </main>
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/login" element={<LoginForm />} />
+          <Route path="/dashboard" element={
+            <>
+              <Header />
+              <main className="container mx-auto px-4 py-8 pt-24 min-h-screen">
+                <Dashboard />
+              </main>
+            </>
+          } />
+          <Route path="/daily" element={
+            <>
+              <Header />
+              <main className="container mx-auto px-4 py-8 pt-24 min-h-screen">
+                <DailyEntry />
+              </main>
+            </>
+          } />
+          <Route path="/review" element={
+            <>
+              <Header />
+              <main className="container mx-auto px-4 py-8 pt-24 min-h-screen">
+                <SOAPReview />
+              </main>
+            </>
+          } />
+          <Route path="/prayer" element={
+            <>
+              <Header />
+              <main className="container mx-auto px-4 py-8 pt-24 min-h-screen">
+                <PrayerRequestsList />
+              </main>
+            </>
+          } />
+          <Route path="/admin" element={
+            <>
+              <Header />
+              <main className="container mx-auto px-4 py-8 pt-24 min-h-screen">
+                <ProtectedAdminRoute dbManager={dbManager} />
+              </main>
+            </>
+          } />
+          <Route path="/analytics" element={
+            <>
+              <Header />
+              <main className="container mx-auto px-4 py-8 pt-24 min-h-screen">
+                <ProgressAnalytics />
+              </main>
+            </>
+          } />
+          <Route path="/settings" element={
+            <>
+              <Header />
+              <main className="container mx-auto px-4 py-8 pt-24 min-h-screen">
+                <SettingsPage />
+              </main>
+            </>
+          } />
+        </Routes>
       </div>
     </Router>
   )
