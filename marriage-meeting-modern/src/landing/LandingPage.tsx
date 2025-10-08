@@ -109,10 +109,12 @@ export const LandingPage: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 relative overflow-hidden">
       {/* Background Elements */}
-      <div className="absolute inset-0 opacity-20">
-        <div className="w-full h-full bg-gradient-to-br from-slate-700/20 to-slate-900/20"></div>
+      <div className="absolute inset-0 opacity-30">
+        <div className="w-full h-full bg-gradient-to-br from-blue-900/10 via-purple-900/5 to-slate-900/20"></div>
+        <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-600/10 via-transparent to-transparent"></div>
+        <div className="absolute bottom-0 right-0 w-full h-full bg-[radial-gradient(ellipse_at_bottom_right,_var(--tw-gradient-stops))] from-purple-600/10 via-transparent to-transparent"></div>
       </div>
       
       {/* Hero Section */}
@@ -126,12 +128,12 @@ export const LandingPage: React.FC = () => {
             className="text-center mb-8 sm:mb-12 lg:mb-16"
           >
             <div className="flex justify-center mb-4 sm:mb-6">
-              <div className="w-14 h-14 sm:w-16 sm:h-16 lg:w-20 lg:h-20 bg-gradient-to-br from-slate-600 to-slate-700 rounded-full flex items-center justify-center">
+              <div className="w-14 h-14 sm:w-16 sm:h-16 lg:w-20 lg:h-20 bg-gradient-to-br from-blue-600 via-purple-600 to-blue-800 rounded-full flex items-center justify-center shadow-lg shadow-blue-500/25">
                 <Mountain className="w-7 h-7 sm:w-8 sm:h-8 lg:w-10 lg:h-10 text-white" />
               </div>
             </div>
             <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 sm:mb-6 leading-tight">
-              <span className="text-slate-300">Weekly</span> Huddle
+              <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">Weekly</span> Huddle
             </h1>
             <p className="text-lg sm:text-xl lg:text-2xl text-slate-200 mb-3 sm:mb-4 max-w-3xl mx-auto px-2">
               Plan your life together. Strengthen your marriage through intentional weekly planning.
@@ -144,14 +146,14 @@ export const LandingPage: React.FC = () => {
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center px-4">
               <Button
                 onClick={() => setShowSignup(true)}
-                className="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 border-0"
+                className="w-full sm:w-auto bg-gradient-to-r from-blue-600 via-purple-600 to-blue-700 hover:from-blue-700 hover:via-purple-700 hover:to-blue-800 text-white px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold shadow-lg hover:shadow-xl hover:shadow-blue-500/25 transition-all duration-300 border-0"
               >
                 Start Planning Together
               </Button>
               <Button
                 onClick={() => navigate('/login')}
                 variant="outline"
-                className="w-full sm:w-auto border-2 border-slate-300 text-slate-200 hover:bg-slate-300 hover:text-slate-900 px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold transition-all duration-300"
+                className="w-full sm:w-auto border-2 border-slate-400 text-slate-200 hover:bg-slate-400 hover:text-slate-900 px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold transition-all duration-300"
               >
                 Sign In
               </Button>
@@ -165,14 +167,14 @@ export const LandingPage: React.FC = () => {
             transition={{ duration: 0.8, delay: 0.2 }}
             className="mb-8 sm:mb-12 lg:mb-16 px-2"
           >
-            <Card className="p-6 sm:p-8 lg:p-12 bg-slate-800/80 backdrop-blur-sm border-slate-700">
+            <Card className="p-6 sm:p-8 lg:p-12 bg-gradient-to-br from-slate-800/90 to-slate-900/90 backdrop-blur-sm border-slate-600 shadow-xl shadow-blue-500/10">
               <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-6 sm:mb-8 text-center">
                 Why Weekly Huddle?
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 {benefits.map((benefit, index) => (
                   <div key={index} className="flex items-start gap-3">
-                    <CheckCircle className="w-5 h-5 text-slate-400 mt-0.5 flex-shrink-0" />
+                    <CheckCircle className="w-5 h-5 text-blue-400 mt-0.5 flex-shrink-0" />
                     <p className="text-slate-200 text-sm sm:text-base">{benefit}</p>
                   </div>
                 ))}
@@ -194,9 +196,9 @@ export const LandingPage: React.FC = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.1 * index }}
               >
-                <Card className="p-4 sm:p-6 lg:p-8 bg-slate-800/90 backdrop-blur-sm border-slate-600 hover:border-white/30 hover:bg-slate-700/90 transition-all duration-300 h-full group">
+                <Card className="p-4 sm:p-6 lg:p-8 bg-gradient-to-br from-slate-800/90 to-slate-900/90 backdrop-blur-sm border-slate-600 hover:border-blue-500/50 hover:bg-gradient-to-br hover:from-slate-700/90 hover:to-slate-800/90 transition-all duration-300 h-full group shadow-lg hover:shadow-xl hover:shadow-blue-500/10">
                   <div className="flex flex-col items-center text-center mb-4">
-                    <div className="mb-3 p-3 rounded-full bg-slate-700/50 group-hover:bg-slate-600/50 transition-colors duration-300">
+                    <div className="mb-3 p-3 rounded-full bg-gradient-to-br from-blue-600/20 to-purple-600/20 group-hover:from-blue-500/30 group-hover:to-purple-500/30 transition-all duration-300 border border-blue-500/20 group-hover:border-blue-400/40">
                       {feature.icon}
                     </div>
                     <h3 className="text-lg sm:text-xl font-semibold text-white mb-2">{feature.title}</h3>
@@ -214,7 +216,7 @@ export const LandingPage: React.FC = () => {
             transition={{ duration: 0.8, delay: 0.6 }}
             className="text-center px-2"
           >
-            <Card className="p-6 sm:p-8 lg:p-12 bg-gradient-to-r from-slate-600/20 to-slate-800/20 backdrop-blur-sm border-slate-500/30">
+            <Card className="p-6 sm:p-8 lg:p-12 bg-gradient-to-r from-blue-900/20 via-purple-900/10 to-slate-800/20 backdrop-blur-sm border-blue-500/30 shadow-xl shadow-blue-500/10">
               <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-4 sm:mb-6">
                 Ready to Plan Your Future Together?
               </h2>
@@ -224,14 +226,14 @@ export const LandingPage: React.FC = () => {
               <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
                 <Button
                   onClick={() => setShowSignup(true)}
-                  className="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-6 sm:px-10 py-3 sm:py-4 text-base sm:text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 border-0"
+                  className="w-full sm:w-auto bg-gradient-to-r from-blue-600 via-purple-600 to-blue-700 hover:from-blue-700 hover:via-purple-700 hover:to-blue-800 text-white px-6 sm:px-10 py-3 sm:py-4 text-base sm:text-lg font-semibold shadow-lg hover:shadow-xl hover:shadow-blue-500/25 transition-all duration-300 border-0"
                 >
                   Start Your Journey Together
                 </Button>
                 <Button
                   onClick={() => navigate('/login')}
                   variant="outline"
-                  className="w-full sm:w-auto border-2 border-slate-300 text-slate-200 hover:bg-slate-300 hover:text-slate-900 px-6 sm:px-10 py-3 sm:py-4 text-base sm:text-lg font-semibold transition-all duration-300"
+                  className="w-full sm:w-auto border-2 border-slate-400 text-slate-200 hover:bg-slate-400 hover:text-slate-900 px-6 sm:px-10 py-3 sm:py-4 text-base sm:text-lg font-semibold transition-all duration-300"
                 >
                   Continue Planning
                 </Button>
@@ -250,12 +252,12 @@ export const LandingPage: React.FC = () => {
             exit={{ opacity: 0, scale: 0.9 }}
             className="w-full max-w-sm sm:max-w-md"
           >
-            <Card className="p-4 sm:p-6 bg-slate-800 border-slate-700">
+            <Card className="p-4 sm:p-6 bg-gradient-to-br from-slate-800 to-slate-900 border-slate-600 shadow-xl shadow-blue-500/10">
               <div className="flex justify-between items-center mb-4 sm:mb-6">
                 <h2 className="text-xl sm:text-2xl font-bold text-white">Start Planning Together</h2>
                 <button
                   onClick={() => setShowSignup(false)}
-                  className="text-slate-400 hover:text-white text-xl sm:text-2xl p-1"
+                  className="text-slate-400 hover:text-white text-xl sm:text-2xl p-1 hover:bg-slate-700 rounded-full transition-colors duration-200"
                 >
                   ×
                 </button>
@@ -263,7 +265,7 @@ export const LandingPage: React.FC = () => {
 
               <form onSubmit={handleSignup} className="space-y-3 sm:space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-slate-200 mb-1 sm:mb-2">
+                  <label className="block text-sm font-medium text-slate-100 mb-1 sm:mb-2">
                     First Spouse Name
                   </label>
                   <Input
@@ -277,7 +279,7 @@ export const LandingPage: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-slate-200 mb-1 sm:mb-2">
+                  <label className="block text-sm font-medium text-slate-100 mb-1 sm:mb-2">
                     Second Spouse Name
                   </label>
                   <Input
@@ -291,7 +293,7 @@ export const LandingPage: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-slate-200 mb-1 sm:mb-2">
+                  <label className="block text-sm font-medium text-slate-100 mb-1 sm:mb-2">
                     Email
                   </label>
                   <Input
@@ -305,7 +307,7 @@ export const LandingPage: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-slate-200 mb-1 sm:mb-2">
+                  <label className="block text-sm font-medium text-slate-100 mb-1 sm:mb-2">
                     Password
                   </label>
                   <Input
@@ -319,7 +321,7 @@ export const LandingPage: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-slate-200 mb-1 sm:mb-2">
+                  <label className="block text-sm font-medium text-slate-100 mb-1 sm:mb-2">
                     Confirm Password
                   </label>
                   <Input
@@ -345,7 +347,7 @@ export const LandingPage: React.FC = () => {
                 <Button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white py-2.5 sm:py-3 text-sm sm:text-base font-semibold border-0"
+                  className="w-full bg-gradient-to-r from-blue-600 via-purple-600 to-blue-700 hover:from-blue-700 hover:via-purple-700 hover:to-blue-800 text-white py-2.5 sm:py-3 text-sm sm:text-base font-semibold border-0 shadow-lg hover:shadow-xl hover:shadow-blue-500/25 transition-all duration-300"
                 >
                   {isLoading ? <LoadingSpinner size="sm" /> : 'Start Planning Together'}
                 </Button>
@@ -359,7 +361,7 @@ export const LandingPage: React.FC = () => {
                       setShowSignup(false);
                       navigate('/login');
                     }}
-                    className="text-white hover:text-slate-200 font-medium underline"
+                    className="text-blue-400 hover:text-blue-300 font-medium underline hover:no-underline transition-all duration-200"
                   >
                     Sign in
                   </button>
