@@ -86,42 +86,42 @@ export const LandingPage: React.FC = () => {
       </div>
       
       {/* Hero Section */}
-      <div className="relative z-10 px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
+      <div className="relative z-10 px-3 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16">
         <div className="max-w-7xl mx-auto">
           {/* Header */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-            className="text-center mb-12 sm:mb-16"
+            className="text-center mb-8 sm:mb-12 lg:mb-16"
           >
-            <div className="flex justify-center mb-6">
-              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-green-600 to-green-700 rounded-full flex items-center justify-center">
-                <Mountain className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
+            <div className="flex justify-center mb-4 sm:mb-6">
+              <div className="w-14 h-14 sm:w-16 sm:h-16 lg:w-20 lg:h-20 bg-gradient-to-br from-green-600 to-green-700 rounded-full flex items-center justify-center">
+                <Mountain className="w-7 h-7 sm:w-8 sm:h-8 lg:w-10 lg:h-10 text-white" />
               </div>
             </div>
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 sm:mb-6 leading-tight">
               <span className="text-green-400">Daily</span> David
             </h1>
-            <p className="text-xl sm:text-2xl text-green-200 mb-4 max-w-3xl mx-auto">
+            <p className="text-lg sm:text-xl lg:text-2xl text-green-200 mb-3 sm:mb-4 max-w-3xl mx-auto px-2">
               Step into your purpose. Grow as a man of God with daily discipline and community.
             </p>
-            <p className="text-lg text-slate-300 max-w-2xl mx-auto mb-8">
+            <p className="text-base sm:text-lg text-slate-300 max-w-2xl mx-auto mb-6 sm:mb-8 px-2">
               Daily Bible reading, prayer, and spiritual growth designed for men who want to live with integrity, purpose, and faith.
             </p>
             
             {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center px-4">
               <Button
                 onClick={() => setShowSignup(true)}
-                className="bg-green-600 hover:bg-green-700 text-white px-8 py-4 text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
+                className="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
               >
                 Start Your Journey
               </Button>
               <Button
                 onClick={() => navigate('/login')}
                 variant="outline"
-                className="border-2 border-green-500 text-green-400 hover:bg-green-500 hover:text-white px-8 py-4 text-lg font-semibold transition-all duration-300"
+                className="w-full sm:w-auto border-2 border-green-500 text-green-400 hover:bg-green-500 hover:text-white px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold transition-all duration-300"
               >
                 Sign In
               </Button>
@@ -133,7 +133,7 @@ export const LandingPage: React.FC = () => {
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.3 }}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 mb-16"
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 mb-8 sm:mb-12 lg:mb-16 px-2"
           >
             {features.map((feature, index) => (
               <motion.div
@@ -142,12 +142,12 @@ export const LandingPage: React.FC = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.1 * index }}
               >
-                <Card className="p-6 bg-slate-800/80 backdrop-blur-sm border-slate-700 hover:border-amber-500/50 transition-all duration-300 h-full">
-                  <div className="flex items-center mb-4">
-                    {feature.icon}
-                    <h3 className="text-xl font-semibold text-white ml-3">{feature.title}</h3>
+                <Card className="p-4 sm:p-6 lg:p-8 bg-slate-800/80 backdrop-blur-sm border-slate-700 hover:border-green-500/50 transition-all duration-300 h-full">
+                  <div className="flex flex-col sm:flex-row items-center sm:items-start mb-3 sm:mb-4">
+                    <div className="mb-2 sm:mb-0 sm:mr-3">{feature.icon}</div>
+                    <h3 className="text-lg sm:text-xl font-semibold text-white text-center sm:text-left">{feature.title}</h3>
                   </div>
-                  <p className="text-slate-300 leading-relaxed">{feature.description}</p>
+                  <p className="text-sm sm:text-base text-slate-300 leading-relaxed">{feature.description}</p>
                 </Card>
               </motion.div>
             ))}
@@ -158,26 +158,26 @@ export const LandingPage: React.FC = () => {
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.6 }}
-            className="text-center"
+            className="text-center px-2"
           >
-            <Card className="p-8 sm:p-12 bg-gradient-to-r from-green-600/20 to-green-800/20 backdrop-blur-sm border-green-500/30">
-              <h2 className="text-3xl sm:text-4xl font-bold text-white mb-6">
+            <Card className="p-6 sm:p-8 lg:p-12 bg-gradient-to-r from-green-600/20 to-green-800/20 backdrop-blur-sm border-green-500/30">
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-4 sm:mb-6">
                 Ready to Live with Purpose?
               </h2>
-              <p className="text-xl text-slate-200 mb-8 max-w-2xl mx-auto">
+              <p className="text-base sm:text-lg lg:text-xl text-slate-200 mb-6 sm:mb-8 max-w-2xl mx-auto">
                 Step into your calling. Join men who are committed to growing in faith, character, and spiritual discipline as they pursue God's purpose for their lives.
               </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
                 <Button
                   onClick={() => setShowSignup(true)}
-                  className="bg-green-600 hover:bg-green-700 text-white px-10 py-4 text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
+                  className="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white px-6 sm:px-10 py-3 sm:py-4 text-base sm:text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
                 >
                   Begin Your Growth Journey
                 </Button>
                 <Button
                   onClick={() => navigate('/login')}
                   variant="outline"
-                  className="border-2 border-white text-white hover:bg-white hover:text-slate-900 px-10 py-4 text-lg font-semibold transition-all duration-300"
+                  className="w-full sm:w-auto border-2 border-white text-white hover:bg-white hover:text-slate-900 px-6 sm:px-10 py-3 sm:py-4 text-base sm:text-lg font-semibold transition-all duration-300"
                 >
                   Continue Growing
                 </Button>
@@ -189,27 +189,27 @@ export const LandingPage: React.FC = () => {
 
       {/* Signup Modal */}
       {showSignup && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4">
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.9 }}
-            className="w-full max-w-md"
+            className="w-full max-w-sm sm:max-w-md"
           >
-            <Card className="p-6 bg-slate-800 border-slate-700">
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold text-white">Join the Fight</h2>
+            <Card className="p-4 sm:p-6 bg-slate-800 border-slate-700">
+              <div className="flex justify-between items-center mb-4 sm:mb-6">
+                <h2 className="text-xl sm:text-2xl font-bold text-white">Start Your Journey</h2>
                 <button
                   onClick={() => setShowSignup(false)}
-                  className="text-slate-400 hover:text-white text-2xl"
+                  className="text-slate-400 hover:text-white text-xl sm:text-2xl p-1"
                 >
                   ×
                 </button>
               </div>
 
-              <form onSubmit={handleSignup} className="space-y-4">
+              <form onSubmit={handleSignup} className="space-y-3 sm:space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-green-200 mb-2">
+                  <label className="block text-sm font-medium text-green-200 mb-1 sm:mb-2">
                     First Name
                   </label>
                   <Input
@@ -218,12 +218,12 @@ export const LandingPage: React.FC = () => {
                     value={signupData.displayName}
                     onChange={(e) => setSignupData({ ...signupData, displayName: e.target.value })}
                     required
-                    className="w-full"
+                    className="w-full text-sm sm:text-base"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-green-200 mb-2">
+                  <label className="block text-sm font-medium text-green-200 mb-1 sm:mb-2">
                     Email
                   </label>
                   <Input
@@ -232,12 +232,12 @@ export const LandingPage: React.FC = () => {
                     value={signupData.email}
                     onChange={(e) => setSignupData({ ...signupData, email: e.target.value })}
                     required
-                    className="w-full"
+                    className="w-full text-sm sm:text-base"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-green-200 mb-2">
+                  <label className="block text-sm font-medium text-green-200 mb-1 sm:mb-2">
                     Password
                   </label>
                   <Input
@@ -246,12 +246,12 @@ export const LandingPage: React.FC = () => {
                     value={signupData.password}
                     onChange={(e) => setSignupData({ ...signupData, password: e.target.value })}
                     required
-                    className="w-full"
+                    className="w-full text-sm sm:text-base"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-green-200 mb-2">
+                  <label className="block text-sm font-medium text-green-200 mb-1 sm:mb-2">
                     Confirm Password
                   </label>
                   <Input
@@ -260,12 +260,12 @@ export const LandingPage: React.FC = () => {
                     value={signupData.confirmPassword}
                     onChange={(e) => setSignupData({ ...signupData, confirmPassword: e.target.value })}
                     required
-                    className="w-full"
+                    className="w-full text-sm sm:text-base"
                   />
                 </div>
 
                 {signupMessage && (
-                  <div className={`p-3 rounded-md text-sm ${
+                  <div className={`p-2 sm:p-3 rounded-md text-xs sm:text-sm ${
                     signupMessage.includes('success') 
                       ? 'bg-green-900/50 text-green-300 border border-green-700' 
                       : 'bg-red-900/50 text-red-300 border border-red-700'
@@ -277,14 +277,14 @@ export const LandingPage: React.FC = () => {
                 <Button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full bg-green-600 hover:bg-green-700 text-white py-3 font-semibold"
+                  className="w-full bg-green-600 hover:bg-green-700 text-white py-2.5 sm:py-3 text-sm sm:text-base font-semibold"
                 >
                   {isLoading ? <LoadingSpinner size="sm" /> : 'Start Your Journey'}
                 </Button>
               </form>
 
-              <div className="mt-6 text-center">
-                <p className="text-slate-400 text-sm">
+              <div className="mt-4 sm:mt-6 text-center">
+                <p className="text-slate-400 text-xs sm:text-sm">
                   Already have an account?{' '}
                   <button
                     onClick={() => {
