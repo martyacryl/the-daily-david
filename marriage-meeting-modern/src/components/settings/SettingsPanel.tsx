@@ -22,6 +22,7 @@ import { Textarea } from '../ui/Textarea'
 import { useSettingsStore } from '../../stores/settingsStore'
 import { useAuthStore } from '../../stores/authStore'
 import { useTheme } from '../../hooks/useTheme'
+import { useAppStore } from '../../stores/appStore'
 import { getAccentColorOptions } from '../../lib/accentColors'
 import { useAccentColor } from '../../hooks/useAccentColor'
 
@@ -33,6 +34,7 @@ interface SettingsPanelProps {
 export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose }) => {
   const { isAuthenticated } = useAuthStore()
   const { theme, setTheme } = useTheme()
+  const { setAccentColor } = useAppStore()
   const { getColor } = useAccentColor()
   const {
     settings,
@@ -48,6 +50,14 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
   
   // Get accent color from settings
   const accentColor = settings.accentColor || 'slate'
+  
+  // Handler for accent color changes - updates both stores
+  const handleAccentColorChange = async (colorKey: string) => {
+    // Update settings store (saves to database)
+    await updateGeneralSettings({ accentColor: colorKey })
+    // Update app store (immediate UI update)
+    await setAccentColor(colorKey)
+  }
 
   const [activeTab, setActiveTab] = useState('spouses')
   const [newGroceryStore, setNewGroceryStore] = useState({ name: '', address: '' })
@@ -433,7 +443,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
                               {getAccentColorOptions().map((color) => (
                                 <button
                                   key={color.key}
-                                  onClick={() => updateGeneralSettings({ accentColor: color.key })}
+                                  onClick={() => handleAccentColorChange(color.key)}
                                   className={`group relative rounded-lg border-2 transition-all duration-200 hover:scale-105 ${
                                     accentColor === color.key
                                       ? 'border-gray-900 dark:border-white ring-1 ring-gray-400 dark:ring-gray-500'
