@@ -866,6 +866,36 @@ app.post('/api/reading-plans', authenticateToken, async (req, res) => {
   }
 })
 
+// Update reading plan progress
+app.put('/api/reading-plans/:planId', authenticateToken, async (req, res) => {
+  try {
+    const { planId } = req.params
+    const { current_day, completed_days } = req.body
+    
+    console.log('📖 Reading Plans: Updating progress for plan:', planId, 'user:', req.user.id)
+    console.log('📖 Reading Plans: Update data:', { current_day, completed_days })
+    
+    const result = await pool.query(
+      `UPDATE reading_plans 
+       SET current_day = $1, completed_days = $2, updated_at = CURRENT_TIMESTAMP
+       WHERE user_id = $3 AND plan_id = $4
+       RETURNING *`,
+      [current_day, completed_days, req.user.id, planId]
+    )
+    
+    if (result.rows.length === 0) {
+      console.log('📖 Reading Plans: Plan not found for update')
+      return res.status(404).json({ error: 'Reading plan not found' })
+    }
+    
+    console.log('📖 Reading Plans: Updated successfully:', result.rows[0])
+    res.json(result.rows[0])
+  } catch (error) {
+    console.error('❌ Error updating reading plan:', error)
+    console.error('❌ Error stack:', error.stack)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
 
 // Delete a reading plan
 app.delete('/api/reading-plans/:planId', authenticateToken, async (req, res) => {
@@ -884,6 +914,57 @@ app.delete('/api/reading-plans/:planId', authenticateToken, async (req, res) => 
     res.json({ message: 'Reading plan deleted successfully' })
   } catch (error) {
     console.error('Error deleting reading plan:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
+// Get available reading plans (from bibleService)
+app.get('/api/available-reading-plans', authenticateToken, async (req, res) => {
+  try {
+    // This would typically come from the bibleService
+    // For now, return the marriage-focused plans
+    const availablePlans = [
+      {
+        id: 'marriage-foundation',
+        name: 'Marriage Foundation',
+        description: '30 days of scripture focused on building a strong marriage foundation',
+        duration: 30
+      },
+      {
+        id: 'love-languages',
+        name: 'Love Languages in Scripture',
+        description: 'Daily devotionals exploring the five love languages through biblical wisdom',
+        duration: 35
+      },
+      {
+        id: 'communication-couples',
+        name: 'Communication for Couples',
+        description: 'Biblical wisdom for healthy communication in marriage',
+        duration: 28
+      },
+      {
+        id: 'parenting-together',
+        name: 'Parenting Together',
+        description: 'Biblical principles for raising children as a united couple',
+        duration: 40
+      },
+      {
+        id: 'intimacy-marriage',
+        name: 'Intimacy in Marriage',
+        description: 'Biblical principles for emotional, spiritual, and physical intimacy',
+        duration: 25
+      },
+      {
+        id: 'financial-wisdom',
+        name: 'Financial Wisdom for Couples',
+        description: 'Biblical principles for managing money together in marriage',
+        duration: 20
+      }
+    ]
+    
+    res.json(availablePlans)
+  } catch (error) {
+    console.error('Error fetching available reading plans:', error)
     res.status(500).json({ error: 'Internal server error' })
   }
 })
@@ -1331,125 +1412,6 @@ app.get('/api/meeting-stats', authenticateToken, async (req, res) => {
   }
 })
 
-// Reading Plans API Endpoints
-
-// Get all reading plans for a user
-app.get('/api/reading-plans', authenticateToken, async (req, res) => {
-  try {
-    const result = await pool.query(
-      `SELECT * FROM reading_plans 
-       WHERE user_id = $1 
-       ORDER BY created_at DESC`,
-      [req.user.id]
-    )
-    
-    res.json(result.rows)
-  } catch (error) {
-    console.error('Error fetching reading plans:', error)
-    res.status(500).json({ error: 'Internal server error' })
-  }
-})
-
-// Create a new reading plan
-
-// Update reading plan progress
-app.put('/api/reading-plans/:planId', authenticateToken, async (req, res) => {
-  try {
-    const { planId } = req.params
-    const { current_day, completed_days } = req.body
-    
-    const result = await pool.query(
-      `UPDATE reading_plans 
-       SET current_day = $1, completed_days = $2, updated_at = CURRENT_TIMESTAMP
-       WHERE user_id = $3 AND plan_id = $4
-       RETURNING *`,
-      [current_day, completed_days, req.user.id, planId]
-    )
-    
-    if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Reading plan not found' })
-    }
-    
-    res.json(result.rows[0])
-  } catch (error) {
-    console.error('Error updating reading plan:', error)
-    res.status(500).json({ error: 'Internal server error' })
-  }
-})
-
-// Delete a reading plan
-app.delete('/api/reading-plans/:planId', authenticateToken, async (req, res) => {
-  try {
-    const { planId } = req.params
-    
-    const result = await pool.query(
-      `DELETE FROM reading_plans 
-       WHERE user_id = $1 AND plan_id = $2
-       RETURNING *`,
-      [req.user.id, planId]
-    )
-    
-    if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Reading plan not found' })
-    }
-    
-    res.json({ message: 'Reading plan deleted successfully' })
-  } catch (error) {
-    console.error('Error deleting reading plan:', error)
-    res.status(500).json({ error: 'Internal server error' })
-  }
-})
-
-// Get available reading plans (from bibleService)
-app.get('/api/available-reading-plans', authenticateToken, async (req, res) => {
-  try {
-    // This would typically come from the bibleService
-    // For now, return the marriage-focused plans
-    const availablePlans = [
-      {
-        id: 'marriage-foundation',
-        name: 'Marriage Foundation',
-        description: '30 days of scripture focused on building a strong marriage foundation',
-        duration: 30
-      },
-      {
-        id: 'love-languages',
-        name: 'Love Languages in Scripture',
-        description: 'Daily devotionals exploring the five love languages through biblical wisdom',
-        duration: 35
-      },
-      {
-        id: 'communication-couples',
-        name: 'Communication for Couples',
-        description: 'Biblical wisdom for healthy communication in marriage',
-        duration: 28
-      },
-      {
-        id: 'parenting-together',
-        name: 'Parenting Together',
-        description: 'Biblical principles for raising children as a united couple',
-        duration: 40
-      },
-      {
-        id: 'intimacy-marriage',
-        name: 'Intimacy in Marriage',
-        description: 'Biblical principles for emotional, spiritual, and physical intimacy',
-        duration: 25
-      },
-      {
-        id: 'financial-wisdom',
-        name: 'Financial Wisdom for Couples',
-        description: 'Biblical principles for managing money together in marriage',
-        duration: 20
-      }
-    ]
-    
-    res.json(availablePlans)
-  } catch (error) {
-    console.error('Error fetching available reading plans:', error)
-    res.status(500).json({ error: 'Internal server error' })
-  }
-})
 
 // =============================================================================
 // PLANNING SYSTEM API ENDPOINTS
