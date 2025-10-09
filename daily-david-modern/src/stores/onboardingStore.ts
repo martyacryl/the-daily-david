@@ -8,6 +8,7 @@ interface OnboardingState {
   isActive: boolean
   completedSteps: number[]
   skipOnboarding: boolean
+  hasSeenTour: boolean // Track if user has ever seen the tour
   
   // Tour configuration
   totalSteps: number
@@ -21,6 +22,7 @@ interface OnboardingState {
   completeTour: () => void
   resetOnboarding: () => void
   setCurrentStep: (step: number) => void
+  restartTour: () => void // Allow users to restart tour anytime
 }
 
 interface TourStep {
@@ -146,6 +148,7 @@ export const useOnboardingStore = create<OnboardingState>()(
       isActive: false,
       completedSteps: [],
       skipOnboarding: false,
+      hasSeenTour: false,
       totalSteps: tourSteps.length,
       tourSteps,
 
@@ -180,19 +183,29 @@ export const useOnboardingStore = create<OnboardingState>()(
         }
       },
 
-      skipTour: () => {
-        set({ 
-          isActive: false, 
-          skipOnboarding: true,
-          isFirstTime: false
-        })
-      },
-
       completeTour: () => {
         set({ 
           isActive: false, 
           isFirstTime: false,
+          hasSeenTour: true,
           completedSteps: Array.from({ length: tourSteps.length }, (_, i) => i + 1)
+        })
+      },
+
+      skipTour: () => {
+        set({ 
+          isActive: false, 
+          skipOnboarding: true,
+          isFirstTime: false,
+          hasSeenTour: true
+        })
+      },
+
+      restartTour: () => {
+        set({ 
+          isActive: true,
+          currentStep: 1,
+          completedSteps: []
         })
       },
 
@@ -202,7 +215,8 @@ export const useOnboardingStore = create<OnboardingState>()(
           currentStep: 1,
           isActive: false,
           completedSteps: [],
-          skipOnboarding: false
+          skipOnboarding: false,
+          hasSeenTour: false
         })
       },
 
@@ -215,6 +229,7 @@ export const useOnboardingStore = create<OnboardingState>()(
       partialize: (state) => ({ 
         isFirstTime: state.isFirstTime,
         skipOnboarding: state.skipOnboarding,
+        hasSeenTour: state.hasSeenTour,
         completedSteps: state.completedSteps
       })
     }

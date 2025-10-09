@@ -4,6 +4,7 @@ import { motion } from 'framer-motion'
 import { BookOpen, BarChart3, Settings, LogOut, Mountain, TrendingUp, Menu, X, BookMarked, Sword, User } from 'lucide-react'
 import { useAuthStore } from '../../stores/authStore'
 import { Button } from '../ui/Button'
+import { TakeTourButton } from '../onboarding'
 
 export const Header: React.FC = () => {
   const { user, isAuthenticated, logout } = useAuthStore()
@@ -111,6 +112,7 @@ export const Header: React.FC = () => {
                 <span className="text-xs sm:text-sm text-green-200 hidden md:block truncate max-w-24 lg:max-w-32">
                   Welcome, {user?.name}
                 </span>
+                <TakeTourButton variant="icon" size="sm" />
                 <Button
                   variant="ghost"
                   size="sm"
@@ -162,6 +164,11 @@ export const Header: React.FC = () => {
                   </Link>
                 )
               })}
+              
+              {/* Tour Button in Mobile Menu */}
+              <div className="pt-2 border-t border-slate-700">
+                <TakeTourButton variant="button" size="sm" className="w-full justify-center" />
+              </div>
             </nav>
           </div>
         </motion.div>
