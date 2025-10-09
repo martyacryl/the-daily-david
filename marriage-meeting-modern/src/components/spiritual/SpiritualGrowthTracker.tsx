@@ -157,9 +157,13 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
   useEffect(() => {
     console.log('🔄 SpiritualGrowthTracker: useEffect triggered')
     loadSpiritualGrowth()
+  }, [loadSpiritualGrowth])
+
+  useEffect(() => {
+    console.log('📖 Loading reading plans on mount...')
     loadReadingPlans()
     loadAvailablePlans()
-  }, [loadSpiritualGrowth])
+  }, [])
 
   const loadReadingPlans = async () => {
     try {
