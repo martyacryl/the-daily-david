@@ -76,7 +76,7 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
     loadSpiritualGrowth,
     updateSpiritualGrowth
   } = useVisionStore()
-  const { logout } = useAuthStore()
+  const { logout, token } = useAuthStore()
   const { getColor } = useAccentColor()
 
   const [searchParams, setSearchParams] = useSearchParams()
@@ -145,16 +145,8 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
 
   // Helper function to get auth token
   const getAuthToken = () => {
-    try {
-      const authData = localStorage.getItem('auth-storage')
-      if (authData) {
-        const parsed = JSON.parse(authData)
-        return parsed.state?.token || ''
-      }
-    } catch (error) {
-      console.error('Error getting auth token:', error)
-    }
-    return ''
+    console.log('🔑 Token from auth store:', token ? `${token.substring(0, 20)}...` : 'empty')
+    return token || ''
   }
 
   // Helper function to handle authentication errors
