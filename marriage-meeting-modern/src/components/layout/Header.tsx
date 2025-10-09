@@ -17,13 +17,7 @@ export const Header: React.FC<HeaderProps> = () => {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
 
   const handleNavigation = (path: string) => {
-    // If clicking vision button, always go to vision section and clear localStorage
-    if (path === '/daily') {
-      localStorage.removeItem('lastActiveSection')
-      navigate('/daily?section=vision')
-    } else {
-      navigate(path)
-    }
+    navigate(path)
     // Scroll to top when navigating to dashboard for better UX
     if (path === '/') {
       window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -33,7 +27,7 @@ export const Header: React.FC<HeaderProps> = () => {
   const navItems = [
     { path: '/', label: 'Dashboard', shortLabel: 'Home', icon: Home },
     { path: '/weekly', label: 'Weekly Planning', shortLabel: 'Weekly', icon: Calendar },
-    { path: '/daily', label: 'Vision', shortLabel: 'Vision', icon: Sun },
+    { path: '/spiritual', label: 'Spiritual', shortLabel: 'Spiritual', icon: Sun },
     { path: '/planning', label: 'Strategic Planning', shortLabel: 'Planning', icon: Target },
     { path: '/analytics', label: 'Analytics', shortLabel: 'Analytics', icon: BarChart3 }
   ]

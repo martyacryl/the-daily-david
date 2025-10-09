@@ -668,7 +668,7 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
   }
 
   return (
-    <div className={`space-y-4 sm:space-y-6 pt-16 sm:pt-20 ${className}`}>
+    <div className={`space-y-4 sm:space-y-6 ${className || 'pt-16 sm:pt-20'}`}>
       {/* Modern Header */}
       <Card className={`p-4 sm:p-6 ${getGradientClass('header')} border-0 shadow-lg`}>
           <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-6 gap-4">

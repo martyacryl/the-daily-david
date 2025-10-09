@@ -14,6 +14,7 @@ import { Dashboard } from './components/dashboard/Dashboard'
 import { AnalyticsPage } from './components/analytics/AnalyticsPage'
 import { PlanningPage } from './components/planning/PlanningPage'
 import { WeeklyReview } from './components/WeeklyReview'
+import { SpiritualPage } from './components/SpiritualPage'
 import { Header } from './components/layout/Header'
 import { LoadingSpinner } from './components/ui/LoadingSpinner'
 import { ProtectedAdminRoute } from './components/admin/ProtectedAdminRoute'
@@ -95,6 +96,7 @@ function App() {
           <Route path="/" element={<Dashboard />} />
           <Route path="/weekly" element={<MarriageMeetingTool />} />
           <Route path="/daily" element={<DailyFocusedMeeting />} />
+          <Route path="/spiritual" element={<SpiritualPage />} />
           <Route path="/analytics" element={<AnalyticsPage />} />
           <Route path="/planning" element={<PlanningPage />} />
           <Route path="/review" element={<WeeklyReviewWithNavigation />} />
