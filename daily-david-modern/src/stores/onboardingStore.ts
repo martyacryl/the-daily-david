@@ -226,7 +226,9 @@ export const useOnboardingStore = create<OnboardingState>()(
       },
 
       checkUserChange: (userId: string) => {
-        const { lastUserId } = get()
+        const { lastUserId, hasSeenTour } = get()
+        console.log('🎯 Checking user change', { lastUserId, newUserId: userId, hasSeenTour })
+        
         if (lastUserId !== userId) {
           console.log('🎯 User changed, resetting onboarding state', { lastUserId, newUserId: userId })
           set({ 
@@ -238,6 +240,8 @@ export const useOnboardingStore = create<OnboardingState>()(
             hasSeenTour: false,
             lastUserId: userId
           })
+        } else {
+          console.log('🎯 Same user, keeping existing onboarding state')
         }
       },
 

@@ -4,7 +4,8 @@ import { useAuthStore } from '../../stores/authStore'
 
 export const OnboardingTrigger: React.FC = () => {
   const { isAuthenticated, user } = useAuthStore()
-  const { startTour, isFirstTime, forceResetForNewUser } = useOnboardingStore()
+  const { startTour, isFirstTime, checkUserChange } = useOnboardingStore()
+  const [hasCheckedUser, setHasCheckedUser] = React.useState(false)
 
   useEffect(() => {
     console.log('🎯 OnboardingTrigger: Effect triggered', { 
@@ -12,16 +13,18 @@ export const OnboardingTrigger: React.FC = () => {
       user: user?.name, 
       userId: user?.id,
       isFirstTime,
-      shouldShow: shouldShowOnboarding()
+      shouldShow: shouldShowOnboarding(),
+      hasCheckedUser
     })
     
-    // Force reset onboarding state for new user
-    if (isAuthenticated && user?.id) {
-      console.log('🎯 OnboardingTrigger: User authenticated, checking if new user')
-      forceResetForNewUser(user.id)
+    // Only check user change once per user session
+    if (isAuthenticated && user?.id && !hasCheckedUser) {
+      console.log('🎯 OnboardingTrigger: Checking if user changed for first time')
+      checkUserChange(user.id)
+      setHasCheckedUser(true)
     }
     
-    // Only trigger onboarding for authenticated users
+    // Only trigger onboarding for authenticated users who are first-time
     if (isAuthenticated && user && isFirstTime) {
       // Small delay to ensure the page has loaded
       const timer = setTimeout(() => {
@@ -38,7 +41,14 @@ export const OnboardingTrigger: React.FC = () => {
 
       return () => clearTimeout(timer)
     }
-  }, [isAuthenticated, user, isFirstTime, startTour, forceResetForNewUser])
+  }, [isAuthenticated, user, isFirstTime, startTour, checkUserChange, hasCheckedUser])
+
+  // Reset hasCheckedUser when user changes
+  useEffect(() => {
+    if (user?.id) {
+      setHasCheckedUser(false)
+    }
+  }, [user?.id])
 
   // This component doesn't render anything
   return null
