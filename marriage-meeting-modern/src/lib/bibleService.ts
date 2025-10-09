@@ -59,7 +59,19 @@ class BibleService {
     }
 
     try {
-      const response = await fetch(`${this.baseUrl}/bibles/${bibleId}/verses/${verseId}`, {
+      // Convert verse ID to the correct format for API.Bible
+      // API.Bible expects format like "JAM.1.19" but we need to handle the range properly
+      let formattedVerseId = verseId;
+      
+      // If the verse ID contains a range (like JAM.1.19-20), we need to handle it differently
+      if (verseId.includes('-')) {
+        // For ranges, we'll just take the first verse
+        formattedVerseId = verseId.split('-')[0];
+      }
+      
+      console.log(`📖 Fetching verse: ${formattedVerseId} from Bible: ${bibleId}`);
+      
+      const response = await fetch(`${this.baseUrl}/bibles/${bibleId}/verses/${formattedVerseId}`, {
         headers: { 'api-key': this.apiKey }
       });
       
@@ -73,6 +85,7 @@ class BibleService {
         };
       } else {
         console.error('API.Bible error:', response.status, response.statusText);
+        console.error('Failed verse ID:', formattedVerseId);
         return null;
       }
     } catch (error) {
@@ -305,6 +318,8 @@ class BibleService {
     const now = new Date();
     const timeBasedIndex = day !== undefined ? (day - 1) : Math.floor(now.getTime() / (1000 * 60 * 60 * 24)) % 5;
     
+    console.log(`📖 Getting devotion for plan: ${planId}, day: ${day}, timeBasedIndex: ${timeBasedIndex}`);
+    
     // Custom marriage-focused devotional tracks using API.Bible scripture
     const devotionPlans = {
       'marriage-foundation': {
@@ -424,13 +439,20 @@ class BibleService {
     };
 
     const plan = devotionPlans[planId as keyof typeof devotionPlans];
-    if (!plan) return null;
+    if (!plan) {
+      console.log(`📖 Plan not found: ${planId}`);
+      return null;
+    }
 
     const dayIndex = timeBasedIndex % plan.verses.length;
     const verseId = plan.verses[dayIndex];
     
+    console.log(`📖 Plan found: ${planId}, dayIndex: ${dayIndex}, verseId: ${verseId}`);
+    
     // Use the selected Bible version or default to ESV
     const selectedBibleId = bibleId || this.defaultBibleId;
+    console.log(`📖 Using Bible ID: ${selectedBibleId}`);
+    
     const verse = await this.getVerse(selectedBibleId, verseId);
     if (!verse) return null;
 
