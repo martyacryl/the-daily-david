@@ -168,6 +168,7 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
   }
 
   useEffect(() => {
+    console.log('🔄 SpiritualGrowthTracker: useEffect triggered')
     loadSpiritualGrowth()
     loadReadingPlans()
     loadAvailablePlans()
@@ -175,7 +176,9 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
 
   const loadReadingPlans = async () => {
     try {
+      console.log('📖 Loading reading plans...')
       const token = getAuthToken()
+      console.log('📖 Token for reading plans:', token ? 'present' : 'missing')
       const response = await fetch('/api/reading-plans', {
         headers: {
           'Authorization': `Bearer ${token}`
@@ -227,7 +230,9 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
 
   const loadAvailablePlans = async () => {
     try {
+      console.log('📖 Loading available plans...')
       const token = getAuthToken()
+      console.log('📖 Token:', token ? 'present' : 'missing')
       const response = await fetch('/api/available-reading-plans', {
         headers: {
           'Authorization': `Bearer ${token}`
@@ -236,8 +241,10 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
       
       if (response.ok) {
         const plans = await response.json()
+        console.log('📖 Available plans loaded:', plans)
         setAvailablePlans(plans || [])
       } else {
+        console.error('📖 Error loading available plans:', response.status, response.statusText)
         handleAuthError(response)
         console.error('Error loading available plans:', response.statusText)
         setAvailablePlans([])

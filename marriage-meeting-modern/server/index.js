@@ -969,6 +969,24 @@ app.get('/api/available-reading-plans', authenticateToken, async (req, res) => {
   }
 })
 
+// Get user's reading plans
+app.get('/api/reading-plans', authenticateToken, async (req, res) => {
+  try {
+    console.log('📖 Reading Plans: Fetching plans for user:', req.user.id)
+    
+    const result = await pool.query(
+      `SELECT * FROM reading_plans WHERE user_id = $1 ORDER BY created_at DESC`,
+      [req.user.id]
+    )
+    
+    console.log('📖 Reading Plans: Found plans:', result.rows.length)
+    res.json(result.rows)
+  } catch (error) {
+    console.error('❌ Error fetching reading plans:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
 // Mark a day as completed
 app.post('/api/reading-plans/:id/complete-day', authenticateToken, async (req, res) => {
   try {
