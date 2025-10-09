@@ -74,3 +74,4 @@ console.log('   until you set up Twilio credentials in your .env file');
 console.log('\n🚀 Ready to test! Both servers are running:');
 console.log('   Frontend: http://localhost:3002');
 console.log('   Backend:  http://localhost:3001');
+

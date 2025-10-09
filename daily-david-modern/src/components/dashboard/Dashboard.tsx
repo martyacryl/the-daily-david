@@ -7,11 +7,13 @@ import { Card } from '../ui/Card'
 import { Button } from '../ui/Button'
 import { useAuthStore } from '../../stores/authStore'
 import { useDailyStore } from '../../stores/dailyStore'
+import { useOnboardingStore } from '../../stores/onboardingStore'
 import { DailyEntry, Goal } from '../../types'
 
 export const Dashboard: React.FC = () => {
   const { user, isAuthenticated } = useAuthStore()
   const { entries, loadEntries, isLoading } = useDailyStore()
+  const { isFirstTime } = useOnboardingStore()
   const [stats, setStats] = useState({
     currentStreak: 0,
     thisWeek: 0,
@@ -426,7 +428,9 @@ export const Dashboard: React.FC = () => {
     return (
       <div className="space-y-8 relative z-10">
         <div className="text-center">
-          <h1 className="text-4xl font-bold text-white mb-4">Welcome back, {user?.name}!</h1>
+          <h1 className="text-4xl font-bold text-white mb-4">
+            {isFirstTime ? 'Welcome' : 'Welcome back'}, {user?.name}!
+          </h1>
           <p className="text-xl text-slate-300">Loading your spiritual journey...</p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -497,7 +501,7 @@ export const Dashboard: React.FC = () => {
         <div className="flex items-center justify-center mb-4">
           <CrossIcon className="w-8 h-8 text-slate-400 mr-3" />
           <h1 className="text-4xl font-bold text-white">
-            Welcome back, {user?.name}!
+            {isFirstTime ? 'Welcome' : 'Welcome back'}, {user?.name}!
           </h1>
           <ShieldIcon className="w-8 h-8 text-slate-400 ml-3" />
         </div>

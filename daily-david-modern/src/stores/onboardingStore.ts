@@ -9,6 +9,7 @@ interface OnboardingState {
   completedSteps: number[]
   skipOnboarding: boolean
   hasSeenTour: boolean // Track if user has ever seen the tour
+  lastUserId: string | null // Track which user this state belongs to
   
   // Tour configuration
   totalSteps: number
@@ -23,6 +24,8 @@ interface OnboardingState {
   resetOnboarding: () => void
   setCurrentStep: (step: number) => void
   restartTour: () => void // Allow users to restart tour anytime
+  checkUserChange: (userId: string) => void // Check if user changed and reset if needed
+  forceResetForNewUser: (userId: string) => void // Force reset onboarding state for new user
 }
 
 interface TourStep {
@@ -149,6 +152,7 @@ export const useOnboardingStore = create<OnboardingState>()(
       completedSteps: [],
       skipOnboarding: false,
       hasSeenTour: false,
+      lastUserId: null,
       totalSteps: tourSteps.length,
       tourSteps,
 
@@ -216,7 +220,40 @@ export const useOnboardingStore = create<OnboardingState>()(
           isActive: false,
           completedSteps: [],
           skipOnboarding: false,
-          hasSeenTour: false
+          hasSeenTour: false,
+          lastUserId: null
+        })
+      },
+
+      checkUserChange: (userId: string) => {
+        const { lastUserId } = get()
+        if (lastUserId !== userId) {
+          console.log('🎯 User changed, resetting onboarding state', { lastUserId, newUserId: userId })
+          set({ 
+            isFirstTime: true,
+            currentStep: 1,
+            isActive: false,
+            completedSteps: [],
+            skipOnboarding: false,
+            hasSeenTour: false,
+            lastUserId: userId
+          })
+        }
+      },
+
+      forceResetForNewUser: (userId: string) => {
+        console.log('🎯 Force resetting onboarding state for new user:', userId)
+        // Clear localStorage first
+        localStorage.removeItem('onboarding-storage')
+        // Then reset the state
+        set({ 
+          isFirstTime: true,
+          currentStep: 1,
+          isActive: false,
+          completedSteps: [],
+          skipOnboarding: false,
+          hasSeenTour: false,
+          lastUserId: userId
         })
       },
 
@@ -230,7 +267,8 @@ export const useOnboardingStore = create<OnboardingState>()(
         isFirstTime: state.isFirstTime,
         skipOnboarding: state.skipOnboarding,
         hasSeenTour: state.hasSeenTour,
-        completedSteps: state.completedSteps
+        completedSteps: state.completedSteps,
+        lastUserId: state.lastUserId
       })
     }
   )
