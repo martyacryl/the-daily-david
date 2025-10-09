@@ -275,6 +275,17 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
 
   const handleStartReadingPlan = async (plan: BibleReadingPlan) => {
     try {
+      // Check if plan already exists
+      const existingPlan = readingPlans.find(p => p.planId === plan.id)
+      
+      if (existingPlan) {
+        console.log('📖 Plan already exists, loading existing progress:', existingPlan)
+        // Load the existing plan's current day
+        await handleLoadTodaysDevotion(plan.id, existingPlan.currentDay, existingPlan.bibleId)
+        return
+      }
+      
+      // Create new plan only if it doesn't exist
       const response = await fetch('/api/reading-plans', {
         method: 'POST',
         headers: {
@@ -357,6 +368,48 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
           } else {
             handleAuthError(response)
             console.error('Error updating current day:', response.statusText)
+          }
+        }
+      } else {
+        // If no specific day requested, automatically advance to next day and mark current day as completed
+        const plan = readingPlans.find(p => p.planId === planId)
+        if (plan && plan.currentDay < plan.totalDays) {
+          const nextDay = plan.currentDay + 1
+          const newCompletedDays = [...(plan.completedDays || []), plan.currentDay]
+          
+          // Update the plan's progress in the database
+          const response = await fetch(`/api/reading-plans/${planId}`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+              current_day: nextDay,
+              completed_days: newCompletedDays
+            })
+          })
+          
+          if (response.ok) {
+            // Update local state with the new progress
+            const updatedPlan = await response.json()
+            const transformedPlan = {
+              planId: updatedPlan.plan_id,
+              planName: updatedPlan.plan_name,
+              currentDay: updatedPlan.current_day,
+              totalDays: updatedPlan.total_days,
+              startDate: updatedPlan.start_date,
+              completedDays: updatedPlan.completed_days || [],
+              bibleId: updatedPlan.bible_id
+            }
+            
+            setReadingPlans(prev => prev.map(p => 
+              p.planId === planId ? transformedPlan : p
+            ))
+            console.log('📖 Progress saved: Advanced to day', nextDay, 'and marked day', plan.currentDay, 'as completed')
+          } else {
+            handleAuthError(response)
+            console.error('Error saving progress:', response.statusText)
           }
         }
       }
@@ -1166,7 +1219,7 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
                       className="bg-gradient-to-r from-slate-600 to-slate-700 hover:from-slate-700 hover:to-slate-800 text-white"
                     >
                       <Play className="w-4 h-4 mr-2" />
-                      Start Plan
+                      {readingPlans.find(p => p.planId === plan.id) ? 'Resume Plan' : 'Start Plan'}
                     </Button>
                     <Button
                       onClick={() => handleLoadTodaysDevotion(plan.id)}
