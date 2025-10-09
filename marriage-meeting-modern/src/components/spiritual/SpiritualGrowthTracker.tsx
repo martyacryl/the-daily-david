@@ -1174,8 +1174,8 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
             </Card>
           )}
 
-          {/* Reading Plan Progress */}
-          {(readingPlans || []).map((plan) => (
+          {/* Reading Plan Progress - Hidden initially, only show when user explicitly chooses a plan */}
+          {currentPlanId && (readingPlans || []).filter(plan => plan.planId === currentPlanId).map((plan) => (
             <ReadingPlanProgress
               key={`${plan.planId}-${plan.currentDay}-${devotionalTabKey}`}
               readingPlan={plan}

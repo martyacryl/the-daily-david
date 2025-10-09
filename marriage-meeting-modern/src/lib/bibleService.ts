@@ -71,12 +71,38 @@ class BibleService {
       
       console.log(`📖 Fetching verse: ${formattedVerseId} from Bible: ${bibleId}`);
       
-      const response = await fetch(`${this.baseUrl}/bibles/${bibleId}/verses/${formattedVerseId}`, {
+      // Try the search endpoint instead of the specific verse endpoint
+      // This might work better for some verse IDs
+      const searchQuery = formattedVerseId.replace('.', ' ');
+      console.log(`📖 Trying search query: ${searchQuery}`);
+      
+      const response = await fetch(`${this.baseUrl}/bibles/${bibleId}/search?query=${encodeURIComponent(searchQuery)}`, {
         headers: { 'api-key': this.apiKey }
       });
       
       if (response.ok) {
         const data = await response.json();
+        const verses = data.data?.verses || [];
+        
+        if (verses.length > 0) {
+          const verse = verses[0];
+          return {
+            id: verse.id,
+            reference: verse.reference,
+            content: this.cleanHtmlContent(verse.content),
+            copyright: verse.copyright || 'Bible'
+          };
+        }
+      }
+      
+      // If search fails, try the original verse endpoint
+      console.log(`📖 Search failed, trying direct verse endpoint: ${formattedVerseId}`);
+      const verseResponse = await fetch(`${this.baseUrl}/bibles/${bibleId}/verses/${formattedVerseId}`, {
+        headers: { 'api-key': this.apiKey }
+      });
+      
+      if (verseResponse.ok) {
+        const data = await verseResponse.json();
         return {
           id: data.data.id,
           reference: data.data.reference,
@@ -84,7 +110,7 @@ class BibleService {
           copyright: data.data.copyright || 'Bible'
         };
       } else {
-        console.error('API.Bible error:', response.status, response.statusText);
+        console.error('API.Bible error:', verseResponse.status, verseResponse.statusText);
         console.error('Failed verse ID:', formattedVerseId);
         return null;
       }
