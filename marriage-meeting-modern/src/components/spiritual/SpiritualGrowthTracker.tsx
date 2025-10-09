@@ -161,9 +161,14 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
 
   useEffect(() => {
     console.log('📖 Loading reading plans on mount...')
-    loadReadingPlans()
-    loadAvailablePlans()
-  }, [])
+    console.log('📖 Token available:', !!token)
+    if (token) {
+      loadReadingPlans()
+      loadAvailablePlans()
+    } else {
+      console.log('📖 No token available, waiting...')
+    }
+  }, [token])
 
   const loadReadingPlans = async () => {
     try {
