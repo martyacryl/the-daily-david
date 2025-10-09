@@ -170,9 +170,26 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
     }
   }, [token])
 
+  // Also load when component mounts if token is already available
+  useEffect(() => {
+    if (token) {
+      loadReadingPlans()
+      loadAvailablePlans()
+    }
+  }, [])
+
   const loadReadingPlans = async () => {
     try {
       console.log('📖 Loading reading plans...')
+      console.log('📖 Token value for reading plans:', token)
+      console.log('📖 Token type for reading plans:', typeof token)
+      console.log('📖 Token length for reading plans:', token?.length)
+      
+      if (!token) {
+        console.log('📖 No token available for reading plans, skipping API call')
+        return
+      }
+      
       const response = await fetch('/api/reading-plans', {
         headers: {
           'Authorization': `Bearer ${token}`
@@ -225,6 +242,15 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
   const loadAvailablePlans = async () => {
     try {
       console.log('📖 Loading available plans...')
+      console.log('📖 Token value:', token)
+      console.log('📖 Token type:', typeof token)
+      console.log('📖 Token length:', token?.length)
+      
+      if (!token) {
+        console.log('📖 No token available, skipping API call')
+        return
+      }
+      
       const response = await fetch('/api/available-reading-plans', {
         headers: {
           'Authorization': `Bearer ${token}`
