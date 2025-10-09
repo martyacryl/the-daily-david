@@ -143,11 +143,6 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
   const [currentDevotion, setCurrentDevotion] = useState<DevotionDay | null>(null)
   const [currentPlanId, setCurrentPlanId] = useState<string | null>(null)
 
-  // Helper function to get auth token
-  const getAuthToken = () => {
-    console.log('🔑 Token from auth store:', token ? `${token.substring(0, 20)}...` : 'empty')
-    return token || ''
-  }
 
   // Helper function to handle authentication errors
   const handleAuthError = (response: Response) => {
@@ -169,8 +164,6 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
   const loadReadingPlans = async () => {
     try {
       console.log('📖 Loading reading plans...')
-      const token = getAuthToken()
-      console.log('📖 Token for reading plans:', token ? 'present' : 'missing')
       const response = await fetch('/api/reading-plans', {
         headers: {
           'Authorization': `Bearer ${token}`
@@ -223,8 +216,6 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
   const loadAvailablePlans = async () => {
     try {
       console.log('📖 Loading available plans...')
-      const token = getAuthToken()
-      console.log('📖 Token:', token ? 'present' : 'missing')
       const response = await fetch('/api/available-reading-plans', {
         headers: {
           'Authorization': `Bearer ${token}`
@@ -249,7 +240,6 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
 
   const handleStartReadingPlan = async (plan: BibleReadingPlan) => {
     try {
-      const token = getAuthToken()
       const response = await fetch('/api/reading-plans', {
         method: 'POST',
         headers: {
@@ -301,7 +291,6 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
         const plan = readingPlans.find(p => p.planId === planId)
         if (plan) {
           // Update the plan's current day in the database
-          const token = getAuthToken()
           const response = await fetch(`/api/reading-plans/${planId}`, {
             method: 'PUT',
             headers: {
@@ -354,7 +343,7 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${getAuthToken()}`
+            'Authorization': `Bearer ${token}`
           },
           body: JSON.stringify({
             current_day: newCurrentDay,
@@ -401,7 +390,7 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${getAuthToken()}`
+            'Authorization': `Bearer ${token}`
           },
           body: JSON.stringify({
             current_day: newCurrentDay,
@@ -446,7 +435,7 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${getAuthToken()}`
+            'Authorization': `Bearer ${token}`
           },
           body: JSON.stringify({
             current_day: plan.currentDay,
@@ -484,7 +473,6 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
     const targetPlanId = planId || currentPlanId
     if (targetPlanId) {
       try {
-        const token = getAuthToken()
         const response = await fetch(`/api/reading-plans/${targetPlanId}`, {
           method: 'DELETE',
           headers: {
@@ -525,7 +513,7 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${getAuthToken()}`
+            'Authorization': `Bearer ${token}`
           },
           body: JSON.stringify({
             current_day: 1,
@@ -567,7 +555,7 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${getAuthToken()}`
+            'Authorization': `Bearer ${token}`
           },
           body: JSON.stringify({
             current_day: plan.currentDay,
