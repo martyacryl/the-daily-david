@@ -14,7 +14,7 @@ import { SettingsPage } from './components/settings/SettingsPage'
 import { LandingPage } from './components/landing/LandingPage'
 import { useAuthStore } from './stores/authStore'
 import { dbManager } from './lib/database'
-import { OnboardingTour, OnboardingTrigger, OnboardingDevTools } from './components/onboarding'
+import { OnboardingTour, OnboardingTrigger } from './components/onboarding'
 import './App.css'
 
 // Component to handle scroll to top on route changes
@@ -41,7 +41,6 @@ function App() {
     <Router>
       <ScrollToTop />
       <OnboardingTrigger />
-      <OnboardingDevTools />
       {/* Updated theme - slate/dark green - force deployment */}
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-green-950 to-slate-900 relative overflow-hidden">
         

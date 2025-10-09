@@ -1,10 +1,12 @@
 import React, { useState } from 'react'
 import { useOnboardingStore } from '../../stores/onboardingStore'
+import { useAuthStore } from '../../stores/authStore'
 import { Button } from '../ui/Button'
 import { Card } from '../ui/Card'
 import { Settings, Play, RotateCcw, SkipForward } from 'lucide-react'
 
 export const OnboardingDevTools: React.FC = () => {
+  const { isAuthenticated } = useAuthStore()
   const {
     isFirstTime,
     isActive,
@@ -20,8 +22,8 @@ export const OnboardingDevTools: React.FC = () => {
 
   const [isExpanded, setIsExpanded] = useState(false)
 
-  // Only show in development
-  if (process.env.NODE_ENV === 'production') {
+  // Only show in development mode and for authenticated users
+  if (process.env.NODE_ENV === 'production' || !isAuthenticated) {
     return null
   }
 

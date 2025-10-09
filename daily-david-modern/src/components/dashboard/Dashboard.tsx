@@ -8,6 +8,7 @@ import { Button } from '../ui/Button'
 import { useAuthStore } from '../../stores/authStore'
 import { useDailyStore } from '../../stores/dailyStore'
 import { DailyEntry, Goal } from '../../types'
+import { OnboardingDevTools } from '../onboarding'
 
 export const Dashboard: React.FC = () => {
   const { user, isAuthenticated } = useAuthStore()
@@ -771,6 +772,9 @@ export const Dashboard: React.FC = () => {
           </Link>
         </Card>
       </motion.div>
+      
+      {/* Development Tools - Only visible in development mode for authenticated users */}
+      <OnboardingDevTools />
     </div>
   )
 }
