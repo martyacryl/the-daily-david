@@ -192,7 +192,8 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
       
       const response = await fetch('/api/reading-plans', {
         headers: {
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
         }
       })
       
@@ -253,7 +254,8 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
       
       const response = await fetch('/api/available-reading-plans', {
         headers: {
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
         }
       })
       
@@ -1219,7 +1221,7 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
                       className="bg-gradient-to-r from-slate-600 to-slate-700 hover:from-slate-700 hover:to-slate-800 text-white"
                     >
                       <Play className="w-4 h-4 mr-2" />
-                      {readingPlans.find(p => p.planId === plan.id) ? 'Resume Plan' : 'Start Plan'}
+                      Choose Plan
                     </Button>
                     <Button
                       onClick={() => handleLoadTodaysDevotion(plan.id)}
