@@ -23,8 +23,7 @@ import { Textarea } from '../ui/Textarea'
 import { useVisionStore } from '../../stores/visionStore'
 import { useAuthStore } from '../../stores/authStore'
 import { useAccentColor } from '../../hooks/useAccentColor'
-import { ReadingPlanProgress, ReadingPlan } from '../daily/ReadingPlanProgress'
-import { bibleService, DevotionDay } from '../../lib/bibleService'
+import { UnifiedDevotionTracker } from './UnifiedDevotionTracker'
 
 interface SpiritualGrowthTrackerProps {
   onBackToVision?: () => void
@@ -138,10 +137,6 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
   const [reflectionNotes, setReflectionNotes] = useState('')
   const [prayerRequests] = useState<PrayerRequest[]>([])
   const [spiritualGoals] = useState<SpiritualGoal[]>([])
-  const [readingPlans, setReadingPlans] = useState<ReadingPlan[]>([])
-  const [availablePlans, setAvailablePlans] = useState<BibleReadingPlan[]>([])
-  const [currentDevotion, setCurrentDevotion] = useState<DevotionDay | null>(null)
-  const [currentPlanId, setCurrentPlanId] = useState<string | null>(null)
 
 
   // Helper function to handle authentication errors
@@ -1174,153 +1169,8 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
             </Card>
           )}
 
-          {/* Reading Plan Progress - Hidden initially, only show when user explicitly chooses a plan */}
-          {currentPlanId && (readingPlans || []).filter(plan => plan.planId === currentPlanId).map((plan) => (
-            <ReadingPlanProgress
-              key={`${plan.planId}-${plan.currentDay}-${devotionalTabKey}`}
-              readingPlan={plan}
-              onLoadTodaysDevotion={handleLoadTodaysDevotion}
-              onAdvanceToNextDay={() => handleAdvanceToNextDay(plan.planId)}
-              onGoToPreviousDay={() => handleGoToPreviousDay(plan.planId)}
-              onClosePlan={() => handleClosePlan(plan.planId)}
-              onStartNewPlan={handleStartNewPlan}
-              onRestartPlan={() => handleRestartPlan(plan.planId)}
-              onSaveProgress={handleSaveProgress}
-            />
-          ))}
-
-          {/* Available Reading Plans */}
-          <Card className={`p-6 ${getGradientClass('card')} dark:from-gray-800 dark:to-gray-700 border-0 shadow-md`}>
-            <div className="flex items-center gap-3 mb-6">
-              <div className="p-2 bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-600 dark:to-slate-700 rounded-lg border border-slate-300 dark:border-slate-600">
-                <BookOpen className="w-5 h-5 text-slate-600 dark:text-slate-300" />
-              </div>
-              <div>
-                <h3 className="text-xl font-bold text-slate-800 dark:text-slate-200">Marriage Reading Plans</h3>
-                <p className="text-slate-600 dark:text-slate-300">Choose a devotional plan for your spiritual growth</p>
-              </div>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {(availablePlans || []).map((plan) => (
-                <div key={plan.id} className="p-4 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-700 dark:to-slate-800 rounded-xl border border-slate-200 dark:border-slate-600 hover:shadow-md transition-shadow duration-200">
-                  <div className="flex items-start justify-between mb-3">
-                    <div>
-                      <h4 className="font-semibold text-slate-800 dark:text-slate-200 mb-1">{plan.name}</h4>
-                      <p className="text-sm text-slate-600 dark:text-slate-300">{plan.description}</p>
-                    </div>
-                    <span className="text-xs font-medium text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-600 border border-slate-200 dark:border-slate-500 px-3 py-1 rounded-full">
-                      {plan.duration} days
-                    </span>
-                  </div>
-                  
-                  <div className="flex items-center gap-2">
-                    <Button
-                      onClick={() => handleStartReadingPlan(plan)}
-                      size="sm"
-                      className="bg-gradient-to-r from-slate-600 to-slate-700 hover:from-slate-700 hover:to-slate-800 text-white"
-                    >
-                      <Play className="w-4 h-4 mr-2" />
-                      Choose Plan
-                    </Button>
-                    <Button
-                      onClick={() => handleLoadTodaysDevotion(plan.id)}
-                      variant="outline"
-                      size="sm"
-                      className="text-slate-600 dark:text-slate-300 border-slate-300 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-700"
-                    >
-                      Preview
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </Card>
-
-          {/* Manual Progress Tracking */}
-          <Card className={`p-6 ${getGradientClass('card')} dark:from-gray-800 dark:to-gray-700 border-0 shadow-md`}>
-            <div className="flex items-center gap-3 mb-6">
-              <div className="p-2 bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-600 dark:to-slate-700 rounded-lg border border-slate-300 dark:border-slate-600">
-                <TrendingUp className="w-5 h-5 text-slate-600 dark:text-slate-300" />
-              </div>
-              <div>
-                <h3 className="text-xl font-bold text-slate-800 dark:text-slate-200">Manual Progress</h3>
-                <p className="text-slate-600 dark:text-slate-300">Track your general Bible reading progress</p>
-              </div>
-            </div>
-            
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                    Reading Plan
-                  </label>
-                  <Input
-                    value={spiritualGrowth?.bible_reading_plan || ''}
-                    onChange={(e) => {
-                      if (spiritualGrowth) {
-                        updateSpiritualGrowth({
-                          ...spiritualGrowth,
-                          bible_reading_plan: e.target.value
-                        })
-                      }
-                    }}
-                    placeholder="e.g., 'Read through the Bible in one year'"
-                    className="w-full border-slate-300 dark:border-slate-600 focus:border-slate-500 dark:focus:border-slate-400 focus:ring-slate-500 dark:focus:ring-slate-400"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                    Days Completed: {bibleProgress}
-                  </label>
-                  <div className="flex items-center gap-3">
-                    <Input
-                      type="number"
-                      value={bibleProgress}
-                      onChange={(e) => setBibleProgress(parseInt(e.target.value) || 0)}
-                      className="w-24 border-slate-300 dark:border-slate-600 focus:border-slate-500 dark:focus:border-slate-400 focus:ring-slate-500 dark:focus:ring-slate-400"
-                      min="0"
-                    />
-                    <Button
-                      onClick={() => handleUpdateBibleProgress(bibleProgress)}
-                      className="bg-gradient-to-r from-slate-600 to-slate-700 hover:from-slate-700 hover:to-slate-800 text-white"
-                    >
-                      <Save className="w-4 h-4 mr-2" />
-                      Update
-                    </Button>
-                    <Button
-                      onClick={() => handleUpdateBibleProgress(bibleProgress + 1)}
-                      variant="outline"
-                      className="text-slate-600 dark:text-slate-300 border-slate-300 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-700"
-                    >
-                      +1 Day
-                    </Button>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="space-y-4">
-                <div className="p-4 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-700 dark:to-slate-800 rounded-xl border border-slate-200 dark:border-slate-600">
-                  <h4 className="font-semibold text-slate-800 dark:text-slate-200 mb-2">Progress Overview</h4>
-                  <div className="space-y-2">
-                    <div className="flex justify-between">
-                      <span className="text-slate-600 dark:text-slate-300">Current Streak</span>
-                      <span className="font-semibold text-slate-700 dark:text-slate-200">12 days</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-slate-600 dark:text-slate-300">Longest Streak</span>
-                      <span className="font-semibold text-slate-700 dark:text-slate-200">45 days</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-slate-600 dark:text-slate-300">Total Days</span>
-                      <span className="font-semibold text-slate-700 dark:text-slate-200">{bibleProgress}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </Card>
+          {/* Unified Devotion Tracker */}
+          <UnifiedDevotionTracker />
         </div>
       )}
 
