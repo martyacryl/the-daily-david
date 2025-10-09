@@ -507,7 +507,7 @@ export const Dashboard: React.FC = () => {
       </motion.div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" data-tour="dashboard-stats">
         {statsData.map((stat, index) => {
           const Icon = stat.icon
           return (
@@ -552,6 +552,7 @@ export const Dashboard: React.FC = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.4 }}
         className="grid grid-cols-1 md:grid-cols-2 gap-6"
+        data-tour="dashboard-actions"
       >
         <Card className="p-8 bg-slate-800/80 backdrop-blur-sm border-slate-700">
           <div className="text-center">

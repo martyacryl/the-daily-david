@@ -1,0 +1,234 @@
+import { create } from 'zustand'
+import { persist } from 'zustand/middleware'
+
+interface OnboardingState {
+  // Tour state
+  isFirstTime: boolean
+  currentStep: number
+  isActive: boolean
+  completedSteps: number[]
+  skipOnboarding: boolean
+  
+  // Tour configuration
+  totalSteps: number
+  tourSteps: TourStep[]
+  
+  // Actions
+  startTour: () => void
+  nextStep: () => void
+  previousStep: () => void
+  skipTour: () => void
+  completeTour: () => void
+  resetOnboarding: () => void
+  setCurrentStep: (step: number) => void
+}
+
+interface TourStep {
+  id: number
+  title: string
+  message: string
+  action: string
+  target: string
+  route: string
+  highlight?: string
+  autoAdvance?: boolean
+  delay?: number
+}
+
+const tourSteps: TourStep[] = [
+  {
+    id: 1,
+    title: "Welcome to Daily David!",
+    message: "Welcome to Daily David! This is your spiritual growth dashboard. Here you'll see your daily streak, weekly progress, and goal completion.",
+    action: "Let's start your first daily entry!",
+    target: "[data-tour='dashboard-stats']",
+    route: "/dashboard",
+    highlight: "stats-grid"
+  },
+  {
+    id: 2,
+    title: "Your Daily Entry",
+    message: "This is where your daily spiritual journey begins. We'll go through each section from top to bottom to build your daily practice.",
+    action: "Let's start with the first section!",
+    target: "[data-tour='daily-entry-intro'], .space-y-8",
+    route: "/daily",
+    highlight: "daily-entry-form"
+  },
+  {
+    id: 3,
+    title: "Check In with Yourself",
+    message: "Start by checking in with your emotions. Select how you're feeling and write a brief note about your current state.",
+    action: "Select an emotion to see how it works!",
+    target: "[data-tour='check-in-section'], .bg-slate-800",
+    route: "/daily",
+    highlight: "check-in-section"
+  },
+  {
+    id: 4,
+    title: "Set Your Daily Intention",
+    message: "Set your daily intention - what do you want to focus on today? This helps you live with purpose and direction.",
+    action: "Try writing a daily intention!",
+    target: "[data-tour='daily-intention']",
+    route: "/daily",
+    highlight: "daily-intention-section"
+  },
+  {
+    id: 5,
+    title: "Practice Gratitude",
+    message: "Cultivate a heart of thankfulness. List 3 things you're grateful for each day to transform your perspective.",
+    action: "Add something you're grateful for!",
+    target: "[data-tour='gratitude-section']",
+    route: "/daily",
+    highlight: "gratitude-section"
+  },
+  {
+    id: 6,
+    title: "Set Your Goals",
+    message: "Set intentional goals to grow as a man of God. Daily goals for immediate actions, weekly for habits, monthly for character growth.",
+    action: "Add your first goal!",
+    target: "[data-tour='goals-section']",
+    route: "/daily",
+    highlight: "goals-section"
+  },
+  {
+    id: 7,
+    title: "SOAP Bible Study",
+    message: "SOAP stands for Scripture, Observation, Application, Prayer. This is the heart of your daily study. Start by selecting a Bible reading plan or entering your own scripture.",
+    action: "Try selecting a reading plan!",
+    target: "[data-tour='soap-section']",
+    route: "/daily",
+    highlight: "soap-section"
+  },
+  {
+    id: 8,
+    title: "Leadership Self-Assessment",
+    message: "Rate yourself on key leadership traits: Wisdom, Courage, Patience, and Integrity. This helps you grow in character and self-awareness.",
+    action: "Adjust a rating to see how it works!",
+    target: "[data-tour='leadership-rating']",
+    route: "/daily",
+    highlight: "leadership-rating-section"
+  },
+  {
+    id: 9,
+    title: "Prayer Requests",
+    message: "Manage your prayer list here. Add requests for yourself and others, track answered prayers, and celebrate God's faithfulness.",
+    action: "Let's add a prayer request!",
+    target: "[data-tour='prayer-requests']",
+    route: "/prayer",
+    highlight: "prayer-requests-section"
+  },
+  {
+    id: 10,
+    title: "Track Your Progress",
+    message: "Track your spiritual growth over time. See your progress, insights, and celebrate your journey of becoming a man of God.",
+    action: "You're all set! Start your daily practice!",
+    target: "[data-tour='analytics'], main.container",
+    route: "/analytics",
+    highlight: "analytics-section"
+  },
+  {
+    id: 11,
+    title: "You're Ready!",
+    message: "Perfect! You've seen all the main features. Your dashboard is your home base - check your progress, start new entries, and continue growing in faith.",
+    action: "Start your first daily entry!",
+    target: "[data-tour='dashboard-actions']",
+    route: "/dashboard",
+    highlight: "dashboard-actions"
+  }
+]
+
+export const useOnboardingStore = create<OnboardingState>()(
+  persist(
+    (set, get) => ({
+      // Initial state
+      isFirstTime: true,
+      currentStep: 1,
+      isActive: false,
+      completedSteps: [],
+      skipOnboarding: false,
+      totalSteps: tourSteps.length,
+      tourSteps,
+
+      // Actions
+      startTour: () => {
+        set({ 
+          isActive: true, 
+          currentStep: 1,
+          completedSteps: []
+        })
+      },
+
+      nextStep: () => {
+        const { currentStep, totalSteps, completedSteps } = get()
+        const nextStep = currentStep + 1
+        
+        if (nextStep <= totalSteps) {
+          set({ 
+            currentStep: nextStep,
+            completedSteps: [...completedSteps, currentStep]
+          })
+        } else {
+          // Tour completed
+          get().completeTour()
+        }
+      },
+
+      previousStep: () => {
+        const { currentStep } = get()
+        if (currentStep > 1) {
+          set({ currentStep: currentStep - 1 })
+        }
+      },
+
+      skipTour: () => {
+        set({ 
+          isActive: false, 
+          skipOnboarding: true,
+          isFirstTime: false
+        })
+      },
+
+      completeTour: () => {
+        set({ 
+          isActive: false, 
+          isFirstTime: false,
+          completedSteps: Array.from({ length: tourSteps.length }, (_, i) => i + 1)
+        })
+      },
+
+      resetOnboarding: () => {
+        set({ 
+          isFirstTime: true,
+          currentStep: 1,
+          isActive: false,
+          completedSteps: [],
+          skipOnboarding: false
+        })
+      },
+
+      setCurrentStep: (step: number) => {
+        set({ currentStep: step })
+      }
+    }),
+    {
+      name: 'onboarding-storage',
+      partialize: (state) => ({ 
+        isFirstTime: state.isFirstTime,
+        skipOnboarding: state.skipOnboarding,
+        completedSteps: state.completedSteps
+      })
+    }
+  )
+)
+
+// Helper function to check if user should see onboarding
+export const shouldShowOnboarding = (): boolean => {
+  const { isFirstTime, skipOnboarding, isActive } = useOnboardingStore.getState()
+  return isFirstTime && !skipOnboarding && !isActive
+}
+
+// Helper function to get current tour step
+export const getCurrentTourStep = (): TourStep | null => {
+  const { currentStep, tourSteps } = useOnboardingStore.getState()
+  return tourSteps.find(step => step.id === currentStep) || null
+}

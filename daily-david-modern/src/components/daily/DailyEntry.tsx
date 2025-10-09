@@ -1302,13 +1302,14 @@ export function DailyEntry() {
         <>
 
           {/* Daily Entry Sections */}
-          <div className="space-y-8">
+          <div className="space-y-8" data-tour="daily-entry-intro">
             
             {/* Check In Section */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
+              data-tour="check-in-section"
             >
               <CheckInSection 
                 checkIn={dayData.checkIn}
@@ -1322,6 +1323,7 @@ export function DailyEntry() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
               className="bg-slate-800/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-slate-700"
+              data-tour="daily-intention"
             >
               <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
                 <Target className="w-5 h-5 text-slate-400" />
@@ -1349,6 +1351,7 @@ export function DailyEntry() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
+              data-tour="gratitude-section"
             >
               <GratitudeSection 
                 gratitude={dayData.gratitude}
@@ -1362,6 +1365,7 @@ export function DailyEntry() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
+              data-tour="goals-section"
               className="space-y-6"
             >
               {/* Daily Goals */}
@@ -1611,6 +1615,7 @@ export function DailyEntry() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5 }}
+              data-tour="soap-section"
             >
               <SOAPSection 
                 soap={dayData.soap}
@@ -1633,6 +1638,7 @@ export function DailyEntry() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6 }}
               className="bg-slate-800/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-slate-700"
+              data-tour="leadership-rating"
             >
               <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
                 <Star className="w-5 h-5 text-slate-400" />
