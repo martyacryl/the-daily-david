@@ -1,5 +1,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import { API_BASE_URL } from '../config/api'
+import { getAuthHeaders } from './authStore'
 
 interface OnboardingState {
   // Tour state
@@ -187,7 +189,7 @@ export const useOnboardingStore = create<OnboardingState>()(
         }
       },
 
-      completeTour: () => {
+      completeTour: async () => {
         const { lastUserId } = get()
         set({ 
           isActive: false, 
@@ -196,15 +198,26 @@ export const useOnboardingStore = create<OnboardingState>()(
           completedSteps: Array.from({ length: tourSteps.length }, (_, i) => i + 1)
         })
         
-        // Mark this user as having completed onboarding
+        // Mark this user as having completed onboarding in database
         if (lastUserId) {
-          const userOnboardingKey = `onboarding-completed-${lastUserId}`
-          localStorage.setItem(userOnboardingKey, 'true')
-          console.log('🎯 Marked user as having completed onboarding:', lastUserId)
+          try {
+            const response = await fetch(`${API_BASE_URL}/api/user/complete-onboarding`, {
+              method: 'POST',
+              headers: getAuthHeaders()
+            })
+            
+            if (response.ok) {
+              console.log('🎯 Marked user as having completed onboarding in database:', lastUserId)
+            } else {
+              console.error('🎯 Failed to mark onboarding as completed:', response.status)
+            }
+          } catch (error) {
+            console.error('🎯 Error marking onboarding as completed:', error)
+          }
         }
       },
 
-      skipTour: () => {
+      skipTour: async () => {
         const { lastUserId } = get()
         set({ 
           isActive: false, 
@@ -213,11 +226,22 @@ export const useOnboardingStore = create<OnboardingState>()(
           hasSeenTour: true
         })
         
-        // Mark this user as having completed onboarding (even if they skipped)
+        // Mark this user as having completed onboarding in database (even if they skipped)
         if (lastUserId) {
-          const userOnboardingKey = `onboarding-completed-${lastUserId}`
-          localStorage.setItem(userOnboardingKey, 'true')
-          console.log('🎯 Marked user as having completed onboarding (skipped):', lastUserId)
+          try {
+            const response = await fetch(`${API_BASE_URL}/api/user/complete-onboarding`, {
+              method: 'POST',
+              headers: getAuthHeaders()
+            })
+            
+            if (response.ok) {
+              console.log('🎯 Marked user as having completed onboarding (skipped) in database:', lastUserId)
+            } else {
+              console.error('🎯 Failed to mark onboarding as completed (skipped):', response.status)
+            }
+          } catch (error) {
+            console.error('🎯 Error marking onboarding as completed (skipped):', error)
+          }
         }
       },
 
@@ -241,23 +265,64 @@ export const useOnboardingStore = create<OnboardingState>()(
         })
       },
 
-      checkUserChange: (userId: string) => {
-        const { lastUserId, hasSeenTour } = get()
-        console.log('🎯 Checking user change', { lastUserId, newUserId: userId, hasSeenTour })
+      checkUserChange: async (userId: string) => {
+        const { lastUserId } = get()
+        console.log('🎯 Checking user change', { lastUserId, newUserId: userId })
         
         if (lastUserId !== userId) {
-          console.log('🎯 User changed, checking if this is a new user or returning user')
+          console.log('🎯 User changed, checking onboarding status from database')
           
-          // Check if this user has ever completed onboarding before
-          // We'll use a combination of localStorage keys to track per-user onboarding completion
-          const userOnboardingKey = `onboarding-completed-${userId}`
-          const hasCompletedOnboarding = localStorage.getItem(userOnboardingKey) === 'true'
-          
-          console.log('🎯 User onboarding status:', { userId, hasCompletedOnboarding })
-          
-          if (hasCompletedOnboarding) {
-            // Returning user - don't show onboarding
-            console.log('🎯 Returning user detected, skipping onboarding')
+          try {
+            // Check onboarding status from database
+            const response = await fetch(`${API_BASE_URL}/api/user/onboarding-status`, {
+              headers: getAuthHeaders()
+            })
+            
+            if (response.ok) {
+              const data = await response.json()
+              console.log('🎯 Database onboarding status:', data)
+              
+              if (data.shouldShowOnboarding) {
+                // Brand new user - show onboarding
+                console.log('🎯 Brand new user detected, will show onboarding')
+                set({ 
+                  isFirstTime: true,
+                  currentStep: 1,
+                  isActive: false,
+                  completedSteps: [],
+                  skipOnboarding: false,
+                  hasSeenTour: false,
+                  lastUserId: userId
+                })
+              } else {
+                // Existing user or already completed - don't show onboarding
+                console.log('🎯 Existing user or completed onboarding, skipping')
+                set({ 
+                  isFirstTime: false,
+                  currentStep: 1,
+                  isActive: false,
+                  completedSteps: [],
+                  skipOnboarding: true,
+                  hasSeenTour: true,
+                  lastUserId: userId
+                })
+              }
+            } else {
+              console.error('🎯 Failed to fetch onboarding status:', response.status)
+              // Default to not showing onboarding if API fails
+              set({ 
+                isFirstTime: false,
+                currentStep: 1,
+                isActive: false,
+                completedSteps: [],
+                skipOnboarding: true,
+                hasSeenTour: true,
+                lastUserId: userId
+              })
+            }
+          } catch (error) {
+            console.error('🎯 Error checking onboarding status:', error)
+            // Default to not showing onboarding if API fails
             set({ 
               isFirstTime: false,
               currentStep: 1,
@@ -265,18 +330,6 @@ export const useOnboardingStore = create<OnboardingState>()(
               completedSteps: [],
               skipOnboarding: true,
               hasSeenTour: true,
-              lastUserId: userId
-            })
-          } else {
-            // New user - show onboarding
-            console.log('🎯 New user detected, will show onboarding')
-            set({ 
-              isFirstTime: true,
-              currentStep: 1,
-              isActive: false,
-              completedSteps: [],
-              skipOnboarding: false,
-              hasSeenTour: false,
               lastUserId: userId
             })
           }
@@ -289,9 +342,6 @@ export const useOnboardingStore = create<OnboardingState>()(
         console.log('🎯 Force resetting onboarding state for new user:', userId)
         // Clear localStorage first
         localStorage.removeItem('onboarding-storage')
-        // Clear the per-user onboarding completion flag
-        const userOnboardingKey = `onboarding-completed-${userId}`
-        localStorage.removeItem(userOnboardingKey)
         // Then reset the state
         set({ 
           isFirstTime: true,
@@ -334,7 +384,20 @@ export const getCurrentTourStep = (): TourStep | null => {
 }
 
 // Helper function to check if a specific user has completed onboarding
-export const hasUserCompletedOnboarding = (userId: string): boolean => {
-  const userOnboardingKey = `onboarding-completed-${userId}`
-  return localStorage.getItem(userOnboardingKey) === 'true'
+export const hasUserCompletedOnboarding = async (userId: string): Promise<boolean> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/user/onboarding-status`, {
+      headers: getAuthHeaders()
+    })
+    
+    if (response.ok) {
+      const data = await response.json()
+      return !data.shouldShowOnboarding
+    }
+    
+    return false
+  } catch (error) {
+    console.error('Error checking onboarding status:', error)
+    return false
+  }
 }

@@ -20,7 +20,9 @@ export const OnboardingTrigger: React.FC = () => {
     // Only check user change once per user session
     if (isAuthenticated && user?.id && !hasCheckedUser) {
       console.log('🎯 OnboardingTrigger: Checking if user changed for first time')
-      checkUserChange(user.id)
+      checkUserChange(user.id).catch(error => {
+        console.error('🎯 OnboardingTrigger: Error checking user change:', error)
+      })
       setHasCheckedUser(true)
     }
     

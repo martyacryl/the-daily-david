@@ -1230,6 +1230,85 @@ app.get('/api/user/notification-logs', authenticateToken, async (req, res) => {
   }
 })
 
+// ============================================================================
+// ONBOARDING ENDPOINTS
+// ============================================================================
+
+// Get user onboarding status - only show onboarding for brand new users
+app.get('/api/user/onboarding-status', authenticateToken, async (req, res) => {
+  const client = await pool.connect()
+  
+  try {
+    const userId = req.user.userId
+    
+    // Check if user is brand new (created within last 24 hours)
+    const result = await client.query(`
+      SELECT 
+        created_at,
+        onboarding_completed
+      FROM users 
+      WHERE id = $1
+    `, [userId])
+    
+    if (result.rows.length === 0) {
+      return res.status(404).json({ success: false, error: 'User not found' })
+    }
+    
+    const user = result.rows[0]
+    const userCreatedAt = new Date(user.created_at)
+    const now = new Date()
+    const hoursSinceCreation = (now - userCreatedAt) / (1000 * 60 * 60)
+    
+    // Only show onboarding for users created within the last 24 hours
+    const isBrandNewUser = hoursSinceCreation <= 24
+    
+    res.json({ 
+      success: true, 
+      shouldShowOnboarding: isBrandNewUser && !user.onboarding_completed,
+      isBrandNewUser,
+      userCreatedAt: user.created_at,
+      hoursSinceCreation: Math.round(hoursSinceCreation * 100) / 100
+    })
+  } catch (error) {
+    console.error('Get onboarding status error:', error)
+    res.status(500).json({ success: false, error: 'Failed to fetch onboarding status' })
+  } finally {
+    client.release()
+  }
+})
+
+// Mark onboarding as completed
+app.post('/api/user/complete-onboarding', authenticateToken, async (req, res) => {
+  const client = await pool.connect()
+  
+  try {
+    const userId = req.user.userId
+    
+    // Update user to mark onboarding as completed
+    const result = await client.query(`
+      UPDATE users 
+      SET onboarding_completed = TRUE, updated_at = NOW()
+      WHERE id = $1
+      RETURNING *
+    `, [userId])
+    
+    if (result.rows.length === 0) {
+      return res.status(404).json({ success: false, error: 'User not found' })
+    }
+    
+    res.json({ 
+      success: true, 
+      message: 'Onboarding marked as completed',
+      onboardingCompleted: true
+    })
+  } catch (error) {
+    console.error('Complete onboarding error:', error)
+    res.status(500).json({ success: false, error: 'Failed to mark onboarding as completed' })
+  } finally {
+    client.release()
+  }
+})
+
 // Start server (only in development)
 if (process.env.NODE_ENV !== 'production') {
   app.listen(PORT, '0.0.0.0', () => {

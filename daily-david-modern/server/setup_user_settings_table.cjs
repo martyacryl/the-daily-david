@@ -25,6 +25,8 @@ async function setupUserSettingsTable() {
         timezone VARCHAR(50) DEFAULT 'America/New_York',
         last_notification_sent TIMESTAMP NULL,
         notification_frequency VARCHAR(20) DEFAULT 'daily',
+        onboarding_completed BOOLEAN DEFAULT FALSE,
+        onboarding_completed_at TIMESTAMP NULL,
         created_at TIMESTAMP DEFAULT NOW(),
         updated_at TIMESTAMP DEFAULT NOW(),
         UNIQUE(user_id)
@@ -32,6 +34,19 @@ async function setupUserSettingsTable() {
     `);
     
     console.log('✅ user_settings table created');
+    
+    // Add onboarding columns if they don't exist (for existing tables)
+    await client.query(`
+      ALTER TABLE user_settings 
+      ADD COLUMN IF NOT EXISTS onboarding_completed BOOLEAN DEFAULT FALSE
+    `);
+    
+    await client.query(`
+      ALTER TABLE user_settings 
+      ADD COLUMN IF NOT EXISTS onboarding_completed_at TIMESTAMP NULL
+    `);
+    
+    console.log('✅ Onboarding columns added/verified');
     
     // Create indexes for better performance
     await client.query(`
@@ -47,6 +62,11 @@ async function setupUserSettingsTable() {
     await client.query(`
       CREATE INDEX IF NOT EXISTS idx_user_settings_phone_number 
       ON user_settings(phone_number)
+    `);
+    
+    await client.query(`
+      CREATE INDEX IF NOT EXISTS idx_user_settings_onboarding_completed 
+      ON user_settings(onboarding_completed)
     `);
     
     console.log('✅ Indexes created');
