@@ -364,7 +364,7 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
             <div className="space-y-3">
               <div className="flex justify-between items-center">
                 <span className="text-slate-600 dark:text-slate-300">Active Plans</span>
-                <span className="text-xl font-bold text-slate-700 dark:text-slate-200">{readingPlans?.length || 0}</span>
+                <span className="text-xl font-bold text-slate-700 dark:text-slate-200">0</span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-slate-600 dark:text-slate-300">Days Completed</span>
