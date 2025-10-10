@@ -188,21 +188,37 @@ export const useOnboardingStore = create<OnboardingState>()(
       },
 
       completeTour: () => {
+        const { lastUserId } = get()
         set({ 
           isActive: false, 
           isFirstTime: false,
           hasSeenTour: true,
           completedSteps: Array.from({ length: tourSteps.length }, (_, i) => i + 1)
         })
+        
+        // Mark this user as having completed onboarding
+        if (lastUserId) {
+          const userOnboardingKey = `onboarding-completed-${lastUserId}`
+          localStorage.setItem(userOnboardingKey, 'true')
+          console.log('🎯 Marked user as having completed onboarding:', lastUserId)
+        }
       },
 
       skipTour: () => {
+        const { lastUserId } = get()
         set({ 
           isActive: false, 
           skipOnboarding: true,
           isFirstTime: false,
           hasSeenTour: true
         })
+        
+        // Mark this user as having completed onboarding (even if they skipped)
+        if (lastUserId) {
+          const userOnboardingKey = `onboarding-completed-${lastUserId}`
+          localStorage.setItem(userOnboardingKey, 'true')
+          console.log('🎯 Marked user as having completed onboarding (skipped):', lastUserId)
+        }
       },
 
       restartTour: () => {
@@ -230,16 +246,40 @@ export const useOnboardingStore = create<OnboardingState>()(
         console.log('🎯 Checking user change', { lastUserId, newUserId: userId, hasSeenTour })
         
         if (lastUserId !== userId) {
-          console.log('🎯 User changed, resetting onboarding state', { lastUserId, newUserId: userId })
-          set({ 
-            isFirstTime: true,
-            currentStep: 1,
-            isActive: false,
-            completedSteps: [],
-            skipOnboarding: false,
-            hasSeenTour: false,
-            lastUserId: userId
-          })
+          console.log('🎯 User changed, checking if this is a new user or returning user')
+          
+          // Check if this user has ever completed onboarding before
+          // We'll use a combination of localStorage keys to track per-user onboarding completion
+          const userOnboardingKey = `onboarding-completed-${userId}`
+          const hasCompletedOnboarding = localStorage.getItem(userOnboardingKey) === 'true'
+          
+          console.log('🎯 User onboarding status:', { userId, hasCompletedOnboarding })
+          
+          if (hasCompletedOnboarding) {
+            // Returning user - don't show onboarding
+            console.log('🎯 Returning user detected, skipping onboarding')
+            set({ 
+              isFirstTime: false,
+              currentStep: 1,
+              isActive: false,
+              completedSteps: [],
+              skipOnboarding: true,
+              hasSeenTour: true,
+              lastUserId: userId
+            })
+          } else {
+            // New user - show onboarding
+            console.log('🎯 New user detected, will show onboarding')
+            set({ 
+              isFirstTime: true,
+              currentStep: 1,
+              isActive: false,
+              completedSteps: [],
+              skipOnboarding: false,
+              hasSeenTour: false,
+              lastUserId: userId
+            })
+          }
         } else {
           console.log('🎯 Same user, keeping existing onboarding state')
         }
@@ -249,6 +289,9 @@ export const useOnboardingStore = create<OnboardingState>()(
         console.log('🎯 Force resetting onboarding state for new user:', userId)
         // Clear localStorage first
         localStorage.removeItem('onboarding-storage')
+        // Clear the per-user onboarding completion flag
+        const userOnboardingKey = `onboarding-completed-${userId}`
+        localStorage.removeItem(userOnboardingKey)
         // Then reset the state
         set({ 
           isFirstTime: true,
@@ -288,4 +331,10 @@ export const shouldShowOnboarding = (): boolean => {
 export const getCurrentTourStep = (): TourStep | null => {
   const { currentStep, tourSteps } = useOnboardingStore.getState()
   return tourSteps.find(step => step.id === currentStep) || null
+}
+
+// Helper function to check if a specific user has completed onboarding
+export const hasUserCompletedOnboarding = (userId: string): boolean => {
+  const userOnboardingKey = `onboarding-completed-${userId}`
+  return localStorage.getItem(userOnboardingKey) === 'true'
 }
