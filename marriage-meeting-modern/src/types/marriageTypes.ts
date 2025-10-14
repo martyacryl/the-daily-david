@@ -73,6 +73,7 @@ export interface MarriageMeetingWeek {
   todos: TaskItem[] // Updated to use TaskItem with timeline features
   prayers: ListItem[]
   grocery: ListItem[]
+  lists: CustomList[] // New unified lists system
   unconfessedSin: ListItem[]
   weeklyWinddown: ListItem[]
   encouragementNotes: EncouragementNote[]
@@ -86,7 +87,8 @@ export interface WeekData {
   schedule: WeeklySchedule
   todos: TaskItem[] // Updated to use TaskItem with timeline features
   prayers: ListItem[]
-  grocery: GroceryStoreList[] // Updated to use store-specific lists
+  grocery: GroceryStoreList[] // Updated to use store-specific lists (legacy)
+  lists: CustomList[] // New unified lists system
   unconfessedSin: ListItem[]
   weeklyWinddown: ListItem[]
   encouragementNotes: EncouragementNote[] // Encouragement notes and messages
@@ -100,8 +102,56 @@ export interface GroceryStoreList {
   items: ListItem[]
 }
 
+// Meal Plan Item
+export interface MealPlanItem {
+  day: DayName
+  mealType: 'breakfast' | 'lunch' | 'dinner' | 'snack'
+  mealName: string
+}
+
+// List Metadata
+export interface ListMetadata {
+  // For grocery lists
+  storeId?: string
+  storeName?: string
+  
+  // For packing lists
+  tripType?: 'camping' | 'weekend' | 'flight' | 'beach' | 'business' | 'custom'
+  tripName?: string
+  
+  // For meal planning
+  weekStart?: string  // ISO date
+  meals?: MealPlanItem[]
+  
+  // For errands
+  location?: string
+  
+  // For chores
+  frequency?: 'daily' | 'weekly' | 'monthly'
+}
+
+// Custom List Item
+export interface CustomListItem extends ListItem {
+  source?: string  // e.g., "Spaghetti Dinner - Monday"
+  category?: string  // e.g., "produce", "dairy", "cleaning"
+}
+
+// Custom List
+export interface CustomList {
+  id: string
+  listType: CustomListType
+  name: string  // e.g., "Camping Trip", "Weekly Meals"
+  metadata: ListMetadata
+  items: CustomListItem[]
+  createdAt: string
+  updatedAt: string
+}
+
 // List Types
 export type ListType = 'todos' | 'prayers' | 'goals' | 'grocery' | 'unconfessedSin' | 'weeklyWinddown'
+
+// Custom List Types
+export type CustomListType = 'grocery' | 'errand' | 'meal-planning' | 'packing' | 'chore'
 
 // Day Names
 export type DayName = 'Monday' | 'Tuesday' | 'Wednesday' | 'Thursday' | 'Friday' | 'Saturday' | 'Sunday'

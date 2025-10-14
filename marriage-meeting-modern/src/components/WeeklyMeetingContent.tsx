@@ -5,8 +5,8 @@ import { Card } from './ui/Card'
 import { Button } from './ui/Button'
 import { GoalsSection } from './GoalsSection'
 import { TasksSection } from './TasksSection'
-import { GroceryErrandsSection } from './GroceryErrandsSection'
-import { ListItem, TaskItem, DayName, EncouragementNote } from '../types/marriageTypes'
+import { ListsSection } from './lists/ListsSection'
+import { ListItem, TaskItem, DayName, EncouragementNote, CustomList } from '../types/marriageTypes'
 import { EncouragementSection } from './EncouragementSection'
 import { DatabaseManager } from '../lib/database'
 import { calendarService, CalendarEvent } from '../lib/calendarService'
@@ -21,6 +21,7 @@ interface WeeklyMeetingContentProps {
     todos: TaskItem[]
     prayers: ListItem[]
     grocery: any[]
+    lists: CustomList[]
     unconfessedSin: ListItem[]
     encouragementNotes: EncouragementNote[]
     calendarEvents?: CalendarEvent[]
@@ -34,6 +35,7 @@ interface WeeklyMeetingContentProps {
   onRemoveListItem: (listType: string, id: number) => void
   onUpdateTasks: (tasks: TaskItem[]) => void
   onUpdateGrocery: (grocery: any[]) => void
+  onUpdateLists: (lists: CustomList[]) => void
   onUpdateEncouragementNotes: (encouragementNotes: EncouragementNote[]) => void
   onSave: () => void
 }
@@ -51,6 +53,7 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
   onRemoveListItem,
   onUpdateTasks,
   onUpdateGrocery,
+  onUpdateLists,
   onUpdateEncouragementNotes,
   onSave
 }) => {
@@ -439,17 +442,14 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
     />
   )
 
-  const renderGroceryErrandsSection = () => (
-    <GroceryErrandsSection 
-      items={weekData.grocery} 
-      onUpdate={(items) => {
-        console.log('🛒 Grocery: onUpdate called with items:', items)
-        console.log('🛒 Grocery: Calling onUpdateGrocery')
-        onUpdateGrocery(items)
-        console.log('🛒 Grocery: Calling onSave for auto-save')
+  const renderListsSection = () => (
+    <ListsSection 
+      lists={weekData.lists} 
+      onUpdateLists={(lists) => {
+        console.log('📋 Lists: onUpdateLists called with lists:', lists)
+        onUpdateLists(lists)
         onSave()
-        console.log('🛒 Grocery: onSave called successfully')
-      }}
+      }} 
     />
   )
 
@@ -494,7 +494,7 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
         console.log('WeeklyMeetingContent: Rendering prayers section with data:', weekData.prayers)
         return renderListSection('prayers', 'Prayers', Heart, 'purple', weekData.prayers, onSave)
       case 'grocery':
-        return renderGroceryErrandsSection()
+        return renderListsSection()
       case 'unconfessed':
         return renderListSection('unconfessedSin', 'Accountability', AlertTriangle, 'red', weekData.unconfessedSin, onSave)
       case 'encouragement':
