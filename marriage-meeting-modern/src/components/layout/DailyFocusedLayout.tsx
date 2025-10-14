@@ -118,7 +118,7 @@ const sidebarItems: SidebarItem[] = [
   },
   {
     id: 'grocery',
-    label: 'Grocery',
+    label: 'Lists',
     icon: ShoppingCart,
     color: 'yellow',
     count: 0,
