@@ -23,7 +23,8 @@ import { Textarea } from '../ui/Textarea'
 import { useVisionStore } from '../../stores/visionStore'
 import { useAuthStore } from '../../stores/authStore'
 import { useAccentColor } from '../../hooks/useAccentColor'
-import { UnifiedDevotionTracker } from './UnifiedDevotionTracker'
+import { ReadingPlanProgress, ReadingPlan } from '../daily/ReadingPlanProgress'
+import { bibleService, DevotionDay } from '../../lib/bibleService'
 
 interface SpiritualGrowthTrackerProps {
   onBackToVision?: () => void
@@ -137,6 +138,10 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
   const [reflectionNotes, setReflectionNotes] = useState('')
   const [prayerRequests] = useState<PrayerRequest[]>([])
   const [spiritualGoals] = useState<SpiritualGoal[]>([])
+  const [readingPlans, setReadingPlans] = useState<ReadingPlan[]>([])
+  const [availablePlans, setAvailablePlans] = useState<BibleReadingPlan[]>([])
+  const [currentDevotion, setCurrentDevotion] = useState<DevotionDay | null>(null)
+  const [currentPlanId, setCurrentPlanId] = useState<string | null>(null)
 
 
   // Helper function to handle authentication errors
@@ -154,7 +159,61 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
     loadSpiritualGrowth()
   }, [loadSpiritualGrowth])
 
+  useEffect(() => {
+    console.log('📖 Loading reading plans on mount...')
+    console.log('📖 Token available:', !!token)
+    if (token) {
+      loadReadingPlans()
+      loadAvailablePlans()
+    } else {
+      console.log('📖 No token available, waiting...')
+    }
+  }, [token])
 
+  const loadReadingPlans = async () => {
+    try {
+      console.log('📖 Loading reading plans...')
+      const response = await fetch('/api/reading-plans', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+      
+      if (response.ok) {
+        const plans = await response.json()
+        console.log('📖 Raw reading plans from API:', plans)
+        // Transform API response to match component interface
+        const transformedPlans = plans.map((plan: any) => {
+          console.log('📖 Transforming plan:', {
+            plan_id: plan.plan_id,
+            plan_name: plan.plan_name,
+            current_day: plan.current_day,
+            total_days: plan.total_days,
+            completed_days: plan.completed_days,
+            completed_days_type: typeof plan.completed_days
+          })
+          return {
+            planId: plan.plan_id,
+            planName: plan.plan_name,
+            currentDay: plan.current_day,
+            totalDays: plan.total_days,
+            startDate: plan.start_date,
+            completedDays: plan.completed_days || [],
+            bibleId: plan.bible_id
+          }
+        })
+        console.log('📖 Transformed reading plans:', transformedPlans)
+        setReadingPlans(transformedPlans || [])
+      } else {
+        handleAuthError(response)
+        console.error('Error loading reading plans:', response.statusText)
+        setReadingPlans([])
+      }
+    } catch (error) {
+      console.error('Error loading reading plans:', error)
+      setReadingPlans([])
+    }
+  }
 
   useEffect(() => {
     if (spiritualGrowth) {
@@ -163,9 +222,367 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
     }
   }, [spiritualGrowth])
 
+  const loadAvailablePlans = async () => {
+    try {
+      console.log('📖 Loading available plans...')
+      const response = await fetch('/api/available-reading-plans', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+      
+      if (response.ok) {
+        const plans = await response.json()
+        console.log('📖 Available plans loaded:', plans)
+        setAvailablePlans(plans || [])
+      } else {
+        console.error('📖 Error loading available plans:', response.status, response.statusText)
+        handleAuthError(response)
+        console.error('Error loading available plans:', response.statusText)
+        setAvailablePlans([])
+      }
+    } catch (error) {
+      console.error('Error loading available plans:', error)
+      setAvailablePlans([])
+    }
+  }
 
+  const handleStartReadingPlan = async (plan: BibleReadingPlan) => {
+    try {
+      const response = await fetch('/api/reading-plans', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          plan_id: plan.id,
+          plan_name: plan.name,
+          total_days: plan.duration,
+          bible_id: '65eec8e0b60e656b-01' // NIV Bible ID
+        })
+      })
+      
+      if (response.ok) {
+        const savedPlan = await response.json()
+        console.log('📖 Saved plan from server:', savedPlan)
+        // Transform API response to match component interface
+        const transformedPlan = {
+          planId: savedPlan.plan_id,
+          planName: savedPlan.plan_name,
+          currentDay: savedPlan.current_day,
+          totalDays: savedPlan.total_days,
+          startDate: savedPlan.start_date,
+          completedDays: savedPlan.completed_days || [],
+          bibleId: savedPlan.bible_id
+        }
+        console.log('📖 Transformed plan:', transformedPlan)
+        setReadingPlans([...(readingPlans || []), transformedPlan])
+        console.log('Reading plan started and saved!')
+      } else {
+        console.error('Error starting reading plan:', response.statusText)
+      }
+    } catch (error) {
+      console.error('Error starting reading plan:', error)
+    }
+  }
 
+  const handleLoadTodaysDevotion = async (planId: string, targetDay?: number, bibleId?: string) => {
+    try {
+      console.log('🔄 Loading devotion for plan:', planId, 'day:', targetDay, 'bibleId:', bibleId)
+      setCurrentPlanId(planId)
+      const devotion = await bibleService.getTodaysDevotion(planId, bibleId, targetDay)
+      console.log('📖 Devotion loaded:', devotion)
+      setCurrentDevotion(devotion)
+      
+      // If a specific day is requested, update the plan's current day
+      if (targetDay && targetDay > 0) {
+        const plan = readingPlans.find(p => p.planId === planId)
+        if (plan) {
+          // Update the plan's current day in the database
+          const response = await fetch(`/api/reading-plans/${planId}`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+              current_day: targetDay,
+              completed_days: plan.completedDays
+            })
+          })
+          
+          if (response.ok) {
+            // Update local state with the new current day
+            const updatedPlan = await response.json()
+            const transformedPlan = {
+              planId: updatedPlan.plan_id,
+              planName: updatedPlan.plan_name,
+              currentDay: updatedPlan.current_day,
+              totalDays: updatedPlan.total_days,
+              startDate: updatedPlan.start_date,
+              completedDays: updatedPlan.completed_days || [],
+              bibleId: updatedPlan.bible_id
+            }
+            
+            setReadingPlans(prev => prev.map(p => 
+              p.planId === planId ? transformedPlan : p
+            ))
+          } else {
+            handleAuthError(response)
+            console.error('Error updating current day:', response.statusText)
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error loading devotion:', error)
+    }
+  }
 
+  const handleAdvanceToNextDay = async (planId?: string) => {
+    const targetPlanId = planId || currentPlanId
+    const plan = (readingPlans || []).find(p => p.planId === targetPlanId)
+    if (plan && plan.currentDay < plan.totalDays) {
+      // Save progress to database first
+      try {
+        const newCurrentDay = plan.currentDay + 1
+        const newCompletedDays = [...(plan.completedDays || []), plan.currentDay]
+        
+        const response = await fetch(`/api/reading-plans/${plan.planId}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            current_day: newCurrentDay,
+            completed_days: newCompletedDays
+          })
+        })
+        
+        if (response.ok) {
+          // Update local state with database response
+          const updatedPlan = await response.json()
+          const transformedPlan = {
+            planId: updatedPlan.plan_id,
+            planName: updatedPlan.plan_name,
+            currentDay: updatedPlan.current_day,
+            totalDays: updatedPlan.total_days,
+            startDate: updatedPlan.start_date,
+            completedDays: updatedPlan.completed_days || [],
+            bibleId: updatedPlan.bible_id
+          }
+          
+          const updatedPlans = (readingPlans || []).map(p => 
+            p.planId === plan.planId ? transformedPlan : p
+          )
+          setReadingPlans(updatedPlans)
+        } else {
+          console.error('Error saving progress:', response.statusText)
+        }
+      } catch (error) {
+        console.error('Error saving progress:', error)
+      }
+    }
+  }
+
+  const handleGoToPreviousDay = async (planId?: string) => {
+    const targetPlanId = planId || currentPlanId
+    const plan = (readingPlans || []).find(p => p.planId === targetPlanId)
+    if (plan && plan.currentDay > 1) {
+      // Save progress to database first
+      try {
+        const newCurrentDay = plan.currentDay - 1
+        const newCompletedDays = (plan.completedDays || []).filter(day => day !== plan.currentDay - 1)
+        
+        const response = await fetch(`/api/reading-plans/${plan.planId}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            current_day: newCurrentDay,
+            completed_days: newCompletedDays
+          })
+        })
+        
+        if (response.ok) {
+          // Update local state with database response
+          const updatedPlan = await response.json()
+          const transformedPlan = {
+            planId: updatedPlan.plan_id,
+            planName: updatedPlan.plan_name,
+            currentDay: updatedPlan.current_day,
+            totalDays: updatedPlan.total_days,
+            startDate: updatedPlan.start_date,
+            completedDays: updatedPlan.completed_days || [],
+            bibleId: updatedPlan.bible_id
+          }
+          
+          const updatedPlans = (readingPlans || []).map(p => 
+            p.planId === plan.planId ? transformedPlan : p
+          )
+          setReadingPlans(updatedPlans)
+        } else {
+          console.error('Error saving progress:', response.statusText)
+        }
+      } catch (error) {
+        console.error('Error saving progress:', error)
+      }
+    }
+  }
+
+  const handleMarkDayCompleted = async () => {
+    const plan = (readingPlans || []).find(p => p.planId === currentPlanId)
+    if (plan && !plan.completedDays?.includes(plan.currentDay)) {
+      // Save progress to database first
+      try {
+        const newCompletedDays = [...(plan.completedDays || []), plan.currentDay]
+        
+        const response = await fetch(`/api/reading-plans/${plan.planId}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            current_day: plan.currentDay,
+            completed_days: newCompletedDays
+          })
+        })
+        
+        if (response.ok) {
+          // Update local state with database response
+          const updatedPlan = await response.json()
+          const transformedPlan = {
+            planId: updatedPlan.plan_id,
+            planName: updatedPlan.plan_name,
+            currentDay: updatedPlan.current_day,
+            totalDays: updatedPlan.total_days,
+            startDate: updatedPlan.start_date,
+            completedDays: updatedPlan.completed_days || [],
+            bibleId: updatedPlan.bible_id
+          }
+          
+          const updatedPlans = (readingPlans || []).map(p => 
+            p.planId === plan.planId ? transformedPlan : p
+          )
+          setReadingPlans(updatedPlans)
+        } else {
+          console.error('Error marking day as completed:', response.statusText)
+        }
+      } catch (error) {
+        console.error('Error marking day as completed:', error)
+      }
+    }
+  }
+
+  const handleClosePlan = async (planId?: string) => {
+    const targetPlanId = planId || currentPlanId
+    if (targetPlanId) {
+      try {
+        const response = await fetch(`/api/reading-plans/${targetPlanId}`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        })
+        
+        if (response.ok) {
+          // Remove the plan from local state
+          setReadingPlans(prev => prev.filter(plan => plan.planId !== targetPlanId))
+          setCurrentDevotion(null)
+          setCurrentPlanId(null)
+        } else {
+          handleAuthError(response)
+          console.error('Error deleting reading plan:', response.statusText)
+        }
+      } catch (error) {
+        console.error('Error deleting reading plan:', error)
+      }
+    } else {
+      // If no plan ID, just clear the current devotion
+      setCurrentDevotion(null)
+      setCurrentPlanId(null)
+    }
+  }
+
+  const handleStartNewPlan = () => {
+    setCurrentDevotion(null)
+  }
+
+  const handleRestartPlan = async (planId?: string) => {
+    const targetPlanId = planId || currentPlanId
+    const plan = (readingPlans || []).find(p => p.planId === targetPlanId)
+    if (plan) {
+      // Save progress to database first
+      try {
+        const response = await fetch(`/api/reading-plans/${plan.planId}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            current_day: 1,
+            completed_days: []
+          })
+        })
+        
+        if (response.ok) {
+          // Update local state with database response
+          const updatedPlan = await response.json()
+          const transformedPlan = {
+            planId: updatedPlan.plan_id,
+            planName: updatedPlan.plan_name,
+            currentDay: updatedPlan.current_day,
+            totalDays: updatedPlan.total_days,
+            startDate: updatedPlan.start_date,
+            completedDays: updatedPlan.completed_days || [],
+            bibleId: updatedPlan.bible_id
+          }
+          
+          const updatedPlans = (readingPlans || []).map(p => 
+            p.planId === plan.planId ? transformedPlan : p
+          )
+          setReadingPlans(updatedPlans)
+        } else {
+          console.error('Error saving progress:', response.statusText)
+        }
+      } catch (error) {
+        console.error('Error saving progress:', error)
+      }
+    }
+  }
+
+  const handleSaveProgress = async () => {
+    try {
+      // Save all reading plans to database
+      for (const plan of readingPlans) {
+        const response = await fetch(`/api/reading-plans/${plan.planId}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            current_day: plan.currentDay,
+            completed_days: plan.completedDays
+          })
+        })
+        
+        if (response.ok) {
+          console.log(`Reading plan ${plan.planName} progress saved successfully!`)
+        } else {
+          console.error(`Error saving plan ${plan.planName}:`, response.statusText)
+        }
+      }
+      console.log('All reading plan progress saved successfully!')
+    } catch (error) {
+      console.error('Error saving reading plan progress:', error)
+    }
+  }
 
   const handleAddPrayer = async () => {
     if (newPrayer.text.trim() && spiritualGrowth) {
@@ -364,7 +781,7 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
             <div className="space-y-3">
               <div className="flex justify-between items-center">
                 <span className="text-slate-600 dark:text-slate-300">Active Plans</span>
-                <span className="text-xl font-bold text-slate-700 dark:text-slate-200">0</span>
+                <span className="text-xl font-bold text-slate-700 dark:text-slate-200">{readingPlans?.length || 0}</span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-slate-600 dark:text-slate-300">Days Completed</span>
@@ -646,9 +1063,183 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
       {/* Devotionals Tab */}
       {activeTab === 'devotionals' && (
         <div className="space-y-6">
+          {/* Current Devotion Display */}
+          {currentDevotion && (
+            <Card className={`p-6 ${getGradientClass('card')} dark:from-gray-800 dark:to-gray-700 border-0 shadow-lg`}>
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-2 bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-600 dark:to-slate-700 rounded-lg border border-slate-300 dark:border-slate-600">
+                  <BookOpen className="w-5 h-5 text-slate-600 dark:text-slate-300" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-slate-800 dark:text-slate-200">Today's Devotion</h3>
+                  <p className="text-slate-600 dark:text-slate-300">{currentDevotion?.title || ''}</p>
+                </div>
+              </div>
+              
+              <div className="space-y-4">
+                {(currentDevotion.verses || []).map((verse, index) => (
+                  <div key={index} className="p-4 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-700 dark:to-slate-800 rounded-xl border border-slate-200 dark:border-slate-600">
+                    <h4 className="font-semibold text-slate-800 dark:text-slate-200 mb-2">{verse.reference}</h4>
+                    <p className="text-slate-700 dark:text-slate-300 leading-relaxed mb-3">{verse.content}</p>
+                    <p className="text-sm text-slate-500 dark:text-slate-400 italic">{verse.copyright}</p>
+                  </div>
+                ))}
+                
+                <div className={`p-4 bg-gradient-to-br from-${getColor('bg')}/10 to-${getColor('bg')}/20 dark:from-${getColor('bgDark')}/10 dark:to-${getColor('bgDark')}/20 rounded-xl border border-${getColor('primary')}/20 dark:border-${getColor('primaryDark')}/30`}>
+                  <h4 className="font-semibold text-slate-800 dark:text-slate-200 mb-2">Reflection</h4>
+                  <p className="text-slate-700 dark:text-slate-300 leading-relaxed">{currentDevotion?.content || ''}</p>
+                </div>
+              </div>
+            </Card>
+          )}
 
-          {/* Unified Devotion Tracker */}
-          <UnifiedDevotionTracker />
+          {/* Reading Plan Progress */}
+          {(readingPlans || []).map((plan) => (
+            <ReadingPlanProgress
+              key={`${plan.planId}-${plan.currentDay}-${devotionalTabKey}`}
+              readingPlan={plan}
+              onLoadTodaysDevotion={handleLoadTodaysDevotion}
+              onAdvanceToNextDay={() => handleAdvanceToNextDay(plan.planId)}
+              onGoToPreviousDay={() => handleGoToPreviousDay(plan.planId)}
+              onClosePlan={() => handleClosePlan(plan.planId)}
+              onStartNewPlan={handleStartNewPlan}
+              onRestartPlan={() => handleRestartPlan(plan.planId)}
+              onSaveProgress={handleSaveProgress}
+            />
+          ))}
+
+          {/* Available Reading Plans */}
+          <Card className={`p-6 ${getGradientClass('card')} dark:from-gray-800 dark:to-gray-700 border-0 shadow-md`}>
+            <div className="flex items-center gap-3 mb-6">
+              <div className="p-2 bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-600 dark:to-slate-700 rounded-lg border border-slate-300 dark:border-slate-600">
+                <BookOpen className="w-5 h-5 text-slate-600 dark:text-slate-300" />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-slate-800 dark:text-slate-200">Marriage Reading Plans</h3>
+                <p className="text-slate-600 dark:text-slate-300">Choose a devotional plan for your spiritual growth</p>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {(availablePlans || []).map((plan) => (
+                <div key={plan.id} className="p-4 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-700 dark:to-slate-800 rounded-xl border border-slate-200 dark:border-slate-600 hover:shadow-md transition-shadow duration-200">
+                  <div className="flex items-start justify-between mb-3">
+                    <div>
+                      <h4 className="font-semibold text-slate-800 dark:text-slate-200 mb-1">{plan.name}</h4>
+                      <p className="text-sm text-slate-600 dark:text-slate-300">{plan.description}</p>
+                    </div>
+                    <span className="text-xs font-medium text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-600 border border-slate-200 dark:border-slate-500 px-3 py-1 rounded-full">
+                      {plan.duration} days
+                    </span>
+                  </div>
+                  
+                  <div className="flex items-center gap-2">
+                    <Button
+                      onClick={() => handleStartReadingPlan(plan)}
+                      size="sm"
+                      className="bg-gradient-to-r from-slate-600 to-slate-700 hover:from-slate-700 hover:to-slate-800 text-white"
+                    >
+                      <Play className="w-4 h-4 mr-2" />
+                      Start Plan
+                    </Button>
+                    <Button
+                      onClick={() => handleLoadTodaysDevotion(plan.id)}
+                      variant="outline"
+                      size="sm"
+                      className="text-slate-600 dark:text-slate-300 border-slate-300 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-700"
+                    >
+                      Preview
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </Card>
+
+          {/* Manual Progress Tracking */}
+          <Card className={`p-6 ${getGradientClass('card')} dark:from-gray-800 dark:to-gray-700 border-0 shadow-md`}>
+            <div className="flex items-center gap-3 mb-6">
+              <div className="p-2 bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-600 dark:to-slate-700 rounded-lg border border-slate-300 dark:border-slate-600">
+                <TrendingUp className="w-5 h-5 text-slate-600 dark:text-slate-300" />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-slate-800 dark:text-slate-200">Manual Progress</h3>
+                <p className="text-slate-600 dark:text-slate-300">Track your general Bible reading progress</p>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                    Reading Plan
+                  </label>
+                  <Input
+                    value={spiritualGrowth?.bible_reading_plan || ''}
+                    onChange={(e) => {
+                      if (spiritualGrowth) {
+                        updateSpiritualGrowth({
+                          ...spiritualGrowth,
+                          bible_reading_plan: e.target.value
+                        })
+                      }
+                    }}
+                    placeholder="e.g., 'Read through the Bible in one year'"
+                    className="w-full border-slate-300 dark:border-slate-600 focus:border-slate-500 dark:focus:border-slate-400 focus:ring-slate-500 dark:focus:ring-slate-400"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                    Days Completed: {bibleProgress}
+                  </label>
+                  <div className="flex items-center gap-3">
+                    <Input
+                      type="number"
+                      value={bibleProgress}
+                      onChange={(e) => setBibleProgress(parseInt(e.target.value) || 0)}
+                      className="w-24 border-slate-300 dark:border-slate-600 focus:border-slate-500 dark:focus:border-slate-400 focus:ring-slate-500 dark:focus:ring-slate-400"
+                      min="0"
+                    />
+                    <Button
+                      onClick={() => handleUpdateBibleProgress(bibleProgress)}
+                      className="bg-gradient-to-r from-slate-600 to-slate-700 hover:from-slate-700 hover:to-slate-800 text-white"
+                    >
+                      <Save className="w-4 h-4 mr-2" />
+                      Update
+                    </Button>
+                    <Button
+                      onClick={() => handleUpdateBibleProgress(bibleProgress + 1)}
+                      variant="outline"
+                      className="text-slate-600 dark:text-slate-300 border-slate-300 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-700"
+                    >
+                      +1 Day
+                    </Button>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="space-y-4">
+                <div className="p-4 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-700 dark:to-slate-800 rounded-xl border border-slate-200 dark:border-slate-600">
+                  <h4 className="font-semibold text-slate-800 dark:text-slate-200 mb-2">Progress Overview</h4>
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span className="text-slate-600 dark:text-slate-300">Current Streak</span>
+                      <span className="font-semibold text-slate-700 dark:text-slate-200">12 days</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-slate-600 dark:text-slate-300">Longest Streak</span>
+                      <span className="font-semibold text-slate-700 dark:text-slate-200">45 days</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-slate-600 dark:text-slate-300">Total Days</span>
+                      <span className="font-semibold text-slate-700 dark:text-slate-200">{bibleProgress}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Card>
         </div>
       )}
 
