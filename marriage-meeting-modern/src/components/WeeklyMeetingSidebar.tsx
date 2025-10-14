@@ -71,7 +71,7 @@ export const WeeklyMeetingSidebar: React.FC<WeeklyMeetingSidebarProps> = ({
     },
     {
       id: 'grocery',
-      label: 'Grocery',
+      label: 'Lists',
       icon: ShoppingCart,
       color: 'slate',
       count: sectionCounts.grocery
