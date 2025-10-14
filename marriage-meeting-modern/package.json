@@ -3,7 +3,6 @@
   "private": true,
   "version": "1.0.1",
   "description": "A comprehensive web application for couples to plan their weekly activities, manage shared goals, and strengthen their relationship through intentional planning and communication.",
-  "type": "module",
   "scripts": {
     "dev": "vite --port 3002",
     "build": "vite build",
