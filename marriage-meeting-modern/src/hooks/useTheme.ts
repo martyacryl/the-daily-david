@@ -1,13 +1,12 @@
 import { useEffect } from 'react'
-import { useSettingsStore } from '../stores/settingsStore'
+import { useAppStore } from '../stores/appStore'
 
 export const useTheme = () => {
-  const { settings, updateGeneralSettings } = useSettingsStore()
+  const { theme, setTheme: setAppTheme } = useAppStore()
 
   // Apply theme to document
   useEffect(() => {
     const root = document.documentElement
-    const { theme } = settings
 
     // Remove all theme classes first
     root.classList.remove('dark', 'landing')
@@ -19,22 +18,22 @@ export const useTheme = () => {
       root.classList.add('dark', 'landing')
     }
     // 'light' theme has no additional classes
-  }, [settings.theme])
+  }, [theme])
 
   const toggleTheme = async () => {
     const themeCycle = ['light', 'dark', 'landing'] as const
-    const currentIndex = themeCycle.indexOf(settings.theme)
+    const currentIndex = themeCycle.indexOf(theme)
     const nextIndex = (currentIndex + 1) % themeCycle.length
     const newTheme = themeCycle[nextIndex]
-    await updateGeneralSettings({ theme: newTheme })
+    setAppTheme(newTheme)
   }
 
-  const setTheme = async (theme: 'light' | 'dark' | 'landing') => {
-    await updateGeneralSettings({ theme })
+  const setTheme = async (newTheme: 'light' | 'dark' | 'landing') => {
+    setAppTheme(newTheme)
   }
 
   return {
-    theme: settings.theme,
+    theme,
     toggleTheme,
     setTheme,
     isDark: document.documentElement.classList.contains('dark'),
