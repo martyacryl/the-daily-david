@@ -33,10 +33,6 @@ export const CreateListModal: React.FC<CreateListModalProps> = ({
   preselectedType,
   editingList
 }) => {
-  // Debug logging
-  console.log('CreateListModal: editingList =', editingList)
-  console.log('CreateListModal: editingList?.listType =', editingList?.listType)
-  
   const [step, setStep] = useState(editingList ? 2 : 1) // Skip type selection if editing
   const [selectedType, setSelectedType] = useState<CustomListType | null>(editingList?.listType || null)
   const [listName, setListName] = useState(editingList?.name || '')
@@ -45,22 +41,17 @@ export const CreateListModal: React.FC<CreateListModalProps> = ({
   // Update state when editingList changes
   useEffect(() => {
     if (editingList) {
-      console.log('CreateListModal: useEffect - setting step to 2 for editing')
       setStep(2)
       setSelectedType(editingList.listType)
       setListName(editingList.name)
       setMetadata(editingList.metadata || {})
     } else {
-      console.log('CreateListModal: useEffect - setting step to 1 for new list')
       setStep(1)
       setSelectedType(null)
       setListName('')
       setMetadata({})
     }
   }, [editingList])
-  
-  console.log('CreateListModal: step =', step)
-  console.log('CreateListModal: selectedType =', selectedType)
 
   const getIconComponent = (iconName: string) => {
     const iconMap = {
