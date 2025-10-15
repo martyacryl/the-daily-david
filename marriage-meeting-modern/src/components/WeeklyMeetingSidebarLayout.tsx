@@ -105,6 +105,7 @@ export const WeeklyMeetingSidebarLayout: React.FC = () => {
     removeListItem,
     updateTasks,
     updateGrocery,
+    updateLists,
     updateEncouragementNotes
   } = useMarriageStore()
 
@@ -366,6 +367,7 @@ export const WeeklyMeetingSidebarLayout: React.FC = () => {
             onRemoveListItem={(type, id) => removeListItem(type as any, id)}
             onUpdateTasks={updateTasks}
             onUpdateGrocery={updateGrocery}
+            onUpdateLists={updateLists}
             onUpdateEncouragementNotes={updateEncouragementNotes}
             onSave={handleSaveWeek}
           />
