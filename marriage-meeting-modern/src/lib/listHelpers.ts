@@ -63,6 +63,18 @@ export const createNewList = (
     }))
   }
   
+  // For lists with selected suggestions, add them as items
+  if (metadata.selectedSuggestions && metadata.selectedSuggestions.length > 0) {
+    const suggestionItems = metadata.selectedSuggestions.map((suggestion, index) => ({
+      id: Date.now() + index + 1000, // Offset to avoid conflicts with meal items
+      text: suggestion,
+      completed: false,
+      source: 'suggestions',
+      category: listType === 'packing' ? metadata.tripType : 'chore'
+    }))
+    items = [...items, ...suggestionItems]
+  }
+  
   return {
     id: generateId(),
     listType,
@@ -169,6 +181,46 @@ export const getMealSuggestions = (mealType: string): string[] => {
   }
   
   return suggestions[mealType] || []
+}
+
+// Get chore suggestions based on category
+export const getChoreSuggestions = (category: string): string[] => {
+  const suggestions: Record<string, string[]> = {
+    cleaning: [
+      'Vacuum living room', 'Mop kitchen floor', 'Clean bathrooms', 'Dust furniture',
+      'Wipe down counters', 'Clean mirrors', 'Sweep floors', 'Organize closets'
+    ],
+    maintenance: [
+      'Change air filter', 'Check smoke detectors', 'Clean gutters', 'Oil door hinges',
+      'Replace light bulbs', 'Check weather stripping', 'Service HVAC', 'Clean dryer vent'
+    ],
+    laundry: [
+      'Wash clothes', 'Fold laundry', 'Put away clothes', 'Wash bed sheets',
+      'Wash towels', 'Iron clothes', 'Sort laundry', 'Clean lint trap'
+    ],
+    cooking: [
+      'Meal prep', 'Grocery shopping', 'Cook dinner', 'Pack lunches',
+      'Clean dishes', 'Organize pantry', 'Plan meals', 'Bake bread'
+    ],
+    shopping: [
+      'Grocery shopping', 'Buy household items', 'Pick up prescriptions', 'Get gas',
+      'Buy gifts', 'Return items', 'Compare prices', 'Stock up on essentials'
+    ],
+    yard: [
+      'Mow lawn', 'Trim hedges', 'Water plants', 'Pull weeds',
+      'Rake leaves', 'Plant flowers', 'Clean patio', 'Fertilize lawn'
+    ],
+    organization: [
+      'Organize closets', 'Sort paperwork', 'Declutter rooms', 'Label storage',
+      'Create filing system', 'Organize garage', 'Sort donations', 'Clean out fridge'
+    ],
+    other: [
+      'Schedule appointments', 'Pay bills', 'Update calendar', 'Plan events',
+      'Research purchases', 'Call family', 'Update contacts', 'Backup files'
+    ]
+  }
+  
+  return suggestions[category] || []
 }
 
 // Generate grocery items from meal plan

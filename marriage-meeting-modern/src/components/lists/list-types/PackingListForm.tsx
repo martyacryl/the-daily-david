@@ -26,6 +26,7 @@ export const PackingListForm: React.FC<PackingListFormProps> = ({
 }) => {
   const [tripType, setTripType] = useState(metadata.tripType || 'weekend')
   const [showSuggestions, setShowSuggestions] = useState(false)
+  const [selectedSuggestions, setSelectedSuggestions] = useState<string[]>(metadata.selectedSuggestions || [])
 
   // Helper function to get icon component
   const getIconComponent = (iconName: string) => {
@@ -50,6 +51,18 @@ export const PackingListForm: React.FC<PackingListFormProps> = ({
     if (type !== 'custom') {
       setShowSuggestions(true)
     }
+  }
+
+  const handleSuggestionToggle = (suggestion: string) => {
+    const updated = selectedSuggestions.includes(suggestion)
+      ? selectedSuggestions.filter(s => s !== suggestion)
+      : [...selectedSuggestions, suggestion]
+    
+    setSelectedSuggestions(updated)
+    onMetadataChange({
+      ...metadata,
+      selectedSuggestions: updated
+    })
   }
 
   const suggestions = getPackingSuggestions(tripType)
@@ -113,16 +126,21 @@ export const PackingListForm: React.FC<PackingListFormProps> = ({
       {showSuggestions && suggestions.length > 0 && (
         <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
           <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-2">
-            Suggested items for {tripTypes.find(t => t.value === tripType)?.label}:
+            Click to add suggested items for {tripTypes.find(t => t.value === tripType)?.label}:
           </h4>
           <div className="flex flex-wrap gap-1">
             {suggestions.slice(0, 8).map((item, index) => (
-              <span
+              <button
                 key={index}
-                className="px-2 py-1 bg-white dark:bg-gray-600 text-xs text-gray-700 dark:text-gray-300 rounded border"
+                onClick={() => handleSuggestionToggle(item)}
+                className={`px-2 py-1 text-xs rounded border transition-colors ${
+                  selectedSuggestions.includes(item)
+                    ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 border-blue-300 dark:border-blue-600'
+                    : 'bg-white dark:bg-gray-600 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-500 hover:bg-gray-100 dark:hover:bg-gray-500'
+                }`}
               >
                 {item}
-              </span>
+              </button>
             ))}
             {suggestions.length > 8 && (
               <span className="px-2 py-1 text-xs text-gray-500 dark:text-gray-400">
@@ -130,6 +148,13 @@ export const PackingListForm: React.FC<PackingListFormProps> = ({
               </span>
             )}
           </div>
+          {selectedSuggestions.length > 0 && (
+            <div className="mt-2 pt-2 border-t border-gray-300 dark:border-gray-600">
+              <p className="text-xs text-gray-600 dark:text-gray-400">
+                {selectedSuggestions.length} item{selectedSuggestions.length !== 1 ? 's' : ''} selected
+              </p>
+            </div>
+          )}
         </div>
       )}
     </div>

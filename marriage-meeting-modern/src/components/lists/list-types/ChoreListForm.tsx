@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { Settings, Users } from 'lucide-react'
 import { Button } from '../../ui/Button'
 import { ListMetadata } from '../../../types/marriageTypes'
+import { getChoreSuggestions } from '../../../lib/listHelpers'
 
 interface ChoreListFormProps {
   metadata: ListMetadata
@@ -33,6 +34,7 @@ export const ChoreListForm: React.FC<ChoreListFormProps> = ({
 }) => {
   const [frequency, setFrequency] = useState(metadata.frequency || 'weekly')
   const [selectedCategories, setSelectedCategories] = useState<string[]>([])
+  const [selectedSuggestions, setSelectedSuggestions] = useState<string[]>(metadata.selectedSuggestions || [])
 
   const handleFrequencyChange = (newFrequency: string) => {
     setFrequency(newFrequency)
@@ -48,6 +50,28 @@ export const ChoreListForm: React.FC<ChoreListFormProps> = ({
       : [...selectedCategories, category]
     
     setSelectedCategories(updated)
+  }
+
+  const handleSuggestionToggle = (suggestion: string) => {
+    const updated = selectedSuggestions.includes(suggestion)
+      ? selectedSuggestions.filter(s => s !== suggestion)
+      : [...selectedSuggestions, suggestion]
+    
+    setSelectedSuggestions(updated)
+    onMetadataChange({
+      ...metadata,
+      selectedSuggestions: updated
+    })
+  }
+
+  // Get all suggestions from selected categories
+  const getAllSuggestions = () => {
+    const allSuggestions: string[] = []
+    selectedCategories.forEach(category => {
+      const suggestions = getChoreSuggestions(category)
+      allSuggestions.push(...suggestions)
+    })
+    return allSuggestions
   }
 
   return (
@@ -152,6 +176,42 @@ export const ChoreListForm: React.FC<ChoreListFormProps> = ({
               )
             })}
           </div>
+        </div>
+      )}
+
+      {/* Suggestions */}
+      {selectedCategories.length > 0 && (
+        <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+          <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-2">
+            Click to add suggested chores:
+          </h4>
+          <div className="flex flex-wrap gap-1">
+            {getAllSuggestions().slice(0, 12).map((item, index) => (
+              <button
+                key={index}
+                onClick={() => handleSuggestionToggle(item)}
+                className={`px-2 py-1 text-xs rounded border transition-colors ${
+                  selectedSuggestions.includes(item)
+                    ? 'bg-teal-100 dark:bg-teal-900/30 text-teal-800 dark:text-teal-200 border-teal-300 dark:border-teal-600'
+                    : 'bg-white dark:bg-gray-600 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-500 hover:bg-gray-100 dark:hover:bg-gray-500'
+                }`}
+              >
+                {item}
+              </button>
+            ))}
+            {getAllSuggestions().length > 12 && (
+              <span className="px-2 py-1 text-xs text-gray-500 dark:text-gray-400">
+                +{getAllSuggestions().length - 12} more
+              </span>
+            )}
+          </div>
+          {selectedSuggestions.length > 0 && (
+            <div className="mt-2 pt-2 border-t border-gray-300 dark:border-gray-600">
+              <p className="text-xs text-gray-600 dark:text-gray-400">
+                {selectedSuggestions.length} chore{selectedSuggestions.length !== 1 ? 's' : ''} selected
+              </p>
+            </div>
+          )}
         </div>
       )}
 

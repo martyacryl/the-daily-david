@@ -128,6 +128,9 @@ export interface ListMetadata {
   
   // For chores
   frequency?: 'daily' | 'weekly' | 'monthly'
+  
+  // For suggestions
+  selectedSuggestions?: string[] // Items selected from suggestions
 }
 
 // Custom List Item
