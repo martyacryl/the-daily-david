@@ -37,8 +37,8 @@ export const ListTypeSelector: React.FC<ListTypeSelectorProps> = ({
   }
 
   return (
-    <div className="mb-6">
-      <div className="flex flex-wrap gap-2 p-1 bg-gray-100 dark:bg-gray-800 rounded-lg">
+    <div className="mb-4 sm:mb-6">
+      <div className="flex flex-wrap gap-1 sm:gap-2 p-1 bg-gray-100 dark:bg-gray-800 rounded-lg">
         {listTypes.map((type) => {
           const config = type === 'all' ? { icon: 'List', color: 'slate', label: 'All Lists', description: 'All your lists' } : getListTypeConfig(type)
           const count = getListCount(type)
@@ -49,7 +49,7 @@ export const ListTypeSelector: React.FC<ListTypeSelectorProps> = ({
               key={type}
               onClick={() => onTypeChange(type)}
               className={`
-                relative flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all duration-200
+                relative flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-1.5 sm:py-2 rounded-md text-xs sm:text-sm font-medium transition-all duration-200
                 ${isActive 
                   ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm' 
                   : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-700'
@@ -58,15 +58,16 @@ export const ListTypeSelector: React.FC<ListTypeSelectorProps> = ({
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
             >
-              {React.createElement(getIconComponent(config.icon), { className: "w-4 h-4" })}
+              {React.createElement(getIconComponent(config.icon), { className: "w-3 h-3 sm:w-4 sm:h-4" })}
               <span className="hidden sm:inline">{config.label}</span>
+              <span className="sm:hidden">{config.label.split(' ')[0]}</span>
               
               {count > 0 && (
                 <motion.span
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
                   className={`
-                    px-2 py-0.5 text-xs rounded-full font-medium
+                    px-1.5 sm:px-2 py-0.5 text-xs rounded-full font-medium
                     ${isActive 
                       ? 'bg-slate-200 dark:bg-slate-600 text-slate-700 dark:text-slate-300' 
                       : 'bg-slate-300 dark:bg-slate-600 text-slate-600 dark:text-slate-400'
@@ -91,8 +92,8 @@ export const ListTypeSelector: React.FC<ListTypeSelectorProps> = ({
       </div>
 
       {/* Description */}
-      <div className="mt-3">
-        <p className="text-sm text-gray-600 dark:text-gray-400">
+      <div className="mt-2 sm:mt-3">
+        <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
           {activeType === 'all' 
             ? 'All your lists in one place' 
             : getListTypeConfig(activeType).description

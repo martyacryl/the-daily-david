@@ -186,22 +186,23 @@ export const ListsSection: React.FC<ListsSectionProps> = ({
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.3 }}
     >
-      <Card className="p-6">
+      <Card className="p-3 sm:p-4 lg:p-6">
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
-            <div className="p-3 rounded-lg bg-slate-100 dark:bg-slate-900/20">
-              <List className="w-6 h-6 text-slate-600 dark:text-slate-400" />
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4 sm:mb-6">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="p-2 sm:p-3 rounded-lg bg-slate-100 dark:bg-slate-900/20">
+              <List className="w-5 h-5 sm:w-6 sm:h-6 text-slate-600 dark:text-slate-400" />
             </div>
             <div>
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Lists</h2>
-              <p className="text-gray-600 dark:text-gray-300">Organize your tasks and plans</p>
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">Lists</h2>
+              <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300">Organize your tasks and plans</p>
             </div>
           </div>
 
           <Button
             onClick={() => setIsCreateModalOpen(true)}
-            className="bg-slate-600 hover:bg-slate-700 text-white"
+            className="bg-slate-600 hover:bg-slate-700 text-white w-full sm:w-auto"
+            size="sm"
           >
             <Plus className="w-4 h-4 mr-2" />
             Create List
@@ -216,7 +217,7 @@ export const ListsSection: React.FC<ListsSectionProps> = ({
         />
 
         {/* Lists */}
-        <div className="space-y-4">
+        <div className="space-y-3 sm:space-y-4">
           <AnimatePresence mode="wait">
             {filteredLists.length > 0 ? (
               <motion.div
@@ -225,7 +226,7 @@ export const ListsSection: React.FC<ListsSectionProps> = ({
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.2 }}
-                className="space-y-4"
+                className="space-y-3 sm:space-y-4"
               >
                 {filteredLists.map((list) => (
                   <ListCard
@@ -247,17 +248,17 @@ export const ListsSection: React.FC<ListsSectionProps> = ({
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ duration: 0.2 }}
-                className="text-center py-12"
+                className="text-center py-8 sm:py-12"
               >
-                <div className="inline-flex p-4 rounded-full mb-4 bg-slate-100 dark:bg-slate-900/20">
+                <div className="inline-flex p-3 sm:p-4 rounded-full mb-3 sm:mb-4 bg-slate-100 dark:bg-slate-900/20">
                   {React.createElement(getIconComponent(config ? config.icon : 'List'), { 
-                    className: "w-8 h-8 text-slate-600 dark:text-slate-400" 
+                    className: "w-6 h-6 sm:w-8 sm:h-8 text-slate-600 dark:text-slate-400" 
                   })}
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-2">
                   {emptyState.title}
                 </h3>
-                <p className="text-gray-600 dark:text-gray-400 max-w-md mx-auto">
+                <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 max-w-md mx-auto px-4">
                   {emptyState.description}
                 </p>
               </motion.div>
@@ -267,14 +268,14 @@ export const ListsSection: React.FC<ListsSectionProps> = ({
 
         {/* Meal Plan Actions */}
         {activeType === 'meal-planning' && filteredLists.length > 0 && (
-          <div className="mt-6 p-4 bg-slate-50 dark:bg-slate-900/20 border border-slate-200 dark:border-slate-700 rounded-lg">
+          <div className="mt-4 sm:mt-6 p-3 sm:p-4 bg-slate-50 dark:bg-slate-900/20 border border-slate-200 dark:border-slate-700 rounded-lg">
             <div className="flex items-center gap-2 mb-2">
               <Sparkles className="w-4 h-4 text-slate-600 dark:text-slate-400" />
               <h4 className="text-sm font-medium text-slate-800 dark:text-slate-200">
                 Quick Actions
               </h4>
             </div>
-            <p className="text-xs text-slate-600 dark:text-slate-400 mb-3">
+            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mb-3">
               Generate grocery lists from your meal plans
             </p>
             <div className="flex flex-wrap gap-2">
@@ -284,7 +285,7 @@ export const ListsSection: React.FC<ListsSectionProps> = ({
                   onClick={() => handleGenerateGroceryFromMealPlan(list.id)}
                   size="sm"
                   variant="outline"
-                  className="border-purple-300 dark:border-purple-600 text-purple-700 dark:text-purple-300 hover:bg-purple-100 dark:hover:bg-purple-800"
+                  className="border-purple-300 dark:border-purple-600 text-purple-700 dark:text-purple-300 hover:bg-purple-100 dark:hover:bg-purple-800 text-xs sm:text-sm"
                 >
                   Generate from {list.name}
                 </Button>

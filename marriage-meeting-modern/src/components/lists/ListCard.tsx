@@ -118,13 +118,13 @@ export const ListCard: React.FC<ListCardProps> = ({
       exit={{ opacity: 0, y: -20 }}
       transition={{ duration: 0.2 }}
     >
-      <Card className={`p-4 ${colors.border} border-l-4`}>
+      <Card className={`p-3 sm:p-4 ${colors.border} border-l-4`}>
         {/* Header */}
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-3">
+        <div className="flex items-start sm:items-center justify-between mb-3 sm:mb-4 gap-2">
+          <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
             <button
               onClick={() => setIsExpanded(!isExpanded)}
-              className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
+              className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded flex-shrink-0"
             >
               {isExpanded ? (
                 <ChevronDown className="w-4 h-4 text-gray-500" />
@@ -133,30 +133,33 @@ export const ListCard: React.FC<ListCardProps> = ({
               )}
             </button>
             
-            <div className={`p-2 rounded-lg ${colors.accent}`}>
+            <div className={`p-1.5 sm:p-2 rounded-lg ${colors.accent} flex-shrink-0`}>
               {React.createElement(getIconComponent(config.icon), { 
-                className: "w-5 h-5 text-slate-600 dark:text-slate-400" 
+                className: "w-4 h-4 sm:w-5 sm:h-5 text-slate-600 dark:text-slate-400" 
               })}
             </div>
             
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+            <div className="min-w-0 flex-1">
+              <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white truncate">
                 {list.name}
               </h3>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
+              <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 truncate">
                 {getListSubtitle()}
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
             {/* Progress indicator */}
-            <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-              <span className={`px-2 py-1 rounded-full text-xs font-medium ${colors.bg} ${colors.text}`}>
+            <div className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+              <span className={`px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full text-xs font-medium ${colors.bg} ${colors.text} hidden sm:inline`}>
+                {stats.completedItems}/{stats.totalItems}
+              </span>
+              <span className={`px-1.5 py-0.5 rounded-full text-xs font-medium ${colors.bg} ${colors.text} sm:hidden`}>
                 {stats.completedItems}/{stats.totalItems}
               </span>
               {stats.totalItems > 0 && (
-                <div className="w-16 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                <div className="w-12 sm:w-16 h-1.5 sm:h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
                   <div 
                     className={`h-full ${colors.button.replace('bg-', 'bg-').replace('hover:bg-', 'bg-')} transition-all duration-300`}
                     style={{ width: `${stats.completionPercentage}%` }}
@@ -171,9 +174,9 @@ export const ListCard: React.FC<ListCardProps> = ({
                 variant="outline"
                 size="sm"
                 onClick={() => setShowMenu(!showMenu)}
-                className="p-1 h-8 w-8"
+                className="p-1 h-7 w-7 sm:h-8 sm:w-8"
               >
-                <MoreVertical className="w-4 h-4" />
+                <MoreVertical className="w-3 h-3 sm:w-4 sm:h-4" />
               </Button>
               
               {showMenu && (
@@ -214,14 +217,14 @@ export const ListCard: React.FC<ListCardProps> = ({
               transition={{ duration: 0.2 }}
               className="overflow-hidden"
             >
-              <div className="space-y-2 mb-4">
+              <div className="space-y-2 mb-3 sm:mb-4">
                 {list.items.map((item) => (
                   <motion.div
                     key={item.id}
                     initial={{ opacity: 0, x: -10 }}
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: 10 }}
-                    className="flex items-center gap-3 p-2 bg-gray-50 dark:bg-gray-700 rounded-lg group"
+                    className="flex items-center gap-2 sm:gap-3 p-2 bg-gray-50 dark:bg-gray-700 rounded-lg group"
                   >
                     <button
                       onClick={() => onToggleItem(list.id, item.id)}
@@ -235,7 +238,7 @@ export const ListCard: React.FC<ListCardProps> = ({
                     </button>
 
                     {editingItemId === item.id ? (
-                      <div className="flex-1 flex items-center gap-2">
+                      <div className="flex-1 flex items-center gap-1 sm:gap-2">
                         <input
                           type="text"
                           value={editingText}
@@ -248,7 +251,7 @@ export const ListCard: React.FC<ListCardProps> = ({
                         <Button
                           size="sm"
                           onClick={() => handleSaveEdit(item.id)}
-                          className="p-1 h-6 w-6"
+                          className="p-1 h-6 w-6 text-xs"
                         >
                           ✓
                         </Button>
@@ -256,14 +259,14 @@ export const ListCard: React.FC<ListCardProps> = ({
                           size="sm"
                           variant="outline"
                           onClick={handleCancelEdit}
-                          className="p-1 h-6 w-6"
+                          className="p-1 h-6 w-6 text-xs"
                         >
                           ✕
                         </Button>
                       </div>
                     ) : (
                       <>
-                        <div className="flex-1">
+                        <div className="flex-1 min-w-0">
                           <input
                             type="text"
                             value={item.text}
@@ -275,7 +278,7 @@ export const ListCard: React.FC<ListCardProps> = ({
                             }`}
                           />
                           {item.source && (
-                            <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                            <p className="text-xs text-gray-400 dark:text-gray-500 mt-1 truncate">
                               from: {item.source}
                             </p>
                           )}
@@ -313,16 +316,16 @@ export const ListCard: React.FC<ListCardProps> = ({
                   onChange={(e) => setNewItemText(e.target.value)}
                   onKeyPress={handleKeyPress}
                   placeholder={`Add item to ${list.name}...`}
-                  className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm"
+                  className="flex-1 px-2 sm:px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm"
                 />
                 <Button
                   onClick={handleAddItem}
                   disabled={!newItemText.trim()}
                   size="sm"
-                  className={colors.button}
+                  className={`${colors.button} text-xs sm:text-sm`}
                 >
                   <Plus className="w-3 h-3 mr-1" />
-                  Add
+                  <span className="hidden sm:inline">Add</span>
                 </Button>
               </div>
             </motion.div>
@@ -331,10 +334,10 @@ export const ListCard: React.FC<ListCardProps> = ({
 
         {/* Empty state */}
         {isExpanded && list.items.length === 0 && (
-          <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+          <div className="text-center py-6 sm:py-8 text-gray-500 dark:text-gray-400">
             <div className="flex justify-center mb-2">
               {React.createElement(getIconComponent(config.icon), { 
-                className: "w-8 h-8 text-slate-400 dark:text-slate-500" 
+                className: "w-6 h-6 sm:w-8 sm:h-8 text-slate-400 dark:text-slate-500" 
               })}
             </div>
             <p className="text-sm">No items yet</p>
