@@ -273,7 +273,14 @@ export const MealPlanningForm: React.FC<MealPlanningFormProps> = ({
       recipeId: undefined, // Clear recipe link when adding custom ingredients
       recipe: undefined
     }
-    handleSaveMealEdit(updatedMeal)
+    
+    // Update the meals and metadata without closing the modal
+    const updatedMeals = meals.map(m => m === meal ? updatedMeal : m)
+    setMeals(updatedMeals)
+    updateMetadata({ meals: updatedMeals })
+    
+    // Update the editing meal to reflect the new ingredients
+    setEditingMeal(updatedMeal)
   }
 
   const handleRemoveIngredient = (meal: MealPlanItem, ingredientIndex: number) => {
@@ -282,7 +289,14 @@ export const MealPlanningForm: React.FC<MealPlanningFormProps> = ({
       ...meal,
       ingredients: updatedIngredients
     }
-    handleSaveMealEdit(updatedMeal)
+    
+    // Update the meals and metadata without closing the modal
+    const updatedMeals = meals.map(m => m === meal ? updatedMeal : m)
+    setMeals(updatedMeals)
+    updateMetadata({ meals: updatedMeals })
+    
+    // Update the editing meal to reflect the removed ingredient
+    setEditingMeal(updatedMeal)
   }
 
 
