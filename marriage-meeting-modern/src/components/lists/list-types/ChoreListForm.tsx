@@ -3,6 +3,7 @@ import { Settings, Users } from 'lucide-react'
 import { Button } from '../../ui/Button'
 import { ListMetadata } from '../../../types/marriageTypes'
 import { getChoreSuggestions } from '../../../lib/listHelpers'
+import { useSettingsStore } from '../../../stores/settingsStore'
 
 interface ChoreListFormProps {
   metadata: ListMetadata
@@ -32,9 +33,11 @@ export const ChoreListForm: React.FC<ChoreListFormProps> = ({
   onMetadataChange,
   onClose
 }) => {
+  const { settings } = useSettingsStore()
   const [frequency, setFrequency] = useState(metadata.frequency || 'weekly')
   const [selectedCategories, setSelectedCategories] = useState<string[]>([])
   const [selectedSuggestions, setSelectedSuggestions] = useState<string[]>(metadata.selectedSuggestions || [])
+  const [defaultAssignment, setDefaultAssignment] = useState<'both' | 'spouse1' | 'spouse2'>(metadata.defaultAssignment || 'both')
 
   const handleFrequencyChange = (newFrequency: string) => {
     setFrequency(newFrequency)
@@ -61,6 +64,14 @@ export const ChoreListForm: React.FC<ChoreListFormProps> = ({
     onMetadataChange({
       ...metadata,
       selectedSuggestions: updated
+    })
+  }
+
+  const handleAssignmentChange = (assignment: 'both' | 'spouse1' | 'spouse2') => {
+    setDefaultAssignment(assignment)
+    onMetadataChange({
+      ...metadata,
+      defaultAssignment: assignment
     })
   }
 
@@ -215,16 +226,66 @@ export const ChoreListForm: React.FC<ChoreListFormProps> = ({
         </div>
       )}
 
-      {/* Assignment Info */}
-      <div className="p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg">
-        <div className="flex items-center gap-2 mb-2">
-          <Users className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-          <h4 className="text-sm font-medium text-blue-800 dark:text-blue-200">
-            Assignment
-          </h4>
+      {/* Assignment Selection */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          Default Assignment
+        </label>
+        <div className="grid grid-cols-3 gap-2">
+          <button
+            onClick={() => handleAssignmentChange('both')}
+            className={`
+              p-3 rounded-lg border-2 transition-all duration-200 text-center
+              ${defaultAssignment === 'both'
+                ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+                : 'border-gray-200 dark:border-gray-600 hover:border-blue-300 dark:hover:border-blue-600'
+              }
+            `}
+          >
+            <div className="flex flex-col items-center gap-1">
+              <span className="text-lg">👥</span>
+              <span className="text-xs font-medium text-gray-900 dark:text-white">
+                Both
+              </span>
+            </div>
+          </button>
+          <button
+            onClick={() => handleAssignmentChange('spouse1')}
+            className={`
+              p-3 rounded-lg border-2 transition-all duration-200 text-center
+              ${defaultAssignment === 'spouse1'
+                ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+                : 'border-gray-200 dark:border-gray-600 hover:border-blue-300 dark:hover:border-blue-600'
+              }
+            `}
+          >
+            <div className="flex flex-col items-center gap-1">
+              <span className="text-lg">👤</span>
+              <span className="text-xs font-medium text-gray-900 dark:text-white">
+                {settings.spouse1?.name || 'Spouse 1'}
+              </span>
+            </div>
+          </button>
+          <button
+            onClick={() => handleAssignmentChange('spouse2')}
+            className={`
+              p-3 rounded-lg border-2 transition-all duration-200 text-center
+              ${defaultAssignment === 'spouse2'
+                ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+                : 'border-gray-200 dark:border-gray-600 hover:border-blue-300 dark:hover:border-blue-600'
+              }
+            `}
+          >
+            <div className="flex flex-col items-center gap-1">
+              <span className="text-lg">👤</span>
+              <span className="text-xs font-medium text-gray-900 dark:text-white">
+                {settings.spouse2?.name || 'Spouse 2'}
+              </span>
+            </div>
+          </button>
         </div>
-        <p className="text-xs text-blue-600 dark:text-blue-400">
-          You can assign chores to specific family members when adding items to the list
+        <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+          Set the default assignment for chores. You can change individual assignments later.
         </p>
       </div>
     </div>

@@ -146,6 +146,7 @@ export interface ListMetadata {
   
   // For chores
   frequency?: 'daily' | 'weekly' | 'monthly'
+  defaultAssignment?: 'both' | 'spouse1' | 'spouse2' // Default assignment for chore items
   
   // For suggestions
   selectedSuggestions?: string[] // Items selected from suggestions
@@ -155,6 +156,7 @@ export interface ListMetadata {
 export interface CustomListItem extends ListItem {
   source?: string  // e.g., "Spaghetti Dinner - Monday"
   category?: string  // e.g., "produce", "dairy", "cleaning"
+  assignedTo?: 'both' | 'spouse1' | 'spouse2' // who's responsible for this item
 }
 
 // Custom List

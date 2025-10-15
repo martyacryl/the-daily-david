@@ -84,7 +84,8 @@ export const createNewList = (
       text: suggestion,
       completed: false,
       source: 'suggestions',
-      category: listType === 'packing' ? metadata.tripType : 'chore'
+      category: listType === 'packing' ? metadata.tripType : 'chore',
+      assignedTo: listType === 'chore' ? metadata.defaultAssignment : undefined
     }))
     items = [...items, ...suggestionItems]
   }
@@ -104,14 +105,16 @@ export const createNewList = (
 export const createNewListItem = (
   text: string,
   source?: string,
-  category?: string
+  category?: string,
+  assignedTo?: 'both' | 'spouse1' | 'spouse2'
 ): CustomListItem => {
   return {
     id: Date.now(),
     text,
     completed: false,
     source,
-    category
+    category,
+    assignedTo
   }
 }
 
@@ -138,7 +141,8 @@ export const getDefaultMetadata = (listType: CustomListType): ListMetadata => {
       }
     case 'chore':
       return {
-        frequency: 'weekly'
+        frequency: 'weekly',
+        defaultAssignment: 'both'
       }
     default:
       return {}

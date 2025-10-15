@@ -20,6 +20,7 @@ import { Card } from '../ui/Card'
 import { Button } from '../ui/Button'
 import { CustomList, CustomListItem, CustomListType } from '../../types/marriageTypes'
 import { getListTypeConfig, getListTypeColorClasses, getListStats, createNewListItem } from '../../lib/listHelpers'
+import { useSettingsStore } from '../../stores/settingsStore'
 
 interface ListCardProps {
   list: CustomList
@@ -42,6 +43,7 @@ export const ListCard: React.FC<ListCardProps> = ({
   onToggleItem,
   onDeleteItem
 }) => {
+  const { settings } = useSettingsStore()
   const [isExpanded, setIsExpanded] = useState(true)
   const [newItemText, setNewItemText] = useState('')
   const [editingItemId, setEditingItemId] = useState<number | null>(null)
@@ -64,10 +66,25 @@ export const ListCard: React.FC<ListCardProps> = ({
     return iconMap[iconName as keyof typeof iconMap] || List
   }
 
+  const getAssignmentText = (assignedTo?: 'both' | 'spouse1' | 'spouse2') => {
+    if (!assignedTo) return null
+    switch (assignedTo) {
+      case 'both':
+        return '👥 Both'
+      case 'spouse1':
+        return `👤 ${settings.spouse1?.name || 'Spouse 1'}`
+      case 'spouse2':
+        return `👤 ${settings.spouse2?.name || 'Spouse 2'}`
+      default:
+        return null
+    }
+  }
+
   const handleAddItem = () => {
     if (!newItemText.trim()) return
     
-    const newItem = createNewListItem(newItemText.trim())
+    const assignedTo = list.listType === 'chore' ? list.metadata.defaultAssignment : undefined
+    const newItem = createNewListItem(newItemText.trim(), undefined, undefined, assignedTo)
     onAddItem(list.id, newItem)
     setNewItemText('')
   }
@@ -279,11 +296,18 @@ export const ListCard: React.FC<ListCardProps> = ({
                                 : 'text-gray-800 dark:text-white'
                             }`}
                           />
-                          {item.source && (
-                            <p className="text-xs text-gray-400 dark:text-gray-500 mt-1 truncate">
-                              from: {item.source}
-                            </p>
-                          )}
+                          <div className="flex flex-col gap-1 mt-1">
+                            {item.source && (
+                              <p className="text-xs text-gray-400 dark:text-gray-500 truncate">
+                                from: {item.source}
+                              </p>
+                            )}
+                            {list.listType === 'chore' && item.assignedTo && (
+                              <p className="text-xs text-blue-600 dark:text-blue-400 truncate">
+                                {getAssignmentText(item.assignedTo)}
+                              </p>
+                            )}
+                          </div>
                         </div>
                         
                         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
