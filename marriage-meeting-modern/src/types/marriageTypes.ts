@@ -102,11 +102,27 @@ export interface GroceryStoreList {
   items: ListItem[]
 }
 
+// Recipe Item
+export interface RecipeItem {
+  id: string
+  name: string
+  ingredients: string[]
+  instructions?: string
+  source?: string // URL or cookbook reference
+  servings?: number
+  prepTime?: number // in minutes
+  cookTime?: number // in minutes
+}
+
 // Meal Plan Item
 export interface MealPlanItem {
   day: DayName
   mealType: 'breakfast' | 'lunch' | 'dinner' | 'snack'
   mealName: string
+  ingredients?: string[] // Custom ingredients for this meal
+  recipeId?: string // Link to a recipe
+  recipe?: RecipeItem // Embedded recipe data
+  servings?: number // How many servings for this meal
 }
 
 // List Metadata
@@ -122,6 +138,7 @@ export interface ListMetadata {
   // For meal planning
   weekStart?: string  // ISO date
   meals?: MealPlanItem[]
+  recipes?: RecipeItem[] // Saved recipes
   
   // For errands
   location?: string

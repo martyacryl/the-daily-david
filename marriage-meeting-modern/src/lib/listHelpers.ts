@@ -227,20 +227,10 @@ export const getChoreSuggestions = (category: string): string[] => {
 export const generateGroceryFromMealPlan = (meals: MealPlanItem[]): CustomListItem[] => {
   const groceryItems: CustomListItem[] = []
   
-  // Simple ingredient mapping (in a real app, this would be more sophisticated)
-  const ingredientMap: Record<string, string[]> = {
-    'Pancakes': ['Flour', 'Eggs', 'Milk', 'Butter', 'Syrup'],
-    'Spaghetti': ['Pasta', 'Tomato sauce', 'Ground beef', 'Onion', 'Garlic'],
-    'Chicken breast': ['Chicken breast', 'Olive oil', 'Salt', 'Pepper'],
-    'Salad': ['Lettuce', 'Tomatoes', 'Cucumber', 'Dressing'],
-    'Sandwich': ['Bread', 'Deli meat', 'Cheese', 'Lettuce', 'Mayo'],
-    'Eggs and toast': ['Eggs', 'Bread', 'Butter'],
-    'Oatmeal': ['Oats', 'Milk', 'Brown sugar', 'Berries'],
-    'Smoothie': ['Banana', 'Berries', 'Yogurt', 'Milk', 'Honey']
-  }
-  
   meals.forEach(meal => {
-    const ingredients = ingredientMap[meal.mealName] || []
+    // Use actual ingredients from the meal if available
+    const ingredients = meal.ingredients || []
+    
     ingredients.forEach(ingredient => {
       // Check if ingredient already exists
       const existingItem = groceryItems.find(item => 
@@ -248,16 +238,38 @@ export const generateGroceryFromMealPlan = (meals: MealPlanItem[]): CustomListIt
       )
       
       if (!existingItem) {
+        // Determine category based on ingredient type
+        let category = 'produce'
+        const ingredientLower = ingredient.toLowerCase()
+        
+        if (ingredientLower.includes('meat') || ingredientLower.includes('chicken') || ingredientLower.includes('beef') || ingredientLower.includes('pork') || ingredientLower.includes('fish')) {
+          category = 'meat'
+        } else if (ingredientLower.includes('milk') || ingredientLower.includes('cheese') || ingredientLower.includes('yogurt') || ingredientLower.includes('butter') || ingredientLower.includes('cream')) {
+          category = 'dairy'
+        } else if (ingredientLower.includes('bread') || ingredientLower.includes('pasta') || ingredientLower.includes('rice') || ingredientLower.includes('flour') || ingredientLower.includes('oats')) {
+          category = 'grains'
+        } else if (ingredientLower.includes('oil') || ingredientLower.includes('vinegar') || ingredientLower.includes('sauce') || ingredientLower.includes('spice') || ingredientLower.includes('salt') || ingredientLower.includes('pepper')) {
+          category = 'pantry'
+        } else if (ingredientLower.includes('frozen') || ingredientLower.includes('ice cream')) {
+          category = 'frozen'
+        }
+        
         groceryItems.push(createNewListItem(
           ingredient,
           `${meal.mealName} - ${meal.day}`,
-          'produce'
+          category
         ))
       }
     })
   })
   
-  return groceryItems
+  // Sort by category for better organization
+  const categoryOrder = ['produce', 'meat', 'dairy', 'grains', 'pantry', 'frozen']
+  return groceryItems.sort((a, b) => {
+    const aIndex = categoryOrder.indexOf(a.category || 'produce')
+    const bIndex = categoryOrder.indexOf(b.category || 'produce')
+    return aIndex - bIndex
+  })
 }
 
 // Get list type color classes for styling
