@@ -119,6 +119,9 @@ export const CreateListModal: React.FC<CreateListModalProps> = ({
               </p>
             </div>
 
+            <div className="mb-2 p-2 bg-yellow-100 dark:bg-yellow-900/20 rounded text-xs font-mono">
+              Debug: Available list types: {listTypes.map(t => t.type).join(', ')}
+            </div>
             <div className="grid grid-cols-1 gap-2 sm:gap-3">
               {listTypes.map((type) => (
                 <motion.button
@@ -207,11 +210,16 @@ export const CreateListModal: React.FC<CreateListModalProps> = ({
                 />
               )}
               {selectedType === 'meal-planning' && (
-                <MealPlanningForm
-                  metadata={metadata}
-                  onMetadataChange={handleMetadataChange}
-                  onClose={handleClose}
-                />
+                <div>
+                  <div className="mb-2 p-2 bg-blue-100 dark:bg-blue-900/20 rounded text-xs font-mono">
+                    Debug: Meal Planning Form Loading - selectedType: {selectedType}
+                  </div>
+                  <MealPlanningForm
+                    metadata={metadata}
+                    onMetadataChange={handleMetadataChange}
+                    onClose={handleClose}
+                  />
+                </div>
               )}
               {selectedType === 'errand' && (
                 <ErrandListForm
