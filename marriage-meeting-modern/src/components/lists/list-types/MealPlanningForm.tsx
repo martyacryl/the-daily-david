@@ -35,6 +35,12 @@ export const MealPlanningForm: React.FC<MealPlanningFormProps> = ({
       setMeals(metadata.meals)
     }
   }, [metadata.recipes, metadata.meals])
+
+  // Helper function to update metadata and trigger parent callback
+  const updateMetadata = (updates: Partial<ListMetadata>) => {
+    const newMetadata = { ...metadata, ...updates }
+    onMetadataChange(newMetadata)
+  }
   const [selectedDay, setSelectedDay] = useState<DayName>('Monday')
   const [selectedMealType, setSelectedMealType] = useState<'breakfast' | 'lunch' | 'dinner' | 'snack'>('dinner')
   const [newMealName, setNewMealName] = useState('')
@@ -96,10 +102,7 @@ export const MealPlanningForm: React.FC<MealPlanningFormProps> = ({
 
     const updatedMeals = [...meals, newMeal]
     setMeals(updatedMeals)
-    onMetadataChange({
-      ...metadata,
-      meals: updatedMeals
-    })
+    updateMetadata({ meals: updatedMeals })
 
     setNewMealName('')
     setShowSuggestions(false)
@@ -108,10 +111,7 @@ export const MealPlanningForm: React.FC<MealPlanningFormProps> = ({
   const handleRemoveMeal = (index: number) => {
     const updatedMeals = meals.filter((_, i) => i !== index)
     setMeals(updatedMeals)
-    onMetadataChange({
-      ...metadata,
-      meals: updatedMeals
-    })
+    updateMetadata({ meals: updatedMeals })
   }
 
   const handleEditMeal = (meal: MealPlanItem) => {
@@ -123,10 +123,7 @@ export const MealPlanningForm: React.FC<MealPlanningFormProps> = ({
       meal === editingMeal ? updatedMeal : meal
     )
     setMeals(updatedMeals)
-    onMetadataChange({
-      ...metadata,
-      meals: updatedMeals
-    })
+    updateMetadata({ meals: updatedMeals })
     setEditingMeal(null)
   }
 
@@ -168,10 +165,7 @@ export const MealPlanningForm: React.FC<MealPlanningFormProps> = ({
 
     const updatedRecipes = [...recipes, recipe]
     setRecipes(updatedRecipes)
-    onMetadataChange({
-      ...metadata,
-      recipes: updatedRecipes
-    })
+    updateMetadata({ recipes: updatedRecipes })
 
     // Show success message
     alert(`Recipe "${recipe.name}" created successfully with ${recipe.ingredients.length} ingredients!`)
@@ -223,10 +217,7 @@ export const MealPlanningForm: React.FC<MealPlanningFormProps> = ({
 
     const updatedRecipes = recipes.map(r => r.id === editingRecipe.id ? updatedRecipe : r)
     setRecipes(updatedRecipes)
-    onMetadataChange({
-      ...metadata,
-      recipes: updatedRecipes
-    })
+    updateMetadata({ recipes: updatedRecipes })
 
     // Reset form
     setEditingRecipe(null)
@@ -247,10 +238,7 @@ export const MealPlanningForm: React.FC<MealPlanningFormProps> = ({
     if (confirm('Are you sure you want to delete this recipe?')) {
       const updatedRecipes = recipes.filter(r => r.id !== recipeId)
       setRecipes(updatedRecipes)
-      onMetadataChange({
-        ...metadata,
-        recipes: updatedRecipes
-      })
+      updateMetadata({ recipes: updatedRecipes })
     }
   }
 
@@ -310,10 +298,7 @@ export const MealPlanningForm: React.FC<MealPlanningFormProps> = ({
     }
 
     // Store the generated grocery items in metadata
-    onMetadataChange({
-      ...metadata,
-      generatedGroceryItems: groceryItems
-    })
+    updateMetadata({ generatedGroceryItems: groceryItems })
 
     alert(`Generated ${groceryItems.length} grocery items from your meal plan!`)
   }
