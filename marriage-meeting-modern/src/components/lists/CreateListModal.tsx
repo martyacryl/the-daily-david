@@ -289,7 +289,7 @@ export const CreateListModal: React.FC<CreateListModalProps> = ({
           </div>
 
           {/* Footer */}
-          <div className="flex-shrink-0 flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-3 p-4 sm:p-6 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+          <div className="flex-shrink-0 flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-3 p-3 sm:p-6 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
             <div className="flex items-center gap-2">
               {[1, 2].map((stepNum) => (
                 <div
@@ -306,7 +306,7 @@ export const CreateListModal: React.FC<CreateListModalProps> = ({
                 onClick={handleClose}
                 variant="outline"
                 size="sm"
-                className="flex-1 sm:flex-none"
+                className="flex-1 sm:flex-none text-sm font-medium px-4 py-2"
               >
                 Cancel
               </Button>
@@ -316,7 +316,7 @@ export const CreateListModal: React.FC<CreateListModalProps> = ({
                   onClick={handleBack}
                   variant="outline"
                   size="sm"
-                  className="flex-1 sm:flex-none"
+                  className="flex-1 sm:flex-none text-sm font-medium px-4 py-2"
                 >
                   <ChevronLeft className="w-4 h-4 mr-1" />
                   Back
@@ -326,8 +326,8 @@ export const CreateListModal: React.FC<CreateListModalProps> = ({
               <Button
                 onClick={step === 1 ? () => setStep(2) : handleCreate}
                 disabled={!canProceed()}
-                className="bg-blue-600 hover:bg-blue-700 flex-1 sm:flex-none text-base font-semibold"
-                size="lg"
+                className="bg-blue-600 hover:bg-blue-700 flex-1 sm:flex-none text-sm font-medium px-4 py-2"
+                size="sm"
               >
                 {step === 1 ? (
                   <>

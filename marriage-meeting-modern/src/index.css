@@ -16,6 +16,11 @@
   * {
     @apply border-gray-200;
   }
+  
+  /* Prevent zoom on input focus on mobile */
+  input, textarea, select {
+    font-size: 16px !important;
+  }
 }
 
 @layer components {
