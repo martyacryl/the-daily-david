@@ -109,23 +109,23 @@ export const CreateListModal: React.FC<CreateListModalProps> = ({
     switch (step) {
       case 1:
         return (
-          <div className="space-y-4">
-            <div className="text-center mb-6">
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+          <div className="space-y-3 sm:space-y-4">
+            <div className="text-center mb-4 sm:mb-6">
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-2">
                 Create New List
               </h2>
-              <p className="text-gray-600 dark:text-gray-400">
+              <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
                 Choose the type of list you want to create
               </p>
             </div>
 
-            <div className="grid grid-cols-1 gap-3">
+            <div className="grid grid-cols-1 gap-2 sm:gap-3">
               {listTypes.map((type) => (
                 <motion.button
                   key={type.type}
                   onClick={() => handleTypeSelect(type.type)}
                   className={`
-                    p-4 rounded-lg border-2 transition-all duration-200 text-left
+                    p-3 sm:p-4 rounded-lg border-2 transition-all duration-200 text-left
                     ${selectedType === type.type
                       ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
                       : 'border-gray-200 dark:border-gray-600 hover:border-blue-300 dark:hover:border-blue-600 hover:bg-gray-50 dark:hover:bg-gray-700'
@@ -134,15 +134,15 @@ export const CreateListModal: React.FC<CreateListModalProps> = ({
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                 >
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2 sm:gap-3">
                     {React.createElement(getIconComponent(type.icon), { 
-                      className: "w-6 h-6 text-slate-600 dark:text-slate-400" 
+                      className: "w-5 h-5 sm:w-6 sm:h-6 text-slate-600 dark:text-slate-400 flex-shrink-0" 
                     })}
-                    <div>
-                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                    <div className="min-w-0 flex-1">
+                      <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">
                         {type.label}
                       </h3>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                      <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
                         {type.description}
                       </p>
                     </div>
@@ -157,19 +157,19 @@ export const CreateListModal: React.FC<CreateListModalProps> = ({
         if (!selectedType) return null
 
         return (
-          <div className="space-y-4">
-            <div className="flex items-center gap-3 mb-6">
+          <div className="space-y-3 sm:space-y-4">
+            <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
               <button
                 onClick={handleBack}
-                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors flex-shrink-0"
               >
                 <ChevronLeft className="w-5 h-5 text-gray-600 dark:text-gray-400" />
               </button>
-              <div>
-                <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+              <div className="min-w-0 flex-1">
+                <h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">
                   Configure {getListTypeConfig(selectedType).label} List
                 </h2>
-                <p className="text-gray-600 dark:text-gray-400">
+                <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
                   Set up your list details
                 </p>
               </div>
@@ -185,7 +185,7 @@ export const CreateListModal: React.FC<CreateListModalProps> = ({
                 value={listName}
                 onChange={(e) => setListName(e.target.value)}
                 placeholder={`Enter ${getListTypeConfig(selectedType).label.toLowerCase()} list name...`}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm sm:text-base"
                 autoFocus
               />
             </div>
@@ -244,37 +244,37 @@ export const CreateListModal: React.FC<CreateListModalProps> = ({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+        className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4"
         onClick={(e) => e.target === e.currentTarget && handleClose()}
       >
         <motion.div
           initial={{ scale: 0.95, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.95, opacity: 0 }}
-          className="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+          className="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-2xl w-full max-h-[95vh] sm:max-h-[90vh] overflow-y-auto"
         >
           {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
-            <div className="flex items-center gap-3">
+          <div className="flex items-center justify-between p-3 sm:p-6 border-b border-gray-200 dark:border-gray-700">
+            <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
               {selectedType && (
                 React.createElement(getIconComponent(getListTypeConfig(selectedType).icon), { 
-                  className: "w-6 h-6 text-slate-600 dark:text-slate-400" 
+                  className: "w-5 h-5 sm:w-6 sm:h-6 text-slate-600 dark:text-slate-400 flex-shrink-0" 
                 })
               )}
-              <h1 className="text-xl font-semibold text-gray-900 dark:text-white">
+              <h1 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white truncate">
                 {step === 1 ? 'Create New List' : `Create ${selectedType ? getListTypeConfig(selectedType).label : ''} List`}
               </h1>
             </div>
             <button
               onClick={handleClose}
-              className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+              className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors flex-shrink-0"
             >
               <X className="w-5 h-5 text-gray-600 dark:text-gray-400" />
             </button>
           </div>
 
           {/* Content */}
-          <div className="p-6">
+          <div className="p-3 sm:p-6">
             <AnimatePresence mode="wait">
               <motion.div
                 key={step}
@@ -289,7 +289,7 @@ export const CreateListModal: React.FC<CreateListModalProps> = ({
           </div>
 
           {/* Footer */}
-          <div className="flex items-center justify-between p-6 border-t border-gray-200 dark:border-gray-700">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-3 sm:p-6 border-t border-gray-200 dark:border-gray-700">
             <div className="flex items-center gap-2">
               {[1, 2].map((stepNum) => (
                 <div
@@ -301,10 +301,12 @@ export const CreateListModal: React.FC<CreateListModalProps> = ({
               ))}
             </div>
             
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
               <Button
                 onClick={handleClose}
                 variant="outline"
+                size="sm"
+                className="flex-1 sm:flex-none"
               >
                 Cancel
               </Button>
@@ -313,6 +315,8 @@ export const CreateListModal: React.FC<CreateListModalProps> = ({
                 <Button
                   onClick={handleBack}
                   variant="outline"
+                  size="sm"
+                  className="flex-1 sm:flex-none"
                 >
                   <ChevronLeft className="w-4 h-4 mr-1" />
                   Back
@@ -322,7 +326,8 @@ export const CreateListModal: React.FC<CreateListModalProps> = ({
               <Button
                 onClick={step === 1 ? () => setStep(2) : handleCreate}
                 disabled={!canProceed()}
-                className="bg-blue-600 hover:bg-blue-700"
+                className="bg-blue-600 hover:bg-blue-700 flex-1 sm:flex-none"
+                size="sm"
               >
                 {step === 1 ? (
                   <>
