@@ -583,14 +583,17 @@ export const MealPlanningForm: React.FC<MealPlanningFormProps> = ({
       </div>
 
       {/* Weekly Meal Plan Grid */}
-      <div>
-        <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-3">Weekly Plan</h4>
-        <div className="space-y-2">
+      <div className="p-4 bg-slate-50 dark:bg-slate-900/20 border border-slate-200 dark:border-slate-700 rounded-lg">
+        <div className="flex items-center gap-2 mb-4">
+          <Calendar className="w-4 h-4 text-slate-600 dark:text-slate-400" />
+          <h4 className="text-sm font-medium text-gray-900 dark:text-white">Weekly Plan</h4>
+        </div>
+        <div className="space-y-3">
           {days.map(day => {
             const dayMeals = getMealsForDay(day)
             return (
-              <div key={day} className="p-2 sm:p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                <h5 className="text-sm font-medium text-gray-900 dark:text-white mb-2">{day}</h5>
+              <div key={day} className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600">
+                <h5 className="text-sm font-medium text-gray-900 dark:text-white mb-3">{day}</h5>
                 {dayMeals.length === 0 ? (
                   <p className="text-xs text-gray-500 dark:text-gray-400">No meals planned</p>
                 ) : (
@@ -598,65 +601,77 @@ export const MealPlanningForm: React.FC<MealPlanningFormProps> = ({
                     {mealTypes.map(mealType => {
                       const typeMeals = getMealsForDayAndType(day, mealType.value)
                       return typeMeals.map((meal, index) => (
-                        <div key={index} className="p-2 bg-white dark:bg-gray-600 rounded border">
-                          <div className="flex items-start justify-between mb-1">
-                            <div className="flex items-center gap-1 text-gray-700 dark:text-gray-300 min-w-0 flex-1">
+                        <div key={index} className="p-3 bg-white dark:bg-gray-600 rounded-lg border border-gray-200 dark:border-gray-500">
+                          {/* Meal Header */}
+                          <div className="flex items-center gap-2 mb-2">
                             {React.createElement(getIconComponent(mealType.icon), { 
-                                className: "w-3 h-3 flex-shrink-0" 
+                                className: "w-4 h-4 text-gray-500 dark:text-gray-400" 
                             })}
-                              <span className="text-xs sm:text-sm font-medium truncate">{meal.mealName}</span>
-                              {meal.recipe && (
-                                <ChefHat className="w-3 h-3 text-green-600 dark:text-green-400 flex-shrink-0" />
-                              )}
+                            <span className="text-sm font-medium text-gray-900 dark:text-white flex-1">
+                              {meal.mealName}
+                            </span>
+                            {meal.recipe && (
+                              <div className="flex items-center gap-1 text-green-600 dark:text-green-400">
+                                <ChefHat className="w-4 h-4" />
+                                <span className="text-xs font-medium">{meal.recipe.name}</span>
+                              </div>
+                            )}
                           </div>
-                            <div className="flex items-center gap-1 flex-shrink-0 ml-2">
-                              {!meal.recipeId && recipes.length > 0 && (
-                                <select
-                                  onChange={(e) => {
-                                    const recipeId = e.target.value
-                                    if (recipeId) {
-                                      const recipe = recipes.find(r => r.id === recipeId)
-                                      if (recipe) {
-                                        handleLinkRecipe(meal, recipe)
-                                      }
-                                    }
-                                  }}
-                                  className="text-xs bg-white dark:bg-gray-600 border border-gray-300 dark:border-gray-500 rounded px-1 py-0.5"
-                                  title="Link recipe"
-                                  defaultValue=""
-                                >
-                                  <option value="">Link Recipe</option>
-                                  {recipes.map(recipe => (
-                                    <option key={recipe.id} value={recipe.id}>
+
+                          {/* Recipe Link Section */}
+                          {!meal.recipeId && recipes.length > 0 && (
+                            <div className="mb-2">
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs text-gray-500 dark:text-gray-400">Link recipe:</span>
+                                <div className="flex flex-wrap gap-1">
+                                  {recipes.slice(0, 3).map(recipe => (
+                                    <button
+                                      key={recipe.id}
+                                      onClick={() => handleLinkRecipe(meal, recipe)}
+                                      className="px-2 py-1 text-xs bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-700 rounded hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors"
+                                    >
                                       {recipe.name}
-                                    </option>
+                                    </button>
                                   ))}
-                                </select>
-                              )}
-                              <button
-                                onClick={() => handleEditMeal(meal)}
-                                className="text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 p-1"
-                                title="Edit ingredients"
-                              >
-                                <Edit3 className="w-3 h-3" />
-                              </button>
-                          <button
-                            onClick={() => handleRemoveMeal(meals.indexOf(meal))}
-                                className="text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 p-1"
-                                title="Remove meal"
-                          >
-                            <X className="w-3 h-3" />
-                          </button>
-                            </div>
-                          </div>
-                          
-                          {/* Show ingredients preview */}
-                          {(meal.ingredients && meal.ingredients.length > 0) && (
-                            <div className="text-xs text-gray-600 dark:text-gray-400">
-                              <span className="font-medium">Ingredients:</span> {meal.ingredients.slice(0, 3).join(', ')}
-                              {meal.ingredients.length > 3 && ` +${meal.ingredients.length - 3} more`}
+                                  {recipes.length > 3 && (
+                                    <span className="text-xs text-gray-500 dark:text-gray-400 px-2 py-1">
+                                      +{recipes.length - 3} more
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
                             </div>
                           )}
+
+                          {/* Ingredients Preview */}
+                          {(meal.ingredients && meal.ingredients.length > 0) && (
+                            <div className="mb-2">
+                              <div className="text-xs text-gray-600 dark:text-gray-400">
+                                <span className="font-medium">Ingredients:</span> {meal.ingredients.slice(0, 2).join(', ')}
+                                {meal.ingredients.length > 2 && ` +${meal.ingredients.length - 2} more`}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Action Buttons */}
+                          <div className="flex items-center justify-end gap-2">
+                            <button
+                              onClick={() => handleEditMeal(meal)}
+                              className="px-2 py-1 text-xs bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors flex items-center gap-1"
+                              title="Edit ingredients"
+                            >
+                              <Edit3 className="w-3 h-3" />
+                              Edit
+                            </button>
+                            <button
+                              onClick={() => handleRemoveMeal(meals.indexOf(meal))}
+                              className="px-2 py-1 text-xs bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors flex items-center gap-1"
+                              title="Remove meal"
+                            >
+                              <X className="w-3 h-3" />
+                              Remove
+                            </button>
+                          </div>
                         </div>
                       ))
                     })}
@@ -669,26 +684,34 @@ export const MealPlanningForm: React.FC<MealPlanningFormProps> = ({
       </div>
 
       {/* Recipe Management */}
-      <div className="p-3 sm:p-4 bg-slate-50 dark:bg-slate-900/20 border border-slate-200 dark:border-slate-700 rounded-lg">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
-          <h4 className="text-sm font-medium text-gray-900 dark:text-white">Recipes</h4>
+      <div className="p-4 bg-slate-50 dark:bg-slate-900/20 border border-slate-200 dark:border-slate-700 rounded-lg">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+          <div>
+            <h4 className="text-sm font-medium text-gray-900 dark:text-white">Recipe Store</h4>
+            <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+              {recipes.length} recipe{recipes.length !== 1 ? 's' : ''} available
+            </p>
+          </div>
           <Button
             onClick={() => setShowRecipeForm(!showRecipeForm)}
             size="sm"
             variant="outline"
-            className="w-full sm:w-auto"
+            className="w-full sm:w-auto bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700"
           >
-            <ChefHat className="w-4 h-4 mr-1" />
+            <ChefHat className="w-4 h-4 mr-2" />
             {showRecipeForm ? 'Cancel' : 'Add Recipe'}
           </Button>
         </div>
 
         {/* Recipe Form */}
         {showRecipeForm && (
-          <div className="space-y-3 mb-4 p-3 sm:p-4 bg-white dark:bg-gray-800 rounded border">
-            <h5 className="text-sm font-medium text-gray-900 dark:text-white">
-              {editingRecipe ? 'Edit Recipe' : 'Create New Recipe'}
-            </h5>
+          <div className="space-y-4 mb-4 p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600">
+            <div className="flex items-center gap-2">
+              <ChefHat className="w-4 h-4 text-slate-600 dark:text-slate-400" />
+              <h5 className="text-sm font-medium text-gray-900 dark:text-white">
+                {editingRecipe ? 'Edit Recipe' : 'Create New Recipe'}
+              </h5>
+            </div>
             
             {/* Recipe Name */}
             <input
@@ -829,42 +852,47 @@ export const MealPlanningForm: React.FC<MealPlanningFormProps> = ({
                 <p className="text-xs text-gray-400 dark:text-gray-500">Create your first recipe above!</p>
               </div>
             ) : (
-              recipes.map(recipe => (
-                <div key={recipe.id} className="p-3 bg-white dark:bg-gray-600 rounded border border-gray-200 dark:border-gray-500">
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
-                        {recipe.name}
-                      </p>
-                      <p className="text-xs text-gray-600 dark:text-gray-400">
-                        {recipe.ingredients.length} ingredients • {recipe.servings} servings
-                      </p>
-                      {recipe.ingredients.length > 0 && (
-                        <p className="text-xs text-gray-500 dark:text-gray-500 truncate mt-1">
-                          <span className="font-medium">Ingredients:</span> {recipe.ingredients.slice(0, 3).join(', ')}
-                          {recipe.ingredients.length > 3 && ` +${recipe.ingredients.length - 3} more`}
+              <div className="grid gap-3">
+                {recipes.map(recipe => (
+                  <div key={recipe.id} className="p-3 bg-white dark:bg-gray-600 rounded-lg border border-gray-200 dark:border-gray-500 hover:shadow-sm transition-shadow">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <ChefHat className="w-4 h-4 text-green-600 dark:text-green-400 flex-shrink-0" />
+                          <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                            {recipe.name}
+                          </p>
+                        </div>
+                        <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">
+                          {recipe.ingredients.length} ingredients • {recipe.servings} servings
                         </p>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-1 ml-2">
-                      <button
-                        onClick={() => handleEditRecipe(recipe)}
-                        className="text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 p-1"
-                        title="Edit recipe"
-                      >
-                        <Edit3 className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => handleDeleteRecipe(recipe.id)}
-                        className="text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 p-1"
-                        title="Delete recipe"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
+                        {recipe.ingredients.length > 0 && (
+                          <p className="text-xs text-gray-500 dark:text-gray-500 truncate">
+                            <span className="font-medium">Ingredients:</span> {recipe.ingredients.slice(0, 2).join(', ')}
+                            {recipe.ingredients.length > 2 && ` +${recipe.ingredients.length - 2} more`}
+                          </p>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-1 ml-3 flex-shrink-0">
+                        <button
+                          onClick={() => handleEditRecipe(recipe)}
+                          className="px-2 py-1 text-xs bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors"
+                          title="Edit recipe"
+                        >
+                          <Edit3 className="w-3 h-3" />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteRecipe(recipe.id)}
+                          className="px-2 py-1 text-xs bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors"
+                          title="Delete recipe"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))
+                ))}
+              </div>
             )}
           </div>
         </div>
