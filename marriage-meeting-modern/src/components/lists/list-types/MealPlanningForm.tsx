@@ -500,6 +500,21 @@ export const MealPlanningForm: React.FC<MealPlanningFormProps> = ({
         </div>
       </div>
 
+      {/* Quick Recipe Status */}
+      {recipes.length > 0 && (
+        <div className="p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 rounded-lg">
+          <div className="flex items-center gap-2 mb-1">
+            <ChefHat className="w-4 h-4 text-green-600 dark:text-green-400" />
+            <span className="text-sm font-medium text-green-800 dark:text-green-200">
+              Recipe Store ({recipes.length} recipes)
+            </span>
+          </div>
+          <p className="text-xs text-green-700 dark:text-green-300">
+            {recipes.map(r => r.name).join(', ')}
+          </p>
+        </div>
+      )}
+
       {/* Week Selection */}
       <div>
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -829,54 +844,70 @@ export const MealPlanningForm: React.FC<MealPlanningFormProps> = ({
         )}
 
         {/* Saved Recipes */}
-        <div className="mb-2 p-2 bg-yellow-100 dark:bg-yellow-900/20 rounded text-xs font-mono">
-          <div>Debug: {recipes.length} recipes in state, {metadata.recipes?.length || 0} in metadata</div>
-          <div>Meals with recipes: {meals.filter(m => m.recipeId).length}</div>
-          <div>Total meals: {meals.length}</div>
-          {recipes.length > 0 && (
-            <div>Recipe names: {recipes.map(r => r.name).join(', ')}</div>
-          )}
-        </div>
-        {recipes.length > 0 && (
+        <div className="mb-3">
+          <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-2 flex items-center gap-2">
+            <ChefHat className="w-4 h-4" />
+            Saved Recipes ({recipes.length})
+          </h4>
+          
+          {/* Debug Info */}
+          <div className="mb-2 p-2 bg-yellow-100 dark:bg-yellow-900/20 rounded text-xs font-mono">
+            <div>Debug: {recipes.length} recipes in state, {metadata.recipes?.length || 0} in metadata</div>
+            <div>Meals with recipes: {meals.filter(m => m.recipeId).length}</div>
+            <div>Total meals: {meals.length}</div>
+            {recipes.length > 0 && (
+              <div>Recipe names: {recipes.map(r => r.name).join(', ')}</div>
+            )}
+          </div>
+
+          {/* Always show recipes section, even if empty */}
           <div className="space-y-2">
-            {recipes.map(recipe => (
-              <div key={recipe.id} className="p-2 bg-white dark:bg-gray-600 rounded border">
-                <div className="flex items-center justify-between">
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
-                      {recipe.name}
-                    </p>
-                    <p className="text-xs text-gray-600 dark:text-gray-400">
-                      {recipe.ingredients.length} ingredients • {recipe.servings} servings
-                    </p>
-                    {recipe.ingredients.length > 0 && (
-                      <p className="text-xs text-gray-500 dark:text-gray-500 truncate">
-                        {recipe.ingredients.slice(0, 3).join(', ')}
-                        {recipe.ingredients.length > 3 && '...'}
+            {recipes.length === 0 ? (
+              <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded border border-dashed border-gray-300 dark:border-gray-600 text-center">
+                <ChefHat className="w-8 h-8 text-gray-400 dark:text-gray-500 mx-auto mb-2" />
+                <p className="text-sm text-gray-500 dark:text-gray-400">No recipes created yet</p>
+                <p className="text-xs text-gray-400 dark:text-gray-500">Create your first recipe above!</p>
+              </div>
+            ) : (
+              recipes.map(recipe => (
+                <div key={recipe.id} className="p-3 bg-white dark:bg-gray-600 rounded border border-gray-200 dark:border-gray-500">
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                        {recipe.name}
                       </p>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-1 ml-2">
-                    <button
-                      onClick={() => handleEditRecipe(recipe)}
-                      className="text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 p-1"
-                      title="Edit recipe"
-                    >
-                      <Edit3 className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={() => handleDeleteRecipe(recipe.id)}
-                      className="text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 p-1"
-                      title="Delete recipe"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
+                      <p className="text-xs text-gray-600 dark:text-gray-400">
+                        {recipe.ingredients.length} ingredients • {recipe.servings} servings
+                      </p>
+                      {recipe.ingredients.length > 0 && (
+                        <p className="text-xs text-gray-500 dark:text-gray-500 truncate mt-1">
+                          <span className="font-medium">Ingredients:</span> {recipe.ingredients.slice(0, 3).join(', ')}
+                          {recipe.ingredients.length > 3 && ` +${recipe.ingredients.length - 3} more`}
+                        </p>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-1 ml-2">
+                      <button
+                        onClick={() => handleEditRecipe(recipe)}
+                        className="text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 p-1"
+                        title="Edit recipe"
+                      >
+                        <Edit3 className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteRecipe(recipe.id)}
+                        className="text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 p-1"
+                        title="Delete recipe"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
-        )}
+        </div>
       </div>
 
       {/* Summary and Actions */}
