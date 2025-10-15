@@ -68,14 +68,11 @@ export const ChoreListForm: React.FC<ChoreListFormProps> = ({
   }
 
   const handleAssignmentChange = (assignment: 'both' | 'spouse1' | 'spouse2') => {
-    console.log('ChoreListForm: Setting defaultAssignment to', assignment)
     setDefaultAssignment(assignment)
-    const newMetadata = {
+    onMetadataChange({
       ...metadata,
       defaultAssignment: assignment
-    }
-    console.log('ChoreListForm: New metadata:', newMetadata)
-    onMetadataChange(newMetadata)
+    })
   }
 
   // Get all suggestions from selected categories

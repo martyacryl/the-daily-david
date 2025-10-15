@@ -79,19 +79,14 @@ export const createNewList = (
   
   // For lists with selected suggestions, add them as items
   if (metadata.selectedSuggestions && metadata.selectedSuggestions.length > 0) {
-    console.log('listHelpers: Creating suggestion items for', listType, 'with defaultAssignment:', metadata.defaultAssignment)
-    const suggestionItems = metadata.selectedSuggestions.map((suggestion, index) => {
-      const assignedTo = listType === 'chore' ? metadata.defaultAssignment : undefined
-      console.log('listHelpers: Creating item:', suggestion, 'assignedTo:', assignedTo)
-      return {
-        id: Date.now() + index + 1000, // Offset to avoid conflicts with meal items
-        text: suggestion,
-        completed: false,
-        source: 'suggestions',
-        category: listType === 'packing' ? metadata.tripType : 'chore',
-        assignedTo
-      }
-    })
+    const suggestionItems = metadata.selectedSuggestions.map((suggestion, index) => ({
+      id: Date.now() + index + 1000, // Offset to avoid conflicts with meal items
+      text: suggestion,
+      completed: false,
+      source: 'suggestions',
+      category: listType === 'packing' ? metadata.tripType : 'chore',
+      assignedTo: listType === 'chore' ? metadata.defaultAssignment : undefined
+    }))
     items = [...items, ...suggestionItems]
   }
   

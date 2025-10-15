@@ -302,15 +302,9 @@ export const ListCard: React.FC<ListCardProps> = ({
                                 from: {item.source}
                               </p>
                             )}
-                            {list.listType === 'chore' && item.assignedTo && (
-                              <p className="text-xs text-blue-600 dark:text-blue-400 truncate">
-                                {getAssignmentText(item.assignedTo)}
-                              </p>
-                            )}
-                            {/* Debug info - remove after testing */}
                             {list.listType === 'chore' && (
-                              <p className="text-xs text-red-500 truncate">
-                                DEBUG: assignedTo={item.assignedTo || 'undefined'}
+                              <p className="text-xs text-blue-600 dark:text-blue-400 truncate">
+                                {getAssignmentText(item.assignedTo || 'both')}
                               </p>
                             )}
                           </div>
