@@ -11,8 +11,6 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
 export const Input = React.forwardRef<HTMLInputElement, InputProps>(
   ({ className, label, error, useAccentColor: shouldUseAccentColor = false, ...props }, ref) => {
     const { getColor } = useAccentColor()
-    // Debug logging for mobile
-    console.log('Input component rendering:', { label, value: props.value, placeholder: props.placeholder })
     
     return (
       <div className="space-y-2">
