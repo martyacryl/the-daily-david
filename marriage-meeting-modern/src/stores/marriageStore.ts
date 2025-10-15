@@ -519,10 +519,10 @@ export const useMarriageStore = create<MarriageState>((set, get) => ({
         }
       }))
       
-      // Auto-save when lists are updated
+      // Auto-save when lists are updated - use the updated weekData from store
       const weekKey = DatabaseManager.formatWeekKey(get().currentDate)
       setTimeout(() => {
-        get().saveWeekData(weekKey, { ...get().weekData, lists })
+        get().saveWeekData(weekKey)
       }, 100)
     },
 
@@ -539,7 +539,7 @@ export const useMarriageStore = create<MarriageState>((set, get) => ({
       // Auto-save
       const weekKey = DatabaseManager.formatWeekKey(get().currentDate)
       setTimeout(() => {
-        get().saveWeekData(weekKey, get().weekData)
+        get().saveWeekData(weekKey)
       }, 100)
     },
 
@@ -558,7 +558,7 @@ export const useMarriageStore = create<MarriageState>((set, get) => ({
       // Auto-save
       const weekKey = DatabaseManager.formatWeekKey(get().currentDate)
       setTimeout(() => {
-        get().saveWeekData(weekKey, get().weekData)
+        get().saveWeekData(weekKey)
       }, 100)
     },
 
@@ -573,7 +573,7 @@ export const useMarriageStore = create<MarriageState>((set, get) => ({
       // Auto-save
       const weekKey = DatabaseManager.formatWeekKey(get().currentDate)
       setTimeout(() => {
-        get().saveWeekData(weekKey, get().weekData)
+        get().saveWeekData(weekKey)
       }, 100)
     },
 
@@ -596,7 +596,7 @@ export const useMarriageStore = create<MarriageState>((set, get) => ({
       // Auto-save
       const weekKey = DatabaseManager.formatWeekKey(get().currentDate)
       setTimeout(() => {
-        get().saveWeekData(weekKey, get().weekData)
+        get().saveWeekData(weekKey)
       }, 100)
     },
 
@@ -621,7 +621,7 @@ export const useMarriageStore = create<MarriageState>((set, get) => ({
       // Auto-save
       const weekKey = DatabaseManager.formatWeekKey(get().currentDate)
       setTimeout(() => {
-        get().saveWeekData(weekKey, get().weekData)
+        get().saveWeekData(weekKey)
       }, 100)
     },
 
@@ -646,7 +646,7 @@ export const useMarriageStore = create<MarriageState>((set, get) => ({
       // Auto-save
       const weekKey = DatabaseManager.formatWeekKey(get().currentDate)
       setTimeout(() => {
-        get().saveWeekData(weekKey, get().weekData)
+        get().saveWeekData(weekKey)
       }, 100)
     },
 
@@ -669,7 +669,7 @@ export const useMarriageStore = create<MarriageState>((set, get) => ({
       // Auto-save
       const weekKey = DatabaseManager.formatWeekKey(get().currentDate)
       setTimeout(() => {
-        get().saveWeekData(weekKey, get().weekData)
+        get().saveWeekData(weekKey)
       }, 100)
     },
 
