@@ -279,32 +279,11 @@ export const MealPlanningForm: React.FC<MealPlanningFormProps> = ({
       return
     }
 
-    // Debug info
-    console.log('Generating grocery list with:', {
-      mealsCount: meals.length,
-      recipesCount: recipes.length,
-      mealsWithRecipes: meals.filter(m => m.recipeId).length,
-      mealsWithIngredients: meals.filter(m => m.ingredients && m.ingredients.length > 0).length,
-      meals: meals.map(m => ({
-        name: m.mealName,
-        recipeId: m.recipeId,
-        ingredients: m.ingredients,
-        hasRecipe: !!m.recipe
-      })),
-      recipes: recipes.map(r => ({
-        id: r.id,
-        name: r.name,
-        ingredients: r.ingredients
-      }))
-    })
-
     // Generate grocery items from meal plan (pass recipes to find ingredients)
     const groceryItems = generateGroceryFromMealPlan(meals, recipes)
     
-    console.log('Generated grocery items:', groceryItems)
-    
     if (groceryItems.length === 0) {
-      alert(`No ingredients found! Debug: ${meals.length} meals, ${recipes.length} recipes, ${meals.filter(m => m.recipeId).length} meals with recipes`)
+      alert('No ingredients found! Make sure you have meals with recipes linked or ingredients added.')
       return
     }
 
@@ -381,37 +360,37 @@ export const MealPlanningForm: React.FC<MealPlanningFormProps> = ({
                 </div>
               ) : (
                 <div className="space-y-2">
-                  <Button
-                    onClick={() => setShowRecipeSelector(!showRecipeSelector)}
-                    variant="outline"
-                    size="sm"
-                    className="w-full"
-                  >
-                    <Link className="w-4 h-4 mr-2" />
-                    Link Existing Recipe
-                  </Button>
-                  
-                  {showRecipeSelector && (
+                  {recipes.length === 0 ? (
+                    <div className="p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded border border-yellow-200 dark:border-yellow-700 text-center">
+                      <p className="text-sm text-yellow-800 dark:text-yellow-200">
+                        No recipes available. Create a recipe first!
+                      </p>
+                    </div>
+                  ) : (
                     <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                      <div className="mb-2 p-1 bg-blue-100 dark:bg-blue-900/20 rounded text-xs font-mono">
-                        Debug: {recipes.length} recipes available
-                      </div>
-                      <div className="space-y-2 max-h-32 overflow-y-auto">
+                      <p className="text-sm font-medium text-gray-900 dark:text-white mb-3">
+                        Choose a recipe to link:
+                      </p>
+                      <div className="space-y-2 max-h-40 overflow-y-auto">
                         {recipes.map(recipe => (
                           <button
                             key={recipe.id}
                             onClick={() => {
                               handleLinkRecipe(meal, recipe)
-                              setShowRecipeSelector(false)
                             }}
-                            className="w-full text-left p-2 hover:bg-gray-100 dark:hover:bg-gray-600 rounded border"
+                            className="w-full text-left p-3 hover:bg-gray-100 dark:hover:bg-gray-600 rounded border border-gray-200 dark:border-gray-500"
                           >
-                            <p className="text-sm font-medium text-gray-900 dark:text-white">
-                              {recipe.name}
-                            </p>
-                            <p className="text-xs text-gray-600 dark:text-gray-400">
-                              {recipe.ingredients.length} ingredients
-                            </p>
+                            <div className="flex items-center justify-between">
+                              <div>
+                                <p className="text-sm font-medium text-gray-900 dark:text-white">
+                                  {recipe.name}
+                                </p>
+                                <p className="text-xs text-gray-600 dark:text-gray-400">
+                                  {recipe.ingredients.length} ingredients
+                                </p>
+                              </div>
+                              <ChefHat className="w-4 h-4 text-gray-400" />
+                            </div>
                           </button>
                         ))}
                       </div>
@@ -845,16 +824,6 @@ export const MealPlanningForm: React.FC<MealPlanningFormProps> = ({
             <ChefHat className="w-4 h-4" />
             Saved Recipes ({recipes.length})
           </h4>
-          
-          {/* Debug Info */}
-          <div className="mb-2 p-2 bg-yellow-100 dark:bg-yellow-900/20 rounded text-xs font-mono">
-            <div>Debug: {recipes.length} recipes in state, {metadata.recipes?.length || 0} in metadata</div>
-            <div>Meals with recipes: {meals.filter(m => m.recipeId).length}</div>
-            <div>Total meals: {meals.length}</div>
-            {recipes.length > 0 && (
-              <div>Recipe names: {recipes.map(r => r.name).join(', ')}</div>
-            )}
-          </div>
 
           {/* Always show recipes section, even if empty */}
           <div className="space-y-2">

@@ -232,45 +232,27 @@ export const getChoreSuggestions = (category: string): string[] => {
 export const generateGroceryFromMealPlan = (meals: MealPlanItem[], recipes: RecipeItem[] = []): CustomListItem[] => {
   const groceryItems: CustomListItem[] = []
   
-  console.log('generateGroceryFromMealPlan called with:', {
-    mealsCount: meals.length,
-    recipesCount: recipes.length
-  })
-  
-  meals.forEach((meal, index) => {
+  meals.forEach(meal => {
     let ingredients: string[] = []
-    
-    console.log(`Processing meal ${index + 1}:`, {
-      name: meal.mealName,
-      recipeId: meal.recipeId,
-      hasRecipe: !!meal.recipe,
-      directIngredients: meal.ingredients
-    })
     
     // First, use ingredients directly from the meal
     if (meal.ingredients && meal.ingredients.length > 0) {
       ingredients = [...meal.ingredients]
-      console.log(`  - Found ${ingredients.length} direct ingredients:`, ingredients)
     }
     
     // If meal has a linked recipe, get ingredients from the recipe
     if (meal.recipeId && meal.recipe) {
       ingredients = [...ingredients, ...meal.recipe.ingredients]
-      console.log(`  - Found recipe object with ${meal.recipe.ingredients.length} ingredients:`, meal.recipe.ingredients)
     } else if (meal.recipeId) {
       // Find recipe by ID if not directly linked
       const recipe = recipes.find(r => r.id === meal.recipeId)
       if (recipe) {
         ingredients = [...ingredients, ...recipe.ingredients]
-        console.log(`  - Found recipe by ID with ${recipe.ingredients.length} ingredients:`, recipe.ingredients)
-      } else {
-        console.log(`  - Recipe ID ${meal.recipeId} not found in recipes array`)
       }
     }
     
     // Remove duplicates
     ingredients = [...new Set(ingredients)]
-    console.log(`  - Final ingredients for ${meal.mealName}:`, ingredients)
     
     ingredients.forEach(ingredient => {
       // Check if ingredient already exists
