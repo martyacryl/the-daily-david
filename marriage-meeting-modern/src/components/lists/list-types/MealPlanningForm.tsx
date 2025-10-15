@@ -284,7 +284,18 @@ export const MealPlanningForm: React.FC<MealPlanningFormProps> = ({
       mealsCount: meals.length,
       recipesCount: recipes.length,
       mealsWithRecipes: meals.filter(m => m.recipeId).length,
-      mealsWithIngredients: meals.filter(m => m.ingredients && m.ingredients.length > 0).length
+      mealsWithIngredients: meals.filter(m => m.ingredients && m.ingredients.length > 0).length,
+      meals: meals.map(m => ({
+        name: m.mealName,
+        recipeId: m.recipeId,
+        ingredients: m.ingredients,
+        hasRecipe: !!m.recipe
+      })),
+      recipes: recipes.map(r => ({
+        id: r.id,
+        name: r.name,
+        ingredients: r.ingredients
+      }))
     })
 
     // Generate grocery items from meal plan (pass recipes to find ingredients)
