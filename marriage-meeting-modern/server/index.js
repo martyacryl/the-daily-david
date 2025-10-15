@@ -304,6 +304,91 @@ app.post('/api/marriage-weeks', authenticateToken, async (req, res) => {
   }
 })
 
+// Recipes Routes
+app.get('/api/recipes', authenticateToken, async (req, res) => {
+  try {
+    const result = await pool.query(
+      'SELECT * FROM recipes WHERE user_id = $1 ORDER BY created_at DESC',
+      [req.user.id]
+    )
+
+    res.json(result.rows)
+  } catch (error) {
+    console.error('Error fetching recipes:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
+app.post('/api/recipes', authenticateToken, async (req, res) => {
+  try {
+    const { name, ingredients, instructions, source, servings, prep_time, cook_time } = req.body
+
+    if (!name || !ingredients || !Array.isArray(ingredients)) {
+      return res.status(400).json({ error: 'Missing required fields: name and ingredients' })
+    }
+
+    const result = await pool.query(
+      `INSERT INTO recipes (user_id, name, ingredients, instructions, source, servings, prep_time, cook_time, created_at, updated_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW(), NOW())
+       RETURNING *`,
+      [req.user.id, name, JSON.stringify(ingredients), instructions, source, servings || 4, prep_time || 0, cook_time || 0]
+    )
+
+    res.json(result.rows[0])
+  } catch (error) {
+    console.error('Error creating recipe:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
+app.put('/api/recipes/:id', authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params
+    const { name, ingredients, instructions, source, servings, prep_time, cook_time } = req.body
+
+    if (!name || !ingredients || !Array.isArray(ingredients)) {
+      return res.status(400).json({ error: 'Missing required fields: name and ingredients' })
+    }
+
+    const result = await pool.query(
+      `UPDATE recipes 
+       SET name = $1, ingredients = $2, instructions = $3, source = $4, servings = $5, prep_time = $6, cook_time = $7, updated_at = NOW()
+       WHERE id = $8 AND user_id = $9
+       RETURNING *`,
+      [name, JSON.stringify(ingredients), instructions, source, servings || 4, prep_time || 0, cook_time || 0, id, req.user.id]
+    )
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Recipe not found' })
+    }
+
+    res.json(result.rows[0])
+  } catch (error) {
+    console.error('Error updating recipe:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
+app.delete('/api/recipes/:id', authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params
+
+    const result = await pool.query(
+      'DELETE FROM recipes WHERE id = $1 AND user_id = $2 RETURNING *',
+      [id, req.user.id]
+    )
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Recipe not found' })
+    }
+
+    res.json({ message: 'Recipe deleted successfully' })
+  } catch (error) {
+    console.error('Error deleting recipe:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
 // Settings Routes
 app.get('/api/settings', authenticateToken, async (req, res) => {
   try {

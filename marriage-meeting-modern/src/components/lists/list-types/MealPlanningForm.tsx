@@ -3,6 +3,7 @@ import { Calendar, Plus, X, Sun, Moon, Apple, Coffee, ChefHat, Link, Edit3, Tras
 import { Button } from '../../ui/Button'
 import { ListMetadata, MealPlanItem, DayName, RecipeItem } from '../../../types/marriageTypes'
 import { getDayNames, getMealTypes, getMealSuggestions, generateGroceryFromMealPlan } from '../../../lib/listHelpers'
+import { useMarriageStore } from '../../../stores/marriageStore'
 
 interface MealPlanningFormProps {
   metadata: ListMetadata
@@ -22,19 +23,21 @@ export const MealPlanningForm: React.FC<MealPlanningFormProps> = ({
   onMetadataChange,
   onClose
 }) => {
+  const { recipes, addRecipe, updateRecipe, deleteRecipe, loadRecipes } = useMarriageStore()
   const [weekStart, setWeekStart] = useState(metadata.weekStart || new Date().toISOString().split('T')[0])
   const [meals, setMeals] = useState<MealPlanItem[]>(metadata.meals || [])
-  const [recipes, setRecipes] = useState<RecipeItem[]>(metadata.recipes || [])
 
-  // Update recipes and meals when metadata changes
+  // Load recipes when component mounts
   React.useEffect(() => {
-    if (metadata.recipes) {
-      setRecipes(metadata.recipes)
-    }
+    loadRecipes()
+  }, [loadRecipes])
+
+  // Update meals when metadata changes
+  React.useEffect(() => {
     if (metadata.meals) {
       setMeals(metadata.meals)
     }
-  }, [metadata.recipes, metadata.meals])
+  }, [metadata.meals])
 
   // Reconstruct meals from list items if meals are empty but we have meal items
   React.useEffect(() => {
@@ -173,9 +176,7 @@ export const MealPlanningForm: React.FC<MealPlanningFormProps> = ({
       cookTime: newRecipe.cookTime || 0
     }
 
-    const updatedRecipes = [...recipes, recipe]
-    setRecipes(updatedRecipes)
-    updateMetadata({ recipes: updatedRecipes })
+    addRecipe(recipe) // Use global store
 
     // Show success message
     alert(`Recipe "${recipe.name}" created successfully with ${recipe.ingredients.length} ingredients!`)
@@ -225,9 +226,7 @@ export const MealPlanningForm: React.FC<MealPlanningFormProps> = ({
       cookTime: newRecipe.cookTime || 0
     }
 
-    const updatedRecipes = recipes.map(r => r.id === editingRecipe.id ? updatedRecipe : r)
-    setRecipes(updatedRecipes)
-    updateMetadata({ recipes: updatedRecipes })
+    updateRecipe(editingRecipe.id, updatedRecipe) // Use global store
 
     // Reset form
     setEditingRecipe(null)
@@ -246,9 +245,7 @@ export const MealPlanningForm: React.FC<MealPlanningFormProps> = ({
 
   const handleDeleteRecipe = (recipeId: string) => {
     if (confirm('Are you sure you want to delete this recipe?')) {
-      const updatedRecipes = recipes.filter(r => r.id !== recipeId)
-      setRecipes(updatedRecipes)
-      updateMetadata({ recipes: updatedRecipes })
+      deleteRecipe(recipeId) // Use global store
     }
   }
 
@@ -623,14 +620,14 @@ export const MealPlanningForm: React.FC<MealPlanningFormProps> = ({
                         <div key={index} className="p-2 bg-white dark:bg-gray-600 rounded border">
                           <div className="flex items-start justify-between mb-1">
                             <div className="flex items-center gap-1 text-gray-700 dark:text-gray-300 min-w-0 flex-1">
-                              {React.createElement(getIconComponent(mealType.icon), { 
+                            {React.createElement(getIconComponent(mealType.icon), { 
                                 className: "w-3 h-3 flex-shrink-0" 
-                              })}
+                            })}
                               <span className="text-xs sm:text-sm font-medium truncate">{meal.mealName}</span>
                               {meal.recipe && (
                                 <ChefHat className="w-3 h-3 text-green-600 dark:text-green-400 flex-shrink-0" />
                               )}
-                            </div>
+                          </div>
                             <div className="flex items-center gap-1 flex-shrink-0 ml-2">
                               {!meal.recipeId && recipes.length > 0 && (
                                 <select
@@ -662,13 +659,13 @@ export const MealPlanningForm: React.FC<MealPlanningFormProps> = ({
                               >
                                 <Edit3 className="w-3 h-3" />
                               </button>
-                              <button
-                                onClick={() => handleRemoveMeal(meals.indexOf(meal))}
+                          <button
+                            onClick={() => handleRemoveMeal(meals.indexOf(meal))}
                                 className="text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 p-1"
                                 title="Remove meal"
-                              >
-                                <X className="w-3 h-3" />
-                              </button>
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
                             </div>
                           </div>
                           

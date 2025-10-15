@@ -7,7 +7,8 @@ import {
   WeekData, 
   DatabaseResponse,
   CreateUserFormData,
-  GoalItem
+  GoalItem,
+  RecipeItem
 } from '../types/marriageTypes'
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://theweeklyhuddle.vercel.app' : 'http://localhost:3001')
@@ -36,6 +37,120 @@ export class DatabaseManager {
 
     const result = await response.json()
     return result.user
+  }
+
+  // Recipe Operations
+  async getRecipes(): Promise<RecipeItem[]> {
+    const token = this.getAuthToken()
+    const response = await fetch(`${this.baseUrl}/api/recipes`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    })
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch recipes: ${response.statusText}`)
+    }
+
+    const recipes = await response.json()
+    return recipes.map((recipe: any) => ({
+      id: recipe.id,
+      name: recipe.name,
+      ingredients: recipe.ingredients,
+      instructions: recipe.instructions,
+      source: recipe.source,
+      servings: recipe.servings,
+      prepTime: recipe.prep_time,
+      cookTime: recipe.cook_time
+    }))
+  }
+
+  async createRecipe(recipe: RecipeItem): Promise<RecipeItem> {
+    const token = this.getAuthToken()
+    const response = await fetch(`${this.baseUrl}/api/recipes`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        name: recipe.name,
+        ingredients: recipe.ingredients,
+        instructions: recipe.instructions,
+        source: recipe.source,
+        servings: recipe.servings,
+        prep_time: recipe.prepTime,
+        cook_time: recipe.cookTime
+      }),
+    })
+
+    if (!response.ok) {
+      throw new Error(`Failed to create recipe: ${response.statusText}`)
+    }
+
+    const result = await response.json()
+    return {
+      id: result.id,
+      name: result.name,
+      ingredients: result.ingredients,
+      instructions: result.instructions,
+      source: result.source,
+      servings: result.servings,
+      prepTime: result.prep_time,
+      cookTime: result.cook_time
+    }
+  }
+
+  async updateRecipe(recipeId: string, updates: Partial<RecipeItem>): Promise<RecipeItem> {
+    const token = this.getAuthToken()
+    const response = await fetch(`${this.baseUrl}/api/recipes/${recipeId}`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        name: updates.name,
+        ingredients: updates.ingredients,
+        instructions: updates.instructions,
+        source: updates.source,
+        servings: updates.servings,
+        prep_time: updates.prepTime,
+        cook_time: updates.cookTime
+      }),
+    })
+
+    if (!response.ok) {
+      throw new Error(`Failed to update recipe: ${response.statusText}`)
+    }
+
+    const result = await response.json()
+    return {
+      id: result.id,
+      name: result.name,
+      ingredients: result.ingredients,
+      instructions: result.instructions,
+      source: result.source,
+      servings: result.servings,
+      prepTime: result.prep_time,
+      cookTime: result.cook_time
+    }
+  }
+
+  async deleteRecipe(recipeId: string): Promise<void> {
+    const token = this.getAuthToken()
+    const response = await fetch(`${this.baseUrl}/api/recipes/${recipeId}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    })
+
+    if (!response.ok) {
+      throw new Error(`Failed to delete recipe: ${response.statusText}`)
+    }
   }
 
   // Marriage Meeting Week Operations

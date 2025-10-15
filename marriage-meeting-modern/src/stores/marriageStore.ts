@@ -2,7 +2,7 @@
 // Manages marriage meeting week data
 
 import { create } from 'zustand'
-import { MarriageMeetingWeek, WeekData, ListItem, WeeklySchedule, DayName, ListType, GoalItem, TaskItem, GroceryStoreList, EncouragementNote, CustomList, CustomListItem, CustomListType } from '../types/marriageTypes'
+import { MarriageMeetingWeek, WeekData, ListItem, WeeklySchedule, DayName, ListType, GoalItem, TaskItem, GroceryStoreList, EncouragementNote, CustomList, CustomListItem, CustomListType, RecipeItem } from '../types/marriageTypes'
 import { CalendarEvent } from '../lib/calendarService'
 import { dbManager, DatabaseManager } from '../lib/database'
 import { createNewList } from '../lib/listHelpers'
@@ -11,6 +11,7 @@ interface MarriageState {
   // Data
   currentWeek: MarriageMeetingWeek | null
   weekData: WeekData
+  recipes: RecipeItem[] // Global recipes per account
   currentDate: Date
   isLoading: boolean
   error: string | null
@@ -41,6 +42,11 @@ interface MarriageState {
   updateCustomListItem: (listId: string, itemId: number, updates: Partial<CustomListItem>) => void
   toggleCustomListItem: (listId: string, itemId: number) => void
   deleteCustomListItem: (listId: string, itemId: number) => void
+  loadRecipes: () => Promise<void>
+  updateRecipes: (recipes: RecipeItem[]) => void
+  addRecipe: (recipe: RecipeItem) => Promise<void>
+  updateRecipe: (recipeId: string, updates: Partial<RecipeItem>) => Promise<void>
+  deleteRecipe: (recipeId: string) => Promise<void>
   migrateGroceryToLists: () => void
   updateEncouragementNotes: (encouragementNotes: EncouragementNote[]) => void
   updateCalendarEvents: (calendarEvents: CalendarEvent[]) => void
@@ -80,6 +86,7 @@ export const useMarriageStore = create<MarriageState>((set, get) => ({
   // Initial state
   currentWeek: null,
   weekData: createEmptyWeekData(),
+  recipes: [] as RecipeItem[],
   currentDate: new Date(), // Will be set to Monday when store initializes
   isLoading: false,
   error: null,
@@ -671,6 +678,59 @@ export const useMarriageStore = create<MarriageState>((set, get) => ({
       setTimeout(() => {
         get().saveWeekData(weekKey)
       }, 100)
+    },
+
+    // Recipe management actions
+    loadRecipes: async () => {
+      try {
+        const recipes = await dbManager.getRecipes()
+        set({ recipes })
+      } catch (error) {
+        console.error('Error loading recipes:', error)
+        set({ error: error instanceof Error ? error.message : 'Failed to load recipes' })
+      }
+    },
+
+    updateRecipes: (recipes: RecipeItem[]) => {
+      set({ recipes })
+    },
+
+    addRecipe: async (recipe: RecipeItem) => {
+      try {
+        const newRecipe = await dbManager.createRecipe(recipe)
+        set((state) => ({
+          recipes: [...state.recipes, newRecipe]
+        }))
+      } catch (error) {
+        console.error('Error adding recipe:', error)
+        set({ error: error instanceof Error ? error.message : 'Failed to add recipe' })
+      }
+    },
+
+    updateRecipe: async (recipeId: string, updates: Partial<RecipeItem>) => {
+      try {
+        const updatedRecipe = await dbManager.updateRecipe(recipeId, updates)
+        set((state) => ({
+          recipes: state.recipes.map(recipe =>
+            recipe.id === recipeId ? updatedRecipe : recipe
+          )
+        }))
+      } catch (error) {
+        console.error('Error updating recipe:', error)
+        set({ error: error instanceof Error ? error.message : 'Failed to update recipe' })
+      }
+    },
+
+    deleteRecipe: async (recipeId: string) => {
+      try {
+        await dbManager.deleteRecipe(recipeId)
+        set((state) => ({
+          recipes: state.recipes.filter(recipe => recipe.id !== recipeId)
+        }))
+      } catch (error) {
+        console.error('Error deleting recipe:', error)
+        set({ error: error instanceof Error ? error.message : 'Failed to delete recipe' })
+      }
     },
 
     migrateGroceryToLists: () => {
