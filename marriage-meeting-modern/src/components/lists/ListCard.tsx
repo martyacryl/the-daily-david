@@ -84,6 +84,7 @@ export const ListCard: React.FC<ListCardProps> = ({
     if (!newItemText.trim()) return
     
     const assignedTo = list.listType === 'chore' ? list.metadata.defaultAssignment : undefined
+    console.log('ListCard: Adding item with assignment:', assignedTo, 'from metadata:', list.metadata.defaultAssignment)
     const newItem = createNewListItem(newItemText.trim(), undefined, undefined, assignedTo)
     onAddItem(list.id, newItem)
     setNewItemText('')
@@ -302,9 +303,9 @@ export const ListCard: React.FC<ListCardProps> = ({
                                 from: {item.source}
                               </p>
                             )}
-                            {list.listType === 'chore' && (
+                            {list.listType === 'chore' && item.assignedTo && (
                               <p className="text-xs text-blue-600 dark:text-blue-400 truncate">
-                                {getAssignmentText(item.assignedTo || 'both')}
+                                {getAssignmentText(item.assignedTo)}
                               </p>
                             )}
                           </div>
