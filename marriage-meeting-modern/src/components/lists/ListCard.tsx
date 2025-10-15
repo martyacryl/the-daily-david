@@ -307,6 +307,12 @@ export const ListCard: React.FC<ListCardProps> = ({
                                 {getAssignmentText(item.assignedTo)}
                               </p>
                             )}
+                            {/* Debug info - remove after testing */}
+                            {list.listType === 'chore' && (
+                              <p className="text-xs text-red-500 truncate">
+                                DEBUG: assignedTo={item.assignedTo || 'undefined'}
+                              </p>
+                            )}
                           </div>
                         </div>
                         
