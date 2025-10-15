@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { Calendar, Plus, X, Sun, Moon, Apple, Coffee, ChefHat, Link, Edit3, Trash2, ShoppingCart } from 'lucide-react'
 import { Button } from '../../ui/Button'
 import { ListMetadata, MealPlanItem, DayName, RecipeItem } from '../../../types/marriageTypes'
-import { getDayNames, getMealTypes, getMealSuggestions } from '../../../lib/listHelpers'
+import { getDayNames, getMealTypes, getMealSuggestions, generateGroceryFromMealPlan } from '../../../lib/listHelpers'
 
 interface MealPlanningFormProps {
   metadata: ListMetadata
@@ -25,6 +25,16 @@ export const MealPlanningForm: React.FC<MealPlanningFormProps> = ({
   const [weekStart, setWeekStart] = useState(metadata.weekStart || new Date().toISOString().split('T')[0])
   const [meals, setMeals] = useState<MealPlanItem[]>(metadata.meals || [])
   const [recipes, setRecipes] = useState<RecipeItem[]>(metadata.recipes || [])
+
+  // Update recipes and meals when metadata changes
+  React.useEffect(() => {
+    if (metadata.recipes) {
+      setRecipes(metadata.recipes)
+    }
+    if (metadata.meals) {
+      setMeals(metadata.meals)
+    }
+  }, [metadata.recipes, metadata.meals])
   const [selectedDay, setSelectedDay] = useState<DayName>('Monday')
   const [selectedMealType, setSelectedMealType] = useState<'breakfast' | 'lunch' | 'dinner' | 'snack'>('dinner')
   const [newMealName, setNewMealName] = useState('')
@@ -202,6 +212,29 @@ export const MealPlanningForm: React.FC<MealPlanningFormProps> = ({
     handleSaveMealEdit(updatedMeal)
   }
 
+  const handleGenerateGroceryList = () => {
+    if (meals.length === 0) {
+      alert('Please add some meals to your plan first!')
+      return
+    }
+
+    // Generate grocery items from meal plan
+    const groceryItems = generateGroceryFromMealPlan(meals)
+    
+    if (groceryItems.length === 0) {
+      alert('No ingredients found in your meals. Please add ingredients to your meals first.')
+      return
+    }
+
+    // Store the generated grocery items in metadata
+    onMetadataChange({
+      ...metadata,
+      generatedGroceryItems: groceryItems
+    })
+
+    alert(`Generated ${groceryItems.length} grocery items from your meal plan!`)
+  }
+
   const getMealsForDay = (day: DayName) => {
     return meals.filter(meal => meal.day === day)
   }
@@ -278,6 +311,9 @@ export const MealPlanningForm: React.FC<MealPlanningFormProps> = ({
                   
                   {showRecipeSelector && (
                     <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                      <div className="mb-2 p-1 bg-blue-100 dark:bg-blue-900/20 rounded text-xs font-mono">
+                        Debug: {recipes.length} recipes available
+                      </div>
                       <div className="space-y-2 max-h-32 overflow-y-auto">
                         {recipes.map(recipe => (
                           <button
@@ -681,6 +717,9 @@ export const MealPlanningForm: React.FC<MealPlanningFormProps> = ({
         )}
 
         {/* Saved Recipes */}
+        <div className="mb-2 p-1 bg-yellow-100 dark:bg-yellow-900/20 rounded text-xs font-mono">
+          Debug: {recipes.length} recipes in state, {metadata.recipes?.length || 0} in metadata
+        </div>
         {recipes.length > 0 && (
           <div className="space-y-2">
             {recipes.map(recipe => (
@@ -707,7 +746,7 @@ export const MealPlanningForm: React.FC<MealPlanningFormProps> = ({
         )}
       </div>
 
-      {/* Summary */}
+      {/* Summary and Actions */}
       {meals.length > 0 && (
         <div className="p-3 bg-slate-50 dark:bg-slate-900/20 border border-slate-200 dark:border-slate-700 rounded-lg">
           <p className="text-sm text-slate-800 dark:text-slate-200">
@@ -716,6 +755,27 @@ export const MealPlanningForm: React.FC<MealPlanningFormProps> = ({
           <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
             Click the edit button on any meal to add ingredients or link recipes
           </p>
+          
+          {/* Generate Grocery List Button */}
+          <div className="mt-3">
+            <Button
+              onClick={handleGenerateGroceryList}
+              size="sm"
+              className="w-full bg-green-600 hover:bg-green-700 text-white"
+            >
+              <ShoppingCart className="w-4 h-4 mr-2" />
+              Generate Grocery List from Meals
+            </Button>
+          </div>
+          
+          {/* Show generated items count */}
+          {metadata.generatedGroceryItems && metadata.generatedGroceryItems.length > 0 && (
+            <div className="mt-2 p-2 bg-green-100 dark:bg-green-900/20 rounded border border-green-200 dark:border-green-700">
+              <p className="text-xs text-green-800 dark:text-green-200">
+                ✅ Generated {metadata.generatedGroceryItems.length} grocery items
+              </p>
+            </div>
+          )}
         </div>
       )}
 

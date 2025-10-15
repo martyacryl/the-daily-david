@@ -139,6 +139,7 @@ export interface ListMetadata {
   weekStart?: string  // ISO date
   meals?: MealPlanItem[]
   recipes?: RecipeItem[] // Saved recipes
+  generatedGroceryItems?: CustomListItem[] // Generated grocery items from meal plan
   
   // For errands
   location?: string

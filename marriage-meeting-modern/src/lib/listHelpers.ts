@@ -63,6 +63,11 @@ export const createNewList = (
     }))
   }
   
+  // For meal planning lists, also include generated grocery items if available
+  if (listType === 'meal-planning' && metadata.generatedGroceryItems && metadata.generatedGroceryItems.length > 0) {
+    items = [...items, ...metadata.generatedGroceryItems]
+  }
+  
   // For lists with selected suggestions, add them as items
   if (metadata.selectedSuggestions && metadata.selectedSuggestions.length > 0) {
     const suggestionItems = metadata.selectedSuggestions.map((suggestion, index) => ({
