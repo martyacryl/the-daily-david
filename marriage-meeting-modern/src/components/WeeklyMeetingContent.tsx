@@ -443,14 +443,23 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
   )
 
   const renderListsSection = () => (
-    <ListsSection 
-      lists={weekData.lists} 
-      onUpdateLists={(lists) => {
-        console.log('📋 Lists: onUpdateLists called with lists:', lists)
-        onUpdateLists(lists)
-        onSave()
-      }} 
-    />
+    <div>
+      {/* Debug info for mobile */}
+      <div className="mb-2 p-2 bg-yellow-100 dark:bg-yellow-900/20 rounded text-xs font-mono">
+        Debug: weekData.lists = {weekData.lists?.length || 0} items
+        {weekData.lists?.length > 0 && (
+          <div>Names: {weekData.lists.map(l => l.name).join(', ')}</div>
+        )}
+      </div>
+      <ListsSection 
+        lists={weekData.lists} 
+        onUpdateLists={(lists) => {
+          console.log('📋 Lists: onUpdateLists called with lists:', lists)
+          onUpdateLists(lists)
+          onSave()
+        }} 
+      />
+    </div>
   )
 
   const renderEncouragementSection = () => (

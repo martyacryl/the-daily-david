@@ -207,6 +207,7 @@ app.post('/api/marriage-weeks', authenticateToken, async (req, res) => {
       todosCount: data_content?.todos?.length || 0,
       prayersCount: data_content?.prayers?.length || 0,
       groceryCount: data_content?.grocery?.length || 0,
+      listsCount: data_content?.lists?.length || 0,
       encouragementCount: data_content?.encouragementNotes?.length || 0,
       calendarEventsCount: data_content?.calendarEvents?.length || 0,
       fullDataContent: JSON.stringify(data_content, null, 2)

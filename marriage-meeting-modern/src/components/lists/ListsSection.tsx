@@ -21,6 +21,9 @@ export const ListsSection: React.FC<ListsSectionProps> = ({
   const [activeType, setActiveType] = useState<CustomListType | 'all'>('all')
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
 
+  // Debug info for mobile
+  const debugInfo = `Lists: ${lists?.length || 0} total${lists?.length > 0 ? ` (${lists.map(l => l.name).join(', ')})` : ''}`
+
   const filteredLists = activeType === 'all' ? lists : filterListsByType(lists, activeType)
   const config = activeType === 'all' ? null : getListTypeConfig(activeType)
 
@@ -193,10 +196,11 @@ export const ListsSection: React.FC<ListsSectionProps> = ({
             <div className="p-2 sm:p-3 rounded-lg bg-slate-100 dark:bg-slate-900/20">
               <List className="w-5 h-5 sm:w-6 sm:h-6 text-slate-600 dark:text-slate-400" />
             </div>
-            <div>
-              <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">Lists</h2>
-              <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300">Organize your tasks and plans</p>
-            </div>
+                  <div>
+                    <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">Lists</h2>
+                    <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300">Organize your tasks and plans</p>
+                    <p className="text-xs text-red-500 font-mono">{debugInfo}</p>
+                  </div>
           </div>
 
           <Button
