@@ -25,6 +25,7 @@ interface ListCardProps {
   list: CustomList
   onUpdateList: (listId: string, updates: Partial<CustomList>) => void
   onDeleteList: (listId: string) => void
+  onEditList: (list: CustomList) => void
   onAddItem: (listId: string, item: CustomListItem) => void
   onUpdateItem: (listId: string, itemId: number, updates: Partial<CustomListItem>) => void
   onToggleItem: (listId: string, itemId: number) => void
@@ -35,6 +36,7 @@ export const ListCard: React.FC<ListCardProps> = ({
   list,
   onUpdateList,
   onDeleteList,
+  onEditList,
   onAddItem,
   onUpdateItem,
   onToggleItem,
@@ -184,7 +186,7 @@ export const ListCard: React.FC<ListCardProps> = ({
                   <button
                     onClick={() => {
                       setShowMenu(false)
-                      // TODO: Implement edit list functionality
+                      onEditList(list)
                     }}
                     className="w-full px-3 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
                   >

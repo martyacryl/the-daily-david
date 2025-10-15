@@ -285,25 +285,6 @@ export const MealPlanningForm: React.FC<MealPlanningFormProps> = ({
     handleSaveMealEdit(updatedMeal)
   }
 
-  const handleGenerateGroceryList = () => {
-    if (meals.length === 0) {
-      alert('Please add some meals to your plan first!')
-      return
-    }
-
-    // Generate grocery items from meal plan (pass recipes to find ingredients)
-    const groceryItems = generateGroceryFromMealPlan(meals, recipes)
-    
-    if (groceryItems.length === 0) {
-      alert('No ingredients found! Make sure you have meals with recipes linked or ingredients added.')
-      return
-    }
-
-    // Store the generated grocery items in metadata
-    updateMetadata({ generatedGroceryItems: groceryItems })
-
-    alert(`Generated ${groceryItems.length} grocery items from your meal plan!`)
-  }
 
   const getMealsForDay = (day: DayName) => {
     return meals.filter(meal => meal.day === day)
@@ -899,26 +880,6 @@ export const MealPlanningForm: React.FC<MealPlanningFormProps> = ({
             Click the edit button on any meal to add ingredients or link recipes
           </p>
           
-          {/* Generate Grocery List Button */}
-          <div className="mt-3">
-            <Button
-              onClick={handleGenerateGroceryList}
-              size="sm"
-              className="w-full bg-green-600 hover:bg-green-700 text-white text-sm"
-            >
-              <ShoppingCart className="w-4 h-4 mr-2" />
-              Generate Grocery List
-            </Button>
-          </div>
-          
-          {/* Show generated items count */}
-          {metadata.generatedGroceryItems && metadata.generatedGroceryItems.length > 0 && (
-            <div className="mt-2 p-2 bg-green-100 dark:bg-green-900/20 rounded border border-green-200 dark:border-green-700">
-              <p className="text-xs text-green-800 dark:text-green-200">
-                ✅ Generated {metadata.generatedGroceryItems.length} grocery items
-              </p>
-            </div>
-          )}
         </div>
       )}
 

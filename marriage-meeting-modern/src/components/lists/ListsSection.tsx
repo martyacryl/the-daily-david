@@ -20,6 +20,7 @@ export const ListsSection: React.FC<ListsSectionProps> = ({
 }) => {
   const [activeType, setActiveType] = useState<CustomListType | 'all'>('all')
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
+  const [editingList, setEditingList] = useState<CustomList | null>(null)
 
 
   const filteredLists = activeType === 'all' ? lists : filterListsByType(lists, activeType)
@@ -38,9 +39,19 @@ export const ListsSection: React.FC<ListsSectionProps> = ({
   }
 
   const handleCreateList = (newList: CustomList) => {
-    onUpdateLists([...lists, newList])
-    // Navigate to the specific category tab to show the new list
-    setActiveType(newList.listType)
+    if (editingList) {
+      // Update existing list
+      const updatedLists = lists.map(list =>
+        list.id === editingList.id ? newList : list
+      )
+      onUpdateLists(updatedLists)
+      setEditingList(null)
+    } else {
+      // Create new list
+      onUpdateLists([...lists, newList])
+      // Navigate to the specific category tab to show the new list
+      setActiveType(newList.listType)
+    }
   }
 
   const handleUpdateList = (listId: string, updates: Partial<CustomList>) => {
@@ -55,6 +66,16 @@ export const ListsSection: React.FC<ListsSectionProps> = ({
   const handleDeleteList = (listId: string) => {
     const updatedLists = lists.filter(list => list.id !== listId)
     onUpdateLists(updatedLists)
+  }
+
+  const handleEditList = (list: CustomList) => {
+    setEditingList(list)
+    setIsCreateModalOpen(true)
+  }
+
+  const handleCloseModal = () => {
+    setIsCreateModalOpen(false)
+    setEditingList(null)
   }
 
   const handleAddItem = (listId: string, item: CustomListItem) => {
@@ -235,6 +256,7 @@ export const ListsSection: React.FC<ListsSectionProps> = ({
                     list={list}
                     onUpdateList={handleUpdateList}
                     onDeleteList={handleDeleteList}
+                    onEditList={handleEditList}
                     onAddItem={handleAddItem}
                     onUpdateItem={handleUpdateItem}
                     onToggleItem={handleToggleItem}
@@ -299,9 +321,10 @@ export const ListsSection: React.FC<ListsSectionProps> = ({
       {/* Create List Modal */}
       <CreateListModal
         isOpen={isCreateModalOpen}
-        onClose={() => setIsCreateModalOpen(false)}
+        onClose={handleCloseModal}
         onCreateList={handleCreateList}
         preselectedType={undefined}
+        editingList={editingList}
       />
     </motion.div>
   )

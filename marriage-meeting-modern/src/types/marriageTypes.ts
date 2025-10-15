@@ -89,7 +89,6 @@ export interface WeekData {
   prayers: ListItem[]
   grocery: GroceryStoreList[] // Updated to use store-specific lists (legacy)
   lists: CustomList[] // New unified lists system
-  recipes: RecipeItem[] // Global recipes available across all meal planning lists
   unconfessedSin: ListItem[]
   weeklyWinddown: ListItem[]
   encouragementNotes: EncouragementNote[] // Encouragement notes and messages

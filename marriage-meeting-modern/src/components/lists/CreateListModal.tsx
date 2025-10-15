@@ -15,6 +15,7 @@ interface CreateListModalProps {
   onClose: () => void
   onCreateList: (list: any) => void
   preselectedType?: CustomListType
+  editingList?: any // Existing list to edit
 }
 
 const listTypes: { type: CustomListType; label: string; icon: string; description: string }[] = [
@@ -29,12 +30,13 @@ export const CreateListModal: React.FC<CreateListModalProps> = ({
   isOpen,
   onClose,
   onCreateList,
-  preselectedType
+  preselectedType,
+  editingList
 }) => {
-  const [step, setStep] = useState(1) // Always start at step 1 (category selection)
-  const [selectedType, setSelectedType] = useState<CustomListType | null>(null)
-  const [listName, setListName] = useState('')
-  const [metadata, setMetadata] = useState<ListMetadata>({})
+  const [step, setStep] = useState(editingList ? 2 : 1) // Skip type selection if editing
+  const [selectedType, setSelectedType] = useState<CustomListType | null>(editingList?.listType || null)
+  const [listName, setListName] = useState(editingList?.name || '')
+  const [metadata, setMetadata] = useState<ListMetadata>(editingList?.metadata || {})
 
   const getIconComponent = (iconName: string) => {
     const iconMap = {
@@ -60,8 +62,20 @@ export const CreateListModal: React.FC<CreateListModalProps> = ({
   const handleCreate = () => {
     if (!selectedType || !listName.trim()) return
 
-    const newList = createNewList(selectedType, listName.trim(), metadata)
-    onCreateList(newList)
+    if (editingList) {
+      // Update existing list
+      const updatedList = {
+        ...editingList,
+        name: listName.trim(),
+        metadata: metadata,
+        updatedAt: new Date().toISOString()
+      }
+      onCreateList(updatedList)
+    } else {
+      // Create new list
+      const newList = createNewList(selectedType, listName.trim(), metadata)
+      onCreateList(newList)
+    }
     handleClose()
   }
 
@@ -112,7 +126,7 @@ export const CreateListModal: React.FC<CreateListModalProps> = ({
           <div className="space-y-2 sm:space-y-4">
             <div className="text-center mb-3 sm:mb-6">
               <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-2">
-                Create New List
+                {editingList ? 'Edit List' : 'Create New List'}
               </h2>
               <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
                 Choose the type of list you want to create
@@ -335,7 +349,7 @@ export const CreateListModal: React.FC<CreateListModalProps> = ({
                     <ChevronRight className="w-4 h-4 ml-1" />
                   </>
                 ) : (
-                  'Create List'
+                  editingList ? 'Update List' : 'Create List'
                 )}
               </Button>
             </div>
