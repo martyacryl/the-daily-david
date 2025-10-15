@@ -150,7 +150,10 @@ export const MealPlanningForm: React.FC<MealPlanningFormProps> = ({
   }
 
   const handleAddRecipe = () => {
-    if (!newRecipe.name || !newRecipe.ingredients?.length) return
+    if (!newRecipe.name || !newRecipe.ingredients?.length) {
+      alert('Please enter a recipe name and at least one ingredient.')
+      return
+    }
 
     const recipe: RecipeItem = {
       id: Date.now().toString(),
@@ -169,6 +172,9 @@ export const MealPlanningForm: React.FC<MealPlanningFormProps> = ({
       ...metadata,
       recipes: updatedRecipes
     })
+
+    // Show success message
+    alert(`Recipe "${recipe.name}" created successfully with ${recipe.ingredients.length} ingredients!`)
 
     setNewRecipe({
       name: '',
@@ -256,6 +262,7 @@ export const MealPlanningForm: React.FC<MealPlanningFormProps> = ({
       ingredients: recipe.ingredients
     }
     handleSaveMealEdit(updatedMeal)
+    alert(`Linked recipe "${recipe.name}" to ${meal.mealName}!`)
   }
 
   const handleAddCustomIngredient = (meal: MealPlanItem, ingredient: string) => {
@@ -284,11 +291,21 @@ export const MealPlanningForm: React.FC<MealPlanningFormProps> = ({
       return
     }
 
+    // Debug info
+    console.log('Generating grocery list with:', {
+      mealsCount: meals.length,
+      recipesCount: recipes.length,
+      mealsWithRecipes: meals.filter(m => m.recipeId).length,
+      mealsWithIngredients: meals.filter(m => m.ingredients && m.ingredients.length > 0).length
+    })
+
     // Generate grocery items from meal plan (pass recipes to find ingredients)
     const groceryItems = generateGroceryFromMealPlan(meals, recipes)
     
+    console.log('Generated grocery items:', groceryItems)
+    
     if (groceryItems.length === 0) {
-      alert('No ingredients found in your meals. Please add ingredients to your meals or link recipes first.')
+      alert(`No ingredients found! Debug: ${meals.length} meals, ${recipes.length} recipes, ${meals.filter(m => m.recipeId).length} meals with recipes`)
       return
     }
 
@@ -610,6 +627,27 @@ export const MealPlanningForm: React.FC<MealPlanningFormProps> = ({
                               )}
                             </div>
                             <div className="flex items-center gap-1 flex-shrink-0 ml-2">
+                              {recipes.length > 0 && !meal.recipeId && (
+                                <button
+                                  onClick={() => {
+                                    if (recipes.length === 1) {
+                                      handleLinkRecipe(meal, recipes[0])
+                                    } else {
+                                      // Show recipe selection
+                                      const recipeNames = recipes.map(r => r.name)
+                                      const selection = prompt(`Link recipe to ${meal.mealName}:\n${recipeNames.map((name, i) => `${i + 1}. ${name}`).join('\n')}\n\nEnter number (1-${recipes.length}):`)
+                                      const index = parseInt(selection || '0') - 1
+                                      if (index >= 0 && index < recipes.length) {
+                                        handleLinkRecipe(meal, recipes[index])
+                                      }
+                                    }
+                                  }}
+                                  className="text-green-500 hover:text-green-700 dark:text-green-400 dark:hover:text-green-300 p-1"
+                                  title="Link recipe"
+                                >
+                                  <ChefHat className="w-3 h-3" />
+                                </button>
+                              )}
                               <button
                                 onClick={() => handleEditMeal(meal)}
                                 className="text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 p-1"
@@ -791,8 +829,13 @@ export const MealPlanningForm: React.FC<MealPlanningFormProps> = ({
         )}
 
         {/* Saved Recipes */}
-        <div className="mb-2 p-1 bg-yellow-100 dark:bg-yellow-900/20 rounded text-xs font-mono">
-          Debug: {recipes.length} recipes in state, {metadata.recipes?.length || 0} in metadata
+        <div className="mb-2 p-2 bg-yellow-100 dark:bg-yellow-900/20 rounded text-xs font-mono">
+          <div>Debug: {recipes.length} recipes in state, {metadata.recipes?.length || 0} in metadata</div>
+          <div>Meals with recipes: {meals.filter(m => m.recipeId).length}</div>
+          <div>Total meals: {meals.length}</div>
+          {recipes.length > 0 && (
+            <div>Recipe names: {recipes.map(r => r.name).join(', ')}</div>
+          )}
         </div>
         {recipes.length > 0 && (
           <div className="space-y-2">
