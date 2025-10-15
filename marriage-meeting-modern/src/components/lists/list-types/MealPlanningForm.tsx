@@ -36,6 +36,11 @@ export const MealPlanningForm: React.FC<MealPlanningFormProps> = ({
     }
   }, [metadata.recipes, metadata.meals])
 
+  // Debug: Log when meals change
+  React.useEffect(() => {
+    console.log('Meals updated:', meals.length, meals)
+  }, [meals])
+
   // Helper function to update metadata and trigger parent callback
   const updateMetadata = (updates: Partial<ListMetadata>) => {
     const newMetadata = { ...metadata, ...updates }
@@ -274,19 +279,19 @@ export const MealPlanningForm: React.FC<MealPlanningFormProps> = ({
   }
 
   const handleGenerateGroceryList = () => {
-    alert('Generate button clicked!') // Test if button works
+    console.log('Generate clicked - meals:', meals.length, 'recipes:', recipes.length)
+    console.log('Meals data:', meals)
+    console.log('Recipes data:', recipes)
     
     if (meals.length === 0) {
       alert('Please add some meals to your plan first!')
       return
     }
 
-    alert(`Found ${meals.length} meals and ${recipes.length} recipes`) // Test data
-
     // Generate grocery items from meal plan (pass recipes to find ingredients)
     const groceryItems = generateGroceryFromMealPlan(meals, recipes)
     
-    alert(`Generated ${groceryItems.length} grocery items`) // Test result
+    console.log('Generated grocery items:', groceryItems)
     
     if (groceryItems.length === 0) {
       alert('No ingredients found! Make sure you have meals with recipes linked or ingredients added.')
