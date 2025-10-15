@@ -199,7 +199,7 @@ export interface MarriageState {
 export interface AppState {
   currentDate: Date
   currentView: 'landing' | 'weekly' | 'admin'
-  theme: 'light' | 'dark'
+  theme: 'light' | 'dark' | 'landing'
   isLoading: boolean
 }
 

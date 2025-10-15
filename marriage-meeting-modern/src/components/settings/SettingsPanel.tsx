@@ -410,10 +410,10 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                               Theme
                             </label>
-                            <div className="flex space-x-4">
+                            <div className="grid grid-cols-3 gap-2">
                               <button
                                 onClick={() => setTheme('light')}
-                                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                                className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                                   theme === 'light'
                                     ? `bg-${getColor('primary')} text-white`
                                     : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
@@ -423,13 +423,23 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
                               </button>
                               <button
                                 onClick={() => setTheme('dark')}
-                                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                                className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                                   theme === 'dark'
                                     ? `bg-${getColor('primary')} text-white`
                                     : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                                 }`}
                               >
                                 Dark
+                              </button>
+                              <button
+                                onClick={() => setTheme('landing')}
+                                className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                                  theme === 'landing'
+                                    ? 'bg-gradient-to-r from-blue-600 via-purple-600 to-blue-700 text-white shadow-lg shadow-blue-500/25'
+                                    : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                                }`}
+                              >
+                                Landing
                               </button>
                             </div>
                           </div>

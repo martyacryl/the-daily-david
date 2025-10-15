@@ -5,7 +5,7 @@ interface AppStore extends AppState {
   // State setters
   setCurrentDate: (date: Date) => void
   setCurrentView: (view: ViewType) => void
-  setTheme: (theme: 'light' | 'dark') => void
+  setTheme: (theme: 'light' | 'dark' | 'landing') => void
   setAccentColor: (color: string) => Promise<void>
   setLoading: (loading: boolean) => void
   
@@ -124,7 +124,10 @@ export const useAppStore = create<AppStore>((set, get) => ({
 
   toggleTheme: () => {
     const currentTheme = get().theme
-    const newTheme = currentTheme === 'light' ? 'dark' : 'light'
+    const themeCycle = ['light', 'dark', 'landing'] as const
+    const currentIndex = themeCycle.indexOf(currentTheme)
+    const nextIndex = (currentIndex + 1) % themeCycle.length
+    const newTheme = themeCycle[nextIndex]
     
     set({ theme: newTheme })
     localStorage.setItem('dailyDavid_theme', newTheme)
@@ -159,8 +162,8 @@ export const initializeAppStore = async () => {
     
     // Load theme preference
     const savedTheme = localStorage.getItem('dailyDavid_theme')
-    if (savedTheme === 'dark' || savedTheme === 'light') {
-      state.setTheme(savedTheme)
+    if (savedTheme === 'dark' || savedTheme === 'light' || savedTheme === 'landing') {
+      state.setTheme(savedTheme as 'light' | 'dark' | 'landing')
       console.log('🎨 [AppStore] Loaded theme from localStorage:', savedTheme)
     }
     

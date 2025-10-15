@@ -46,7 +46,7 @@ export interface AppSettings {
   timezone: string
   currency: string
   dateFormat: 'MM/DD/YYYY' | 'DD/MM/YYYY' | 'YYYY-MM-DD'
-  theme: 'light' | 'dark'
+  theme: 'light' | 'dark' | 'landing'
   accentColor: string
   calendar: CalendarSettings
 }
