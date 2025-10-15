@@ -139,7 +139,9 @@ export const useMarriageStore = create<MarriageState>((set, get) => ({
         console.log('🔍 Store: Found existing week data:', {
           weekKey: week.week_key,
           todosCount: week.todos?.length || 0,
-          todos: week.todos
+          todos: week.todos,
+          listsCount: week.lists?.length || 0,
+          lists: week.lists
         })
 
         // Migrate old todos to new TaskItem structure if needed
@@ -170,6 +172,7 @@ export const useMarriageStore = create<MarriageState>((set, get) => ({
         console.log('🔍 Store: Prayers details:', week.prayers)
         console.log('Store: Setting weekData with todos:', migratedTodos)
         console.log('Store: Setting weekData with grocery:', week.grocery)
+        console.log('Store: Setting weekData with lists:', week.lists)
         console.log('Store: Setting weekData with encouragementNotes:', week.encouragementNotes)
         console.log('Store: Setting weekData with calendarEvents:', week.calendarEvents)
         
@@ -244,6 +247,8 @@ export const useMarriageStore = create<MarriageState>((set, get) => ({
         console.log('🔍 Store: Complete weekData being set for week', weekKey, ':', weekDataToSet)
         console.log('🔍 Store: Final prayers data being set:', weekDataToSet.prayers)
         console.log('🔍 Store: Final prayers count:', weekDataToSet.prayers?.length || 0)
+        console.log('🔍 Store: Final lists data being set:', weekDataToSet.lists)
+        console.log('🔍 Store: Final lists count:', weekDataToSet.lists?.length || 0)
         console.log('🔍 Store: Schedule data being set:', weekDataToSet.schedule)
         
         set({ 
