@@ -69,6 +69,8 @@ export const ListsSection: React.FC<ListsSectionProps> = ({
   }
 
   const handleEditList = (list: CustomList) => {
+    console.log('ListsSection: handleEditList called with list =', list)
+    console.log('ListsSection: list.listType =', list.listType)
     setEditingList(list)
     setIsCreateModalOpen(true)
   }
@@ -326,6 +328,12 @@ export const ListsSection: React.FC<ListsSectionProps> = ({
         preselectedType={undefined}
         editingList={editingList}
       />
+      {/* Debug info */}
+      {editingList && (
+        <div style={{position: 'fixed', top: 0, left: 0, background: 'red', color: 'white', padding: '10px', zIndex: 9999}}>
+          DEBUG: editingList = {JSON.stringify(editingList, null, 2)}
+        </div>
+      )}
     </motion.div>
   )
 }
