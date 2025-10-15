@@ -274,13 +274,19 @@ export const MealPlanningForm: React.FC<MealPlanningFormProps> = ({
   }
 
   const handleGenerateGroceryList = () => {
+    alert('Generate button clicked!') // Test if button works
+    
     if (meals.length === 0) {
       alert('Please add some meals to your plan first!')
       return
     }
 
+    alert(`Found ${meals.length} meals and ${recipes.length} recipes`) // Test data
+
     // Generate grocery items from meal plan (pass recipes to find ingredients)
     const groceryItems = generateGroceryFromMealPlan(meals, recipes)
+    
+    alert(`Generated ${groceryItems.length} grocery items`) // Test result
     
     if (groceryItems.length === 0) {
       alert('No ingredients found! Make sure you have meals with recipes linked or ingredients added.')
@@ -617,26 +623,28 @@ export const MealPlanningForm: React.FC<MealPlanningFormProps> = ({
                               )}
                             </div>
                             <div className="flex items-center gap-1 flex-shrink-0 ml-2">
-                              {recipes.length > 0 && !meal.recipeId && (
-                                <button
-                                  onClick={() => {
-                                    if (recipes.length === 1) {
-                                      handleLinkRecipe(meal, recipes[0])
-                                    } else {
-                                      // Show recipe selection
-                                      const recipeNames = recipes.map(r => r.name)
-                                      const selection = prompt(`Link recipe to ${meal.mealName}:\n${recipeNames.map((name, i) => `${i + 1}. ${name}`).join('\n')}\n\nEnter number (1-${recipes.length}):`)
-                                      const index = parseInt(selection || '0') - 1
-                                      if (index >= 0 && index < recipes.length) {
-                                        handleLinkRecipe(meal, recipes[index])
+                              {!meal.recipeId && (
+                                <select
+                                  onChange={(e) => {
+                                    const recipeId = e.target.value
+                                    if (recipeId) {
+                                      const recipe = recipes.find(r => r.id === recipeId)
+                                      if (recipe) {
+                                        handleLinkRecipe(meal, recipe)
                                       }
                                     }
                                   }}
-                                  className="text-green-500 hover:text-green-700 dark:text-green-400 dark:hover:text-green-300 p-1"
+                                  className="text-xs bg-white dark:bg-gray-600 border border-gray-300 dark:border-gray-500 rounded px-1 py-0.5"
                                   title="Link recipe"
+                                  defaultValue=""
                                 >
-                                  <ChefHat className="w-3 h-3" />
-                                </button>
+                                  <option value="">Link Recipe</option>
+                                  {recipes.map(recipe => (
+                                    <option key={recipe.id} value={recipe.id}>
+                                      {recipe.name}
+                                    </option>
+                                  ))}
+                                </select>
                               )}
                               <button
                                 onClick={() => handleEditMeal(meal)}
