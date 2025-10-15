@@ -251,10 +251,10 @@ export const CreateListModal: React.FC<CreateListModalProps> = ({
           initial={{ scale: 0.95, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.95, opacity: 0 }}
-          className="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-2xl w-full max-h-[95vh] sm:max-h-[90vh] overflow-y-auto"
+          className="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] sm:max-h-[85vh] flex flex-col"
         >
           {/* Header */}
-          <div className="flex items-center justify-between p-3 sm:p-6 border-b border-gray-200 dark:border-gray-700">
+          <div className="flex-shrink-0 flex items-center justify-between p-3 sm:p-6 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
             <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
               {selectedType && (
                 React.createElement(getIconComponent(getListTypeConfig(selectedType).icon), { 
@@ -274,7 +274,7 @@ export const CreateListModal: React.FC<CreateListModalProps> = ({
           </div>
 
           {/* Content */}
-          <div className="p-3 sm:p-6">
+          <div className="flex-1 overflow-y-auto p-3 sm:p-6">
             <AnimatePresence mode="wait">
               <motion.div
                 key={step}
@@ -289,7 +289,7 @@ export const CreateListModal: React.FC<CreateListModalProps> = ({
           </div>
 
           {/* Footer */}
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-3 sm:p-6 border-t border-gray-200 dark:border-gray-700">
+          <div className="flex-shrink-0 flex flex-col sm:flex-row items-center justify-between gap-3 p-3 sm:p-6 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
             <div className="flex items-center gap-2">
               {[1, 2].map((stepNum) => (
                 <div
