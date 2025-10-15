@@ -119,13 +119,13 @@ export const CreateListModal: React.FC<CreateListModalProps> = ({
               </p>
             </div>
 
-            <div className="grid grid-cols-1 gap-1 sm:gap-3">
+            <div className="grid grid-cols-1 gap-2 sm:gap-3">
               {listTypes.map((type) => (
                 <motion.button
                   key={type.type}
                   onClick={() => handleTypeSelect(type.type)}
                   className={`
-                    p-2 sm:p-4 rounded-lg border-2 transition-all duration-200 text-left
+                    p-3 sm:p-4 rounded-lg border-2 transition-all duration-200 text-left
                     ${selectedType === type.type
                       ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
                       : 'border-gray-200 dark:border-gray-600 hover:border-blue-300 dark:hover:border-blue-600 hover:bg-gray-50 dark:hover:bg-gray-700'
@@ -244,14 +244,14 @@ export const CreateListModal: React.FC<CreateListModalProps> = ({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-1 sm:p-4"
+        className="fixed inset-0 bg-black bg-opacity-50 flex items-end sm:items-center justify-center z-50 p-0 sm:p-4"
         onClick={(e) => e.target === e.currentTarget && handleClose()}
       >
         <motion.div
           initial={{ scale: 0.95, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.95, opacity: 0 }}
-          className="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-2xl w-full max-h-[98vh] sm:max-h-[85vh] flex flex-col"
+          className="bg-white dark:bg-gray-800 rounded-t-xl sm:rounded-xl shadow-xl max-w-2xl w-full h-[95vh] sm:max-h-[85vh] flex flex-col"
         >
           {/* Header */}
           <div className="flex-shrink-0 flex items-center justify-between p-2 sm:p-6 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
@@ -274,7 +274,7 @@ export const CreateListModal: React.FC<CreateListModalProps> = ({
           </div>
 
           {/* Content */}
-          <div className="flex-1 overflow-y-auto p-2 sm:p-6 min-h-0">
+          <div className="flex-1 overflow-y-auto p-3 sm:p-6 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600">
             <AnimatePresence mode="wait">
               <motion.div
                 key={step}
@@ -282,7 +282,6 @@ export const CreateListModal: React.FC<CreateListModalProps> = ({
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
                 transition={{ duration: 0.2 }}
-                className="h-full"
               >
                 {renderStepContent()}
               </motion.div>
@@ -290,7 +289,7 @@ export const CreateListModal: React.FC<CreateListModalProps> = ({
           </div>
 
           {/* Footer */}
-          <div className="flex-shrink-0 flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-3 p-2 sm:p-6 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+          <div className="flex-shrink-0 flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-3 p-4 sm:p-6 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
             <div className="flex items-center gap-2">
               {[1, 2].map((stepNum) => (
                 <div
@@ -327,8 +326,8 @@ export const CreateListModal: React.FC<CreateListModalProps> = ({
               <Button
                 onClick={step === 1 ? () => setStep(2) : handleCreate}
                 disabled={!canProceed()}
-                className="bg-blue-600 hover:bg-blue-700 flex-1 sm:flex-none"
-                size="sm"
+                className="bg-blue-600 hover:bg-blue-700 flex-1 sm:flex-none text-base font-semibold"
+                size="lg"
               >
                 {step === 1 ? (
                   <>
