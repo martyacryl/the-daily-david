@@ -36,10 +36,13 @@ export const MealPlanningForm: React.FC<MealPlanningFormProps> = ({
     }
   }, [metadata.recipes, metadata.meals])
 
-  // Debug: Log when meals change
+  // Reconstruct meals from list items if meals are empty but we have meal items
   React.useEffect(() => {
-    console.log('Meals updated:', meals.length, meals)
-  }, [meals])
+    if (meals.length === 0 && metadata.meals && metadata.meals.length > 0) {
+      setMeals(metadata.meals)
+    }
+  }, [meals.length, metadata.meals])
+
 
   // Helper function to update metadata and trigger parent callback
   const updateMetadata = (updates: Partial<ListMetadata>) => {
@@ -120,7 +123,9 @@ export const MealPlanningForm: React.FC<MealPlanningFormProps> = ({
   }
 
   const handleEditMeal = (meal: MealPlanItem) => {
-    setEditingMeal(meal)
+    // Make sure we have the most up-to-date meal data
+    const currentMeal = meals.find(m => m === meal) || meal
+    setEditingMeal(currentMeal)
   }
 
   const handleSaveMealEdit = (updatedMeal: MealPlanItem) => {
@@ -252,9 +257,14 @@ export const MealPlanningForm: React.FC<MealPlanningFormProps> = ({
       ...meal,
       recipeId: recipe.id,
       recipe: recipe,
-      ingredients: recipe.ingredients
+      ingredients: [...recipe.ingredients] // Make sure ingredients are copied
     }
-    handleSaveMealEdit(updatedMeal)
+    
+    // Update the meal in the meals array
+    const updatedMeals = meals.map(m => m === meal ? updatedMeal : m)
+    setMeals(updatedMeals)
+    updateMetadata({ meals: updatedMeals })
+    
     alert(`Linked recipe "${recipe.name}" to ${meal.mealName}!`)
   }
 
@@ -279,10 +289,6 @@ export const MealPlanningForm: React.FC<MealPlanningFormProps> = ({
   }
 
   const handleGenerateGroceryList = () => {
-    console.log('Generate clicked - meals:', meals.length, 'recipes:', recipes.length)
-    console.log('Meals data:', meals)
-    console.log('Recipes data:', recipes)
-    
     if (meals.length === 0) {
       alert('Please add some meals to your plan first!')
       return
@@ -290,8 +296,6 @@ export const MealPlanningForm: React.FC<MealPlanningFormProps> = ({
 
     // Generate grocery items from meal plan (pass recipes to find ingredients)
     const groceryItems = generateGroceryFromMealPlan(meals, recipes)
-    
-    console.log('Generated grocery items:', groceryItems)
     
     if (groceryItems.length === 0) {
       alert('No ingredients found! Make sure you have meals with recipes linked or ingredients added.')
@@ -628,7 +632,7 @@ export const MealPlanningForm: React.FC<MealPlanningFormProps> = ({
                               )}
                             </div>
                             <div className="flex items-center gap-1 flex-shrink-0 ml-2">
-                              {!meal.recipeId && (
+                              {!meal.recipeId && recipes.length > 0 && (
                                 <select
                                   onChange={(e) => {
                                     const recipeId = e.target.value
