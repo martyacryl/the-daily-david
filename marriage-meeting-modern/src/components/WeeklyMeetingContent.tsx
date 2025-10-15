@@ -203,8 +203,8 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
     >
       <Card className="p-3 sm:p-6 lg:p-8">
         <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6 lg:mb-8">
-          <div className="p-2 sm:p-3 bg-blue-100 dark:bg-blue-900/20 rounded-lg">
-            <Calendar className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-blue-600 dark:text-blue-400" />
+          <div className="p-2 sm:p-3 bg-blue-100 dark:bg-blue-900/20 landing:bg-blue-900/30 rounded-lg">
+            <Calendar className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-blue-600 dark:text-blue-400 landing:text-blue-300" />
           </div>
           <div>
             <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 dark:text-white">Weekly Schedule</h2>
@@ -216,11 +216,11 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
           {days.map((day) => {
             const dayEvents = getDayEvents(day)
             return (
-              <div key={day} className="bg-gray-50 dark:bg-gray-700 rounded-lg sm:rounded-xl p-3 sm:p-4 lg:p-6">
+              <div key={day} className="bg-gray-50 dark:bg-gray-700 landing:bg-slate-800/50 rounded-lg sm:rounded-xl p-3 sm:p-4 lg:p-6">
                 <div className="flex items-center justify-between mb-2 sm:mb-3 lg:mb-4">
                   <div className="flex items-center gap-2">
-                    <h3 className="text-base sm:text-lg font-semibold text-gray-800 dark:text-white">{day}</h3>
-                    <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 text-xs font-medium rounded-full">
+                    <h3 className="text-base sm:text-lg font-semibold text-gray-800 dark:text-white landing:text-white">{day}</h3>
+                    <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900 landing:bg-blue-900/30 text-blue-700 dark:text-blue-300 landing:text-blue-300 text-xs font-medium rounded-full">
                       {weekDates[day]}
                     </span>
                   </div>
@@ -243,7 +243,7 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
                   {dayEvents.length > 0 && (
                     <div className="space-y-1">
                       {dayEvents.map((event, index) => (
-                        <div key={index} className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-2 text-xs sm:text-sm">
+                        <div key={index} className="bg-blue-50 dark:bg-blue-900/20 landing:bg-blue-900/30 border border-blue-200 dark:border-blue-700 landing:border-blue-700 rounded-lg p-2 text-xs sm:text-sm">
                           <div className="flex items-center gap-2">
                             <Calendar className="w-3 h-3 sm:w-4 sm:h-4 text-blue-600 dark:text-blue-400" />
                             <span className="font-medium text-blue-800 dark:text-blue-200">{event.title}</span>
@@ -262,12 +262,12 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
                   {weekData.schedule[day] && weekData.schedule[day].length > 0 && (
                     <div className="space-y-1">
                       {weekData.schedule[day].map((item, index) => (
-                        <div key={index} className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg p-2 text-xs sm:text-sm flex items-center gap-2">
+                        <div key={index} className="bg-white dark:bg-gray-800 landing:bg-slate-700/50 border border-gray-200 dark:border-gray-600 landing:border-slate-600 rounded-lg p-2 text-xs sm:text-sm flex items-center gap-2">
                           <input
                             type="text"
                             value={item}
                             onChange={(e) => onUpdateSchedule(day, index, e.target.value)}
-                            className="flex-1 bg-transparent border-none outline-none text-gray-800 dark:text-white"
+                            className="flex-1 bg-transparent border-none outline-none text-gray-800 dark:text-white landing:text-slate-200"
                             placeholder={`Add activity for ${day}...`}
                           />
                           <button
@@ -316,12 +316,12 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
         <Card className="p-3 sm:p-6 lg:p-8">
           <div className="flex items-center justify-between mb-4 sm:mb-6">
             <div className="flex items-center gap-2 sm:gap-3">
-              <div className={`p-2 sm:p-3 bg-${color}-100 dark:bg-${color}-900/20 rounded-lg`}>
-                {React.createElement(icon, { className: `w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-${color}-600 dark:text-${color}-400` })}
+              <div className={`p-2 sm:p-3 bg-${color}-100 dark:bg-${color}-900/20 landing:bg-${color}-900/30 rounded-lg`}>
+                {React.createElement(icon, { className: `w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-${color}-600 dark:text-${color}-400 landing:text-${color}-300` })}
               </div>
               <div>
-                <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 dark:text-white">{title}</h2>
-                <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300">{items.length} items</p>
+                <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 dark:text-white landing:text-white">{title}</h2>
+                <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300 landing:text-slate-200">{items.length} items</p>
                 {isAccountability && (
                   <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">
                     Areas for growth, confession, or accountability
@@ -344,7 +344,7 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
 
           <div className="space-y-2 sm:space-y-3 lg:space-y-4">
             {items.map((item) => (
-              <div key={item.id} className="flex items-center gap-2 sm:gap-3 lg:gap-4 p-2 sm:p-3 lg:p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg hover:shadow-sm transition-shadow">
+              <div key={item.id} className="flex items-center gap-2 sm:gap-3 lg:gap-4 p-2 sm:p-3 lg:p-4 bg-white dark:bg-gray-800 landing:bg-slate-700/50 border border-gray-200 dark:border-gray-600 landing:border-slate-600 rounded-lg hover:shadow-sm transition-shadow">
                 <button
                   onClick={() => {
                     onToggleListItem(type, item.id)
@@ -418,12 +418,12 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
     >
       <Card className="p-3 sm:p-6 lg:p-8">
         <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
-          <div className="p-2 sm:p-3 bg-green-100 dark:bg-green-900/20 rounded-lg">
-            <Target className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-green-600 dark:text-green-400" />
+          <div className="p-2 sm:p-3 bg-green-100 dark:bg-green-900/20 landing:bg-green-900/30 rounded-lg">
+            <Target className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-green-600 dark:text-green-400 landing:text-green-300" />
           </div>
           <div>
-            <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 dark:text-white">Goals</h2>
-            <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300">Set and track your goals by timeframe</p>
+            <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 dark:text-white landing:text-white">Goals</h2>
+            <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300 landing:text-slate-200">Set and track your goals by timeframe</p>
           </div>
         </div>
         <GoalsSection />
@@ -460,12 +460,12 @@ export const WeeklyMeetingContent: React.FC<WeeklyMeetingContentProps> = ({
     >
       <Card className="p-3 sm:p-6 lg:p-8">
         <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
-          <div className="p-2 sm:p-3 bg-pink-100 dark:bg-pink-900/20 rounded-lg">
-            <Heart className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-pink-600 dark:text-pink-400" />
+          <div className="p-2 sm:p-3 bg-pink-100 dark:bg-pink-900/20 landing:bg-pink-900/30 rounded-lg">
+            <Heart className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-pink-600 dark:text-pink-400 landing:text-pink-300" />
           </div>
           <div>
-            <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 dark:text-white">Encouragement</h2>
-            <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300">Leave notes of encouragement, Bible verses, and reminders for your spouse</p>
+            <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 dark:text-white landing:text-white">Encouragement</h2>
+            <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300 landing:text-slate-200">Leave notes of encouragement, Bible verses, and reminders for your spouse</p>
           </div>
         </div>
         <EncouragementSection 

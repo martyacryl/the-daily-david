@@ -1443,10 +1443,10 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
   }
 
   return (
-    <div className={`min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-gray-900 dark:to-gray-800 ${className}`}>
+    <div className={`min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-gray-900 dark:to-gray-800 landing:bg-gradient-to-br landing:from-slate-950 landing:via-slate-900 landing:to-slate-950 ${className}`}>
       <div className="flex h-screen">
         {/* Main Content Area */}
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 overflow-y-auto landing:bg-gradient-to-br landing:from-slate-950/50 landing:to-slate-900/50">
           <AnimatePresence mode="wait">
             <motion.div
               key={activeSection}

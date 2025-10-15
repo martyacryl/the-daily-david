@@ -232,20 +232,20 @@ export const TasksSection: React.FC<TasksSectionProps> = ({ tasks, onUpdate }) =
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.3 }}
     >
-      <Card className="p-3 sm:p-4 lg:p-8 bg-white dark:bg-gray-800">
+      <Card className="p-3 sm:p-4 lg:p-8 bg-white dark:bg-gray-800 landing:bg-gradient-to-br landing:from-slate-800/90 landing:to-slate-900/90 landing:backdrop-blur-sm">
         <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
-          <div className="p-2 sm:p-3 bg-orange-100 dark:bg-orange-900/20 rounded-lg">
-            <CheckSquare className="w-5 h-5 sm:w-6 sm:h-6 text-orange-600 dark:text-orange-400" />
+          <div className="p-2 sm:p-3 bg-orange-100 dark:bg-orange-900/20 landing:bg-orange-900/30 rounded-lg">
+            <CheckSquare className="w-5 h-5 sm:w-6 sm:h-6 text-orange-600 dark:text-orange-400 landing:text-orange-300" />
           </div>
           <div>
-            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">Tasks</h2>
-            <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300">Plan and track your tasks with timelines</p>
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white landing:text-white">Tasks</h2>
+            <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300 landing:text-slate-200">Plan and track your tasks with timelines</p>
           </div>
         </div>
 
         {/* Add New Task Form */}
-        <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3 sm:p-4 lg:p-6 mb-4 sm:mb-6 border border-gray-200 dark:border-gray-600">
-          <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-3 sm:mb-4">Add New Task</h3>
+        <div className="bg-gray-50 dark:bg-gray-700 landing:bg-slate-800/50 rounded-lg p-3 sm:p-4 lg:p-6 mb-4 sm:mb-6 border border-gray-200 dark:border-gray-600 landing:border-slate-600">
+          <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white landing:text-white mb-3 sm:mb-4">Add New Task</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             <div className="sm:col-span-2">
               <input
