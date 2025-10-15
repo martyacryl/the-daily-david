@@ -80,15 +80,15 @@ export const CreateListModal: React.FC<CreateListModalProps> = ({
   }
 
   const handleClose = () => {
-    setStep(1) // Always reset to step 1 (category selection)
-    setSelectedType(null)
-    setListName('')
-    setMetadata({})
+    setStep(editingList ? 2 : 1) // Reset to appropriate step based on mode
+    setSelectedType(editingList ? editingList.listType : null)
+    setListName(editingList ? editingList.name : '')
+    setMetadata(editingList ? editingList.metadata : {})
     onClose()
   }
 
   const handleBack = () => {
-    if (step === 2) {
+    if (step === 2 && !editingList) { // Only allow back navigation when creating new list
       setStep(1)
       setSelectedType(null)
       setMetadata({})
@@ -325,7 +325,7 @@ export const CreateListModal: React.FC<CreateListModalProps> = ({
                 Cancel
               </Button>
               
-              {step === 2 && !preselectedType && (
+              {step === 2 && !preselectedType && !editingList && (
                 <Button
                   onClick={handleBack}
                   variant="outline"
