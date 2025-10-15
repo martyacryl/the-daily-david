@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, ChevronLeft, ChevronRight, ShoppingCart, CheckSquare, Utensils, Luggage, Home } from 'lucide-react'
 import { Button } from '../ui/Button'
@@ -41,6 +41,23 @@ export const CreateListModal: React.FC<CreateListModalProps> = ({
   const [selectedType, setSelectedType] = useState<CustomListType | null>(editingList?.listType || null)
   const [listName, setListName] = useState(editingList?.name || '')
   const [metadata, setMetadata] = useState<ListMetadata>(editingList?.metadata || {})
+
+  // Update state when editingList changes
+  useEffect(() => {
+    if (editingList) {
+      console.log('CreateListModal: useEffect - setting step to 2 for editing')
+      setStep(2)
+      setSelectedType(editingList.listType)
+      setListName(editingList.name)
+      setMetadata(editingList.metadata || {})
+    } else {
+      console.log('CreateListModal: useEffect - setting step to 1 for new list')
+      setStep(1)
+      setSelectedType(null)
+      setListName('')
+      setMetadata({})
+    }
+  }, [editingList])
   
   console.log('CreateListModal: step =', step)
   console.log('CreateListModal: selectedType =', selectedType)
