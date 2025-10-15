@@ -258,20 +258,23 @@ export const MealPlanningForm: React.FC<MealPlanningFormProps> = ({
     }
 
     return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-          <div className="p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
+        <div className="bg-white dark:bg-gray-800 rounded-t-xl sm:rounded-xl shadow-xl max-w-2xl w-full h-[95vh] sm:max-h-[90vh] overflow-y-auto flex flex-col">
+          <div className="flex-shrink-0 p-3 sm:p-6 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+            <div className="flex items-center justify-between">
+              <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white truncate">
                 Edit {meal.mealName}
               </h3>
               <button
                 onClick={onClose}
-                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
+                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg flex-shrink-0"
               >
                 <X className="w-5 h-5 text-gray-600 dark:text-gray-400" />
               </button>
             </div>
+          </div>
+
+          <div className="flex-1 overflow-y-auto p-3 sm:p-6">
 
             {/* Recipe Link Section */}
             <div className="mb-6">
@@ -385,16 +388,17 @@ export const MealPlanningForm: React.FC<MealPlanningFormProps> = ({
               </div>
             </div>
 
-            {/* Actions */}
-            <div className="flex gap-2">
-              <Button
-                onClick={onClose}
-                className="flex-1"
-                variant="outline"
-              >
-                Done
-              </Button>
-            </div>
+          </div>
+
+          {/* Footer */}
+          <div className="flex-shrink-0 p-3 sm:p-6 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+            <Button
+              onClick={onClose}
+              className="w-full"
+              variant="outline"
+            >
+              Done
+            </Button>
           </div>
         </div>
       </div>
@@ -427,7 +431,7 @@ export const MealPlanningForm: React.FC<MealPlanningFormProps> = ({
       </div>
 
       {/* Add New Meal */}
-      <div className="p-4 bg-slate-50 dark:bg-slate-900/20 border border-slate-200 dark:border-slate-700 rounded-lg">
+      <div className="p-3 sm:p-4 bg-slate-50 dark:bg-slate-900/20 border border-slate-200 dark:border-slate-700 rounded-lg">
         <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-3">Add Meal</h4>
         
         <div className="grid grid-cols-2 gap-3 mb-3">
@@ -519,7 +523,7 @@ export const MealPlanningForm: React.FC<MealPlanningFormProps> = ({
           {days.map(day => {
             const dayMeals = getMealsForDay(day)
             return (
-              <div key={day} className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+              <div key={day} className="p-2 sm:p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
                 <h5 className="text-sm font-medium text-gray-900 dark:text-white mb-2">{day}</h5>
                 {dayMeals.length === 0 ? (
                   <p className="text-xs text-gray-500 dark:text-gray-400">No meals planned</p>
@@ -529,27 +533,27 @@ export const MealPlanningForm: React.FC<MealPlanningFormProps> = ({
                       const typeMeals = getMealsForDayAndType(day, mealType.value)
                       return typeMeals.map((meal, index) => (
                         <div key={index} className="p-2 bg-white dark:bg-gray-600 rounded border">
-                          <div className="flex items-center justify-between mb-1">
-                            <div className="flex items-center gap-1 text-gray-700 dark:text-gray-300">
+                          <div className="flex items-start justify-between mb-1">
+                            <div className="flex items-center gap-1 text-gray-700 dark:text-gray-300 min-w-0 flex-1">
                               {React.createElement(getIconComponent(mealType.icon), { 
-                                className: "w-3 h-3" 
+                                className: "w-3 h-3 flex-shrink-0" 
                               })}
-                              <span className="text-sm font-medium">{meal.mealName}</span>
+                              <span className="text-xs sm:text-sm font-medium truncate">{meal.mealName}</span>
                               {meal.recipe && (
-                                <ChefHat className="w-3 h-3 text-green-600 dark:text-green-400" />
+                                <ChefHat className="w-3 h-3 text-green-600 dark:text-green-400 flex-shrink-0" />
                               )}
                             </div>
-                            <div className="flex items-center gap-1">
+                            <div className="flex items-center gap-1 flex-shrink-0 ml-2">
                               <button
                                 onClick={() => handleEditMeal(meal)}
-                                className="text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+                                className="text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 p-1"
                                 title="Edit ingredients"
                               >
                                 <Edit3 className="w-3 h-3" />
                               </button>
                               <button
                                 onClick={() => handleRemoveMeal(meals.indexOf(meal))}
-                                className="text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+                                className="text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 p-1"
                                 title="Remove meal"
                               >
                                 <X className="w-3 h-3" />
@@ -576,13 +580,14 @@ export const MealPlanningForm: React.FC<MealPlanningFormProps> = ({
       </div>
 
       {/* Recipe Management */}
-      <div className="p-4 bg-slate-50 dark:bg-slate-900/20 border border-slate-200 dark:border-slate-700 rounded-lg">
-        <div className="flex items-center justify-between mb-3">
+      <div className="p-3 sm:p-4 bg-slate-50 dark:bg-slate-900/20 border border-slate-200 dark:border-slate-700 rounded-lg">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
           <h4 className="text-sm font-medium text-gray-900 dark:text-white">Recipes</h4>
           <Button
             onClick={() => setShowRecipeForm(!showRecipeForm)}
             size="sm"
             variant="outline"
+            className="w-full sm:w-auto"
           >
             <ChefHat className="w-4 h-4 mr-1" />
             {showRecipeForm ? 'Cancel' : 'Add Recipe'}
@@ -591,7 +596,7 @@ export const MealPlanningForm: React.FC<MealPlanningFormProps> = ({
 
         {/* Recipe Form */}
         {showRecipeForm && (
-          <div className="space-y-4 mb-4 p-4 bg-white dark:bg-gray-800 rounded border">
+          <div className="space-y-3 mb-4 p-3 sm:p-4 bg-white dark:bg-gray-800 rounded border">
             <h5 className="text-sm font-medium text-gray-900 dark:text-white">Create New Recipe</h5>
             
             {/* Recipe Name */}
@@ -604,7 +609,7 @@ export const MealPlanningForm: React.FC<MealPlanningFormProps> = ({
             />
             
             {/* Recipe Details */}
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               <input
                 type="number"
                 value={newRecipe.servings || 4}
@@ -682,7 +687,7 @@ export const MealPlanningForm: React.FC<MealPlanningFormProps> = ({
             </div>
 
             {/* Actions */}
-            <div className="flex gap-2">
+            <div className="flex flex-col sm:flex-row gap-2">
               <Button
                 onClick={() => {
                   setShowRecipeForm(false)
@@ -748,7 +753,7 @@ export const MealPlanningForm: React.FC<MealPlanningFormProps> = ({
 
       {/* Summary and Actions */}
       {meals.length > 0 && (
-        <div className="p-3 bg-slate-50 dark:bg-slate-900/20 border border-slate-200 dark:border-slate-700 rounded-lg">
+        <div className="p-3 sm:p-4 bg-slate-50 dark:bg-slate-900/20 border border-slate-200 dark:border-slate-700 rounded-lg">
           <p className="text-sm text-slate-800 dark:text-slate-200">
             <strong>{meals.length} meals</strong> planned for the week
           </p>
@@ -761,10 +766,10 @@ export const MealPlanningForm: React.FC<MealPlanningFormProps> = ({
             <Button
               onClick={handleGenerateGroceryList}
               size="sm"
-              className="w-full bg-green-600 hover:bg-green-700 text-white"
+              className="w-full bg-green-600 hover:bg-green-700 text-white text-sm"
             >
               <ShoppingCart className="w-4 h-4 mr-2" />
-              Generate Grocery List from Meals
+              Generate Grocery List
             </Button>
           </div>
           
