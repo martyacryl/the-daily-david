@@ -214,7 +214,7 @@ export const CreateListModal: React.FC<CreateListModalProps> = ({
                 value={listName}
                 onChange={(e) => setListName(e.target.value)}
                 placeholder={`Enter ${getListTypeConfig(selectedType).label.toLowerCase()} list name...`}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm sm:text-base"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 landing:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 landing:bg-slate-800/50 text-gray-900 dark:text-white landing:text-slate-200 text-sm sm:text-base"
                 autoFocus
               />
             </div>
@@ -280,10 +280,10 @@ export const CreateListModal: React.FC<CreateListModalProps> = ({
           initial={{ scale: 0.95, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.95, opacity: 0 }}
-          className="bg-white dark:bg-gray-800 rounded-t-xl sm:rounded-xl shadow-xl max-w-2xl w-full h-[95vh] sm:max-h-[85vh] flex flex-col"
+          className="bg-white dark:bg-gray-800 landing:bg-gradient-to-br landing:from-slate-800/90 landing:to-slate-900/90 landing:backdrop-blur-sm rounded-t-xl sm:rounded-xl shadow-xl landing:shadow-xl landing:shadow-blue-500/20 max-w-2xl w-full h-[95vh] sm:max-h-[85vh] flex flex-col"
         >
           {/* Header */}
-          <div className="flex-shrink-0 flex items-center justify-between p-2 sm:p-6 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+          <div className="flex-shrink-0 flex items-center justify-between p-2 sm:p-6 border-b border-gray-200 dark:border-gray-700 landing:border-slate-600 bg-white dark:bg-gray-800 landing:bg-gradient-to-br landing:from-slate-800/90 landing:to-slate-900/90">
             <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
               {selectedType && (
                 React.createElement(getIconComponent(getListTypeConfig(selectedType).icon), { 
@@ -318,7 +318,7 @@ export const CreateListModal: React.FC<CreateListModalProps> = ({
           </div>
 
           {/* Footer */}
-          <div className="flex-shrink-0 flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-3 p-3 sm:p-6 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+          <div className="flex-shrink-0 flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-3 p-3 sm:p-6 border-t border-gray-200 dark:border-gray-700 landing:border-slate-600 bg-white dark:bg-gray-800 landing:bg-gradient-to-br landing:from-slate-800/90 landing:to-slate-900/90">
             <div className="flex items-center gap-2">
               {[1, 2].map((stepNum) => (
                 <div

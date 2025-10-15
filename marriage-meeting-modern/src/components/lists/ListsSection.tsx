@@ -212,12 +212,12 @@ export const ListsSection: React.FC<ListsSectionProps> = ({
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4 sm:mb-6">
           <div className="flex items-center gap-2 sm:gap-3">
-            <div className="p-2 sm:p-3 rounded-lg bg-slate-100 dark:bg-slate-900/20">
-              <List className="w-5 h-5 sm:w-6 sm:h-6 text-slate-600 dark:text-slate-400" />
+            <div className="p-2 sm:p-3 rounded-lg bg-slate-100 dark:bg-slate-900/20 landing:bg-slate-800/50">
+              <List className="w-5 h-5 sm:w-6 sm:h-6 text-slate-600 dark:text-slate-400 landing:text-slate-300" />
             </div>
                   <div>
-                    <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">Lists</h2>
-                    <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300">Organize your tasks and plans</p>
+                    <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white landing:text-white">Lists</h2>
+                    <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300 landing:text-slate-200">Organize your tasks and plans</p>
                   </div>
           </div>
 
@@ -273,7 +273,7 @@ export const ListsSection: React.FC<ListsSectionProps> = ({
                 transition={{ duration: 0.2 }}
                 className="text-center py-8 sm:py-12"
               >
-                <div className="inline-flex p-3 sm:p-4 rounded-full mb-3 sm:mb-4 bg-slate-100 dark:bg-slate-900/20">
+                <div className="inline-flex p-3 sm:p-4 rounded-full mb-3 sm:mb-4 bg-slate-100 dark:bg-slate-900/20 landing:bg-slate-800/50">
                   {React.createElement(getIconComponent(config ? config.icon : 'List'), { 
                     className: "w-6 h-6 sm:w-8 sm:h-8 text-slate-600 dark:text-slate-400" 
                   })}
@@ -291,7 +291,7 @@ export const ListsSection: React.FC<ListsSectionProps> = ({
 
         {/* Meal Plan Actions */}
         {activeType === 'meal-planning' && filteredLists.length > 0 && (
-          <div className="mt-4 sm:mt-6 p-3 sm:p-4 bg-slate-50 dark:bg-slate-900/20 border border-slate-200 dark:border-slate-700 rounded-lg">
+          <div className="mt-4 sm:mt-6 p-3 sm:p-4 bg-slate-50 dark:bg-slate-900/20 landing:bg-slate-800/50 border border-slate-200 dark:border-slate-700 landing:border-slate-600 rounded-lg">
             <div className="flex items-center gap-2 mb-2">
               <Sparkles className="w-4 h-4 text-slate-600 dark:text-slate-400" />
               <h4 className="text-sm font-medium text-slate-800 dark:text-slate-200">
