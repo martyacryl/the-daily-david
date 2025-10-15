@@ -229,12 +229,30 @@ export const getChoreSuggestions = (category: string): string[] => {
 }
 
 // Generate grocery items from meal plan
-export const generateGroceryFromMealPlan = (meals: MealPlanItem[]): CustomListItem[] => {
+export const generateGroceryFromMealPlan = (meals: MealPlanItem[], recipes: RecipeItem[] = []): CustomListItem[] => {
   const groceryItems: CustomListItem[] = []
   
   meals.forEach(meal => {
-    // Use actual ingredients from the meal if available
-    const ingredients = meal.ingredients || []
+    let ingredients: string[] = []
+    
+    // First, use ingredients directly from the meal
+    if (meal.ingredients && meal.ingredients.length > 0) {
+      ingredients = [...meal.ingredients]
+    }
+    
+    // If meal has a linked recipe, get ingredients from the recipe
+    if (meal.recipeId && meal.recipe) {
+      ingredients = [...ingredients, ...meal.recipe.ingredients]
+    } else if (meal.recipeId) {
+      // Find recipe by ID if not directly linked
+      const recipe = recipes.find(r => r.id === meal.recipeId)
+      if (recipe) {
+        ingredients = [...ingredients, ...recipe.ingredients]
+      }
+    }
+    
+    // Remove duplicates
+    ingredients = [...new Set(ingredients)]
     
     ingredients.forEach(ingredient => {
       // Check if ingredient already exists

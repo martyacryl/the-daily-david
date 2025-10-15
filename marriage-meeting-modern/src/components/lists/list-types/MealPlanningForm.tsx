@@ -41,6 +41,7 @@ export const MealPlanningForm: React.FC<MealPlanningFormProps> = ({
   const [showSuggestions, setShowSuggestions] = useState(false)
   const [editingMeal, setEditingMeal] = useState<MealPlanItem | null>(null)
   const [showRecipeForm, setShowRecipeForm] = useState(false)
+  const [editingRecipe, setEditingRecipe] = useState<RecipeItem | null>(null)
   const [newRecipe, setNewRecipe] = useState<Partial<RecipeItem>>({
     name: '',
     ingredients: [],
@@ -182,6 +183,71 @@ export const MealPlanningForm: React.FC<MealPlanningFormProps> = ({
     setShowRecipeForm(false)
   }
 
+  const handleEditRecipe = (recipe: RecipeItem) => {
+    setEditingRecipe(recipe)
+    setNewRecipe({
+      name: recipe.name,
+      ingredients: [...recipe.ingredients],
+      instructions: recipe.instructions || '',
+      source: recipe.source || '',
+      servings: recipe.servings || 4,
+      prepTime: recipe.prepTime || 0,
+      cookTime: recipe.cookTime || 0
+    })
+    setNewIngredient('')
+    setShowRecipeForm(true)
+  }
+
+  const handleUpdateRecipe = () => {
+    if (!newRecipe.name || !newRecipe.ingredients?.length || !editingRecipe) {
+      alert('Please enter a recipe name and at least one ingredient.')
+      return
+    }
+
+    const updatedRecipe: RecipeItem = {
+      ...editingRecipe,
+      name: newRecipe.name,
+      ingredients: newRecipe.ingredients || [],
+      instructions: newRecipe.instructions || '',
+      source: newRecipe.source || '',
+      servings: newRecipe.servings || 4,
+      prepTime: newRecipe.prepTime || 0,
+      cookTime: newRecipe.cookTime || 0
+    }
+
+    const updatedRecipes = recipes.map(r => r.id === editingRecipe.id ? updatedRecipe : r)
+    setRecipes(updatedRecipes)
+    onMetadataChange({
+      ...metadata,
+      recipes: updatedRecipes
+    })
+
+    // Reset form
+    setEditingRecipe(null)
+    setNewRecipe({
+      name: '',
+      ingredients: [],
+      instructions: '',
+      source: '',
+      servings: 4,
+      prepTime: 0,
+      cookTime: 0
+    })
+    setNewIngredient('')
+    setShowRecipeForm(false)
+  }
+
+  const handleDeleteRecipe = (recipeId: string) => {
+    if (confirm('Are you sure you want to delete this recipe?')) {
+      const updatedRecipes = recipes.filter(r => r.id !== recipeId)
+      setRecipes(updatedRecipes)
+      onMetadataChange({
+        ...metadata,
+        recipes: updatedRecipes
+      })
+    }
+  }
+
   const handleLinkRecipe = (meal: MealPlanItem, recipe: RecipeItem) => {
     const updatedMeal = {
       ...meal,
@@ -218,11 +284,11 @@ export const MealPlanningForm: React.FC<MealPlanningFormProps> = ({
       return
     }
 
-    // Generate grocery items from meal plan
-    const groceryItems = generateGroceryFromMealPlan(meals)
+    // Generate grocery items from meal plan (pass recipes to find ingredients)
+    const groceryItems = generateGroceryFromMealPlan(meals, recipes)
     
     if (groceryItems.length === 0) {
-      alert('No ingredients found in your meals. Please add ingredients to your meals first.')
+      alert('No ingredients found in your meals. Please add ingredients to your meals or link recipes first.')
       return
     }
 
@@ -597,7 +663,9 @@ export const MealPlanningForm: React.FC<MealPlanningFormProps> = ({
         {/* Recipe Form */}
         {showRecipeForm && (
           <div className="space-y-3 mb-4 p-3 sm:p-4 bg-white dark:bg-gray-800 rounded border">
-            <h5 className="text-sm font-medium text-gray-900 dark:text-white">Create New Recipe</h5>
+            <h5 className="text-sm font-medium text-gray-900 dark:text-white">
+              {editingRecipe ? 'Edit Recipe' : 'Create New Recipe'}
+            </h5>
             
             {/* Recipe Name */}
             <input
@@ -691,6 +759,7 @@ export const MealPlanningForm: React.FC<MealPlanningFormProps> = ({
               <Button
                 onClick={() => {
                   setShowRecipeForm(false)
+                  setEditingRecipe(null)
                   setNewRecipe({
                     name: '',
                     ingredients: [],
@@ -709,13 +778,13 @@ export const MealPlanningForm: React.FC<MealPlanningFormProps> = ({
                 Cancel
               </Button>
               <Button
-                onClick={handleAddRecipe}
+                onClick={editingRecipe ? handleUpdateRecipe : handleAddRecipe}
                 disabled={!newRecipe.name || !newRecipe.ingredients?.length}
                 size="sm"
                 className="flex-1"
               >
                 <ChefHat className="w-4 h-4 mr-1" />
-                Save Recipe
+                {editingRecipe ? 'Update Recipe' : 'Save Recipe'}
               </Button>
             </div>
           </div>
@@ -730,20 +799,36 @@ export const MealPlanningForm: React.FC<MealPlanningFormProps> = ({
             {recipes.map(recipe => (
               <div key={recipe.id} className="p-2 bg-white dark:bg-gray-600 rounded border">
                 <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-900 dark:text-white">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
                       {recipe.name}
                     </p>
                     <p className="text-xs text-gray-600 dark:text-gray-400">
                       {recipe.ingredients.length} ingredients • {recipe.servings} servings
                     </p>
+                    {recipe.ingredients.length > 0 && (
+                      <p className="text-xs text-gray-500 dark:text-gray-500 truncate">
+                        {recipe.ingredients.slice(0, 3).join(', ')}
+                        {recipe.ingredients.length > 3 && '...'}
+                      </p>
+                    )}
                   </div>
-                  <button
-                    onClick={() => setRecipes(recipes.filter(r => r.id !== recipe.id))}
-                    className="text-red-500 hover:text-red-700"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
+                  <div className="flex items-center gap-1 ml-2">
+                    <button
+                      onClick={() => handleEditRecipe(recipe)}
+                      className="text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 p-1"
+                      title="Edit recipe"
+                    >
+                      <Edit3 className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => handleDeleteRecipe(recipe.id)}
+                      className="text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 p-1"
+                      title="Delete recipe"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
