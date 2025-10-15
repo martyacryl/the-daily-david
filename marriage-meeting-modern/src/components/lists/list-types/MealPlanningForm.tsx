@@ -40,6 +40,7 @@ export const MealPlanningForm: React.FC<MealPlanningFormProps> = ({
     prepTime: 0,
     cookTime: 0
   })
+  const [newIngredient, setNewIngredient] = useState('')
 
   const days = getDayNames()
 
@@ -118,6 +119,25 @@ export const MealPlanningForm: React.FC<MealPlanningFormProps> = ({
     setEditingMeal(null)
   }
 
+  const handleAddIngredientToRecipe = () => {
+    if (!newIngredient.trim()) return
+    
+    const updatedIngredients = [...(newRecipe.ingredients || []), newIngredient.trim()]
+    setNewRecipe({
+      ...newRecipe,
+      ingredients: updatedIngredients
+    })
+    setNewIngredient('')
+  }
+
+  const handleRemoveIngredientFromRecipe = (index: number) => {
+    const updatedIngredients = newRecipe.ingredients?.filter((_, i) => i !== index) || []
+    setNewRecipe({
+      ...newRecipe,
+      ingredients: updatedIngredients
+    })
+  }
+
   const handleAddRecipe = () => {
     if (!newRecipe.name || !newRecipe.ingredients?.length) return
 
@@ -148,6 +168,7 @@ export const MealPlanningForm: React.FC<MealPlanningFormProps> = ({
       prepTime: 0,
       cookTime: 0
     })
+    setNewIngredient('')
     setShowRecipeForm(false)
   }
 
@@ -534,7 +555,10 @@ export const MealPlanningForm: React.FC<MealPlanningFormProps> = ({
 
         {/* Recipe Form */}
         {showRecipeForm && (
-          <div className="space-y-3 mb-4 p-3 bg-white dark:bg-gray-800 rounded border">
+          <div className="space-y-4 mb-4 p-4 bg-white dark:bg-gray-800 rounded border">
+            <h5 className="text-sm font-medium text-gray-900 dark:text-white">Create New Recipe</h5>
+            
+            {/* Recipe Name */}
             <input
               type="text"
               value={newRecipe.name || ''}
@@ -542,6 +566,8 @@ export const MealPlanningForm: React.FC<MealPlanningFormProps> = ({
               placeholder="Recipe name..."
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm"
             />
+            
+            {/* Recipe Details */}
             <div className="grid grid-cols-2 gap-2">
               <input
                 type="number"
@@ -558,20 +584,97 @@ export const MealPlanningForm: React.FC<MealPlanningFormProps> = ({
                 className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm"
               />
             </div>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={newRecipe.ingredients?.join(', ') || ''}
-                onChange={(e) => setNewRecipe({ ...newRecipe, ingredients: e.target.value.split(',').map(i => i.trim()).filter(i => i) })}
-                placeholder="Ingredients (comma separated)..."
-                className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm"
+
+            {/* Ingredients Management */}
+            <div>
+              <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-2">
+                Ingredients
+              </label>
+              
+              {/* Add Ingredient */}
+              <div className="flex gap-2 mb-3">
+                <input
+                  type="text"
+                  value={newIngredient}
+                  onChange={(e) => setNewIngredient(e.target.value)}
+                  placeholder="Add ingredient..."
+                  className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm"
+                  onKeyPress={(e) => e.key === 'Enter' && handleAddIngredientToRecipe()}
+                />
+                <Button
+                  onClick={handleAddIngredientToRecipe}
+                  disabled={!newIngredient.trim()}
+                  size="sm"
+                >
+                  <Plus className="w-4 h-4" />
+                </Button>
+              </div>
+
+              {/* Ingredients List */}
+              <div className="space-y-2 max-h-32 overflow-y-auto">
+                {newRecipe.ingredients?.map((ingredient, index) => (
+                  <div key={index} className="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-700 rounded border">
+                    <span className="text-sm text-gray-900 dark:text-white">{ingredient}</span>
+                    <button
+                      onClick={() => handleRemoveIngredientFromRecipe(index)}
+                      className="text-red-500 hover:text-red-700"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                ))}
+                {(!newRecipe.ingredients || newRecipe.ingredients.length === 0) && (
+                  <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-2">
+                    No ingredients added yet
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {/* Instructions */}
+            <div>
+              <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-2">
+                Instructions (optional)
+              </label>
+              <textarea
+                value={newRecipe.instructions || ''}
+                onChange={(e) => setNewRecipe({ ...newRecipe, instructions: e.target.value })}
+                placeholder="Cooking instructions..."
+                rows={3}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm"
               />
+            </div>
+
+            {/* Actions */}
+            <div className="flex gap-2">
+              <Button
+                onClick={() => {
+                  setShowRecipeForm(false)
+                  setNewRecipe({
+                    name: '',
+                    ingredients: [],
+                    instructions: '',
+                    source: '',
+                    servings: 4,
+                    prepTime: 0,
+                    cookTime: 0
+                  })
+                  setNewIngredient('')
+                }}
+                variant="outline"
+                size="sm"
+                className="flex-1"
+              >
+                Cancel
+              </Button>
               <Button
                 onClick={handleAddRecipe}
                 disabled={!newRecipe.name || !newRecipe.ingredients?.length}
                 size="sm"
+                className="flex-1"
               >
-                <Plus className="w-4 h-4" />
+                <ChefHat className="w-4 h-4 mr-1" />
+                Save Recipe
               </Button>
             </div>
           </div>
