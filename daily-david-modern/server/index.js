@@ -4,6 +4,14 @@ const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const { Pool } = require('pg')
 const smsService = require('./smsService')
+const { 
+  rateLimits, 
+  securityHeaders, 
+  requestLogger, 
+  errorHandler, 
+  validateLogin, 
+  validateSignup 
+} = require('./essential-security')
 require('dotenv').config()
 
 const app = express()
@@ -14,18 +22,37 @@ app.use(cors({
   origin: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:3002', 'http://localhost:3003', 'http://localhost:3004', 'http://localhost:3005', 'http://localhost:3006', 'http://localhost:3007', 'http://localhost:3008', 'http://localhost:3009', 'http://localhost:3010'],
   credentials: true
 }))
+
+// Security middleware
+app.use(securityHeaders)
+app.use(requestLogger)
+app.use(rateLimits.general) // General rate limiting
+
 app.use(express.json())
 
-// Database connection
+// Database connection - must be set in environment variables
+if (!process.env.NEON_CONNECTION_STRING) {
+  console.error('❌ NEON_CONNECTION_STRING environment variable is required')
+  process.exit(1)
+}
+
 const pool = new Pool({
-  connectionString: process.env.NEON_CONNECTION_STRING || 'postgresql://neondb_owner:npg_L5ysD0JfHSFP@ep-little-base-adgfntzb-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require',
+  connectionString: process.env.NEON_CONNECTION_STRING,
   ssl: {
     rejectUnauthorized: false
-  }
+  },
+  // Optimize for free tier (1 connection limit)
+  max: 1,
+  idleTimeoutMillis: 10000,
+  connectionTimeoutMillis: 5000
 })
 
-// JWT secret
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production'
+// JWT secret - must be set in environment variables
+const JWT_SECRET = process.env.JWT_SECRET
+if (!JWT_SECRET) {
+  console.error('❌ JWT_SECRET environment variable is required')
+  process.exit(1)
+}
 
 // Helper function to get local date string (YYYY-MM-DD)
 function getLocalDateString(date = new Date()) {
@@ -113,7 +140,7 @@ app.get('/api/debug/tables', async (req, res) => {
 })
 
 // Simple login endpoint
-app.post('/api/auth/login', async (req, res) => {
+app.post('/api/auth/login', rateLimits.auth, validateLogin, async (req, res) => {
   try {
     const { email, password } = req.body
 
@@ -457,7 +484,7 @@ app.post('/api/admin/users', authenticateToken, async (req, res) => {
 })
 
 // Public signup endpoint (no authentication required)
-app.post('/api/auth/signup', async (req, res) => {
+app.post('/api/auth/signup', rateLimits.auth, validateSignup, async (req, res) => {
   try {
     const { email, password, displayName } = req.body
 
@@ -1310,6 +1337,9 @@ app.post('/api/user/complete-onboarding', authenticateToken, async (req, res) =>
 })
 
 // Start server (only in development)
+// Error handling middleware (must be last)
+app.use(errorHandler)
+
 if (process.env.NODE_ENV !== 'production') {
   app.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 Server running on port ${PORT}`)
