@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { DayData, Goal, GoalsByType, CheckInData, SOAPData } from '@/types'
 import { DatabaseManager } from '@/lib/database'
+import { clearReadingPlanFromLocalStorage, getLocalStorageDataWithoutReadingPlan } from '@/lib/readingPlanUtils'
 
 // Default empty data structure
 const createEmptyDayData = (): DayData => ({
@@ -79,14 +80,18 @@ export const useDayData = (dateKey: string, userId: string | null): UseDayDataRe
         lastSaveData.current = dataString
         console.log('✅ [useDayData] Data saved successfully')
         
-        // Also save to localStorage as backup
+        // Also save to localStorage as backup (excluding reading plan to prevent stale data)
         const localStorageKey = `dailyDavid_dayData_${userId}`
         try {
           const existingData = localStorage.getItem(localStorageKey)
           const parsedData = existingData ? JSON.parse(existingData) : {}
-          parsedData[dateKey] = data
+          
+          // Remove reading plan from data before backing up to localStorage
+          const { readingPlan, ...dataWithoutReadingPlan } = data
+          parsedData[dateKey] = dataWithoutReadingPlan
+          
           localStorage.setItem(localStorageKey, JSON.stringify(parsedData))
-          console.log('💾 [useDayData] Data backed up to localStorage')
+          console.log('💾 [useDayData] Data backed up to localStorage (reading plan excluded)')
         } catch (localError) {
           console.error('⚠️ [useDayData] Failed to backup to localStorage:', localError)
         }
@@ -188,59 +193,52 @@ export const useDayData = (dateKey: string, userId: string | null): UseDayDataRe
         }
       }
 
-      // Fallback to localStorage
-      const localStorageKey = `dailyDavid_dayData_${userId}`
-      const localData = localStorage.getItem(localStorageKey)
-      
-      console.log('💾 [useDayData] Checking localStorage fallback...')
-      console.log('💾 [useDayData] localStorage key:', localStorageKey)
-      console.log('💾 [useDayData] localStorage data exists:', !!localData)
-      
-      if (localData) {
-        const parsedLocalData = JSON.parse(localData)
-        console.log('💾 [useDayData] Parsed localStorage data keys:', Object.keys(parsedLocalData))
-        
-        // First try to get data for the current date
-        let currentDateData = parsedLocalData[dateKey]
-        console.log('💾 [useDayData] Current date data exists:', !!currentDateData)
-        console.log('💾 [useDayData] Current date has reading plan:', !!(currentDateData && currentDateData.readingPlan))
-        
-        // If no data for current date, look for reading plan progress across all dates
-        if (!currentDateData || !currentDateData.readingPlan) {
-          console.log('🔍 [useDayData] No reading plan found for current date, searching across all dates...')
+      // If no data for current date but we have a reading plan in database, load it
+      // This ensures reading plan progress is always current, not cached
+      if (!data || !data.readingPlan) {
+        console.log('🔍 [useDayData] No reading plan for current date, checking database for latest reading plan...')
+        try {
+          const latestReadingPlan = await dbManager.current.getLatestReadingPlanProgress(userId)
           
-          // Get all dates and sort them by date (most recent first)
-          const allDates = Object.keys(parsedLocalData).sort((a, b) => new Date(b).getTime() - new Date(a).getTime())
-          console.log('🔍 [useDayData] All stored dates:', allDates)
-          
-          for (const storedDate of allDates) {
-            const storedData = parsedLocalData[storedDate]
-            console.log('🔍 [useDayData] Checking date:', storedDate, 'has reading plan:', !!(storedData && storedData.readingPlan))
-            if (storedData && storedData.readingPlan && storedData.readingPlan.planId) {
-              console.log('🔥 [useDayData] Found reading plan progress from date:', storedDate, 'plan:', storedData.readingPlan.planName)
-              
-              // Use the reading plan from the most recent date that has one
-              if (!currentDateData) {
-                currentDateData = { ...createEmptyDayData() }
-              }
-              currentDateData.readingPlan = storedData.readingPlan
-              break
+          if (latestReadingPlan) {
+            console.log('🔥 [useDayData] Found latest reading plan from database:', latestReadingPlan.planName, 'currentDay:', latestReadingPlan.currentDay)
+            
+            // Create data with the latest reading plan
+            const mergedData = {
+              ...createEmptyDayData(),
+              ...data,
+              readingPlan: latestReadingPlan
             }
+            
+            isInitialLoad.current = true
+            setDayDataState(mergedData)
+            lastSaveData.current = JSON.stringify(mergedData)
+            setHasData(true)
+            console.log('✅ [useDayData] Data loaded with latest reading plan from database')
+            return
           }
+        } catch (error) {
+          console.error('⚠️ [useDayData] Error fetching latest reading plan:', error)
+        }
+      }
+
+      // Fallback to localStorage for non-reading-plan data only
+      console.log('💾 [useDayData] Checking localStorage fallback for non-reading-plan data...')
+      
+      const localDataWithoutReadingPlan = getLocalStorageDataWithoutReadingPlan(userId, dateKey)
+      
+      if (localDataWithoutReadingPlan) {
+        const mergedData = {
+          ...createEmptyDayData(),
+          ...localDataWithoutReadingPlan
+          // Note: readingPlan is intentionally excluded to prevent stale data
         }
         
-        if (currentDateData) {
-          const mergedData = {
-            ...createEmptyDayData(),
-            ...currentDateData
-          }
-          
-          isInitialLoad.current = true
-          setDayDataState(mergedData)
-          setHasData(true)
-          console.log('🔄 [useDayData] Data loaded from localStorage fallback')
-          return
-        }
+        isInitialLoad.current = true
+        setDayDataState(mergedData)
+        setHasData(true)
+        console.log('🔄 [useDayData] Non-reading-plan data loaded from localStorage fallback')
+        return
       }
 
       // No data found, use empty
@@ -266,8 +264,12 @@ export const useDayData = (dateKey: string, userId: string | null): UseDayDataRe
 
   // Load data when dateKey or userId changes
   useEffect(() => {
+    // Clear any stale reading plan data from localStorage on initialization
+    if (userId) {
+      clearReadingPlanFromLocalStorage(userId)
+    }
     loadData()
-  }, [loadData])
+  }, [loadData, userId])
 
   // Cleanup timeout on unmount
   useEffect(() => {

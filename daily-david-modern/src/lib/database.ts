@@ -262,6 +262,56 @@ class DatabaseManager {
     }
   }
 
+  /**
+   * Get the latest reading plan progress for a user from the database
+   * This ensures reading plan data is always current and not cached
+   */
+  async getLatestReadingPlanProgress(userId: string | number): Promise<any> {
+    try {
+      console.log('API: Getting latest reading plan progress for user:', userId)
+      const userIdNum = typeof userId === 'string' ? parseInt(userId) : userId
+      
+      // Get all entries for the user
+      const response = await fetch('/api/entries', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('auth-token')}`
+        }
+      })
+      
+      if (response.ok) {
+        const result = await response.json()
+        if (result.success && result.entries) {
+          // Find the most recent reading plan progress
+          let latestReadingPlan = null
+          let mostRecentDate = null
+          
+          for (const entry of result.entries) {
+            const readingPlan = entry.data_content?.readingPlan
+            if (readingPlan && readingPlan.planId) {
+              const entryDate = new Date(entry.date_key)
+              if (!mostRecentDate || entryDate > mostRecentDate) {
+                latestReadingPlan = readingPlan
+                mostRecentDate = entryDate
+              }
+            }
+          }
+          
+          if (latestReadingPlan) {
+            console.log('API: Found latest reading plan:', latestReadingPlan.planName, 'currentDay:', latestReadingPlan.currentDay)
+            return latestReadingPlan
+          }
+        }
+      }
+      
+      console.log('API: No reading plan progress found')
+      return null
+    } catch (error) {
+      console.error('API: Error getting latest reading plan progress:', error)
+      return null
+    }
+  }
+
   async saveDayData(userId: string | number, date: string, data: any): Promise<boolean> {
     try {
       console.log('API: Saving day data for date:', date, 'data:', data, 'user:', userId)
