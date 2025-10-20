@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { useSermonNotesStore } from '../../stores/sermonNotesStore'
+import { useAuthStore } from '../../stores/authStore'
 import { SermonNoteFormData } from '../../types'
 import { Button } from '../ui/Button'
 import { Input } from '../ui/Input'
 import { Textarea } from '../ui/Textarea'
 import { Card } from '../ui/Card'
 import { Church, User, BookOpen, Calendar, FileText, Save } from 'lucide-react'
+import { API_BASE_URL } from '../../config/api'
 
 interface SermonNoteFormProps {
   onSuccess?: () => void
@@ -89,6 +91,78 @@ export const SermonNoteForm: React.FC<SermonNoteFormProps> = ({
     setShowSpeakerDropdown(false)
   }
 
+  // Auto-save function - following SOAP Review pattern exactly
+  const autoSaveToAPI = async (noteData: any) => {
+    try {
+      console.log('Sermon Notes: Auto-saving to API:', noteData)
+      
+      const { token } = useAuthStore.getState()
+      if (!token) return
+
+      const response = await fetch(`${API_BASE_URL}/api/sermon-notes`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(noteData)
+      })
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+      
+      const data = await response.json()
+      console.log('Sermon Notes: Auto-save successful:', data)
+      
+      // Reload notes after a small delay to ensure data is updated
+      setTimeout(async () => {
+        await loadNotes()
+      }, 100)
+      
+    } catch (error) {
+      console.error('Sermon Notes: Auto-save error:', error)
+    }
+  }
+
+  // Handle auto-save - following SOAP Review pattern exactly
+  useEffect(() => {
+    const handleAutoSave = async () => {
+      if (formData.churchName && formData.sermonTitle && formData.speakerName && formData.biblePassage && formData.notes) {
+        setIsSaving(true)
+        try {
+          await autoSaveToAPI(formData)
+          
+          // Reset form after successful save
+          setFormData({
+            date: new Date().toISOString().split('T')[0],
+            churchName: '',
+            sermonTitle: '',
+            speakerName: '',
+            biblePassage: '',
+            notes: ''
+          })
+          
+          onSuccess?.()
+          
+        } catch (error) {
+          console.error('Sermon Notes: Auto-save error:', error)
+        } finally {
+          setIsSaving(false)
+        }
+      }
+    }
+
+    window.addEventListener('triggerSermonNoteSave', handleAutoSave)
+    return () => window.removeEventListener('triggerSermonNoteSave', handleAutoSave)
+  }, [formData, onSuccess, loadNotes])
+
+  // Handle input blur - trigger auto-save following SOAP Review pattern exactly
+  const handleInputBlur = () => {
+    // Trigger auto-save using the same pattern as SOAP Review
+    window.dispatchEvent(new CustomEvent('triggerSermonNoteSave'))
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
@@ -96,32 +170,8 @@ export const SermonNoteForm: React.FC<SermonNoteFormProps> = ({
       return
     }
 
-    setIsSaving(true)
-    try {
-      if (editingNoteId) {
-        await updateNote(editingNoteId, formData)
-      } else {
-        await createNote(formData)
-      }
-      
-      // Reset form if creating new note
-      if (!editingNoteId) {
-        setFormData({
-          date: new Date().toISOString().split('T')[0],
-          churchName: '',
-          sermonTitle: '',
-          speakerName: '',
-          biblePassage: '',
-          notes: ''
-        })
-      }
-      
-      onSuccess?.()
-    } catch (error) {
-      console.error('Error saving sermon note:', error)
-    } finally {
-      setIsSaving(false)
-    }
+    // Trigger auto-save instead of manual save
+    window.dispatchEvent(new CustomEvent('triggerSermonNoteSave'))
   }
 
   return (
@@ -154,6 +204,7 @@ export const SermonNoteForm: React.FC<SermonNoteFormProps> = ({
                 type="date"
                 value={formData.date}
                 onChange={(e) => handleInputChange('date', e.target.value)}
+                onBlur={handleInputBlur}
                 className="w-full"
                 required
               />
@@ -174,7 +225,10 @@ export const SermonNoteForm: React.FC<SermonNoteFormProps> = ({
                     setShowChurchDropdown(true)
                   }}
                   onFocus={() => setShowChurchDropdown(true)}
-                  onBlur={() => setTimeout(() => setShowChurchDropdown(false), 200)}
+                  onBlur={() => {
+                    setTimeout(() => setShowChurchDropdown(false), 200)
+                    handleInputBlur()
+                  }}
                   placeholder="Enter church name..."
                   className="w-full"
                   required
@@ -209,6 +263,7 @@ export const SermonNoteForm: React.FC<SermonNoteFormProps> = ({
                 type="text"
                 value={formData.sermonTitle}
                 onChange={(e) => handleInputChange('sermonTitle', e.target.value)}
+                onBlur={handleInputBlur}
                 placeholder="Enter sermon title..."
                 className="w-full"
                 required
@@ -230,7 +285,10 @@ export const SermonNoteForm: React.FC<SermonNoteFormProps> = ({
                     setShowSpeakerDropdown(true)
                   }}
                   onFocus={() => setShowSpeakerDropdown(true)}
-                  onBlur={() => setTimeout(() => setShowSpeakerDropdown(false), 200)}
+                  onBlur={() => {
+                    setTimeout(() => setShowSpeakerDropdown(false), 200)
+                    handleInputBlur()
+                  }}
                   placeholder="Enter speaker name..."
                   className="w-full"
                   required
@@ -263,6 +321,7 @@ export const SermonNoteForm: React.FC<SermonNoteFormProps> = ({
               type="text"
               value={formData.biblePassage}
               onChange={(e) => handleInputChange('biblePassage', e.target.value)}
+              onBlur={handleInputBlur}
               placeholder="e.g., John 3:16, Romans 8:28-30..."
               className="w-full"
               required
@@ -278,6 +337,7 @@ export const SermonNoteForm: React.FC<SermonNoteFormProps> = ({
             <Textarea
               value={formData.notes}
               onChange={(e) => handleInputChange('notes', e.target.value)}
+              onBlur={handleInputBlur}
               placeholder="Write your sermon notes here... What did you learn? What stood out to you? How will you apply this message?"
               className="w-full min-h-[200px]"
               required
