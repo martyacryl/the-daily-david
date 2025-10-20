@@ -47,6 +47,7 @@ export const SermonNoteForm: React.FC<SermonNoteFormProps> = ({
     if (!token) return
     
     try {
+      console.log('Sermon Notes: Loading existing note...')
       const response = await fetch(`${API_BASE_URL}/api/sermon-notes`, {
         headers: {
           'Authorization': `Bearer ${token}`
@@ -55,22 +56,27 @@ export const SermonNoteForm: React.FC<SermonNoteFormProps> = ({
       
       if (response.ok) {
         const data = await response.json()
-        const today = new Date().toISOString().split('T')[0]
+        console.log('Sermon Notes: Loaded notes data:', data)
         
-        // Find today's note
-        const todayNote = data.notes?.find((note: any) => note.date === today)
+        // Get the most recent note (first in the array since API returns DESC order)
+        const mostRecentNote = data.notes?.[0]
         
-        if (todayNote) {
-          setCurrentNoteId(todayNote.id)
+        if (mostRecentNote) {
+          console.log('Sermon Notes: Found most recent note:', mostRecentNote)
+          setCurrentNoteId(mostRecentNote.id)
           setFormData({
-            date: todayNote.date,
-            churchName: todayNote.churchName || '',
-            sermonTitle: todayNote.sermonTitle || '',
-            speakerName: todayNote.speakerName || '',
-            biblePassage: todayNote.biblePassage || '',
-            notes: todayNote.notes || ''
+            date: mostRecentNote.date,
+            churchName: mostRecentNote.churchName || '',
+            sermonTitle: mostRecentNote.sermonTitle || '',
+            speakerName: mostRecentNote.speakerName || '',
+            biblePassage: mostRecentNote.biblePassage || '',
+            notes: mostRecentNote.notes || ''
           })
+        } else {
+          console.log('Sermon Notes: No existing notes found')
         }
+      } else {
+        console.error('Sermon Notes: Failed to load notes, status:', response.status)
       }
     } catch (error) {
       console.error('Failed to load existing note:', error)
