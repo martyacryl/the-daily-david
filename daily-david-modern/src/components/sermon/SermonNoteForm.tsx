@@ -24,6 +24,7 @@ export const SermonNoteForm: React.FC<SermonNoteFormProps> = ({
   const { 
     createNote, 
     updateNote, 
+    loadNotes,
     loadChurches, 
     loadSpeakers, 
     churches, 
