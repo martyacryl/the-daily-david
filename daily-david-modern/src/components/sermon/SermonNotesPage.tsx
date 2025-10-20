@@ -36,28 +36,34 @@ export const SermonNotesPage: React.FC = () => {
 
       {/* Tab Navigation */}
       <div className="flex flex-col sm:flex-row justify-center gap-4 mb-8">
-        <Button
+        <button
           onClick={() => {
             console.log('Sermon Notes Page: Switching to form view')
             setActiveTab('form')
           }}
-          variant={activeTab === 'form' ? 'default' : 'outline'}
-          className="flex items-center justify-center gap-2 px-6 py-3"
+          className={`flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-medium transition-colors ${
+            activeTab === 'form' 
+              ? 'bg-amber-500 text-white hover:bg-amber-600' 
+              : 'bg-slate-700 text-slate-300 border border-slate-600 hover:bg-slate-600'
+          }`}
         >
           <Plus className="w-4 h-4" />
           New Note
-        </Button>
-        <Button
+        </button>
+        <button
           onClick={() => {
             console.log('Sermon Notes Page: Switching to list view')
             setActiveTab('list')
           }}
-          variant={activeTab === 'list' ? 'default' : 'outline'}
-          className="flex items-center justify-center gap-2 px-6 py-3"
+          className={`flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-medium transition-colors ${
+            activeTab === 'list' 
+              ? 'bg-amber-500 text-white hover:bg-amber-600' 
+              : 'bg-slate-700 text-slate-300 border border-slate-600 hover:bg-slate-600'
+          }`}
         >
           <List className="w-4 h-4" />
           View Notes
-        </Button>
+        </button>
       </div>
 
       {/* Tab Content */}
