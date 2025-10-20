@@ -55,7 +55,7 @@ export const SermonNotesList: React.FC<SermonNotesListProps> = ({ onEditNote }) 
   // Load notes on component mount
   useEffect(() => {
     loadNotes()
-  }, [])
+  }, [token])
 
   const loadNotes = async () => {
     if (!token) return

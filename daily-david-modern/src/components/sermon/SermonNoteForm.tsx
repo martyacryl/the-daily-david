@@ -34,6 +34,10 @@ export const SermonNoteForm: React.FC<SermonNoteFormProps> = ({
 
   const handleInputChange = (field: keyof SermonNoteFormData | 'date', value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }))
+    // Trigger auto-save on input change, like SOAP section
+    setTimeout(() => {
+      window.dispatchEvent(new CustomEvent('triggerSermonNoteSave'))
+    }, 500) // 500ms delay to avoid too many saves
   }
 
   // Auto-save function - following SOAP Section pattern exactly
@@ -67,7 +71,8 @@ export const SermonNoteForm: React.FC<SermonNoteFormProps> = ({
   // Handle auto-save - following SOAP Section pattern exactly
   useEffect(() => {
     const handleAutoSave = async () => {
-      if (formData.churchName && formData.sermonTitle && formData.speakerName && formData.biblePassage && formData.notes) {
+      // Save whenever there's any content, like SOAP section does
+      if (formData.churchName || formData.sermonTitle || formData.speakerName || formData.biblePassage || formData.notes) {
         setIsSaving(true)
         try {
           await autoSaveToAPI(formData)
