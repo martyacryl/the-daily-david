@@ -57,6 +57,22 @@ export const SermonNotesList: React.FC<SermonNotesListProps> = ({ onEditNote }) 
     loadNotes()
   }, [token])
 
+  // Add refresh function that can be called from parent
+  const refreshNotes = () => {
+    if (token) {
+      loadNotes()
+    }
+  }
+
+  // Expose refresh function to parent
+  useEffect(() => {
+    // Store refresh function globally so parent can call it
+    (window as any).refreshSermonNotes = refreshNotes
+    return () => {
+      delete (window as any).refreshSermonNotes
+    }
+  }, [token])
+
   const loadNotes = async () => {
     if (!token) return
     

@@ -13,6 +13,11 @@ export const SermonNotesPage: React.FC = () => {
     // Switch to list view and refresh
     setActiveTab('list')
     setRefreshKey(prev => prev + 1)
+    
+    // Also call the global refresh function
+    if ((window as any).refreshSermonNotes) {
+      (window as any).refreshSermonNotes()
+    }
   }
 
   return (

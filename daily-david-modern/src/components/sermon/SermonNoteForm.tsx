@@ -31,12 +31,16 @@ export const SermonNoteForm: React.FC<SermonNoteFormProps> = ({
   })
 
   const [isSaving, setIsSaving] = useState(false)
-  const [currentNoteId, setCurrentNoteId] = useState<string | null>(null)
+  const [currentNoteId, setCurrentNoteId] = useState<string | null>(editingNoteId || null)
 
   // Load existing note for today on mount
   useEffect(() => {
-    loadExistingNote()
-  }, [token])
+    if (editingNoteId) {
+      setCurrentNoteId(editingNoteId)
+    } else {
+      loadExistingNote()
+    }
+  }, [token, editingNoteId])
 
   const loadExistingNote = async () => {
     if (!token) return
@@ -145,19 +149,15 @@ export const SermonNoteForm: React.FC<SermonNoteFormProps> = ({
     }, 100)
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleSaveEntry = async () => {
+    if (!user?.id || !token) return
     
-    if (!formData.churchName || !formData.sermonTitle || !formData.speakerName || !formData.biblePassage || !formData.notes) {
-      return
-    }
-
-    // Save and then navigate to success
     setIsSaving(true)
     try {
+      // Final save
       await autoSaveToAPI(formData)
       
-      // Reset form after successful save
+      // Reset form for new entry
       setFormData({
         date: new Date().toISOString().split('T')[0],
         churchName: '',
@@ -166,163 +166,148 @@ export const SermonNoteForm: React.FC<SermonNoteFormProps> = ({
         biblePassage: '',
         notes: ''
       })
+      setCurrentNoteId(null)
       
-      onSuccess?.()
+      // Trigger refresh of the list
+      if (onSuccess) {
+        onSuccess()
+      }
       
     } catch (error) {
-      console.error('Sermon Notes: Save error:', error)
+      console.error('Failed to save sermon note:', error)
     } finally {
       setIsSaving(false)
     }
   }
 
   return (
-    <div className="space-y-8">
-      {/* Header */}
+    <div className="bg-slate-800/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-slate-700">
       <div className="text-center mb-8">
-        <h1 className="text-3xl md:text-4xl font-bold text-white mb-4 flex items-center justify-center gap-3">
-          <Cross className="w-8 h-8 md:w-10 md:h-10 text-amber-400" />
-          {editingNoteId ? 'Edit Sermon Note' : 'New Sermon Note'}
-        </h1>
-        <p className="text-green-200 text-base md:text-lg px-4">
-          {editingNoteId ? 'Update your sermon notes' : 'Record your spiritual insights and teachings'}
+        <h3 className="text-2xl font-bold text-white mb-2 flex items-center justify-center gap-3">
+          <FileText className="w-8 h-8 text-amber-400" />
+          Sermon Notes
+        </h3>
+        <p className="text-green-200 text-lg">
+          Take notes during church and reference them later
         </p>
+        <div className="mt-2 text-sm text-green-300">
+          "Let the word of Christ dwell in you richly" - Colossians 3:16
+        </div>
       </div>
 
-      {/* Form */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3 }}
-        className="max-w-4xl mx-auto"
-      >
-        <div className="bg-slate-800/80 backdrop-blur-sm rounded-xl p-4 md:p-8 shadow-lg border border-slate-700">
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Date */}
-                <div className="space-y-2">
-                  <label className="text-white font-medium flex items-center gap-2">
-                    <Calendar className="w-4 h-4 text-amber-400" />
-                    Date
-                  </label>
-                  <Input
-                    type="date"
-                    value={formData.date}
-                    onChange={(e) => handleInputChange('date', e.target.value)}
-                    onBlur={() => handleInputBlur('date')}
-                    className="w-full bg-slate-700/60 border-slate-600/50 text-white placeholder-slate-400 focus:ring-slate-500 focus:border-slate-500"
-                    required
-                  />
-                </div>
+      <div className="space-y-6">
+        {/* Date and Church */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-white flex items-center gap-2">
+              <Calendar className="w-4 h-4 text-slate-400" />
+              Date
+            </label>
+            <Input
+              type="date"
+              value={formData.date}
+              onChange={(e) => handleInputChange('date', e.target.value)}
+              onBlur={() => handleInputBlur('date')}
+              className="w-full px-4 py-3 border-2 border-slate-600/50 rounded-lg bg-slate-700/60 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-slate-500"
+            />
+          </div>
 
-                {/* Church Name */}
-                <div className="space-y-2">
-                  <label className="text-white font-medium flex items-center gap-2">
-                    <Church className="w-4 h-4 text-amber-400" />
-                    Church Name
-                  </label>
-                  <Input
-                    type="text"
-                    value={formData.churchName}
-                    onChange={(e) => handleInputChange('churchName', e.target.value)}
-                    onBlur={() => handleInputBlur('churchName')}
-                    placeholder="Enter church name..."
-                    className="w-full bg-slate-700/60 border-slate-600/50 text-white placeholder-slate-400 focus:ring-slate-500 focus:border-slate-500"
-                    required
-                  />
-                </div>
-
-                {/* Sermon Title */}
-                <div className="space-y-2">
-                  <label className="text-white font-medium flex items-center gap-2">
-                    <FileText className="w-4 h-4 text-amber-400" />
-                    Sermon Title
-                  </label>
-                  <Input
-                    type="text"
-                    value={formData.sermonTitle}
-                    onChange={(e) => handleInputChange('sermonTitle', e.target.value)}
-                    onBlur={() => handleInputBlur('sermonTitle')}
-                    placeholder="Enter sermon title..."
-                    className="w-full bg-slate-700/60 border-slate-600/50 text-white placeholder-slate-400 focus:ring-slate-500 focus:border-slate-500"
-                    required
-                  />
-                </div>
-
-                {/* Speaker Name */}
-                <div className="space-y-2">
-                  <label className="text-white font-medium flex items-center gap-2">
-                    <User className="w-4 h-4 text-amber-400" />
-                    Speaker Name
-                  </label>
-                  <Input
-                    type="text"
-                    value={formData.speakerName}
-                    onChange={(e) => handleInputChange('speakerName', e.target.value)}
-                    onBlur={() => handleInputBlur('speakerName')}
-                    placeholder="Enter speaker name..."
-                    className="w-full bg-slate-700/60 border-slate-600/50 text-white placeholder-slate-400 focus:ring-slate-500 focus:border-slate-500"
-                    required
-                  />
-                </div>
-              </div>
-
-              {/* Bible Passage */}
-              <div className="space-y-2">
-                <label className="text-white font-medium flex items-center gap-2">
-                  <BookOpen className="w-4 h-4 text-amber-400" />
-                  Bible Passage
-                </label>
-                <Input
-                  type="text"
-                  value={formData.biblePassage}
-                  onChange={(e) => handleInputChange('biblePassage', e.target.value)}
-                  onBlur={() => handleInputBlur('biblePassage')}
-                  placeholder="e.g., John 3:16, Romans 8:28-30..."
-                  className="w-full bg-slate-700/60 border-slate-600/50 text-white placeholder-slate-400 focus:ring-slate-500 focus:border-slate-500"
-                  required
-                />
-              </div>
-
-              {/* Notes */}
-              <div className="space-y-2">
-                <label className="text-white font-medium flex items-center gap-2">
-                  <FileText className="w-4 h-4 text-amber-400" />
-                  Notes
-                </label>
-                <Textarea
-                  value={formData.notes}
-                  onChange={(e) => handleInputChange('notes', e.target.value)}
-                  onBlur={() => handleInputBlur('notes')}
-                  placeholder="Write your sermon notes here... What did you learn? What stood out to you? How will you apply this message?"
-                  className="w-full min-h-[200px] bg-slate-700/60 border-slate-600/50 text-white placeholder-slate-400 focus:ring-slate-500 focus:border-slate-500"
-                  required
-                />
-              </div>
-
-              {/* Save Entry Button */}
-              <div className="flex justify-center pt-4">
-                <Button
-                  type="submit"
-                  disabled={isSaving || !formData.churchName || !formData.sermonTitle || !formData.speakerName || !formData.biblePassage || !formData.notes}
-                  className="flex items-center gap-2 px-8 py-3"
-                >
-                  {isSaving ? (
-                    <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                      Saving...
-                    </>
-                  ) : (
-                    <>
-                      <Save className="w-4 h-4" />
-                      Save Entry
-                    </>
-                  )}
-                </Button>
-              </div>
-          </form>
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-white flex items-center gap-2">
+              <Church className="w-4 h-4 text-slate-400" />
+              Church Name
+            </label>
+            <Input
+              type="text"
+              value={formData.churchName}
+              onChange={(e) => handleInputChange('churchName', e.target.value)}
+              onBlur={() => handleInputBlur('churchName')}
+              placeholder="Enter church name..."
+              className="w-full px-4 py-3 border-2 border-slate-600/50 rounded-lg bg-slate-700/60 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-slate-500"
+            />
+          </div>
         </div>
-      </motion.div>
+
+        {/* Sermon Title and Speaker */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-white flex items-center gap-2">
+              <FileText className="w-4 h-4 text-slate-400" />
+              Sermon Title
+            </label>
+            <Input
+              type="text"
+              value={formData.sermonTitle}
+              onChange={(e) => handleInputChange('sermonTitle', e.target.value)}
+              onBlur={() => handleInputBlur('sermonTitle')}
+              placeholder="Enter sermon title..."
+              className="w-full px-4 py-3 border-2 border-slate-600/50 rounded-lg bg-slate-700/60 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-slate-500"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-white flex items-center gap-2">
+              <User className="w-4 h-4 text-slate-400" />
+              Speaker Name
+            </label>
+            <Input
+              type="text"
+              value={formData.speakerName}
+              onChange={(e) => handleInputChange('speakerName', e.target.value)}
+              onBlur={() => handleInputBlur('speakerName')}
+              placeholder="Enter speaker name..."
+              className="w-full px-4 py-3 border-2 border-slate-600/50 rounded-lg bg-slate-700/60 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-slate-500"
+            />
+          </div>
+        </div>
+
+        {/* Bible Passage */}
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-white flex items-center gap-2">
+            <BookOpen className="w-4 h-4 text-slate-400" />
+            Bible Passage
+          </label>
+          <Input
+            type="text"
+            value={formData.biblePassage}
+            onChange={(e) => handleInputChange('biblePassage', e.target.value)}
+            onBlur={() => handleInputBlur('biblePassage')}
+            placeholder="Enter Bible passage (e.g., John 3:16)..."
+            className="w-full px-4 py-3 border-2 border-slate-600/50 rounded-lg bg-slate-700/60 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-slate-500"
+          />
+        </div>
+
+        {/* Notes */}
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-white flex items-center gap-2">
+            <FileText className="w-4 h-4 text-slate-400" />
+            Notes
+            {isSaving && (
+              <span className="text-xs text-green-400 ml-2">Auto-saving...</span>
+            )}
+          </label>
+          <Textarea
+            value={formData.notes}
+            onChange={(e) => handleInputChange('notes', e.target.value)}
+            onBlur={() => handleInputBlur('notes')}
+            placeholder="Take notes during the sermon..."
+            className="w-full px-4 py-3 border-2 border-slate-600/50 rounded-lg bg-slate-700/60 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-slate-500 transition-colors duration-200 resize-none"
+            rows={6}
+          />
+        </div>
+
+        {/* Save Entry Button */}
+        <div className="flex justify-center pt-4">
+          <Button
+            onClick={handleSaveEntry}
+            disabled={isSaving}
+            className="flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-semibold rounded-lg shadow-lg transition-all duration-200 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+          >
+            <Save className="w-5 h-5" />
+            {isSaving ? 'Saving...' : 'Save Entry'}
+          </Button>
+        </div>
+      </div>
     </div>
   )
 }
