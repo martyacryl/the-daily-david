@@ -79,7 +79,7 @@ export const SermonNotesPage: React.FC = () => {
         transition={{ duration: 0.3 }}
       >
         {activeTab === 'form' ? (
-          <SermonNoteForm onSuccess={handleNoteSaved} />
+          <SermonNoteForm onSuccess={handleNoteSaved} isNewNote={true} />
         ) : (
           <SermonNotesList key={refreshKey} />
         )}

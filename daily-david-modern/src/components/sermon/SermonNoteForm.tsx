@@ -12,12 +12,14 @@ interface SermonNoteFormProps {
   onSuccess?: () => void
   initialData?: Partial<SermonNoteFormData & { date: string }>
   editingNoteId?: string
+  isNewNote?: boolean
 }
 
 export const SermonNoteForm: React.FC<SermonNoteFormProps> = ({ 
   onSuccess, 
   initialData,
-  editingNoteId 
+  editingNoteId,
+  isNewNote = false
 }) => {
   const { user, token } = useAuthStore()
 
@@ -33,14 +35,25 @@ export const SermonNoteForm: React.FC<SermonNoteFormProps> = ({
   const [isSaving, setIsSaving] = useState(false)
   const [currentNoteId, setCurrentNoteId] = useState<string | null>(editingNoteId || null)
 
-  // Load existing note for today on mount
+  // Load existing note for today on mount (only if not creating a new note)
   useEffect(() => {
     if (editingNoteId) {
       setCurrentNoteId(editingNoteId)
-    } else {
+    } else if (!isNewNote) {
       loadExistingNote()
+    } else {
+      // For new notes, reset the form and clear current note ID
+      setCurrentNoteId(null)
+      setFormData({
+        date: new Date().toISOString().split('T')[0],
+        churchName: '',
+        sermonTitle: '',
+        speakerName: '',
+        biblePassage: '',
+        notes: ''
+      })
     }
-  }, [token, editingNoteId])
+  }, [token, editingNoteId, isNewNote])
 
   const loadExistingNote = async () => {
     if (!token) return
