@@ -45,7 +45,10 @@ export const SermonNotesPage: React.FC = () => {
           New Note
         </Button>
         <Button
-          onClick={() => setActiveTab('list')}
+          onClick={() => {
+            console.log('Sermon Notes Page: Switching to list view')
+            setActiveTab('list')
+          }}
           variant={activeTab === 'list' ? 'default' : 'outline'}
           className="flex items-center justify-center gap-2 px-6 py-3"
         >
