@@ -292,6 +292,14 @@ export const useDailyStore = create<DailyStore>((set, get) => ({
       console.log('Store: _debug_content.deletedGoalIds:', result._debug_content?.deletedGoalIds)
         console.log('Store: dataContent.deletedGoalIds:', dataContent.deletedGoalIds)
         
+        // DEBUG: Check gratitude data
+        console.log('Store: result.gratitude field:', result.gratitude)
+        console.log('Store: result.gratitude type:', typeof result.gratitude)
+        console.log('Store: result.gratitude isArray:', Array.isArray(result.gratitude))
+        console.log('Store: dataContent.gratitude field:', dataContent.gratitude)
+        console.log('Store: dataContent.gratitude type:', typeof dataContent.gratitude)
+        console.log('Store: dataContent.gratitude isArray:', Array.isArray(dataContent.gratitude))
+        
         // DEBUG: Check if checkIn data is in individual columns
         console.log('Store: result.checkIn field:', result.checkIn)
         console.log('Store: result.checkIn type:', typeof result.checkIn)
@@ -380,10 +388,25 @@ export const useDailyStore = create<DailyStore>((set, get) => ({
           dateKey: result.date,
           date_key: result.date,
           checkIn: checkInData,
-          gratitude: Array.isArray(result.gratitude) ? result.gratitude :
-                    Array.isArray(dataContent.gratitude) ? dataContent.gratitude : 
-                    (result.gratitude ? [result.gratitude] : 
-                     (dataContent.gratitude ? [dataContent.gratitude] : [])),
+          gratitude: (() => {
+            // Check data_content first
+            if (Array.isArray(dataContent.gratitude) && dataContent.gratitude.length > 0) {
+              return dataContent.gratitude
+            }
+            // Check individual column
+            if (Array.isArray(result.gratitude) && result.gratitude.length > 0) {
+              return result.gratitude
+            }
+            // If single string, convert to array
+            if (dataContent.gratitude && typeof dataContent.gratitude === 'string') {
+              return [dataContent.gratitude]
+            }
+            if (result.gratitude && typeof result.gratitude === 'string') {
+              return [result.gratitude]
+            }
+            // Default to 3 empty strings for the gratitude boxes
+            return ['', '', '']
+          })(),
           soap: {
             scripture: dataContent.soap?.scripture || '',
             observation: dataContent.soap?.observation || '',
