@@ -255,7 +255,14 @@ export const useAuthStore = create<AuthStore>()(
 
 // Helper function to get auth headers
 export const getAuthHeaders = () => {
-  const token = useAuthStore.getState().token
+  const state = useAuthStore.getState()
+  const token = state.token
+  console.log('getAuthHeaders: Auth state:', {
+    isAuthenticated: state.isAuthenticated,
+    user: state.user,
+    token: token ? `${token.substring(0, 10)}...` : null,
+    tokenLength: token ? token.length : 0
+  })
   return {
     'Content-Type': 'application/json',
     ...(token && { 'Authorization': `Bearer ${token}` })
