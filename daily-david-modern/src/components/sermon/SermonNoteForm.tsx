@@ -58,14 +58,8 @@ export const SermonNoteForm: React.FC<SermonNoteFormProps> = ({
         const data = await response.json()
         console.log('Sermon Notes: Loaded notes data:', data)
         
-        // First try to find note for the current form date
-        let noteToLoad = data.notes?.find((note: any) => note.date === formData.date)
-        
-        // If no note for current date, load the most recent note
-        if (!noteToLoad && data.notes?.length > 0) {
-          noteToLoad = data.notes[0] // Most recent note
-          console.log('Sermon Notes: No note for current date, loading most recent:', noteToLoad)
-        }
+        // Load the most recent note (the one you just saved)
+        const noteToLoad = data.notes?.[0] // Most recent note
         
         if (noteToLoad) {
           console.log('Sermon Notes: Found note to load:', noteToLoad)
@@ -80,7 +74,7 @@ export const SermonNoteForm: React.FC<SermonNoteFormProps> = ({
             notes: noteToLoad.notes || ''
           }))
         } else {
-          console.log('Sermon Notes: No existing notes found at all')
+          console.log('Sermon Notes: No existing notes found')
           // Reset currentNoteId since we're creating a new note
           setCurrentNoteId(null)
         }
