@@ -123,27 +123,26 @@ export const SermonNoteForm: React.FC<SermonNoteFormProps> = ({
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-      <div className="container mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-white mb-4 flex items-center justify-center gap-3">
-            <Cross className="w-10 h-10 text-amber-400" />
-            {editingNoteId ? 'Edit Sermon Note' : 'New Sermon Note'}
-          </h1>
-          <p className="text-green-200 text-lg">
-            {editingNoteId ? 'Update your sermon notes' : 'Record your spiritual insights and teachings'}
-          </p>
-        </div>
+    <div className="space-y-8">
+      {/* Header */}
+      <div className="text-center mb-8">
+        <h1 className="text-3xl md:text-4xl font-bold text-white mb-4 flex items-center justify-center gap-3">
+          <Cross className="w-8 h-8 md:w-10 md:h-10 text-amber-400" />
+          {editingNoteId ? 'Edit Sermon Note' : 'New Sermon Note'}
+        </h1>
+        <p className="text-green-200 text-base md:text-lg px-4">
+          {editingNoteId ? 'Update your sermon notes' : 'Record your spiritual insights and teachings'}
+        </p>
+      </div>
 
-        {/* Form */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-          className="max-w-4xl mx-auto"
-        >
-          <div className="bg-slate-800/80 backdrop-blur-sm rounded-xl p-8 shadow-lg border border-slate-700">
+      {/* Form */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+        className="max-w-4xl mx-auto"
+      >
+        <div className="bg-slate-800/80 backdrop-blur-sm rounded-xl p-4 md:p-8 shadow-lg border border-slate-700">
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Date */}
@@ -267,10 +266,9 @@ export const SermonNoteForm: React.FC<SermonNoteFormProps> = ({
                   )}
                 </Button>
               </div>
-            </form>
-          </div>
-        </motion.div>
-      </div>
+          </form>
+        </div>
+      </motion.div>
     </div>
   )
 }

@@ -240,22 +240,21 @@ export const SermonNotesList: React.FC<SermonNotesListProps> = ({ onEditNote }) 
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-      <div className="container mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-white mb-4 flex items-center justify-center gap-3">
-            <Cross className="w-10 h-10 text-amber-400" />
-            Sermon Notes
-          </h1>
-          <p className="text-green-200 text-lg">
-            Review your spiritual journey and sermon insights
-          </p>
-        </div>
+    <div className="space-y-8">
+      {/* Header */}
+      <div className="text-center mb-8">
+        <h1 className="text-3xl md:text-4xl font-bold text-white mb-4 flex items-center justify-center gap-3">
+          <Cross className="w-8 h-8 md:w-10 md:h-10 text-amber-400" />
+          Sermon Notes
+        </h1>
+        <p className="text-green-200 text-base md:text-lg px-4">
+          Review your spiritual journey and sermon insights
+        </p>
+      </div>
 
-        {/* Filters and Search */}
-        <div className="bg-slate-800/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-slate-700 mb-8">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* Filters and Search */}
+      <div className="bg-slate-800/80 backdrop-blur-sm rounded-xl p-4 md:p-6 shadow-lg border border-slate-700 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Search */}
             <div className="sm:col-span-2">
               <div className="relative">
@@ -308,8 +307,8 @@ export const SermonNotesList: React.FC<SermonNotesListProps> = ({ onEditNote }) 
           </div>
         </div>
 
-        {/* Statistics */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      {/* Statistics */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-8">
           <div className="bg-slate-800/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-slate-700">
             <h3 className="text-amber-400 text-2xl font-bold">{filteredNotes.length}</h3>
             <p className="text-green-200 text-sm">Total Sermon Notes</p>
@@ -334,8 +333,8 @@ export const SermonNotesList: React.FC<SermonNotesListProps> = ({ onEditNote }) 
           </div>
         </div>
 
-        {/* Export and Refresh Buttons */}
-        <div className="flex justify-center gap-4 mb-8">
+      {/* Export and Refresh Buttons */}
+      <div className="flex flex-col sm:flex-row justify-center gap-4 mb-8">
           <Button
             onClick={exportNotes}
             variant="outline"
@@ -355,8 +354,8 @@ export const SermonNotesList: React.FC<SermonNotesListProps> = ({ onEditNote }) 
           </Button>
         </div>
 
-        {/* Notes List */}
-        <div className="space-y-6">
+      {/* Notes List */}
+      <div className="space-y-6">
           {filteredNotes.length === 0 ? (
             <div className="text-center py-12">
               <Cross className="w-16 h-16 text-slate-600 mx-auto mb-4" />
@@ -373,10 +372,10 @@ export const SermonNotesList: React.FC<SermonNotesListProps> = ({ onEditNote }) 
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3 }}
               >
-                <div className="bg-slate-800/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-slate-700">
+                <div className="bg-slate-800/80 backdrop-blur-sm rounded-xl p-4 md:p-6 shadow-lg border border-slate-700">
                   <div className="flex justify-between items-start mb-4">
                     <div className="flex-1">
-                      <div className="flex items-center gap-4 text-sm text-slate-400 mb-2">
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-sm text-slate-400 mb-2">
                         <span className="flex items-center gap-1">
                           <Calendar className="w-4 h-4" />
                           {formatDate(parseDateString(note.date))}
@@ -401,7 +400,7 @@ export const SermonNotesList: React.FC<SermonNotesListProps> = ({ onEditNote }) 
                       </div>
                     </div>
                     
-                    <div className="flex gap-2">
+                    <div className="flex flex-col sm:flex-row gap-2 mt-2 sm:mt-0">
                       {editingNoteId === note.id ? (
                         <Button
                           onClick={handleCancelEdit}
@@ -462,7 +461,6 @@ export const SermonNotesList: React.FC<SermonNotesListProps> = ({ onEditNote }) 
               </motion.div>
             ))
           )}
-        </div>
       </div>
     </div>
   )
