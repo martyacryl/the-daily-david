@@ -42,10 +42,18 @@
 | Component | Purpose | Key Features |
 |-----------|---------|--------------|
 | `DailyEntry.tsx` | **MAIN FORM** | Complete daily entry, auto-save, URL navigation |
-| `CheckInSection.tsx` | Emotions/feelings | Checkbox emotions, text feeling |
-| `SOAPSection.tsx` | Bible study | Scripture, observation, application, prayer |
-| `GraditudeSection.tsx` | Gratitude list | Add/remove gratitude items |
+| `CheckInSection.tsx` | Emotions/feelings | Checkbox emotions, text feeling, auto-save on change/blur |
+| `SOAPSection.tsx` | Bible study | Scripture, observation, application, prayer, auto-save on change/blur |
+| `GraditudeSection.tsx` | Gratitude list | Add/remove gratitude items, auto-save on change/blur |
 | `BibleIntegration.tsx` | Bible integration | ESV/NIV selection, devotional tracks |
+| `ReadingPlanProgress.tsx` | Reading plan tracking | Progress display, day navigation, completion tracking |
+
+### **Sermon Notes System** (`src/components/sermon/`)
+| Component | Purpose | Key Features |
+|-----------|---------|--------------|
+| `SermonNotesPage.tsx` | **MAIN CONTAINER** | Tab navigation, form/list switching, edit state management |
+| `SermonNoteForm.tsx` | Create/Edit form | Auto-save (debounced + immediate), upsert logic, validation |
+| `SermonNotesList.tsx` | List/Search view | Search, filter, sort, statistics, edit/delete actions |
 
 ### **Dashboard** (`src/components/dashboard/`)
 | Component | Purpose | Key Features |
@@ -66,8 +74,9 @@
 ### **Zustand Stores** (`src/stores/`)
 | Store | Purpose | Key Methods |
 |-------|---------|-------------|
-| `authStore.ts` | Authentication | `login()`, `logout()`, `checkAuth()` |
-| `dailyStore.ts` | Daily entries | `loadEntries()`, `saveEntry()`, `loadEntryByDate()` |
+| `authStore.ts` | Authentication | `login()`, `logout()`, `checkAuth()`, `getAuthHeaders()` |
+| `dailyStore.ts` | Daily entries | `loadEntries()`, `saveEntry()`, `loadEntryByDate()`, `updateEntry()` |
+| `sermonNotesStore.ts` | Sermon notes | `loadNotes()`, `createNote()`, `updateNote()`, `deleteNote()` |
 | `appStore.ts` | App state | `setCurrentDate()`, `setLoading()` |
 
 ---
@@ -123,6 +132,11 @@ interface CheckInData { emotions: string[], feeling: string }
 // Bible integration
 interface BibleVerse { id, text, reference, version }
 interface ReadingPlan { id, name, description, duration, titles, themes, verses }
+
+// Sermon notes
+interface SermonNote { id, userId, date, churchName, sermonTitle, speakerName, biblePassage, notes, createdAt, updatedAt }
+interface SermonNoteFormData { churchName, sermonTitle, speakerName, biblePassage, notes }
+interface SermonNoteStats { totalNotes, uniqueChurches, uniqueSpeakers }
 ```
 
 ---
@@ -147,6 +161,16 @@ GET    /api/entries
 GET    /api/entries/:date
 POST   /api/entries
 DELETE /api/entries/:id
+
+Sermon Notes:
+GET    /api/sermon-notes
+GET    /api/sermon-notes/:id
+POST   /api/sermon-notes
+PUT    /api/sermon-notes/:id
+DELETE /api/sermon-notes/:id
+GET    /api/sermon-notes/churches
+GET    /api/sermon-notes/speakers
+GET    /api/sermon-notes/stats
 
 Admin:
 GET    /api/admin/users
@@ -177,10 +201,67 @@ DELETE /api/admin/users/:id
 ## 🔧 **KEY FEATURES**
 
 ### **Auto-Save System**
-- Debounced saving (100ms delay)
-- Real-time data synchronization
-- Optimistic UI updates
-- Error handling and retry logic
+- **Debounced saving** (100ms delay for most components, 1000ms for sermon notes)
+- **Immediate save on blur** for critical fields
+- **Real-time data synchronization** across all components
+- **Optimistic UI updates** with error handling
+- **Upsert logic** (POST for new, PUT for existing records)
+- **Save guards** to prevent multiple simultaneous saves
+- **Event-driven architecture** using custom events for auto-save triggers
+
+### **Auto-Save Implementation Patterns**
+
+**1. Daily Entry Sections (CheckIn, SOAP, Gratitude)**:
+```typescript
+// Immediate save on blur
+const handleInputBlur = (field, value) => {
+  onUpdate({ ...data, [field]: value })
+  window.dispatchEvent(new CustomEvent('triggerSave'))
+}
+
+// Debounced save on change
+const handleInputChange = (field, value) => {
+  onUpdate({ ...data, [field]: value })
+  // 100ms debounce handled by parent component
+}
+```
+
+**2. Sermon Notes Form**:
+```typescript
+// Debounced auto-save on input change (1000ms)
+const handleInputChange = (field, value) => {
+  setFormData(prev => ({ ...prev, [field]: value }))
+  
+  if (autoSaveTimeout) clearTimeout(autoSaveTimeout)
+  
+  const timeout = setTimeout(() => {
+    window.dispatchEvent(new CustomEvent('triggerSermonNoteSave'))
+  }, 1000)
+  
+  setAutoSaveTimeout(timeout)
+}
+
+// Immediate auto-save on blur
+const handleInputBlur = (field) => {
+  window.dispatchEvent(new CustomEvent('triggerSermonNoteSave'))
+}
+```
+
+**3. Save Guards Pattern**:
+```typescript
+const [isSaving, setIsSaving] = useState(false)
+
+const autoSaveToAPI = async (data) => {
+  if (isSaving) return // Prevent multiple simultaneous saves
+  
+  setIsSaving(true)
+  try {
+    // API call logic
+  } finally {
+    setIsSaving(false)
+  }
+}
+```
 
 ### **Navigation System**
 - URL-based date navigation (`/daily/2025-01-15`)
