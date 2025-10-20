@@ -1450,15 +1450,13 @@ app.post('/api/sermon-notes', authenticateToken, async (req, res) => {
     const userId = req.user.userId
     const { date, churchName, sermonTitle, speakerName, biblePassage, notes } = req.body
     
-    if (!date || !churchName || !sermonTitle || !speakerName || !biblePassage || !notes) {
-      return res.status(400).json({ success: false, error: 'All fields are required' })
-    }
+    // Allow partial saves for auto-save functionality - no validation required
     
     const result = await client.query(`
       INSERT INTO sermon_notes (user_id, date, church_name, sermon_title, speaker_name, bible_passage, notes)
       VALUES ($1, $2, $3, $4, $5, $6, $7)
       RETURNING id, user_id, date, church_name, sermon_title, speaker_name, bible_passage, notes, created_at, updated_at
-    `, [userId, date, churchName, sermonTitle, speakerName, biblePassage, notes])
+    `, [userId, date, churchName || '', sermonTitle || '', speakerName || '', biblePassage || '', notes || ''])
     
     const note = result.rows[0]
     res.status(201).json({ 
