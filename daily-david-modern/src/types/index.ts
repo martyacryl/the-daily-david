@@ -315,3 +315,45 @@ export interface User {
     error?: string
     sid?: string
   }
+
+  // Sermon Notes Types
+  export interface SermonNote {
+    id: string
+    userId: string
+    date: string
+    churchName: string
+    sermonTitle: string
+    speakerName: string
+    biblePassage: string
+    notes: string
+    createdAt: Date
+    updatedAt: Date
+  }
+
+  export interface SermonNoteFormData {
+    churchName: string
+    sermonTitle: string
+    speakerName: string
+    biblePassage: string
+    notes: string
+  }
+
+  export interface SermonNoteStats {
+    totalNotes: number
+    uniqueChurches: string[]
+    uniqueSpeakers: string[]
+    totalWords: number
+    averageWordsPerNote: number
+    mostFrequentSpeakers: { speaker: string; count: number }[]
+    mostFrequentChurches: { church: string; count: number }[]
+  }
+
+  // Sermon Notes Store State
+  export interface SermonNotesState {
+    notes: SermonNote[]
+    isLoading: boolean
+    error: string | null
+    stats: SermonNoteStats | null
+    churches: string[]
+    speakers: string[]
+  }
