@@ -10,12 +10,12 @@ interface CheckInSectionProps {
 
 export function CheckInSection({ checkIn, onUpdate }: CheckInSectionProps) {
   const emotionOptions: { key: EmotionType; label: string }[] = [
-    { key: 'sad', label: 'Sad' },
-    { key: 'angry', label: 'Angry' },
-    { key: 'scared', label: 'Scared' },
     { key: 'happy', label: 'Happy' },
     { key: 'excited', label: 'Excited' },
-    { key: 'tender', label: 'Tender' }
+    { key: 'tender', label: 'Tender' },
+    { key: 'sad', label: 'Sad' },
+    { key: 'angry', label: 'Angry' },
+    { key: 'scared', label: 'Scared' }
   ]
 
   // Local state for emotions - initialize from props

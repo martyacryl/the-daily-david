@@ -381,15 +381,13 @@ export const useDailyStore = create<DailyStore>((set, get) => ({
           date_key: result.date,
           checkIn: checkInData,
           gratitude: Array.isArray(dataContent.gratitude) ? dataContent.gratitude : 
-                    Array.isArray(result.gratitude) ? result.gratitude : 
-                    (dataContent.gratitude ? [dataContent.gratitude] : 
-                     result.gratitude ? [result.gratitude] : []),
+                    (dataContent.gratitude ? [dataContent.gratitude] : []),
           soap: {
-            scripture: dataContent.soap?.scripture || result.scripture || '',
-            observation: dataContent.soap?.observation || result.observation || '',
-            application: dataContent.soap?.application || result.application || '',
-            prayer: dataContent.soap?.prayer || result.prayer || '',
-            thoughts: dataContent.soap?.thoughts || result.thoughts || ''
+            scripture: dataContent.soap?.scripture || '',
+            observation: dataContent.soap?.observation || '',
+            application: dataContent.soap?.application || '',
+            prayer: dataContent.soap?.prayer || '',
+            thoughts: dataContent.soap?.thoughts || ''
           },
           goals: parsedGoals,
           dailyIntention: dataContent.dailyIntention || '',
