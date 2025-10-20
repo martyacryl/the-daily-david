@@ -19,6 +19,7 @@ export const SermonNoteForm: React.FC<SermonNoteFormProps> = ({
   initialData,
   editingNoteId 
 }) => {
+  console.log('Sermon Note Form: Component mounted')
   const { user, token } = useAuthStore()
 
   const [formData, setFormData] = useState<SermonNoteFormData & { date: string }>({
@@ -136,7 +137,9 @@ export const SermonNoteForm: React.FC<SermonNoteFormProps> = ({
   useEffect(() => {
     const handleAutoSave = async () => {
       // Save whenever there's any content, like SOAP section does
+      console.log('Sermon Notes: Auto-save triggered, formData:', formData)
       if (formData.churchName || formData.sermonTitle || formData.speakerName || formData.biblePassage || formData.notes) {
+        console.log('Sermon Notes: Content detected, proceeding with auto-save')
         setIsSaving(true)
         try {
           await autoSaveToAPI(formData)
@@ -145,6 +148,8 @@ export const SermonNoteForm: React.FC<SermonNoteFormProps> = ({
         } finally {
           setIsSaving(false)
         }
+      } else {
+        console.log('Sermon Notes: No content detected, skipping auto-save')
       }
     }
 

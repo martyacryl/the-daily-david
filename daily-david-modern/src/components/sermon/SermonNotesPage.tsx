@@ -6,6 +6,7 @@ import { Button } from '../ui/Button'
 import { Plus, List, Cross } from 'lucide-react'
 
 export const SermonNotesPage: React.FC = () => {
+  console.log('Sermon Notes Page: Component mounted')
   const [activeTab, setActiveTab] = useState<'form' | 'list'>('form')
   const [refreshKey, setRefreshKey] = useState(0)
 

@@ -39,6 +39,7 @@ interface SermonNotesListProps {
 }
 
 export const SermonNotesList: React.FC<SermonNotesListProps> = ({ onEditNote }) => {
+  console.log('Sermon Notes List: Component mounted')
   const { token } = useAuthStore()
   
   // State
