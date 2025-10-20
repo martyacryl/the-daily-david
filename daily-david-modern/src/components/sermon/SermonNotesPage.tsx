@@ -47,7 +47,7 @@ export const SermonNotesPage: React.FC = () => {
               ? 'bg-amber-500 text-white hover:bg-amber-600' 
               : 'bg-slate-700 text-slate-300 border border-slate-600 hover:bg-slate-600'
           }`}
-          style={{ pointerEvents: 'auto', zIndex: 9999 }}
+          style={{ pointerEvents: 'auto', zIndex: 10 }}
         >
           <Plus className="w-4 h-4" />
           New Note
@@ -64,7 +64,7 @@ export const SermonNotesPage: React.FC = () => {
               ? 'bg-amber-500 text-white hover:bg-amber-600' 
               : 'bg-slate-700 text-slate-300 border border-slate-600 hover:bg-slate-600'
           }`}
-          style={{ pointerEvents: 'auto', zIndex: 9999 }}
+          style={{ pointerEvents: 'auto', zIndex: 10 }}
         >
           <List className="w-4 h-4" />
           View Notes
