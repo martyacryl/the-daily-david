@@ -34,6 +34,7 @@ export const SermonNoteForm: React.FC<SermonNoteFormProps> = ({
 
   const [isSaving, setIsSaving] = useState(false)
   const [currentNoteId, setCurrentNoteId] = useState<string | null>(editingNoteId || null)
+  const [autoSaveTimeout, setAutoSaveTimeout] = useState<NodeJS.Timeout | null>(null)
 
   // Load existing note for today on mount (only if not creating a new note)
   useEffect(() => {
@@ -109,16 +110,29 @@ export const SermonNoteForm: React.FC<SermonNoteFormProps> = ({
       }, 100)
     }
     
-    // Trigger auto-save on input change, like SOAP section
-    setTimeout(() => {
+    // Clear existing timeout
+    if (autoSaveTimeout) {
+      clearTimeout(autoSaveTimeout)
+    }
+    
+    // Set new timeout for auto-save with proper debouncing
+    const timeout = setTimeout(() => {
       window.dispatchEvent(new CustomEvent('triggerSermonNoteSave'))
-    }, 500) // 500ms delay to avoid too many saves
+    }, 1000) // Increased to 1 second to prevent multiple saves
+    
+    setAutoSaveTimeout(timeout)
   }
 
   // Auto-save function - using upsert logic
   const autoSaveToAPI = async (noteData: any) => {
     if (!user?.id || !token) {
       console.log('Sermon Notes: No user or token for auto-save')
+      return
+    }
+    
+    // Prevent multiple simultaneous saves
+    if (isSaving) {
+      console.log('Sermon Notes: Already saving, skipping auto-save')
       return
     }
     
@@ -170,13 +184,15 @@ export const SermonNoteForm: React.FC<SermonNoteFormProps> = ({
       console.log('Sermon Notes: Auto-save triggered, formData:', formData)
       if (formData.churchName || formData.sermonTitle || formData.speakerName || formData.biblePassage || formData.notes) {
         console.log('Sermon Notes: Content detected, proceeding with auto-save')
-        setIsSaving(true)
-        try {
-          await autoSaveToAPI(formData)
-        } catch (error) {
-          console.error('Sermon Notes: Auto-save error:', error)
-        } finally {
-          setIsSaving(false)
+        if (!isSaving) {
+          setIsSaving(true)
+          try {
+            await autoSaveToAPI(formData)
+          } catch (error) {
+            console.error('Sermon Notes: Auto-save error:', error)
+          } finally {
+            setIsSaving(false)
+          }
         }
       } else {
         console.log('Sermon Notes: No content detected, skipping auto-save')
@@ -184,8 +200,14 @@ export const SermonNoteForm: React.FC<SermonNoteFormProps> = ({
     }
 
     window.addEventListener('triggerSermonNoteSave', handleAutoSave)
-    return () => window.removeEventListener('triggerSermonNoteSave', handleAutoSave)
-  }, [formData, user, token])
+    return () => {
+      window.removeEventListener('triggerSermonNoteSave', handleAutoSave)
+      // Clear any pending auto-save timeout
+      if (autoSaveTimeout) {
+        clearTimeout(autoSaveTimeout)
+      }
+    }
+  }, [formData, user, token, isSaving, autoSaveTimeout])
 
   // Handle input blur - following SOAP Section pattern exactly
   const handleInputBlur = (field: keyof SermonNoteFormData | 'date') => {
