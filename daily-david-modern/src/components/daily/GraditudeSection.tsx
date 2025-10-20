@@ -10,6 +10,10 @@ export function GratitudeSection({ gratitude, onUpdate }: GratitudeSectionProps)
   const [localGratitude, setLocalGratitude] = useState(gratitude || ['', '', ''])
 
   useEffect(() => {
+    console.log('GratitudeSection: Received gratitude prop:', gratitude)
+    console.log('GratitudeSection: gratitude type:', typeof gratitude)
+    console.log('GratitudeSection: gratitude isArray:', Array.isArray(gratitude))
+    console.log('GratitudeSection: gratitude length:', gratitude?.length)
     setLocalGratitude(gratitude || ['', '', ''])
   }, [gratitude])
 
