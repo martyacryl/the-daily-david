@@ -37,7 +37,10 @@ export const SermonNotesPage: React.FC = () => {
       {/* Tab Navigation */}
       <div className="flex flex-col sm:flex-row justify-center gap-4 mb-8">
         <Button
-          onClick={() => setActiveTab('form')}
+          onClick={() => {
+            console.log('Sermon Notes Page: Switching to form view')
+            setActiveTab('form')
+          }}
           variant={activeTab === 'form' ? 'default' : 'outline'}
           className="flex items-center justify-center gap-2 px-6 py-3"
         >
@@ -64,6 +67,7 @@ export const SermonNotesPage: React.FC = () => {
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.3 }}
       >
+        {console.log('Sermon Notes Page: Rendering tab content, activeTab:', activeTab)}
         {activeTab === 'form' ? (
           <SermonNoteForm onSuccess={handleNoteSaved} />
         ) : (
