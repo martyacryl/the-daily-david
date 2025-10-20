@@ -35,20 +35,21 @@ export const SermonNotesPage: React.FC = () => {
       </div>
 
       {/* Tab Navigation */}
-      <div className="flex flex-col sm:flex-row justify-center gap-4 mb-8">
+      <div className="flex flex-col sm:flex-row justify-center gap-4 mb-8 relative z-50">
         <button
           onClick={(e) => {
             e.preventDefault()
             e.stopPropagation()
             console.log('Sermon Notes Page: Switching to form view - BUTTON CLICKED!')
+            alert('FORM BUTTON CLICKED!')
             setActiveTab('form')
           }}
-          className={`flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-medium transition-colors cursor-pointer ${
+          className={`flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-medium transition-colors cursor-pointer border-2 border-red-500 ${
             activeTab === 'form' 
               ? 'bg-amber-500 text-white hover:bg-amber-600' 
-              : 'bg-slate-700 text-slate-300 border border-slate-600 hover:bg-slate-600'
+              : 'bg-slate-700 text-slate-300 border-slate-600 hover:bg-slate-600'
           }`}
-          style={{ pointerEvents: 'auto' }}
+          style={{ pointerEvents: 'auto', zIndex: 9999 }}
         >
           <Plus className="w-4 h-4" />
           New Note
@@ -58,14 +59,15 @@ export const SermonNotesPage: React.FC = () => {
             e.preventDefault()
             e.stopPropagation()
             console.log('Sermon Notes Page: Switching to list view - BUTTON CLICKED!')
+            alert('LIST BUTTON CLICKED!')
             setActiveTab('list')
           }}
-          className={`flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-medium transition-colors cursor-pointer ${
+          className={`flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-medium transition-colors cursor-pointer border-2 border-blue-500 ${
             activeTab === 'list' 
               ? 'bg-amber-500 text-white hover:bg-amber-600' 
-              : 'bg-slate-700 text-slate-300 border border-slate-600 hover:bg-slate-600'
+              : 'bg-slate-700 text-slate-300 border-slate-600 hover:bg-slate-600'
           }`}
-          style={{ pointerEvents: 'auto' }}
+          style={{ pointerEvents: 'auto', zIndex: 9999 }}
         >
           <List className="w-4 h-4" />
           View Notes
