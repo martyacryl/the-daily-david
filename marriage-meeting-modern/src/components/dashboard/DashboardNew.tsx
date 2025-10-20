@@ -921,7 +921,7 @@ export const DashboardNew: React.FC = () => {
           </motion.div>
         )}
 
-        {/* Grocery & Errands */}
+        {/* Lists & Errands */}
         {(weekData.grocery && weekData.grocery.length > 0 && weekData.grocery.some(store => store.items && store.items.some(item => item.text && item.text.trim() !== ''))) && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -933,9 +933,9 @@ export const DashboardNew: React.FC = () => {
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-xl font-semibold text-gray-900 dark:text-white flex items-center gap-2">
                   <ShoppingCart className="w-5 h-5 text-slate-600 dark:text-slate-300" />
-                  Grocery & Errands
+                  Lists & Errands
                 </h3>
-                <Link to="/weekly?section=grocery" className="text-slate-600 dark:text-slate-300 text-sm font-medium">
+                <Link to="/weekly?section=lists" className="text-slate-600 dark:text-slate-300 text-sm font-medium">
                   View All →
                 </Link>
               </div>

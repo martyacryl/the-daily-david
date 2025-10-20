@@ -117,7 +117,7 @@ const sidebarItems: SidebarItem[] = [
     category: 'spiritual'
   },
   {
-    id: 'grocery',
+    id: 'lists',
     label: 'Lists',
     icon: ShoppingCart,
     color: 'yellow',

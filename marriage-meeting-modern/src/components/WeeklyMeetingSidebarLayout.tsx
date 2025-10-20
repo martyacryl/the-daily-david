@@ -163,7 +163,7 @@ export const WeeklyMeetingSidebarLayout: React.FC = () => {
   // Handle section parameter from URL - run on mount and when searchParams change
   useEffect(() => {
     const section = searchParams.get('section')
-    if (section && ['schedule', 'goals', 'todos', 'prayers', 'grocery', 'unconfessed', 'encouragement'].includes(section)) {
+    if (section && ['schedule', 'goals', 'todos', 'prayers', 'lists', 'unconfessed', 'encouragement'].includes(section)) {
       console.log('🔍 Weekly Planner: Setting active section from URL:', section)
       setActiveSection(section)
     } else {
