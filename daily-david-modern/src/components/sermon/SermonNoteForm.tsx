@@ -66,7 +66,7 @@ export const SermonNoteForm: React.FC<SermonNoteFormProps> = ({
           setCurrentNoteId(noteToLoad.id)
           setFormData(prev => ({
             ...prev,
-            date: noteToLoad.date, // Use the note's date
+            date: noteToLoad.date.split('T')[0], // Convert to YYYY-MM-DD format
             churchName: noteToLoad.churchName || '',
             sermonTitle: noteToLoad.sermonTitle || '',
             speakerName: noteToLoad.speakerName || '',

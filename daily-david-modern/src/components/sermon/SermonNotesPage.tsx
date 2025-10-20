@@ -37,29 +37,35 @@ export const SermonNotesPage: React.FC = () => {
       {/* Tab Navigation */}
       <div className="flex flex-col sm:flex-row justify-center gap-4 mb-8">
         <button
-          onClick={() => {
-            console.log('Sermon Notes Page: Switching to form view')
+          onClick={(e) => {
+            e.preventDefault()
+            e.stopPropagation()
+            console.log('Sermon Notes Page: Switching to form view - BUTTON CLICKED!')
             setActiveTab('form')
           }}
-          className={`flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-medium transition-colors ${
+          className={`flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-medium transition-colors cursor-pointer ${
             activeTab === 'form' 
               ? 'bg-amber-500 text-white hover:bg-amber-600' 
               : 'bg-slate-700 text-slate-300 border border-slate-600 hover:bg-slate-600'
           }`}
+          style={{ pointerEvents: 'auto' }}
         >
           <Plus className="w-4 h-4" />
           New Note
         </button>
         <button
-          onClick={() => {
-            console.log('Sermon Notes Page: Switching to list view')
+          onClick={(e) => {
+            e.preventDefault()
+            e.stopPropagation()
+            console.log('Sermon Notes Page: Switching to list view - BUTTON CLICKED!')
             setActiveTab('list')
           }}
-          className={`flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-medium transition-colors ${
+          className={`flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-medium transition-colors cursor-pointer ${
             activeTab === 'list' 
               ? 'bg-amber-500 text-white hover:bg-amber-600' 
               : 'bg-slate-700 text-slate-300 border border-slate-600 hover:bg-slate-600'
           }`}
+          style={{ pointerEvents: 'auto' }}
         >
           <List className="w-4 h-4" />
           View Notes
