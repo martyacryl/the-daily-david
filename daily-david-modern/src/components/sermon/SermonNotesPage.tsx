@@ -36,23 +36,35 @@ export const SermonNotesPage: React.FC = () => {
              {/* Tab Navigation */}
              <div className="flex flex-col sm:flex-row justify-center gap-4 mb-8">
                <button
-                 onClick={() => setActiveTab('form')}
-                 className={`flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-medium transition-colors ${
+                 onClick={(e) => {
+                   e.preventDefault()
+                   e.stopPropagation()
+                   console.log('FORM BUTTON CLICKED!')
+                   setActiveTab('form')
+                 }}
+                 className={`flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-medium transition-colors cursor-pointer ${
                    activeTab === 'form' 
                      ? 'bg-amber-500 text-white hover:bg-amber-600' 
                      : 'bg-slate-700 text-slate-300 border border-slate-600 hover:bg-slate-600'
                  }`}
+                 style={{ pointerEvents: 'auto', zIndex: 10 }}
                >
                  <Plus className="w-4 h-4" />
                  New Note
                </button>
                <button
-                 onClick={() => setActiveTab('list')}
-                 className={`flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-medium transition-colors ${
+                 onClick={(e) => {
+                   e.preventDefault()
+                   e.stopPropagation()
+                   console.log('LIST BUTTON CLICKED!')
+                   setActiveTab('list')
+                 }}
+                 className={`flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-medium transition-colors cursor-pointer ${
                    activeTab === 'list' 
                      ? 'bg-amber-500 text-white hover:bg-amber-600' 
                      : 'bg-slate-700 text-slate-300 border border-slate-600 hover:bg-slate-600'
                  }`}
+                 style={{ pointerEvents: 'auto', zIndex: 10 }}
                >
                  <List className="w-4 h-4" />
                  View Notes
