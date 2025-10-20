@@ -6,7 +6,6 @@ import { Button } from '../ui/Button'
 import { Plus, List, Cross } from 'lucide-react'
 
 export const SermonNotesPage: React.FC = () => {
-  console.log('Sermon Notes Page: Component mounted')
   const [activeTab, setActiveTab] = useState<'form' | 'list'>('form')
   const [refreshKey, setRefreshKey] = useState(0)
 
@@ -34,45 +33,31 @@ export const SermonNotesPage: React.FC = () => {
         </p>
       </div>
 
-      {/* Tab Navigation */}
-      <div className="flex flex-col sm:flex-row justify-center gap-4 mb-8 relative z-50">
-        <button
-          onClick={(e) => {
-            e.preventDefault()
-            e.stopPropagation()
-            console.log('Sermon Notes Page: Switching to form view - BUTTON CLICKED!')
-            alert('FORM BUTTON CLICKED!')
-            setActiveTab('form')
-          }}
-          className={`flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-medium transition-colors cursor-pointer border-2 border-red-500 ${
-            activeTab === 'form' 
-              ? 'bg-amber-500 text-white hover:bg-amber-600' 
-              : 'bg-slate-700 text-slate-300 border-slate-600 hover:bg-slate-600'
-          }`}
-          style={{ pointerEvents: 'auto', zIndex: 9999 }}
-        >
-          <Plus className="w-4 h-4" />
-          New Note
-        </button>
-        <button
-          onClick={(e) => {
-            e.preventDefault()
-            e.stopPropagation()
-            console.log('Sermon Notes Page: Switching to list view - BUTTON CLICKED!')
-            alert('LIST BUTTON CLICKED!')
-            setActiveTab('list')
-          }}
-          className={`flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-medium transition-colors cursor-pointer border-2 border-blue-500 ${
-            activeTab === 'list' 
-              ? 'bg-amber-500 text-white hover:bg-amber-600' 
-              : 'bg-slate-700 text-slate-300 border-slate-600 hover:bg-slate-600'
-          }`}
-          style={{ pointerEvents: 'auto', zIndex: 9999 }}
-        >
-          <List className="w-4 h-4" />
-          View Notes
-        </button>
-      </div>
+             {/* Tab Navigation */}
+             <div className="flex flex-col sm:flex-row justify-center gap-4 mb-8">
+               <button
+                 onClick={() => setActiveTab('form')}
+                 className={`flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-medium transition-colors ${
+                   activeTab === 'form' 
+                     ? 'bg-amber-500 text-white hover:bg-amber-600' 
+                     : 'bg-slate-700 text-slate-300 border border-slate-600 hover:bg-slate-600'
+                 }`}
+               >
+                 <Plus className="w-4 h-4" />
+                 New Note
+               </button>
+               <button
+                 onClick={() => setActiveTab('list')}
+                 className={`flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-medium transition-colors ${
+                   activeTab === 'list' 
+                     ? 'bg-amber-500 text-white hover:bg-amber-600' 
+                     : 'bg-slate-700 text-slate-300 border border-slate-600 hover:bg-slate-600'
+                 }`}
+               >
+                 <List className="w-4 h-4" />
+                 View Notes
+               </button>
+             </div>
 
       {/* Tab Content */}
       <motion.div
@@ -81,7 +66,6 @@ export const SermonNotesPage: React.FC = () => {
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.3 }}
       >
-        {console.log('Sermon Notes Page: Rendering tab content, activeTab:', activeTab)}
         {activeTab === 'form' ? (
           <SermonNoteForm onSuccess={handleNoteSaved} />
         ) : (

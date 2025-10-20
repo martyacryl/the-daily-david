@@ -19,7 +19,6 @@ export const SermonNoteForm: React.FC<SermonNoteFormProps> = ({
   initialData,
   editingNoteId 
 }) => {
-  console.log('Sermon Note Form: Component mounted')
   const { user, token } = useAuthStore()
 
   const [formData, setFormData] = useState<SermonNoteFormData & { date: string }>({
