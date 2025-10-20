@@ -1340,6 +1340,32 @@ app.post('/api/user/complete-onboarding', authenticateToken, async (req, res) =>
 // SERMON NOTES API ENDPOINTS
 // ============================================================================
 
+// Check if sermon_notes table exists
+app.get('/api/sermon-notes/check-table', authenticateToken, async (req, res) => {
+  const client = await pool.connect()
+  try {
+    const result = await client.query(`
+      SELECT table_name 
+      FROM information_schema.tables 
+      WHERE table_schema = 'public' 
+      AND table_name = 'sermon_notes'
+    `)
+    
+    const tableExists = result.rows.length > 0
+    
+    res.json({ 
+      success: true, 
+      tableExists,
+      message: tableExists ? 'sermon_notes table exists' : 'sermon_notes table does not exist - please run the SQL script'
+    })
+  } catch (error) {
+    console.error('Check table error:', error)
+    res.status(500).json({ success: false, error: 'Failed to check table existence' })
+  } finally {
+    client.release()
+  }
+})
+
 // Get all sermon notes for authenticated user
 app.get('/api/sermon-notes', authenticateToken, async (req, res) => {
   const client = await pool.connect()
