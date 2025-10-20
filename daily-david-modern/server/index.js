@@ -415,9 +415,36 @@ app.get('/api/entries', authenticateToken, async (req, res) => {
         [userId, limit]
       )
 
-      // Return entries with their own reading plan data (don't modify it)
+      // Get the latest reading plan data from the reading_plans table
+      const readingPlanResult = await client.query(
+        `SELECT * FROM reading_plans 
+         WHERE user_id = $1 
+         ORDER BY updated_at DESC 
+         LIMIT 1`,
+        [userId]
+      )
+
+      let latestReadingPlan = null
+      if (readingPlanResult.rows.length > 0) {
+        const readingPlan = readingPlanResult.rows[0]
+        latestReadingPlan = {
+          planId: readingPlan.plan_id,
+          planName: readingPlan.plan_name,
+          currentDay: readingPlan.current_day,
+          totalDays: readingPlan.total_days,
+          startDate: readingPlan.start_date,
+          completedDays: readingPlan.completed_days || []
+        }
+      }
+
+      // Return entries with the latest reading plan data injected
       const entries = entriesResult.rows.map(entry => {
         const dataContent = entry.data_content || {}
+        
+        // Inject the latest reading plan data if it exists
+        if (latestReadingPlan) {
+          dataContent.readingPlan = latestReadingPlan
+        }
         
         return {
           ...entry,
