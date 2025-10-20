@@ -74,8 +74,12 @@ export const SermonNotesList: React.FC<SermonNotesListProps> = ({ onEditNote }) 
   }, [token])
 
   const loadNotes = async () => {
-    if (!token) return
+    if (!token) {
+      console.log('Sermon Notes: No token available')
+      return
+    }
     
+    console.log('Sermon Notes: Loading notes...')
     setIsLoading(true)
     try {
       const response = await fetch(`${API_BASE_URL}/api/sermon-notes`, {
@@ -84,9 +88,15 @@ export const SermonNotesList: React.FC<SermonNotesListProps> = ({ onEditNote }) 
         }
       })
       
+      console.log('Sermon Notes: Response status:', response.status)
+      
       if (response.ok) {
         const data = await response.json()
+        console.log('Sermon Notes: Loaded data:', data)
         setNotes(data.notes || [])
+        console.log('Sermon Notes: Set notes to:', data.notes || [])
+      } else {
+        console.error('Sermon Notes: Response not ok:', response.status, response.statusText)
       }
     } catch (error) {
       console.error('Failed to load sermon notes:', error)

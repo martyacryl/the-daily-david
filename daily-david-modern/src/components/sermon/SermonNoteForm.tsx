@@ -86,14 +86,20 @@ export const SermonNoteForm: React.FC<SermonNoteFormProps> = ({
 
   // Auto-save function - using upsert logic
   const autoSaveToAPI = async (noteData: any) => {
-    if (!user?.id || !token) return
+    if (!user?.id || !token) {
+      console.log('Sermon Notes: No user or token for auto-save')
+      return
+    }
     
     try {
       console.log('Sermon Notes: Auto-saving to API:', noteData)
+      console.log('Sermon Notes: Current note ID:', currentNoteId)
       
       // Use PUT if we have a current note ID, otherwise POST
       const method = currentNoteId ? 'PUT' : 'POST'
       const url = currentNoteId ? `${API_BASE_URL}/api/sermon-notes/${currentNoteId}` : `${API_BASE_URL}/api/sermon-notes`
+      
+      console.log('Sermon Notes: Using method:', method, 'URL:', url)
       
       const response = await fetch(url, {
         method,
@@ -104,7 +110,11 @@ export const SermonNoteForm: React.FC<SermonNoteFormProps> = ({
         body: JSON.stringify(noteData)
       })
       
+      console.log('Sermon Notes: Response status:', response.status)
+      
       if (!response.ok) {
+        const errorText = await response.text()
+        console.error('Sermon Notes: Response error:', response.status, errorText)
         throw new Error(`HTTP error! status: ${response.status}`)
       }
       
@@ -113,6 +123,7 @@ export const SermonNoteForm: React.FC<SermonNoteFormProps> = ({
       
       // Store the note ID for future updates
       if (data.note && data.note.id && !currentNoteId) {
+        console.log('Sermon Notes: Setting current note ID to:', data.note.id)
         setCurrentNoteId(data.note.id)
       }
       
