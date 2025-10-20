@@ -6,7 +6,7 @@ import { Button } from '../ui/Button'
 import { Input } from '../ui/Input'
 import { Textarea } from '../ui/Textarea'
 import { Card } from '../ui/Card'
-import { Church, User, BookOpen, Calendar, FileText, Save } from 'lucide-react'
+import { Church, User, BookOpen, Calendar, FileText, Save, Cross } from 'lucide-react'
 import { API_BASE_URL } from '../../config/api'
 
 interface SermonNoteFormProps {
@@ -115,153 +115,154 @@ export const SermonNoteForm: React.FC<SermonNoteFormProps> = ({
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
-      className="w-full max-w-4xl mx-auto"
-    >
-      <Card className="p-6">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="p-2 bg-blue-100 rounded-lg">
-            <FileText className="w-6 h-6 text-blue-600" />
-          </div>
-          <div>
-            <h2 className="text-2xl font-bold text-gray-900">
-              {editingNoteId ? 'Edit Sermon Note' : 'New Sermon Note'}
-            </h2>
-            <p className="text-gray-600">
-              {editingNoteId ? 'Update your sermon notes' : 'Take notes during church service'}
-            </p>
-          </div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+      <div className="container mx-auto px-4 py-8">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold text-white mb-4 flex items-center justify-center gap-3">
+            <Cross className="w-10 h-10 text-amber-400" />
+            {editingNoteId ? 'Edit Sermon Note' : 'New Sermon Note'}
+          </h1>
+          <p className="text-green-200 text-lg">
+            {editingNoteId ? 'Update your sermon notes' : 'Record your spiritual insights and teachings'}
+          </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Date */}
-            <div className="space-y-2">
-              <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
-                <Calendar className="w-4 h-4" />
-                Date
-              </label>
-              <Input
-                type="date"
-                value={formData.date}
-                onChange={(e) => handleInputChange('date', e.target.value)}
-                onBlur={handleInputBlur}
-                className="w-full"
-                required
-              />
-            </div>
+        {/* Form */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+          className="max-w-4xl mx-auto"
+        >
+          <div className="bg-slate-800/80 backdrop-blur-sm rounded-xl p-8 shadow-lg border border-slate-700">
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Date */}
+                <div className="space-y-2">
+                  <label className="text-white font-medium flex items-center gap-2">
+                    <Calendar className="w-4 h-4 text-amber-400" />
+                    Date
+                  </label>
+                  <Input
+                    type="date"
+                    value={formData.date}
+                    onChange={(e) => handleInputChange('date', e.target.value)}
+                    onBlur={handleInputBlur}
+                    className="w-full bg-slate-700/60 border-slate-600/50 text-white placeholder-slate-400 focus:ring-slate-500 focus:border-slate-500"
+                    required
+                  />
+                </div>
 
-            {/* Church Name */}
-            <div className="space-y-2">
-              <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
-                <Church className="w-4 h-4" />
-                Church Name
-              </label>
-              <Input
-                type="text"
-                value={formData.churchName}
-                onChange={(e) => handleInputChange('churchName', e.target.value)}
-                onBlur={handleInputBlur}
-                placeholder="Enter church name"
-                className="w-full"
-                required
-              />
-            </div>
+                {/* Church Name */}
+                <div className="space-y-2">
+                  <label className="text-white font-medium flex items-center gap-2">
+                    <Church className="w-4 h-4 text-amber-400" />
+                    Church Name
+                  </label>
+                  <Input
+                    type="text"
+                    value={formData.churchName}
+                    onChange={(e) => handleInputChange('churchName', e.target.value)}
+                    onBlur={handleInputBlur}
+                    placeholder="Enter church name..."
+                    className="w-full bg-slate-700/60 border-slate-600/50 text-white placeholder-slate-400 focus:ring-slate-500 focus:border-slate-500"
+                    required
+                  />
+                </div>
 
-            {/* Sermon Title */}
-            <div className="space-y-2">
-              <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
-                <BookOpen className="w-4 h-4" />
-                Sermon Title
-              </label>
-              <Input
-                type="text"
-                value={formData.sermonTitle}
-                onChange={(e) => handleInputChange('sermonTitle', e.target.value)}
-                onBlur={handleInputBlur}
-                placeholder="Enter sermon title"
-                className="w-full"
-                required
-              />
-            </div>
+                {/* Sermon Title */}
+                <div className="space-y-2">
+                  <label className="text-white font-medium flex items-center gap-2">
+                    <FileText className="w-4 h-4 text-amber-400" />
+                    Sermon Title
+                  </label>
+                  <Input
+                    type="text"
+                    value={formData.sermonTitle}
+                    onChange={(e) => handleInputChange('sermonTitle', e.target.value)}
+                    onBlur={handleInputBlur}
+                    placeholder="Enter sermon title..."
+                    className="w-full bg-slate-700/60 border-slate-600/50 text-white placeholder-slate-400 focus:ring-slate-500 focus:border-slate-500"
+                    required
+                  />
+                </div>
 
-            {/* Speaker Name */}
-            <div className="space-y-2">
-              <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
-                <User className="w-4 h-4" />
-                Speaker Name
-              </label>
-              <Input
-                type="text"
-                value={formData.speakerName}
-                onChange={(e) => handleInputChange('speakerName', e.target.value)}
-                onBlur={handleInputBlur}
-                placeholder="Enter speaker name"
-                className="w-full"
-                required
-              />
-            </div>
+                {/* Speaker Name */}
+                <div className="space-y-2">
+                  <label className="text-white font-medium flex items-center gap-2">
+                    <User className="w-4 h-4 text-amber-400" />
+                    Speaker Name
+                  </label>
+                  <Input
+                    type="text"
+                    value={formData.speakerName}
+                    onChange={(e) => handleInputChange('speakerName', e.target.value)}
+                    onBlur={handleInputBlur}
+                    placeholder="Enter speaker name..."
+                    className="w-full bg-slate-700/60 border-slate-600/50 text-white placeholder-slate-400 focus:ring-slate-500 focus:border-slate-500"
+                    required
+                  />
+                </div>
+              </div>
+
+              {/* Bible Passage */}
+              <div className="space-y-2">
+                <label className="text-white font-medium flex items-center gap-2">
+                  <BookOpen className="w-4 h-4 text-amber-400" />
+                  Bible Passage
+                </label>
+                <Input
+                  type="text"
+                  value={formData.biblePassage}
+                  onChange={(e) => handleInputChange('biblePassage', e.target.value)}
+                  onBlur={handleInputBlur}
+                  placeholder="e.g., John 3:16, Romans 8:28-30..."
+                  className="w-full bg-slate-700/60 border-slate-600/50 text-white placeholder-slate-400 focus:ring-slate-500 focus:border-slate-500"
+                  required
+                />
+              </div>
+
+              {/* Notes */}
+              <div className="space-y-2">
+                <label className="text-white font-medium flex items-center gap-2">
+                  <FileText className="w-4 h-4 text-amber-400" />
+                  Notes
+                </label>
+                <Textarea
+                  value={formData.notes}
+                  onChange={(e) => handleInputChange('notes', e.target.value)}
+                  onBlur={handleInputBlur}
+                  placeholder="Write your sermon notes here... What did you learn? What stood out to you? How will you apply this message?"
+                  className="w-full min-h-[200px] bg-slate-700/60 border-slate-600/50 text-white placeholder-slate-400 focus:ring-slate-500 focus:border-slate-500"
+                  required
+                />
+              </div>
+
+              {/* Submit Button */}
+              <div className="flex justify-center pt-4">
+                <Button
+                  type="submit"
+                  disabled={isSaving || !formData.churchName || !formData.sermonTitle || !formData.speakerName || !formData.biblePassage || !formData.notes}
+                  className="flex items-center gap-2 px-8 py-3"
+                >
+                  {isSaving ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                      Saving...
+                    </>
+                  ) : (
+                    <>
+                      <Save className="w-4 h-4" />
+                      {editingNoteId ? 'Update Note' : 'Save Note'}
+                    </>
+                  )}
+                </Button>
+              </div>
+            </form>
           </div>
-
-          {/* Bible Passage */}
-          <div className="space-y-2">
-            <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
-              <BookOpen className="w-4 h-4" />
-              Bible Passage
-            </label>
-            <Input
-              type="text"
-              value={formData.biblePassage}
-              onChange={(e) => handleInputChange('biblePassage', e.target.value)}
-              onBlur={handleInputBlur}
-              placeholder="e.g., John 3:16, Matthew 5:1-12"
-              className="w-full"
-              required
-            />
-          </div>
-
-          {/* Notes */}
-          <div className="space-y-2">
-            <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
-              <FileText className="w-4 h-4" />
-              Notes
-            </label>
-            <Textarea
-              value={formData.notes}
-              onChange={(e) => handleInputChange('notes', e.target.value)}
-              onBlur={handleInputBlur}
-              placeholder="Write your sermon notes here..."
-              rows={8}
-              className="w-full"
-              required
-            />
-          </div>
-
-          {/* Submit Button */}
-          <div className="flex justify-end">
-            <Button
-              type="submit"
-              disabled={isSaving || !formData.churchName || !formData.sermonTitle || !formData.speakerName || !formData.biblePassage || !formData.notes}
-              className="flex items-center gap-2"
-            >
-              {isSaving ? (
-                <>
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  Saving...
-                </>
-              ) : (
-                <>
-                  <Save className="w-4 h-4" />
-                  {editingNoteId ? 'Update Note' : 'Save Note'}
-                </>
-              )}
-            </Button>
-          </div>
-        </form>
-      </Card>
-    </motion.div>
+        </motion.div>
+      </div>
+    </div>
   )
 }

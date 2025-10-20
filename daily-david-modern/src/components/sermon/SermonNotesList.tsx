@@ -4,7 +4,6 @@ import { useAuthStore } from '../../stores/authStore'
 import { SermonNote } from '../../types'
 import { Button } from '../ui/Button'
 import { Textarea } from '../ui/Textarea'
-import { Card } from '../ui/Card'
 import { 
   Search, 
   Download, 
@@ -15,7 +14,8 @@ import {
   Church, 
   User, 
   BookOpen,
-  FileText
+  FileText,
+  Cross
 } from 'lucide-react'
 import { API_BASE_URL } from '../../config/api'
 
@@ -223,179 +223,247 @@ export const SermonNotesList: React.FC<SermonNotesListProps> = ({ onEditNote }) 
     URL.revokeObjectURL(url)
   }
 
+  // Clear all filters
+  const clearAllFilters = () => {
+    setSearchTerm('')
+  }
+
+  // Check if any filters are active
+  const hasActiveFilters = searchTerm
+
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center">
+        <div className="text-white text-xl">Loading sermon notes...</div>
       </div>
     )
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
-      className="w-full max-w-6xl mx-auto"
-    >
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-            <FileText className="w-6 h-6 text-blue-600" />
-            Sermon Notes ({filteredNotes.length})
-          </h2>
-          <p className="text-gray-600">Review and manage your sermon notes</p>
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+      <div className="container mx-auto px-4 py-8">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold text-white mb-4 flex items-center justify-center gap-3">
+            <Cross className="w-10 h-10 text-amber-400" />
+            Sermon Notes
+          </h1>
+          <p className="text-green-200 text-lg">
+            Review your spiritual journey and sermon insights
+          </p>
         </div>
-        
-        <div className="flex gap-2">
+
+        {/* Filters and Search */}
+        <div className="bg-slate-800/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-slate-700 mb-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* Search */}
+            <div className="sm:col-span-2">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4" />
+                <input
+                  type="text"
+                  placeholder="Search sermon notes..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 bg-slate-700/60 border border-slate-600/50 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-slate-500"
+                />
+                {searchTerm && (
+                  <button
+                    onClick={() => setSearchTerm('')}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-white"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Sort */}
+            <div>
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as 'date' | 'church' | 'speaker')}
+                className="w-full px-2 py-2 text-sm bg-slate-700/60 border border-slate-600/50 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-slate-500"
+              >
+                <option value="date">Sort by Date</option>
+                <option value="church">Sort by Church</option>
+                <option value="speaker">Sort by Speaker</option>
+              </select>
+            </div>
+
+            {/* Clear Filters */}
+            {hasActiveFilters && (
+              <div className="flex items-center">
+                <Button
+                  onClick={clearAllFilters}
+                  variant="outline"
+                  size="sm"
+                  className="text-xs px-2 py-2"
+                >
+                  <X className="w-3 h-3 mr-1" />
+                  Clear
+                </Button>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Statistics */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div className="bg-slate-800/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-slate-700">
+            <h3 className="text-amber-400 text-2xl font-bold">{filteredNotes.length}</h3>
+            <p className="text-green-200 text-sm">Total Sermon Notes</p>
+          </div>
+          <div className="bg-slate-800/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-slate-700">
+            <h3 className="text-amber-400 text-2xl font-bold">
+              {new Set(notes.map(n => n.churchName)).size}
+            </h3>
+            <p className="text-green-200 text-sm">Unique Churches</p>
+          </div>
+          <div className="bg-slate-800/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-slate-700">
+            <h3 className="text-amber-400 text-2xl font-bold">
+              {new Set(notes.map(n => n.speakerName)).size}
+            </h3>
+            <p className="text-green-200 text-sm">Unique Speakers</p>
+          </div>
+          <div className="bg-slate-800/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-slate-700">
+            <h3 className="text-amber-400 text-2xl font-bold">
+              {notes.reduce((total, note) => total + note.notes.split(' ').length, 0)}
+            </h3>
+            <p className="text-green-200 text-sm">Total Words</p>
+          </div>
+        </div>
+
+        {/* Export and Refresh Buttons */}
+        <div className="flex justify-center gap-4 mb-8">
           <Button
             onClick={exportNotes}
             variant="outline"
             className="flex items-center gap-2"
           >
             <Download className="w-4 h-4" />
-            Export
+            Export JSON
+          </Button>
+          <Button
+            onClick={() => loadNotes()}
+            variant="outline"
+            className="flex items-center gap-2"
+            disabled={isLoading}
+          >
+            <Search className="w-4 h-4" />
+            {isLoading ? 'Loading...' : 'Refresh'}
           </Button>
         </div>
-      </div>
 
-      {/* Search and Filters */}
-      <Card className="p-4 mb-6">
-        <div className="flex flex-col sm:flex-row gap-4">
-          <div className="flex-1">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-              <input
-                type="text"
-                placeholder="Search notes..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
+        {/* Notes List */}
+        <div className="space-y-6">
+          {filteredNotes.length === 0 ? (
+            <div className="text-center py-12">
+              <Cross className="w-16 h-16 text-slate-600 mx-auto mb-4" />
+              <h3 className="text-xl font-semibold text-slate-400 mb-2">No sermon notes found</h3>
+              <p className="text-slate-500">
+                {hasActiveFilters ? 'Try adjusting your filters' : 'Start your first sermon note in the New Note section'}
+              </p>
             </div>
-          </div>
-          
-          <select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value as 'date' | 'church' | 'speaker')}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          >
-            <option value="date">Sort by Date</option>
-            <option value="church">Sort by Church</option>
-            <option value="speaker">Sort by Speaker</option>
-          </select>
-        </div>
-      </Card>
-
-      {/* Notes List */}
-      <div className="space-y-4">
-        {filteredNotes.length === 0 ? (
-          <Card className="p-8 text-center">
-            <FileText className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No sermon notes found</h3>
-            <p className="text-gray-600">
-              {searchTerm ? 'Try adjusting your search terms' : 'Start by creating your first sermon note'}
-            </p>
-          </Card>
-        ) : (
-          filteredNotes.map((note) => (
-            <motion.div
-              key={note.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
-            >
-              <Card className="p-6">
-                <div className="flex justify-between items-start mb-4">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-4 text-sm text-gray-600 mb-2">
-                      <span className="flex items-center gap-1">
-                        <Calendar className="w-4 h-4" />
-                        {formatDate(parseDateString(note.date))}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <Church className="w-4 h-4" />
-                        {note.churchName}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <User className="w-4 h-4" />
-                        {note.speakerName}
-                      </span>
+          ) : (
+            filteredNotes.map((note) => (
+              <motion.div
+                key={note.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <div className="bg-slate-800/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-slate-700">
+                  <div className="flex justify-between items-start mb-4">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-4 text-sm text-slate-400 mb-2">
+                        <span className="flex items-center gap-1">
+                          <Calendar className="w-4 h-4" />
+                          {formatDate(parseDateString(note.date))}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Church className="w-4 h-4" />
+                          {note.churchName}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <User className="w-4 h-4" />
+                          {note.speakerName}
+                        </span>
+                      </div>
+                      
+                      <h3 className="text-xl font-semibold text-white mb-2">
+                        {note.sermonTitle}
+                      </h3>
+                      
+                      <div className="flex items-center gap-1 text-amber-400 font-medium mb-3">
+                        <BookOpen className="w-4 h-4" />
+                        {note.biblePassage}
+                      </div>
                     </div>
                     
-                    <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                      {note.sermonTitle}
-                    </h3>
-                    
-                    <div className="flex items-center gap-1 text-blue-600 font-medium mb-3">
-                      <BookOpen className="w-4 h-4" />
-                      {note.biblePassage}
+                    <div className="flex gap-2">
+                      {editingNoteId === note.id ? (
+                        <Button
+                          onClick={handleCancelEdit}
+                          variant="outline"
+                          size="sm"
+                          className="flex items-center gap-1"
+                        >
+                          <X className="w-4 h-4" />
+                          Cancel
+                        </Button>
+                      ) : (
+                        <Button
+                          onClick={() => handleEditNote(note)}
+                          variant="outline"
+                          size="sm"
+                          className="flex items-center gap-1"
+                        >
+                          <Edit3 className="w-4 h-4" />
+                          Edit
+                        </Button>
+                      )}
+                      
+                      <Button
+                        onClick={() => handleDeleteNote(note.id)}
+                        variant="outline"
+                        size="sm"
+                        className="flex items-center gap-1 text-red-400 hover:text-red-300 hover:border-red-400"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                        Delete
+                      </Button>
                     </div>
                   </div>
                   
-                  <div className="flex gap-2">
+                  <div className="border-t border-slate-700 pt-4">
                     {editingNoteId === note.id ? (
-                      <Button
-                        onClick={handleCancelEdit}
-                        variant="outline"
-                        size="sm"
-                        className="flex items-center gap-1"
-                      >
-                        <X className="w-4 h-4" />
-                        Cancel
-                      </Button>
+                      <div className="space-y-2">
+                        <label className="text-white font-medium">Notes</label>
+                        <Textarea
+                          value={editingNotes}
+                          onChange={(e) => setEditingNotes(e.target.value)}
+                          onBlur={handleInputBlur}
+                          rows={4}
+                          className="w-full bg-slate-700/60 border-slate-600/50 text-white placeholder-slate-400 focus:ring-slate-500 focus:border-slate-500"
+                          placeholder="Write your sermon notes here..."
+                        />
+                        {isSaving && (
+                          <p className="text-sm text-amber-400">Saving...</p>
+                        )}
+                      </div>
                     ) : (
-                      <Button
-                        onClick={() => handleEditNote(note)}
-                        variant="outline"
-                        size="sm"
-                        className="flex items-center gap-1"
-                      >
-                        <Edit3 className="w-4 h-4" />
-                        Edit
-                      </Button>
+                      <div className="prose max-w-none">
+                        <p className="text-slate-300 whitespace-pre-wrap">{note.notes}</p>
+                      </div>
                     )}
-                    
-                    <Button
-                      onClick={() => handleDeleteNote(note.id)}
-                      variant="outline"
-                      size="sm"
-                      className="flex items-center gap-1 text-red-600 hover:text-red-700 hover:border-red-300"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                      Delete
-                    </Button>
                   </div>
                 </div>
-                
-                <div className="border-t pt-4">
-                  {editingNoteId === note.id ? (
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-gray-700">Notes</label>
-                      <Textarea
-                        value={editingNotes}
-                        onChange={(e) => setEditingNotes(e.target.value)}
-                        onBlur={handleInputBlur}
-                        rows={4}
-                        className="w-full"
-                        placeholder="Write your sermon notes here..."
-                      />
-                      {isSaving && (
-                        <p className="text-sm text-blue-600">Saving...</p>
-                      )}
-                    </div>
-                  ) : (
-                    <div className="prose max-w-none">
-                      <p className="text-gray-700 whitespace-pre-wrap">{note.notes}</p>
-                    </div>
-                  )}
-                </div>
-              </Card>
-            </motion.div>
-          ))
-        )}
+              </motion.div>
+            ))
+          )}
+        </div>
       </div>
-    </motion.div>
+    </div>
   )
 }
