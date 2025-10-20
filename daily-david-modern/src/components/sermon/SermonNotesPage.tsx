@@ -43,13 +43,14 @@ export const SermonNotesPage: React.FC = () => {
 
       {/* Tab Navigation */}
       <div className="flex flex-col sm:flex-row justify-center gap-4 mb-8">
-        <button
-          onClick={(e) => {
-            e.preventDefault()
-            e.stopPropagation()
-            console.log('FORM BUTTON CLICKED!', activeTab)
-            setActiveTab('form')
-          }}
+               <button
+                 onClick={(e) => {
+                   e.preventDefault()
+                   e.stopPropagation()
+                   console.log('FORM BUTTON CLICKED!', activeTab)
+                   setEditingNote(null) // Clear any editing note to ensure new note
+                   setActiveTab('form')
+                 }}
           className={`flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-medium transition-colors cursor-pointer ${
             activeTab === 'form' 
               ? 'bg-amber-500 text-white hover:bg-amber-600' 
@@ -88,6 +89,7 @@ export const SermonNotesPage: React.FC = () => {
       >
         {activeTab === 'form' ? (
           <SermonNoteForm 
+            key={editingNote ? `edit-${editingNote.id}` : 'new-note'}
             onSuccess={handleNoteSaved} 
             isNewNote={!editingNote}
             editingNoteId={editingNote?.id}
