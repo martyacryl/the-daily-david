@@ -4,20 +4,28 @@ import { SermonNoteForm } from './SermonNoteForm'
 import { SermonNotesList } from './SermonNotesList'
 import { Button } from '../ui/Button'
 import { Plus, List, Cross } from 'lucide-react'
+import { SermonNote } from '../../types'
 
 export const SermonNotesPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'form' | 'list'>('form')
   const [refreshKey, setRefreshKey] = useState(0)
+  const [editingNote, setEditingNote] = useState<SermonNote | null>(null)
 
   const handleNoteSaved = () => {
     // Switch to list view and refresh
     setActiveTab('list')
     setRefreshKey(prev => prev + 1)
+    setEditingNote(null) // Clear editing note
     
     // Also call the global refresh function
     if ((window as any).refreshSermonNotes) {
       (window as any).refreshSermonNotes()
     }
+  }
+
+  const handleEditNote = (note: SermonNote) => {
+    setEditingNote(note)
+    setActiveTab('form')
   }
 
   return (
@@ -79,9 +87,21 @@ export const SermonNotesPage: React.FC = () => {
         transition={{ duration: 0.3 }}
       >
         {activeTab === 'form' ? (
-          <SermonNoteForm onSuccess={handleNoteSaved} isNewNote={true} />
+          <SermonNoteForm 
+            onSuccess={handleNoteSaved} 
+            isNewNote={!editingNote}
+            editingNoteId={editingNote?.id}
+            initialData={editingNote ? {
+              date: editingNote.date.split('T')[0], // Convert to YYYY-MM-DD format
+              churchName: editingNote.churchName,
+              sermonTitle: editingNote.sermonTitle,
+              speakerName: editingNote.speakerName,
+              biblePassage: editingNote.biblePassage,
+              notes: editingNote.notes
+            } : undefined}
+          />
         ) : (
-          <SermonNotesList key={refreshKey} />
+          <SermonNotesList key={refreshKey} onEditNote={handleEditNote} />
         )}
       </motion.div>
     </div>

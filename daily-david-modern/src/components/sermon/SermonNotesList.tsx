@@ -3,11 +3,9 @@ import { motion } from 'framer-motion'
 import { useAuthStore } from '../../stores/authStore'
 import { SermonNote } from '../../types'
 import { Button } from '../ui/Button'
-import { Textarea } from '../ui/Textarea'
 import { 
   Search, 
   Download, 
-  X, 
   Edit3, 
   Trash2, 
   Calendar, 
@@ -47,10 +45,7 @@ export const SermonNotesList: React.FC<SermonNotesListProps> = ({ onEditNote }) 
   const [searchTerm, setSearchTerm] = useState('')
   const [sortBy, setSortBy] = useState<'date' | 'church' | 'speaker'>('date')
   
-  // Simple editing state - following SOAP Review pattern exactly
-  const [editingNoteId, setEditingNoteId] = useState<string | null>(null)
-  const [editingNotes, setEditingNotes] = useState('')
-  const [isSaving, setIsSaving] = useState(false)
+  // No inline editing - using full form editing instead
 
   // Load notes on component mount
   useEffect(() => {
@@ -138,38 +133,7 @@ export const SermonNotesList: React.FC<SermonNotesListProps> = ({ onEditNote }) 
     }
   }
 
-  // Handle auto-save - following SOAP Review pattern exactly
-  useEffect(() => {
-    const handleAutoSave = async () => {
-      if (editingNoteId && editingNotes !== (notes.find(n => n.id === editingNoteId)?.notes || '')) {
-        const note = notes.find(n => n.id === editingNoteId)
-        if (note) {
-          setIsSaving(true)
-          try {
-            // Create updated note data with the new notes
-            const updatedNote = {
-              ...note,
-              notes: editingNotes
-            }
-
-            await autoSaveToAPI(updatedNote)
-            
-            // Clear editing state
-            setEditingNoteId(null)
-            setEditingNotes('')
-            
-          } catch (error) {
-            console.error('Sermon Notes: Auto-save error:', error)
-          } finally {
-            setIsSaving(false)
-          }
-        }
-      }
-    }
-
-    window.addEventListener('triggerSermonNoteSave', handleAutoSave)
-    return () => window.removeEventListener('triggerSermonNoteSave', handleAutoSave)
-  }, [editingNoteId, editingNotes, notes, token])
+  // No auto-save needed - using full form editing instead
 
   // Filter and sort notes
   const filteredNotes = useMemo(() => {
@@ -223,20 +187,7 @@ export const SermonNotesList: React.FC<SermonNotesListProps> = ({ onEditNote }) 
     }
   }
 
-  const handleEditNote = (note: SermonNote) => {
-    setEditingNoteId(note.id)
-    setEditingNotes(note.notes)
-  }
-
-  const handleCancelEdit = () => {
-    setEditingNoteId(null)
-    setEditingNotes('')
-  }
-
-  const handleInputBlur = () => {
-    // Trigger auto-save using the same pattern as SOAP Review
-    window.dispatchEvent(new CustomEvent('triggerSermonNoteSave'))
-  }
+  // Edit functionality moved to parent component
 
   const exportNotes = () => {
     const dataStr = JSON.stringify(notes, null, 2)
@@ -427,27 +378,15 @@ export const SermonNotesList: React.FC<SermonNotesListProps> = ({ onEditNote }) 
                     </div>
                     
                     <div className="flex flex-col sm:flex-row gap-2 mt-2 sm:mt-0">
-                      {editingNoteId === note.id ? (
-                        <Button
-                          onClick={handleCancelEdit}
-                          variant="outline"
-                          size="sm"
-                          className="flex items-center gap-1"
-                        >
-                          <X className="w-4 h-4" />
-                          Cancel
-                        </Button>
-                      ) : (
-                        <Button
-                          onClick={() => handleEditNote(note)}
-                          variant="outline"
-                          size="sm"
-                          className="flex items-center gap-1"
-                        >
-                          <Edit3 className="w-4 h-4" />
-                          Edit
-                        </Button>
-                      )}
+                      <Button
+                        onClick={() => onEditNote?.(note)}
+                        variant="outline"
+                        size="sm"
+                        className="flex items-center gap-1"
+                      >
+                        <Edit3 className="w-4 h-4" />
+                        Edit
+                      </Button>
                       
                       <Button
                         onClick={() => handleDeleteNote(note.id)}
@@ -462,26 +401,9 @@ export const SermonNotesList: React.FC<SermonNotesListProps> = ({ onEditNote }) 
                   </div>
                   
                   <div className="border-t border-slate-700 pt-4">
-                    {editingNoteId === note.id ? (
-                      <div className="space-y-2">
-                        <label className="text-white font-medium">Notes</label>
-                        <Textarea
-                          value={editingNotes}
-                          onChange={(e) => setEditingNotes(e.target.value)}
-                          onBlur={handleInputBlur}
-                          rows={4}
-                          className="w-full bg-slate-700/60 border-slate-600/50 text-white placeholder-slate-400 focus:ring-slate-500 focus:border-slate-500"
-                          placeholder="Write your sermon notes here..."
-                        />
-                        {isSaving && (
-                          <p className="text-sm text-amber-400">Saving...</p>
-                        )}
-                      </div>
-                    ) : (
-                      <div className="prose max-w-none">
-                        <p className="text-slate-300 whitespace-pre-wrap">{note.notes}</p>
-                      </div>
-                    )}
+                    <div className="prose max-w-none">
+                      <p className="text-slate-300 whitespace-pre-wrap">{note.notes}</p>
+                    </div>
                   </div>
                 </div>
               </motion.div>
