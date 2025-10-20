@@ -58,22 +58,29 @@ export const SermonNoteForm: React.FC<SermonNoteFormProps> = ({
         const data = await response.json()
         console.log('Sermon Notes: Loaded notes data:', data)
         
-        // Find note for the current form date
-        const noteForDate = data.notes?.find((note: any) => note.date === formData.date)
+        // First try to find note for the current form date
+        let noteToLoad = data.notes?.find((note: any) => note.date === formData.date)
         
-        if (noteForDate) {
-          console.log('Sermon Notes: Found note for date:', noteForDate)
-          setCurrentNoteId(noteForDate.id)
+        // If no note for current date, load the most recent note
+        if (!noteToLoad && data.notes?.length > 0) {
+          noteToLoad = data.notes[0] // Most recent note
+          console.log('Sermon Notes: No note for current date, loading most recent:', noteToLoad)
+        }
+        
+        if (noteToLoad) {
+          console.log('Sermon Notes: Found note to load:', noteToLoad)
+          setCurrentNoteId(noteToLoad.id)
           setFormData(prev => ({
             ...prev,
-            churchName: noteForDate.churchName || '',
-            sermonTitle: noteForDate.sermonTitle || '',
-            speakerName: noteForDate.speakerName || '',
-            biblePassage: noteForDate.biblePassage || '',
-            notes: noteForDate.notes || ''
+            date: noteToLoad.date, // Use the note's date
+            churchName: noteToLoad.churchName || '',
+            sermonTitle: noteToLoad.sermonTitle || '',
+            speakerName: noteToLoad.speakerName || '',
+            biblePassage: noteToLoad.biblePassage || '',
+            notes: noteToLoad.notes || ''
           }))
         } else {
-          console.log('Sermon Notes: No existing note found for date:', formData.date)
+          console.log('Sermon Notes: No existing notes found at all')
           // Reset currentNoteId since we're creating a new note
           setCurrentNoteId(null)
         }
