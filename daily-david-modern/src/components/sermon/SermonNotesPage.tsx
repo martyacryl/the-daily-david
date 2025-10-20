@@ -33,39 +33,43 @@ export const SermonNotesPage: React.FC = () => {
         </p>
       </div>
 
-             {/* Tab Navigation */}
-             <div className="flex flex-col sm:flex-row justify-center gap-4 mb-8">
-               <button
-                 onClick={(e) => {
-                   e.preventDefault()
-                   e.stopPropagation()
-                   setActiveTab('form')
-                 }}
-                 className={`flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-medium transition-colors cursor-pointer ${
-                   activeTab === 'form' 
-                     ? 'bg-amber-500 text-white hover:bg-amber-600' 
-                     : 'bg-slate-700 text-slate-300 border border-slate-600 hover:bg-slate-600'
-                 }`}
-               >
-                 <Plus className="w-4 h-4" />
-                 New Note
-               </button>
-               <button
-                 onClick={(e) => {
-                   e.preventDefault()
-                   e.stopPropagation()
-                   setActiveTab('list')
-                 }}
-                 className={`flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-medium transition-colors cursor-pointer ${
-                   activeTab === 'list' 
-                     ? 'bg-amber-500 text-white hover:bg-amber-600' 
-                     : 'bg-slate-700 text-slate-300 border border-slate-600 hover:bg-slate-600'
-                 }`}
-               >
-                 <List className="w-4 h-4" />
-                 View Notes
-               </button>
-             </div>
+      {/* Tab Navigation */}
+      <div className="flex flex-col sm:flex-row justify-center gap-4 mb-8">
+        <button
+          onClick={(e) => {
+            e.preventDefault()
+            e.stopPropagation()
+            console.log('FORM BUTTON CLICKED!', activeTab)
+            setActiveTab('form')
+          }}
+          className={`flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-medium transition-colors cursor-pointer ${
+            activeTab === 'form' 
+              ? 'bg-amber-500 text-white hover:bg-amber-600' 
+              : 'bg-slate-700 text-slate-300 border border-slate-600 hover:bg-slate-600'
+          }`}
+          style={{ pointerEvents: 'auto', zIndex: 9999 }}
+        >
+          <Plus className="w-4 h-4" />
+          New Note
+        </button>
+        <button
+          onClick={(e) => {
+            e.preventDefault()
+            e.stopPropagation()
+            console.log('LIST BUTTON CLICKED!', activeTab)
+            setActiveTab('list')
+          }}
+          className={`flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-medium transition-colors cursor-pointer ${
+            activeTab === 'list' 
+              ? 'bg-amber-500 text-white hover:bg-amber-600' 
+              : 'bg-slate-700 text-slate-300 border border-slate-600 hover:bg-slate-600'
+          }`}
+          style={{ pointerEvents: 'auto', zIndex: 9999 }}
+        >
+          <List className="w-4 h-4" />
+          View Notes
+        </button>
+      </div>
 
       {/* Tab Content */}
       <motion.div
