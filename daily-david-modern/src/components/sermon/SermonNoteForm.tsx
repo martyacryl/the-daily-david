@@ -47,7 +47,7 @@ export const SermonNoteForm: React.FC<SermonNoteFormProps> = ({
     if (!token) return
     
     try {
-      console.log('Sermon Notes: Loading existing note...')
+      console.log('Sermon Notes: Loading existing note for date:', formData.date)
       const response = await fetch(`${API_BASE_URL}/api/sermon-notes`, {
         headers: {
           'Authorization': `Bearer ${token}`
@@ -58,22 +58,24 @@ export const SermonNoteForm: React.FC<SermonNoteFormProps> = ({
         const data = await response.json()
         console.log('Sermon Notes: Loaded notes data:', data)
         
-        // Get the most recent note (first in the array since API returns DESC order)
-        const mostRecentNote = data.notes?.[0]
+        // Find note for the current form date
+        const noteForDate = data.notes?.find((note: any) => note.date === formData.date)
         
-        if (mostRecentNote) {
-          console.log('Sermon Notes: Found most recent note:', mostRecentNote)
-          setCurrentNoteId(mostRecentNote.id)
-          setFormData({
-            date: mostRecentNote.date,
-            churchName: mostRecentNote.churchName || '',
-            sermonTitle: mostRecentNote.sermonTitle || '',
-            speakerName: mostRecentNote.speakerName || '',
-            biblePassage: mostRecentNote.biblePassage || '',
-            notes: mostRecentNote.notes || ''
-          })
+        if (noteForDate) {
+          console.log('Sermon Notes: Found note for date:', noteForDate)
+          setCurrentNoteId(noteForDate.id)
+          setFormData(prev => ({
+            ...prev,
+            churchName: noteForDate.churchName || '',
+            sermonTitle: noteForDate.sermonTitle || '',
+            speakerName: noteForDate.speakerName || '',
+            biblePassage: noteForDate.biblePassage || '',
+            notes: noteForDate.notes || ''
+          }))
         } else {
-          console.log('Sermon Notes: No existing notes found')
+          console.log('Sermon Notes: No existing note found for date:', formData.date)
+          // Reset currentNoteId since we're creating a new note
+          setCurrentNoteId(null)
         }
       } else {
         console.error('Sermon Notes: Failed to load notes, status:', response.status)
@@ -85,6 +87,15 @@ export const SermonNoteForm: React.FC<SermonNoteFormProps> = ({
 
   const handleInputChange = (field: keyof SermonNoteFormData | 'date', value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }))
+    
+    // If date changed, reload the note for that date
+    if (field === 'date') {
+      // Use setTimeout to ensure state is updated before loading
+      setTimeout(() => {
+        loadExistingNote()
+      }, 100)
+    }
+    
     // Trigger auto-save on input change, like SOAP section
     setTimeout(() => {
       window.dispatchEvent(new CustomEvent('triggerSermonNoteSave'))
