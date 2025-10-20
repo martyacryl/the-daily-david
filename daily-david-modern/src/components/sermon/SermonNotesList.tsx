@@ -5,7 +5,6 @@ import { SermonNote } from '../../types'
 import { Button } from '../ui/Button'
 import { 
   Search, 
-  Download, 
   Edit3, 
   Trash2, 
   Calendar, 
@@ -189,16 +188,6 @@ export const SermonNotesList: React.FC<SermonNotesListProps> = ({ onEditNote }) 
 
   // Edit functionality moved to parent component
 
-  const exportNotes = () => {
-    const dataStr = JSON.stringify(notes, null, 2)
-    const dataBlob = new Blob([dataStr], { type: 'application/json' })
-    const url = URL.createObjectURL(dataBlob)
-    const link = document.createElement('a')
-    link.href = url
-    link.download = `sermon-notes-${new Date().toISOString().split('T')[0]}.json`
-    link.click()
-    URL.revokeObjectURL(url)
-  }
 
   // Clear all filters
   const clearAllFilters = () => {
@@ -256,6 +245,20 @@ export const SermonNotesList: React.FC<SermonNotesListProps> = ({ onEditNote }) 
               </select>
             </div>
 
+            {/* Refresh Button */}
+            <div>
+              <Button
+                onClick={() => loadNotes()}
+                variant="outline"
+                size="sm"
+                className="w-full flex items-center justify-center gap-2"
+                disabled={isLoading}
+              >
+                <Search className="w-4 h-4" />
+                {isLoading ? 'Loading...' : 'Refresh'}
+              </Button>
+            </div>
+
             {/* Clear Filters */}
             {hasActiveFilters && (
               <div className="flex items-center">
@@ -274,7 +277,7 @@ export const SermonNotesList: React.FC<SermonNotesListProps> = ({ onEditNote }) 
         </div>
 
       {/* Statistics */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-8">
           <div className="bg-slate-800/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-slate-700">
             <h3 className="text-amber-400 text-2xl font-bold">{filteredNotes.length}</h3>
             <p className="text-green-200 text-sm">Total Sermon Notes</p>
@@ -291,34 +294,8 @@ export const SermonNotesList: React.FC<SermonNotesListProps> = ({ onEditNote }) 
             </h3>
             <p className="text-green-200 text-sm">Unique Speakers</p>
           </div>
-          <div className="bg-slate-800/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-slate-700">
-            <h3 className="text-amber-400 text-2xl font-bold">
-              {notes.reduce((total, note) => total + note.notes.split(' ').length, 0)}
-            </h3>
-            <p className="text-green-200 text-sm">Total Words</p>
-          </div>
         </div>
 
-      {/* Export and Refresh Buttons */}
-      <div className="flex flex-col sm:flex-row justify-center gap-4 mb-8">
-          <Button
-            onClick={exportNotes}
-            variant="outline"
-            className="flex items-center gap-2"
-          >
-            <Download className="w-4 h-4" />
-            Export JSON
-          </Button>
-          <Button
-            onClick={() => loadNotes()}
-            variant="outline"
-            className="flex items-center gap-2"
-            disabled={isLoading}
-          >
-            <Search className="w-4 h-4" />
-            {isLoading ? 'Loading...' : 'Refresh'}
-          </Button>
-        </div>
 
       {/* Notes List */}
       <div className="space-y-6">
