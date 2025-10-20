@@ -306,8 +306,8 @@ export const useDailyStore = create<DailyStore>((set, get) => ({
         console.log('Store: dataContent.emotions:', dataContent.emotions)
         console.log('Store: dataContent.feeling:', dataContent.feeling)
         
-        // Parse checkIn from data_content only (individual columns don't exist for checkIn)
-        let checkInData = dataContent.checkIn || { emotions: [], feeling: '' }
+        // Parse checkIn from individual columns first, then data_content as fallback
+        let checkInData = result.checkIn || dataContent.checkIn || { emotions: [], feeling: '' }
         if (typeof checkInData === 'string') {
           try {
             checkInData = JSON.parse(checkInData)
@@ -380,8 +380,10 @@ export const useDailyStore = create<DailyStore>((set, get) => ({
           dateKey: result.date,
           date_key: result.date,
           checkIn: checkInData,
-          gratitude: Array.isArray(dataContent.gratitude) ? dataContent.gratitude : 
-                    (dataContent.gratitude ? [dataContent.gratitude] : []),
+          gratitude: Array.isArray(result.gratitude) ? result.gratitude :
+                    Array.isArray(dataContent.gratitude) ? dataContent.gratitude : 
+                    (result.gratitude ? [result.gratitude] : 
+                     (dataContent.gratitude ? [dataContent.gratitude] : [])),
           soap: {
             scripture: dataContent.soap?.scripture || '',
             observation: dataContent.soap?.observation || '',
@@ -390,7 +392,7 @@ export const useDailyStore = create<DailyStore>((set, get) => ({
             thoughts: dataContent.soap?.thoughts || ''
           },
           goals: parsedGoals,
-          dailyIntention: dataContent.dailyIntention || '',
+          dailyIntention: result.dailyIntention || dataContent.dailyIntention || '',
           growthQuestion: dataContent.growthQuestion || result.growthQuestion || '',
           leadershipRating: leadershipRatingData,
           readingPlan: readingPlanData,
