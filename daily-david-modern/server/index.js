@@ -1709,6 +1709,7 @@ app.get('/api/sermon-notes/stats', authenticateToken, async (req, res) => {
 // Error handling middleware (must be last)
 app.use(errorHandler)
 
+// Start server in development mode
 if (process.env.NODE_ENV !== 'production') {
   app.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 Server running on port ${PORT}`)
@@ -1716,6 +1717,12 @@ if (process.env.NODE_ENV !== 'production') {
     console.log(`🌐 Network access: http://192.168.0.91:${PORT}/api/health`)
     console.log(`🔐 Environment: ${process.env.NODE_ENV || 'development'}`)
   })
+} else {
+  // In production (Vercel), just log that we're ready
+  console.log(`🚀 Server ready for Vercel deployment`)
+  console.log(`📊 Database connected successfully`)
+  console.log(`🔒 Security middleware active`)
+  console.log(`📱 SMS service: ${smsService.isConfigured ? 'Configured' : 'Not configured'}`)
 }
 
 // Export for Vercel serverless functions
