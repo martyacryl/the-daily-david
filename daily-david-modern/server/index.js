@@ -1336,6 +1336,324 @@ app.post('/api/user/complete-onboarding', authenticateToken, async (req, res) =>
   }
 })
 
+// ============================================================================
+// SERMON NOTES API ENDPOINTS
+// ============================================================================
+
+// Get all sermon notes for authenticated user
+app.get('/api/sermon-notes', authenticateToken, async (req, res) => {
+  const client = await pool.connect()
+  try {
+    const userId = req.user.userId
+    const result = await client.query(`
+      SELECT 
+        id, user_id, date, church_name, sermon_title, speaker_name, bible_passage, notes, created_at, updated_at
+      FROM sermon_notes 
+      WHERE user_id = $1 
+      ORDER BY date DESC, created_at DESC
+    `, [userId])
+    
+    const notes = result.rows.map(row => ({
+      id: row.id.toString(),
+      userId: row.user_id,
+      date: row.date,
+      churchName: row.church_name,
+      sermonTitle: row.sermon_title,
+      speakerName: row.speaker_name,
+      biblePassage: row.bible_passage,
+      notes: row.notes,
+      createdAt: new Date(row.created_at),
+      updatedAt: new Date(row.updated_at)
+    }))
+    
+    res.json({ success: true, notes })
+  } catch (error) {
+    console.error('Get sermon notes error:', error)
+    res.status(500).json({ success: false, error: 'Failed to fetch sermon notes' })
+  } finally {
+    client.release()
+  }
+})
+
+// Get specific sermon note
+app.get('/api/sermon-notes/:id', authenticateToken, async (req, res) => {
+  const client = await pool.connect()
+  try {
+    const userId = req.user.userId
+    const noteId = req.params.id
+    
+    const result = await client.query(`
+      SELECT 
+        id, user_id, date, church_name, sermon_title, speaker_name, bible_passage, notes, created_at, updated_at
+      FROM sermon_notes 
+      WHERE id = $1 AND user_id = $2
+    `, [noteId, userId])
+    
+    if (result.rows.length === 0) {
+      return res.status(404).json({ success: false, error: 'Sermon note not found' })
+    }
+    
+    const note = result.rows[0]
+    res.json({ 
+      success: true, 
+      note: {
+        id: note.id.toString(),
+        userId: note.user_id,
+        date: note.date,
+        churchName: note.church_name,
+        sermonTitle: note.sermon_title,
+        speakerName: note.speaker_name,
+        biblePassage: note.bible_passage,
+        notes: note.notes,
+        createdAt: new Date(note.created_at),
+        updatedAt: new Date(note.updated_at)
+      }
+    })
+  } catch (error) {
+    console.error('Get sermon note error:', error)
+    res.status(500).json({ success: false, error: 'Failed to fetch sermon note' })
+  } finally {
+    client.release()
+  }
+})
+
+// Create new sermon note
+app.post('/api/sermon-notes', authenticateToken, async (req, res) => {
+  const client = await pool.connect()
+  try {
+    const userId = req.user.userId
+    const { date, churchName, sermonTitle, speakerName, biblePassage, notes } = req.body
+    
+    if (!date || !churchName || !sermonTitle || !speakerName || !biblePassage || !notes) {
+      return res.status(400).json({ success: false, error: 'All fields are required' })
+    }
+    
+    const result = await client.query(`
+      INSERT INTO sermon_notes (user_id, date, church_name, sermon_title, speaker_name, bible_passage, notes)
+      VALUES ($1, $2, $3, $4, $5, $6, $7)
+      RETURNING id, user_id, date, church_name, sermon_title, speaker_name, bible_passage, notes, created_at, updated_at
+    `, [userId, date, churchName, sermonTitle, speakerName, biblePassage, notes])
+    
+    const note = result.rows[0]
+    res.status(201).json({ 
+      success: true, 
+      note: {
+        id: note.id.toString(),
+        userId: note.user_id,
+        date: note.date,
+        churchName: note.church_name,
+        sermonTitle: note.sermon_title,
+        speakerName: note.speaker_name,
+        biblePassage: note.bible_passage,
+        notes: note.notes,
+        createdAt: new Date(note.created_at),
+        updatedAt: new Date(note.updated_at)
+      }
+    })
+  } catch (error) {
+    console.error('Create sermon note error:', error)
+    res.status(500).json({ success: false, error: 'Failed to create sermon note' })
+  } finally {
+    client.release()
+  }
+})
+
+// Update sermon note
+app.put('/api/sermon-notes/:id', authenticateToken, async (req, res) => {
+  const client = await pool.connect()
+  try {
+    const userId = req.user.userId
+    const noteId = req.params.id
+    const { date, churchName, sermonTitle, speakerName, biblePassage, notes } = req.body
+    
+    const result = await client.query(`
+      UPDATE sermon_notes 
+      SET 
+        date = COALESCE($1, date),
+        church_name = COALESCE($2, church_name),
+        sermon_title = COALESCE($3, sermon_title),
+        speaker_name = COALESCE($4, speaker_name),
+        bible_passage = COALESCE($5, bible_passage),
+        notes = COALESCE($6, notes),
+        updated_at = NOW()
+      WHERE id = $7 AND user_id = $8
+      RETURNING id, user_id, date, church_name, sermon_title, speaker_name, bible_passage, notes, created_at, updated_at
+    `, [date, churchName, sermonTitle, speakerName, biblePassage, notes, noteId, userId])
+    
+    if (result.rows.length === 0) {
+      return res.status(404).json({ success: false, error: 'Sermon note not found' })
+    }
+    
+    const note = result.rows[0]
+    res.json({ 
+      success: true, 
+      note: {
+        id: note.id.toString(),
+        userId: note.user_id,
+        date: note.date,
+        churchName: note.church_name,
+        sermonTitle: note.sermon_title,
+        speakerName: note.speaker_name,
+        biblePassage: note.bible_passage,
+        notes: note.notes,
+        createdAt: new Date(note.created_at),
+        updatedAt: new Date(note.updated_at)
+      }
+    })
+  } catch (error) {
+    console.error('Update sermon note error:', error)
+    res.status(500).json({ success: false, error: 'Failed to update sermon note' })
+  } finally {
+    client.release()
+  }
+})
+
+// Delete sermon note
+app.delete('/api/sermon-notes/:id', authenticateToken, async (req, res) => {
+  const client = await pool.connect()
+  try {
+    const userId = req.user.userId
+    const noteId = req.params.id
+    
+    const result = await client.query(`
+      DELETE FROM sermon_notes 
+      WHERE id = $1 AND user_id = $2
+      RETURNING id
+    `, [noteId, userId])
+    
+    if (result.rows.length === 0) {
+      return res.status(404).json({ success: false, error: 'Sermon note not found' })
+    }
+    
+    res.json({ success: true, message: 'Sermon note deleted successfully' })
+  } catch (error) {
+    console.error('Delete sermon note error:', error)
+    res.status(500).json({ success: false, error: 'Failed to delete sermon note' })
+  } finally {
+    client.release()
+  }
+})
+
+// Get unique churches for authenticated user
+app.get('/api/sermon-notes/churches', authenticateToken, async (req, res) => {
+  const client = await pool.connect()
+  try {
+    const userId = req.user.userId
+    const result = await client.query(`
+      SELECT DISTINCT church_name 
+      FROM sermon_notes 
+      WHERE user_id = $1 
+      ORDER BY church_name
+    `, [userId])
+    
+    const churches = result.rows.map(row => row.church_name)
+    res.json({ success: true, churches })
+  } catch (error) {
+    console.error('Get churches error:', error)
+    res.status(500).json({ success: false, error: 'Failed to fetch churches' })
+  } finally {
+    client.release()
+  }
+})
+
+// Get unique speakers for authenticated user
+app.get('/api/sermon-notes/speakers', authenticateToken, async (req, res) => {
+  const client = await pool.connect()
+  try {
+    const userId = req.user.userId
+    const result = await client.query(`
+      SELECT DISTINCT speaker_name 
+      FROM sermon_notes 
+      WHERE user_id = $1 
+      ORDER BY speaker_name
+    `, [userId])
+    
+    const speakers = result.rows.map(row => row.speaker_name)
+    res.json({ success: true, speakers })
+  } catch (error) {
+    console.error('Get speakers error:', error)
+    res.status(500).json({ success: false, error: 'Failed to fetch speakers' })
+  } finally {
+    client.release()
+  }
+})
+
+// Get sermon notes statistics
+app.get('/api/sermon-notes/stats', authenticateToken, async (req, res) => {
+  const client = await pool.connect()
+  try {
+    const userId = req.user.userId
+    
+    // Get basic stats
+    const statsResult = await client.query(`
+      SELECT 
+        COUNT(*) as total_notes,
+        COUNT(DISTINCT church_name) as unique_churches,
+        COUNT(DISTINCT speaker_name) as unique_speakers,
+        SUM(LENGTH(notes) - LENGTH(REPLACE(notes, ' ', '')) + 1) as total_words
+      FROM sermon_notes 
+      WHERE user_id = $1
+    `, [userId])
+    
+    // Get most frequent speakers
+    const speakersResult = await client.query(`
+      SELECT speaker_name, COUNT(*) as count
+      FROM sermon_notes 
+      WHERE user_id = $1
+      GROUP BY speaker_name
+      ORDER BY count DESC
+      LIMIT 5
+    `, [userId])
+    
+    // Get most frequent churches
+    const churchesResult = await client.query(`
+      SELECT church_name, COUNT(*) as count
+      FROM sermon_notes 
+      WHERE user_id = $1
+      GROUP BY church_name
+      ORDER BY count DESC
+      LIMIT 5
+    `, [userId])
+    
+    // Get unique churches and speakers
+    const churchesListResult = await client.query(`
+      SELECT DISTINCT church_name FROM sermon_notes WHERE user_id = $1 ORDER BY church_name
+    `, [userId])
+    
+    const speakersListResult = await client.query(`
+      SELECT DISTINCT speaker_name FROM sermon_notes WHERE user_id = $1 ORDER BY speaker_name
+    `, [userId])
+    
+    const stats = statsResult.rows[0]
+    const totalWords = parseInt(stats.total_words) || 0
+    const totalNotes = parseInt(stats.total_notes) || 0
+    
+    res.json({
+      success: true,
+      stats: {
+        totalNotes: totalNotes,
+        uniqueChurches: churchesListResult.rows.map(row => row.church_name),
+        uniqueSpeakers: speakersListResult.rows.map(row => row.speaker_name),
+        totalWords: totalWords,
+        averageWordsPerNote: totalNotes > 0 ? Math.round(totalWords / totalNotes) : 0,
+        mostFrequentSpeakers: speakersResult.rows.map(row => ({
+          speaker: row.speaker_name,
+          count: parseInt(row.count)
+        })),
+        mostFrequentChurches: churchesResult.rows.map(row => ({
+          church: row.church_name,
+          count: parseInt(row.count)
+        }))
+      }
+    })
+  } catch (error) {
+    console.error('Get sermon notes stats error:', error)
+    res.status(500).json({ success: false, error: 'Failed to fetch sermon notes statistics' })
+  } finally {
+    client.release()
+  }
+})
+
 // Start server (only in development)
 // Error handling middleware (must be last)
 app.use(errorHandler)
