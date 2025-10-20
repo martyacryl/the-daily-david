@@ -5,6 +5,7 @@ import { Header } from './components/layout/Header'
 import { Dashboard } from './components/dashboard/Dashboard'
 import { DailyEntry } from './components/daily/DailyEntry'
 import { SOAPReview } from './components/review/SOAPReview'
+import { SermonNotesPage } from './components/sermon/SermonNotesPage'
 import { PrayerRequestsList } from './components/prayer/PrayerRequestsList'
 import { ProtectedAdminRoute } from './components/admin/ProtectedAdminRoute'
 import { ProgressAnalytics } from './components/dashboard/ProgressAnalytics'
@@ -79,6 +80,14 @@ function App() {
                 <Header />
                 <main className="container mx-auto px-4 py-8 pt-24 min-h-screen">
                   <SOAPReview />
+                </main>
+              </>
+            } />
+            <Route path="/sermon-notes" element={
+              <>
+                <Header />
+                <main className="container mx-auto px-4 py-8 pt-24 min-h-screen">
+                  <SermonNotesPage />
                 </main>
               </>
             } />
