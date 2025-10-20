@@ -48,9 +48,12 @@ class DatabaseManager {
   async getDailyEntry(date: string, userId: number = 1): Promise<DailyEntry | null> {
     try {
       console.log('API: Getting daily entry for date:', date, 'user:', userId)
+      const authHeaders = getAuthHeaders()
+      console.log('API: Auth headers:', authHeaders)
+      console.log('API: Token exists:', !!authHeaders.Authorization)
       const response = await fetch(`${API_BASE_URL}/api/entries/${date}?t=${Date.now()}`, {
         headers: {
-          ...getAuthHeaders(),
+          ...authHeaders,
           'Cache-Control': 'no-cache, no-store, must-revalidate',
           'Pragma': 'no-cache',
           'Expires': '0'
@@ -393,9 +396,12 @@ class DatabaseManager {
   async getDailyEntries(userId: number = 1): Promise<DailyEntry[]> {
     try {
       console.log('API: Getting all daily entries for user:', userId)
+      const authHeaders = getAuthHeaders()
+      console.log('API: Auth headers for getDailyEntries:', authHeaders)
+      console.log('API: Token exists for getDailyEntries:', !!authHeaders.Authorization)
       const response = await fetch(`${API_BASE_URL}/api/entries?t=${Date.now()}`, {
         headers: {
-          ...getAuthHeaders(),
+          ...authHeaders,
           'Cache-Control': 'no-cache, no-store, must-revalidate',
           'Pragma': 'no-cache',
           'Expires': '0'
