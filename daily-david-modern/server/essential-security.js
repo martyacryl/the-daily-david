@@ -34,17 +34,17 @@ const createRateLimit = (windowMs, maxRequests) => {
 
 // Rate limiting configurations
 const rateLimits = {
-  // General API rate limit
-  general: createRateLimit(15 * 60 * 1000, 100), // 100 requests per 15 minutes
+  // General API rate limit - increased for testing
+  general: createRateLimit(15 * 60 * 1000, 500), // 500 requests per 15 minutes
   
-  // Auth endpoints - more reasonable
-  auth: createRateLimit(15 * 60 * 1000, 20), // 20 auth attempts per 15 minutes
+  // Auth endpoints - much higher for testing
+  auth: createRateLimit(15 * 60 * 1000, 100), // 100 auth attempts per 15 minutes
   
-  // Login specifically - more lenient for user convenience
-  login: createRateLimit(15 * 60 * 1000, 30), // 30 login attempts per 15 minutes
+  // Login specifically - very high for testing
+  login: createRateLimit(15 * 60 * 1000, 200), // 200 login attempts per 15 minutes
   
-  // Data endpoints - moderate
-  data: createRateLimit(60 * 1000, 30) // 30 requests per minute
+  // Data endpoints - increased for testing
+  data: createRateLimit(60 * 1000, 100) // 100 requests per minute
 }
 
 // Basic input validation (no external dependencies)
