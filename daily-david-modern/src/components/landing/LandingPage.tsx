@@ -6,7 +6,7 @@ import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { LoadingSpinner } from '../ui/LoadingSpinner';
 import { Mountain } from 'lucide-react';
-import { BookOpen, Users, Target, Zap, Heart, TrendingUp, Sun, CheckCircle, BarChart3 } from 'lucide-react';
+import { BookOpen, Users, Target, Zap, Heart, TrendingUp, Sun, CheckCircle, BarChart3, FileText } from 'lucide-react';
 import { useAuthStore } from '../../stores/authStore';
 
 export const LandingPage: React.FC = () => {
@@ -58,18 +58,18 @@ export const LandingPage: React.FC = () => {
     },
     {
       icon: <BookOpen className="w-8 h-8 text-green-400" />,
-      title: "Bible Reading Plans",
-      description: "Godly men-focused reading plans with SOAP method to grow your knowledge, character, and faith through structured study"
+      title: "SOAP Bible Study",
+      description: "Structured Scripture study with Scripture, Observation, Application, and Prayer method for deep spiritual growth"
+    },
+    {
+      icon: <FileText className="w-8 h-8 text-green-400" />,
+      title: "Sermon Notes",
+      description: "Record and organize church service notes with search and filtering to capture and revisit spiritual insights"
     },
     {
       icon: <Users className="w-8 h-8 text-green-400" />,
       title: "Prayer & Praise Tracking",
       description: "Keep track of your prayer list and celebrate praise reports as you see God's faithfulness in your life and community"
-    },
-    {
-      icon: <Zap className="w-8 h-8 text-green-400" />,
-      title: "Daily Encouragement",
-      description: "Inspirational messages and Bible verses delivered to your phone each morning to start your day with purpose"
     },
     {
       icon: <BarChart3 className="w-8 h-8 text-green-400" />,
