@@ -140,7 +140,7 @@ app.get('/api/debug/tables', async (req, res) => {
 })
 
 // Simple login endpoint
-app.post('/api/auth/login', rateLimits.auth, validateLogin, async (req, res) => {
+app.post('/api/auth/login', rateLimits.login, validateLogin, async (req, res) => {
   try {
     const { email, password } = req.body
 
