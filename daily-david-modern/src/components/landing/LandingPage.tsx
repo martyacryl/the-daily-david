@@ -107,7 +107,7 @@ export const LandingPage: React.FC = () => {
               Step into your purpose. Grow as a man of God with daily discipline and community.
             </p>
             <p className="text-base sm:text-lg text-slate-300 max-w-2xl mx-auto mb-6 sm:mb-8 px-2">
-              Daily Bible reading, prayer, and spiritual growth designed for men who want to live with integrity, purpose, and faith.
+              Grow spiritually through structured Bible study, prayer tracking, and daily disciplines that build godly character and faith.
             </p>
             
             {/* CTA Buttons */}
