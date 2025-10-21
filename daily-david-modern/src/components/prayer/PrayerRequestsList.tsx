@@ -20,7 +20,7 @@ import {
   Eye
 } from 'lucide-react'
 import { Button } from '../ui/Button'
-// import { PrayerRequestForm } from './PrayerRequestForm' // Temporarily disabled
+import { PrayerRequestForm } from './PrayerRequestForm'
 import { PrayerRequestDetail } from './PrayerRequestDetail'
 
 export const PrayerRequestsList: React.FC = () => {
