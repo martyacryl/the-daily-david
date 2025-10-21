@@ -1,9 +1,9 @@
 {
   "name": "daily-david-modern",
   "private": true,
-  "version": "2.0.1",
+  "version": "2.0.2",
   "type": "module",
-  "comment": "FORCE VERCEL REBUILD - Cache bust for localhost fix",
+  "comment": "FORCE VERCEL REBUILD - Fix MIME type and routing issues",
   "scripts": {
     "dev": "vite --port 3002",
     "build": "vite build",
