@@ -33,17 +33,19 @@ const createRateLimit = (windowMs, maxRequests) => {
 }
 
 // Rate limiting configurations
-const rateLimits = {
-  // General API rate limit - increased for testing
+const isProduction = process.env.NODE_ENV === 'production'
+
+const rateLimits = isProduction ? {
+  // Production rate limits - strict for security
+  general: createRateLimit(15 * 60 * 1000, 100), // 100 requests per 15 minutes
+  auth: createRateLimit(15 * 60 * 1000, 10), // 10 auth attempts per 15 minutes
+  login: createRateLimit(15 * 60 * 1000, 15), // 15 login attempts per 15 minutes
+  data: createRateLimit(60 * 1000, 30) // 30 requests per minute
+} : {
+  // Development/testing rate limits - lenient for testing
   general: createRateLimit(15 * 60 * 1000, 500), // 500 requests per 15 minutes
-  
-  // Auth endpoints - much higher for testing
   auth: createRateLimit(15 * 60 * 1000, 100), // 100 auth attempts per 15 minutes
-  
-  // Login specifically - very high for testing
   login: createRateLimit(15 * 60 * 1000, 200), // 200 login attempts per 15 minutes
-  
-  // Data endpoints - increased for testing
   data: createRateLimit(60 * 1000, 100) // 100 requests per minute
 }
 
