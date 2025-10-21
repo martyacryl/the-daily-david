@@ -160,7 +160,7 @@ export const LandingPage: React.FC = () => {
             transition={{ duration: 0.8, delay: 0.6 }}
             className="text-center px-2"
           >
-            <Card className="p-6 sm:p-8 lg:p-12 bg-gradient-to-r from-green-600/20 to-green-800/20 backdrop-blur-sm border-green-500/30">
+            <Card className="p-6 sm:p-8 lg:p-12 bg-slate-800/80 backdrop-blur-sm border-slate-700 hover:border-green-500/50 transition-all duration-300">
               <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-4 sm:mb-6">
                 Ready to Live with Purpose?
               </h2>
