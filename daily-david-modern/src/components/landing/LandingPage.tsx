@@ -177,7 +177,7 @@ export const LandingPage: React.FC = () => {
                 <Button
                   onClick={() => navigate('/login')}
                   variant="outline"
-                  className="w-full sm:w-auto border-2 border-white text-white hover:bg-white hover:text-slate-900 px-6 sm:px-10 py-3 sm:py-4 text-base sm:text-lg font-semibold transition-all duration-300"
+                  className="w-full sm:w-auto border-2 border-green-500 text-green-400 hover:bg-green-500 hover:text-white px-6 sm:px-10 py-3 sm:py-4 text-base sm:text-lg font-semibold transition-all duration-300"
                 >
                   Continue Growing
                 </Button>
