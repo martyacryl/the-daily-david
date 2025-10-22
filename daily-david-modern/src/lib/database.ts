@@ -45,7 +45,7 @@ class DatabaseManager {
     return DatabaseManager.instance
   }
 
-  async getDailyEntry(date: string, userId: number = 1): Promise<DailyEntry | null> {
+  async getDailyEntry(date: string, userId?: number): Promise<DailyEntry | null> {
     try {
       console.log('API: Getting daily entry for date:', date, 'user:', userId)
       const authHeaders = getAuthHeaders()
@@ -393,7 +393,7 @@ class DatabaseManager {
     }
   }
 
-  async getDailyEntries(userId: number = 1): Promise<DailyEntry[]> {
+  async getDailyEntries(userId?: number): Promise<DailyEntry[]> {
     try {
       console.log('API: Getting all daily entries for user:', userId)
       const authHeaders = getAuthHeaders()

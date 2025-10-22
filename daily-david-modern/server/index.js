@@ -73,6 +73,8 @@ const authenticateToken = async (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, JWT_SECRET)
+    console.log('🔍 JWT decoded user:', decoded)
+    console.log('🔍 JWT user ID:', decoded.userId)
     req.user = decoded
     next()
   } catch (error) {
