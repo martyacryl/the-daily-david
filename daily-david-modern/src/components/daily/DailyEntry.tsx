@@ -187,6 +187,8 @@ export function DailyEntry() {
       }
       
       console.log('🔥 DailyEntry: Auto-save entryData:', entryData)
+      console.log('🔥 DailyEntry: Selected date:', selectedDate.toDateString())
+      console.log('🔥 DailyEntry: Date string being saved:', dateString)
       console.log('🔥 DailyEntry: ReadingPlan data in entryData:', entryData.readingPlan)
       console.log('🔥 DailyEntry: ReadingPlan completedDays:', entryData.readingPlan?.completedDays)
       console.log('🔥 DailyEntry: ReadingPlan currentDay:', entryData.readingPlan?.currentDay)
@@ -398,6 +400,8 @@ export function DailyEntry() {
   const loadEntryForDate = async (date: Date) => {
     const dateString = getLocalDateString(date)
     console.log('loadEntryForDate called with date:', dateString)
+    console.log('loadEntryForDate: Date object:', date.toDateString())
+    console.log('loadEntryForDate: Date string:', dateString)
     setIsLoading(true)
     
     try {

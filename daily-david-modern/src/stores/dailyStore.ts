@@ -146,9 +146,24 @@ export const useDailyStore = create<DailyStore>((set, get) => ({
 
   loadEntries: async () => {
     try {
+      console.log('Store: Loading all entries')
       set({ isLoading: true, error: null })
       
       const result = await dbManager.getDailyEntries()
+      console.log('Store: All entries result:', result)
+      console.log('Store: Number of entries found:', result.length)
+      
+      // Log each entry's date for debugging
+      result.forEach((entry, index) => {
+        console.log(`Store: Entry ${index + 1}:`, {
+          id: entry.id,
+          date: entry.date,
+          dateKey: entry.dateKey,
+          date_key: entry.date_key,
+          created_at: entry.created_at,
+          updated_at: entry.updated_at
+        })
+      })
       
       if (result && result.length > 0) {
         const formattedEntries: DailyEntry[] = result.map((entry: any) => {

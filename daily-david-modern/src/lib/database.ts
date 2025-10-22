@@ -412,6 +412,20 @@ class DatabaseManager {
       }
       const data = await response.json()
       console.log('API: All entries result:', data.entries)
+      console.log('API: Number of entries returned:', data.entries?.length || 0)
+      
+      // Log each entry's date for debugging
+      if (data.entries && data.entries.length > 0) {
+        data.entries.forEach((entry: any, index: number) => {
+          console.log(`API: Entry ${index + 1}:`, {
+            id: entry.id,
+            date_key: entry.date_key,
+            created_at: entry.created_at,
+            updated_at: entry.updated_at
+          })
+        })
+      }
+      
       console.log('API: First entry data_content:', data.entries[0]?.data_content)
       console.log('API: First entry soap in data_content:', data.entries[0]?.data_content?.soap)
       
