@@ -50,6 +50,21 @@ This document provides a comprehensive reference for all data persistence flows 
       "items": ["item1", "item2"]
     }
   ],
+  "lists": [
+    {
+      "id": "1",
+      "name": "List Name",
+      "type": "grocery|tasks|prayers|other",
+      "items": [
+        {
+          "id": "1",
+          "text": "Item description",
+          "completed": false
+        }
+      ],
+      "createdAt": "2025-01-01T00:00:00.000Z"
+    }
+  ],
   "unconfessedSin": [
     {
       "id": 1,

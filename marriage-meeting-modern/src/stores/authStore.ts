@@ -21,6 +21,7 @@ interface AuthState {
 
   // Actions
   login: (email: string, password: string) => Promise<boolean>
+  signup: (name: string, email: string, password: string) => Promise<boolean>
   logout: () => void
   clearError: () => void
   setLoading: (loading: boolean) => void
@@ -29,6 +30,7 @@ interface AuthState {
 
 type AuthStore = AuthState & {
   login: (email: string, password: string) => Promise<boolean>
+  signup: (name: string, email: string, password: string) => Promise<boolean>
   logout: () => void
   clearError: () => void
   setLoading: (loading: boolean) => void
@@ -95,6 +97,52 @@ export const useAuthStore = create<AuthStore>()(
             isLoading: false
           })
           console.error('Auth: Login failed:', error)
+          return false
+        }
+      },
+
+      signup: async (name: string, email: string, password: string) => {
+        try {
+          set({ isLoading: true, error: null })
+          
+          console.log('Auth: Attempting signup for:', email)
+          console.log('🔍 DEBUG: Using API_BASE_URL:', API_BASE_URL)
+          console.log('🔍 DEBUG: Full signup URL:', `${API_BASE_URL}/api/auth/signup`)
+          
+          const response = await fetch(`${API_BASE_URL}/api/auth/signup`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ name, email, password }),
+          })
+
+          const data = await response.json()
+
+          if (data.user && data.token) {
+            set({
+              user: data.user,
+              token: data.token,
+              isAuthenticated: true,
+              isLoading: false,
+              error: null
+            })
+            console.log('Auth: Signup successful for:', data.user.email)
+            return true
+          } else {
+            set({
+              error: data.error || 'Signup failed',
+              isLoading: false
+            })
+            console.error('Auth: Signup failed:', data.error)
+            return false
+          }
+        } catch (error) {
+          set({
+            error: error instanceof Error ? error.message : 'Signup failed',
+            isLoading: false
+          })
+          console.error('Auth: Signup failed:', error)
           return false
         }
       },

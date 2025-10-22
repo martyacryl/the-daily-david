@@ -59,12 +59,50 @@ class BibleService {
     }
 
     try {
-      const response = await fetch(`${this.baseUrl}/bibles/${bibleId}/verses/${verseId}`, {
+      // Convert verse ID to the correct format for API.Bible
+      // API.Bible expects format like "JAM.1.19" but we need to handle the range properly
+      let formattedVerseId = verseId;
+      
+      // If the verse ID contains a range (like JAM.1.19-20), we need to handle it differently
+      if (verseId.includes('-')) {
+        // For ranges, we'll just take the first verse
+        formattedVerseId = verseId.split('-')[0];
+      }
+      
+      console.log(`📖 Fetching verse: ${formattedVerseId} from Bible: ${bibleId}`);
+      
+      // Try the search endpoint instead of the specific verse endpoint
+      // This might work better for some verse IDs
+      const searchQuery = formattedVerseId.replace('.', ' ');
+      console.log(`📖 Trying search query: ${searchQuery}`);
+      
+      const response = await fetch(`${this.baseUrl}/bibles/${bibleId}/search?query=${encodeURIComponent(searchQuery)}`, {
         headers: { 'api-key': this.apiKey }
       });
       
       if (response.ok) {
         const data = await response.json();
+        const verses = data.data?.verses || [];
+        
+        if (verses.length > 0) {
+          const verse = verses[0];
+          return {
+            id: verse.id,
+            reference: verse.reference,
+            content: this.cleanHtmlContent(verse.content),
+            copyright: verse.copyright || 'Bible'
+          };
+        }
+      }
+      
+      // If search fails, try the original verse endpoint
+      console.log(`📖 Search failed, trying direct verse endpoint: ${formattedVerseId}`);
+      const verseResponse = await fetch(`${this.baseUrl}/bibles/${bibleId}/verses/${formattedVerseId}`, {
+        headers: { 'api-key': this.apiKey }
+      });
+      
+      if (verseResponse.ok) {
+        const data = await verseResponse.json();
         return {
           id: data.data.id,
           reference: data.data.reference,
@@ -72,7 +110,8 @@ class BibleService {
           copyright: data.data.copyright || 'Bible'
         };
       } else {
-        console.error('API.Bible error:', response.status, response.statusText);
+        console.error('API.Bible error:', verseResponse.status, verseResponse.statusText);
+        console.error('Failed verse ID:', formattedVerseId);
         return null;
       }
     } catch (error) {
@@ -305,6 +344,8 @@ class BibleService {
     const now = new Date();
     const timeBasedIndex = day !== undefined ? (day - 1) : Math.floor(now.getTime() / (1000 * 60 * 60 * 24)) % 5;
     
+    console.log(`📖 Getting devotion for plan: ${planId}, day: ${day}, timeBasedIndex: ${timeBasedIndex}`);
+    
     // Custom marriage-focused devotional tracks using API.Bible scripture
     const devotionPlans = {
       'marriage-foundation': {
@@ -424,13 +465,20 @@ class BibleService {
     };
 
     const plan = devotionPlans[planId as keyof typeof devotionPlans];
-    if (!plan) return null;
+    if (!plan) {
+      console.log(`📖 Plan not found: ${planId}`);
+      return null;
+    }
 
     const dayIndex = timeBasedIndex % plan.verses.length;
     const verseId = plan.verses[dayIndex];
     
+    console.log(`📖 Plan found: ${planId}, dayIndex: ${dayIndex}, verseId: ${verseId}`);
+    
     // Use the selected Bible version or default to ESV
     const selectedBibleId = bibleId || this.defaultBibleId;
+    console.log(`📖 Using Bible ID: ${selectedBibleId}`);
+    
     const verse = await this.getVerse(selectedBibleId, verseId);
     if (!verse) return null;
 

@@ -16,6 +16,37 @@
   * {
     @apply border-gray-200;
   }
+  
+  /* Prevent zoom on input focus on mobile */
+  input, textarea, select {
+    font-size: 16px !important;
+  }
+  
+  /* Landing Theme Styles */
+  .landing {
+    --landing-bg-primary: #020617; /* slate-950 */
+    --landing-bg-secondary: #0f172a; /* slate-900 */
+    --landing-bg-tertiary: #1e293b; /* slate-800 */
+    --landing-card-bg: rgba(30, 41, 59, 0.9); /* slate-800/90 */
+    --landing-card-bg-secondary: rgba(15, 23, 42, 0.9); /* slate-900/90 */
+    --landing-text-primary: #ffffff;
+    --landing-text-secondary: #e2e8f0; /* slate-200 */
+    --landing-text-tertiary: #cbd5e1; /* slate-300 */
+    --landing-border: #475569; /* slate-600 */
+    --landing-accent-blue: #2563eb; /* blue-600 */
+    --landing-accent-purple: #9333ea; /* purple-600 */
+    --landing-accent-blue-dark: #1d4ed8; /* blue-700 */
+    --landing-glow-blue: rgba(37, 99, 235, 0.25); /* blue-500/25 */
+    --landing-glow-purple: rgba(147, 51, 234, 0.25); /* purple-500/25 */
+  }
+  
+  .landing body {
+    @apply bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white;
+  }
+  
+  .landing * {
+    @apply border-slate-600;
+  }
 }
 
 @layer components {
@@ -25,6 +56,15 @@
   
   .card-modern {
     @apply bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-lg transition-shadow duration-300;
+  }
+  
+  /* Landing Theme Components */
+  .landing .card-modern {
+    @apply bg-gradient-to-br from-slate-800/90 to-slate-900/90 backdrop-blur-sm border-slate-600 shadow-xl shadow-blue-500/10 hover:shadow-xl hover:shadow-blue-500/20;
+  }
+  
+  .landing .btn-modern {
+    @apply text-white;
   }
 }
 
@@ -40,4 +80,13 @@
 
 ::-webkit-scrollbar-thumb {
   @apply bg-gray-300 rounded-full hover:bg-gray-400;
+}
+
+/* Landing theme scrollbar */
+.landing ::-webkit-scrollbar-track {
+  @apply bg-slate-800 rounded-full;
+}
+
+.landing ::-webkit-scrollbar-thumb {
+  @apply bg-slate-600 rounded-full hover:bg-slate-500;
 }

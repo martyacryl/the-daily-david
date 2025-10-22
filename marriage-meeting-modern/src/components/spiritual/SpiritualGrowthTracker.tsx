@@ -76,7 +76,7 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
     loadSpiritualGrowth,
     updateSpiritualGrowth
   } = useVisionStore()
-  const { logout } = useAuthStore()
+  const { logout, token } = useAuthStore()
   const { getColor } = useAccentColor()
 
   const [searchParams, setSearchParams] = useSearchParams()
@@ -143,19 +143,6 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
   const [currentDevotion, setCurrentDevotion] = useState<DevotionDay | null>(null)
   const [currentPlanId, setCurrentPlanId] = useState<string | null>(null)
 
-  // Helper function to get auth token
-  const getAuthToken = () => {
-    try {
-      const authData = localStorage.getItem('auth-storage')
-      if (authData) {
-        const parsed = JSON.parse(authData)
-        return parsed.state?.token || ''
-      }
-    } catch (error) {
-      console.error('Error getting auth token:', error)
-    }
-    return ''
-  }
 
   // Helper function to handle authentication errors
   const handleAuthError = (response: Response) => {
@@ -168,14 +155,24 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
   }
 
   useEffect(() => {
+    console.log('🔄 SpiritualGrowthTracker: useEffect triggered')
     loadSpiritualGrowth()
-    loadReadingPlans()
-    loadAvailablePlans()
   }, [loadSpiritualGrowth])
+
+  useEffect(() => {
+    console.log('📖 Loading reading plans on mount...')
+    console.log('📖 Token available:', !!token)
+    if (token) {
+      loadReadingPlans()
+      loadAvailablePlans()
+    } else {
+      console.log('📖 No token available, waiting...')
+    }
+  }, [token])
 
   const loadReadingPlans = async () => {
     try {
-      const token = getAuthToken()
+      console.log('📖 Loading reading plans...')
       const response = await fetch('/api/reading-plans', {
         headers: {
           'Authorization': `Bearer ${token}`
@@ -227,7 +224,7 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
 
   const loadAvailablePlans = async () => {
     try {
-      const token = getAuthToken()
+      console.log('📖 Loading available plans...')
       const response = await fetch('/api/available-reading-plans', {
         headers: {
           'Authorization': `Bearer ${token}`
@@ -236,8 +233,10 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
       
       if (response.ok) {
         const plans = await response.json()
+        console.log('📖 Available plans loaded:', plans)
         setAvailablePlans(plans || [])
       } else {
+        console.error('📖 Error loading available plans:', response.status, response.statusText)
         handleAuthError(response)
         console.error('Error loading available plans:', response.statusText)
         setAvailablePlans([])
@@ -250,7 +249,6 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
 
   const handleStartReadingPlan = async (plan: BibleReadingPlan) => {
     try {
-      const token = getAuthToken()
       const response = await fetch('/api/reading-plans', {
         method: 'POST',
         headers: {
@@ -302,7 +300,6 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
         const plan = readingPlans.find(p => p.planId === planId)
         if (plan) {
           // Update the plan's current day in the database
-          const token = getAuthToken()
           const response = await fetch(`/api/reading-plans/${planId}`, {
             method: 'PUT',
             headers: {
@@ -355,7 +352,7 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${getAuthToken()}`
+            'Authorization': `Bearer ${token}`
           },
           body: JSON.stringify({
             current_day: newCurrentDay,
@@ -402,7 +399,7 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${getAuthToken()}`
+            'Authorization': `Bearer ${token}`
           },
           body: JSON.stringify({
             current_day: newCurrentDay,
@@ -447,7 +444,7 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${getAuthToken()}`
+            'Authorization': `Bearer ${token}`
           },
           body: JSON.stringify({
             current_day: plan.currentDay,
@@ -485,7 +482,6 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
     const targetPlanId = planId || currentPlanId
     if (targetPlanId) {
       try {
-        const token = getAuthToken()
         const response = await fetch(`/api/reading-plans/${targetPlanId}`, {
           method: 'DELETE',
           headers: {
@@ -526,7 +522,7 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${getAuthToken()}`
+            'Authorization': `Bearer ${token}`
           },
           body: JSON.stringify({
             current_day: 1,
@@ -568,7 +564,7 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${getAuthToken()}`
+            'Authorization': `Bearer ${token}`
           },
           body: JSON.stringify({
             current_day: plan.currentDay,
@@ -668,7 +664,7 @@ export const SpiritualGrowthTracker: React.FC<SpiritualGrowthTrackerProps> = ({
   }
 
   return (
-    <div className={`space-y-4 sm:space-y-6 pt-16 sm:pt-20 ${className}`}>
+    <div className={`space-y-4 sm:space-y-6 ${className || 'pt-16 sm:pt-20'}`}>
       {/* Modern Header */}
       <Card className={`p-4 sm:p-6 ${getGradientClass('header')} border-0 shadow-lg`}>
           <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-6 gap-4">

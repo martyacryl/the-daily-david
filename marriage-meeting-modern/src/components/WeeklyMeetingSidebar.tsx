@@ -70,8 +70,8 @@ export const WeeklyMeetingSidebar: React.FC<WeeklyMeetingSidebarProps> = ({
       count: sectionCounts.prayers
     },
     {
-      id: 'grocery',
-      label: 'Grocery',
+      id: 'lists',
+      label: 'Lists',
       icon: ShoppingCart,
       color: 'slate',
       count: sectionCounts.grocery
@@ -93,11 +93,11 @@ export const WeeklyMeetingSidebar: React.FC<WeeklyMeetingSidebarProps> = ({
   ]
 
   return (
-    <div className="w-full lg:w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 h-full flex flex-col">
+    <div className="w-full lg:w-64 bg-white dark:bg-gray-800 landing:bg-gradient-to-br landing:from-slate-800/90 landing:to-slate-900/90 landing:backdrop-blur-sm border-r border-gray-200 dark:border-gray-700 landing:border-slate-600 h-full flex flex-col">
       {/* Sidebar Header */}
-      <div className="p-3 sm:p-6 border-b border-gray-200 dark:border-gray-700">
-        <h2 className="text-sm sm:text-lg font-semibold text-gray-900 dark:text-white">Meeting Sections</h2>
-        <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">Navigate between sections</p>
+      <div className="p-3 sm:p-6 border-b border-gray-200 dark:border-gray-700 landing:border-slate-600">
+        <h2 className="text-sm sm:text-lg font-semibold text-gray-900 dark:text-white landing:text-white">Meeting Sections</h2>
+        <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 landing:text-slate-300 mt-1">Navigate between sections</p>
       </div>
 
       {/* Sidebar Navigation */}

@@ -73,6 +73,7 @@ export interface MarriageMeetingWeek {
   todos: TaskItem[] // Updated to use TaskItem with timeline features
   prayers: ListItem[]
   grocery: ListItem[]
+  lists: CustomList[] // New unified lists system
   unconfessedSin: ListItem[]
   weeklyWinddown: ListItem[]
   encouragementNotes: EncouragementNote[]
@@ -86,7 +87,8 @@ export interface WeekData {
   schedule: WeeklySchedule
   todos: TaskItem[] // Updated to use TaskItem with timeline features
   prayers: ListItem[]
-  grocery: GroceryStoreList[] // Updated to use store-specific lists
+  grocery: GroceryStoreList[] // Updated to use store-specific lists (legacy)
+  lists: CustomList[] // New unified lists system
   unconfessedSin: ListItem[]
   weeklyWinddown: ListItem[]
   encouragementNotes: EncouragementNote[] // Encouragement notes and messages
@@ -100,8 +102,79 @@ export interface GroceryStoreList {
   items: ListItem[]
 }
 
+// Recipe Item
+export interface RecipeItem {
+  id: string
+  name: string
+  ingredients: string[]
+  instructions?: string
+  source?: string // URL or cookbook reference
+  servings?: number
+  prepTime?: number // in minutes
+  cookTime?: number // in minutes
+}
+
+// Meal Plan Item
+export interface MealPlanItem {
+  day: DayName
+  mealType: 'breakfast' | 'lunch' | 'dinner' | 'snack'
+  mealName: string
+  ingredients?: string[] // Custom ingredients for this meal
+  recipeId?: string // Link to a recipe
+  recipe?: RecipeItem // Embedded recipe data
+  servings?: number // How many servings for this meal
+}
+
+// List Metadata
+export interface ListMetadata {
+  // For grocery lists
+  storeId?: string
+  storeName?: string
+  
+  // For packing lists
+  tripType?: 'camping' | 'weekend' | 'flight' | 'beach' | 'business' | 'custom'
+  tripName?: string
+  
+  // For meal planning
+  weekStart?: string  // ISO date
+  meals?: MealPlanItem[]
+  recipes?: RecipeItem[] // Saved recipes
+  generatedGroceryItems?: CustomListItem[] // Generated grocery items from meal plan
+  
+  // For errands
+  location?: string
+  
+  // For chores
+  frequency?: 'daily' | 'weekly' | 'monthly'
+  defaultAssignment?: 'both' | 'spouse1' | 'spouse2' // Default assignment for chore items
+  
+  // For suggestions
+  selectedSuggestions?: string[] // Items selected from suggestions
+}
+
+// Custom List Item
+export interface CustomListItem extends ListItem {
+  source?: string  // e.g., "Spaghetti Dinner - Monday"
+  category?: string  // e.g., "produce", "dairy", "cleaning"
+  assignedTo?: 'both' | 'spouse1' | 'spouse2' // who's responsible for this item
+}
+
+// Custom List
+export interface CustomList {
+  id: string
+  listType: CustomListType
+  name: string  // e.g., "Camping Trip", "Weekly Meals"
+  metadata: ListMetadata
+  items: CustomListItem[]
+  createdAt: string
+  updatedAt: string
+}
+
 // List Types
 export type ListType = 'todos' | 'prayers' | 'goals' | 'grocery' | 'unconfessedSin' | 'weeklyWinddown'
+
+// Custom List Types
+export type CustomListType = 'grocery' | 'errand' | 'meal-planning' | 'packing' | 'chore'
 
 // Day Names
 export type DayName = 'Monday' | 'Tuesday' | 'Wednesday' | 'Thursday' | 'Friday' | 'Saturday' | 'Sunday'
@@ -126,7 +199,7 @@ export interface MarriageState {
 export interface AppState {
   currentDate: Date
   currentView: 'landing' | 'weekly' | 'admin'
-  theme: 'light' | 'dark'
+  theme: 'light' | 'dark' | 'landing'
   isLoading: boolean
 }
 

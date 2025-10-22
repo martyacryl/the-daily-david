@@ -275,8 +275,14 @@ export const useOnboardingStore = create<OnboardingState>()(
       },
 
       checkUserChange: async (userId: string) => {
-        const { lastUserId } = get()
-        console.log('🎯 Checking user change', { lastUserId, newUserId: userId })
+        const { lastUserId, hasSeenTour } = get()
+        console.log('🎯 Checking user change', { lastUserId, newUserId: userId, hasSeenTour })
+        
+        // If user has already seen the tour, don't override their state
+        if (hasSeenTour && lastUserId === userId) {
+          console.log('🎯 User has already seen tour, keeping existing state')
+          return
+        }
         
         if (lastUserId !== userId) {
           console.log('🎯 User changed, checking onboarding status from database')

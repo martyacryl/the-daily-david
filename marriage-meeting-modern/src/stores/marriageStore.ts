@@ -2,14 +2,16 @@
 // Manages marriage meeting week data
 
 import { create } from 'zustand'
-import { MarriageMeetingWeek, WeekData, ListItem, WeeklySchedule, DayName, ListType, GoalItem, TaskItem, GroceryStoreList, EncouragementNote } from '../types/marriageTypes'
+import { MarriageMeetingWeek, WeekData, ListItem, WeeklySchedule, DayName, ListType, GoalItem, TaskItem, GroceryStoreList, EncouragementNote, CustomList, CustomListItem, CustomListType, RecipeItem } from '../types/marriageTypes'
 import { CalendarEvent } from '../lib/calendarService'
 import { dbManager, DatabaseManager } from '../lib/database'
+import { createNewList } from '../lib/listHelpers'
 
 interface MarriageState {
   // Data
   currentWeek: MarriageMeetingWeek | null
   weekData: WeekData
+  recipes: RecipeItem[] // Global recipes per account
   currentDate: Date
   isLoading: boolean
   error: string | null
@@ -32,6 +34,20 @@ interface MarriageState {
   removeListItem: (listType: ListType, id: number) => void
   updateTasks: (tasks: TaskItem[]) => void
   updateGrocery: (grocery: GroceryStoreList[]) => void
+  updateLists: (lists: CustomList[]) => void
+  createList: (listType: CustomListType, name: string, metadata: any) => void
+  updateList: (listId: string, updates: Partial<CustomList>) => void
+  deleteList: (listId: string) => void
+  addCustomListItem: (listId: string, item: CustomListItem) => void
+  updateCustomListItem: (listId: string, itemId: number, updates: Partial<CustomListItem>) => void
+  toggleCustomListItem: (listId: string, itemId: number) => void
+  deleteCustomListItem: (listId: string, itemId: number) => void
+  loadRecipes: () => Promise<void>
+  updateRecipes: (recipes: RecipeItem[]) => void
+  addRecipe: (recipe: RecipeItem) => Promise<void>
+  updateRecipe: (recipeId: string, updates: Partial<RecipeItem>) => Promise<void>
+  deleteRecipe: (recipeId: string) => Promise<void>
+  migrateGroceryToLists: () => void
   updateEncouragementNotes: (encouragementNotes: EncouragementNote[]) => void
   updateCalendarEvents: (calendarEvents: CalendarEvent[]) => void
   setLoading: (loading: boolean) => void
@@ -53,6 +69,7 @@ const createEmptyWeekData = (): WeekData => ({
   todos: [] as TaskItem[],
   prayers: [],
   grocery: [] as GroceryStoreList[],
+  lists: [] as CustomList[],
   unconfessedSin: [],
   weeklyWinddown: [],
   encouragementNotes: [],
@@ -69,6 +86,7 @@ export const useMarriageStore = create<MarriageState>((set, get) => ({
   // Initial state
   currentWeek: null,
   weekData: createEmptyWeekData(),
+  recipes: [] as RecipeItem[],
   currentDate: new Date(), // Will be set to Monday when store initializes
   isLoading: false,
   error: null,
@@ -128,7 +146,9 @@ export const useMarriageStore = create<MarriageState>((set, get) => ({
         console.log('🔍 Store: Found existing week data:', {
           weekKey: week.week_key,
           todosCount: week.todos?.length || 0,
-          todos: week.todos
+          todos: week.todos,
+          listsCount: week.lists?.length || 0,
+          lists: week.lists
         })
 
         // Migrate old todos to new TaskItem structure if needed
@@ -159,6 +179,7 @@ export const useMarriageStore = create<MarriageState>((set, get) => ({
         console.log('🔍 Store: Prayers details:', week.prayers)
         console.log('Store: Setting weekData with todos:', migratedTodos)
         console.log('Store: Setting weekData with grocery:', week.grocery)
+        console.log('Store: Setting weekData with lists:', week.lists)
         console.log('Store: Setting weekData with encouragementNotes:', week.encouragementNotes)
         console.log('Store: Setting weekData with calendarEvents:', week.calendarEvents)
         
@@ -220,7 +241,8 @@ export const useMarriageStore = create<MarriageState>((set, get) => ({
           schedule: normalizedSchedule,
           todos: migratedTodos,
           prayers: week.prayers,
-          grocery: week.grocery,
+          grocery: week.grocery || [], // Ensure it's an array
+          lists: week.lists || [], // Add lists data
           unconfessedSin: week.unconfessedSin,
           weeklyWinddown: week.weeklyWinddown,
           encouragementNotes: week.encouragementNotes || [],
@@ -232,12 +254,17 @@ export const useMarriageStore = create<MarriageState>((set, get) => ({
         console.log('🔍 Store: Complete weekData being set for week', weekKey, ':', weekDataToSet)
         console.log('🔍 Store: Final prayers data being set:', weekDataToSet.prayers)
         console.log('🔍 Store: Final prayers count:', weekDataToSet.prayers?.length || 0)
+        console.log('🔍 Store: Final lists data being set:', weekDataToSet.lists)
+        console.log('🔍 Store: Final lists count:', weekDataToSet.lists?.length || 0)
         console.log('🔍 Store: Schedule data being set:', weekDataToSet.schedule)
         
         set({ 
           currentWeek: week,
           weekData: weekDataToSet
         })
+        
+        // Run migration after setting the data
+        get().migrateGroceryToLists()
         
         console.log('🔍 Store: loadWeekData completed - final calendar events:', get().weekData.calendarEvents?.length || 0)
       } else {
@@ -268,6 +295,7 @@ export const useMarriageStore = create<MarriageState>((set, get) => ({
       console.log('Store: Using current store data (ignoring passed data)')
       console.log('Store: Data to save todos:', dataToSave.todos)
       console.log('Store: Data to save grocery:', dataToSave.grocery)
+      console.log('Store: Data to save lists:', dataToSave.lists)
       
       // Get user from auth store
       let user = null
@@ -292,6 +320,7 @@ export const useMarriageStore = create<MarriageState>((set, get) => ({
         todos: dataToSave.todos,
         prayers: dataToSave.prayers,
         grocery: dataToSave.grocery,
+        lists: dataToSave.lists,
         unconfessedSin: dataToSave.unconfessedSin,
         weeklyWinddown: dataToSave.weeklyWinddown,
         encouragementNotes: dataToSave.encouragementNotes,
@@ -300,6 +329,8 @@ export const useMarriageStore = create<MarriageState>((set, get) => ({
 
       console.log('Store: Saving weekData with todos:', dataToSave.todos)
       console.log('Store: Todos count:', dataToSave.todos?.length || 0)
+      console.log('Store: Saving weekData with lists:', dataToSave.lists)
+      console.log('Store: Lists count:', dataToSave.lists?.length || 0)
 
       await dbManager.saveMarriageMeetingWeek(weekData)
       
@@ -483,6 +514,250 @@ export const useMarriageStore = create<MarriageState>((set, get) => ({
         }
       }))
       console.log('🏪 Store: updateGrocery completed, new grocery count:', grocery.length)
+    },
+
+    // List management actions
+    updateLists: (lists: CustomList[]) => {
+      console.log('📋 Store: updateLists called with:', lists.length, 'lists')
+      set((state) => ({
+        weekData: {
+          ...state.weekData,
+          lists: lists
+        }
+      }))
+      
+      // Auto-save when lists are updated - use the updated weekData from store
+      const weekKey = DatabaseManager.formatWeekKey(get().currentDate)
+      setTimeout(() => {
+        get().saveWeekData(weekKey)
+      }, 100)
+    },
+
+    createList: (listType: CustomListType, name: string, metadata: any) => {
+      const newList = createNewList(listType, name, metadata)
+      
+      set((state) => ({
+        weekData: {
+          ...state.weekData,
+          lists: [...state.weekData.lists, newList]
+        }
+      }))
+      
+      // Auto-save
+      const weekKey = DatabaseManager.formatWeekKey(get().currentDate)
+      setTimeout(() => {
+        get().saveWeekData(weekKey)
+      }, 100)
+    },
+
+    updateList: (listId: string, updates: Partial<CustomList>) => {
+      set((state) => ({
+        weekData: {
+          ...state.weekData,
+          lists: state.weekData.lists.map(list =>
+            list.id === listId
+              ? { ...list, ...updates, updatedAt: new Date().toISOString() }
+              : list
+          )
+        }
+      }))
+      
+      // Auto-save
+      const weekKey = DatabaseManager.formatWeekKey(get().currentDate)
+      setTimeout(() => {
+        get().saveWeekData(weekKey)
+      }, 100)
+    },
+
+    deleteList: (listId: string) => {
+      set((state) => ({
+        weekData: {
+          ...state.weekData,
+          lists: state.weekData.lists.filter(list => list.id !== listId)
+        }
+      }))
+      
+      // Auto-save
+      const weekKey = DatabaseManager.formatWeekKey(get().currentDate)
+      setTimeout(() => {
+        get().saveWeekData(weekKey)
+      }, 100)
+    },
+
+    addCustomListItem: (listId: string, item: CustomListItem) => {
+      set((state) => ({
+        weekData: {
+          ...state.weekData,
+          lists: state.weekData.lists.map(list =>
+            list.id === listId
+              ? {
+                  ...list,
+                  items: [...list.items, item],
+                  updatedAt: new Date().toISOString()
+                }
+              : list
+          )
+        }
+      }))
+      
+      // Auto-save
+      const weekKey = DatabaseManager.formatWeekKey(get().currentDate)
+      setTimeout(() => {
+        get().saveWeekData(weekKey)
+      }, 100)
+    },
+
+    updateCustomListItem: (listId: string, itemId: number, updates: Partial<CustomListItem>) => {
+      set((state) => ({
+        weekData: {
+          ...state.weekData,
+          lists: state.weekData.lists.map(list =>
+            list.id === listId
+              ? {
+                  ...list,
+                  items: list.items.map(item =>
+                    item.id === itemId ? { ...item, ...updates } : item
+                  ),
+                  updatedAt: new Date().toISOString()
+                }
+              : list
+          )
+        }
+      }))
+      
+      // Auto-save
+      const weekKey = DatabaseManager.formatWeekKey(get().currentDate)
+      setTimeout(() => {
+        get().saveWeekData(weekKey)
+      }, 100)
+    },
+
+    toggleCustomListItem: (listId: string, itemId: number) => {
+      set((state) => ({
+        weekData: {
+          ...state.weekData,
+          lists: state.weekData.lists.map(list =>
+            list.id === listId
+              ? {
+                  ...list,
+                  items: list.items.map(item =>
+                    item.id === itemId ? { ...item, completed: !item.completed } : item
+                  ),
+                  updatedAt: new Date().toISOString()
+                }
+              : list
+          )
+        }
+      }))
+      
+      // Auto-save
+      const weekKey = DatabaseManager.formatWeekKey(get().currentDate)
+      setTimeout(() => {
+        get().saveWeekData(weekKey)
+      }, 100)
+    },
+
+    deleteCustomListItem: (listId: string, itemId: number) => {
+      set((state) => ({
+        weekData: {
+          ...state.weekData,
+          lists: state.weekData.lists.map(list =>
+            list.id === listId
+              ? {
+                  ...list,
+                  items: list.items.filter(item => item.id !== itemId),
+                  updatedAt: new Date().toISOString()
+                }
+              : list
+          )
+        }
+      }))
+      
+      // Auto-save
+      const weekKey = DatabaseManager.formatWeekKey(get().currentDate)
+      setTimeout(() => {
+        get().saveWeekData(weekKey)
+      }, 100)
+    },
+
+    // Recipe management actions
+    loadRecipes: async () => {
+      try {
+        const recipes = await dbManager.getRecipes()
+        set({ recipes })
+      } catch (error) {
+        console.error('Error loading recipes:', error)
+        set({ error: error instanceof Error ? error.message : 'Failed to load recipes' })
+      }
+    },
+
+    updateRecipes: (recipes: RecipeItem[]) => {
+      set({ recipes })
+    },
+
+    addRecipe: async (recipe: RecipeItem) => {
+      try {
+        const newRecipe = await dbManager.createRecipe(recipe)
+        set((state) => ({
+          recipes: [...state.recipes, newRecipe]
+        }))
+      } catch (error) {
+        console.error('Error adding recipe:', error)
+        set({ error: error instanceof Error ? error.message : 'Failed to add recipe' })
+      }
+    },
+
+    updateRecipe: async (recipeId: string, updates: Partial<RecipeItem>) => {
+      try {
+        const updatedRecipe = await dbManager.updateRecipe(recipeId, updates)
+        set((state) => ({
+          recipes: state.recipes.map(recipe =>
+            recipe.id === recipeId ? updatedRecipe : recipe
+          )
+        }))
+      } catch (error) {
+        console.error('Error updating recipe:', error)
+        set({ error: error instanceof Error ? error.message : 'Failed to update recipe' })
+      }
+    },
+
+    deleteRecipe: async (recipeId: string) => {
+      try {
+        await dbManager.deleteRecipe(recipeId)
+        set((state) => ({
+          recipes: state.recipes.filter(recipe => recipe.id !== recipeId)
+        }))
+      } catch (error) {
+        console.error('Error deleting recipe:', error)
+        set({ error: error instanceof Error ? error.message : 'Failed to delete recipe' })
+      }
+    },
+
+    migrateGroceryToLists: () => {
+      set((state) => {
+        // Only migrate if we have grocery data but no lists data
+        if (state.weekData.grocery?.length > 0 && state.weekData.lists?.length === 0) {
+          
+          const migratedLists = state.weekData.grocery.map(groceryList => 
+            createNewList('grocery', groceryList.storeName, {
+              storeId: groceryList.storeId,
+              storeName: groceryList.storeName
+            })
+          )
+          
+          console.log('🔄 Store: Migrating grocery data to lists:', migratedLists.length, 'lists')
+          
+          return {
+            weekData: {
+              ...state.weekData,
+              lists: migratedLists,
+              grocery: [] // Clear old grocery data
+            }
+          }
+        }
+        
+        return state
+      })
     },
 
   updateEncouragementNotes: (encouragementNotes: EncouragementNote[]) => {

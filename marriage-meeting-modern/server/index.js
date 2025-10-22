@@ -136,6 +136,68 @@ app.post('/api/auth/login', async (req, res) => {
   }
 })
 
+// Signup endpoint
+app.post('/api/auth/signup', async (req, res) => {
+  try {
+    const { name, email, password } = req.body
+
+    if (!name || !email || !password) {
+      return res.status(400).json({ error: 'Name, email, and password are required' })
+    }
+
+    if (password.length < 6) {
+      return res.status(400).json({ error: 'Password must be at least 6 characters' })
+    }
+
+    // Check if user already exists
+    const existingUser = await pool.query(
+      'SELECT * FROM users WHERE email = $1',
+      [email]
+    )
+
+    if (existingUser.rows.length > 0) {
+      return res.status(400).json({ error: 'User with this email already exists' })
+    }
+
+    // Hash password
+    const saltRounds = 10
+    const passwordHash = await bcrypt.hash(password, saltRounds)
+
+    // Create user
+    const result = await pool.query(
+      'INSERT INTO users (display_name, email, password_hash, is_admin) VALUES ($1, $2, $3, $4) RETURNING *',
+      [name, email, passwordHash, false]
+    )
+
+    const user = result.rows[0]
+
+    // Generate JWT token
+    const token = jwt.sign(
+      { 
+        id: user.id, 
+        email: user.email, 
+        is_admin: user.is_admin 
+      },
+      JWT_SECRET,
+      { expiresIn: '7d' }
+    )
+
+    res.status(201).json({
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.display_name,
+        is_admin: user.is_admin,
+        created_at: user.created_at
+      },
+      token
+    })
+  } catch (error) {
+    console.error('Signup error:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
 // Marriage Meeting Weeks Routes
 app.get('/api/marriage-weeks', authenticateToken, async (req, res) => {
   try {
@@ -207,6 +269,7 @@ app.post('/api/marriage-weeks', authenticateToken, async (req, res) => {
       todosCount: data_content?.todos?.length || 0,
       prayersCount: data_content?.prayers?.length || 0,
       groceryCount: data_content?.grocery?.length || 0,
+      listsCount: data_content?.lists?.length || 0,
       encouragementCount: data_content?.encouragementNotes?.length || 0,
       calendarEventsCount: data_content?.calendarEvents?.length || 0,
       fullDataContent: JSON.stringify(data_content, null, 2)
@@ -241,6 +304,91 @@ app.post('/api/marriage-weeks', authenticateToken, async (req, res) => {
   }
 })
 
+// Recipes Routes
+app.get('/api/recipes', authenticateToken, async (req, res) => {
+  try {
+    const result = await pool.query(
+      'SELECT * FROM recipes WHERE user_id = $1 ORDER BY created_at DESC',
+      [req.user.id]
+    )
+
+    res.json(result.rows)
+  } catch (error) {
+    console.error('Error fetching recipes:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
+app.post('/api/recipes', authenticateToken, async (req, res) => {
+  try {
+    const { name, ingredients, instructions, source, servings, prep_time, cook_time } = req.body
+
+    if (!name || !ingredients || !Array.isArray(ingredients)) {
+      return res.status(400).json({ error: 'Missing required fields: name and ingredients' })
+    }
+
+    const result = await pool.query(
+      `INSERT INTO recipes (user_id, name, ingredients, instructions, source, servings, prep_time, cook_time, created_at, updated_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW(), NOW())
+       RETURNING *`,
+      [req.user.id, name, JSON.stringify(ingredients), instructions, source, servings || 4, prep_time || 0, cook_time || 0]
+    )
+
+    res.json(result.rows[0])
+  } catch (error) {
+    console.error('Error creating recipe:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
+app.put('/api/recipes/:id', authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params
+    const { name, ingredients, instructions, source, servings, prep_time, cook_time } = req.body
+
+    if (!name || !ingredients || !Array.isArray(ingredients)) {
+      return res.status(400).json({ error: 'Missing required fields: name and ingredients' })
+    }
+
+    const result = await pool.query(
+      `UPDATE recipes 
+       SET name = $1, ingredients = $2, instructions = $3, source = $4, servings = $5, prep_time = $6, cook_time = $7, updated_at = NOW()
+       WHERE id = $8 AND user_id = $9
+       RETURNING *`,
+      [name, JSON.stringify(ingredients), instructions, source, servings || 4, prep_time || 0, cook_time || 0, id, req.user.id]
+    )
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Recipe not found' })
+    }
+
+    res.json(result.rows[0])
+  } catch (error) {
+    console.error('Error updating recipe:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
+app.delete('/api/recipes/:id', authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params
+
+    const result = await pool.query(
+      'DELETE FROM recipes WHERE id = $1 AND user_id = $2 RETURNING *',
+      [id, req.user.id]
+    )
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Recipe not found' })
+    }
+
+    res.json({ message: 'Recipe deleted successfully' })
+  } catch (error) {
+    console.error('Error deleting recipe:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
 // Settings Routes
 app.get('/api/settings', authenticateToken, async (req, res) => {
   try {
@@ -265,6 +413,7 @@ app.get('/api/settings', authenticateToken, async (req, res) => {
         currency: 'USD',
         dateFormat: 'MM/DD/YYYY',
         theme: 'light',
+        accentColor: 'slate',
         calendar: {
           icalUrl: '',
           googleCalendarEnabled: false,
@@ -282,6 +431,7 @@ app.get('/api/settings', authenticateToken, async (req, res) => {
     }
 
     let settings = result.rows[0].settings_data
+    let needsUpdate = false
     
     // Migrate existing users to include calendar settings
     if (!settings.calendar) {
@@ -297,8 +447,17 @@ app.get('/api/settings', authenticateToken, async (req, res) => {
         syncFrequency: 'daily',
         showCalendarEvents: true
       }
-      
-      // Update the database with migrated settings
+      needsUpdate = true
+    }
+    
+    // Migrate existing users to include accent color
+    if (!settings.accentColor) {
+      settings.accentColor = 'slate'
+      needsUpdate = true
+    }
+    
+    // Update the database with migrated settings if needed
+    if (needsUpdate) {
       await pool.query(
         'UPDATE user_settings SET settings_data = $1 WHERE user_id = $2',
         [settings, userId]
@@ -793,6 +952,36 @@ app.post('/api/reading-plans', authenticateToken, async (req, res) => {
   }
 })
 
+// Update reading plan progress
+app.put('/api/reading-plans/:planId', authenticateToken, async (req, res) => {
+  try {
+    const { planId } = req.params
+    const { current_day, completed_days } = req.body
+    
+    console.log('📖 Reading Plans: Updating progress for plan:', planId, 'user:', req.user.id)
+    console.log('📖 Reading Plans: Update data:', { current_day, completed_days })
+    
+    const result = await pool.query(
+      `UPDATE reading_plans 
+       SET current_day = $1, completed_days = $2, updated_at = CURRENT_TIMESTAMP
+       WHERE user_id = $3 AND plan_id = $4
+       RETURNING *`,
+      [current_day, completed_days, req.user.id, planId]
+    )
+    
+    if (result.rows.length === 0) {
+      console.log('📖 Reading Plans: Plan not found for update')
+      return res.status(404).json({ error: 'Reading plan not found' })
+    }
+    
+    console.log('📖 Reading Plans: Updated successfully:', result.rows[0])
+    res.json(result.rows[0])
+  } catch (error) {
+    console.error('❌ Error updating reading plan:', error)
+    console.error('❌ Error stack:', error.stack)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
 
 // Delete a reading plan
 app.delete('/api/reading-plans/:planId', authenticateToken, async (req, res) => {
@@ -811,6 +1000,75 @@ app.delete('/api/reading-plans/:planId', authenticateToken, async (req, res) => 
     res.json({ message: 'Reading plan deleted successfully' })
   } catch (error) {
     console.error('Error deleting reading plan:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
+// Get available reading plans (from bibleService)
+app.get('/api/available-reading-plans', authenticateToken, async (req, res) => {
+  try {
+    // This would typically come from the bibleService
+    // For now, return the marriage-focused plans
+    const availablePlans = [
+      {
+        id: 'marriage-foundation',
+        name: 'Marriage Foundation',
+        description: '30 days of scripture focused on building a strong marriage foundation',
+        duration: 30
+      },
+      {
+        id: 'love-languages',
+        name: 'Love Languages in Scripture',
+        description: 'Daily devotionals exploring the five love languages through biblical wisdom',
+        duration: 35
+      },
+      {
+        id: 'communication-couples',
+        name: 'Communication for Couples',
+        description: 'Biblical wisdom for healthy communication in marriage',
+        duration: 28
+      },
+      {
+        id: 'parenting-together',
+        name: 'Parenting Together',
+        description: 'Biblical principles for raising children as a united couple',
+        duration: 40
+      },
+      {
+        id: 'intimacy-marriage',
+        name: 'Intimacy in Marriage',
+        description: 'Biblical principles for emotional, spiritual, and physical intimacy',
+        duration: 25
+      },
+      {
+        id: 'financial-wisdom',
+        name: 'Financial Wisdom for Couples',
+        description: 'Biblical principles for managing money together in marriage',
+        duration: 20
+      }
+    ]
+    
+    res.json(availablePlans)
+  } catch (error) {
+    console.error('Error fetching available reading plans:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
+// Get user's reading plans
+app.get('/api/reading-plans', authenticateToken, async (req, res) => {
+  try {
+    console.log('📖 Reading Plans: Fetching plans for user:', req.user.id)
+    
+    const result = await pool.query(
+      `SELECT * FROM reading_plans WHERE user_id = $1 ORDER BY created_at DESC`,
+      [req.user.id]
+    )
+    
+    console.log('📖 Reading Plans: Found plans:', result.rows.length)
+    res.json(result.rows)
+  } catch (error) {
+    console.error('❌ Error fetching reading plans:', error)
     res.status(500).json({ error: 'Internal server error' })
   }
 })
@@ -1258,125 +1516,6 @@ app.get('/api/meeting-stats', authenticateToken, async (req, res) => {
   }
 })
 
-// Reading Plans API Endpoints
-
-// Get all reading plans for a user
-app.get('/api/reading-plans', authenticateToken, async (req, res) => {
-  try {
-    const result = await pool.query(
-      `SELECT * FROM reading_plans 
-       WHERE user_id = $1 
-       ORDER BY created_at DESC`,
-      [req.user.id]
-    )
-    
-    res.json(result.rows)
-  } catch (error) {
-    console.error('Error fetching reading plans:', error)
-    res.status(500).json({ error: 'Internal server error' })
-  }
-})
-
-// Create a new reading plan
-
-// Update reading plan progress
-app.put('/api/reading-plans/:planId', authenticateToken, async (req, res) => {
-  try {
-    const { planId } = req.params
-    const { current_day, completed_days } = req.body
-    
-    const result = await pool.query(
-      `UPDATE reading_plans 
-       SET current_day = $1, completed_days = $2, updated_at = CURRENT_TIMESTAMP
-       WHERE user_id = $3 AND plan_id = $4
-       RETURNING *`,
-      [current_day, completed_days, req.user.id, planId]
-    )
-    
-    if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Reading plan not found' })
-    }
-    
-    res.json(result.rows[0])
-  } catch (error) {
-    console.error('Error updating reading plan:', error)
-    res.status(500).json({ error: 'Internal server error' })
-  }
-})
-
-// Delete a reading plan
-app.delete('/api/reading-plans/:planId', authenticateToken, async (req, res) => {
-  try {
-    const { planId } = req.params
-    
-    const result = await pool.query(
-      `DELETE FROM reading_plans 
-       WHERE user_id = $1 AND plan_id = $2
-       RETURNING *`,
-      [req.user.id, planId]
-    )
-    
-    if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Reading plan not found' })
-    }
-    
-    res.json({ message: 'Reading plan deleted successfully' })
-  } catch (error) {
-    console.error('Error deleting reading plan:', error)
-    res.status(500).json({ error: 'Internal server error' })
-  }
-})
-
-// Get available reading plans (from bibleService)
-app.get('/api/available-reading-plans', authenticateToken, async (req, res) => {
-  try {
-    // This would typically come from the bibleService
-    // For now, return the marriage-focused plans
-    const availablePlans = [
-      {
-        id: 'marriage-foundation',
-        name: 'Marriage Foundation',
-        description: '30 days of scripture focused on building a strong marriage foundation',
-        duration: 30
-      },
-      {
-        id: 'love-languages',
-        name: 'Love Languages in Scripture',
-        description: 'Daily devotionals exploring the five love languages through biblical wisdom',
-        duration: 35
-      },
-      {
-        id: 'communication-couples',
-        name: 'Communication for Couples',
-        description: 'Biblical wisdom for healthy communication in marriage',
-        duration: 28
-      },
-      {
-        id: 'parenting-together',
-        name: 'Parenting Together',
-        description: 'Biblical principles for raising children as a united couple',
-        duration: 40
-      },
-      {
-        id: 'intimacy-marriage',
-        name: 'Intimacy in Marriage',
-        description: 'Biblical principles for emotional, spiritual, and physical intimacy',
-        duration: 25
-      },
-      {
-        id: 'financial-wisdom',
-        name: 'Financial Wisdom for Couples',
-        description: 'Biblical principles for managing money together in marriage',
-        duration: 20
-      }
-    ]
-    
-    res.json(availablePlans)
-  } catch (error) {
-    console.error('Error fetching available reading plans:', error)
-    res.status(500).json({ error: 'Internal server error' })
-  }
-})
 
 // =============================================================================
 // PLANNING SYSTEM API ENDPOINTS

@@ -117,8 +117,8 @@ const sidebarItems: SidebarItem[] = [
     category: 'spiritual'
   },
   {
-    id: 'grocery',
-    label: 'Grocery',
+    id: 'lists',
+    label: 'Lists',
     icon: ShoppingCart,
     color: 'yellow',
     count: 0,
@@ -340,7 +340,7 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
       return (
         <div className="h-full flex flex-col pt-32 sm:pt-20">
           {/* Top Section - Weekly Meeting Buttons */}
-          <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-3 lg:p-4 sticky top-14 sm:top-16 z-10">
+          <div className="bg-white dark:bg-gray-800 landing:bg-gradient-to-br landing:from-slate-800/90 landing:to-slate-900/90 landing:backdrop-blur-sm border-b border-gray-200 dark:border-gray-700 landing:border-slate-600 p-3 lg:p-4 sticky top-14 sm:top-16 z-10">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
                 <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 dark:text-white">Foundation & Daily Focus</h1>
@@ -382,14 +382,14 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
           </div>
 
           {/* Family Creed Section */}
-          <div className="bg-slate-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-3 lg:p-4">
+          <div className="bg-slate-50 dark:bg-gray-800 landing:bg-gradient-to-br landing:from-slate-800/90 landing:to-slate-900/90 landing:backdrop-blur-sm border-b border-gray-200 dark:border-gray-700 landing:border-slate-600 p-3 lg:p-4">
             <FamilyCreedDisplay />
           </div>
 
           {/* Three Column Layout */}
           <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
             {/* Left Column - Navigation Sidebar */}
-            <div className="w-full lg:w-80 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col">
+            <div className="w-full lg:w-80 bg-white dark:bg-gray-800 landing:bg-gradient-to-br landing:from-slate-800/90 landing:to-slate-900/90 landing:backdrop-blur-sm border-r border-gray-200 dark:border-gray-700 landing:border-slate-600 flex flex-col">
               {/* Sidebar Header */}
               <div className="p-3 lg:p-4 border-b border-gray-200 dark:border-gray-700">
                 <h2 className="text-base lg:text-lg font-semibold text-gray-900 dark:text-white mb-1">Meeting Sections</h2>
@@ -1443,10 +1443,10 @@ export const DailyFocusedLayout: React.FC<DailyFocusedLayoutProps> = ({
   }
 
   return (
-    <div className={`min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-gray-900 dark:to-gray-800 ${className}`}>
+    <div className={`min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-gray-900 dark:to-gray-800 landing:bg-gradient-to-br landing:from-slate-950 landing:via-slate-900 landing:to-slate-950 ${className}`}>
       <div className="flex h-screen">
         {/* Main Content Area */}
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 overflow-y-auto landing:bg-gradient-to-br landing:from-slate-950/50 landing:to-slate-900/50">
           <AnimatePresence mode="wait">
             <motion.div
               key={activeSection}

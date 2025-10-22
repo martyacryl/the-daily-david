@@ -921,7 +921,7 @@ export const DashboardNew: React.FC = () => {
           </motion.div>
         )}
 
-        {/* Grocery & Errands */}
+        {/* Lists & Errands */}
         {(weekData.grocery && weekData.grocery.length > 0 && weekData.grocery.some(store => store.items && store.items.some(item => item.text && item.text.trim() !== ''))) && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -933,9 +933,9 @@ export const DashboardNew: React.FC = () => {
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-xl font-semibold text-gray-900 dark:text-white flex items-center gap-2">
                   <ShoppingCart className="w-5 h-5 text-slate-600 dark:text-slate-300" />
-                  Grocery & Errands
+                  Lists & Errands
                 </h3>
-                <Link to="/weekly?section=grocery" className="text-slate-600 dark:text-slate-300 text-sm font-medium">
+                <Link to="/weekly?section=lists" className="text-slate-600 dark:text-slate-300 text-sm font-medium">
                   View All →
                 </Link>
               </div>
@@ -1033,6 +1033,87 @@ export const DashboardNew: React.FC = () => {
             </Card>
           </motion.div>
         </div>
+
+        {/* Spiritual Growth Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6 }}
+          className="mb-8"
+        >
+          <Card className="p-6 bg-gradient-to-br from-slate-50 to-purple-50 dark:from-slate-800 dark:to-purple-900/20 border-slate-200 dark:border-slate-600">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-600 dark:to-slate-700 rounded-lg border border-slate-300 dark:border-slate-600">
+                  <BookOpen className="w-5 h-5 text-slate-600 dark:text-slate-300" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-semibold text-gray-900 dark:text-white">Spiritual Growth</h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">Track your journey with God</p>
+                </div>
+              </div>
+              <Link to="/spiritual" className="text-slate-600 dark:text-slate-300 text-sm font-medium hover:text-slate-800 dark:hover:text-slate-200 transition-colors">
+                View Spiritual Growth →
+              </Link>
+            </div>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {/* Prayer Life */}
+              <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-slate-200 dark:border-slate-600">
+                <div className="flex items-center gap-2 mb-3">
+                  <Heart className="w-4 h-4 text-slate-600 dark:text-slate-300" />
+                  <h4 className="font-semibold text-gray-900 dark:text-white">Prayer Life</h4>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-600 dark:text-gray-300">Active Requests</span>
+                    <span className="font-semibold text-slate-700 dark:text-slate-200">{insights.unansweredPrayers.length}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-600 dark:text-gray-300">Answered</span>
+                    <span className="font-semibold text-slate-700 dark:text-slate-200">0</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Devotionals */}
+              <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-slate-200 dark:border-slate-600">
+                <div className="flex items-center gap-2 mb-3">
+                  <BookOpen className="w-4 h-4 text-slate-600 dark:text-slate-300" />
+                  <h4 className="font-semibold text-gray-900 dark:text-white">Devotionals</h4>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-600 dark:text-gray-300">Active Plans</span>
+                    <span className="font-semibold text-slate-700 dark:text-slate-200">0</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-600 dark:text-gray-300">Days Read</span>
+                    <span className="font-semibold text-slate-700 dark:text-slate-200">0</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Spiritual Goals */}
+              <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-slate-200 dark:border-slate-600">
+                <div className="flex items-center gap-2 mb-3">
+                  <Target className="w-4 h-4 text-slate-600 dark:text-slate-300" />
+                  <h4 className="font-semibold text-gray-900 dark:text-white">Spiritual Goals</h4>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-600 dark:text-gray-300">Total Goals</span>
+                    <span className="font-semibold text-slate-700 dark:text-slate-200">0</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-600 dark:text-gray-300">Completed</span>
+                    <span className="font-semibold text-slate-700 dark:text-slate-200">0</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Card>
+        </motion.div>
 
         {/* Goal Progress by Timeframe */}
         <motion.div

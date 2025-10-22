@@ -27,7 +27,7 @@ export const LoginForm: React.FC = () => {
     
     // Also check localStorage for saved theme preference
     const savedTheme = localStorage.getItem('dailyDavid_theme')
-    if (savedTheme === 'dark') {
+    if (savedTheme === 'dark' || savedTheme === 'landing') {
       setIsDarkMode(true)
     } else if (savedTheme === 'light') {
       setIsDarkMode(false)

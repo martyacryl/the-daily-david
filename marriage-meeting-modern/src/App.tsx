@@ -9,10 +9,12 @@ import { initializeAppStore } from './stores/appStore'
 import { MarriageMeetingTool } from './components/MarriageMeetingTool'
 import { DailyFocusedMeeting } from './components/DailyFocusedMeeting'
 import { LoginForm } from './components/LoginForm'
+import { LandingPage } from './landing'
 import { Dashboard } from './components/dashboard/Dashboard'
 import { AnalyticsPage } from './components/analytics/AnalyticsPage'
 import { PlanningPage } from './components/planning/PlanningPage'
 import { WeeklyReview } from './components/WeeklyReview'
+import { SpiritualPage } from './components/SpiritualPage'
 import { Header } from './components/layout/Header'
 import { LoadingSpinner } from './components/ui/LoadingSpinner'
 import { ProtectedAdminRoute } from './components/admin/ProtectedAdminRoute'
@@ -39,7 +41,9 @@ function App() {
   // Initialize app store FIRST (theme, accent color, view preferences)
   useEffect(() => {
     console.log('🚀 [App] Initializing app store...')
-    initializeAppStore()
+    initializeAppStore().catch(error => {
+      console.error('❌ [App] Failed to initialize app store:', error)
+    })
   }, [])
   
   const { isAuthenticated, isLoading, initialize } = useAuthStore()
@@ -76,8 +80,9 @@ function App() {
     return (
       <Router>
         <Routes>
+          <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<LoginForm />} />
-          <Route path="*" element={<Navigate to="/login" replace />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Router>
     )
@@ -91,6 +96,7 @@ function App() {
           <Route path="/" element={<Dashboard />} />
           <Route path="/weekly" element={<MarriageMeetingTool />} />
           <Route path="/daily" element={<DailyFocusedMeeting />} />
+          <Route path="/spiritual" element={<SpiritualPage />} />
           <Route path="/analytics" element={<AnalyticsPage />} />
           <Route path="/planning" element={<PlanningPage />} />
           <Route path="/review" element={<WeeklyReviewWithNavigation />} />

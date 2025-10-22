@@ -43,7 +43,7 @@ export const OnboardingTrigger: React.FC = () => {
 
       return () => clearTimeout(timer)
     }
-  }, [isAuthenticated, user, isFirstTime, startTour, checkUserChange, hasCheckedUser])
+  }, [isAuthenticated, user?.id, isFirstTime, startTour, checkUserChange, hasCheckedUser])
 
   // Reset hasCheckedUser when user changes
   useEffect(() => {
