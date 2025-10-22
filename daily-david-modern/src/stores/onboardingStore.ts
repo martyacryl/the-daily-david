@@ -126,6 +126,15 @@ const tourSteps: TourStep[] = [
   },
   {
     id: 10,
+    title: "Sermon Notes",
+    message: "Capture insights from sermons and teachings. Record the speaker, passage, and your key takeaways to review later.",
+    action: "Let's see how to add sermon notes!",
+    target: "[data-tour='sermon-notes']",
+    route: "/sermon-notes",
+    highlight: "sermon-notes-section"
+  },
+  {
+    id: 11,
     title: "Track Your Progress",
     message: "Track your spiritual growth over time. See your progress, insights, and celebrate your journey of becoming a man of God.",
     action: "You're all set! Start your daily practice!",
@@ -134,7 +143,7 @@ const tourSteps: TourStep[] = [
     highlight: "analytics-section"
   },
   {
-    id: 11,
+    id: 12,
     title: "You're Ready!",
     message: "Perfect! You've seen all the main features. Your dashboard is your home base - check your progress, start new entries, and continue growing in faith.",
     action: "Start your first daily entry!",
