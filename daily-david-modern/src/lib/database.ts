@@ -88,6 +88,8 @@ class DatabaseManager {
           leadershipRating: content.leadershipRating || { wisdom: 0, courage: 0, patience: 0, integrity: 0 },
           deletedGoalIds: content.deletedGoalIds || [],
           readingPlan: content.readingPlan || undefined,
+          soap: content.soap || { scripture: '', observation: '', application: '', prayer: '', thoughts: '' },
+          data_content: content,
           created_at: data.entry.created_at,
           updated_at: data.entry.updated_at
         }

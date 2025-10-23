@@ -426,9 +426,6 @@ export function DailyEntry() {
       
       if (entryData) {
         console.log('Found existing entry:', entryData)
-        console.log('🔍 DailyEntry: entryData.soap:', entryData.soap)
-        console.log('🔍 DailyEntry: entryData.data_content:', entryData.data_content)
-        console.log('🔍 DailyEntry: entryData.data_content.soap:', entryData.data_content?.soap)
         // Store entry ID for auto-save
         currentEntryIdRef.current = entryData.id
         
