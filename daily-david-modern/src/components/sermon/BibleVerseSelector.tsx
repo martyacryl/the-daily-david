@@ -19,9 +19,9 @@ export const BibleVerseSelector: React.FC<BibleVerseSelectorProps> = ({
   const [versions, setVersions] = useState<any[]>([])
   const [selectedBook, setSelectedBook] = useState<string>('GEN')
   const [selectedVersion, setSelectedVersion] = useState<string>('de4e12af7f28f599-02') // ESV
-  const [chapter, setChapter] = useState<number>(1)
-  const [verseStart, setVerseStart] = useState<number>(1)
-  const [verseEnd, setVerseEnd] = useState<number>(1)
+  const [chapter, setChapter] = useState<number | ''>('')
+  const [verseStart, setVerseStart] = useState<number | ''>('')
+  const [verseEnd, setVerseEnd] = useState<number | ''>('')
   const [fetchedVerses, setFetchedVerses] = useState<FetchedVerse[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [isExpanded, setIsExpanded] = useState(false)
@@ -76,19 +76,23 @@ export const BibleVerseSelector: React.FC<BibleVerseSelectorProps> = ({
   useEffect(() => {
     const book = books.find(b => b.id === selectedBook)
     if (book) {
-      setChapter(1)
-      setVerseStart(1)
-      setVerseEnd(1)
+      setChapter('')
+      setVerseStart('')
+      setVerseEnd('')
     }
   }, [selectedBook, books])
 
   const handleFetchVerses = async () => {
-    if (!selectedBook || !chapter || !verseStart || !verseEnd) {
+    if (!selectedBook || chapter === '' || verseStart === '' || verseEnd === '') {
       setError('Please fill in all fields')
       return
     }
 
-    if (verseStart > verseEnd) {
+    const startVerse = Number(verseStart)
+    const endVerse = Number(verseEnd)
+    const chapterNum = Number(chapter)
+
+    if (startVerse > endVerse) {
       setError('Start verse must be less than or equal to end verse')
       return
     }
@@ -100,9 +104,9 @@ export const BibleVerseSelector: React.FC<BibleVerseSelectorProps> = ({
       const verses = await bibleService.getVerseRange(
         selectedVersion,
         selectedBook,
-        chapter,
-        verseStart,
-        verseEnd
+        chapterNum,
+        startVerse,
+        endVerse
       )
 
       if (verses.length === 0) {
@@ -113,9 +117,9 @@ export const BibleVerseSelector: React.FC<BibleVerseSelectorProps> = ({
       // Save to localStorage for persistence
       const fetchParams = {
         book: selectedBook,
-        chapter,
-        verseStart,
-        verseEnd,
+        chapter: chapterNum,
+        verseStart: startVerse,
+        verseEnd: endVerse,
         version: selectedVersion
       }
       
@@ -154,9 +158,14 @@ export const BibleVerseSelector: React.FC<BibleVerseSelectorProps> = ({
     // Get the book name from the selected book
     const bookName = books.find(b => b.id === selectedBook)?.name || selectedBook
     
+    // Use the current input values or fall back to last fetch params
+    const currentChapter = chapter !== '' ? chapter : (lastFetchParams?.chapter || 1)
+    const currentStart = verseStart !== '' ? verseStart : (lastFetchParams?.verseStart || 1)
+    const currentEnd = verseEnd !== '' ? verseEnd : (lastFetchParams?.verseEnd || 1)
+    
     const reference = fetchedVerses.length === 1 
-      ? `${bookName} ${chapter}:${verseStart}`
-      : `${bookName} ${chapter}:${verseStart}-${verseEnd}`
+      ? `${bookName} ${currentChapter}:${currentStart}`
+      : `${bookName} ${currentChapter}:${currentStart}-${currentEnd}`
     
     console.log('Inserting reference:', reference)
     onInsertIntoPassage(reference)
@@ -243,7 +252,18 @@ export const BibleVerseSelector: React.FC<BibleVerseSelectorProps> = ({
               min="1"
               max={maxChapter}
               value={chapter}
-              onChange={(e) => setChapter(Math.max(1, Math.min(maxChapter, parseInt(e.target.value) || 1)))}
+              onChange={(e) => {
+                const value = e.target.value
+                if (value === '') {
+                  setChapter('')
+                } else {
+                  const num = parseInt(value)
+                  if (!isNaN(num)) {
+                    setChapter(Math.max(1, Math.min(maxChapter, num)))
+                  }
+                }
+              }}
+              placeholder="Enter chapter"
               className="w-full px-4 py-3 border-2 border-slate-600/50 rounded-lg bg-slate-700/60 text-white text-center font-medium focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200"
             />
           </div>
@@ -255,7 +275,18 @@ export const BibleVerseSelector: React.FC<BibleVerseSelectorProps> = ({
               type="number"
               min="1"
               value={verseStart}
-              onChange={(e) => setVerseStart(Math.max(1, parseInt(e.target.value) || 1))}
+              onChange={(e) => {
+                const value = e.target.value
+                if (value === '') {
+                  setVerseStart('')
+                } else {
+                  const num = parseInt(value)
+                  if (!isNaN(num)) {
+                    setVerseStart(Math.max(1, num))
+                  }
+                }
+              }}
+              placeholder="Start"
               className="w-full px-4 py-3 border-2 border-slate-600/50 rounded-lg bg-slate-700/60 text-white text-center font-medium focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200"
             />
           </div>
@@ -265,9 +296,21 @@ export const BibleVerseSelector: React.FC<BibleVerseSelectorProps> = ({
             <label className="block text-sm font-medium text-white">End Verse</label>
             <Input
               type="number"
-              min={verseStart}
+              min={typeof verseStart === 'number' ? verseStart : 1}
               value={verseEnd}
-              onChange={(e) => setVerseEnd(Math.max(verseStart, parseInt(e.target.value) || verseStart))}
+              onChange={(e) => {
+                const value = e.target.value
+                if (value === '') {
+                  setVerseEnd('')
+                } else {
+                  const num = parseInt(value)
+                  if (!isNaN(num)) {
+                    const minValue = typeof verseStart === 'number' ? verseStart : 1
+                    setVerseEnd(Math.max(minValue, num))
+                  }
+                }
+              }}
+              placeholder="End"
               className="w-full px-4 py-3 border-2 border-slate-600/50 rounded-lg bg-slate-700/60 text-white text-center font-medium focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200"
             />
           </div>
