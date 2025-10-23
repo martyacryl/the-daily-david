@@ -3,7 +3,7 @@ import { motion } from 'framer-motion'
 import { SermonNoteForm } from './SermonNoteForm'
 import { SermonNotesList } from './SermonNotesList'
 import { Button } from '../ui/Button'
-import { Plus, List, Cross } from 'lucide-react'
+import { Plus, List, X } from 'lucide-react'
 import { SermonNote } from '../../types'
 
 export const SermonNotesPage: React.FC = () => {
@@ -33,7 +33,7 @@ export const SermonNotesPage: React.FC = () => {
       {/* Header */}
       <div className="text-center mb-8">
         <h1 className="text-3xl md:text-4xl font-bold text-white mb-4 flex items-center justify-center gap-3">
-          <Cross className="w-8 h-8 md:w-10 md:h-10 text-amber-400" />
+          <X className="w-8 h-8 md:w-10 md:h-10 text-amber-400" />
           Sermon Notes
         </h1>
         <p className="text-green-200 text-base md:text-lg px-4">

@@ -267,7 +267,7 @@ export const SermonNotesList: React.FC<SermonNotesListProps> = ({ onEditNote }) 
       <div className="space-y-6">
           {filteredNotes.length === 0 ? (
             <div className="text-center py-12">
-              <Cross className="w-16 h-16 text-slate-600 mx-auto mb-4" />
+              <X className="w-16 h-16 text-slate-600 mx-auto mb-4" />
               <h3 className="text-xl font-semibold text-slate-400 mb-2">No sermon notes found</h3>
               <p className="text-slate-500">
                 {hasActiveFilters ? 'Try adjusting your filters' : 'Start your first sermon note in the New Note section'}
