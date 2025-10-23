@@ -422,13 +422,18 @@ export const useDailyStore = create<DailyStore>((set, get) => ({
             // Default to 3 empty strings for the gratitude boxes
             return ['', '', '']
           })(),
-          soap: {
-            scripture: dataContent.soap?.scripture || '',
-            observation: dataContent.soap?.observation || '',
-            application: dataContent.soap?.application || '',
-            prayer: dataContent.soap?.prayer || '',
-            thoughts: dataContent.soap?.thoughts || ''
-          },
+          soap: (() => {
+            const soapData = {
+              scripture: dataContent.soap?.scripture || '',
+              observation: dataContent.soap?.observation || '',
+              application: dataContent.soap?.application || '',
+              prayer: dataContent.soap?.prayer || '',
+              thoughts: dataContent.soap?.thoughts || ''
+            }
+            console.log('🔍 Store: Extracting SOAP data:', soapData)
+            console.log('🔍 Store: dataContent.soap:', dataContent.soap)
+            return soapData
+          })(),
           goals: parsedGoals,
           dailyIntention: result.dailyIntention || dataContent.dailyIntention || '',
           growthQuestion: dataContent.growthQuestion || result.growthQuestion || '',
