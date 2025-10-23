@@ -26,6 +26,13 @@ export const BibleVerseSelector: React.FC<BibleVerseSelectorProps> = ({
   const [isLoading, setIsLoading] = useState(false)
   const [isExpanded, setIsExpanded] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [lastFetchParams, setLastFetchParams] = useState<{
+    book: string
+    chapter: number
+    verseStart: number
+    verseEnd: number
+    version: string
+  } | null>(null)
 
   // Load books and versions on mount
   useEffect(() => {
@@ -37,6 +44,26 @@ export const BibleVerseSelector: React.FC<BibleVerseSelectorProps> = ({
         ])
         setBooks(booksData)
         setVersions(versionsData)
+        
+        // Restore persisted verses from localStorage
+        const savedVerses = localStorage.getItem('sermon-notes-fetched-verses')
+        const savedParams = localStorage.getItem('sermon-notes-fetch-params')
+        
+        if (savedVerses && savedParams) {
+          try {
+            const verses = JSON.parse(savedVerses)
+            const params = JSON.parse(savedParams)
+            setFetchedVerses(verses)
+            setLastFetchParams(params)
+            setIsExpanded(true)
+            console.log('Restored verses from localStorage:', verses)
+          } catch (error) {
+            console.error('Error parsing saved verses:', error)
+            // Clear invalid data
+            localStorage.removeItem('sermon-notes-fetched-verses')
+            localStorage.removeItem('sermon-notes-fetch-params')
+          }
+        }
       } catch (error) {
         console.error('Error loading Bible data:', error)
         setError('Failed to load Bible books')
@@ -83,9 +110,24 @@ export const BibleVerseSelector: React.FC<BibleVerseSelectorProps> = ({
         return
       }
 
+      // Save to localStorage for persistence
+      const fetchParams = {
+        book: selectedBook,
+        chapter,
+        verseStart,
+        verseEnd,
+        version: selectedVersion
+      }
+      
+      localStorage.setItem('sermon-notes-fetched-verses', JSON.stringify(verses))
+      localStorage.setItem('sermon-notes-fetch-params', JSON.stringify(fetchParams))
+      
       setFetchedVerses(verses)
+      setLastFetchParams(fetchParams)
       onVersesSelected(verses)
       setIsExpanded(true)
+      
+      console.log('Saved verses to localStorage:', verses)
     } catch (error) {
       console.error('Error fetching verses:', error)
       setError('Failed to fetch verses. Please check your selection.')
@@ -118,6 +160,15 @@ export const BibleVerseSelector: React.FC<BibleVerseSelectorProps> = ({
     
     console.log('Inserting reference:', reference)
     onInsertIntoPassage(reference)
+  }
+
+  const handleClearVerses = () => {
+    setFetchedVerses([])
+    setLastFetchParams(null)
+    setIsExpanded(false)
+    localStorage.removeItem('sermon-notes-fetched-verses')
+    localStorage.removeItem('sermon-notes-fetch-params')
+    console.log('Cleared verses from localStorage')
   }
 
   const selectedBookData = books.find(b => b.id === selectedBook)
@@ -264,10 +315,17 @@ export const BibleVerseSelector: React.FC<BibleVerseSelectorProps> = ({
             <div className="bg-slate-900/50 border-2 border-amber-500/30 rounded-xl backdrop-blur-sm p-4 md:p-6">
               {/* Verse Header */}
               <div className="flex items-center justify-between mb-4">
-                <h5 className="text-amber-400 font-semibold text-sm md:text-base">
-                  {fetchedVerses[0]?.reference}
-                  {fetchedVerses.length > 1 && ` - ${fetchedVerses[fetchedVerses.length - 1]?.reference.split(':')[1]}`}
-                </h5>
+                <div>
+                  <h5 className="text-amber-400 font-semibold text-sm md:text-base">
+                    {fetchedVerses[0]?.reference}
+                    {fetchedVerses.length > 1 && ` - ${fetchedVerses[fetchedVerses.length - 1]?.reference.split(':')[1]}`}
+                  </h5>
+                  {lastFetchParams && (
+                    <p className="text-xs text-slate-400 mt-1">
+                      Last fetched: {books.find(b => b.id === lastFetchParams.book)?.name} {lastFetchParams.chapter}:{lastFetchParams.verseStart}-{lastFetchParams.verseEnd}
+                    </p>
+                  )}
+                </div>
                 <div className="flex gap-2">
                   <button
                     onClick={handleCopyVerses}
@@ -282,6 +340,12 @@ export const BibleVerseSelector: React.FC<BibleVerseSelectorProps> = ({
                   >
                     <Plus className="w-4 h-4" />
                     Insert
+                  </button>
+                  <button
+                    onClick={handleClearVerses}
+                    className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-all duration-200 flex items-center gap-2 text-sm font-medium"
+                  >
+                    Clear
                   </button>
                 </div>
               </div>
