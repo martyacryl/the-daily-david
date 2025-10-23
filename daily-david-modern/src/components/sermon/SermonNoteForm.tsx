@@ -222,19 +222,6 @@ export const SermonNoteForm: React.FC<SermonNoteFormProps> = ({
     console.log('Verses selected:', verses)
   }
 
-  // Handle inserting verse reference into biblePassage field
-  const handleInsertIntoPassage = (reference: string) => {
-    console.log('SermonNoteForm: Inserting reference into biblePassage:', reference)
-    setFormData(prev => {
-      const updated = { ...prev, biblePassage: reference }
-      console.log('SermonNoteForm: Updated formData:', updated)
-      return updated
-    })
-    // Trigger auto-save
-    setTimeout(() => {
-      window.dispatchEvent(new CustomEvent('triggerSermonNoteSave'))
-    }, 100)
-  }
 
   const handleSaveEntry = async () => {
     if (!user?.id || !token) return
@@ -367,7 +354,6 @@ export const SermonNoteForm: React.FC<SermonNoteFormProps> = ({
         {/* Bible Verse Selector */}
         <BibleVerseSelector
           onVersesSelected={handleVersesSelected}
-          onInsertIntoPassage={handleInsertIntoPassage}
         />
 
         {/* Notes */}

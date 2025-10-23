@@ -4,16 +4,14 @@ import { bibleService } from '../../lib/bibleService'
 import { BibleBook, FetchedVerse } from '../../types'
 import { Button } from '../ui/Button'
 import { Input } from '../ui/Input'
-import { BookOpen, Search, Copy, Plus, ChevronDown, ChevronUp, Loader2 } from 'lucide-react'
+import { BookOpen, Search, Copy, ChevronDown, ChevronUp, Loader2 } from 'lucide-react'
 
 interface BibleVerseSelectorProps {
   onVersesSelected: (verses: FetchedVerse[]) => void
-  onInsertIntoPassage: (reference: string) => void
 }
 
 export const BibleVerseSelector: React.FC<BibleVerseSelectorProps> = ({
-  onVersesSelected,
-  onInsertIntoPassage
+  onVersesSelected
 }) => {
   const [books, setBooks] = useState<BibleBook[]>([])
   const [versions, setVersions] = useState<any[]>([])
@@ -152,24 +150,6 @@ export const BibleVerseSelector: React.FC<BibleVerseSelectorProps> = ({
     }
   }
 
-  const handleInsertIntoPassage = () => {
-    if (fetchedVerses.length === 0) return
-
-    // Get the book name from the selected book
-    const bookName = books.find(b => b.id === selectedBook)?.name || selectedBook
-    
-    // Use the current input values or fall back to last fetch params
-    const currentChapter = chapter !== '' ? chapter : (lastFetchParams?.chapter || 1)
-    const currentStart = verseStart !== '' ? verseStart : (lastFetchParams?.verseStart || 1)
-    const currentEnd = verseEnd !== '' ? verseEnd : (lastFetchParams?.verseEnd || 1)
-    
-    const reference = fetchedVerses.length === 1 
-      ? `${bookName} ${currentChapter}:${currentStart}`
-      : `${bookName} ${currentChapter}:${currentStart}-${currentEnd}`
-    
-    console.log('Inserting reference:', reference)
-    onInsertIntoPassage(reference)
-  }
 
   const handleClearVerses = () => {
     setFetchedVerses([])
@@ -369,24 +349,17 @@ export const BibleVerseSelector: React.FC<BibleVerseSelectorProps> = ({
                     </p>
                   )}
                 </div>
-                <div className="flex gap-2">
+                <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                   <button
                     onClick={handleCopyVerses}
-                    className="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 border border-slate-600 rounded-lg transition-all duration-200 flex items-center gap-2 text-sm font-medium"
+                    className="flex-1 sm:flex-none px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 border border-slate-600 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 text-sm font-medium"
                   >
                     <Copy className="w-4 h-4" />
                     Copy
                   </button>
                   <button
-                    onClick={handleInsertIntoPassage}
-                    className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg transition-all duration-200 flex items-center gap-2 text-sm font-medium"
-                  >
-                    <Plus className="w-4 h-4" />
-                    Insert
-                  </button>
-                  <button
                     onClick={handleClearVerses}
-                    className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-all duration-200 flex items-center gap-2 text-sm font-medium"
+                    className="flex-1 sm:flex-none px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-all duration-200 flex items-center justify-center gap-2 text-sm font-medium"
                   >
                     Clear
                   </button>
