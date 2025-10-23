@@ -337,8 +337,8 @@ export const BibleVerseSelector: React.FC<BibleVerseSelectorProps> = ({
           >
             <div className="bg-slate-900/50 border-2 border-amber-500/30 rounded-xl backdrop-blur-sm p-4 md:p-6">
               {/* Verse Header */}
-              <div className="flex items-center justify-between mb-4">
-                <div>
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex-1">
                   <h5 className="text-amber-400 font-semibold text-sm md:text-base">
                     {fetchedVerses[0]?.reference}
                     {fetchedVerses.length > 1 && ` - ${fetchedVerses[fetchedVerses.length - 1]?.reference.split(':')[1]}`}
@@ -349,17 +349,17 @@ export const BibleVerseSelector: React.FC<BibleVerseSelectorProps> = ({
                     </p>
                   )}
                 </div>
-                <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                <div className="flex gap-1 ml-3">
                   <button
                     onClick={handleCopyVerses}
-                    className="flex-1 sm:flex-none px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 border border-slate-600 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 text-sm font-medium"
+                    className="px-2 py-1 bg-slate-700 hover:bg-slate-600 text-slate-200 border border-slate-600 rounded text-xs font-medium transition-all duration-200 flex items-center gap-1"
                   >
-                    <Copy className="w-4 h-4" />
+                    <Copy className="w-3 h-3" />
                     Copy
                   </button>
                   <button
                     onClick={handleClearVerses}
-                    className="flex-1 sm:flex-none px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-all duration-200 flex items-center justify-center gap-2 text-sm font-medium"
+                    className="px-2 py-1 bg-red-600 hover:bg-red-700 text-white rounded text-xs font-medium transition-all duration-200 flex items-center gap-1"
                   >
                     Clear
                   </button>
