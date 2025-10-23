@@ -11,8 +11,7 @@ import {
   Church, 
   User, 
   BookOpen,
-  FileText,
-  Cross
+  X
 } from 'lucide-react'
 import { API_BASE_URL } from '../../config/api'
 
@@ -96,39 +95,6 @@ export const SermonNotesList: React.FC<SermonNotesListProps> = ({ onEditNote }) 
       console.error('Failed to load sermon notes:', error)
     } finally {
       setIsLoading(false)
-    }
-  }
-
-  // Auto-save function - following SOAP Review pattern exactly
-  const autoSaveToAPI = async (noteData: any) => {
-    if (!token) return
-    
-    try {
-      console.log('Sermon Notes: Auto-saving to API:', noteData)
-      
-      const response = await fetch(`${API_BASE_URL}/api/sermon-notes`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(noteData)
-      })
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
-      }
-      
-      const data = await response.json()
-      console.log('Sermon Notes: Auto-save successful:', data)
-      
-      // Reload notes after a small delay to ensure data is updated
-      setTimeout(async () => {
-        await loadNotes()
-      }, 100)
-      
-    } catch (error) {
-      console.error('Sermon Notes: Auto-save error:', error)
     }
   }
 
