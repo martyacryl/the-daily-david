@@ -4,7 +4,7 @@ import { bibleService } from '../../lib/bibleService'
 import { BibleBook, FetchedVerse } from '../../types'
 import { Button } from '../ui/Button'
 import { Input } from '../ui/Input'
-import { BookOpen, Search, Copy, ChevronDown, ChevronUp, Loader2 } from 'lucide-react'
+import { BookOpen, Search, Copy, ChevronDown, ChevronUp, Loader2, X } from 'lucide-react'
 
 interface BibleVerseSelectorProps {
   onVersesSelected: (verses: FetchedVerse[]) => void
