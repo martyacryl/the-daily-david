@@ -1303,34 +1303,6 @@ export function DailyEntry() {
               />
             </motion.div>
 
-            {/* Daily Intention Section */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="bg-slate-800/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-slate-700"
-              data-tour="daily-intention"
-            >
-              <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                <Target className="w-5 h-5 text-slate-400" />
-                Daily Intention
-              </h3>
-              <p className="text-green-200 text-sm mb-4">
-                How do you intend to take action, accomplish your goals, and act like a Man of God?
-              </p>
-              <Textarea
-                value={dayData.dailyIntention}
-                onChange={(e) => handleUpdate('dailyIntention', e.target.value)}
-                onBlur={() => {
-                  // Auto-save when user finishes typing
-                  setTimeout(() => {
-                    window.dispatchEvent(new CustomEvent('triggerSave'))
-                  }, 100)
-                }}
-                placeholder="Set your intention for today... (e.g., 'I will lead with patience and listen more than I speak')"
-                rows={3}
-              />
-            </motion.div>
 
             {/* Gratitude Section */}
             <motion.div
@@ -1617,12 +1589,40 @@ export function DailyEntry() {
               />
             </motion.div>
 
+            {/* Daily Intention Section */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6 }}
+              className="bg-slate-800/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-slate-700"
+              data-tour="daily-intention"
+            >
+              <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                <Target className="w-5 h-5 text-slate-400" />
+                Daily Intention
+              </h3>
+              <p className="text-green-200 text-sm mb-4">
+                How do you intend to take action, accomplish your goals, and act like a Man of God?
+              </p>
+              <Textarea
+                value={dayData.dailyIntention}
+                onChange={(e) => handleUpdate('dailyIntention', e.target.value)}
+                onBlur={() => {
+                  // Auto-save when user finishes typing
+                  setTimeout(() => {
+                    window.dispatchEvent(new CustomEvent('triggerSave'))
+                  }, 100)
+                }}
+                placeholder="Set your intention for today... (e.g., 'I will lead with patience and listen more than I speak')"
+                rows={3}
+              />
+            </motion.div>
 
             {/* Leadership Rating Section */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6 }}
+              transition={{ delay: 0.7 }}
               className="bg-slate-800/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-slate-700"
               data-tour="leadership-rating"
             >

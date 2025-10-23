@@ -72,15 +72,6 @@ const tourSteps: TourStep[] = [
   },
   {
     id: 4,
-    title: "Set Your Daily Intention",
-    message: "Set your daily intention - what do you want to focus on today? This helps you live with purpose and direction.",
-    action: "Try writing a daily intention!",
-    target: "[data-tour='daily-intention']",
-    route: "/daily",
-    highlight: "daily-intention-section"
-  },
-  {
-    id: 5,
     title: "Practice Gratitude",
     message: "Cultivate a heart of thankfulness. List 3 things you're grateful for each day to transform your perspective.",
     action: "Add something you're grateful for!",
@@ -89,7 +80,7 @@ const tourSteps: TourStep[] = [
     highlight: "gratitude-section"
   },
   {
-    id: 6,
+    id: 5,
     title: "Set Your Goals",
     message: "Set intentional goals to grow as a man of God. Daily goals for immediate actions, weekly for habits, monthly for character growth.",
     action: "Add your first goal!",
@@ -98,13 +89,22 @@ const tourSteps: TourStep[] = [
     highlight: "goals-section"
   },
   {
-    id: 7,
+    id: 6,
     title: "SOAP Bible Study",
     message: "SOAP stands for Scripture, Observation, Application, Prayer. This is the heart of your daily study. Start by selecting a Bible reading plan or entering your own scripture.",
     action: "Try selecting a reading plan!",
     target: "[data-tour='soap-section']",
     route: "/daily",
     highlight: "soap-section"
+  },
+  {
+    id: 7,
+    title: "Set Your Daily Intention",
+    message: "After studying God's word, set your daily intention - what do you want to focus on today? This helps you live with purpose and direction based on what you've learned.",
+    action: "Try writing a daily intention!",
+    target: "[data-tour='daily-intention']",
+    route: "/daily",
+    highlight: "daily-intention-section"
   },
   {
     id: 8,
