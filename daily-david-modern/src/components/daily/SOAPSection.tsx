@@ -54,19 +54,18 @@ export function SOAPSection({
   const handleInputChange = (field: keyof SOAPData, value: string) => {
     const newSOAP = { ...localSOAP, [field]: value }
     setLocalSOAP(newSOAP)
+    // Update parent component but don't auto-save on every keystroke
+    onUpdate(newSOAP)
   }
 
   const handleInputBlur = (field: keyof SOAPData) => {
-    // Only update if there's actually a change
-    if (localSOAP[field] !== soap[field]) {
-      onUpdate(localSOAP)
-      // Trigger auto-save by calling the parent's save function
-      // We need to access the save function from the parent component
-      // For now, we'll use a custom event to trigger save
-      setTimeout(() => {
-        window.dispatchEvent(new CustomEvent('triggerSave'))
-      }, 100)
-    }
+    // Update parent component when user finishes typing
+    console.log('SOAP: Input blur on field:', field, 'value:', localSOAP[field])
+    onUpdate(localSOAP)
+    // Auto-save when user moves away from field
+    setTimeout(() => {
+      window.dispatchEvent(new CustomEvent('triggerSave'))
+    }, 500)
   }
 
   const handleVerseSelect = (verse: any) => {
@@ -164,6 +163,12 @@ export function SOAPSection({
               value={localSOAP[section.key] || ''}
               onChange={(e) => handleInputChange(section.key, e.target.value)}
               onBlur={() => handleInputBlur(section.key)}
+              onKeyUp={() => {
+                // Only auto-save after user stops typing for 3 seconds
+                setTimeout(() => {
+                  window.dispatchEvent(new CustomEvent('triggerSave'))
+                }, 3000)
+              }}
               className="w-full px-4 py-3 border-2 border-slate-600/50 rounded-lg bg-slate-700/60 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-slate-500 transition-colors duration-200 resize-none"
               placeholder={section.placeholder}
               rows={4}

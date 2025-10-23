@@ -96,6 +96,7 @@ export function DailyEntry() {
   const [deletedGoalIds, setDeletedGoalIds] = useState<Set<string>>(new Set())
   const [showSuccessBanner, setShowSuccessBanner] = useState(false)
   const [showReadingPlan, setShowReadingPlan] = useState(false)
+  const [isAutoSaving, setIsAutoSaving] = useState(false)
 
   // Load data when URL changes
   useEffect(() => {
@@ -178,6 +179,7 @@ export function DailyEntry() {
     if (!user?.id) return
     
     try {
+      setIsAutoSaving(true)
       const dateString = getLocalDateString(selectedDate)
       const token = useAuthStore.getState().token
       
@@ -189,6 +191,11 @@ export function DailyEntry() {
       console.log('🔥 DailyEntry: Auto-save entryData:', entryData)
       console.log('🔥 DailyEntry: Selected date:', selectedDate.toDateString())
       console.log('🔥 DailyEntry: Date string being saved:', dateString)
+      console.log('🔥 DailyEntry: SOAP data in entryData:', entryData.soap)
+      console.log('🔥 DailyEntry: SOAP scripture:', entryData.soap?.scripture)
+      console.log('🔥 DailyEntry: SOAP observation:', entryData.soap?.observation)
+      console.log('🔥 DailyEntry: SOAP application:', entryData.soap?.application)
+      console.log('🔥 DailyEntry: SOAP prayer:', entryData.soap?.prayer)
       console.log('🔥 DailyEntry: ReadingPlan data in entryData:', entryData.readingPlan)
       console.log('🔥 DailyEntry: ReadingPlan completedDays:', entryData.readingPlan?.completedDays)
       console.log('🔥 DailyEntry: ReadingPlan currentDay:', entryData.readingPlan?.currentDay)
@@ -255,9 +262,11 @@ export function DailyEntry() {
       // Add a small delay to ensure database has been updated before any potential reloads
       setTimeout(() => {
         console.log('Auto-save: Database should be updated now')
+        setIsAutoSaving(false)
       }, 500)
     } catch (error) {
       console.error('Auto-save error:', error)
+      setIsAutoSaving(false)
     }
   }
 
@@ -536,19 +545,21 @@ export function DailyEntry() {
 
   const handleUpdate = (section: string, data: any) => {
     console.log(`Updating ${section}:`, data)
+    console.log(`SOAP data being updated:`, data)
     setDayData(prev => {
       const newData = {
         ...prev,
         [section]: data
       }
       
-      // Trigger auto-save directly - SIMPLIFIED APPROACH
+      // Trigger auto-save immediately for SOAP data
       setTimeout(() => {
         const entryData = {
           ...newData,
           goals: userGoals
         }
         console.log('handleUpdate: About to trigger auto-save for section:', section)
+        console.log('handleUpdate: SOAP data in entryData:', entryData.soap)
         autoSaveToAPI(entryData)
       }, 100)
       
@@ -1664,23 +1675,55 @@ export function DailyEntry() {
               </div>
             </motion.div>
 
+            {/* Auto-save indicator */}
+            {isAutoSaving && (
+              <div className="text-center py-2">
+                <div className="inline-flex items-center gap-2 text-sm text-green-300">
+                  <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-green-300"></div>
+                  Auto-saving...
+                </div>
+              </div>
+            )}
+
             {/* Submit Button */}
             <div className="text-center relative z-[9999]">
               <button
-                onClick={() => {
+                onClick={async () => {
                   if (isSaving) return
                   
                   setIsSaving(true)
-                  setShowSuccessBanner(true)
                   
-                  setTimeout(() => {
-                    try {
-                      window.scrollTo({ top: 0, behavior: 'smooth' })
-                    } catch (e) {
-                      window.scrollTo(0, 0)
+                  try {
+                    // Save all the data when the save button is clicked
+                    const entryData = {
+                      ...dayData,
+                      goals: userGoals
                     }
-                    setIsSaving(false)
-                  }, 1000)
+                    console.log('Save button clicked - saving all data:', entryData)
+                    await autoSaveToAPI(entryData)
+                    console.log('Save button - data saved successfully')
+                    
+                    // Show success feedback
+                    setShowSuccessBanner(true)
+                    
+                    // Scroll to top to show success banner
+                    setTimeout(() => {
+                      try {
+                        window.scrollTo({ top: 0, behavior: 'smooth' })
+                      } catch (e) {
+                        window.scrollTo(0, 0)
+                      }
+                    }, 100)
+                    
+                  } catch (error) {
+                    console.error('Save button - error saving data:', error)
+                    alert('Error saving data. Please try again.')
+                  } finally {
+                    // Reset saving state after a short delay
+                    setTimeout(() => {
+                      setIsSaving(false)
+                    }, 1500)
+                  }
                 }}
                 disabled={isSaving}
                 className="px-8 py-3 text-lg bg-slate-700 hover:bg-slate-600 disabled:bg-slate-800 disabled:opacity-70 text-white font-semibold rounded-lg transition-all duration-200 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 focus:ring-offset-slate-900 relative z-[9999] border border-slate-600"
