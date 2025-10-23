@@ -109,10 +109,14 @@ export const BibleVerseSelector: React.FC<BibleVerseSelectorProps> = ({
   const handleInsertIntoPassage = () => {
     if (fetchedVerses.length === 0) return
 
-    const reference = fetchedVerses.length === 1 
-      ? fetchedVerses[0].reference
-      : `${fetchedVerses[0].reference.split(':')[0]}:${verseStart}-${verseEnd}`
+    // Get the book name from the selected book
+    const bookName = books.find(b => b.id === selectedBook)?.name || selectedBook
     
+    const reference = fetchedVerses.length === 1 
+      ? `${bookName} ${chapter}:${verseStart}`
+      : `${bookName} ${chapter}:${verseStart}-${verseEnd}`
+    
+    console.log('Inserting reference:', reference)
     onInsertIntoPassage(reference)
   }
 

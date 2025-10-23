@@ -224,7 +224,12 @@ export const SermonNoteForm: React.FC<SermonNoteFormProps> = ({
 
   // Handle inserting verse reference into biblePassage field
   const handleInsertIntoPassage = (reference: string) => {
-    setFormData(prev => ({ ...prev, biblePassage: reference }))
+    console.log('SermonNoteForm: Inserting reference into biblePassage:', reference)
+    setFormData(prev => {
+      const updated = { ...prev, biblePassage: reference }
+      console.log('SermonNoteForm: Updated formData:', updated)
+      return updated
+    })
     // Trigger auto-save
     setTimeout(() => {
       window.dispatchEvent(new CustomEvent('triggerSermonNoteSave'))
