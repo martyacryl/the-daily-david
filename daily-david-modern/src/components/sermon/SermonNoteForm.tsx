@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
 import { useAuthStore } from '../../stores/authStore'
-import { SermonNoteFormData } from '../../types'
+import { SermonNoteFormData, FetchedVerse } from '../../types'
 import { Button } from '../ui/Button'
 import { Input } from '../ui/Input'
 import { Textarea } from '../ui/Textarea'
-import { Church, User, BookOpen, Calendar, FileText, Save, Cross } from 'lucide-react'
+import { BibleVerseSelector } from './BibleVerseSelector'
+import { Church, User, BookOpen, Calendar, FileText, Save } from 'lucide-react'
 import { API_BASE_URL } from '../../config/api'
 
 interface SermonNoteFormProps {
@@ -34,8 +34,7 @@ export const SermonNoteForm: React.FC<SermonNoteFormProps> = ({
 
   const [isSaving, setIsSaving] = useState(false)
   const [currentNoteId, setCurrentNoteId] = useState<string | null>(editingNoteId || null)
-  const [autoSaveTimeout, setAutoSaveTimeout] = useState<NodeJS.Timeout | null>(null)
-
+  const [autoSaveTimeout, setAutoSaveTimeout] = useState<number | null>(null)
   // Load existing note for today on mount (only if not creating a new note)
   useEffect(() => {
     if (editingNoteId) {
@@ -116,7 +115,7 @@ export const SermonNoteForm: React.FC<SermonNoteFormProps> = ({
     }
     
     // Set new timeout for auto-save with proper debouncing
-    const timeout = setTimeout(() => {
+    const timeout = window.setTimeout(() => {
       window.dispatchEvent(new CustomEvent('triggerSermonNoteSave'))
     }, 1000) // Increased to 1 second to prevent multiple saves
     
@@ -202,16 +201,31 @@ export const SermonNoteForm: React.FC<SermonNoteFormProps> = ({
     window.addEventListener('triggerSermonNoteSave', handleAutoSave)
     return () => {
       window.removeEventListener('triggerSermonNoteSave', handleAutoSave)
-      // Clear any pending auto-save timeout
-      if (autoSaveTimeout) {
-        clearTimeout(autoSaveTimeout)
-      }
+    // Clear any pending auto-save timeout
+    if (autoSaveTimeout) {
+      window.clearTimeout(autoSaveTimeout)
+    }
     }
   }, [formData, user, token, isSaving, autoSaveTimeout])
 
   // Handle input blur - following SOAP Section pattern exactly
-  const handleInputBlur = (field: keyof SermonNoteFormData | 'date') => {
+  const handleInputBlur = (_field: keyof SermonNoteFormData | 'date') => {
     // Trigger auto-save using the same pattern as SOAP Section
+    setTimeout(() => {
+      window.dispatchEvent(new CustomEvent('triggerSermonNoteSave'))
+    }, 100)
+  }
+
+  // Handle verses selected from BibleVerseSelector
+  const handleVersesSelected = (verses: FetchedVerse[]) => {
+    // Verses are handled by the selector component itself
+    console.log('Verses selected:', verses)
+  }
+
+  // Handle inserting verse reference into biblePassage field
+  const handleInsertIntoPassage = (reference: string) => {
+    setFormData(prev => ({ ...prev, biblePassage: reference }))
+    // Trigger auto-save
     setTimeout(() => {
       window.dispatchEvent(new CustomEvent('triggerSermonNoteSave'))
     }, 100)
@@ -345,6 +359,12 @@ export const SermonNoteForm: React.FC<SermonNoteFormProps> = ({
           />
         </div>
 
+        {/* Bible Verse Selector */}
+        <BibleVerseSelector
+          onVersesSelected={handleVersesSelected}
+          onInsertIntoPassage={handleInsertIntoPassage}
+        />
+
         {/* Notes */}
         <div className="space-y-2">
           <label className="block text-sm font-medium text-white flex items-center gap-2">
@@ -359,8 +379,8 @@ export const SermonNoteForm: React.FC<SermonNoteFormProps> = ({
             onChange={(e) => handleInputChange('notes', e.target.value)}
             onBlur={() => handleInputBlur('notes')}
             placeholder="Take notes during the sermon..."
-            className="w-full px-4 py-3 border-2 border-slate-600/50 rounded-lg bg-slate-700/60 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-slate-500 transition-colors duration-200 resize-none"
-            rows={6}
+            className="w-full px-4 py-3 border-2 border-slate-600/50 rounded-lg bg-slate-700/60 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200 resize-y min-h-[300px] max-h-[600px] overflow-y-auto leading-relaxed text-base md:text-lg"
+            rows={12}
           />
         </div>
 

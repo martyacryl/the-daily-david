@@ -336,6 +336,7 @@ export interface User {
     speakerName: string
     biblePassage: string
     notes: string
+    selectedVerses?: FetchedVerse[]
   }
 
   export interface SermonNoteStats {
@@ -356,4 +357,25 @@ export interface User {
     stats: SermonNoteStats | null
     churches: string[]
     speakers: string[]
+  }
+
+  // Bible Verse Selector Types
+  export interface BibleBook {
+    id: string
+    name: string
+    testament: 'old' | 'new'
+    chapters: number
+  }
+
+  export interface VerseSelection {
+    book: string
+    chapter: number
+    verseStart: number
+    verseEnd: number
+  }
+
+  export interface FetchedVerse {
+    reference: string
+    content: string
+    verseId: string
   }

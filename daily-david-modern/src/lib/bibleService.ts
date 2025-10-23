@@ -1,6 +1,8 @@
 // Bible Service for integrating with API.Bible
 // This will handle scripture retrieval and integration with SOAP study
 
+import { BibleBook, FetchedVerse } from '../types'
+
 export interface BibleVersion {
   id: string;
   name: string;
@@ -48,6 +50,81 @@ class BibleService {
     return [
       { id: 'de4e12af7f28f599-02', name: 'English Standard Version', language: 'English', abbreviation: 'ESV' },
       { id: '65eec8e0b60e656b-01', name: 'New International Version', language: 'English', abbreviation: 'NIV' }
+    ];
+  }
+
+  // Get all Bible books with metadata
+  async getBibleBooks(): Promise<BibleBook[]> {
+    return [
+      // Old Testament (39 books)
+      { id: 'GEN', name: 'Genesis', testament: 'old', chapters: 50 },
+      { id: 'EXO', name: 'Exodus', testament: 'old', chapters: 40 },
+      { id: 'LEV', name: 'Leviticus', testament: 'old', chapters: 27 },
+      { id: 'NUM', name: 'Numbers', testament: 'old', chapters: 36 },
+      { id: 'DEU', name: 'Deuteronomy', testament: 'old', chapters: 34 },
+      { id: 'JOS', name: 'Joshua', testament: 'old', chapters: 24 },
+      { id: 'JDG', name: 'Judges', testament: 'old', chapters: 21 },
+      { id: 'RUT', name: 'Ruth', testament: 'old', chapters: 4 },
+      { id: '1SA', name: '1 Samuel', testament: 'old', chapters: 31 },
+      { id: '2SA', name: '2 Samuel', testament: 'old', chapters: 24 },
+      { id: '1KI', name: '1 Kings', testament: 'old', chapters: 22 },
+      { id: '2KI', name: '2 Kings', testament: 'old', chapters: 25 },
+      { id: '1CH', name: '1 Chronicles', testament: 'old', chapters: 29 },
+      { id: '2CH', name: '2 Chronicles', testament: 'old', chapters: 36 },
+      { id: 'EZR', name: 'Ezra', testament: 'old', chapters: 10 },
+      { id: 'NEH', name: 'Nehemiah', testament: 'old', chapters: 13 },
+      { id: 'EST', name: 'Esther', testament: 'old', chapters: 10 },
+      { id: 'JOB', name: 'Job', testament: 'old', chapters: 42 },
+      { id: 'PSA', name: 'Psalms', testament: 'old', chapters: 150 },
+      { id: 'PRO', name: 'Proverbs', testament: 'old', chapters: 31 },
+      { id: 'ECC', name: 'Ecclesiastes', testament: 'old', chapters: 12 },
+      { id: 'SNG', name: 'Song of Solomon', testament: 'old', chapters: 8 },
+      { id: 'ISA', name: 'Isaiah', testament: 'old', chapters: 66 },
+      { id: 'JER', name: 'Jeremiah', testament: 'old', chapters: 52 },
+      { id: 'LAM', name: 'Lamentations', testament: 'old', chapters: 5 },
+      { id: 'EZK', name: 'Ezekiel', testament: 'old', chapters: 48 },
+      { id: 'DAN', name: 'Daniel', testament: 'old', chapters: 12 },
+      { id: 'HOS', name: 'Hosea', testament: 'old', chapters: 14 },
+      { id: 'JOL', name: 'Joel', testament: 'old', chapters: 3 },
+      { id: 'AMO', name: 'Amos', testament: 'old', chapters: 9 },
+      { id: 'OBA', name: 'Obadiah', testament: 'old', chapters: 1 },
+      { id: 'JON', name: 'Jonah', testament: 'old', chapters: 4 },
+      { id: 'MIC', name: 'Micah', testament: 'old', chapters: 7 },
+      { id: 'NAH', name: 'Nahum', testament: 'old', chapters: 3 },
+      { id: 'HAB', name: 'Habakkuk', testament: 'old', chapters: 3 },
+      { id: 'ZEP', name: 'Zephaniah', testament: 'old', chapters: 3 },
+      { id: 'HAG', name: 'Haggai', testament: 'old', chapters: 2 },
+      { id: 'ZEC', name: 'Zechariah', testament: 'old', chapters: 14 },
+      { id: 'MAL', name: 'Malachi', testament: 'old', chapters: 4 },
+      
+      // New Testament (27 books)
+      { id: 'MAT', name: 'Matthew', testament: 'new', chapters: 28 },
+      { id: 'MRK', name: 'Mark', testament: 'new', chapters: 16 },
+      { id: 'LUK', name: 'Luke', testament: 'new', chapters: 24 },
+      { id: 'JHN', name: 'John', testament: 'new', chapters: 21 },
+      { id: 'ACT', name: 'Acts', testament: 'new', chapters: 28 },
+      { id: 'ROM', name: 'Romans', testament: 'new', chapters: 16 },
+      { id: '1CO', name: '1 Corinthians', testament: 'new', chapters: 16 },
+      { id: '2CO', name: '2 Corinthians', testament: 'new', chapters: 13 },
+      { id: 'GAL', name: 'Galatians', testament: 'new', chapters: 6 },
+      { id: 'EPH', name: 'Ephesians', testament: 'new', chapters: 6 },
+      { id: 'PHP', name: 'Philippians', testament: 'new', chapters: 4 },
+      { id: 'COL', name: 'Colossians', testament: 'new', chapters: 4 },
+      { id: '1TH', name: '1 Thessalonians', testament: 'new', chapters: 5 },
+      { id: '2TH', name: '2 Thessalonians', testament: 'new', chapters: 3 },
+      { id: '1TI', name: '1 Timothy', testament: 'new', chapters: 6 },
+      { id: '2TI', name: '2 Timothy', testament: 'new', chapters: 4 },
+      { id: 'TIT', name: 'Titus', testament: 'new', chapters: 3 },
+      { id: 'PHM', name: 'Philemon', testament: 'new', chapters: 1 },
+      { id: 'HEB', name: 'Hebrews', testament: 'new', chapters: 13 },
+      { id: 'JAS', name: 'James', testament: 'new', chapters: 5 },
+      { id: '1PE', name: '1 Peter', testament: 'new', chapters: 5 },
+      { id: '2PE', name: '2 Peter', testament: 'new', chapters: 3 },
+      { id: '1JN', name: '1 John', testament: 'new', chapters: 5 },
+      { id: '2JN', name: '2 John', testament: 'new', chapters: 1 },
+      { id: '3JN', name: '3 John', testament: 'new', chapters: 1 },
+      { id: 'JUD', name: 'Jude', testament: 'new', chapters: 1 },
+      { id: 'REV', name: 'Revelation', testament: 'new', chapters: 22 }
     ];
   }
 
@@ -269,6 +346,48 @@ class BibleService {
   }
 
 
+
+  // Get a range of verses
+  async getVerseRange(bibleId: string, bookId: string, chapter: number, startVerse: number, endVerse: number): Promise<FetchedVerse[]> {
+    if (!this.apiKey) {
+      console.warn('No API key provided. Please get an API key from API.Bible to fetch verses.');
+      return [];
+    }
+
+    try {
+      const verses: FetchedVerse[] = [];
+      
+      // Fetch each verse individually to get proper formatting
+      for (let verseNum = startVerse; verseNum <= endVerse; verseNum++) {
+        const verseId = this.formatVerseId(bookId, chapter, verseNum);
+        const verse = await this.getVerse(bibleId, verseId);
+        
+        if (verse) {
+          verses.push({
+            reference: verse.reference,
+            content: verse.content,
+            verseId: verse.id
+          });
+        }
+      }
+      
+      return verses;
+    } catch (error) {
+      console.error('Error fetching verse range:', error);
+      return [];
+    }
+  }
+
+  // Format verse ID for API.Bible (e.g., "GEN.1.1")
+  formatVerseId(bookId: string, chapter: number, verse: number): string {
+    return `${bookId}.${chapter}.${verse}`;
+  }
+
+  // Get book by ID
+  async getBookById(bookId: string): Promise<BibleBook | null> {
+    const books = await this.getBibleBooks();
+    return books.find(book => book.id === bookId) || null;
+  }
 
   // Clean HTML content from API.Bible response
   private cleanHtmlContent(htmlContent: string): string {
