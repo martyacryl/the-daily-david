@@ -188,6 +188,17 @@ export const BibleVerseSelector: React.FC<BibleVerseSelectorProps> = ({
     console.log('Cleared verses from localStorage')
   }
 
+  const handleClearSelection = () => {
+    setSelectedBook('GEN')
+    setSelectedChapter('')
+    setSelectedVerseStart('')
+    setSelectedVerseEnd('')
+    setAvailableChapters([])
+    setAvailableVerses([])
+    setError(null)
+    console.log('Cleared verse selection')
+  }
+
   // Get books in canonical Bible order
   const getBibleBooksInOrder = () => {
     const canonicalOrder = [
@@ -324,12 +335,12 @@ export const BibleVerseSelector: React.FC<BibleVerseSelectorProps> = ({
           </div>
         </div>
 
-        {/* Fetch Button */}
-        <div className="flex justify-center">
+        {/* Fetch and Clear Buttons */}
+        <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <Button
             onClick={handleFetchVerses}
-            disabled={isLoading}
-            className="w-full md:w-auto px-6 py-3 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-semibold rounded-lg shadow-lg transition-all duration-200 transform hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-2"
+            disabled={isLoading || !selectedBook || selectedChapter === '' || selectedVerseStart === '' || selectedVerseEnd === ''}
+            className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-semibold rounded-lg shadow-lg transition-all duration-200 transform hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-2"
           >
             {isLoading ? (
               <>
@@ -342,6 +353,14 @@ export const BibleVerseSelector: React.FC<BibleVerseSelectorProps> = ({
                 Fetch Verses
               </>
             )}
+          </Button>
+          
+          <Button
+            onClick={handleClearSelection}
+            className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-slate-600 to-slate-700 hover:from-slate-700 hover:to-slate-800 text-white font-semibold rounded-lg shadow-lg transition-all duration-200 transform hover:scale-105 active:scale-95 flex items-center justify-center gap-2"
+          >
+            <X className="w-5 h-5" />
+            Clear Selection
           </Button>
         </div>
 
