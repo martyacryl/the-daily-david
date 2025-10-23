@@ -1477,15 +1477,48 @@ app.post('/api/sermon-notes', authenticateToken, async (req, res) => {
   const client = await pool.connect()
   try {
     const userId = req.user.userId
-    const { date, churchName, sermonTitle, speakerName, biblePassage, notes } = req.body
+    const { date, churchName, sermonTitle, speakerName, biblePassage, notes, selectedVerses } = req.body
     
     // Allow partial saves for auto-save functionality - no validation required
     
+    // Extract verse metadata if selectedVerses is provided
+    let bibleBook = null
+    let bibleChapter = null
+    let verseStart = null
+    let verseEnd = null
+    let bibleVersion = null
+    let verseReference = null
+    let verseContent = null
+    
+    if (selectedVerses && selectedVerses.length > 0) {
+      const firstVerse = selectedVerses[0]
+      const lastVerse = selectedVerses[selectedVerses.length - 1]
+      
+      // Extract book, chapter, and verse numbers from the reference
+      const referenceParts = firstVerse.reference.split(':')
+      if (referenceParts.length >= 2) {
+        const bookChapter = referenceParts[0]
+        const bookMatch = bookChapter.match(/^([A-Z0-9]+)(\d+)$/)
+        if (bookMatch) {
+          bibleBook = bookMatch[1]
+          bibleChapter = parseInt(bookMatch[2])
+        }
+        
+        const firstVerseNum = parseInt(referenceParts[1])
+        const lastVerseNum = parseInt(lastVerse.reference.split(':')[1])
+        
+        verseStart = firstVerseNum
+        verseEnd = lastVerseNum
+        verseReference = biblePassage || firstVerse.reference
+        verseContent = selectedVerses.map(v => v.content).join(' ')
+      }
+    }
+    
     const result = await client.query(`
-      INSERT INTO sermon_notes (user_id, date, church_name, sermon_title, speaker_name, bible_passage, notes)
-      VALUES ($1, $2, $3, $4, $5, $6, $7)
+      INSERT INTO sermon_notes (user_id, date, church_name, sermon_title, speaker_name, bible_passage, notes, bible_book, bible_chapter, verse_start, verse_end, bible_version, verse_reference, verse_content)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
       RETURNING id, user_id, date, church_name, sermon_title, speaker_name, bible_passage, notes, created_at, updated_at
-    `, [userId, date, churchName || '', sermonTitle || '', speakerName || '', biblePassage || '', notes || ''])
+    `, [userId, date, churchName || '', sermonTitle || '', speakerName || '', biblePassage || '', notes || '', bibleBook, bibleChapter, verseStart, verseEnd, bibleVersion, verseReference, verseContent])
     
     const note = result.rows[0]
     res.status(201).json({ 
@@ -1517,7 +1550,40 @@ app.put('/api/sermon-notes/:id', authenticateToken, async (req, res) => {
   try {
     const userId = req.user.userId
     const noteId = req.params.id
-    const { date, churchName, sermonTitle, speakerName, biblePassage, notes } = req.body
+    const { date, churchName, sermonTitle, speakerName, biblePassage, notes, selectedVerses } = req.body
+    
+    // Extract verse metadata if selectedVerses is provided
+    let bibleBook = null
+    let bibleChapter = null
+    let verseStart = null
+    let verseEnd = null
+    let bibleVersion = null
+    let verseReference = null
+    let verseContent = null
+    
+    if (selectedVerses && selectedVerses.length > 0) {
+      const firstVerse = selectedVerses[0]
+      const lastVerse = selectedVerses[selectedVerses.length - 1]
+      
+      // Extract book, chapter, and verse numbers from the reference
+      const referenceParts = firstVerse.reference.split(':')
+      if (referenceParts.length >= 2) {
+        const bookChapter = referenceParts[0]
+        const bookMatch = bookChapter.match(/^([A-Z0-9]+)(\d+)$/)
+        if (bookMatch) {
+          bibleBook = bookMatch[1]
+          bibleChapter = parseInt(bookMatch[2])
+        }
+        
+        const firstVerseNum = parseInt(referenceParts[1])
+        const lastVerseNum = parseInt(lastVerse.reference.split(':')[1])
+        
+        verseStart = firstVerseNum
+        verseEnd = lastVerseNum
+        verseReference = biblePassage || firstVerse.reference
+        verseContent = selectedVerses.map(v => v.content).join(' ')
+      }
+    }
     
     const result = await client.query(`
       UPDATE sermon_notes 
@@ -1528,10 +1594,17 @@ app.put('/api/sermon-notes/:id', authenticateToken, async (req, res) => {
         speaker_name = COALESCE($4, speaker_name),
         bible_passage = COALESCE($5, bible_passage),
         notes = COALESCE($6, notes),
+        bible_book = COALESCE($7, bible_book),
+        bible_chapter = COALESCE($8, bible_chapter),
+        verse_start = COALESCE($9, verse_start),
+        verse_end = COALESCE($10, verse_end),
+        bible_version = COALESCE($11, bible_version),
+        verse_reference = COALESCE($12, verse_reference),
+        verse_content = COALESCE($13, verse_content),
         updated_at = NOW()
-      WHERE id = $7 AND user_id = $8
+      WHERE id = $14 AND user_id = $15
       RETURNING id, user_id, date, church_name, sermon_title, speaker_name, bible_passage, notes, created_at, updated_at
-    `, [date, churchName, sermonTitle, speakerName, biblePassage, notes, noteId, userId])
+    `, [date, churchName, sermonTitle, speakerName, biblePassage, notes, bibleBook, bibleChapter, verseStart, verseEnd, bibleVersion, verseReference, verseContent, noteId, userId])
     
     if (result.rows.length === 0) {
       return res.status(404).json({ success: false, error: 'Sermon note not found' })
@@ -1702,6 +1775,103 @@ app.get('/api/sermon-notes/stats', authenticateToken, async (req, res) => {
   } catch (error) {
     console.error('Get sermon notes stats error:', error)
     res.status(500).json({ success: false, error: 'Failed to fetch sermon notes statistics' })
+  } finally {
+    client.release()
+  }
+})
+
+// Bible API endpoints
+app.get('/api/bible/books', async (req, res) => {
+  const client = await pool.connect()
+  try {
+    const { bibleId } = req.query
+    let query = 'SELECT book_id, name, testament, chapters, total_verses FROM bible_books'
+    const params = []
+    
+    if (bibleId) {
+      query += ' WHERE bible_id = $1'
+      params.push(bibleId)
+    }
+    
+    query += ' ORDER BY testament, book_id'
+    
+    const result = await client.query(query, params)
+    
+    const books = result.rows.map(row => ({
+      id: row.book_id,
+      name: row.name,
+      testament: row.testament,
+      chapters: row.chapters
+    }))
+    
+    res.json({ success: true, books })
+  } catch (error) {
+    console.error('Get Bible books error:', error)
+    res.status(500).json({ success: false, error: 'Failed to fetch Bible books' })
+  } finally {
+    client.release()
+  }
+})
+
+app.get('/api/bible/books/:bookId/chapters', async (req, res) => {
+  const client = await pool.connect()
+  try {
+    const { bookId } = req.params
+    const { bibleId } = req.query
+    
+    let query = 'SELECT chapter_number, verse_count FROM bible_chapters WHERE book_id = $1'
+    const params = [bookId]
+    
+    if (bibleId) {
+      query += ' AND bible_id = $2'
+      params.push(bibleId)
+    }
+    
+    query += ' ORDER BY chapter_number'
+    
+    const result = await client.query(query, params)
+    
+    const chapters = result.rows.map(row => ({
+      chapter: row.chapter_number,
+      verseCount: row.verse_count
+    }))
+    
+    res.json({ success: true, chapters })
+  } catch (error) {
+    console.error('Get book chapters error:', error)
+    res.status(500).json({ success: false, error: 'Failed to fetch book chapters' })
+  } finally {
+    client.release()
+  }
+})
+
+app.get('/api/bible/books/:bookId/chapters/:chapter/verses', async (req, res) => {
+  const client = await pool.connect()
+  try {
+    const { bookId, chapter } = req.params
+    const { bibleId } = req.query
+    
+    let query = 'SELECT verse_count FROM bible_chapters WHERE book_id = $1 AND chapter_number = $2'
+    const params = [bookId, parseInt(chapter)]
+    
+    if (bibleId) {
+      query += ' AND bible_id = $3'
+      params.push(bibleId)
+    }
+    
+    const result = await client.query(query, params)
+    
+    if (result.rows.length === 0) {
+      return res.json({ success: true, verses: [] })
+    }
+    
+    const verseCount = result.rows[0].verse_count
+    const verses = Array.from({ length: verseCount }, (_, i) => ({ verse: i + 1 }))
+    
+    res.json({ success: true, verses })
+  } catch (error) {
+    console.error('Get chapter verses error:', error)
+    res.status(500).json({ success: false, error: 'Failed to fetch chapter verses' })
   } finally {
     client.release()
   }

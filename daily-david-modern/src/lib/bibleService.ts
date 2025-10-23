@@ -53,8 +53,24 @@ class BibleService {
     ];
   }
 
-  // Get all Bible books with metadata
-  async getBibleBooks(): Promise<BibleBook[]> {
+  // Get all Bible books with metadata from database
+  async getBibleBooks(bibleId?: string): Promise<BibleBook[]> {
+    try {
+      const response = await fetch(`/api/bible/books${bibleId ? `?bibleId=${bibleId}` : ''}`)
+      if (!response.ok) {
+        throw new Error('Failed to fetch Bible books')
+      }
+      const data = await response.json()
+      return data.books || []
+    } catch (error) {
+      console.error('Error fetching Bible books from database:', error)
+      // Fallback to static data if database is not available
+      return this.getStaticBibleBooks()
+    }
+  }
+
+  // Static fallback data
+  private getStaticBibleBooks(): BibleBook[] {
     return [
       // Old Testament (39 books)
       { id: 'GEN', name: 'Genesis', testament: 'old', chapters: 50 },
@@ -125,7 +141,7 @@ class BibleService {
       { id: '3JN', name: '3 John', testament: 'new', chapters: 1 },
       { id: 'JUD', name: 'Jude', testament: 'new', chapters: 1 },
       { id: 'REV', name: 'Revelation', testament: 'new', chapters: 22 }
-    ];
+    ]
   }
 
   // Get a specific verse
@@ -387,6 +403,36 @@ class BibleService {
   async getBookById(bookId: string): Promise<BibleBook | null> {
     const books = await this.getBibleBooks();
     return books.find(book => book.id === bookId) || null;
+  }
+
+  // Get chapters for a specific book
+  async getBookChapters(bookId: string, bibleId?: string): Promise<{ chapter: number; verseCount: number }[]> {
+    try {
+      const response = await fetch(`/api/bible/books/${bookId}/chapters${bibleId ? `?bibleId=${bibleId}` : ''}`)
+      if (!response.ok) {
+        throw new Error('Failed to fetch book chapters')
+      }
+      const data = await response.json()
+      return data.chapters || []
+    } catch (error) {
+      console.error('Error fetching book chapters:', error)
+      return []
+    }
+  }
+
+  // Get verses for a specific chapter
+  async getChapterVerses(bookId: string, chapter: number, bibleId?: string): Promise<{ verse: number }[]> {
+    try {
+      const response = await fetch(`/api/bible/books/${bookId}/chapters/${chapter}/verses${bibleId ? `?bibleId=${bibleId}` : ''}`)
+      if (!response.ok) {
+        throw new Error('Failed to fetch chapter verses')
+      }
+      const data = await response.json()
+      return data.verses || []
+    } catch (error) {
+      console.error('Error fetching chapter verses:', error)
+      return []
+    }
   }
 
   // Clean HTML content from API.Bible response

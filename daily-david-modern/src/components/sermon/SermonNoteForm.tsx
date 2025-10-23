@@ -218,8 +218,34 @@ export const SermonNoteForm: React.FC<SermonNoteFormProps> = ({
 
   // Handle verses selected from BibleVerseSelector
   const handleVersesSelected = (verses: FetchedVerse[]) => {
-    // Verses are handled by the selector component itself
-    console.log('Verses selected:', verses)
+    if (verses.length === 0) return
+    
+    // Create a formatted reference from the first and last verses
+    const firstVerse = verses[0]
+    const lastVerse = verses[verses.length - 1]
+    
+    let reference = firstVerse.reference
+    if (verses.length > 1) {
+      // Extract just the verse numbers for range
+      const firstVerseNum = firstVerse.reference.split(':')[1]
+      const lastVerseNum = lastVerse.reference.split(':')[1]
+      reference = `${firstVerse.reference.split(':')[0]}:${firstVerseNum}-${lastVerseNum}`
+    }
+    
+    // Update the biblePassage field with the formatted reference
+    setFormData(prev => ({
+      ...prev,
+      biblePassage: reference
+    }))
+    
+    // Store verse metadata for searchability
+    setFormData(prev => ({
+      ...prev,
+      selectedVerses: verses
+    }))
+    
+    console.log('Verses selected and stored:', verses)
+    console.log('Bible passage updated to:', reference)
   }
 
 
@@ -335,23 +361,7 @@ export const SermonNoteForm: React.FC<SermonNoteFormProps> = ({
           </div>
         </div>
 
-        {/* Bible Passage */}
-        <div className="space-y-2">
-          <label className="block text-sm font-medium text-white flex items-center gap-2">
-            <BookOpen className="w-4 h-4 text-slate-400" />
-            Bible Passage
-          </label>
-          <Input
-            type="text"
-            value={formData.biblePassage}
-            onChange={(e) => handleInputChange('biblePassage', e.target.value)}
-            onBlur={() => handleInputBlur('biblePassage')}
-            placeholder="Enter Bible passage (e.g., John 3:16)..."
-            className="w-full px-4 py-3 border-2 border-slate-600/50 rounded-lg bg-slate-700/60 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-slate-500"
-          />
-        </div>
-
-        {/* Bible Verse Selector */}
+        {/* Bible Verse Selector - Replaces Bible Passage input */}
         <BibleVerseSelector
           onVersesSelected={handleVersesSelected}
         />

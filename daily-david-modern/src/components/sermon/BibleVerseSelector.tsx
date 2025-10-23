@@ -17,9 +17,11 @@ export const BibleVerseSelector: React.FC<BibleVerseSelectorProps> = ({
   const [versions, setVersions] = useState<any[]>([])
   const [selectedBook, setSelectedBook] = useState<string>('GEN')
   const [selectedVersion, setSelectedVersion] = useState<string>('de4e12af7f28f599-02') // ESV
-  const [chapter, setChapter] = useState<number | ''>('')
-  const [verseStart, setVerseStart] = useState<number | ''>('')
-  const [verseEnd, setVerseEnd] = useState<number | ''>('')
+  const [selectedChapter, setSelectedChapter] = useState<number | ''>('')
+  const [selectedVerseStart, setSelectedVerseStart] = useState<number | ''>('')
+  const [selectedVerseEnd, setSelectedVerseEnd] = useState<number | ''>('')
+  const [availableChapters, setAvailableChapters] = useState<{ chapter: number; verseCount: number }[]>([])
+  const [availableVerses, setAvailableVerses] = useState<{ verse: number }[]>([])
   const [fetchedVerses, setFetchedVerses] = useState<FetchedVerse[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [isExpanded, setIsExpanded] = useState(false)
@@ -70,25 +72,51 @@ export const BibleVerseSelector: React.FC<BibleVerseSelectorProps> = ({
     loadData()
   }, [])
 
-  // Update chapter and verse limits when book changes
+  // Load chapters when book changes
   useEffect(() => {
-    const book = books.find(b => b.id === selectedBook)
-    if (book) {
-      setChapter('')
-      setVerseStart('')
-      setVerseEnd('')
+    if (selectedBook && books.length > 0) {
+      const loadChapters = async () => {
+        try {
+          const chapters = await bibleService.getBookChapters(selectedBook, selectedVersion)
+          setAvailableChapters(chapters)
+          setSelectedChapter('')
+          setSelectedVerseStart('')
+          setSelectedVerseEnd('')
+          setAvailableVerses([])
+        } catch (error) {
+          console.error('Error loading chapters:', error)
+        }
+      }
+      loadChapters()
     }
-  }, [selectedBook, books])
+  }, [selectedBook, selectedVersion, books])
+
+  // Load verses when chapter changes
+  useEffect(() => {
+    if (selectedBook && selectedChapter && availableChapters.length > 0) {
+      const loadVerses = async () => {
+        try {
+          const verses = await bibleService.getChapterVerses(selectedBook, selectedChapter, selectedVersion)
+          setAvailableVerses(verses)
+          setSelectedVerseStart('')
+          setSelectedVerseEnd('')
+        } catch (error) {
+          console.error('Error loading verses:', error)
+        }
+      }
+      loadVerses()
+    }
+  }, [selectedBook, selectedChapter, selectedVersion, availableChapters])
 
   const handleFetchVerses = async () => {
-    if (!selectedBook || chapter === '' || verseStart === '' || verseEnd === '') {
+    if (!selectedBook || selectedChapter === '' || selectedVerseStart === '' || selectedVerseEnd === '') {
       setError('Please fill in all fields')
       return
     }
 
-    const startVerse = Number(verseStart)
-    const endVerse = Number(verseEnd)
-    const chapterNum = Number(chapter)
+    const startVerse = Number(selectedVerseStart)
+    const endVerse = Number(selectedVerseEnd)
+    const chapterNum = Number(selectedChapter)
 
     if (startVerse > endVerse) {
       setError('Start verse must be less than or equal to end verse')
@@ -227,72 +255,54 @@ export const BibleVerseSelector: React.FC<BibleVerseSelectorProps> = ({
           {/* Chapter */}
           <div className="space-y-2">
             <label className="block text-sm font-medium text-white">Chapter</label>
-            <Input
-              type="number"
-              min="1"
-              max={maxChapter}
-              value={chapter}
-              onChange={(e) => {
-                const value = e.target.value
-                if (value === '') {
-                  setChapter('')
-                } else {
-                  const num = parseInt(value)
-                  if (!isNaN(num)) {
-                    setChapter(Math.max(1, Math.min(maxChapter, num)))
-                  }
-                }
-              }}
-              placeholder="Enter chapter"
-              className="w-full px-4 py-3 border-2 border-slate-600/50 rounded-lg bg-slate-700/60 text-white text-center font-medium focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200"
-            />
+            <select
+              value={selectedChapter}
+              onChange={(e) => setSelectedChapter(e.target.value === '' ? '' : parseInt(e.target.value))}
+              className="w-full px-4 py-3 border-2 border-slate-600/50 rounded-lg bg-slate-700/60 text-white focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200 cursor-pointer"
+            >
+              <option value="">Select Chapter</option>
+              {availableChapters.map((ch) => (
+                <option key={ch.chapter} value={ch.chapter}>
+                  Chapter {ch.chapter} ({ch.verseCount} verses)
+                </option>
+              ))}
+            </select>
           </div>
 
           {/* Start Verse */}
           <div className="space-y-2">
             <label className="block text-sm font-medium text-white">Start Verse</label>
-            <Input
-              type="number"
-              min="1"
-              value={verseStart}
-              onChange={(e) => {
-                const value = e.target.value
-                if (value === '') {
-                  setVerseStart('')
-                } else {
-                  const num = parseInt(value)
-                  if (!isNaN(num)) {
-                    setVerseStart(Math.max(1, num))
-                  }
-                }
-              }}
-              placeholder="Start"
-              className="w-full px-4 py-3 border-2 border-slate-600/50 rounded-lg bg-slate-700/60 text-white text-center font-medium focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200"
-            />
+            <select
+              value={selectedVerseStart}
+              onChange={(e) => setSelectedVerseStart(e.target.value === '' ? '' : parseInt(e.target.value))}
+              className="w-full px-4 py-3 border-2 border-slate-600/50 rounded-lg bg-slate-700/60 text-white focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200 cursor-pointer"
+            >
+              <option value="">Select Start Verse</option>
+              {availableVerses.map((verse) => (
+                <option key={verse.verse} value={verse.verse}>
+                  Verse {verse.verse}
+                </option>
+              ))}
+            </select>
           </div>
 
           {/* End Verse */}
           <div className="space-y-2">
             <label className="block text-sm font-medium text-white">End Verse</label>
-            <Input
-              type="number"
-              min={typeof verseStart === 'number' ? verseStart : 1}
-              value={verseEnd}
-              onChange={(e) => {
-                const value = e.target.value
-                if (value === '') {
-                  setVerseEnd('')
-                } else {
-                  const num = parseInt(value)
-                  if (!isNaN(num)) {
-                    const minValue = typeof verseStart === 'number' ? verseStart : 1
-                    setVerseEnd(Math.max(minValue, num))
-                  }
-                }
-              }}
-              placeholder="End"
-              className="w-full px-4 py-3 border-2 border-slate-600/50 rounded-lg bg-slate-700/60 text-white text-center font-medium focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200"
-            />
+            <select
+              value={selectedVerseEnd}
+              onChange={(e) => setSelectedVerseEnd(e.target.value === '' ? '' : parseInt(e.target.value))}
+              className="w-full px-4 py-3 border-2 border-slate-600/50 rounded-lg bg-slate-700/60 text-white focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200 cursor-pointer"
+            >
+              <option value="">Select End Verse</option>
+              {availableVerses
+                .filter(verse => !selectedVerseStart || verse.verse >= selectedVerseStart)
+                .map((verse) => (
+                  <option key={verse.verse} value={verse.verse}>
+                    Verse {verse.verse}
+                  </option>
+                ))}
+            </select>
           </div>
         </div>
 
