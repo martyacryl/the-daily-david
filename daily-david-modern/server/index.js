@@ -1793,7 +1793,15 @@ app.get('/api/bible/books', async (req, res) => {
       params.push(bibleId)
     }
     
-    query += ' ORDER BY testament, book_id'
+    // Order by canonical Bible order instead of alphabetical
+    const canonicalOrder = [
+      'GEN', 'EXO', 'LEV', 'NUM', 'DEU', 'JOS', 'JDG', 'RUT', '1SA', '2SA', '1KI', '2KI', '1CH', '2CH', 'EZR', 'NEH', 'EST', 'JOB', 'PSA', 'PRO', 'ECC', 'SNG', 'ISA', 'JER', 'LAM', 'EZK', 'DAN', 'HOS', 'JOL', 'AMO', 'OBA', 'JON', 'MIC', 'NAH', 'HAB', 'ZEP', 'HAG', 'ZEC', 'MAL',
+      'MAT', 'MRK', 'LUK', 'JHN', 'ACT', 'ROM', '1CO', '2CO', 'GAL', 'EPH', 'PHP', 'COL', '1TH', '2TH', '1TI', '2TI', 'TIT', 'PHM', 'HEB', 'JAS', '1PE', '2PE', '1JN', '2JN', '3JN', 'JUD', 'REV'
+    ]
+    
+    // Create a CASE statement for ordering
+    const orderCase = canonicalOrder.map((bookId, index) => `WHEN '${bookId}' THEN ${index}`).join(' ')
+    query += ` ORDER BY CASE book_id ${orderCase} ELSE 999 END`
     
     const result = await client.query(query, params)
     

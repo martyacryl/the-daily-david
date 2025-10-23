@@ -188,6 +188,20 @@ export const BibleVerseSelector: React.FC<BibleVerseSelectorProps> = ({
     console.log('Cleared verses from localStorage')
   }
 
+  // Get books in canonical Bible order
+  const getBibleBooksInOrder = () => {
+    const canonicalOrder = [
+      // Old Testament (39 books)
+      'GEN', 'EXO', 'LEV', 'NUM', 'DEU', 'JOS', 'JDG', 'RUT', '1SA', '2SA', '1KI', '2KI', '1CH', '2CH', 'EZR', 'NEH', 'EST', 'JOB', 'PSA', 'PRO', 'ECC', 'SNG', 'ISA', 'JER', 'LAM', 'EZK', 'DAN', 'HOS', 'JOL', 'AMO', 'OBA', 'JON', 'MIC', 'NAH', 'HAB', 'ZEP', 'HAG', 'ZEC', 'MAL',
+      // New Testament (27 books)
+      'MAT', 'MRK', 'LUK', 'JHN', 'ACT', 'ROM', '1CO', '2CO', 'GAL', 'EPH', 'PHP', 'COL', '1TH', '2TH', '1TI', '2TI', 'TIT', 'PHM', 'HEB', 'JAS', '1PE', '2PE', '1JN', '2JN', '3JN', 'JUD', 'REV'
+    ]
+    
+    return canonicalOrder
+      .map(bookId => books.find(book => book.id === bookId))
+      .filter(book => book !== undefined)
+  }
+
   const selectedBookData = books.find(b => b.id === selectedBook)
   const maxChapter = selectedBookData?.chapters || 1
 
@@ -236,18 +250,22 @@ export const BibleVerseSelector: React.FC<BibleVerseSelectorProps> = ({
               className="w-full px-4 py-3 border-2 border-slate-600/50 rounded-lg bg-slate-700/60 text-white focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200 cursor-pointer"
             >
               <optgroup label="Old Testament">
-                {books.filter(b => b.testament === 'old').map(book => (
-                  <option key={book.id} value={book.id}>
-                    {book.name}
-                  </option>
-                ))}
+                {getBibleBooksInOrder()
+                  .filter(book => book.testament === 'old')
+                  .map(book => (
+                    <option key={book.id} value={book.id}>
+                      {book.name}
+                    </option>
+                  ))}
               </optgroup>
               <optgroup label="New Testament">
-                {books.filter(b => b.testament === 'new').map(book => (
-                  <option key={book.id} value={book.id}>
-                    {book.name}
-                  </option>
-                ))}
+                {getBibleBooksInOrder()
+                  .filter(book => book.testament === 'new')
+                  .map(book => (
+                    <option key={book.id} value={book.id}>
+                      {book.name}
+                    </option>
+                  ))}
               </optgroup>
             </select>
           </div>
