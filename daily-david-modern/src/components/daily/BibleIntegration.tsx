@@ -194,6 +194,18 @@ export const BibleIntegration: React.FC<BibleIntegrationProps> = ({
     });
   };
 
+  const handleClearVerseSelection = () => {
+    // Clear the fetched verses
+    setFetchedVerses([]);
+    // Clear the selected verse in parent component
+    onVerseSelect({
+      id: '',
+      reference: '',
+      content: '',
+      copyright: ''
+    });
+  };
+
   // Verse Selector Component
   const VerseSelector = () => (
     <div className="space-y-4">
@@ -287,22 +299,32 @@ export const BibleIntegration: React.FC<BibleIntegrationProps> = ({
       {/* Display Fetched Verses */}
       {fetchedVerses.length > 0 && (
         <div className="mt-4 p-4 bg-slate-700/50 rounded-lg border border-slate-600">
-          <h4 className="font-semibold text-white mb-2">
-            {(() => {
-              const firstVerse = fetchedVerses[0];
-              const lastVerse = fetchedVerses[fetchedVerses.length - 1];
-              
-              if (fetchedVerses.length === 1) {
-                return firstVerse.reference;
-              } else {
-                // Create verse range reference
-                const firstVerseNum = firstVerse.reference.split(':')[1];
-                const lastVerseNum = lastVerse.reference.split(':')[1];
-                const bookChapter = firstVerse.reference.split(':')[0];
-                return `${bookChapter}:${firstVerseNum}-${lastVerseNum}`;
-              }
-            })()}
-          </h4>
+          <div className="flex justify-between items-start mb-2">
+            <h4 className="font-semibold text-white">
+              {(() => {
+                const firstVerse = fetchedVerses[0];
+                const lastVerse = fetchedVerses[fetchedVerses.length - 1];
+                
+                if (fetchedVerses.length === 1) {
+                  return firstVerse.reference;
+                } else {
+                  // Create verse range reference
+                  const firstVerseNum = firstVerse.reference.split(':')[1];
+                  const lastVerseNum = lastVerse.reference.split(':')[1];
+                  const bookChapter = firstVerse.reference.split(':')[0];
+                  return `${bookChapter}:${firstVerseNum}-${lastVerseNum}`;
+                }
+              })()}
+            </h4>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={handleClearVerseSelection}
+              className="text-slate-400 border-slate-500 hover:bg-slate-600 hover:text-white"
+            >
+              Clear
+            </Button>
+          </div>
           <p className="text-slate-200 mb-4 leading-relaxed">
             {fetchedVerses.map(v => v.content).join(' ')}
           </p>
