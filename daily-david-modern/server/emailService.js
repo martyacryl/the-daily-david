@@ -22,7 +22,7 @@ class EmailService {
 
     try {
       const data = await resend.emails.send({
-        from: 'Daily David Support <hello@resend.dev>',
+        from: 'Daily David Support <noreply@resend.dev>',
         to: [supportEmail],
         subject: `[${category.toUpperCase()}] ${subject}`,
         html: `
