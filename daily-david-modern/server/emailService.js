@@ -35,28 +35,21 @@ class EmailService {
       });
 
       const mailOptions = {
-        from: `Daily David Support <${process.env.GMAIL_USER}>`,
+        from: process.env.GMAIL_USER,
         to: supportEmail,
         subject: `[${category.toUpperCase()}] ${subject}`,
-        html: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            <h2 style="color: #16a34a;">New Support Request</h2>
-            <div style="background-color: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
-              <p><strong>From:</strong> ${userName} (${userEmail})</p>
-              <p><strong>Category:</strong> <span style="background-color: #16a34a; color: white; padding: 4px 8px; border-radius: 4px;">${category}</span></p>
-              <p><strong>Subject:</strong> ${subject}</p>
-            </div>
-            <hr style="border: 1px solid #e5e7eb; margin: 20px 0;">
-            <div style="background-color: #ffffff; padding: 20px; border: 1px solid #e5e7eb; border-radius: 8px;">
-              <h3 style="margin-top: 0;">Message:</h3>
-              <p style="white-space: pre-wrap;">${message.replace(/\n/g, '<br>')}</p>
-            </div>
-            <div style="margin-top: 20px; padding: 15px; background-color: #f9fafb; border-radius: 8px; font-size: 12px; color: #6b7280;">
-              <p style="margin: 0;">This support request was submitted via the Daily David app.</p>
-              <p style="margin: 5px 0 0 0;">Reply directly to this email to respond to the user.</p>
-            </div>
-          </div>
-        `,
+        text: `New Support Request
+
+From: ${userName} (${userEmail})
+Category: ${category}
+Subject: ${subject}
+
+Message:
+${message}
+
+---
+This support request was submitted via the Daily David app.
+Reply directly to this email to respond to the user.`,
         replyTo: userEmail
       };
 
