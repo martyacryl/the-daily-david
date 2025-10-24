@@ -49,10 +49,9 @@ const pool = new Pool({
 })
 
 // JWT secret - must be set in environment variables
-const JWT_SECRET = process.env.JWT_SECRET
-if (!JWT_SECRET) {
-  console.error('❌ JWT_SECRET environment variable is required')
-  process.exit(1)
+const JWT_SECRET = process.env.JWT_SECRET || 'fallback-secret-key-for-development'
+if (!process.env.JWT_SECRET) {
+  console.warn('⚠️ JWT_SECRET environment variable not set, using fallback (not secure for production)')
 }
 
 // Helper function to get local date string (YYYY-MM-DD)
