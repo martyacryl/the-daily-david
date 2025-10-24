@@ -14,6 +14,11 @@ class EmailService {
   }
 
   async sendSupportEmail({ userName, userEmail, subject, message, category }) {
+    console.log('📧 Email service - isConfigured:', this.isConfigured);
+    console.log('📧 Email service - GMAIL_USER:', process.env.GMAIL_USER ? 'Set' : 'Not set');
+    console.log('📧 Email service - GMAIL_PASS:', process.env.GMAIL_PASS ? 'Set' : 'Not set');
+    console.log('📧 Email service - SUPPORT_EMAIL:', process.env.SUPPORT_EMAIL);
+    
     if (!this.isConfigured) {
       console.log('📧 [EMAIL MOCK] Support request:', { userName, userEmail, subject, category });
       return { success: true, message: 'Email service not configured - message logged only' };
