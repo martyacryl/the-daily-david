@@ -1101,6 +1101,87 @@ app.put('/api/user/sms-settings', authenticateToken, async (req, res) => {
   }
 })
 
+// Get user settings
+app.get('/api/user/settings', authenticateToken, async (req, res) => {
+  const client = await pool.connect()
+  
+  try {
+    const userId = req.user.userId
+    const result = await client.query(
+      'SELECT * FROM user_settings WHERE user_id = $1',
+      [userId]
+    )
+    
+    const settings = result.rows[0] || { 
+      soap_scripture_mode: 'plan',
+      phone_number: null,
+      sms_notifications_enabled: false,
+      notification_time: '07:00:00',
+      timezone: 'America/New_York',
+      notification_frequency: 'daily',
+      onboarding_completed: false
+    }
+    
+    res.json({ 
+      success: true, 
+      settings: {
+        soapScriptureMode: settings.soap_scripture_mode,
+        phoneNumber: settings.phone_number,
+        smsNotificationsEnabled: settings.sms_notifications_enabled,
+        notificationTime: settings.notification_time,
+        timezone: settings.timezone,
+        notificationFrequency: settings.notification_frequency,
+        onboardingCompleted: settings.onboarding_completed,
+        lastNotificationSent: settings.last_notification_sent
+      }
+    })
+  } catch (error) {
+    console.error('Get user settings error:', error)
+    res.status(500).json({ success: false, error: 'Failed to get user settings' })
+  } finally {
+    client.release()
+  }
+})
+
+// Update user settings (general)
+app.put('/api/user/settings', authenticateToken, async (req, res) => {
+  const client = await pool.connect()
+  
+  try {
+    const userId = req.user.userId
+    const { soapScriptureMode } = req.body
+    
+    if (soapScriptureMode && !['verse', 'plan'].includes(soapScriptureMode)) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Invalid scripture mode. Must be "verse" or "plan"' 
+      })
+    }
+    
+    const result = await client.query(`
+      INSERT INTO user_settings (user_id, soap_scripture_mode)
+      VALUES ($1, $2)
+      ON CONFLICT (user_id)
+      DO UPDATE SET 
+        soap_scripture_mode = EXCLUDED.soap_scripture_mode,
+        updated_at = NOW()
+      RETURNING *
+    `, [userId, soapScriptureMode])
+    
+    res.json({ 
+      success: true, 
+      settings: {
+        soapScriptureMode: result.rows[0].soap_scripture_mode
+      }
+    })
+  } catch (error) {
+    console.error('Update user settings error:', error)
+    res.status(500).json({ success: false, error: 'Failed to update user settings' })
+  } finally {
+    client.release()
+  }
+})
+
 // Send test SMS
 app.post('/api/user/sms-test', authenticateToken, async (req, res) => {
   const client = await pool.connect()

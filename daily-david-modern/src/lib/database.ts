@@ -726,6 +726,49 @@ class DatabaseManager {
       return null
     }
   }
+
+  // User Settings API
+  async getUserSettings(): Promise<any> {
+    try {
+      console.log('API: Getting user settings')
+      const response = await fetch(`${API_BASE_URL}/api/user/settings`, {
+        headers: getAuthHeaders(),
+      })
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+      
+      const data = await response.json()
+      console.log('API: User settings result:', data)
+      return data
+    } catch (error) {
+      console.error('API: Error getting user settings:', error)
+      throw error
+    }
+  }
+
+  async updateUserSettings(settings: { soapScriptureMode?: string }): Promise<any> {
+    try {
+      console.log('API: Updating user settings:', settings)
+      const response = await fetch(`${API_BASE_URL}/api/user/settings`, {
+        method: 'PUT',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(settings),
+      })
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+      
+      const data = await response.json()
+      console.log('API: User settings update result:', data)
+      return data
+    } catch (error) {
+      console.error('API: Error updating user settings:', error)
+      throw error
+    }
+  }
 }
 
 // Create singleton instance
