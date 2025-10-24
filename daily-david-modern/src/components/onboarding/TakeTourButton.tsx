@@ -33,7 +33,7 @@ export const TakeTourButton: React.FC<TakeTourButtonProps> = ({
         </button>
         
         {showTooltip && (
-          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-slate-900 text-white text-sm rounded-lg shadow-lg border border-slate-600 whitespace-nowrap z-50">
+          <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 px-3 py-2 bg-slate-900 text-white text-sm rounded-lg shadow-lg border border-slate-600 whitespace-nowrap z-50">
             <div className="text-center">
               <div className="font-semibold text-green-400 mb-1">
                 {hasSeenTour ? "🔄 Take Tour Again" : "🎯 Take Guided Tour"}
@@ -42,8 +42,8 @@ export const TakeTourButton: React.FC<TakeTourButtonProps> = ({
                 {hasSeenTour ? "Replay the app walkthrough" : "Learn how to use the app"}
               </div>
             </div>
-            {/* Arrow pointing down */}
-            <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-l-4 border-r-4 border-t-4 border-transparent border-t-slate-900"></div>
+            {/* Arrow pointing up */}
+            <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 border-l-4 border-r-4 border-b-4 border-transparent border-b-slate-900"></div>
           </div>
         )}
       </div>
