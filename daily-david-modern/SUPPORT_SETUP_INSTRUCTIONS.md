@@ -49,7 +49,7 @@ Since you don't have a custom domain yet, use **Option A** (recommended):
 
    **Variable 1:**
    - Name: `RESEND_API_KEY`
-   - Value: `re_YmZTTV1P_Jdn8FifEn21Q6mTRYebFwuVp`
+   - Value: `re_Q1B9jaio_NQa2J2L5Scqx5CK2c7axv93Xey`
    - Apply to: Production, Preview, Development
 
    **Variable 2:**
