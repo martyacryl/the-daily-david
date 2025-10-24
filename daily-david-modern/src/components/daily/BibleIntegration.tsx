@@ -173,10 +173,22 @@ export const BibleIntegration: React.FC<BibleIntegrationProps> = ({
 
   const handleInsertVerse = (verses: BibleVerse[]) => {
     const firstVerse = verses[0];
+    const lastVerse = verses[verses.length - 1];
+    
+    // Create proper reference for verse range
+    let reference = firstVerse.reference;
+    if (verses.length > 1) {
+      // Extract verse numbers from references
+      const firstVerseNum = firstVerse.reference.split(':')[1];
+      const lastVerseNum = lastVerse.reference.split(':')[1];
+      const bookChapter = firstVerse.reference.split(':')[0];
+      reference = `${bookChapter}:${firstVerseNum}-${lastVerseNum}`;
+    }
+    
     const content = verses.map(v => v.content).join(' ');
     onVerseSelect({
       id: 'selected',
-      reference: firstVerse.reference,
+      reference: reference,
       content: content,
       copyright: 'Bible'
     });
@@ -276,7 +288,20 @@ export const BibleIntegration: React.FC<BibleIntegrationProps> = ({
       {fetchedVerses.length > 0 && (
         <div className="mt-4 p-4 bg-slate-700/50 rounded-lg border border-slate-600">
           <h4 className="font-semibold text-white mb-2">
-            {fetchedVerses[0].reference}
+            {(() => {
+              const firstVerse = fetchedVerses[0];
+              const lastVerse = fetchedVerses[fetchedVerses.length - 1];
+              
+              if (fetchedVerses.length === 1) {
+                return firstVerse.reference;
+              } else {
+                // Create verse range reference
+                const firstVerseNum = firstVerse.reference.split(':')[1];
+                const lastVerseNum = lastVerse.reference.split(':')[1];
+                const bookChapter = firstVerse.reference.split(':')[0];
+                return `${bookChapter}:${firstVerseNum}-${lastVerseNum}`;
+              }
+            })()}
           </h4>
           <p className="text-slate-200 mb-4 leading-relaxed">
             {fetchedVerses.map(v => v.content).join(' ')}
