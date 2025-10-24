@@ -9,75 +9,6 @@ import { bibleService, BibleVersion, BibleVerse, ReadingPlan } from '../../lib/b
 import { BookOpen, Target, Zap } from 'lucide-react';
 import { dbManager } from '../../lib/database';
 
-// Static Bible books data (from sermon notes)
-const BIBLE_BOOKS = [
-  { id: 'GEN', name: 'Genesis' },
-  { id: 'EXO', name: 'Exodus' },
-  { id: 'LEV', name: 'Leviticus' },
-  { id: 'NUM', name: 'Numbers' },
-  { id: 'DEU', name: 'Deuteronomy' },
-  { id: 'JOS', name: 'Joshua' },
-  { id: 'JDG', name: 'Judges' },
-  { id: 'RUT', name: 'Ruth' },
-  { id: '1SA', name: '1 Samuel' },
-  { id: '2SA', name: '2 Samuel' },
-  { id: '1KI', name: '1 Kings' },
-  { id: '2KI', name: '2 Kings' },
-  { id: '1CH', name: '1 Chronicles' },
-  { id: '2CH', name: '2 Chronicles' },
-  { id: 'EZR', name: 'Ezra' },
-  { id: 'NEH', name: 'Nehemiah' },
-  { id: 'EST', name: 'Esther' },
-  { id: 'JOB', name: 'Job' },
-  { id: 'PSA', name: 'Psalms' },
-  { id: 'PRO', name: 'Proverbs' },
-  { id: 'ECC', name: 'Ecclesiastes' },
-  { id: 'SNG', name: 'Song of Songs' },
-  { id: 'ISA', name: 'Isaiah' },
-  { id: 'JER', name: 'Jeremiah' },
-  { id: 'LAM', name: 'Lamentations' },
-  { id: 'EZK', name: 'Ezekiel' },
-  { id: 'DAN', name: 'Daniel' },
-  { id: 'HOS', name: 'Hosea' },
-  { id: 'JOL', name: 'Joel' },
-  { id: 'AMO', name: 'Amos' },
-  { id: 'OBA', name: 'Obadiah' },
-  { id: 'JON', name: 'Jonah' },
-  { id: 'MIC', name: 'Micah' },
-  { id: 'NAH', name: 'Nahum' },
-  { id: 'HAB', name: 'Habakkuk' },
-  { id: 'ZEP', name: 'Zephaniah' },
-  { id: 'HAG', name: 'Haggai' },
-  { id: 'ZEC', name: 'Zechariah' },
-  { id: 'MAL', name: 'Malachi' },
-  { id: 'MAT', name: 'Matthew' },
-  { id: 'MRK', name: 'Mark' },
-  { id: 'LUK', name: 'Luke' },
-  { id: 'JHN', name: 'John' },
-  { id: 'ACT', name: 'Acts' },
-  { id: 'ROM', name: 'Romans' },
-  { id: '1CO', name: '1 Corinthians' },
-  { id: '2CO', name: '2 Corinthians' },
-  { id: 'GAL', name: 'Galatians' },
-  { id: 'EPH', name: 'Ephesians' },
-  { id: 'PHP', name: 'Philippians' },
-  { id: 'COL', name: 'Colossians' },
-  { id: '1TH', name: '1 Thessalonians' },
-  { id: '2TH', name: '2 Thessalonians' },
-  { id: '1TI', name: '1 Timothy' },
-  { id: '2TI', name: '2 Timothy' },
-  { id: 'TIT', name: 'Titus' },
-  { id: 'PHM', name: 'Philemon' },
-  { id: 'HEB', name: 'Hebrews' },
-  { id: 'JAS', name: 'James' },
-  { id: '1PE', name: '1 Peter' },
-  { id: '2PE', name: '2 Peter' },
-  { id: '1JN', name: '1 John' },
-  { id: '2JN', name: '2 John' },
-  { id: '3JN', name: '3 John' },
-  { id: 'JUD', name: 'Jude' },
-  { id: 'REV', name: 'Revelation' }
-];
 
 interface BibleIntegrationProps {
   onVerseSelect: (verse: BibleVerse) => void;
@@ -107,10 +38,13 @@ export const BibleIntegration: React.FC<BibleIntegrationProps> = ({
   // Verse selector state
   const [bibleVersions, setBibleVersions] = useState<BibleVersion[]>([]);
   const [selectedBible, setSelectedBible] = useState<string>('de4e12af7f28f599-02');
+  const [books, setBooks] = useState<any[]>([]);
   const [selectedBook, setSelectedBook] = useState('GEN');
-  const [selectedChapter, setSelectedChapter] = useState('');
-  const [selectedVerseStart, setSelectedVerseStart] = useState('');
-  const [selectedVerseEnd, setSelectedVerseEnd] = useState('');
+  const [selectedChapter, setSelectedChapter] = useState<number | ''>('');
+  const [selectedVerseStart, setSelectedVerseStart] = useState<number | ''>('');
+  const [selectedVerseEnd, setSelectedVerseEnd] = useState<number | ''>('');
+  const [availableChapters, setAvailableChapters] = useState<{ chapter: number; verseCount: number }[]>([]);
+  const [availableVerses, setAvailableVerses] = useState<{ verse: number }[]>([]);
   const [fetchedVerses, setFetchedVerses] = useState<BibleVerse[]>([]);
   const [isLoadingVerses, setIsLoadingVerses] = useState(false);
 
@@ -125,7 +59,44 @@ export const BibleIntegration: React.FC<BibleIntegrationProps> = ({
     loadBibleVersions();
     loadReadingPlans();
     loadUserSettings();
+    loadBibleBooks();
   }, []);
+
+  // Load chapters when book changes
+  useEffect(() => {
+    if (selectedBook && books.length > 0) {
+      const loadChapters = async () => {
+        try {
+          const chapters = await bibleService.getBookChapters(selectedBook, selectedBible);
+          setAvailableChapters(chapters);
+          setSelectedChapter('');
+          setSelectedVerseStart('');
+          setSelectedVerseEnd('');
+          setAvailableVerses([]);
+        } catch (error) {
+          console.error('Error loading chapters:', error);
+        }
+      };
+      loadChapters();
+    }
+  }, [selectedBook, selectedBible, books]);
+
+  // Load verses when chapter changes
+  useEffect(() => {
+    if (selectedBook && selectedChapter && availableChapters.length > 0) {
+      const loadVerses = async () => {
+        try {
+          const verses = await bibleService.getChapterVerses(selectedBook, selectedChapter, selectedBible);
+          setAvailableVerses(verses);
+          setSelectedVerseStart('');
+          setSelectedVerseEnd('');
+        } catch (error) {
+          console.error('Error loading verses:', error);
+        }
+      };
+      loadVerses();
+    }
+  }, [selectedBook, selectedChapter, selectedBible, availableChapters]);
 
   // Load user's preferred mode from database
   const loadUserSettings = async () => {
@@ -154,6 +125,15 @@ export const BibleIntegration: React.FC<BibleIntegrationProps> = ({
   const loadBibleVersions = async () => {
     const versions = await bibleService.getBibleVersions();
     setBibleVersions(versions);
+  };
+
+  const loadBibleBooks = async () => {
+    try {
+      const booksData = await bibleService.getBibleBooks();
+      setBooks(booksData);
+    } catch (error) {
+      console.error('Error loading Bible books:', error);
+    }
   };
 
   const loadReadingPlans = async () => {
@@ -232,40 +212,54 @@ export const BibleIntegration: React.FC<BibleIntegrationProps> = ({
             onChange={(e) => setSelectedBook(e.target.value)}
             className="w-full px-3 py-2 bg-slate-700 text-white rounded-lg border border-slate-600 focus:border-green-500 focus:outline-none"
           >
-            {BIBLE_BOOKS.map(book => (
+            {books.map(book => (
               <option key={book.id} value={book.id}>{book.name}</option>
             ))}
           </select>
         </div>
         <div>
           <label className="block text-sm font-medium text-slate-200 mb-2">Chapter</label>
-          <input
-            type="number"
+          <select
             value={selectedChapter}
-            onChange={(e) => setSelectedChapter(e.target.value)}
-            placeholder="1"
+            onChange={(e) => setSelectedChapter(parseInt(e.target.value) || '')}
             className="w-full px-3 py-2 bg-slate-700 text-white rounded-lg border border-slate-600 focus:border-green-500 focus:outline-none"
-          />
+            disabled={!availableChapters.length}
+          >
+            <option value="">Select Chapter</option>
+            {availableChapters.map(chapter => (
+              <option key={chapter.chapter} value={chapter.chapter}>
+                Chapter {chapter.chapter} ({chapter.verseCount} verses)
+              </option>
+            ))}
+          </select>
         </div>
         <div>
           <label className="block text-sm font-medium text-slate-200 mb-2">Verse Start</label>
-          <input
-            type="number"
+          <select
             value={selectedVerseStart}
-            onChange={(e) => setSelectedVerseStart(e.target.value)}
-            placeholder="1"
+            onChange={(e) => setSelectedVerseStart(parseInt(e.target.value) || '')}
             className="w-full px-3 py-2 bg-slate-700 text-white rounded-lg border border-slate-600 focus:border-green-500 focus:outline-none"
-          />
+            disabled={!availableVerses.length}
+          >
+            <option value="">Select Start</option>
+            {availableVerses.map(verse => (
+              <option key={verse.verse} value={verse.verse}>Verse {verse.verse}</option>
+            ))}
+          </select>
         </div>
         <div>
           <label className="block text-sm font-medium text-slate-200 mb-2">Verse End</label>
-          <input
-            type="number"
+          <select
             value={selectedVerseEnd}
-            onChange={(e) => setSelectedVerseEnd(e.target.value)}
-            placeholder="1"
+            onChange={(e) => setSelectedVerseEnd(parseInt(e.target.value) || '')}
             className="w-full px-3 py-2 bg-slate-700 text-white rounded-lg border border-slate-600 focus:border-green-500 focus:outline-none"
-          />
+            disabled={!availableVerses.length}
+          >
+            <option value="">Select End</option>
+            {availableVerses.map(verse => (
+              <option key={verse.verse} value={verse.verse}>Verse {verse.verse}</option>
+            ))}
+          </select>
         </div>
       </div>
 
