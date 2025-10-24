@@ -49,12 +49,12 @@ Since you don't have a custom domain yet, use **Option A** (recommended):
 
    **Variable 1:**
    - Name: `RESEND_API_KEY`
-   - Value: Your Resend API key (e.g., `re_123abc...`)
+   - Value: `re_YmZTTV1P_Jdn8FifEn21Q6mTRYebFwuVp`
    - Apply to: Production, Preview, Development
 
    **Variable 2:**
    - Name: `SUPPORT_EMAIL`
-   - Value: Your verified email address (e.g., `marty@dailydavid.com`)
+   - Value: `dailydavidapp@gmail.com`
    - Apply to: Production, Preview, Development
 
 5. Click "Save" for each variable
