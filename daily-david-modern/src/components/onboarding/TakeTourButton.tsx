@@ -24,7 +24,7 @@ export const TakeTourButton: React.FC<TakeTourButtonProps> = ({
       <button
         onClick={handleTakeTour}
         className={`p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-300 hover:text-white transition-colors ${className}`}
-        title={hasSeenTour ? "Take the tour again" : "Take the tour"}
+        title={hasSeenTour ? "Take the guided tour again" : "Take the guided tour to learn about the app"}
       >
         <HelpCircle className="w-5 h-5" />
       </button>
