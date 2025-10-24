@@ -4,6 +4,7 @@ const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const { Pool } = require('pg')
 const smsService = require('./smsService')
+const emailService = require('./emailService')
 const { 
   rateLimits, 
   securityHeaders, 
@@ -1965,6 +1966,89 @@ app.get('/api/bible/books/:bookId/chapters/:chapter/verses', async (req, res) =>
     client.release()
   }
 })
+
+// Support contact endpoint
+app.post('/api/support/contact', authenticateToken, async (req, res) => {
+  try {
+    const { subject, message, category } = req.body;
+    const userId = req.user.userId;
+
+    // Validate required fields
+    if (!subject || !message || !category) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Subject, message, and category are required' 
+      });
+    }
+
+    // Validate category
+    const validCategories = ['bug', 'feature', 'general', 'billing'];
+    if (!validCategories.includes(category)) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Invalid category' 
+      });
+    }
+
+    const client = await pool.connect();
+    
+    try {
+      // Get user info
+      const userResult = await client.query(
+        'SELECT display_name, email FROM users WHERE id = $1',
+        [userId]
+      );
+      
+      if (userResult.rows.length === 0) {
+        return res.status(404).json({ 
+          success: false, 
+          error: 'User not found' 
+        });
+      }
+      
+      const user = userResult.rows[0];
+
+      // Store support request in database
+      const insertResult = await client.query(`
+        INSERT INTO support_requests (user_id, subject, message, category, status, created_at)
+        VALUES ($1, $2, $3, $4, 'open', NOW())
+        RETURNING id
+      `, [userId, subject, message, category]);
+
+      const requestId = insertResult.rows[0].id;
+
+      // Send email notification
+      const emailResult = await emailService.sendSupportEmail({
+        userName: user.display_name || 'User',
+        userEmail: user.email,
+        subject,
+        message,
+        category
+      });
+
+      if (!emailResult.success) {
+        console.error('Failed to send support email:', emailResult.error);
+        // Don't fail the request if email fails, just log it
+      }
+
+      console.log(`✅ Support request #${requestId} created by user ${userId}`);
+
+      res.json({ 
+        success: true, 
+        message: 'Support request submitted successfully',
+        requestId 
+      });
+    } finally {
+      client.release();
+    }
+  } catch (error) {
+    console.error('Support contact error:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Failed to submit support request' 
+    });
+  }
+});
 
 // Start server (only in development)
 // Error handling middleware (must be last)

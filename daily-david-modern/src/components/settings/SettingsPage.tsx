@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Card } from '../ui/Card';
 import { SMSSettings } from './SMSSettings';
+import { SupportForm } from '../support';
 
-type SettingsTab = 'sms' | 'profile' | 'notifications';
+type SettingsTab = 'sms' | 'profile' | 'notifications' | 'support';
 
 export const SettingsPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<SettingsTab>('sms');
@@ -11,7 +12,8 @@ export const SettingsPage: React.FC = () => {
   const tabs = [
     { id: 'sms' as SettingsTab, label: '📱 SMS Notifications', icon: '📱' },
     { id: 'profile' as SettingsTab, label: '👤 Profile', icon: '👤' },
-    { id: 'notifications' as SettingsTab, label: '🔔 Notifications', icon: '🔔' }
+    { id: 'notifications' as SettingsTab, label: '🔔 Notifications', icon: '🔔' },
+    { id: 'support' as SettingsTab, label: '💬 Support', icon: '💬' }
   ];
 
   const renderTabContent = () => {
@@ -32,6 +34,8 @@ export const SettingsPage: React.FC = () => {
             <p className="text-slate-300">Additional notification settings coming soon...</p>
           </Card>
         );
+      case 'support':
+        return <SupportForm />;
       default:
         return null;
     }
