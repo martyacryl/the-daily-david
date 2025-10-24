@@ -6,6 +6,7 @@ import { Input } from '../ui/Input';
 import { Textarea } from '../ui/Textarea';
 import { Mail, Send, CheckCircle } from 'lucide-react';
 import { API_BASE_URL } from '../../config/api';
+import { useAuthStore } from '../../stores/authStore';
 
 interface SupportFormData {
   subject: string;
@@ -14,6 +15,7 @@ interface SupportFormData {
 }
 
 export const SupportForm: React.FC = () => {
+  const { token } = useAuthStore();
   const [formData, setFormData] = useState<SupportFormData>({
     subject: '',
     message: '',
@@ -36,7 +38,12 @@ export const SupportForm: React.FC = () => {
     }
 
     try {
-      const token = localStorage.getItem('token');
+      if (!token) {
+        setError('You must be logged in to submit a support request');
+        setIsSubmitting(false);
+        return;
+      }
+
       const response = await fetch(`${API_BASE_URL}/api/support/contact`, {
         method: 'POST',
         headers: {
