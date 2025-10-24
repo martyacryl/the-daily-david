@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Card } from '../ui/Card';
 import { SMSSettings } from './SMSSettings';
@@ -8,6 +9,16 @@ type SettingsTab = 'sms' | 'profile' | 'notifications' | 'support';
 
 export const SettingsPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<SettingsTab>('sms');
+  const location = useLocation();
+
+  // Check for tab query parameter on mount
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const tab = params.get('tab');
+    if (tab === 'support' || tab === 'sms' || tab === 'profile' || tab === 'notifications') {
+      setActiveTab(tab as SettingsTab);
+    }
+  }, [location.search]);
 
   const tabs = [
     { id: 'sms' as SettingsTab, label: '📱 SMS Notifications', icon: '📱' },

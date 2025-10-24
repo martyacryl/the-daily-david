@@ -2,6 +2,7 @@
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom'
 import { useEffect } from 'react'
 import { Header } from './components/layout/Header'
+import { Footer } from './components/layout/Footer'
 import { Dashboard } from './components/dashboard/Dashboard'
 import { DailyEntry } from './components/daily/DailyEntry'
 import { SOAPReview } from './components/review/SOAPReview'
@@ -65,6 +66,7 @@ function App() {
                 <main className="container mx-auto px-4 py-8 pt-24 min-h-screen">
                   <Dashboard />
                 </main>
+                <Footer />
               </>
             } />
             <Route path="/daily" element={
@@ -73,6 +75,7 @@ function App() {
                 <main className="container mx-auto px-4 py-8 pt-24 min-h-screen">
                   <DailyEntry />
                 </main>
+                <Footer />
               </>
             } />
             <Route path="/review" element={
@@ -81,6 +84,7 @@ function App() {
                 <main className="container mx-auto px-4 py-8 pt-24 min-h-screen">
                   <SOAPReview />
                 </main>
+                <Footer />
               </>
             } />
             <Route path="/sermon-notes" element={
@@ -89,6 +93,7 @@ function App() {
                 <main className="container mx-auto px-4 py-8 pt-24 min-h-screen">
                   <SermonNotesPage />
                 </main>
+                <Footer />
               </>
             } />
             <Route path="/prayer" element={
@@ -97,6 +102,7 @@ function App() {
                 <main className="container mx-auto px-4 py-8 pt-24 min-h-screen">
                   <PrayerRequestsList />
                 </main>
+                <Footer />
               </>
             } />
             <Route path="/admin" element={
@@ -105,6 +111,7 @@ function App() {
                 <main className="container mx-auto px-4 py-8 pt-24 min-h-screen">
                   <ProtectedAdminRoute dbManager={dbManager} />
                 </main>
+                <Footer />
               </>
             } />
             <Route path="/analytics" element={
@@ -113,6 +120,7 @@ function App() {
                 <main className="container mx-auto px-4 py-8 pt-24 min-h-screen">
                   <ProgressAnalytics />
                 </main>
+                <Footer />
               </>
             } />
             <Route path="/settings" element={
@@ -121,6 +129,7 @@ function App() {
                 <main className="container mx-auto px-4 py-8 pt-24 min-h-screen">
                   <SettingsPage />
                 </main>
+                <Footer />
               </>
             } />
           </Routes>
