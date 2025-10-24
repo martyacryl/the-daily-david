@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Card } from '../ui/Card';
 import { SMSSettings } from './SMSSettings';
-import { SupportFormTest } from '../support/SupportFormTest';
+import { SupportForm } from '../support';
 
 type SettingsTab = 'sms' | 'profile' | 'notifications' | 'support';
 
@@ -35,7 +35,7 @@ export const SettingsPage: React.FC = () => {
           </Card>
         );
       case 'support':
-        return <SupportFormTest />;
+        return <SupportForm />;
       default:
         return null;
     }
