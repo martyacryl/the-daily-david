@@ -1,16 +1,15 @@
-const { Resend } = require('resend');
+const nodemailer = require('nodemailer');
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-const supportEmail = process.env.SUPPORT_EMAIL || 'onboarding@resend.dev';
+const supportEmail = process.env.SUPPORT_EMAIL || 'dailydavidapp@gmail.com';
 
 class EmailService {
   constructor() {
-    this.isConfigured = !!process.env.RESEND_API_KEY;
+    this.isConfigured = !!(process.env.GMAIL_USER && process.env.GMAIL_PASS);
     
     if (!this.isConfigured) {
-      console.log('⚠️  Email service not configured. Set RESEND_API_KEY environment variable.');
+      console.log('⚠️  Email service not configured. Set GMAIL_USER and GMAIL_PASS environment variables.');
     } else {
-      console.log('✅ Email service configured');
+      console.log('✅ Email service configured with Gmail SMTP');
     }
   }
 
@@ -21,9 +20,18 @@ class EmailService {
     }
 
     try {
-      const data = await resend.emails.send({
-        from: 'Daily David Support <noreply@resend.dev>',
-        to: [supportEmail],
+      // Create Gmail SMTP transporter
+      const transporter = nodemailer.createTransporter({
+        service: 'gmail',
+        auth: {
+          user: process.env.GMAIL_USER,
+          pass: process.env.GMAIL_PASS
+        }
+      });
+
+      const mailOptions = {
+        from: `Daily David Support <${process.env.GMAIL_USER}>`,
+        to: supportEmail,
         subject: `[${category.toUpperCase()}] ${subject}`,
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -44,11 +52,12 @@ class EmailService {
             </div>
           </div>
         `,
-        reply_to: userEmail
-      });
+        replyTo: userEmail
+      };
 
-      console.log('✅ Support email sent successfully:', data.id);
-      return { success: true, messageId: data.id };
+      const info = await transporter.sendMail(mailOptions);
+      console.log('✅ Support email sent successfully:', info.messageId);
+      return { success: true, messageId: info.messageId };
     } catch (error) {
       console.error('❌ Email send failed:', error.message);
       return { success: false, error: error.message };
