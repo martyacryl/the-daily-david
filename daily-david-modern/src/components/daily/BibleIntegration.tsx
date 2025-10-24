@@ -197,6 +197,13 @@ export const BibleIntegration: React.FC<BibleIntegrationProps> = ({
   const handleClearVerseSelection = () => {
     // Clear the fetched verses
     setFetchedVerses([]);
+    // Reset all form fields to default state
+    setSelectedBook('GEN');
+    setSelectedChapter('');
+    setSelectedVerseStart('');
+    setSelectedVerseEnd('');
+    setAvailableChapters([]);
+    setAvailableVerses([]);
     // Clear the selected verse in parent component
     onVerseSelect({
       id: '',
