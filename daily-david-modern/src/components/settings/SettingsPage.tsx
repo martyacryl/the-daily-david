@@ -2,26 +2,26 @@ import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Card } from '../ui/Card';
-import { SMSSettings } from './SMSSettings';
+import { ProfileSettings } from './ProfileSettings';
 import { SupportForm } from '../support';
 
-type SettingsTab = 'sms' | 'profile' | 'notifications' | 'support';
+type SettingsTab = 'profile' | 'notifications' | 'support';
 
 export const SettingsPage: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<SettingsTab>('sms');
+  const [activeTab, setActiveTab] = useState<SettingsTab>('profile');
   const location = useLocation();
 
   // Check for tab query parameter on mount
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const tab = params.get('tab');
-    if (tab === 'support' || tab === 'sms' || tab === 'profile' || tab === 'notifications') {
+    if (tab === 'support' || tab === 'profile' || tab === 'notifications') {
       setActiveTab(tab as SettingsTab);
     }
+    // If tab is 'sms' or invalid, default to 'profile'
   }, [location.search]);
 
   const tabs = [
-    { id: 'sms' as SettingsTab, label: '📱 SMS Notifications', icon: '📱' },
     { id: 'profile' as SettingsTab, label: '👤 Profile', icon: '👤' },
     { id: 'notifications' as SettingsTab, label: '🔔 Notifications', icon: '🔔' },
     { id: 'support' as SettingsTab, label: '💬 Support', icon: '💬' }
@@ -29,15 +29,8 @@ export const SettingsPage: React.FC = () => {
 
   const renderTabContent = () => {
     switch (activeTab) {
-      case 'sms':
-        return <SMSSettings />;
       case 'profile':
-        return (
-          <Card className="p-6 bg-slate-800/80 backdrop-blur-sm border-slate-700">
-            <h2 className="text-2xl font-bold text-white mb-4">👤 Profile Settings</h2>
-            <p className="text-slate-300">Profile settings coming soon...</p>
-          </Card>
-        );
+        return <ProfileSettings />;
       case 'notifications':
         return (
           <Card className="p-6 bg-slate-800/80 backdrop-blur-sm border-slate-700">

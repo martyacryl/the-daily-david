@@ -1143,6 +1143,42 @@ app.get('/api/user/settings', authenticateToken, async (req, res) => {
   }
 })
 
+// Get user profile
+app.get('/api/user/profile', authenticateToken, async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    
+    const client = await pool.connect();
+    try {
+      const result = await client.query(
+        'SELECT id, email, display_name, is_admin, created_at FROM users WHERE id = $1',
+        [userId]
+      );
+      
+      if (result.rows.length === 0) {
+        return res.status(404).json({ success: false, error: 'User not found' });
+      }
+      
+      const user = result.rows[0];
+      res.json({
+        success: true,
+        profile: {
+          id: user.id,
+          email: user.email,
+          name: user.display_name,
+          role: user.is_admin ? 'admin' : 'user',
+          memberSince: user.created_at
+        }
+      });
+    } finally {
+      client.release();
+    }
+  } catch (error) {
+    console.error('Get profile error:', error);
+    res.status(500).json({ success: false, error: 'Failed to get profile' });
+  }
+});
+
 // Update user settings (general)
 app.put('/api/user/settings', authenticateToken, async (req, res) => {
   const client = await pool.connect()
