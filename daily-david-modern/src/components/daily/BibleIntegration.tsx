@@ -185,7 +185,7 @@ export const BibleIntegration: React.FC<BibleIntegrationProps> = ({
       reference = `${bookChapter}:${firstVerseNum}-${lastVerseNum}`;
     }
     
-    const content = verses.map(v => v.content).join(' ');
+    const content = verses.map(v => `${v.reference.split(':')[1]} ${v.content}`).join(' ');
     onVerseSelect({
       id: 'selected',
       reference: reference,
@@ -332,9 +332,16 @@ export const BibleIntegration: React.FC<BibleIntegrationProps> = ({
               Clear
             </Button>
           </div>
-          <p className="text-slate-200 mb-4 leading-relaxed">
-            {fetchedVerses.map(v => v.content).join(' ')}
-          </p>
+          <div className="space-y-3 mb-4">
+            {fetchedVerses.map((verse) => (
+              <div key={verse.verseId} className="text-slate-200 leading-relaxed text-base">
+                <span className="text-green-400 font-semibold text-sm">
+                  {verse.reference.split(':')[1]} 
+                </span>
+                <span className="ml-2">{verse.content}</span>
+              </div>
+            ))}
+          </div>
           <Button 
             onClick={() => handleInsertVerse(fetchedVerses)}
             className="w-full bg-green-600 hover:bg-green-700"

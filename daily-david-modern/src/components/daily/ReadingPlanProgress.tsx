@@ -39,11 +39,6 @@ export const ReadingPlanProgress: React.FC<ReadingPlanProgressProps> = ({
 }) => {
   const [isExpanded, setIsExpanded] = useState(false)
 
-  console.log('🔥 ReadingPlanProgress received readingPlan:', readingPlan)
-  console.log('🔥 completedDays:', readingPlan.completedDays)
-  console.log('🔥 completedDays.length:', readingPlan.completedDays?.length)
-  console.log('🔥 totalDays:', readingPlan.totalDays)
-
   const progressPercentage = (readingPlan.completedDays.length / readingPlan.totalDays) * 100
   const daysRemaining = readingPlan.totalDays - readingPlan.completedDays.length
 
