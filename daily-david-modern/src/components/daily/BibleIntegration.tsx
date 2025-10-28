@@ -185,7 +185,7 @@ export const BibleIntegration: React.FC<BibleIntegrationProps> = ({
       reference = `${bookChapter}:${firstVerseNum}-${lastVerseNum}`;
     }
     
-    const content = verses.map(v => `${v.reference.split(':')[1]} ${v.content}`).join(' ');
+    const content = verses.map(v => `${v.reference.split(':')[1]} ${v.content}`).join('\n\n');
     onVerseSelect({
       id: 'selected',
       reference: reference,
